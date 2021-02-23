@@ -1,0 +1,31 @@
+INSTALLDIR=/home/uhlrich/.local
+
+CC  = gcc-7
+CXX = g++-7
+FC  = gfortran-7
+CXXDEBUG = $(CXX) -g
+CXXFLAGS = -std=c++17 -Wall -Wextra -Wpedantic -Wfatal-errors -fPIC
+
+SRCDIR = src
+OBJDIR = obj
+LIBDIR = lib
+
+SRC = $(wildcard $(SRCDIR)/*.cpp)
+OBJ = $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o) 
+OBJDEBUG = $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%_debug.o) 
+
+INCPATH = -Iinclude -I../include -I../../grafed/include\
+	  -I../../jsonparser/include -I../../csl/include
+
+
+all: $(OBJ) $(OBJDEBUG)
+
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
+	$(CXX) $(CXXFLAGS) $(INCPATH) -c $^ -o $@ 
+$(OBJDIR)/%_debug.o: $(SRCDIR)/%.cpp
+	$(CXXDEBUG) $(CXXFLAGS) $(INCPATH) -c $^ -o $@ 
+
+.PHONY: clean
+clean:
+	rm $(OBJDIR)/*.o
+	rm $(LIBDIR)/*

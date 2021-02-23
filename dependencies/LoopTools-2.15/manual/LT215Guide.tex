@@ -1,0 +1,2617 @@
+\documentclass[twoside,12pt]{report}
+\usepackage{a4wide,array,epsfig,amsmath,amssymb,axodraw,makeidx,calc,alltt,mathpple}
+
+\makeindex
+\def\indextt#1{\index{#1@{\tt#1}}}
+
+\renewcommand\bibname{References}
+\renewcommand{\baselinestretch}{1.2}
+\renewcommand{\arraystretch}{1.2}
+\renewcommand{\tabcolsep}{8pt}
+\renewcommand{\arraycolsep}{8pt}
+\renewcommand{\theenumi}{\alph{enumi}}
+\renewcommand{\labelenumi}{\theenumi)\,}
+\advance\footnotesep 4pt
+\def\thefootnote{\fnsymbol{footnote}}
+\parskip=4pt
+\parindent=0pt
+\pagestyle{headings}
+\raggedbottom
+\sloppy
+
+\makeatletter
+
+% from report.cls:
+\def\@makechapterhead#1{%
+%  \vspace*{50\p@}%
+  {\parindent \z@ \raggedright \normalfont
+    \ifnum \c@secnumdepth >\m@ne
+        \Huge\bfseries \thechapter~~~
+%        \par\nobreak
+%        \vskip 20\p@
+    \fi
+    \interlinepenalty\@M
+    \Huge \bfseries #1\par\nobreak
+    \vskip 20\p@
+  }}
+\def\@makeschapterhead#1{%
+%  \vspace*{50\p@}%
+  {\parindent \z@ \raggedright
+    \normalfont
+    \interlinepenalty\@M
+    \Huge \bfseries  #1\par\nobreak
+    \vskip 20\p@
+  }}
+
+\def\bbox{\vskip .5\baselineskip\par
+  \newbox\grey\setbox\grey=\vbox\bgroup\ignorespaces}
+\def\ebox{\egroup%
+  \hbox{%
+    \special{ps: gsave
+      initmatrix currentpoint translate 1 65781 div dup scale % 1bp = 65781sp
+      newpath
+      0 -\number\dp\grey\space moveto
+      \number\wd\grey\space dup dup 0 rlineto
+      \number\ht\grey\space lineto
+      neg 0 rlineto
+      closepath
+      gsave .9 setgray fill grestore
+      0 setlinewidth stroke
+      grestore}%
+    \box\grey}%
+  \vskip .5\baselineskip\par}
+
+\def\greyed#1{\special{ps: .7 setgray}#1\special{ps: 0 setgray}}
+
+\def\oldcr#1{\let\temp=\\#1\let\\=\temp}
+\def\biitab{\bbox%
+  \begin{tabular}{>{\oldcr\raggedleft\hspace{0pt}}p{.35\linewidth}%
+                  >{\oldcr\raggedright\hspace{0pt}}p{.57\linewidth}}}
+\def\biiitab#1{\bbox%
+  \hspace*{5pt}
+  \begin{tabular}{>{\oldcr\raggedright\hspace{0pt}}p{.235\linewidth}%
+                  >{\oldcr\raggedright\hspace{0pt}}p{.185\linewidth}%
+                  >{\oldcr\raggedright\hspace{0pt}}p{.44\linewidth}}
+  {\it #1} & {\it default value} \\ \hline}
+\def\etab{\end{tabular}\ebox}
+
+\let\dots\textellipsis
+\def\FA{\textit{FeynArts}}
+\def\FC{\textit{FormCalc}}
+\def\FO{\textit{FORM}}
+\def\FF{\textit{FF}}
+\def\LT{\textit{LoopTools}}
+\def\mma{{\it Mathematica}}
+\def\limfunc#1{\mathop{\rm #1}}
+\def\Re{\limfunc{Re}}
+\def\Retilde{\limfunc{\widetilde{Re}}}
+\def\unity{{\rm 1\mskip-4.25mu l}}
+\def\ie{i.e.\ }
+\def\eg{e.g.\ }
+\def\lbrac{\symbol{123}}
+\def\rbrac{\symbol{125}}
+\def\uscore{\symbol{95}}
+\def\home{\symbol{126}}
+\def\power{\symbol{94}}
+\def\i{{\rm i}}
+\def\d{{\rm d}}
+\def\M{{\cal M}}
+\def\O{{\cal O}}
+\def\mmin{\ensuremath{m_{\mathrm{min}}^2}}
+\def\zeroeps{\ensuremath{\varepsilon_{\mathrm{zero}}}}
+\def\diffeps{\ensuremath{\varepsilon_{\mathrm{diff}}}}
+
+\def\Code#1{\ensuremath{\texttt{#1}}}
+%\def\Code#1{\ensuremath{\texttt{\Red{#1}}}}
+\def\Name#1{\ensuremath{\textit{\rmfamily #1}}}
+%\def\Name#1{\ensuremath{\textit{\rmfamily\Green{#1}}}}
+\def\Var#1{\ensuremath{\mathit{#1}}}
+%\def\Var#1{\ensuremath{\mathit{\Blue{#1}}}}
+\def\Va{\Var{a}}
+\def\Vb{\Var{b}}
+\def\Vc{\Var{c}}
+\def\Vcp{\Var{c'}}
+\def\Vd{\Var{d}}
+\def\Ve{\Var{e}}
+\def\Vf{\Var{f}}
+\def\Vg{\Var{g}}
+\def\Vgp{\Var{g'}}
+\def\Vh{\Var{h}}
+\def\Vi{\Var{i}}
+\def\Vl{\Var{l}}
+\def\Vm{\Var{m}}
+\def\Vn{\Var{n}}
+\def\Vnp{\Var{n'}}
+\def\Vo{\Var{o}}  
+\def\Vp{\Var{p}}
+\def\Vr{\Var{r}}
+\def\Vs{\Var{s}}
+\def\Vsp{\Var{s'}}
+\def\Vt{\Var{t}}
+\def\Vv{\Var{v}}
+\def\Vmu{\Var{\mu}}
+\def\Vnu{\Var{\nu}}
+
+\hyphenation{Feyn-Arts}
+
+\begin{document}
+
+\thispagestyle{empty}
+
+\vspace*{.7\textheight}
+
+\hfill\hbox{\underline{%
+\vrule width 0pt height 0pt depth 2ex%
+\Huge \LT~2.15~~~User's Guide}}
+
+\vspace*{1ex}
+
+\hfill\hbox{April 19, 2018~~~~~Thomas Hahn}
+
+\clearpage
+
+\vspace*{.5\textheight}
+\vfill
+
+\hrule
+
+\medskip
+
+\begin{scriptsize}
+The dreadful legal stuff:
+\LT\ is free software, but is not in the public domain.
+Instead it is covered by the GNU library general public license.
+In plain English this means:
+
+1) We don't promise that this software works.   
+(But if you find any bugs, please let us know!)
+
+2) You can use this software for whatever you want.
+You don't have to pay us.
+
+3) You may not pretend that you wrote this software.
+If you use it in a program, you must acknowledge
+somewhere in your publication that you've used  
+our code.
+
+If you're a lawyer, you will rejoice at the exact wording of the license 
+at \Code{http://gnu.org/licenses/lgpl.html}.
+
+\LT\ is available from \Code{http://feynarts.de/looptools}.
+
+\FC\ is available from \Code{http://feynarts.de/formcalc}.
+
+\FA\ is available from \Code{http://feynarts.de}.
+
+\FF\ is available from \Code{http://gjvo.home.xs4all.nl/FF.html}.
+
+If you make this software available to others please provide them with
+this manual, too.
+
+If you find any bugs, or want to make suggestions, or just write fan mail,
+address it to:
+\vspace*{-2ex}
+\begin{quote}
+Thomas Hahn \\
+Max-Planck-Institut f\"ur Physik \\
+(Werner-Heisenberg-Institut) \\
+F\"ohringer Ring 6 \\
+D--80805 Munich, Germany \\
+e-mail: \Code{hahn@feynarts.de}
+\end{quote}
+\end{scriptsize}
+
+\clearpage
+
+\tableofcontents
+
+\clearpage
+
+\chapter{\LT}
+
+\LT\ is a package for evaluation of scalar and tensor one-loop integrals
+based on the \FF\ package by G.J.~van~Oldenborgh \cite{vOV90}.  It provides
+the actual numerical implementations of the functions appearing in \FC\
+output.  These are the scalar one-loop functions of \FF\ and the 2-, 3-, 
+4-, and 5-point tensor-coefficient functions in the conventions of
+\cite{De93}.  \LT\ offers three interfaces, Fortran, C/C++, and \mma, so 
+most programming tastes should be served.%
+\index{FF@\FF}%
+
+
+\section{Installation}
+
+\index{installation!\LT}%
+To compile the package, a Fortran compiler and the GNU C compiler 
+(\Code{gcc} or \Code{clang}) are required.
+
+\LT\ comes in a compressed tar archive \Code{LoopTools-2.12.tar.gz}. 
+Execute the following commands to unpack and compile the package.
+\bbox
+\begin{verbatim}
+   gunzip -c LoopTools-2.12.tar.gz | tar xvf -
+   cd LoopTools-2.12
+   ./configure
+   make
+   make install
+   make clean
+\end{verbatim}
+\ebox
+The \Code{configure} script finds out the necessary system information 
+for the compilation.  \Code{make} then makes the following objects in
+the \Code{LoopTools/\Var{hosttype}} directory:
+\begin{tabbing}
+\rlap{\Code{lib/libooptools.a}}\hspace{.3\linewidth} \=
+	the \LT\ library \\
+\Code{include/looptools.h} \>
+	the include file for Fortran \\
+\Code{include/clooptools.h} \>
+	the include file for C/C++ \\
+\Code{bin/lt} \>
+	the LoopTools command-line executable \\
+\Code{bin/fcc} \>
+	a script to aid C/C++ compilation \\
+\Code{bin/LoopTools} \>
+	the MathLink executable
+\end{tabbing}
+Use ``\Code{make lib}'' to build only the library part (without the
+MathLink executable).
+
+\pagebreak
+
+The resulting directory structure is
+\begin{tabbing}
+\rlap{\Code{LoopTools/}}\hspace{.3\linewidth} \=
+	the \LT\ directory \\
+\Code{\greyed{LoopTools/}src/} \>
+	directory of the source files \\
+\Code{\greyed{LoopTools/}build/} \>
+	(temporary) directory for object files (after \Code{make}) \\
+\Code{\greyed{LoopTools/}\Var{hosttype}/} \>
+	directory for programs and libraries (after \Code{make install}) 
+\end{tabbing}
+
+\index{hosttype}%
+The \Var{hosttype} is a string identifying the system, \eg 
+\Code{i686-Linux} or \Code{alpha-OSF1}.  Its purpose as a directory 
+name is to separate the binaries for different platforms.  To see what 
+its value is on your system, type the following command at the shell 
+prompt:
+\begin{verbatim}
+   echo `uname -m`-`uname -s`
+\end{verbatim}
+
+In contrast to the original \FF\ library, the \LT\ libraries and
+executables depend on no additional files (error message catalogues etc.),
+so they may be installed in some `public' place instead of
+\Code{LoopTools/\Var{hosttype}}.  To this end, configure with \eg
+\begin{verbatim}
+  ./configure --prefix=/usr/local
+\end{verbatim}
+whereupon \Code{make install} will put the libraries, include files,
+and executables in \Code{/usr/local/lib}, \Code{include}, and
+\Code{bin}, respectively.  (Note: To write on \Code{/usr/local}, 
+superuser privileges are usually required.)
+
+
+\clearpage
+
+\section{One-Loop Integrals}
+\label{sect:loopint}
+
+\index{momenta!conventions for}%
+Consider the following general one-loop diagram.
+\begin{center}
+\unitlength=1bp%
+\begin{picture}(130,125)(0,0)
+\ArrowLine(5,10)(30,30)
+\ArrowLine(5,115)(30,95)
+\ArrowLine(120,115)(95,95)
+\ArrowLine(120,10)(95,30)
+\ArrowLine(95,30)(30,30)
+\ArrowLine(30,30)(30,95)
+\ArrowLine(30,95)(95,95)
+\Vertex(30,30){2}
+\Vertex(30,95){2}
+\Vertex(95,30){2}
+\Vertex(95,95){2}
+\multiput(95,44)(0,17){3}{\makebox(0,0){$.$}}
+\Text(0,115)[r]{$p_1$}
+\Text(125,115)[l]{$p_2$}
+\Text(125,7)[l]{$p_{N - 1}$}
+\Text(0,7)[r]{$p_N$}
+\Text(23,62)[r]{$q$}
+\Text(62,100)[b]{$q + k_1$}
+\Text(62,25)[t]{$q + k_{N - 1}$}
+\Text(36,62)[l]{$m_1$}
+\Text(62,90)[t]{$m_2$}
+\Text(62,35)[b]{$m_N$}
+\end{picture}
+\end{center}
+The integral contained in this diagram is
+\begin{align}
+\label{eq:1loopint}%\tag{$*$}
+T_{\mu_1\ldots\mu_P}^N &=
+\frac{\mu^{4 - D}}{\i\pi^{D/2}\,r_\Gamma}
+%\frac{(2\pi\mu)^{4 - D}}{\i\pi^2}
+\int\d^Dq\,
+\frac{q_{\mu_1}\cdots q_{\mu_P}}
+  {\bigl[q^2 - m_1^2\bigr]\,
+   \bigl[(q + k_1)^2 - m_2^2\bigr] \cdots
+   \bigl[(q + k_{N - 1})^2 - m_N^2\bigr]} \\[1ex]
+\notag
+r_\Gamma &= \frac{\Gamma^2(1 - \varepsilon)\Gamma(1+\varepsilon)}
+  {\Gamma(1 - 2\varepsilon)}\,,
+\quad D = 4 - 2\varepsilon\,,
+\end{align}
+where the momenta $k_i$ that appear in the denominators are related to
+the external momenta $p_i$ as
+\begin{equation}
+\label{eq:ptok}
+\begin{aligned}
+p_1 &= k_1\,, & \qquad
+p_2 &= k_2 - k_1\,, & \qquad
+\ldots && \qquad
+p_N &= k_N - k_{N - 1}\,, \\
+k_1 &= p_1\,, &
+k_2 &= p_1 + p_2\,, &
+\ldots &&
+k_N &= \sum_{i=1}^N p_i\,.
+\end{aligned}
+\end{equation}
+The representation given in \eqref{eq:1loopint} is correct for 
+dimensional regularization or dimensional reduction.  (In the latter case 
+the integrals are kept $D$-dimensional although the rest of the algebra 
+is performed in 4 dimensions.)  $\mu$ plays the r\^ole of a 
+renormalization scale that keeps track of the correct dimension of the 
+integral in $D$ space--time dimensions. In constrained differential 
+renormalization the mass scale enters in a conceptually different way; 
+however, the dependence of the one-loop integrals on $\mu$ is the same 
+as for dimensional regularization (for details see \cite{HaP98}).%
+\index{renormalization scale}%
+
+The denominators arise from the propagators running in the loop.
+$P$, the number of $q$'s in the numerator, determines the Lorentz tensor
+structure of the whole integral, \ie $P = 0$ denotes a scalar integral,
+$P = 1$ a vector integral, etc.  From the definition it is obvious that the
+integrals are symmetric under permutation of the Lorentz indices.  The
+$q$'s in the numerator arise typically from fermion propagators or from
+vertices that correspond to terms with derivatives in the Lagrangian.%
+\index{tensor structure}%
+
+The nomenclature is $A$ for $T^1$, $B$ for $T^2$, etc.  The scalar
+integrals are denoted by a subscripted zero: $A_0$, $B_0$, etc.
+
+
+\subsection{Tensor Coefficients}
+
+\index{tensor coefficients}%
+\index{Lorentz-covariant tensors}%
+The integrals with a tensor structure can be reduced to linear
+combinations of Lorentz-covariant tensors constructed from the metric
+tensor $g_{\mu\nu}$ and a linearly independent set of the momenta
+\cite{PaV79}.  The choice of this basis is not unique.
+
+\index{decomposition}%
+\LT\ provides not the tensor integrals themselves, but the coefficients of
+these Lorentz-covariant tensors.  It works in a basis formed from
+$g_{\mu\nu}$ and the momenta $k_i$, which are the sums of the external
+momenta $p_i$ (see Eq.\ (\ref{eq:ptok})) \cite{De93}.  In this basis
+the tensor-coefficient functions are totally symmetric in their indices.
+For the integrals up to the four-point function the decomposition reads
+explicitly
+\begin{align*}
+B_\mu &=
+	k_{1\mu} B_1\,,
+	\displaybreak[0] \\
+B_{\mu\nu} &=
+	g_{\mu\nu} B_{00} + k_{1\mu} k_{1\nu} B_{11}\,,
+	\displaybreak[0] \\[1ex]
+C_\mu &=
+	k_{1\mu} C_1 + k_{2\mu} C_2 = \sum_{i=1}^2 k_{i\mu} C_i\,,
+	\displaybreak[0] \\
+C_{\mu\nu} &=
+	g_{\mu\nu} C_{00} + \sum_{i,j=1}^2 k_{i\mu} k_{j\nu} C_{ij}\,,
+	\displaybreak[0] \\
+C_{\mu\nu\rho} &=
+	\sum_{i=1}^2 \bigl(
+	g_{\mu\nu} k_{i\rho}
+	+ g_{\nu\rho} k_{i\mu}
+	+ g_{\mu\rho} k_{i\nu}\bigr) C_{00i}+
+	\sum_{i,j,\ell=1}^2 k_{i\mu} k_{j\nu} k_{\ell\rho} C_{ij\ell}\,,
+	\displaybreak[0] \\[1ex]
+D_\mu &=
+	\sum_{i=1}^3 k_{i\mu} D_i\,,
+	\displaybreak[0] \\
+D_{\mu\nu} &=
+	g_{\mu\nu} D_{00} + \sum_{i,j=1}^3 k_{i\mu} k_{j\nu} D_{ij}\,,
+	\displaybreak[0] \\
+D_{\mu\nu\rho} &=
+	\sum_{i=1}^3\bigl(
+	g_{\mu\nu} k_{i\rho}
+	+ g_{\nu\rho} k_{i\mu}
+	+ g_{\mu\rho} k_{i\nu}\bigr) D_{00i}
+	+ \sum_{i,j,\ell=1}^3 k_{i\mu} k_{j\nu} k_{\ell\rho} D_{ij\ell}\,,
+	\displaybreak[0] \\
+D_{\mu\nu\rho\sigma} &=
+	(g_{\mu\nu} g_{\rho\sigma}
+	+ g_{\mu\rho} g_{\nu\sigma}
+	+ g_{\mu\sigma} g_{\nu\rho}) D_{0000} \\
+	& \hphantom{=} + \sum_{i,j=1}^3 \bigl(
+	g_{\mu\nu} k_{i\rho} k_{j\sigma}
+	+ g_{\nu\rho} k_{i\mu} k_{j\sigma}
+	+ g_{\mu\rho} k_{i\nu} k_{j\sigma} \\[-1.5ex]
+	& \hphantom{=+\sum_{i,j=1}^3\bigl(\,}
+	+ g_{\mu\sigma} k_{i\nu} k_{j\rho}
+	+ g_{\nu\sigma} k_{i\mu} k_{j\rho}
+	+ g_{\rho\sigma} k_{i\mu} k_{j\nu}\bigr) D_{00ij} \\[-1ex]
+	& \hphantom{=} + \sum_{i,j,\ell,m=1}^3
+	k_{i\mu} k_{j\nu} k_{\ell\rho} k_{m\sigma} D_{ij\ell m}\,.
+\end{align*}
+Of all scalar and tensor-coefficient functions implemented in \LT, only 
+$A_0$, $B_0$, $B_1$, $B_{00}$, $B_{11}$, $B_{001}$, $B_{111}$, $B'_{00}$,
+the C coefficients with at least two indices zero, and the D coefficients
+with at least four indices zero are actually UV divergent.
+
+
+\subsection{Conventions for the Momenta}
+
+\index{momenta!conventions for}%
+A large source of mistakes is the way of specifying the momenta in the
+one-loop integrals.  The prime error in this respect is the confusion of
+the external momenta $p_i$ with the momenta $k_i$ appearing in the
+denominators, which are the sums of the $p_i$ (see Eq.\ (\ref{eq:ptok})).
+
+Consider for example the following diagram:
+\begin{center}
+\unitlength=1bp%
+\begin{picture}(155,140)(0,15)
+\ArrowLine(20,20)(40,40)
+\ArrowLine(20,140)(40,120)
+\ArrowLine(136,80)(105,80)
+\ArrowLine(40,40)(40,120)
+\ArrowLine(105,80)(40,40)
+\ArrowLine(40,120)(105,80)
+\Vertex(40,40){2}
+\Vertex(105,80){2}
+\Vertex(40,120){2}
+\Text(16,140)[br]{$p_1$}
+\Text(141,80)[cl]{$p_2$}
+\Text(16,20)[tr]{$p_3$}
+\Text(35,80)[cr]{$q$}
+\Text(75,102)[bl]{$q + k_1$}
+\Text(75,59)[tl]{$q + k_2$}
+\Text(44,80)[cl]{$m_1$}
+\Text(77,95)[tr]{$m_2$}
+\Text(77,65)[br]{$m_3$}
+\end{picture}
+\end{center}
+The three-point function corresponding to this diagram can be written
+either in terms of the external momenta as
+$$
+C\bigl(p_1^2, p_2^2, (p_1 + p_2)^2, m_1^2, m_2^2, m_3^2\bigr)
+$$
+or in terms of the momenta $k_i$ as
+$$
+C\bigl(k_1^2, (k_1 - k_2)^2, k_2^2, m_1^2, m_2^2, m_3^2\bigr)\,.
+$$
+In both cases the {\it same} function is called with the {\it same}
+arguments since of course $k_1 = p_1$ and $k_2 = p_1 + p_2$.  (The
+arguments are given in the conventions of \LT.)
+
+It is however important to realize that \LT\ functions like $C_1$ and
+$C_{112}$ are the coefficients respectively of $k_{1\mu}$ and $k_{1\mu}
+k_{1\nu} k_{2\rho}$, not of $p_{1\mu}$ and $p_{1\mu} p_{1\nu} p_{2\rho}$.
+
+%\pagebreak
+
+
+\section{Functions provided by \LT}
+
+The distinction in the following for real and complex arguments
+is for Fortran and C/C++ only.  Mathematica automatically chooses 
+the correct version.
+
+\indextt{nocache}%
+The uncached LoopTools functions are not thread-safe, which may be 
+rather dangerous in a concurrent environment as it can \emph{silently} 
+lead to wrong results.  Thread-safety has been achieved by serializing 
+cache writes through mutexes.  The scalar functions were moved into the 
+cache system to make them thread-safe.  The uncached versions (not 
+thread-safe) are still available in Fortran and C/C++ with a 
+`\Code{nocache}' epithet.
+
+
+\subsection{One-point function}
+
+\indextt{Aget}%
+\indextt{Aput}%
+\indextt{Aputnocache}%
+\indextt{A0i}%
+\indextt{A0}%
+\indextt{A00}%
+\begin{center}
+\begin{tabular}{|l|l|l|} \hline
+Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
+\Code{A0i(id, \Va)} & \Code{A0iC(id, \Va)} &
+	one-point tensor coefficient \Code{id} \\
+\Code{Aget(\Va)} & \Code{AgetC(\Va)} &
+	all one-point tensor coefficients \\
+\Code{Aput(res,\,\Va)} & \Code{AputC(res,\,\Va)} &
+	all one-point tensor coefficients \\
+\Code{Aputnocache(res,\,\Va)} & \Code{AputnocacheC(res,\,\Va)} &
+	all one-point tensor coefficients \\
+\textit{special cases of \Code{A0i}:} && \\
+\Code{A0(\Va)} & \Code{A0C(\Va)} &
+	one-point function \\
+\Code{A00(\Va)} & \Code{A00C(\Va)} &
+	coefficient of $g_{\mu\nu}$ \\
+\hline
+\multicolumn{3}{|l|}{$\Va = m^2$} \\[.5ex]
+\multicolumn{3}{|l|}{$\displaystyle
+\lower 17pt\hbox{%
+\unitlength=1bp%
+\begin{picture}(100,40)(20,20)
+\Line(20,40)(50,40)
+\CArc(70,40)(20,0,360)
+\Vertex(50,40){2}
+\Text(96,40)[cl]{$m$}
+\end{picture}}
+= ~\frac{\mu^{4 - D}}{\i\pi^{D/2}\,r_\Gamma}
+\int\frac{\text{(numerator)}~\d^D q}{q^2 - m^2}
+$} \\[3ex]
+\hline
+\end{tabular}
+\end{center}
+
+
+\subsection{Two-point functions}
+
+\indextt{Bget}%
+\indextt{Bput}%
+\indextt{Bputnocache}%
+\indextt{B0i}%
+\indextt{B0}%
+\indextt{B1}%
+\indextt{B00}%
+\indextt{B11}%
+\indextt{B001}%
+\indextt{B111}%
+\begin{center}
+\begin{tabular}{|l|l|l|} \hline
+Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
+\Code{B0i(id, \Va)} & \Code{B0iC(id, \Va)} &
+	two-point tensor coefficient \Code{id} \\
+\Code{Bget(\Va)} & \Code{BgetC(\Va)} &
+	all two-point tensor coefficients \\
+\Code{Bput(res,\,\Va)} & \Code{BputC(res,\,\Va)} &
+	all two-point tensor coefficients \\
+\Code{Bputnocache(res,\,\Va)} & \Code{BputnocacheC(res,\,\Va)} &
+	all two-point tensor coefficients \\
+\textit{special cases of \Code{B0i}:} && \\
+\Code{B0(\Va)} & \Code{B0C(\Va)} &
+	scalar two-point function \\
+\Code{B1(\Va)} & \Code{B1C(\Va)} &
+	coefficient of $p_\mu$ \\
+\Code{B00(\Va)} & \Code{B00C(\Va)} &
+	coefficient of $g_{\mu\nu}$ \\
+\Code{B11(\Va)} & \Code{B11C(\Va)} &
+	coefficient of $p_\mu p_\nu$ \\
+\Code{B001(\Va)} & \Code{B001C(\Va)} &
+	coefficient of $g_{\mu\nu} p_\rho$ \\
+\Code{B111(\Va)} & \Code{B111C(\Va)} &
+	coefficient of $p_\mu p_\nu p_\rho$ \\
+\hline
+\multicolumn{3}{|l|}{$\Va = p^2, m_1^2, m_2^2$} \\[1ex]
+\multicolumn{3}{|l|}{$\displaystyle
+\lower 29.5pt\hbox{%
+\unitlength=1bp%
+\begin{picture}(133,65)(10,8)
+\ArrowLine(20,40)(50,40)
+\ArrowLine(90,40)(120,40)
+\CArc(70,40)(20,0,360)
+\Vertex(50,40){2}
+\Vertex(90,40){2}
+\Text(16,38)[cr]{$p$}
+\Text(125,38)[cl]{$p$}
+\Text(72,63)[bc]{$m_1$}
+\Text(72,15)[tc]{$m_2$}
+\end{picture}}
+= \frac{\mu^{4 - D}}{\i\pi^{D/2}\,r_\Gamma}
+\int\frac{\text{(numerator)}~\d^D q}
+  {\bigl[q^2 - m_1^2\bigr]\,\bigl[(q + p)^2 - m_2^2\bigr]}
+$} \\[5ex]
+\hline
+\end{tabular}
+\end{center}
+
+
+\subsection{Derivatives of Two-point functions}
+
+\indextt{DB0}%
+\indextt{DB1}%
+\indextt{DB00}%
+\indextt{DB11}%
+\begin{center}
+\begin{tabular}{|l|l|l|} \hline
+Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
+\Code{B0i(id, \Va)} & \Code{B0iC(id, \Va)} &
+	two-point tensor coefficient \Code{id} \\
+\Code{Bget(\Va)} & \Code{BgetC(\Va)} &
+	all two-point tensor coefficients \\
+\Code{Bput(res,\,\Va)} & \Code{BputC(res,\,\Va)} &
+	all two-point tensor coefficients \\
+\Code{Bputnocache(res,\,\Va)} & \Code{BputnocacheC(res,\,\Va)} &
+	all two-point tensor coefficients \\
+\textit{special cases of \Code{B0i}:} && \\
+\Code{DB0(\Va)} & \Code{DB0C(\Va)} &
+	derivative of \Code{B0} \\
+\Code{DB1(\Va)} & \Code{DB1C(\Va)} &
+	derivative of \Code{B1} \\
+\Code{DB00(\Va)} & \Code{DB00C(\Va)} &
+	derivative of \Code{B00} \\
+\Code{DB11(\Va)} & \Code{DB11C(\Va)} &
+	derivative of \Code{B11} \\
+\Code{DB001(\Va)} & \Code{DB001C(\Va)} &
+	derivative of \Code{B001} \\
+\Code{DB111(\Va)} & \Code{DB111C(\Va)} &
+	derivative of \Code{B111} \\
+\hline
+\multicolumn{3}{|l|}{$\Va = p^2, m_1^2, m_2^2$\quad as above} \\
+\hline
+\end{tabular}
+\end{center}
+All derivatives are with respect to the momentum squared.  Note that
+the \Code{B0i}, \Code{Bget}, and \Code{Bput} coefficients include the 
+derivatives, so there is no \Code{DB0i}, \Code{DBget}, or \Code{DBput}.
+
+
+\subsection{Three-point functions}
+\label{sect:3pt}
+
+\indextt{C0}%
+\indextt{C0i}%
+\indextt{Cget}%
+\indextt{Cput}%
+\indextt{C0nocache}%
+\begin{center}
+\begin{tabular}{|l|l|l|} \hline
+Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
+\Code{C0i(id, \Va)} & \Code{C0iC(id, \Va)} &
+	three-point tensor coefficient \Code{id} \\
+\Code{Cget(\Va)} & \Code{CgetC(\Va)} &
+	all three-point tensor coefficients \\
+\Code{Cput(res,\,\Va)} & \Code{CputC(res,\,\Va)} &
+	all three-point tensor coefficients \\
+\Code{C0nocache(res,\,\Va)} & \Code{C0nocacheC(res,\,\Va)} &
+	scalar three-point function \\
+\textit{special case of \Code{C0i}:} && \\
+\Code{C0(\Va)} & \Code{C0C(\Va)} &
+	scalar three-point function \\
+\hline
+\multicolumn{3}{|l|}{$\Va = p_1^2, p_2^2, (p_1 + p_2)^2, m_1^2, m_2^2, m_3^2$} \\[1ex]
+\multicolumn{3}{|l|}{$\displaystyle
+\lower 67pt\hbox{%
+\unitlength=1bp%
+\begin{picture}(150,140)(5,10)
+\ArrowLine(20,20)(40,40)
+\ArrowLine(20,140)(40,120)
+\ArrowLine(136,80)(105,80)
+\Line(40,40)(40,120)
+\Line(105,80)(40,40)
+\Line(40,120)(105,80)
+\Vertex(40,40){2}
+\Vertex(105,80){2}
+\Vertex(40,120){2}
+\Text(16,140)[br]{$p_1$}
+\Text(141,78)[cl]{$p_2$}
+\Text(16,20)[tr]{$p_3$}
+\Text(36,80)[cr]{$m_1$}
+\Text(75,101)[bl]{$m_2$}
+\Text(75,58)[tl]{$m_3$}
+\end{picture}}
+~~= \frac{\mu^{4 - D}}{\i\pi^{D/2}\,r_\Gamma}
+\int\frac{\text{(numerator)}~\d^Dq}
+  {\begin{aligned}
+   \bigl[q^2 - &m_1^2\bigr]\,\bigl[(q + p_1)^2 - m_2^2\bigr] \\
+   & \bigl[(q + p_1 + p_2)^2 - m_3^2\bigr]
+   \end{aligned}}
+$} \\[12ex]
+\hline
+\end{tabular}
+\end{center}
+
+
+\subsection{Four-point functions}
+
+\indextt{D0}%
+\indextt{D0i}%
+\indextt{Dget}%
+\indextt{Dput}%
+\indextt{D0nocache}%
+\begin{center}
+\begin{tabular}{|l|l|l|} \hline
+Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
+\Code{D0i(id, \Va)} & \Code{D0iC(id, \Va)} &
+	four-point tensor coefficient \Code{id} \\
+\Code{Dget(\Va)} & \Code{DgetC(\Va)} &
+	all four-point tensor coefficients \\
+\Code{Dput(res,\,\Va)} & \Code{DputC(res,\,\Va)} &
+	all four-point tensor coefficients \\
+\Code{D0nocache(res,\,\Va)} & \Code{D0nocacheC(res,\,\Va)} &
+	scalar four-point function \\
+\textit{special case of \Code{D0i}:} && \\
+\Code{D0(\Va)} & \Code{D0C(\Va)} &
+	scalar four-point function \\
+\hline
+\multicolumn{3}{|l|}{$\Va = p_1^2, p_2^2, p_3^2, p_4^2,
+  (p_1 + p_2)^2, (p_2 + p_3)^2,
+  m_1^2, m_2^2, m_3^2, m_4^2$} \\[1ex]
+\multicolumn{3}{|l|}{$\displaystyle
+\lower 61pt\hbox{%
+\unitlength=1bp%
+\begin{picture}(140,125)(-10,0)
+\ArrowLine(5,10)(30,30)
+\ArrowLine(5,115)(30,95)
+\ArrowLine(120,115)(95,95)
+\ArrowLine(120,10)(95,30)
+\Line(95,30)(30,30)
+\Line(30,30)(30,95)
+\Line(30,95)(95,95)
+\Line(95,95)(95,30)
+\Vertex(30,30){2}
+\Vertex(30,95){2}
+\Vertex(95,30){2}
+\Vertex(95,95){2}
+\Text(0,115)[r]{$p_1$}
+\Text(125,115)[l]{$p_2$}
+\Text(125,7)[l]{$p_3$}
+\Text(0,7)[r]{$p_4$}
+\Text(25,62)[r]{$m_1$}
+\Text(62,100)[b]{$m_2$}
+\Text(100,62)[l]{$m_3$}
+\Text(62,24)[t]{$m_4$}
+\end{picture}}
+= \frac{\mu^{4 - D}}{\i\pi^{D/2}\,r_\Gamma}
+\int\frac{\text{(numerator)}~\d^Dq}
+  {\begin{aligned}
+   \bigl[q^2 &- m_1^2\bigr] \bigl[(q + p_1)^2 - m_2^2\bigr] \\
+   & \bigl[(q + p_1 + p_2)^2 - m_3^2\bigr] \\
+   & \bigl[(q + p_1 + p_2 + p_3)^2 - m_4^2\bigr]
+   \end{aligned}}
+$} \\[11ex]
+\hline
+\end{tabular}
+\end{center}
+
+
+\subsection{Five-point functions}
+
+\indextt{E0}%
+\indextt{E0i}%
+\indextt{Eget}%
+\indextt{Eput}%
+\indextt{E0nocache}%
+\begin{center}
+\begin{tabular}{|l|l|l|} \hline
+Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
+\Code{E0i(id, \Va)} & \Code{E0iC(id, \Va)} &
+	five-point tensor coefficient \Code{id} \\
+\Code{Eget(\Va)} & \Code{EgetC(\Va)} &
+	all five-point tensor coefficients \\
+\Code{Eput(res,\,\Va)} & \Code{EputC(res,\,\Va)} &
+	all five-point tensor coefficients \\
+\Code{E0nocache(res,\,\Va)} & \Code{E0nocacheC(res,\,\Va)} &
+	scalar five-point function \\
+\textit{special case of \Code{E0i}:} && \\
+\Code{E0(\Va)} & \Code{E0C(\Va)} &
+	scalar five-point function \\
+\hline
+\multicolumn{3}{|l|}{$\begin{aligned}
+  \Va = p_1^2, p_2^2, p_3^2, p_4^2, p_5^2,
+         (p_1 + p_2)^2, (p_2 + p_3)^2, (p_3 + p_4)^2,
+         (p_4 + p_5)^2, (&p_5 + p_1)^2, \\
+        &m_1^2, m_2^2, m_3^2, m_4^2, m_5^2
+\end{aligned}$} \\
+\multicolumn{3}{|l|}{$\displaystyle
+\lower 95pt\hbox{%
+\unitlength=1bp%
+\begin{picture}(160,152)(-10,-5)
+        \Line(70.,40.)(108.042,67.6393)
+        \ArrowLine(70.,12.)(70.,40.)
+        \Line(108.042,67.6393)(93.5114,112.361)
+        \ArrowLine(134.672,58.9868)(108.042,67.6393)
+        \Line(93.5114,112.361)(46.4886,112.361)
+        \ArrowLine(109.969,135.013)(93.5114,112.361)
+        \Line(46.4886,112.361)(31.9577,67.6393)
+        \ArrowLine(30.0306,135.013)(46.4886,112.361)
+        \Line(31.9577,67.6393)(70.,40.)
+        \ArrowLine(5.32816,58.9868)(31.9577,67.6393)
+        \Vertex(70.,40.){2}
+        \Vertex(108.042,67.6393){2}
+        \Vertex(93.5114,112.361){2}
+        \Vertex(46.4886,112.361){2}
+        \Vertex(31.9577,67.6393){2}
+        \Vertex(70.,40.){2}
+\Text(26,140)[r]{$p_1$}
+\Text(116,140)[l]{$p_2$}
+\Text(140,55)[l]{$p_3$}
+\Text(70,7)[t]{$p_4$}
+\Text(0,55)[r]{$p_5$}
+\Text(35,92)[r]{$m_1$}
+\Text(70,118)[b]{$m_2$}
+\Text(105,92)[l]{$m_3$}
+\Text(100,50)[t]{$m_4$}
+\Text(40,50)[t]{$m_5$}
+\end{picture}}
+= \frac{\mu^{4 - D}}{\i\pi^{D/2}\,r_\Gamma}
+\int\frac{\text{(numerator)}~\d^Dq}
+  {\begin{aligned}
+   \bigl[q^2 &- m_1^2\bigr] \bigl[(q + p_1)^2 - m_2^2\bigr] \\
+   & \bigl[(q + p_1 + p_2)^2 - m_3^2\bigr] \\
+   & \bigl[(q + p_1 + p_2 + p_3)^2 - m_4^2\bigr] \\
+   & \bigl[(q + p_1 + p_2 + p_3 + p_4)^2 - m_5^2\bigr]
+   \end{aligned}}
+$} \\[11ex]
+\hline
+\end{tabular}
+\end{center}
+
+
+\subsection{Tensor Functions}
+\index{cache}%
+\index{tensor functions}%
+
+The ``\Code{$N$0i}'' functions (\Code{B0i}, \Code{C0i}, etc.) are generic
+functions for all tensor coefficients of the respective $N$-point 
+function.  A specific coefficient is selected with the first argument
+(denoted \Code{id} in the following).  For example:
+$$
+\begin{aligned}
+\text{\Code{C0i(cc0,\,\dots)}} &= C_0(\ldots) \\
+\text{\Code{C0i(cc00,\,\dots)}} &= C_{00}(\ldots) \\
+\text{\Code{C0i(cc112,\,\dots)}} &= C_{112}(\ldots) \qquad \text{etc.}
+\end{aligned}
+$$
+The indices are symmetric and therefore the identifiers are assumed to be
+ordered, \ie there is only \Code{cc122} but not \Code{cc212}.
+
+\index{cache}%
+Internally, what happens when an \Code{$N$0i} is called is that actually
+\textit{all} $N$-point coefficients for the given set of momenta and
+masses are calculated.  This is because there are a lot of intermediate
+results which would have to be recalculated every time the function is 
+called for a different coefficient.  These coefficients are then of course 
+stored so that repeated calls to \Code{$N$0i} with the same set of 
+arguments will simply retrieve the value from memory.  So in a very real 
+sense the identifiers \Code{cc0}, \Code{cc001}, etc.\ can be thought of 
+as array indices (in fact, they are just integer constants to the compiler).  
+In an unoptimized program, the savings incurred by this mechanism can be 
+sizeable: typically 90\% of integrals requested can be retrieved from cache.
+
+The ``\Code{$N$get}'' functions (\Code{Bget}, \Code{Cget}, etc.) compute 
+all $N$-point coefficients together.  Their use is slightly more 
+involved (one needs to keep track of an extra index) but results in 
+faster code since only one cache lookup is needed, and not one for every 
+coefficient.
+
+The ``\Code{$N$put$[$nocache$]$}'' subroutines (\Code{Aput}, 
+\Code{Bput}, etc.) have the same functionality as the \Code{$N$get} 
+functions but allow the user control over the storage location, \ie the 
+first argument is a complex array of dimension \Code{Nbb}, \Code{Ncc}, 
+\dots\ into which the coefficients are stored.  This can be important 
+\eg for parallel execution.
+
+
+\subsection{Cache Mechanism}
+\index{cache}%
+\index{internal heap}%
+\index{flushing the cache}%
+\index{reset heap}
+
+The cache functionality of \LT\ has already been alluded to above
+and for small calculations, the cache is just transparent to the user.
+In large calculations, however, it is worthwhile to flush the cache
+at strategic places, to reduce lookup times and avoid memory overflows.
+
+For example, when computing a cross-section in a loop over the energy,
+it makes sense to flush the cache every time one moves to another
+energy.  Most loop integrals depend on the energy (and the few that 
+don't are not very time-consuming to compute), so chances are slim
+that any of the cache integrals can be recycled.
+
+Cache memory is actually never really `freed' but only marked as
+overwritable.  This is because, in a setup like above, every turn
+of the loop computes exactly the same number of integrals, so freeing
+and re-allocating the memory would just produce additional overhead.
+
+There are two ways to clear the cache.  To completely remove all
+integrals from the cache, execute
+\begin{verbatim}
+   call clearcache                           (Fortran)
+   clearcache();                             (C/C++)
+   ClearCache[]                              (Mathematica)
+\end{verbatim}
+
+Alternately, the current cache pointers can be stored using
+\begin{verbatim}
+   call markcache                            (Fortran)
+   markcache();                              (C/C++)
+   MarkCache[]                               (Mathematica)
+\end{verbatim}
+and restored, at a later point, using
+\begin{verbatim}
+   call restorecache                         (Fortran)
+   restorecache();                           (C/C++)
+   RestoreCache[]                            (Mathematica)
+\end{verbatim}
+One can for example do the energy-independent integrals first,
+mark the cache, and restore it after every turn of the loop
+over the energy.
+
+Another issue concerns the depth of the comparison when looking up cache
+entries.  Floating-point variables should in general never be compared
+verbatim, \ie one should always convert \Code{\Va\,.eq.\,\Vb} into
+\Code{abs(\Va\,-\,\Vb)\,.lt.\,$\varepsilon$}, because one does not want 
+the comparison to fail due to numerical noise.
+
+For technical reasons, the cache-lookup precision is specified through 
+the number of bits (rather than an $\varepsilon$) in \LT:
+\begin{alltt}
+   call setcmpbits(\(b\))        \(b\) = getcmpbits()         (Fortran)
+   setcmpbits(\(b\));            \(b\) = getcmpbits();        (C/C++)
+   SetCmpBits[\(b\)]             \(b\) = GetCmpBits[]         (Mathematica)
+   export LTCMPBITS=\(b\)                                 (bash)
+   setenv LTCMPBITS \(b\)                                 (tcsh)
+\end{alltt}
+\indextt{setcmpbits}%
+\indextt{getcmpbits}%
+\indextt{LTCMPBITS}%
+The defaults are 62 for double precision (a double precision number has
+64 bits of which 52 are the mantissa) and 64 for quadruple precision
+(a quadruple precision number has 128 bits of which 112 are the mantissa).
+
+
+\subsection{Extended Precision}
+
+For most calculations, double precision is quite sufficient to yield
+satisfyingly accurate results.  In some cases, however, cancellations
+between diagrams can cause double-digit loss of precision.  Since the
+mantissa of a double precision number has only about 15 decimal digits,
+the result may thus be correct only to very few digits.
+
+Quadruple precision (16-byte real and 32-byte complex variables) has a
+mantissa of approximately 33 decimal digits and can cope much more
+severe cancellations.  Quadruple precision does slow down the 
+calculation, though, and is also not available on all platforms.
+
+To build the quadruple-precision version, configure with the \Code{--quad}
+option, \ie
+\begin{verbatim}
+   ./configure --quad
+\end{verbatim}
+The resulting libraries and executables carry the suffix \Code{-quad},
+\eg \Code{libooptools-quad.a}.
+
+As an intermediate solution -- more precise than double but faster than
+quadruple precision -- the \Code{--real10} flag may be added:
+\begin{verbatim}
+   ./configure --quad --real10
+\end{verbatim}
+This uses \Code{REAL*10} for extended precision, which is implemented in 
+hardware on the x86 platform, though presently only available in gfortran 4.6+.
+For other compilers the extended precision type silently reverts to
+\Code{REAL*16}.
+
+
+\subsection{Versions and Debugging}
+\label{sect:versions}
+
+For checking the results, \LT\ has alternate implementations of various 
+functions included, most of which are based on an implementation by Denner.  
+The user can choose at run-time whether the default version `a' (mostly \FF)
+or the alternate version `b' (mostly Denner) is used and whether checking
+is performed.  This is determined by the version key:
+\begin{tabbing}
+\Code{~~~0*key}\qquad \= compute version `a', \\
+\Code{~~~1*key} \> compute version `b', \\
+\Code{~~~2*key} \> compute both, compare, return `a', \\
+\Code{~~~3*key} \> compute both, compare, return `b'.
+\end{tabbing}
+Usage is as in
+\begin{alltt}
+   call setversionkey(\(k\))     \(k\) = getversionkey()      (Fortran)
+   setversionkey(\(k\));         \(k\) = getversionkey();     (C/C++)
+   SetVersionKey[\(k\)]          \(k\) = GetVersionKey[]      (Mathematica)
+   export LTVERSION=\(k\)                                 (bash)
+   setenv LTVERSION \(k\)                                 (tcsh)
+\end{alltt}
+\indextt{setversionkey}%
+\indextt{getversionkey}%
+\indextt{LTVERSION}%
+where $k$ is \eg of the form \Code{2*KeyC0 + 3*KeyD0}.  The following
+keys for alternate versions are currently available: \Code{KeyA0},
+\Code{KeyBget}, \Code{KeyC0}, \Code{KeyD0}, \Code{KeyEget},
+\Code{KeyEgetC}.  \Code{KeyAll} comprises all of these.  These
+symbols are not available in the shell, therefore it is most common
+to set all bits of the version key by putting the value $-1$.
+
+The comparison by default takes a relative deviation of
+$10^{-12}$ as a threshold for issuing warnings but this can
+be changed with
+\begin{alltt}
+   call setmaxdev(\(\varepsilon\))         \(\varepsilon\) = getmaxdev()          (Fortran)
+   setmaxdev(\(\varepsilon\));             \(\varepsilon\) = getmaxdev();         (C/C++)
+   SetMaxDev[\(\varepsilon\)]              \(\varepsilon\) = GetMaxDev[]          (Mathematica)
+   export LTMAXDEV=\(\varepsilon\)                                  (bash)
+   setenv LTMAXDEV \(\varepsilon\)                                  (tcsh)
+\end{alltt}
+\indextt{setmaxdev}%
+\indextt{getmaxdev}%
+\indextt{LTMAXDEV}%
+\index{cross-checks}
+
+
+Debugging output can be turned on likewise with \eg
+\begin{alltt}
+   call setdebugkey(\(k\))       \(k\) = getdebugkey()        (Fortran)
+   setdebugkey(\(k\));           \(k\) = getdebugkey();       (C/C++)
+   SetDebugKey[\(k\)]            \(k\) = GetDebugKey[]        (Mathematica)
+   export LTDEBUG=\(k\)                                   (bash)
+   setenv LTDEBUG \(k\)                                   (tcsh)
+\end{alltt}
+\indextt{setdebugkey}%
+\indextt{getdebugkey}%
+\indextt{LTDEBUG}%
+where $k$ is \eg of the form \Code{DebugC + DebugD}.  Identifiers range
+from \Code{DebugB} to \Code{DebugE} and are summarized by \Code{DebugAll}.  
+Again, these identifiers are not available in the shell, so the most
+common solution is to set all bits by choosing $-1$.
+
+The integrals are listed in the output with a unique serial number.  
+If the list of integrals becomes too long, one can select only a range 
+of serial numbers for viewing, as in
+\begin{alltt}
+   call setdebugrange(\(f\), \(t\))                           (Fortran)
+   setdebugrange(\(f\), \(t\));                               (C/C++)
+   SetDebugRange[\(f\), \(t\)]                                (Mathematica)
+   export LTRANGE=\(f\)-\(t\)                                 (bash)
+   setenv LTRANGE \(f\)-\(t\)                                 (tcsh)
+\end{alltt}
+\indextt{setdebugrange}%
+\indextt{LTRANGE}%
+This makes it easy to monitor `suspicious' integrals.
+
+
+
+\subsection{On Warning Messages and Checking Results}
+
+Computing reliable numeric values for the one-loop integrals is a highly
+non-trivial task because of possible cancellations, and requires to take
+into account many special cases to achieve a reasonable accuracy also in
+``problematic'' corners of phase space.  Such regions are typically
+thresholds and high energies.
+
+\LT\ is built on the \FF\ library which tries very hard to produce correct
+values.  Nevertheless, it is essential to have means of cross-checking the
+results, particularly if such tell-tale signs of numerical problems as
+unsmoothness of a curve (\eg unexpected bumps or peaks in the
+cross-section) are observable.
+
+\index{warning messages}%
+\index{error messages}%
+\index{FF@\FF}%
+\FF\ has a built-in warning system that checks for critical loss of
+accuracy.  Unfortunately, the warnings issued by \FF\ concerning the loss
+of accuracy are somewhat overzealous, and particularly for a large number
+of consecutive calls to \FF\ (\eg when computing a cross-section over a
+sizeable region of phase space) can add up to ridiculous numbers, \eg
+``lost a factor $10^5$.'' Unless a very detailed checking of these
+warnings is performed, they are pretty useless and tend to numb the user
+to a degree where severe errors are easily overlooked.  For this reason,
+the \FF\ warning system has largely been disabled in \LT.  
+\FF\ does report the estimated number of digits lost, however, on which
+\LT\ acts as follows:
+\begin{itemize}
+\item If more than the Warning Digits (default: 9) are lost, a 
+more thorough version of the integral is used (which uses \eg 
+different permutations of the input arguments).  The Warning Digits
+can be set as follows:
+\begin{alltt}
+   call setwarndigits(\(d\))     \(d\) = getwarndigits()      (Fortran)
+   setwarndigits(\(d\));         \(d\) = getwarndigits();     (C/C++)
+   SetWarnDigits[\(d\)]          \(d\) = GetWarnDigits[]      (Mathematica)
+   export LTWARN=\(d\)                                    (bash)
+   setenv LTWARN \(d\)                                    (tcsh)
+\end{alltt}
+\indextt{setwarndigits}%
+\indextt{LTWARN}%
+
+\item If in the end more than the Error Digits (default: 100) are reported
+lost, \LT\ invokes the alternate version (see Sect.~\ref{sect:versions}).  
+The Error Digits are set via
+\begin{alltt}
+   call seterrdigits(\(d\))      \(d\) = geterrdigits()       (Fortran)
+   seterrdigits(\(d\));          \(d\) = geterrdigits();      (C/C++)
+   SetErrDigits[\(d\)]           \(d\) = GetErrDigits[]       (Mathematica)
+   export LTERR=\(d\)                                     (bash)
+   setenv LTERR \(d\)                                     (tcsh)
+\end{alltt}
+\indextt{seterrdigits}%
+\indextt{LTERR}%
+\end{itemize}
+
+
+\subsection{Ultraviolet, Infrared, and Collinear Divergences}
+
+\paragraph{Ultraviolet divergences} are regularized dimensionally in 
+\LT.  They originate from the scalar integrals $A_0$ and $B_0$ and from 
+there are passed on to certain tensor coefficients.  UV-divergent loop 
+integrals contain the combination $1/\varepsilon - \gamma_{\rm E} + \log 
+4\pi$, of which \LT\ puts the actual divergence into the 
+$\varepsilon^{-1}$ component of the result (but see \Code{setuvdiv} 
+below) and substitutes the finite part by $\Delta$.  The dimensionful 
+parameter $\mu$ is introduced to keep the integral's mass dimension the 
+same in all dimensions $D$ (see Sect.\ \ref{sect:loopint}).
+\index{UV-regularization parameters}%
+
+The default value for $\Delta$ is 0, the $\overline{\text{MS}}$ value. 
+Putting $\Delta = -2$ reproduces the one-loop functions of constrained 
+differential renormalization as published in \cite{dACTP98}.  $\Delta$ 
+is a redundant parameter since $\mu$ can be adjusted to have the same 
+effect: $\mu^2_{\text{new}} = {\rm e}^\Delta\mu^2_{\text{old}}$.
+\index{MS@$\overline{\text{MS}}$}%
+
+A UV-finite result must not depend on either $\Delta$ or $\mu$, hence 
+it is straightforward to check the cancellation of the divergences 
+numerically: calculate the expression with two different values for 
+$\Delta$ (or $\mu$, or both), and check whether the result stays the 
+same within numerical precision.  Note that $\mu$ enters 
+logarithmically; this means that to decisively check whether an 
+expression is really independent of $\mu$, it must be varied on a large 
+scale, \eg from 1 to $10^{10}$.
+
+\paragraph{Infrared divergences} appear in processes with charged 
+external particles.  They originate from the exchange of virtual 
+massless particles between on-shell legs.  More precisely they come from 
+diagrams containing structures of the form
+\begin{center}
+\begin{picture}(130,125)(0,0)
+\Line(5,10)(30,30)
+\Line(30,30)(100,30)
+\Vertex(30,30){2}
+\Photon(30,30)(30,95){-2}{4.5}
+\Line(30,95)(5,115)
+\Line(30,95)(100,95)
+\Vertex(30,95){2}
+\multiput(100,44)(0,17){3}{\makebox(0,0){$.$}}
+\Text(0,115)[r]{$k_i$}
+\Text(0,7)[r]{$k_j$}
+\Text(23,62)[r]{$\gamma$}
+\Text(65,62)[]{loop}
+\Text(65,25)[t]{$m_{j-1}^2=k_j^2$}
+\Text(65,100)[b]{$m_i^2=k_i^2$}
+\end{picture}
+\end{center}
+Such diagrams are IR divergent because the photon is massless; if the
+photon had a mass $\lambda$, the divergent terms would be proportional
+to $\log\lambda$.  NB: such a photon mass should \emph{not be introduced
+by hand:} if a requested integral is IR divergent, \LT\ automatically
+substitutes regularization parameters (see below).
+
+In QCD calculations, the custom is rather to regularize the IR 
+divergences dimensionally, in which case they show up as poles in
+$1/\varepsilon$ and $1/\varepsilon^2$.
+\index{IR-regularization parameters}%
+
+\begin{itemize}
+\item
+For $\lambda^2 > 0$, photon-mass regularization is used with a photon
+mass $\lambda$, where $\lambda$ is treated as an infinitesimal quantity,
+however, which means that terms of order $\lambda$ or higher are 
+discarded (\ie only the $\log\lambda$ terms are kept).
+
+Since the final result should not depend on $\lambda$ after successful 
+removal of the IR divergences, $\lambda$ can be given an arbitrary 
+numerical value despite its infinitesimal character.
+
+To test IR finiteness numerically, one can proceed just as in the
+ultraviolet case: calculate the expression for two values of $\lambda$
+and check whether the results agree.  As mentioned, the
+$\lambda$-dependence is logarithmic, hence one has to change $\lambda$
+on a big scale (say from 1 to $10^{10}$) to decisively check IR
+finiteness.
+
+\item
+In dimensional regularization, $\lambda^2 = -2$ returns the coefficient
+of $\varepsilon^{-2}$, $\lambda^2 = -1$ the coefficient of
+$\varepsilon^{-1}$, and $\lambda^2 = 0$ the finite piece.
+
+In this case, testing IR finiteness numerically proceeds through
+checking the coefficients of $\varepsilon^{-1}$, $\varepsilon^{-2}$
+coefficients, which have to add up to zero in observable quantities.  
+This can be done particularly conveniently through the \Code{LTLAMBDA}
+environment variable (see below), such that no recompilation of the 
+program is necessary.
+
+While a non-positive value of $\lambda$ immediately affects the 
+functions returning complex values (\Code{$N$0i} and special cases) it 
+has no impact on the output of the functions returning the full set of 
+tensor coefficients (\Code{$N$get}, \Code{$N$put}).  Rather, the sets 
+contain all three $\varepsilon$-coefficients to start with, for example
+\begin{verbatim}
+   i = Bget(...)
+   e0coeff = Bval(bb0,i)
+   e1coeff = Bval(bb0+1,i)
+   e2coeff = Bval(bb0+2,i)
+\end{verbatim}
+The index 0, 1, 2 corresponding to the current value of $\lambda^2$ can
+be obtained with the \Code{getepsi} function.
+
+\end{itemize}
+
+
+\paragraph{Collinear singularities} arise for vanishing momentum-square
+of an external leg sandwiched between two massless internal propagators,
+as in:
+\begin{center}
+\begin{picture}(115,90)(0,10)
+\Gluon(10,100)(60,50){-4}{6}
+\Line(10,0)(60,50)
+\Line(60,50)(110,50)
+\Vertex(60,50){2}
+\multiput(10,13)(0,14){6}{\makebox(0,0){$.$}}
+\Text(70,55)[bl]{$p_i^2 = m_f^2\ll s$}
+\Text(35,84)[bl]{$m_1 = 0$}
+\Text(35,22)[tl]{$m_2 = 0$}
+\end{picture}
+\end{center}
+The divergence is logarithmic of the form $\log m_f^2/s$, so the
+fermion mass acts as a natural regulator.  In sufficiently inclusive 
+observables, these logs cancel due to the Kinoshita--Lee--Nauenberg 
+theorem \cite{KLN}.  In non-confined theories, for example the 
+electroweak Standard Model, it is possible to observe non-inclusive 
+observables where the large effects due to small fermion masses can 
+be seen.
+
+In QCD it is again customary to regularize the collinear divergences 
+dimensionally, such that instead of large logs the divergences manifest
+themselves as poles in $1/\varepsilon$ and $1/\varepsilon^2$.
+
+\begin{itemize}
+\item
+For dimensional regularization (QCD), the collinear divergences are
+controlled in the same way as the IR divergences above: setting
+$\lambda^2 = -2, -1, 0$ returns the coefficients of $\varepsilon^{-2}$, 
+$\varepsilon^{-1}$, and the finite piece, respectively.
+
+\item
+To facilitate mass regularization, \LT\ acts on the variable \mmin\ in
+the following way: On calling a loop integral, all arguments less than
+\mmin\ are set to zero.  If it is discovered that the function truncated
+thus has a collinear divergence, \mmin\ is substituted back into the
+$p_i^2$.  This procedure makes it possible for \LT\ to use the regulator
+mass only in actually divergent configurations and avoid numerical
+problems due to small finite masses elsewhere.
+\end{itemize}
+
+
+\paragraph{The following routines} allow to set and retrieve the
+regularization parameters.  Note that $\mu$, $\lambda$, and $m_{\text{min}}$
+always enter squared.
+
+\begin{alltt}
+   call setdelta(\(\Delta\))          \(\Delta\) = getdelta()           (Fortran)
+   call setmudim(\(\mu\sp2\))         \,\(\mu\sp2\) = getmudim()
+   call setlambda(\(\lambda\sp2\))        \,\(\lambda\sp2\) = getlambda()
+   call setminmass(\(\mmin\))     \,\(\mmin\) = getminmass()
+\end{alltt}
+\begin{alltt}
+   setdelta(\(\Delta\));              \(\Delta\) = getdelta();          (C/C++)
+   setmudim(\(\mu\sp2\));             \,\(\mu\sp2\) = getmudim();
+   setlambda(\(\lambda\sp2\));            \,\(\lambda\sp2\) = getlambda();
+   setminmass(\(\mmin\));         \,\(\mmin\) = getminmass();
+\end{alltt}
+\begin{alltt}
+   SetDelta[\(\Delta\)]               \(\Delta\) = GetDelta[]           (Mathematica)
+   SetMudim[\(\mu\sp2\)]              \,\(\mu\sp2\) = GetMudim[]
+   SetLambda[\(\mu\sp2\)]             \,\(\lambda\sp2\) = GetLambda[]
+   SetMinMass[\(\mmin\)]          \,\(\mmin\) = GetMinMass[]
+\end{alltt}
+\begin{alltt}
+   export LTDELTA=\(\Delta\)                                   \,(bash)
+   export LTMUDIM=\(\mu\sp2\)
+   export LTLAMBDA=\(\lambda\sp2\)
+   export LTMINMASS=\(\mmin\)
+\end{alltt}
+\begin{alltt}
+   setenv LTDELTA \(\Delta\)                                   \,(tcsh)
+   setenv LTMUDIM \(\mu\sp2\)
+   setenv LTLAMBDA \(\lambda\sp2\)
+   setenv LTMINMASS \(\mmin\)
+\end{alltt}
+\indextt{setdelta}%
+\indextt{getdelta}%
+\indextt{LTDELTA}%
+\indextt{setmudim}%
+\indextt{getmudim}%
+\indextt{LTMUDIM}%
+\indextt{setlambda}%
+\indextt{getlambda}%
+\indextt{LTLAMBDA}%
+\indextt{setminmass}%
+\indextt{getminmass}%
+\indextt{LTMINMASS}%
+
+If $\lambda^2\leqslant 0$ was chosen, the $\varepsilon^{-1}$ component 
+of the results contains both UV and IR divergences, sometimes denoted 
+$1/\varepsilon_{\text{UV}}$ and $1/\varepsilon_{\text{IR}}$.  The UV 
+part can be switched off ($x = 0$) and on ($x = 1$) with
+
+\begin{alltt}
+   call setuvdiv(\(x\))                    (Fortran)
+   setuvdiv(\(x\));                        (C/C++)
+   SetUVDiv[\(x\)]                         (Mathematica)
+   export LTUVDIV=\(x\)                    (bash)
+   setenv LTUVDIV \(x\)                    (tcsh)
+\end{alltt}
+
+Note that $x$ is a real argument, not an integer one, as in:
+\Code{call setuvdiv(1D0)}.
+
+
+\subsection{Accuracy}
+
+In rare cases the user may want to set the following accuracy thresholds.
+\begin{itemize}
+\item A given quantity $x$ is tested for zero by $|x| < \zeroeps$.  The 
+comparator $\zeroeps$ has the default value $10^{-22}$ and can be set 
+through
+
+\begin{alltt}
+   call setzeroeps(\(\zeroeps\))                    (Fortran)
+   setzeroeps(\(\zeroeps\));                        (C/C++)
+   SetZeroEps[\(\zeroeps\)]                         (Mathematica)
+   export LTZEROEPS=\(\zeroeps\)                    (bash)
+   setenv LTZEROEPS \(\zeroeps\)                    (tcsh)
+\end{alltt}
+
+\item Two quantities $x$ and $y$ are tested for equality by
+$|x - y| < \diffeps$, where $\diffeps$ has the default value $10^{-12}$ 
+and can be set through
+
+\begin{alltt}
+   call setdiffeps(\(\diffeps\))                    (Fortran)
+   setdiffeps(\(\diffeps\));                        (C/C++)
+   SetDiffEps[\(\diffeps\)]                         (Mathematica)
+   export LTDIFFEPS=\(\diffeps\)                    (bash)
+   setenv LTDIFFEPS \(\diffeps\)                    (tcsh)
+\end{alltt}
+
+In particular in conjunction with phase-space generators the detection 
+of \eg $p^2 = m^2$ may fail with the default $\diffeps$ due to rounding 
+errors in the generation of $p$.
+
+\end{itemize}
+
+
+\section{Using \LT\ with Fortran}
+\label{sect:fortran}
+
+\index{Fortran}%
+\index{command line@command line}%
+\index{environment variable}%
+Some technical details concerning compilation:
+\begin{itemize}
+\item Specify the location of \LT\ once in an environment variable (this
+saves a lot of typing later on).  For example, in the \Code{tcsh}, use
+\begin{verbatim}
+   setenv LT $HOME/LoopTools/(hosttype)
+\end{verbatim}
+When compiling a program that uses \LT, use
+\begin{verbatim}
+   -I$LT/include (source files) -L$LT/lib -looptools
+\end{verbatim}
+on the command line.  As Unix linker are one-pass linkers, the library
+flags (\Code{-L...}, \Code{-l...}) must come after the Fortran or object
+files on the command line.  In a makefile, you have to use parentheses
+around the environment variables, \ie \Code{\$(LT)} instead of
+\Code{\$LT}.
+
+\index{C preprocessor}%
+\item Fortran files that use \LT\ must have the extension \Code{.F}, not
+\Code{.f}.  This tells the Fortran compiler that the files need to be run
+through the C preprocessor first.
+
+\indextt{RealType}%
+\indextt{ComplexType}%
+\item The user may wish to use \Code{RealType} instead of \Code{double 
+precision} and \Code{ComplexType} instead of \Code{double complex}.  
+These types are declared in \Code{looptools.h}, they are 
+preprocessor-friendly (one word) and make it easier to switch \eg to 
+quadruple precision.
+\end{itemize}
+
+\indextt{looptools.h}%
+\indextt{ltini}%
+\indextt{ltexi}%
+\index{summary of errors}%
+To use the \LT\ functions in a Fortran program, the file
+\Code{looptools.h} must be included in every function or subroutine
+in which the \LT\ functions are called.
+Before using any \LT\ function, the subroutine \Code{ltini} must be
+called.  At the end of the calculation \Code{ltexi} may be called to
+obtain a summary of errors.
+
+A very elementary program would for instance be
+\begin{verbatim}
+        program simple_program
+        implicit none
+#include "looptools.h"
+        call ltini
+        print *, B0(1000D0, 50D0, 80D0)
+        call ltexi
+        end
+\end{verbatim}
+Note that, as for all preprocessor commands, the \Code{\#} must stand at
+the beginning of the line.  It is important to include the
+\Code{looptools.h} via the preprocessor command {\tt\#include} instead of
+the \Code{include} directive many Fortran compilers offer.  This is because
+preprocessor variables are used in \Code{looptools.h} which would otherwise
+not take effect.  Incidentally, if you do run this program, the result
+should be \Code{(-4.40593283,2.7041431)}.
+
+\index{Higgs self-energy}%
+To give a more realistic example, here is the calculation of the
+bosonic part of the Higgs self-energy in the electroweak Standard Model.
+\begin{verbatim}
+        program HiggsSE
+        implicit none
+#include "looptools.h"
+        RealType s
+        ComplexType SigmaH
+        external SigmaH
+
+        call ltini
+        do s = 100, 1000, 50
+          print *, s, "  ", SigmaH(s)
+        enddo
+        call ltexi
+        end
+
+        ComplexType function SigmaH(k2)
+        RealType k2
+#include "looptools.h"
+        RealType MH2, MZ2, MW2, Alfa, pi, SW2
+        parameter (MH2 = 126D0**2,
+     &    MZ2 = 91.188D0**2, MW2 = 80.39D0**2,
+     &    Alfa = 1/137.0359895D0,
+     &    pi = 3.14159265358979D0,
+     &    SW2 = 1 - MW2/MZ2)
+
+        SigmaH = Alfa/(32*pi*SW2*MW2)*
+     &    ( 3*MH2*A0(MH2) + 9*MH2**2*B0(k2, MH2, MH2)
+     &    + 2*(MH2**2 - 4*MW2*(k2 - 3*MW2))*B0(k2, MW2, MW2)
+     &    + 2*(6*MW2 + MH2)*A0(MW2) - 24*MW2**2
+     &    + (MH2**2 - 4D0*MZ2*(k2 - 3*MZ2))*B0(k2, MZ2, MZ2)
+     &    + (6*MZ2 + MH2)*A0(MZ2) - 12*MZ2**2 )
+        end
+\end{verbatim}
+
+
+\section{Using \LT\ with C/C++}
+
+\index{C++}%
+\index{c++ command line@\Code{c++} command line}%
+Some technical details:
+\begin{itemize}
+\item Like in the Fortran case, it saves a lot of typing to specify the
+location of \LT\ once in an environment variable.  For example, in the
+\Code{tcsh}, use
+\begin{verbatim}
+   setenv LT $HOME/LoopTools/(hosttype)
+\end{verbatim}
+Then compile the programs that use \LT\ with the following command:
+\begin{verbatim}
+   $LT/bin/fcc -I$LT/include (source files) -L$LT/lib -looptools
+\end{verbatim}
+\Code{fcc} is a script to compile C and C++ programs and link them with
+Fortran libraries, in this case \Code{libooptools.a}.  Note that in a
+makefile, you have to use parentheses around the environment variables,
+\ie \Code{\$(LT)} instead of \Code{\$LT}.
+
+\indextt{RealType}%
+\indextt{ComplexType}%
+
+\item The \Code{RealType} and \Code{ComplexType} types declared by 
+\Code{clooptools.h} help produce code valid for both C and C++.  The 
+latter maps to \Code{std::complex<double>} in C++, \Code{double complex} 
+in C99, and \Code{struct \lbrac\ double re, im; \rbrac} in C89.
+\end{itemize}
+
+To use the \LT\ functions in a C/C++ program, the file 
+\Code{clooptools.h} must be included.  Similar to the Fortran case, 
+before making the first call to any \LT\ function, \Code{ltini()} must 
+be called and at the end \Code{ltexi()} may be called to get a summary 
+of errors.
+
+In C++, an elementary program would be
+{\samepage
+\begin{verbatim}
+#include <iostream>
+#include "clooptools.h"
+
+int main() {
+  ltini();
+  cout << B0(1000., 50., 80.) << endl;
+  ltexi();
+}
+\end{verbatim}}
+
+In the following the same example as for the Fortran case is given: the 
+bosonic part of the Higgs self-energy in the electroweak Standard Model. 
+This code is given in C syntax though it compiles also with C++ thanks 
+to the \Code{ComplexType} data type (a true C++ aficionado would eschew 
+the use of stdio, however).
+\begin{verbatim}
+#include <stdio.h>
+#include "clooptools.h"
+
+#define MH2 (126.*126.)
+#define MZ2 (91.188*91.188)
+#define MW2 (80.4*80.4)
+#define Alfa (1./137.0359895)
+#define pi 3.14159265358979
+#define SW2 (1. - MW2/MZ2)
+
+static ComplexType SigmaH(double k2) {
+  return Alfa/(32*pi*SW2*MW2)*
+    ( 3*MH2*A0(MH2) + 9*MH2*MH2*B0(k2, MH2, MH2)
+      + 2*(MH2*MH2 - 4*MW2*(k2 - 3*MW2))*B0(k2, MW2, MW2)
+      + 2*(6*MW2 + MH2)*A0(MW2) - 24*MW2*MW2
+      + (MH2*MH2 - 4*MZ2*(k2 - 3*MZ2))*B0(k2, MZ2, MZ2)
+      + (6*MZ2 + MH2)*A0(MZ2) - 12*MZ2*MZ2 );
+}
+
+int main() {
+  RealType s;
+  ltini();
+  for( s = 100; s <= 1000; s += 50 ) {
+    ComplexType sig = SigmaH(s);
+    printf("%g\t%g%+gi\n", s, Re(sig), Im(sig));
+  }
+  ltexi();
+}
+\end{verbatim}
+
+
+\section{Using \LT\ with \mma}
+
+\index{Mathematica@\mma}%
+\index{setting the path}%
+Modify your path to include \Code{\home/LoopTools/(hosttype)/bin}, \eg in
+\Code{tcsh} use
+\begin{verbatim}
+   set path=($path $HOME/LoopTools/(hosttype)/bin)
+\end{verbatim}
+It is probably a good idea to include this statement \eg in \Code{.cshrc}.
+
+\indextt{Install}%
+\indextt{LoopTools}%
+The \mma\ interface is probably the simplest to use:
+\begin{verbatim}
+In[1]:= Install["LoopTools"]
+
+Out[1]= LinkObject[LoopTools, 1, 1]
+
+In[2]:= B0[1000, 50, 80]
+ 
+Out[2]= -4.40593 + 2.70414 I
+\end{verbatim}
+\indextt{Cget}%
+\indextt{Dget}%
+The \Code{$N$get} routines return a list of rules containing all tensor
+coefficients, \eg
+\begin{verbatim}
+In[3]:= Cget[80, 80, 10000, 300, 100, 200] //InputForm
+
+Out[3]//InputForm= 
+  {cc0 -> 0.0003683322958259527 - 0.00144304878124425*I, 
+   cc1 -> 0.00003691991146686607 + 0.0008063637675463306*I, 
+   cc2 -> -0.0002186870966525929 + 0.0003255577507551812*I, 
+   cc00 -> -1.468122864600498 + 0.6620214671984382*I, 
+   cc11 -> -0.0001383963649940767 - 0.0005211388919006447*I, 
+   cc12 -> 0.00005607420875500784 - 0.0001466442566605745*I, 
+   cc22 -> 0.0001038232033882128 - 0.0001572866825209231*I, 
+   cc001 -> 0.4339544374355454 - 0.1905346035793642*I, 
+   cc002 -> 0.5179247985708856 - 0.2390535391455292*I, 
+   cc111 -> 0.0001637407816195954 + 0.0003561351446381443*I, 
+   cc112 -> -0.00001499429891688691 + 0.00008510756809075344*I, 
+   cc122 -> -0.00002351641063613291 + 0.00005055502592614985*I, 
+   cc222 -> -0.00005956786867352272 + 0.000101962969539097*I}
+\end{verbatim}
+One-loop functions containing non-numeric arguments (\eg
+\Code{B0[1000,\,MW2,\,MW2]}) remain unevaluated.  If it becomes necessary
+to switch off the evaluation of the \LT\ functions, \Code{LoopTools} can
+be uninstalled:
+\begin{verbatim}
+In[10^37]:= Uninstall[%1]
+\end{verbatim}
+
+
+\begin{appendix}
+
+\chapter{The original \FF\ Manual}
+
+\newcommand\comp{\tt}
+\newcommand\ms{\,\mbox{ms}}
+
+%  #[ Introduction:
+
+\section{Introduction}
+
+The evaluation of scalar loop integrals is one of the time consuming parts
+of radiative correction computations in high energy physics.  Of course the
+general solution has long been known \cite{tHV79}, but the use of
+these formulae is not straightforward.  If one encodes the algorithms
+directly in a numerical language one finds that for most physical
+configurations the answer is extremely unreliable due to numerical
+cancellations.  It is not at all difficult to find examples where more
+than 80 digits accuracy are lost.
+
+There are two ways in which these problems have been solved.  M.~Veltman has 
+programmed these algorithms using a very large precision (up to 120 digits) 
+for the intermediate results in the program FormF\null, which enabled him to 
+do some very complicated calculations \cite{PaV79}.  However, 
+these routines are written in assembler language and thus only available on 
+certain computers.  Also, the use of multiple precision makes them fairly slow 
+--- and even so there are many (soft t-channel) configurations for which the 
+answer is incorrect, or correct only for one permutation of the input 
+parameters.  The other solution is to evaluate by hand all special cases 
+needed and make sure that these are numerically stable, in this way building a 
+library of physically interesting cases.  This costs much time and has to be 
+extended for every new calculation, as often the limits taken are no longer 
+valid.
+
+We present here a set of Fortran routines that evaluate the one-loop scalar 
+integrals using a standard precision.  The algorithms used have been published 
+before \cite{vOV90}.  This paper describes version 1.0 which contains 
+the following units:
+\begin{itemize}
+\item the scalar one, two, three, four and five-point functions, defined by
+\begin{equation}
+	X_0 = \frac{1}{i\pi^2} \int \!\!\frac{d^n Q}{(Q^2 - m_1^2)((Q+P)^2 - m_2^2)\cdots}
+\end{equation}
+\item the vector three and four-point functions,
+\item some determinants.
+\end{itemize}
+Planned additions are:
+\begin{itemize}
+\item The other Form factors \`{a} la FormF.
+\item The six-point function.
+\end{itemize}
+Note however, that the reduction of these can be done analytically.  
+
+The aim of the routines is to provide a reliable answer for any conceivable 
+(physical) combination of input parameters.  This has not been fully met in 
+the case of the four-point function, but an impressive list of cases does 
+indeed work.  Problems normally occur when many parameters are (almost) 
+equal, i.e.\ when an analytical calculation is most feasible.
+
+The layout of this paper is as follows.  First we give a brief description of 
+the design of the package and some details that may be of of relevance to the 
+user, like timings.  Next we give a complete user's guide.  The problems which 
+might be encountered when installing FF on a computer system are discussed in 
+section \ref{sc:installation}.  The initialisation of the routines, which has 
+to be done by the user in the program which uses the FF routines, is outlined 
+in section \ref{sc:initialization}.  The next section is about the use of the 
+error reporting facilities, which also need some assistance from the user.  A 
+list of the available routines for the scalar n-point functions (section 
+\ref{sc:n-point}) and determinants (section \ref{sc:determinants}) is given, 
+listing parameters, loss of precision and comments.
+
+%  #] Introduction:
+%  #[ Brief description of the scalar loop routines:
+
+\section{Brief description of the scalar loop routines}
+\label{ap:FFdescription}
+
+This section will give an overview of the structure of the scalar loop 
+routines which implement the algorithms of \cite{vOV90}.  The purpose 
+of this is to provide a map for the adventurous person who wants to understand 
+what is going on.  Some details of the algorithms chosen are also given.
+
+\subsection{Overview}
+
+The language chosen is Fortran, mainly because so much of the 
+calculations are done with complex variables.  There are currently about 
+26000 lines of code.  Some of it is repetitious, as many routines exist 
+in a real and complex version which hardly differ.  Global names 
+(subprograms, common blocks) almost all start with the letters 
+\Code{FF}, for FormFactor (the only exceptions are the functions 
+\Code{dfflo1}, \Code{zfflo1}, \Code{zfflog} and \Code{zxfflg}). For this 
+reason I refer to the set as the FF package.  The third letter of the 
+name often indicates whether a routine is complex (\Code{z} or \Code{c}) 
+or real. The real four-point function is thus calculated with the 
+routine \Code{ffxd0}, the complex dilogarithm in \Code{ffzli2}.  All 
+common blocks are included via a single include file, which also defines 
+some constants such as one and $\pi$ in the precision currently used.  I 
+have tried hard to make switching between \Code{real} and \Code{double 
+precision} as easy as possible.
+
+The packages roughly consists of six kind of routines:
+\begin{itemize}
+\item The high-level and user-callable routines, such as \Code{ffxd0}.
+\item Dotproduct calculation routines, such as \Code{ffdot4}.
+\item The determinant routines, such as \Code{ffdl4p}; the number indicates 
+  the size of the determinant and the letter the kind.
+\item Routines to get combinations of dilogarithms, for instance
+  \Code{ffcxr}; the names roughly follow the names given in \cite{vOV90}.
+\item Low level routines: the logarithms, dilogarithms, $\eta$ functions.
+\item Support routines: initialisation, the error and warning system, taylor 
+series boundaries and consistency checking.
+\end{itemize}
+
+The high-level routines first compute missing arguments such as the 
+differences of the input parameters.  Next the parameters are permuted 
+to a position in which the evaluation is possible.  All dotproducts are 
+calculated and from these the necessary determinants are determined.  In 
+the case of the four-point function we now perform the projective 
+transformation and compute all transformed dotproducts and differences.  
+The determinants and dotproducts allow us to find the combinations of 
+roots needed, which are passed on to the routines which evaluate the 
+combinations of dilogarithms.
+
+The most difficult part is to anticipate the cancellations among the 
+dilogarithms without actually calculating them.  This is usually done by 
+comparing the arguments mapped to the unit circle $c_i'$, with a safety 
+margin.  Unfortunately the choices made are not always the best, 
+especially on the higher levels (complete $C_0$'s or $S_i$'s).  This is 
+the reason the user can influence the possibilities considered with the 
+flags \Code{l4also} and \Code{ldc3c4}, which switch on or off the 16 
+dilogarithm algorithm and the expanded difference between two 
+three-point functions.
+
+The dilogarithms are evaluated in \Code{ffxli2} and \Code{ffzli2}.  
+These expect their arguments to lie in the region $|z| < 1, \Re(z) <1/2$ 
+already, more general functions (used for testing) are \Code{ffzxdl} and 
+\Code{ffzzdl}.  The algorithm used is the expansion in $\log(1-z)$ 
+described in \cite{tHV79}.  As the precision of the computer is unknown 
+in advance fancy Chebychev polynomials and the like are not used.
+
+The values of the logarithms and dilogarithms are placed in a big array 
+which is only summed at the last moment.  This is done to prevent false 
+alarms of the warning system.  {\em Every single addition} in the whole 
+program of which one cannot prove that both operands have the same sign 
+is checked for numerical problems with a line like
+\begin{verbatim}
+       sum = x + y + z
+       xmax = max(abs(x),abs(y))
+       if ( abs(sum) .lt. xloss*xmax ) call ffwarn(n,ier,sum,xmax)
+\end{verbatim}
+with \Code{xloss} set to 1/8 by \Code{ffini}.  A theoretically better 
+way would be to compare the result to the partial sums.  We are however 
+only interested in the order of magnitude of the cancellation, and for 
+that this method suffices.
+
+The only other place where one can lose significant precision is in 
+taking the logarithm of a number close to 1.  All calls to the logarithm 
+are checked by a wrapper routine for this case.  A routine 
+\Code{dfflo1/zfflo1} is provided to evaluate $\log(1-x)$.
+
+Finally a word on the determinant routines.  They use in general a very 
+simplistic algorithm to find the linearly independent combination of 
+vectors which gives the most accurate answer: try until it works.  All 
+sets are tried in order until the sum in no smaller than \Code{xloss} 
+times the largest term.  In the larger determinants this set is 
+remembered and tried first the next time the routine is called.
+
+
+\subsection{Timings}
+
+In table \ref{tab:timings} we give the timings of the scalar n-pint 
+functions on different machines.  The numbers given can only be an 
+indication as the path taken varies wildly with the complexity of the 
+problem.  A numerical unstable set of parameters might mean much more 
+time spent in the determinant routines and a bit less in the 
+dilogarithms for instance.  The flag \Code{ltest} was turned off for 
+these tests.
+
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{|l|rrrr|}
+\hline
+machine			& $B_0$		& $C_0$		& $D_0$		& $E_0$		\\
+\hline
+NP1				& 0.2 \ms	& 4.5 \ms	& 13 \ms	& 65 \ms	\\
+Sun4			& 0.9 \ms	& 8.1 \ms	& 20 \ms	& 90 \ms	\\
+Apollo 10020	& 0.08 \ms	& 1.5 \ms	& 4.9 \ms	& 24 \ms	\\
+Atari ST		& 40 \ms	& 400 \ms	& 900 \ms	& 5800 \ms	\\
+\hline
+\end{tabular}
+\end{center}
+\caption{Timings of the scalar n-point functions.}
+\label{tab:timings}
+\end{table}
+
+For a $D_0$, approximately 10\% of the time is spent in the 
+dilogarithms, 50\% in the determinants and the rest in the sorting out 
+and summing.
+
+
+\subsection{Tests}
+
+The $B_0$ has been tested against FormF over all parameter space, the 
+$C_0$ for some 100 physical configurations and the $D_0$ for about 30.  
+The $E_0$ is as yet untested (except for internal consistency). The only 
+differences were in very low t-channel configurations and I have reason 
+to distrust FormF.  The limit is not approached smoothly, and very 
+extreme kinematical configurations such as those occurring in the ZEUS 
+luminosity monitor \cite{vdH90} often give a \Code{DMPX}.  FF approaches 
+the theoretically correct limit smoothly.
+
+
+\section{Installation}
+\label{sc:installation}
+
+In this section the installation of the FF routines on a computer is 
+discussed.  We will first discuss the problems which may be caused by 
+the Fortran used.  Next the use of data files is discussed.
+
+The routines have been written in standard (ANSI) Fortran 77, with a few 
+extensions, which most compilers allow.  The package compiles without 
+changes on the Gould/Encore (fort), Apollo/SR10 (ftn), Meiko (mf77) and 
+VAX (fortran/g\_float).  Changes are necessary for the Apollo/SR9 (ftn), 
+Sun (f77), CDC (ftn5), Atari ST (Absoft) and possibly other compilers.
+
+The extensions used are:
+\begin{itemize}
+\item the use of tabs.
+\item the use of lower case letters.
+\item the use of \Code{implicit none}.
+\item the use of the \Code{include} directive to include the file 
+  'ff.h', which contains parameters and common blocks used throughout 
+  the package.
+
+\item the use of \Code{DOUBLE COMPLEX} data type.  In principle FF can 
+  also run in single precision, but the loss of 3--5 digits can often 
+  not be avoided in the evaluation of an n-point function.  This may 
+  leave too little information.
+\end{itemize}
+All these extensions can easily be removed with a good editor.  The 
+following commands will convert the source to ANSI Fortran.  (The syntax 
+is that of the editor \textsc{STedi}).
+\begin{verbatim}
+mark
+/include 'ff.h'/
+deleteline
+read ff.h
+/implicit none/=/implicit logical (a-z)/
+/DBLE(/=/REAL(/
+/DIMAG/=/AIMAG/
+/DCMPLX/=/CMPLX/
+/DOUBLE COMPLEX/=/COMPLEX/
+end
+# convert to uppercase
+ctrl-u
+# expand the tabs
+te
+\end{verbatim}
+Note that all names that have to be converted when switching from single 
+to double precision are in capitals.  It is possible to run the package 
+in double precision real and single precision complex (the error 
+reporting system might underestimate the accuracy in this case).  To 
+convert to single precision real (for instance on a CDC) use
+\begin{verbatim}
+/DOUBLE PRECISION/=/REAL/
+\end{verbatim}
+It may be necessary to convert to systems with other names for the 
+double precision complex data types and functions (e.g.~IBM).  The 
+double complex functions to be transformed are \Code{zfflo1}, 
+\Code{zfflog} and \Code{zxfflg}. They are now declared as \Code{DOUBLE 
+COMPLEX function(args)}, change this to \Code{COMPLEX 
+function*16(args)}.
+
+Generic names for the intrinsic functions \Code{sqrt}, \Code{log}, and 
+\Code{log10} are used everywhere, so these need not be changed.
+
+Note that all subroutines have names starting with \Code{ff}, the 
+functions have the \Code{ff} in the middle of the name.  It is hoped 
+that this naming convention will minimise conflicts with user-defined 
+names.  The author is aware of the possible conflict with the 
+Cern-library package `ffread', but could not think up another key.
+
+The FF package uses three data files: \Code{fferr.dat}, 
+\Code{ffwarn.dat} and \Code{ffperm5.dat}.  The mechanism for locating 
+these is very simple: in the subroutine which reads these files 
+(\Code{ffopen} and \Code{ffwarn} in the file \Code{ffini}) the variable 
+\Code{fullname} is defined.  You will have to fill in here a directory 
+(readable by everyone using the routines) that contains the 
+datafiles\footnote{for VAX/VMS one has to add the non-standard 
+\Code{READONLY} to the open statement}.
+
+
+\section{Initialization}
+\label{sc:initialization}
+
+When using the FF routines a few initialisations have to be performed in 
+the program that calls these routines.
+
+The common blocks used are all listed in the file `ff.h'.  If your 
+system does not automatically save common blocks (like Absoft Fortran) 
+it is easiest to include this file in the main program.
+
+Furthermore, before any of the subroutines are called, a call must be 
+made to \Code{ffini} to initialise some arrays of Taylor series 
+coefficients.  This routine also tries to establish the machine 
+precision and range, causing two underflows.  If this is a problem 
+(e.g.~with Gould dbx), edit this routine to a hardwired range.  Finally 
+it sets up reasonable defaults for the tracing flags (these are listed 
+in \ref{sec:debugging}).  This call is made automatically if one uses 
+the \Code{npoin} entry point.
+
+A call to \Code{ffexi} will check the integrity of these arrays and 
+give a summary of the errors and warnings encountered.
+
+Finally, on systems on which error trapping is possible it may be 
+advantageous to use a call
+\begin{verbatim}
+        call qsetrec(ffrcvr)
+\end{verbatim}
+This forwards any floating point errors to the error reporting system.  
+The routine qsetrec is available in the CERN library.
+
+
+\section{The error reporting system}
+
+\subsection{Overview}
+
+One of the goals of this package was to give {\em reliable} answers.  
+For this purpose a rather elaborate error reporting system has been 
+built in.  First, there are a few flags which govern the level of 
+internal checking.  Secondly, a count of the number of digits lost in 
+numerical cancellations above some acceptable number (this number is 
+defined for each function in section \ref{sc:n-point}) is default 
+returned with any result.  This count is quite conservative.  {\em Do 
+not forget the few digits normal everyday loss} on top of the reported 
+losses, however: the `acceptable' loss.  Finally, a message can be given 
+to the user where the error or warning occurred. For this to be useful, 
+the user has to update some variables.
+
+
+\subsection{Using the system}
+
+\subsubsection{Errors}
+
+A distinction is made between errors and warnings.  An error is an 
+internal inconsistency or a floating point error (if trapped).  If an 
+error occurs a message is printed on standard output like this (the 
+output is truncated to fit on the page)
+\begin{verbatim}
+id nr     41/     7, event nr     16
+error nr    32: nffeta: error:   eta is not defined for real ...
+\end{verbatim}
+The first part of the id must be defined by the user.  It is given by 
+the variable \Code{id} in the common block \Code{/ffflags/}.  I tend to 
+use '41' for the first four-point function, '42' for the second one, 
+etc:
+\begin{verbatim}
+        id = 41
+        call ffxd0(cd0,xpi1,ier)
+        id = 42
+        call ffxd0(cd0,xpi2,ier)
+\end{verbatim}
+The second part (\Code{idsub}) is maintained internally to pinpoint the 
+error.  The event number is assumed to be \Code{nevent} in the same 
+common block.  It too has to be incremented by the user.  The error 
+number is used internally to fetch the message text from the file 
+\Code{fferr.dat}, which also includes the name of the routine in which 
+the error occurred.  If an error has occurred the variable \Code{ier} is 
+incremented by 100.
+
+A call to \Code{fferr} with the error number 999 causes a list of all 
+errors so far to be printed out and this list to be cleared.  This is 
+used by \Code{ffexit}.
+
+
+\subsubsection{Warnings}
+
+A warning is a loss of precision because of numerical cancellations.  
+Only losses greater than a certain default value are noticed.  This is 
+controlled by the variable \Code{xloss} in the common block 
+\Code{/ffprec/}, which is set to 1/8 by \Code{ffini}.  A power of 2 is 
+highly recommended.  If a loss of precision greater than this tolerable, 
+everyday loss occurs the subroutine \Code{ffwarn} is called.  The 
+default action is to only increment the variable \Code{ier} by the 
+number of digits lost over the standard tolerated loss of \Code{xloss}.  
+Nothing is printed, but all calls occurring with the same value of the 
+event counter \Code{nevent} are remembered.  This queue is printed when 
+\Code{ffwarn} is called with error number 998.
+
+The reason for this is simply that I do not like hundreds of meaningless 
+warnings to clutter the important ones in a big Monte Carlo.  I 
+therefore include a line like
+\begin{verbatim}
+       if ( ier .gt. 10 ) call ffwarn(998,ier,x0,x0)
+\end{verbatim}
+at the end of the calculation of one event, causing the system to report only 
+those errors which led to a fatal loss of precision.  The warning messages 
+produced are similar to an error message:
+\begin{verbatim}
+id nr     41/     4, event nr   2265
+warning nr    138: ffdl3p: warning: cancellations in \delta_{...
+     (lost    1 digits)
+\end{verbatim}
+The number of digits lost gives the number of digits which have become 
+unreliable in the answer due to this step {\em over the normal loss of 
+\Code{xloss}}.
+
+Another special error number is 999: this causes a list of all warnings 
+which have occurred up to that point to be printed out plus the maximum 
+loss suffered at that point.  The routine \Code{ffexi} uses this.
+
+There is one warning message which does not increase \Code{ier}: the 
+remark that there are cancellations among the input parameters.  This is 
+the responsibility of the user.  Most routines have an alternative entry 
+point with the differences of the parameters required as input.
+
+The user can edit the routines \Code{ffwarn} and \Code{fferr} (in the 
+file \Code{ffini}) to customize the error and warning reporting.
+
+
+\subsection{Debugging possibilities}
+\label{sec:debugging}
+
+There are a few flags to control the package in great detail.  These are 
+contained in the common block \Code{/ffflags/}.  The first one, \Code{lwrite}, 
+if on, gives a detailed account of all steps taken to arrive at the answer.  
+This gives roughly 1000 lines of output for a four-point function.  It is 
+turned off by \Code{ffini}.  The second one, \Code{ltest}, turns on a lot of 
+internal consistency checking.  If something is found wrong a message like
+\begin{verbatim}
+ffdot4: error: dotproducts with p(10) wrong: -1795. ... -9.5E-12
+\end{verbatim}
+is given.  The last number gives the deviation from the expected result, in 
+this case a relative precision of $10^{-15}$ was found instead of the expected 
+$10^{-16}$.  The \Code{ier} counter is {\em not} changed, as these are usually 
+rounding off errors.  Please report any serious errors.  This flag is 
+turned on by \Code{ffini}, turn it off manually once you are convinced that 
+your corner of parameter space does not present any problems.
+
+The next two flags, \Code{l4also} and \Code{ldc3c4}, control the 
+checking of some extra algorithms.  This takes time and may even lead to 
+worse results in some rare cases.  If you are pressed for speed, try 
+running with these flags off and only switch them on when you get the 
+warning message ``\Code{Cancellations in final adding up}''.  If you get 
+mysterious warnings with the flags on, try turning them off.
+
+Another flag for internal use, \Code{lmem} controls a rudimentary memory 
+mechanism which is mainly used when trying different permutations of the 
+parameters of the three- and four-point functions.  Its use is taken care of 
+by the system.
+
+Next there is the possibility to save the array of dotproducts used by the 
+three and four-point function.  These arrays are used by the tensor integrals.
+
+Finally there is the possibility to to turn off all warning reporting by 
+setting \Code{lwarn} to \Code{.FALSE.}.  Do not do this until you are completely 
+satisfied that there are no problems left!  It 
+will also invalidate the value of \Code{ier}, so you will have no warning 
+whatsoever if something goes horribly wrong.
+
+It may be advantageous to change the flags to parameters and recompile for 
+extra speed and smaller size.  Approximately half the code of the package is 
+for debugging purposes.
+
+\subsection{Summary}
+
+The following sequence has been found to be very convenient.
+\begin{enumerate}
+\item Make sure that the system can find \Code{fferr.dat} and \Code{ffwarn.dat} 
+and that the routine \Code{ffini} is called.
+\item Do a pilot run with \Code{ltest} on to check for internal problems within 
+the FF routines.  One can also look for the best permutation of the input 
+parameters at this stage.  Please report anything irregular.
+\item Run a full Monte Carlo with \Code{ltest} off, but \Code{lwarn} still
+on to check for numerical problems.
+\item Only if there are {\em no} numerical problems left, you can turn off 
+\Code{lwarn} to gain the last percents in speed.
+\end{enumerate}
+
+%  #] the error reporting system:
+%  #[ the scalar n-point functions:
+%		#[ intro:
+\section{Scalar n-point functions}
+\label{sc:n-point}
+
+In general there are two routines for almost every task: one for the case that 
+all parameters are real and one to use if one or more are complex.  Infra-red 
+divergent diagrams are calculated with a user-defined cutoff on the divergent
+logarithms.  Planned extensions are
+\begin{itemize}
+\item the derivative of B0,
+\item fast special cases,
+\item six-point functions.
+\end{itemize}
+Please note that there is also an entry-point \Code{npoin} which returns the 
+scalar integrals plus the supported tensor integrals in a form compatible with 
+FormF\null.  The number of digits lost cannot be included this way, however.  
+It is provided on request to allow old code which used FormF to run without a 
+CDC.
+
+%		#] intro:
+%		#[ 1point:
+
+\subsection{One-point function}
+
+The one-point function $\Code{ca0} = A_0(m^2) = \frac{1}{i\pi^2}\int d^n 
+Q/(Q^2-m^2)$ is calculated with the subroutines
+\begin{verbatim}
+        subroutine ffca0(ca0,d0,xmm,cm,ier)
+        integer ier
+        DOUBLE COMPLEX ca0,cm
+        DOUBLE PRECISION d0,xmm
+
+        subroutine ffxa0(ca0,d0,xmm,xm,ier)
+        integer ier
+        DOUBLE COMPLEX ca0
+        DOUBLE PRECISION d0,xmm,xm
+\end{verbatim}
+with $\Code{d0} = \Delta = -2/\epsilon - \gamma + \log(4\pi) $ the 
+infinity from the renormalisation scheme and the mass $\Code{xmm} = \mu$ 
+arbitrary.  The final result should not depend on it.  $\Code{xm} = m^2$ 
+is the internal mass {\em squared}.  This is of course a trivial function.
+
+%		#] 1point:
+%		#[ 2point:
+\subsection{Two-point function}
+
+\subsubsection{Calling sequence}
+
+The two-point function $\Code{cb0} = B_0(m_a^2,m_b^2,k^2)$ is calculated 
+in the subroutines
+\begin{verbatim}
+        subroutine ffcb0(cb0,d0,xmu,ck,cma,cmb,ier)
+        integer ier
+        DOUBLE COMPLEX cb0,ck,cma,cmb
+        DOUBLE PRECISION xmu,d0
+
+        subroutine ffxb0(cb0,d0,xmu,xk,xma,xmb,ier)
+        integer ier
+        DOUBLE COMPLEX cb0
+        DOUBLE PRECISION d0,xmu,xk,xma,xmb
+\end{verbatim}
+with \Code{d0} and \Code{xmm} as in the one-point function. $\Code{xk} = 
+k^2$ in Bj{\o}rken and Drell metric {\small $(+---)$} and $\Code{xma,b} = 
+m_{a,b}^2$ are the internal masses {\em squared}.  
+
+\subsubsection{Comments}
+
+The maximum loss of precision without warning in the scalar two-point function 
+is $(\Code{xloss})^3$ in the basic calculation plus \Code{xloss} when adding 
+the renormalisation terms.  Numerical instabilities only occur very close to 
+threshold ($k^2 \approx (m_a + m_b)^2$).  The function can run into underflow 
+problems if both $|m_a-m_b| \ll m_a$ and $|k^2| \ll m_a^2$.  Note that this 
+function uses Pauli metric {\small $(+++-)$} internally.
+
+%		#] 2point:
+%		#[ 3point:
+\subsection{Three-point function}
+
+\subsubsection{Calling sequence}
+
+The three-point function $\Code{cc0} = C_0(m_1^2,m_2^2,m_3^2,p_1^2, 
+p_2^2,p_3^2)$ is calculated in the subroutines
+\begin{verbatim}
+        subroutine ffcc0(cc0,cpi,ier)
+        integer ier
+        DOUBLE COMPLEX cc0,cpi(6)
+
+        subroutine ffxc0(cc0,xpi,ier)
+        integer ier
+        DOUBLE COMPLEX cc0
+        DOUBLE PRECISION xpi(6)
+\end{verbatim}
+The array \Code{xpi} should contain the internal masses squared in positions 
+1--3 and the external momenta squared in 4--6.  The momentum $\Code{xpi(4)} = 
+p_1^2$ is the one between $\Code{xpi(1)} = m_1^2$ and $\Code{xpi(2)} = 
+m_2^2$, and so on cyclically.  The routine rotates the diagram to the best 
+position, so only the swap $m_1^2 \leftrightarrow m_3^2$, $p_1^2 
+\leftrightarrow p_2^2$ can be used to test the accuracy.  
+
+There is an alternative entry point which can be used if there 
+are significant cancellations among the input parameters.
+\begin{verbatim}
+        subroutine ffxc0a(cc0,xpi,dpipj,ier)
+        integer ier
+        DOUBLE COMPLEX cc0
+        DOUBLE PRECISION xpi(6),dpipj(6,6)
+\end{verbatim}
+All differences between the input parameters should be given in the array
+\Code{dpipj(i,j) = xpi(i) - xpi(j)}.
+
+In the testing stages one can use
+\begin{verbatim}
+        subroutine ffcc0r(cc0,cpi,ier)
+        integer ier
+        DOUBLE COMPLEX cc0,cpi(6)
+
+        subroutine ffxc0r(cc0,xpi,ier)
+        integer ier
+        DOUBLE COMPLEX cc0
+        DOUBLE PRECISION xpi(6)
+\end{verbatim}
+It tries 2 different permutations of the input parameters and the two 
+different signs of the root in the transformation and takes the best one.  
+This permutation can later be chosen directly in the code.
+
+If the requested three-point function is infra-red divergent (\ie one 
+internal mass 0 and the other two on-shell) the terms $\log(\lambda^2)$, 
+with $\lambda$ the regulator mass, are replaced by $\log(\delta)$.  In 
+all other terms the limit $\lambda \to 0$ is taken.  The value of the 
+cutoff parameter $\Code{delta} = \delta$ should be provided via the 
+common block \Code{/ffcut/}, in which it is the first (and only) 
+variable.  This infra-red option does not yet work in case some of the 
+masses have a finite imaginary part.
+
+\subsubsection{Comments}
+
+The maximum loss of precision without warning is $(\Code{xloss})^5$.  
+Numerical instabilities again occur very close to thresholds ($p_i^2 \approx 
+(m_i + m_{i+1})^2$).  There are discrepancies with FormF for t-channel 
+diagrams in case $t \to 0$, but there are good reasons to distrust FormF 
+there (the limit is not approached smoothly).
+
+The $Z$ vertex correction to an $ee\gamma$ vertex with one of the electrons 
+slightly off-shell is stable only for one mirror image.
+
+%		#] 3point:
+%		#[ 4point:
+\subsection{Four-point function}
+
+\subsubsection{Calling sequence}
+
+$\Code{cd0} = D_0(m_1^2,m_2^2,m_3^2,m_4^2,
+p_1^2,p_2^2,p_3^2,p_4^2,(p_1+p_2)^2,(p_2+p_3)^2)$, the four-point function, is 
+calculated in the subroutine
+\begin{verbatim}
+        subroutine ffxd0(cd0,xpi,ier)
+        integer ier
+        DOUBLE COMPLEX cd0
+        DOUBLE PRECISION xpi(13)
+\end{verbatim}
+The array \Code{xpi} should contain the internal masses squared in positions 
+1--4, the external momenta squared in 5--8 and $s = (p_1+p_2)^2$, $t = 
+(p_2+p_3)^2$ in 9--10.  Positions 11--13 should contain either 0 or 
+\begin{gather}
+    \Code{xpi(11) = u = +xpi(5)+xpi(6)+xpi(7)+xpi(8)-xpi(9)-xpi(10)}\nonumber\\
+    \Code{xpi(12) = v = -xpi(5)+xpi(6)-xpi(7)+xpi(8)+xpi(9)+xpi(10)}\nonumber\\
+    \Code{xpi(13) = w = +xpi(5)-xpi(6)+xpi(7)-xpi(8)+xpi(9)+xpi(10)}\nonumber
+\end{gather}
+Unfortunately the complex four-point function does not yet exist in a usable 
+form.
+
+There are two alternative entry points.  The first one can be used if there 
+are significant cancellations among the input parameters.
+\begin{verbatim}
+        subroutine ffxd0a(cd0,xpi,dpipj,ier)
+        integer ier
+        DOUBLE COMPLEX cd0
+        DOUBLE PRECISION xpi(13),dpipj(10,13)
+\end{verbatim}
+in which these last elements are required and all differences between the 
+input parameters are given in \Code{dpipj(i,j) = xpi(i) - xpi(j)}.
+
+The second one can be used in the testing stages.  
+\begin{verbatim}
+        subroutine ffxd0r(cd0,xpi,ier)
+        integer ier
+        DOUBLE COMPLEX cd0
+        DOUBLE PRECISION xpi(13)
+\end{verbatim}
+It tries 6 different permutations of the input parameters and the two 
+different signs of the root in the transformation and takes the best one.  
+This permutation can later be chosen directly in the code.
+
+If the requested four-point function is infra-red divergent (i.e.\ one 
+internal mass 0 and the adjoining lines on-shell) the terms $\log(\lambda^2)$, 
+with $\lambda$ the regulator mass, are replaced by $\log(\delta)$.  In all 
+other terms the limit $\lambda \to 0$ is taken. The numerical value of 
+$\Code{delta} = \delta$ should be placed in a common block \Code{/ffcut/}.  
+{\em Due to problems in the transformation at this moment at most one 
+propagator can have zero mass}.
+
+\subsubsection{Comments}
+
+The maximum loss of precision without warning is $(\Code{xloss})^7$.  
+There may be problems with diagrams with masses and/or momenta squared 
+exactly zero.  If you get a division by zero or the like try with a 
+small non-zero mass.
+
+The following diagrams are known not give an accurate answer:
+\begin{enumerate}
+\item Again, any configuration with an external momentum very close to 
+threshold.
+\item $\gamma\gamma \to \gamma\gamma$ for $s \ll m^2$
+\end{enumerate}
+
+%		#] 4point:
+%		#[ 5point:
+\subsection{Five-point function}
+
+\subsubsection{Calling sequence}
+
+The five-point function $\Code{ce0} = E_0(m_i^2,p_i^2,(p_i+p_{i+1})^2,i=1,
+5)$ and the five four-point functions which one obtains by removing one 
+internal leg are calculated in the subroutine
+\begin{verbatim}
+        subroutine ffxe0(ce0,cd0i,xpi,ier)  
+        integer ier
+        DOUBLE COMPLEX ce0,cd0i(5)
+        DOUBLE PRECISION xpi(20)
+\end{verbatim}
+The array \Code{xpi} should contain the internal masses squared in positions 
+1--5, the external momenta squared in 6--10 and the sum of two adjacent 
+external momenta squared in 11--15 (the analogons of $s$ and $t$ in the 
+four-point function).  Positions 16--20 should contain either 0 or 
+$(p_i+p_{i+2})^2$ (the analogon of $u$).
+
+There are two alternative entry points.  The first one can be used if there 
+are significant cancellations among the input parameters.
+\begin{verbatim}
+        subroutine ffxe0a(ce0,cd0i,xpi,dpipj,ier)
+        integer ier
+        DOUBLE COMPLEX ce0,cd0i(5)
+        DOUBLE PRECISION xpi(20),dpipj(15,20)
+\end{verbatim}
+in which these last elements are required and all differences between the 
+input parameters are given in \Code{dpipj(i,j) = xpi(i) - xpi(j)}.
+
+The second one can be used in the testing stages.  
+\begin{verbatim}
+        subroutine ffxe0r(ce0,cd0i,xpi,ier)
+        integer ier
+        DOUBLE COMPLEX ce0,cd0i(5)
+        DOUBLE PRECISION xpi(20)
+\end{verbatim}
+It tries the 12 different permutations of the input parameters and the two 
+different signs of the root in the transformation and takes the best one.  
+This permutation can later be chosen directly in the code.
+
+\subsubsection{Comments}
+
+The five-point function has not yet been adequately tested.
+
+The maximum loss of precision without warning is $(\Code{xloss})^7$.  
+There may be problems with diagrams with masses and/or momenta squared 
+exactly zero.  If you get a division by zero or the like try with a 
+small non-zero mass.
+
+%		#] 5point:
+%  #] the scalar n-point functions:
+%  #[ the tensor integrals:
+
+\section{Tensor integrals}
+
+At this moment only the vector two, three and four-point functions are 
+available, of which the two-point functions is very badly implemented.  These 
+tensor integrals are scheme-independent, the higher order functions differ 
+between the Passarino-Veltman scheme \cite{PaV79} and the 
+kinematical determinant scheme described in \cite{vOV90}.
+
+\subsection{Vector integrals}
+
+\subsubsection{Two-point function}
+
+The vector two-point function $B_1 p^\mu = \int d^n 
+Q^\mu/(Q^2-m_1^2)((Q+p)^2-m_2^2)$ is calculated in
+\begin{verbatim}
+        subroutine ffxb1(cb1,cb0,ca0i,xp,xm1,xm2,ier)
+        integer ier
+        DOUBLE PRECISION xp,xm1,xm2
+        COMPLEX cb1,cb0,ca0i(2)
+\end{verbatim}
+The input parameters are $\Code{cb0} = B_0$ the scalar two-point function, 
+$\Code{ca0i(i)} = A_0(m_i^2)$ the scalar one-point functions and the rest 
+as in \Code{ffxb0}.  {\em This function must/will be improved}.
+
+\subsubsection{Three-point function}
+
+The subroutine for the evaluation of the vector three-point function $C_{11} 
+p_1^\mu + C_{12} p_2^\mu = \int d^n Q^\mu / (Q^2-m_1^2) ((Q+p_1)^2-m_2^2) 
+((Q+p_1+p_2)^2-m_3^2)$ is
+\begin{verbatim}
+        subroutine ffxc1(cc1i,cc0,cb0i,xpi,piDpj,del2,ier)
+        integer ier                            
+        DOUBLE PRECISION xpi(6),piDpj(6,6),del2
+        COMPLEX cc1i(2),cc0,cb0i(3)            
+\end{verbatim}
+The required input parameters are $\Code{cc0} = C_0$ the scalar 
+three-point function, $\Code{cb0i(i)}$ the two-point functions with 
+$m_i^2$ {\em missing}: $\Code{cb0i(1)} = B_0(p_2^2,m_2^2,m_3^2)$.  
+Further \Code{xpi} are the masses as in \Code{ffxc0} and \Code{piDpj}, 
+\Code{del2} the dotproducts and kinematical determinant as saved by 
+\Code{ffxc0} when \Code{ldot} is \Code{.TRUE.}
+
+
+\subsubsection{Four-point function}
+
+The calling sequence for the vector four-point function \Code{cd1i} which 
+returns $D_{11}$, $D_{12}$, $D_{13}$, the coefficients of $p_1^\mu$, $p_2^\mu$ 
+and $p_3^\mu$ is
+\begin{verbatim}
+        subroutine ffxd1(cd1i,cd0,cc0i,xpi,piDpj,del3,del2i,ier)
+        integer ier                                        
+        DOUBLE PRECISION xpi(13),piDpj(10,10),del3,del2i(4)
+        COMPLEX cd1i(3),cd0,cc0i(4)                        
+\end{verbatim}
+The input parameters are as follows.  $\Code{cd0} = D_0$ is the scalar 
+four-point function, $\Code{cc0i(i)} = C_0(\mbox{without }m_i)$ the scalar 
+three-point functions, \Code{xpi} the masses as in \Code{ffxd0} and \Code{piDpj}, 
+\Code{del3} and \Code{del2i} the dotproducts and kinematical determinant as 
+saved by \Code{ffxd0} and \Code{ffxc0} when \Code{ldot} is \Code{.TRUE.}
+
+%  #] the tensor integrals:
+%  #[ determinants:
+\section{Determinants}
+\label{sc:determinants}
+
+A knowledge of a few of the determinant routines may be useful to the user as 
+well.   On the one hand they can be used in other parts of the calculation, 
+e.g.\ in the reduction to scalar integrals, but they also are the place where 
+the numerical instabilities have been concentrated.  It is often useful or 
+even necessary to import the required determinants directly from the 
+kinematics section.  We therefore list all the routines calculating 
+determinants of external vectors and some containing internal vectors.
+
+
+\subsection{$2\times2$ determinants}
+
+To calculate the $2\times2$ determinant $\Code{del2} = 
+\delta^{p_{i_1}p_{i_2}}_{p_{i_1}p_{i_2}}$, $p_3 = -(p_1+p_2)$, given the 
+dotproducts use
+\begin{verbatim}
+        subroutine ffcel2(del2,piDpj,ns,i1,i2,i3,lerr,ier)
+        integer ns,i1,i2,i3,lerr,ier
+        DOUBLE COMPLEX del2,piDpj(ns,ns)
+
+        subroutine ffdel2(del2,piDpj,ns,i1,i2,i3,lerr,ier)
+        integer ns,i1,i2,i3,lerr,ier
+        DOUBLE PRECISION del2,piDpj(ns,ns)
+\end{verbatim}
+In this $\Code{piDpj(i,j)} = p_i \cdot p_j$ is the dotproduct of vectors 
+$p_i$ and $p_j$, \Code{i1,i2,i3} give the position of the three vectors of 
+which the determinant has to be calculated in this array.  \Code{lerr} should 
+be 1.
+
+If the dotproducts are not known there is a routine for $\Code{xlambd} =
+\lambda(a_1,a_2,a_3)$, which is -2 times the determinant if 
+$\Code{ai} = p_i^2$.
+\begin{verbatim}
+        subroutine ffclmb(clambd,cc1,cc2,cc3,cc12,cc13,cc23,ier)
+        integer ier
+        DOUBLE COMPLEX clambd,cc1,cc2,cc3,cc12,cc13,cc23
+
+        subroutine ffxlmb(xlambd,a1,a2,a3,a12,a13,a23,ier)
+        integer ier
+        DOUBLE PRECISION xlambd,a1,a2,a3,a12,a13,a23
+\end{verbatim}
+The \Code{aij = ai - aj} are again differences of the parameters in these 
+routines.
+
+An arbitrary $2\times2$ determinant $\delta^{p_{i_1} p_{i_2}}_{p_{j_1} 
+p_{j_2}}$ can be obtained from \Code{ffdl2i}:
+\begin{verbatim}
+        subroutine ffdl2i(dl2i,piDpj,ns,i1,i2,i3,isn,j1,j2,j3,
+     +           jsn,ier)
+        integer ns,i1,i2,i3,isn,j1,j2,j3,jsn,ier
+        DOUBLE PRECISION dl2i,piDpj(ns,ns)
+\end{verbatim}
+Here the vector $p_{i_3} = \mbox{\small\tt isn}(p_{i_1} + p_{i_2})$ and 
+analogously for $j$.  (Note that the sign is important here).
+
+If there is no connection between the two vectors one should use
+\begin{verbatim}
+        subroutine ffdl2t(dlps,piDpj,i,j,k,l,lk,islk,iss,ns,ier)
+        integer in,jn,ip1,kn,ln,lkn,islk,iss,ns,ier
+        DOUBLE PRECISION dlps,piDpj(ns,ns)
+\end{verbatim}
+to calculate $\delta^{p_i p_j}_{p_k p_l}$ with $p_{lk} = \mbox{\small\tt islk}
+( \mbox{\small\tt iss} p_l - pk)$ and no relationship between $p_i$, $p_j$ 
+assumed.
+
+\subsection{$3\times3$ determinants}
+
+To calculate the $3\times3$ determinant $\Code{dl3p} = 
+\delta^{p_{i_1}p_{i_2}p_{i_3}}_{p_{i_1}p_{i_2}p_{i_3}}$ given the dotproducts 
+\Code{piDpj}, one can use
+\begin{verbatim}
+        subroutine ffdl3p(dl3p,piDpj,ns,ii,ier)
+        integer ns,ii(6),ier
+        DOUBLE PRECISION dl3p,piDpj(ns,ns)
+\end{verbatim}
+The array \Code{ii(j)} gives the position of the vectors of the determinant has 
+to be calculated in this array.  We assume that $p_{ii(4)} = -p_{ii(1)} 
+-p_{ii(2)} -p_{ii(3)}$, $p_{ii(5)} = p_{ii(1)} + p_{ii(1)}$ and 
+$p_{ii(6)} = p_{ii(2)} + p_{ii(3)}$, with all vectors incoming.
+
+The $3\times3$ determinant $\Code{dl3q} = \delta^{s_{i_1} p_{i_2} p_{i_3}
+}_{p_{i_1}p_{i_2}p_{i_3}}$, which occurs in expressions for tensor integrals,
+is calculated by
+\begin{verbatim}
+        subroutine ffdl3q(dl3q,piDpj,i1,i2,i3,j1,j2,j3,
+     +                    isn1,isn2,isn3,jsn1,jsn2,jsn3,ier)
+        integer i1,i2,i3,j1,j2,j3,isn1,isn2,isn3,jsn1,jsn2,jsn3,
+     +          ier
+        DOUBLE PRECISION dl3q,piDpj(10,10)
+\end{verbatim}
+Now the only assumptions that are made are that $p_{j_n} = \mbox{\small\tt 
+jsn}_n (p_{i_n} - \mbox{\small\tt isn}_n p_{i_{n+1}})$ if $\Code{j}_n$ is 
+unequal to zero.  {\em This routine should still be extended}.
+
+\subsection{$4\times4$ determinants}
+
+To calculate the $4\times4$ determinant $\Code{dl4p} = 
+\delta^{p_{i_1}p_{i_2}p_{i_3}p_{i_4}}_{p_{i_1}p_{i_2}p_{i_3}p_{i_4}}$ given 
+the dotproducts \Code{piDpj}, one can use
+\begin{verbatim}
+        subroutine ffdl4p(dl4p,piDpj,ns,ii,ier)
+        integer ns,ii(10),ier
+        DOUBLE PRECISION dl4p,piDpj(ns,ns)
+\end{verbatim}
+The array \Code{ii(j)} gives the position of the vectors of the determinant has 
+to be calculated in this array.  We assume that $p_{ii(5)} = -p_{ii(1)} 
+-p_{ii(2)} -p_{ii(3)} -p_{ii(4)}$, $p_{ii(n+5)} = p_{ii(n)} + p_{ii(n+11)}$, 
+with all vectors incoming again.
+
+%  #] determinants:
+\end{appendix}
+
+
+\begin{flushleft}
+\begin{thebibliography}{999}
+
+\itemsep 2pt plus 2pt minus 1pt
+\frenchspacing
+
+\bibitem[dACTP98]{dACTP98}
+F.~del~Aguila, A.~Culatti, R.~Mu\~noz Tapia, and M.~P\'erez-Victoria,
+\textsl{Nucl. Phys.} \textbf{B537} (1999) 561
+[hep-ph/9806451].
+
+\bibitem[De93]{De93}
+A.~Denner, \textsl{Fortschr. Phys.} \textbf{41} (1993) 307
+[arXiv:0709.1075].
+
+\bibitem[HaP98]{HaP98}
+T.~Hahn and M.~P\'erez-Victoria,
+\textsl{Comput. Phys. Commun.} \textbf{118} (1999) 153
+[hep-ph/9807565].
+
+\bibitem[PaV79]{PaV79}
+G.~Passarino and M.~Veltman,
+\textsl{Nucl. Phys.} \textbf{B160} (1979) 151.
+
+\bibitem[tHV79]{tHV79}
+G.~'t~Hooft and M.~Veltman,
+\textsl{Nucl. Phys.} \textbf{B153} (1979) 365.
+
+\bibitem[vdH90]{vdH90}
+M.~van~der~Horst, Ph.D.\ thesis, Universiteit van Amsterdam, 1990.
+
+\bibitem[vOV90]{vOV90}
+G.J.~van Oldenborgh, J.A.M.~Vermaseren,
+\textsl{Z. Phys.} \textbf{C46} (1990) 425.
+
+\bibitem[KLN]{KLN}
+T.~Kinoshita, \textsl{J. Math. Phys.} \textbf{3} (1962) 650, \\
+T.D.~Lee, M.~Nauenberg, \textsl{Phys. Rev.} \textbf{133} (1964) 1549, \\
+N.~Nakanishi, \textsl{Progr. Theor. Phys.} \textbf{19} (1958) 159.
+
+\end{thebibliography}
+\end{flushleft}
+
+
+\printindex
+
+\end{document}

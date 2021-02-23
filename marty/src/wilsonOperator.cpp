@@ -1,0 +1,266 @@
+// This file is part of MARTY.
+// 
+// MARTY is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// MARTY is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with MARTY. If not, see <https://www.gnu.org/licenses/>.
+
+#include "wilsonOperator.h"
+#include "model.h"
+#include "error.h"
+
+namespace mty {
+
+std::ostream &operator<<(
+        std::ostream &out,
+        OperatorType  type
+        )
+{
+    switch(type)
+    {
+        case mty::OperatorType::Magnetic:       out << "Magnetic";       break;
+        case mty::OperatorType::ChromoMagnetic: out << "ChromoMagnetic"; break;
+        default: out << "Unknown Operator";
+    }
+    return out;
+}
+
+namespace OperatorParser {
+
+    csl::Expr getMagneticCoefficient(
+            std::vector<Wilson> const &coefs,
+            Chirality                  chirality
+            )
+    {
+        std::vector<Requirement> requirements {
+            {1, 0}, // Non-conjugated fermion
+            {1, 1}, // Conjugated fermion
+            {2, -1} // Vector boson, conjugated or not
+        };
+        std::vector<csl::Expr> res;
+        for (const auto &wilson : coefs) {
+            const std::vector<Insertion> insertions = getInsertions(
+                    requirements,
+                    wilson.op
+                    );
+            if (insertions.empty()) {
+                continue;
+            }
+            int sign_p1 = insertions[2].field.isIncoming() ? -1 : 1;
+            if (!insertions[0].field.isIncoming())
+                sign_p1 *= -1;
+            int sign_p2 = insertions[2].field.isIncoming() ? -1 : 1;
+            if (insertions[1].field.isIncoming())
+                sign_p2 *= -1;
+            csl::Expr op_p1 = buildMagneticOperator(
+                    insertions[0],
+                    insertions[1],
+                    insertions[2],
+                    insertions[0].momentum,
+                    chirality
+                    );
+            csl::Expr op_p2 = buildMagneticOperator(
+                    insertions[0],
+                    insertions[1],
+                    insertions[2],
+                    insertions[1].momentum,
+                    chirality
+                    );
+            csl::Expr op_p3 = buildMagneticOperator(
+                    insertions[0],
+                    insertions[1],
+                    insertions[2],
+                    insertions[2].momentum,
+                    chirality
+                    );
+            if (wilson.op == WilsonOperator{op_p1})
+                res.push_back(CSL_1 / 4 * sign_p1 
+                        * wilson.coef.getCoefficient());
+            else if (wilson.op == WilsonOperator{op_p2})
+                res.push_back(CSL_1 / 4 * sign_p2 
+                        * wilson.coef.getCoefficient());
+            else if (wilson.op == WilsonOperator{op_p3})
+                res.push_back(-CSL_1 / 2 * wilson.coef.getCoefficient());
+        }
+
+        return csl::sum_s(res);
+    }
+
+    csl::Expr buildMagneticOperator(
+            Insertion const &incomingFermion,
+            Insertion const &outgoingFermion,
+            Insertion const &vectorBoson,
+            csl::Tensor      momentum,
+            Chirality        chirality
+            )
+    {
+        csl::Expr psi_star = outgoingFermion.field
+            .getQuantumParent()->getInstance();
+        ConvertToPtr<QuantumField>(psi_star)
+            ->setIncoming(outgoingFermion.field.isIncoming());
+        ConvertToPtr<QuantumField>(psi_star)
+            ->setConjugated(outgoingFermion.field.isComplexConjugate());
+        ConvertToPtr<QuantumField>(psi_star)
+            ->setPoint(outgoingFermion.momentum);
+        csl::Expr psi = incomingFermion.field
+            .getQuantumParent()->getInstance();
+        ConvertToPtr<QuantumField>(psi)
+            ->setIncoming(incomingFermion.field.isIncoming());
+        ConvertToPtr<QuantumField>(psi)
+            ->setConjugated(incomingFermion.field.isComplexConjugate());
+        ConvertToPtr<QuantumField>(psi)
+            ->setPoint(incomingFermion.momentum);
+        for (size_t i = 0; i != psi->getIndexStructureView().size(); ++i)
+            csl::Replace(
+                    psi_star, 
+                    psi_star->getIndexStructureView()[i],
+                    psi->getIndexStructureView()[i]);
+        csl::Index alpha = psi_star->getIndexStructureView().back();
+        csl::Index beta  = alpha.rename();
+        csl::Replace(psi, alpha, beta);
+        csl::Expr A = vectorBoson.field
+            .getQuantumParent()->getInstance();
+        A->setPoint(vectorBoson.momentum);
+        csl::Index mu = A->getIndexStructureView().back();
+        csl::Expr generator = CSL_1;
+        if (A->getIndexStructureView().size() > 1) {
+            // Chromo-magnetic operator
+            auto irrep = vectorBoson.field.getQuantumParent()->getGaugeIrrep();
+            Model const &model = *mty::Model::current;
+            SemiSimpleAlgebra const *algebra = nullptr;
+            for (const auto &rep : irrep) {
+                if (rep.getDim() > 1) {
+                    algebra = rep.getAlgebra();
+                    break;
+                }
+            }
+            HEPAssert(algebra,
+                    mty::error::TypeError,
+                    "Invalid amplitude for magnetic operator.")
+            Group const *group = nullptr;
+            for (const auto &g : *model.getGauge()) {
+                if (g->getAlgebra() == algebra) {
+                    group = g.get();
+                    break;
+                }
+            }
+            HEPAssert(group,
+                    mty::error::TypeError,
+                    "Invalid amplitude for magnetic operator.")
+            auto T = model.getGenerator(group, psi);
+            auto I = T->getSpace()[0]->generateIndex();
+            auto space = T->getSpace()[1];
+            auto i = space->generateIndex();
+            auto j = space->generateIndex();
+            A->getIndexStructureView()[0] = I;
+            for (size_t k = 0; k != psi->getIndexStructureView().size(); ++k)
+                if (psi->getIndexStructureView()[k].getSpace() == space) {
+                    psi_star->getIndexStructureView()[k] = i;
+                    psi     ->getIndexStructureView()[k] = j;
+                    break;
+                }
+            generator = T({I, i ,j});
+        }
+        mu = mu.getFlipped();
+
+        csl::Expr projector;
+        switch(chirality) {
+            case Chirality::Left:
+                projector = diracSpace->P_L({alpha, beta});
+                break;
+            case Chirality::Right:
+                projector = diracSpace->P_R({alpha, beta});
+                break;
+            default:
+                projector = diracSpace->getDelta()({alpha, beta});
+        }
+
+        return psi_star * projector * generator * psi * (momentum(mu) * A);
+    }
+
+    std::optional<Insertion> getInsertion(
+            std::vector<Requirement> &requirements,
+            csl::Expr               const &qField
+            )
+    {
+        HEPAssert(IsOfType<QuantumField>(qField),
+                mty::error::TypeError,
+                "This function expects a quantum field, " + toString(qField)
+                + " given.")
+        QuantumField const *f = ConvertToPtr<QuantumField>(qField);
+        Insertion ins{
+            *f, 
+            std::dynamic_pointer_cast<csl::TensorParent>(f->getPoint())
+        };
+        for (auto iter  = requirements.begin();
+                  iter != requirements.end();
+                  ++iter) {
+            if (ins.verifies(*iter)) {
+                requirements.erase(iter);
+                return ins;
+            }
+        }
+        return std::nullopt;
+    }
+
+    std::vector<Insertion> getInsertions(
+            std::vector<Requirement> const &requirements,
+            WilsonOperator           const &op
+            )
+    {
+        std::vector<Insertion> res;
+        auto copy_requirements = requirements;
+        csl::VisitEachLeaf(op.getOp(), [&](csl::Expr const &leaf)
+        {
+            if (IsOfType<QuantumField>(leaf)) {
+                if (copy_requirements.empty()) 
+                    res.clear();
+                else if (const auto opt = getInsertion(copy_requirements, leaf);
+                        opt)
+                    res.push_back(opt.value());
+                else
+                    res.clear();
+            }
+        });
+
+        if (res.size() == requirements.size()) {
+            sortInsertions(res, requirements);
+            return res;
+        }
+        return {};
+    }
+
+    void sortInsertions(
+            std::vector<Insertion>         &insertions,
+            std::vector<Requirement> const &requirements
+            )
+    {
+        HEPAssert(insertions.size() == requirements.size(),
+                mty::error::ValueError,
+                "Insertions and requirements should have the same size, "
+                + toString(insertions.size()) + ", " 
+                + toString(requirements.size()) + " respectively were given.")
+            for (size_t i = 0; i != insertions.size(); ++i) {
+                size_t i_right = i;
+                for (size_t j = i+1; j < insertions.size(); ++j) {
+                    if (insertions[j].verifies(requirements[i])) {
+                        i_right = j;
+                        break;
+                    }
+                }
+                if (i != i_right) {
+                    std::swap(insertions[i], insertions[i_right]);
+                }
+            }
+    }
+
+} // End of namespace mty::OperatorParser
+} // End of namespace mty

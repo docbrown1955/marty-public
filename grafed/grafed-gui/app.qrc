@@ -1,0 +1,35 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+  <file>ressources/images/add.png</file>
+  <file>ressources/images/Anti_Charged_Scalar.png</file>
+  <file>ressources/images/Anti_Fermion.png</file>
+  <file>ressources/images/Anti_gaugino.png</file>
+  <file>ressources/images/Anti_Ghost.png</file>
+  <file>ressources/images/Anti_Gluino.png</file>
+  <file>ressources/images/center_icon.png</file>
+  <file>ressources/images/Charged_Scalar.png</file>
+  <file>ressources/images/cross.png</file>
+  <file>ressources/images/Fermion.png</file>
+  <file>ressources/images/Gaugino.png</file>
+  <file>ressources/images/Ghost.png</file>
+  <file>ressources/images/Gluino.png</file>
+  <file>ressources/images/Gluon.png</file>
+  <file>ressources/images/grid.png</file>
+  <file>ressources/images/hatched_disk.png</file>
+  <file>ressources/images/logo-white.png</file>
+  <file>ressources/images/Majorana.png</file>
+  <file>ressources/images/normal.png</file>
+  <file>ressources/images/operator.png</file>
+  <file>ressources/images/plain_disk.png</file>
+  <file>ressources/images/quit.png</file>
+  <file>ressources/images/reset.png</file>
+  <file>ressources/images/Scalar.png</file>
+  <file>ressources/images/select.png</file>
+  <file>ressources/images/test.png</file>
+  <file>ressources/images/trash.png</file>
+  <file>ressources/images/Vector.png</file>
+  <file>ressources/logo/logo.png</file>
+  <file>ressources/logo/logo-black.ico</file>
+  <file>ressources/logo/logo-white.ico</file>
+</qresource>
+</RCC>

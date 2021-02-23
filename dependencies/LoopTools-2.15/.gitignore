@@ -1,0 +1,7 @@
+x86_64-Linux/lib64/*
+build/*.o
+build/*.a
+build/*.so
+build-quad/*.o
+build-quad/*.a
+build-quad/*.so

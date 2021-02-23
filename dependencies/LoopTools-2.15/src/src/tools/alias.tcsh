@@ -1,0 +1,6 @@
+alias versionkey 'echo "keya0=2^0; keybget=2^2; keyc0=2^4; keyd0=2^6; keye0=2^8; keyeget=2^10; keyceget=2^12; keyall=keya0+keybget+keyc0+keyd0+keye0+keyeget+keyceget; \!*:agl" | bc'
+alias debugkey 'echo "debuga=2^0; debugb=2^1; debugc=2^2; debugd=2^3; debuge=2^4; debugall=debuga+debugb+debugc+debugd+debuge; \!*:agl" | bc'
+alias setversionkey 'setenv LTVERSION `versionkey \!*`'
+alias setdebugkey 'setenv LTDEBUG `debugkey \!*`'
+alias setdebugrange 'setenv LTRANGE \!:1-\!:2'
+alias setmaxdev 'setenv LTMAXDEV \!*'
