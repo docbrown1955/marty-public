@@ -104,7 +104,7 @@ int main() {
     cout << squared_ampl << endl;
 
     mty::Library myLib("toy", path_to_generated_library);
-    myLib.addFunction("squared_ampl", squared_ampl);
+    myLib.addFunction("squared_ampl", squared_ampl, "G");
     myLib.build();
 
     mty::doc::emmett->writeData();

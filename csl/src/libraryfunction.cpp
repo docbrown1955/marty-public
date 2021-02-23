@@ -21,6 +21,7 @@
 #include "space.h"
 #include "utils.h"
 #include "abreviation.h"
+#include "librarygroup.h"
 #include "error.h"
 #include "algo.h"
 #include <array>
@@ -30,11 +31,11 @@ namespace csl {
 
     LibFunction::LibFunction(std::string_view t_name,
                              Expr      const& t_expression,
-                             bool             t_complexParameters)
-        :name(t_name)
+                             std::shared_ptr<LibraryGroup> const &t_group)
+        :name(t_name),
+        group(t_group)
     {
         setExpression(t_expression);
-        setComplexParameters(t_complexParameters);
     }
 
     std::string const& LibFunction::getName() const
@@ -67,11 +68,6 @@ namespace csl {
         return tensorial;
     }
 
-    bool LibFunction::isComplexParameters() const
-    {
-        return complexParameters;
-    }
-
     std::vector<csl::Tensor> const& LibFunction::getTensors() const
     {
         return tensors;
@@ -92,7 +88,7 @@ namespace csl {
         return intermediateSteps;
     }
 
-    std::vector<std::string> const& LibFunction::getParameters() const
+    std::vector<LibParameter> const& LibFunction::getParameters() const
     {
         return parameters;
     }
@@ -128,13 +124,6 @@ namespace csl {
         tensorial = t_tensorial;
     }
 
-    void LibFunction::setComplexParameters(bool t_complexParameters)
-    {
-        complexParameters = t_complexParameters;
-        varType = (complexParameters) ?
-            LibraryGenerator::complexUsing : LibraryGenerator::realUsing;
-    }
-
     void LibFunction::setTensors(std::vector<csl::Tensor> const& t_tensors)
     {
         tensors = t_tensors;
@@ -164,23 +153,21 @@ namespace csl {
     void LibFunction::addParameter(std::string const &param)
     {
         for (const auto &p : parameters)
-            if (p == param)
+            if (p.name == param)
                 return;
-        parameters.push_back(param);
+        parameters.push_back({param, "real_t"});
     }
 
     void LibFunction::setParameters(
-            std::vector<std::string> const& t_parameters)
+            std::vector<LibParameter> const& t_parameters)
     {
         parameters = t_parameters;
-        cutParameters();
-        sortParameters();
     }
 
     void LibFunction::removeParameter(std::string_view param)
     {
         for (size_t i = 0; i != parameters.size(); ++i) 
-            if (parameters[i] == param) {
+            if (parameters[i].name == param) {
                 if (tensorParameter >= static_cast<int>(i))
                     --tensorParameter;
                 parameters.erase(parameters.begin() + i);
@@ -193,198 +180,43 @@ namespace csl {
                             std::string const &initInstruction
                             ) const
     {
-        if (header and parameters.size() > nParamThresholdStructure) {
-            out << "struct Param_" << name << "{\n\n";
-            printParameters(out, ";", true);
-            out << "};\n\n";
+        if (header) {
+            group->printForwardDefinitions(out, 0);
+            out << '\n';
         }
         printName(out);
-        if (parameters.size() <= nParamThresholdStructure)
-            printParameters(out);
-        else
-            out << LibraryGenerator::indent(2) << "Param_" << name << " param\n";
-        out << LibraryGenerator::indent(2) << ")";
+        out << LibraryGenerator::indent(2);
+        group->printParameterDefinition(out);
+        out << '\n' << LibraryGenerator::indent(2) << ")";
         if (header)
             out << ";\n";
         else {
-            if (tensorial)
-                printTensorBody(out, initInstruction);
-            else
-                printBody(out, initInstruction);
+            out << "{\n";
+            for (const auto &param : parameters) {
+                out << LibraryGenerator::indent(1)
+                    << "auto const &" << param.name << " = param." 
+                    << param.name << ";\n";
+            }
+            // group->printParameterInitialization(out, 1);
+            printBody(out, initInstruction);
+            out << "}";
         }
         out << '\n';
     }
 
     void LibFunction::printName(std::ostream& out) const
     {
-        if (tensorial)
-            out << LibraryGenerator::tensorUsing << "<" << csl::LibraryGenerator::complexUsing 
-                << "> " << name << "(\n";
-        else
-            out << csl::LibraryGenerator::complexUsing << " " << name << "(\n";
-    }
-
-    void LibFunction::printParameters(std::ostream& out,
-                                      std::string const& sep,
-                                      bool          sepLast) const
-    {
-        for (size_t i = 0; i != parameters.size(); ++i) {
-            out << LibraryGenerator::indent(sepLast ? 1 : 2);
-            if (tensorParameter >= 0 and int(i) >= tensorParameter)
-                out << LibraryGenerator::tensorUsing << "<";
-            else if (!sepLast)
-                out << "const ";
-            if (complexParameters)
-                out << LibraryGenerator::complexUsing;
-            else
-                out << LibraryGenerator::realUsing;
-            if (tensorParameter >= 0 and int(i) >= tensorParameter)
-                out << "> " << ((sepLast) ? " " : "const &");
-            out << " " << parameters[i];
-            if (!(tensorParameter >= 0 and int(i) >= tensorParameter) 
-                    and sep == ";")
-                out << " = 0";
-            if (sepLast or i != parameters.size() - 1)
-                out << sep;
-            out << "\n";
-        }
+        out << (group->hasComplexReturn() ?
+                LibraryGenerator::complexUsing 
+                :LibraryGenerator::realUsing) << " " << name << "(\n";
     }
 
     void LibFunction::printBody(std::ostream& out,
                                 std::string const &initInstruction) const
     {
-        out << "\n{\n";
         out << initInstruction;
-        if (parameters.size() > nParamThresholdStructure) {
-            for (size_t i = 0; i != parameters.size(); ++i) {
-                auto const &nameParam = parameters[i];
-                out << LibraryGenerator::indent();
-                if (tensorParameter >= 0 and int(i) >= tensorParameter)
-                    out << LibraryGenerator::tensorUsing << "<";
-                else
-                    out << "const ";
-                out << ((complexParameters) ? 
-                        LibraryGenerator::complexUsing 
-                        :LibraryGenerator::realUsing);
-                if (tensorParameter >= 0 and int(i) >= tensorParameter)
-                    out << "> const &";
-                else 
-                    out << " ";
-                out << nameParam << " = param." << nameParam << ';' << '\n';
-            }
-        }
         Expr toPrint = expression;
         session.printLib(toPrint, perf, out);
-        out << "}\n";
-    }
-
-    void LibFunction::printTensorBody(
-            std::ostream& out,
-            std::string const &initInstruction
-            ) const
-    {
-        out << "\n{\n";
-        out << initInstruction;
-        if (parameters.size() > nParamThresholdStructure) {
-            for (const auto& nameParam : parameters) {
-                out << LibraryGenerator::indent();
-                out << ((complexParameters) ? 
-                        LibraryGenerator::complexUsing 
-                        :LibraryGenerator::realUsing) << " ";
-                out << nameParam << " = param." << nameParam << ';' << '\n';
-            }
-        }
-        Expr toPrint = csl::DeepCopy(expression);
-        session.printLib(toPrint, perf, out, true);
-        std::vector<std::string> nameTensors;
-        for (const auto& tensor : tensors)
-            nameTensors.push_back(LibraryGenerator::regularName(tensor->getName()));
-        csl::IndexStructure freeStructure = csl::Abbrev::getFreeStructure(
-                toPrint->getIndexStructure()
-                );
-
-        out << LibraryGenerator::indent() << LibraryGenerator::tensorUsing << "<" 
-            << LibraryGenerator::complexUsing << "> tensor({";
-        for (size_t i = 0; i != freeStructure.size(); ++i) {
-            out << freeStructure[i].getSpace()->getDim();
-            if (i < freeStructure.size() - 1)
-                out << ", ";
-        }
-        out << "}, 0.);\n";
-        // out << LibraryGenerator::indent() << LibraryGenerator::tensorUsing << "<" 
-        //     << LibraryGenerator::complexUsing << ">::iterator iter = tensor.begin();\n";
-        int indent = 1;
-        std::vector<std::string> nameIndices;
-        auto getNameIndex = [&](csl::Index const &index)
-        {
-            std::string nameIndex = LibraryGenerator::regularName(index.getName()) 
-                                    + "_" 
-                                    + toString(index.getID());
-            return nameIndex;
-        };
-        for (const csl::Index& index : freeStructure) {
-            auto nameIndex = getNameIndex(index);
-            out << LibraryGenerator::indent(indent);
-            out << "for (size_t " << nameIndex << " = 0; " 
-                << nameIndex << " < " << index.getSpace()->getDim() << "; "
-                << "++" << nameIndex << ") {\n";
-            ++indent;
-        }
-        csl::ForEachLeaf(toPrint, [&](Expr& el)
-        {
-            if (el == CSL_I)
-                el = LibraryGenerator::imaginary;
-            if (not IsIndicialTensor(el))
-                return;
-            auto pos = std::find_if(
-                        tensors.begin(), 
-                        tensors.end(), [&](csl::Tensor const& t)
-                        {
-                            return t.get() == el->getParent_info();
-                        });
-            if (pos != tensors.end()) 
-            {
-                std::string name = getTensorName(el->getParent());
-                name += "[{";
-                csl::IndexStructure structure = el->getIndexStructure();
-                bool first = true;
-                for (size_t i = 0; i != structure.size(); ++i) {
-                    if (structure[i].getType() != cslIndex::Dummy) {
-                        if (!first)
-                            name += ", ";
-                        if (structure[i].getFree()) 
-                            name += getNameIndex(structure[i]);
-                        else  
-                            name += toString(std::abs(structure[i].getValue()));
-                    }
-                    first = false;
-                }
-                name += "}]";
-                el = csl::constant_s(name);
-            }
-        });
-
-        std::string name = "tensor";
-        name += "[{";
-        bool first = true;
-        for (size_t i = 0; i != freeStructure.size(); ++i) {
-            if (freeStructure[i].getType() != cslIndex::Dummy) {
-                if (!first)
-                    name += ", ";
-                if (freeStructure[i].getFree()) 
-                    name += getNameIndex(freeStructure[i]);
-                else  
-                    name += toString(std::abs(freeStructure[i].getValue()));
-            }
-            first = false;
-        }
-        name += "}] = ";
-        printExpression(out, toPrint, indent, name);
-        for (size_t i = 0; i != freeStructure.size(); ++i) {
-            out << LibraryGenerator::indent(--indent) << "}\n";
-        }
-        out << "\n" << LibraryGenerator::indent() << "return tensor;\n";
-        out << "}\n";
     }
 
     void LibFunction::printExpression(std::ostream& out,
@@ -422,11 +254,14 @@ namespace csl {
         }
     }
 
-    void LibFunction::cutParameters()
+    void LibFunction::cutParameters(
+            std::vector<LibParameter> &parameters,
+            int                        tensorParameter
+            )
     {
         for (size_t i = 0; i != parameters.size(); ++i) {
             for (size_t j = i+1; j < parameters.size(); ++j) {
-                if (parameters[i] == parameters[j]) {
+                if (parameters[i].name == parameters[j].name) {
                     parameters.erase(parameters.begin() + j);
                     if (tensorParameter >= static_cast<int>(j))
                         --tensorParameter;
@@ -436,7 +271,10 @@ namespace csl {
         }
     }
 
-    void LibFunction::sortParameters()
+    void LibFunction::sortParameters(
+            std::vector<LibParameter> &parameters,
+            int                        tensorParameter
+            )
     {
         if (tensorParameter != -1) {
             std::sort(parameters.begin(), parameters.begin() + tensorParameter);
@@ -463,10 +301,16 @@ namespace csl {
         session.gatherUnEvalAndTensors(expression);
         std::vector<Expr> unEvaluated = session.getUnEval();
         tensors = session.getTensors();
-        parameters = std::vector<std::string>(unEvaluated.size());
+        parameters = std::vector<LibParameter>(unEvaluated.size());
         for (size_t i = 0; i != parameters.size(); ++i)
-            parameters[i] = LibraryGenerator::regularName(
-                    std::string(unEvaluated[i]->getName()));
+            parameters[i] = {
+                LibraryGenerator::regularName(
+                    std::string(unEvaluated[i]->getName())
+                    ),
+                (unEvaluated[i]->isReal()) ? 
+                    LibraryGenerator::realUsing 
+                    :LibraryGenerator::complexUsing
+            };
         for (size_t i = 0; i != tensors.size(); ++i)
             if (not isEvaluated(tensors[i])) {
                 if (tensorParameter == -1)
@@ -475,7 +319,7 @@ namespace csl {
                 // tensors.erase(tensors.begin() + i);
                 // --i;
             }
-        cutParameters();
-        sortParameters();
+        cutParameters(parameters, tensorParameter);
+        sortParameters(parameters, tensorParameter);
     }
 }

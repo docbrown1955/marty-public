@@ -21,6 +21,7 @@
 #include "operations.h"
 #include "mathFunctions.h"
 #include "interface.h"
+#include "librarygenerator.h"
 
 using namespace std;
 
@@ -861,36 +862,15 @@ void Complex::print(
 {
     if (mode > 1 and imag != CSL_0)
         out << "(";
-    if (real != CSL_0 and imag != CSL_0)
+    if (imag == CSL_0) {
         real->print(1, out, lib);
-    if (imag == CSL_1) {
-        if (real == CSL_0) {
-            if (lib)
-                out << "_i_";
-            else
-                out << "i";
-        }
-        else {
-            if (lib)
-                out << " + _i_";
-            else
-                out << " +i";
-        }
     }
-    else if (imag != CSL_0) {
-        if (real == CSL_0) {
-            if (lib)
-                out << "_i_ * ";
-            else
-                out << "i";
-        }
-        else {
-            if (lib)
-                out << " + _i_ * ";
-            else
-                out << " +i";
-        }
-        imag->print(2, out, lib);
+    else {
+        out << LibraryGenerator::complexUsing << "{";
+        real->print(1, out, lib);
+        out << ", ";
+        imag->print(1, out, lib);
+        out << "}";
     }
     if (mode > 1 and imag != CSL_0)
         out << ")";

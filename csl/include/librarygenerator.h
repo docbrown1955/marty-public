@@ -25,6 +25,7 @@
 
 #include "librarydependency.h"
 #include "libraryfunction.h"
+#include "librarygroup.h"
 #include "abstract.h"
 #include "literal.h"
 #include <fstream>
@@ -96,9 +97,10 @@ namespace csl {
 
         public:
 
-        LibraryGenerator(std::string const& t_name,
-                std::string const& t_path = ".",
-                bool               t_complexParameters = true);
+        LibraryGenerator(
+                std::string const& t_name,
+                std::string const& t_path = "."
+                );
 
         ~LibraryGenerator() {}
 
@@ -109,9 +111,12 @@ namespace csl {
         std::set<std::string> const& getLPath() const;
         std::set<std::string>& getLPath();
         LibDependency getDependencies() const;
-        bool isComplexParameters() const;
+        std::shared_ptr<LibraryGroup> getGroup(std::string_view name) const;
         bool hasGlobalFile() const {
             return !diagData.empty();
+        }
+        bool hasUniqueParamStruct() const {
+            return uniqueParamStruct;
         }
 
         void cleanExistingSources() const;
@@ -122,6 +127,9 @@ namespace csl {
             compiler = gcc;
         }
         void setName(std::string const& t_name);
+        void setUniqueParamStruct(bool t_par) {
+            uniqueParamStruct = t_par;
+        }
         void setPath(std::string const& t_path);
         void setIPath(std::vector<std::string> const& t_path);
         void setLPath(std::vector<std::string> const& t_path);
@@ -135,12 +143,18 @@ namespace csl {
         void importSource(std::string const &filePath,
                           std::string const &fileName);
         void addLibrary(std::string const& library);
-        void setComplexParameters(bool t_complexParameters);
 
         void addTensor(Expr const& tensor) const;
 
-        void addFunction(std::string const& nameFunction,
-                         Expr               expression);
+        void addGroup(
+                std::string const &groupName,
+                bool               complexReturn = true
+                );
+        void addFunction(
+                std::string const &nameFunction,
+                Expr               expression,
+                std::string const &nameGroup = "G"
+                );
         void addDiagonalization(
                 std::vector<std::string> const &mixing,
                 std::vector<std::string> const &masses,
@@ -153,18 +167,19 @@ namespace csl {
         void printHeader() const;
         void printGlobal() const;
         void printSource() const;
+        void printCallable() const;
         void printTest() const;
 
         void printMakefile() const;
         void printPythonDir() const;
-        void printCMakeLists() const;
-        void printGenerator() const;
-        void printPythonTest() const;
+        // void printCMakeLists() const;
+        // void printGenerator() const;
+        // void printPythonTest() const;
 
         void build(unsigned int nJobs = 1) const;
 
         void buildCppLib(unsigned int nJobs) const;
-        void buildPythonLib() const;
+        // void buildPythonLib() const;
 
         private:
 
@@ -173,6 +188,7 @@ namespace csl {
         bool needLibraryTensor() const;
 
         void printFunction(LibFunction const& f) const;
+        void printGroup(LibraryGroup const& g) const;
 
         void printTensors(std::ostream& out) const;
 
@@ -184,8 +200,9 @@ namespace csl {
 
         std::string regLibName() const;
         std::string getFunctionFileName(LibFunction const &f) const;
-        std::string getHeaders() const;
-        std::string getSources() const;
+        std::string getGroupFileName(LibraryGroup const &g) const;
+        // std::string getHeaders() const;
+        // std::string getSources() const;
 
         protected:
 
@@ -204,14 +221,21 @@ namespace csl {
         mutable
         std::vector<csl::Tensor> tensors;
 
-        mutable
-        std::vector<LibFunction> functions;
+        mutable 
+        std::vector<std::shared_ptr<LibraryGroup>> groups;
 
         mutable
         std::vector<DiagonalizationData> diagData;
 
-        bool complexParameters;
+        mutable
+        std::vector<LibParameter> uniqueParams;
+
+        bool uniqueParamStruct;
     };
+
+    std::vector<LibParameter> diagonalizationParameters(
+            std::vector<LibraryGenerator::DiagonalizationData> const &diagData
+            );
 
 } // End of namespace csl
 

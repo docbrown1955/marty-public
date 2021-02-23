@@ -31,6 +31,17 @@
 
 namespace csl {
 
+    class LibraryGroup;
+
+    struct LibParameter {
+        std::string name;
+        std::string type;
+    };
+
+    inline bool operator<(LibParameter const &A, LibParameter const &B) {
+        return A.name < B.name;
+    }
+
     class LibFunction {
 
         public:
@@ -41,33 +52,46 @@ namespace csl {
 
         LibFunction(std::string_view t_name,
                     Expr      const& t_expression,
-                    bool             t_complexParameters = true);
+                    std::shared_ptr<LibraryGroup> const &t_group);
 
         ~LibFunction() {}
 
         std::string const& getName() const;
         std::string getTensorName(csl::Parent const &tensor) const;
+        LibraryGroup const &getGroup() const { return *group; }
+        LibraryGroup       &getGroup()       { return *group; }
         Expr& getExpression();
         Expr const& getExpression() const;
         bool isTensorial() const;
-        bool isComplexParameters() const;
+        int getPosTensorParameter() const { return tensorParameter; }
+        void setPosTensorParameter(int t_pos) { tensorParameter = t_pos; }
         std::vector<csl::Tensor> const& getTensors() const;
         std::vector<csl::Tensor>& getTensors();
         std::vector<std::string> const& getIntermediateSteps() const;
         std::vector<std::string>& getIntermediateSteps();
-        std::vector<std::string> const& getParameters() const;
+        std::vector<LibParameter> const& getParameters() const;
 
         void setName(std::string_view t_name);
         void setExpression(Expr const& t_expression);
         void setTensorial(bool t_tensorial);
-        void setComplexParameters(bool t_complexParameters);
         void addTensor(Expr const& tensor);
         void setTensors(std::vector<csl::Tensor> const& t_tensors);
         Expr addIntermediate(Expr const& intermediate);
         void setIntermediateSteps(std::vector<std::string> const& t_interm);
         void addParameter(std::string const &param);
-        void setParameters(std::vector<std::string> const& t_parameters);
+        void setParameters(std::vector<LibParameter> const& t_parameters);
         void removeParameter(std::string_view param);
+
+        static
+        void cutParameters(
+                std::vector<LibParameter> &parameters,
+                int                        tensorParameter
+                );
+        static
+        void sortParameters(
+                std::vector<LibParameter> &parameters,
+                int                        tensorParameter
+                );
 
         void print(std::ostream& out,
                    bool          header,
@@ -77,15 +101,8 @@ namespace csl {
         private:
 
         void printName(std::ostream& out) const;
-        void printParameters(std::ostream& out,
-                             std::string const& sep = ",",
-                             bool          sepLast = false) const;
         void printBody(
                 std::ostream& out, 
-                std::string const &initInstruction
-                ) const;
-        void printTensorBody(
-                std::ostream& out,
                 std::string const &initInstruction
                 ) const;
         void printExpression(std::ostream& out,
@@ -93,8 +110,6 @@ namespace csl {
                              int           indent,
                              std::string const& beginning = "") const;
 
-        void cutParameters();
-        void sortParameters();
         void parse();
 
         private:
@@ -107,19 +122,19 @@ namespace csl {
 
         bool        tensorial;
 
-        bool        complexParameters;
-
         mutable 
         LibEvalSession            session;
 
         mutable 
         LibEvalSession::Perf      perf;
 
+        std::shared_ptr<LibraryGroup> group;
+
         std::vector<csl::Tensor>  tensors;
 
         std::vector<std::string>  intermediateSteps;
 
-        std::vector<std::string>  parameters;
+        std::vector<LibParameter> parameters;
 
         int tensorParameter = -1;
     };

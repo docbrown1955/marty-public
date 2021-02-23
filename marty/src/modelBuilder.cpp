@@ -2123,7 +2123,7 @@ void ModelBuilder::addMassAbbreviations(
         if (auto parent = csl::Abbrev::find_opt(m->getName());
                 parent) {
             csl::Expr encaps = parent->getEncapsulated();
-            lib.addFunction(csl::LibraryGenerator::regularName(m->getName()), encaps);
+            lib.addFunction(csl::LibraryGenerator::regularName(m->getName()), encaps, "");
         }
     }
 }

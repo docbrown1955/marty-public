@@ -58,7 +58,7 @@ namespace mty {
             for (const auto &p : model.getParticles()) {
                 csl::Expr m = p->getMass();
                 if (csl::Abbrev::find_opt(m))
-                    addFunction(m->getName(), m);
+                    addFunction(m->getName(), m, "G");
             }
         }
 
@@ -79,9 +79,14 @@ namespace mty {
             sysres = system(("cp " + pathToMarty + "/../csl/include/std_vector*.h " + targetInc).c_str());
         }
 
-        void addFunction(std::string const &name, csl::Expr expr) {
+        void addFunction(
+                std::string const &name, 
+                csl::Expr expr,
+                std::string const &groupName = "G"
+                ) 
+        {
             csl::ScopedProperty p(&csl::option::checkCommutations, false);
-            csl::LibraryGenerator::addFunction(name, expr);
+            csl::LibraryGenerator::addFunction(name, expr, groupName);
         }
     };
 }

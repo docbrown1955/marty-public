@@ -27,6 +27,7 @@
 #include "libmakefile_data.h"
 #include "libdiagonalization_hdata.h"
 #include "libdiagonalization_cppdata.h"
+#include "libcallable_data.h"
 #include "libcomplexop_hdata.h"
 #include "librarytensor_hdata.h"
 
@@ -49,18 +50,21 @@ namespace csl {
         }
     }
 
-    LibraryGenerator::LibraryGenerator(std::string const& t_name,
-                     std::string const& t_path,
-                     bool               t_complexParameters)
+    LibraryGenerator::LibraryGenerator(
+            std::string const& t_name,
+            std::string const& t_path
+            )
         :name(t_name),
         path(t_path + "/" + t_name),
         IPath({incDir}),
-        complexParameters(t_complexParameters)
+        uniqueParamStruct(true)
     {
         if (quadruple) {
             dependencies.addLib("-lquadmath");
             dependencies.addInclude("quadmath.h", true);
         }
+        groups.push_back(std::make_shared<LibraryGroup>("G", true));
+        // General, default group
     }
 
     std::string LibraryGenerator::getName() const
@@ -98,9 +102,23 @@ namespace csl {
         return dependencies;
     }
 
-    bool LibraryGenerator::isComplexParameters() const
+    std::shared_ptr<LibraryGroup> LibraryGenerator::getGroup(
+            std::string_view t_name
+            ) const
     {
-        return complexParameters;
+        for (const auto &g : groups)
+            if (g->getName() == t_name)
+                return g;
+        std::cerr << "Possible groups are: " << std::endl;
+        for (const auto &g : groups)
+            std::cerr << g->getName() << std::endl;
+        std::cerr << "Consider creating a group using lib.addGroup(\"";
+        std::cerr << "groupName\")." << std::endl;
+        CALL_SMERROR_SPEC(
+                CSLError::KeyError,
+                "Group named \"" + std::string(t_name) + "\" not found"
+                );
+        return groups[0];
     }
 
     void LibraryGenerator::setName(std::string const& t_name)
@@ -174,11 +192,6 @@ namespace csl {
                     .c_str());
     }
 
-    void LibraryGenerator::setComplexParameters(bool t_complexParameters)
-    {
-        complexParameters = t_complexParameters;
-    }
-
     void LibraryGenerator::addTensor(Expr const& tensor) const
     {
         CSL_ASSERT_SPEC(IsIndicialTensor(tensor),
@@ -194,20 +207,38 @@ namespace csl {
             tensors.push_back(parent);
     }
 
-    void LibraryGenerator::addFunction(std::string const& nameFunction,
-                              Expr               expression)
+    void LibraryGenerator::addGroup(
+            std::string const &groupName,
+            bool               complexReturn
+            )
+    {
+        for (const auto &g : groups) {
+            if (g->getName() == groupName) {
+                CALL_SMERROR_SPEC(
+                        CSLError::NameError, 
+                        "Group of name \"" + groupName + "\" already exists !");
+            }
+        }
+        groups.push_back(std::make_shared<LibraryGroup>(groupName, complexReturn));
+    }
+
+    void LibraryGenerator::addFunction(
+            std::string const &nameFunction,
+            Expr               expression,
+            std::string const &nameGroup
+            )
     {
         // lib_log << "Adding function \"" << nameFunction << "\".\n";
         // lib_log << "Expr = " << expression << std::endl;
+        auto group = getGroup(nameGroup);
         dependencies += GetLibraryDependencies(expression);
         dependencies.removeInclude("complex");
         Expr expr = csl::DeepCopy(expression);
         csl::Evaluate(expr, // csl::eval::abbreviation |
                            csl::eval::literal
                          | csl::eval::numerical);
-        functions.emplace_back(nameFunction, 
-                               expr,
-                               complexParameters);
+        auto f = LibFunction{nameFunction, expr, group};
+        group->addFunction(f);
     }
 
     void LibraryGenerator::addDiagonalization(
@@ -244,9 +275,40 @@ namespace csl {
         printSource();
         if (hasGlobalFile())
             printGlobal();
-        for (const auto &f : functions)
-            printFunction(f);
+        if (uniqueParamStruct) {
+            std::shared_ptr<LibraryGroup> dummy
+                = std::make_shared<LibraryGroup>("", false);
+            dummy->addFunction(LibFunction("dummy", CSL_0, dummy));
+            dummy->getFunctions()[0].setParameters(
+                    diagonalizationParameters(diagData));
+            groups.push_back(dummy);
+            LibraryGroup::gatherParameters(groups, "param_t");
+            for (const auto &g : groups) {
+                std::cout << "**********************" << std::endl;
+                for (const auto& p : g->getParameters())
+                    std::cout << p.type << " " << p.name << ";" << std::endl;
+            }
+            groups.erase(groups.end() - 1);
+            file paramFile(path + "/" + incDir + "/params.h");
+            paramFile << "#ifndef CSL_LIB_PARAM_H_INCLUDED\n",
+            paramFile << "#define CSL_LIB_PARAM_H_INCLUDED\n\n";
+            paramFile << "#include \"common.h\"\n";
+            paramFile << '\n';
+            paramFile << "namespace " << regLibName() << " {\n\n";
+            dummy->print(paramFile, true);
+            paramFile << "\n\n";
+            paramFile << "}\n\n";
+            paramFile << "#endif\n";
+        }
+        for (auto &g : groups) {
+            if (!g->empty()) {
+                if (!uniqueParamStruct)
+                    g->gatherParameters();
+                printGroup(*g);
+            }
+        }
         printHeader();
+        printCallable();
         printTest();
         printMakefile();
         printPythonDir();
@@ -262,40 +324,74 @@ namespace csl {
 
         header << "#ifndef CSL_LIB_GLOBAL" << "\n";
         header << "#define CSL_LIB_GLOBAL" << "\n";
+        if (uniqueParamStruct)
+            header << "#include \"params.h\"\n";
         header << "#include \"common.h\"\n\n";
 
         header << "namespace " << regLibName() << " {\n\n";
-        header << "extern bool parametersInitialized;\n\n";
-        header << "void updateDiagonalization();\n\n";
+        header << "struct SpectrumInput;\n";
+        header << "struct SpectrumOutput;\n\n";
+        header << "SpectrumOutput updateDiagonalization(SpectrumInput const&);\n\n";
+        if (uniqueParamStruct)
+            header << "void updateDiagonalization(param_t &params);\n\n";
         header << "////////////////////////////////////////////////////\n";
         header << "// Here are the parameters to set before calling    \n"
                << "// updateDiagonalization()                          \n";
         header << "////////////////////////////////////////////////////\n";
         auto dependencies = getDiagonalizationDependencies();
+        header << "struct SpectrumInput {\n";
         for (const auto &dep : dependencies) {
-            header << indent(1) << "extern " << complexUsing << " " << 
+            header << indent(1) << complexUsing << " " << 
                 regularName(dep) << ";\n";
         }
-        header << '\n';
+        header << "};\n\n";
         header << "////////////////////////////////////////////////////\n";
-        header << "// Here are the masses, result of the               \n"
-               << "// diagonalization                                  \n";
+        header << "// Here are the masses and mixings                 \n"
+               << "// result of the diagonalization                   \n";
         header << "////////////////////////////////////////////////////\n";
         auto masses = getDiagonalizationMasses();
+        header << "struct SpectrumOutput {\n";
         for (const auto &mass : masses) {
-            header << indent(1) << "extern " << realUsing << " " << 
-                regularName(mass) << ";\n";
+            header << indent(1) << realUsing << " " << regularName(mass) << ";\n";
         }
         header << '\n';
-        header << "////////////////////////////////////////////////////\n";
-        header << "// Here are the mixings, result of the              \n"
-               << "// diagonalization                                  \n";
-        header << "////////////////////////////////////////////////////\n";
         auto mixings = getDiagonalizationMixings();
         for (const auto &mix : mixings) {
-            header << indent(1) << "extern " << complexUsing << " " << 
-                regularName(mix) << ";\n";
+            header << indent(1) << complexUsing << " " << regularName(mix) << ";\n";
         }
+        header << "};\n\n";
+        header << "////////////////////////////////////////////////////\n";
+        header << "// Here is a generic function to read results      \n"
+               << "// of the diagonalization in a corresponding struct\n";
+        header << "////////////////////////////////////////////////////\n";
+        header << '\n';
+        header << "template<class Type>\n";
+        header << "void readDiagonalizationInputs(\n";
+        header << indent(2) << "SpectrumInput &diagData,\n";
+        header << indent(2) << "Type    const &input\n";
+        header << indent(2) << ")\n";
+        header << "{\n";
+        for (const auto &dep : dependencies) {
+            header << indent(1) << "diagData." << regularName(dep) << " = " 
+                   << "input." << regularName(dep) << ";\n";
+        }
+        header << "}\n";
+        header << '\n';
+        header << "template<class Type>\n";
+        header << "void readDiagonalizationOutputs(\n";
+        header << indent(2) << "SpectrumOutput const &diagData,\n";
+        header << indent(2) << "Type                 &output\n";
+        header << indent(2) << ")\n";
+        header << "{\n";
+        for (const auto &mass : masses) {
+            header << indent(1) << "output." << regularName(mass) << " = " 
+                   << "diagData." << regularName(mass) << ";\n";
+        }
+        for (const auto &mix : mixings) {
+            header << indent(1) << "output." << regularName(mix) << " = " 
+                   << "diagData." << regularName(mix) << ";\n";
+        }
+        header << "}\n";
         header << '\n';
         header << "} // End of namespace " << regLibName() << "\n\n";
         header << "#endif\n";
@@ -306,37 +402,24 @@ namespace csl {
         source << "#include \"" << regLibName() << ".h\"\n";
         source << "#include \"libcomplexop.h\"\n\n";
         source << "namespace " << regLibName() << " {\n\n";
-        source << "bool parametersInitialized = false;\n\n";
-        source << "////////////////////////////////////////////////////\n";
-        source << "// Here are the parameters to set before calling    \n"
-               << "// updateDiagonalization()                          \n";
-        source << "////////////////////////////////////////////////////\n";
-        for (const auto &dep : dependencies) {
-            source << indent(1) << complexUsing << " " << 
-                regularName(dep) << " = 0;\n";
-        }
         source << '\n';
-        source << "////////////////////////////////////////////////////\n";
-        source << "// Here are the masses, result of the               \n"
-               << "// diagonalization                                  \n";
-        source << "////////////////////////////////////////////////////\n";
-        for (const auto &mass : masses) {
-            source << indent(1) << realUsing << " " << 
-                regularName(mass) << " = 0;\n";
+        if (uniqueParamStruct) {
+            source << "void updateDiagonalization(param_t &params)\n";
+            source << "{\n";
+            source << indent(1) << "SpectrumInput  inputs;\n";
+            source << indent(1) << "readDiagonalizationInputs (inputs,  params);\n";
+            source << indent(1) << "SpectrumOutput outputs = updateDiagonalization(inputs);\n";
+            source << indent(1) << "readDiagonalizationOutputs(outputs, params);\n";
+            source << "}\n\n";
         }
-        source << '\n';
-        source << "////////////////////////////////////////////////////\n";
-        source << "// Here are the mixings, result of the              \n"
-               << "// diagonalization                                  \n";
-        source << "////////////////////////////////////////////////////\n";
-        for (const auto &mix : mixings) {
-            source << indent(1) << complexUsing << " " << 
-                regularName(mix) << " = 0;\n";
-        }
-        source << '\n';
-        source << "void updateDiagonalization()\n";
+        source << "SpectrumOutput updateDiagonalization(SpectrumInput const &inputs)\n";
         source << "{\n";
-        source << indent(1) << "parametersInitialized = true;\n\n";
+        for (const auto &dep : dependencies) {
+            source << indent(1) << "auto const &" << 
+                regularName(dep) << " = inputs." << regularName(dep) << ";\n";
+        }
+        source << '\n';
+        source << indent(1) << "SpectrumOutput outputs;\n\n";
         for (const auto &diag : diagData) {
             source << indent(1);
             if (diag.masses.size()*diag.masses.size() == diag.mixings.size())
@@ -358,7 +441,7 @@ namespace csl {
                     " have different names).")
             size_t s2 = diag.mixings.size();
             for (size_t i = 0; i != s1; ++i) 
-                source << "&" <<  diag.mixings[i] << ", ";
+                source << "&outputs." <<  diag.mixings[i] << ", ";
             source << "},\n";
             if (s2 != s1) {
                 source << indent(2) << "{";
@@ -370,23 +453,24 @@ namespace csl {
                         "conflict in the mixing matrix (be sure that all elements"
                         " have different names).")
                 for (size_t i = s1; i != s2; ++i) 
-                    source << "&" << diag.mixings[i] << ", ";
+                    source << "&outputs." << diag.mixings[i] << ", ";
                 source << "},\n";
             }
             source << indent(2) << "{";
             for (const auto &mass : diag.masses)
-                source << "&" << mass << ", ";
+                source << "&outputs." << mass << ", ";
             source << "}\n";
             source << indent(2) << ");\n";
             source << '\n';
             if (diag.squaredMass) {
                 for (const auto &mass : diag.masses) {
-                    source << mass << " = ";
+                    source << "outputs." << mass << " = ";
                     source << ((quadruple) ? "sqrtq(" : "std::sqrt(");
-                    source << mass << ");\n";
+                    source << "outputs." << mass << ");\n";
                 }
             }
         }
+        source << indent(1) << "return outputs;\n";
         source << "}\n\n";
         source << "} // End of namespace " << regLibName() << "\n\n";
     }
@@ -410,8 +494,11 @@ namespace csl {
         }
         globalHeader << "#include \"libcomplexop.h\"\n";
         globalHeader << '\n';
-        for (const auto &f : functions)
-            globalHeader << "#include \"" << getFunctionFileName(f) << ".h\"\n";
+        for (const auto &g : groups) {
+            if (!g->empty())
+                globalHeader << "#include \"group_" << getGroupFileName(*g) 
+                    << ".h\"\n";
+        }
         globalHeader << '\n';
         globalHeader << "#endif\n";
         LibraryGenerator::file header(path + "/" + incDir + "/common.h");
@@ -471,6 +558,24 @@ namespace csl {
         source << "} // End of namespace " << regLibName() << "\n\n";
     }
 
+    void LibraryGenerator::printCallable() const
+    {
+        LibraryGenerator::file header(path + "/" + incDir + "/callable.h");
+        CSL_ASSERT_SPEC(
+                header,
+                CSLError::IOError,
+                "File \"" + path + "/" + incDir + "/common.h\" not found.");
+        header << "#ifndef CSL_LIB_CALLABLE" << "\n";
+        header << "#define CSL_LIB_CALLABLE" << "\n";
+        header << "#include <functional>\n\n";
+
+        header << "namespace " << regLibName() << " {\n\n";
+        printCallableStructure(header);
+        header << '\n';
+        header << "} // End of namespace " << regLibName() << "\n\n";
+        header << "#endif\n";
+    }
+
     void LibraryGenerator::printTest() const
     {
         std::string testName = path + "/" + scriptDir + "/example_" 
@@ -517,76 +622,76 @@ namespace csl {
     void LibraryGenerator::printPythonDir() const
     {
         // std::string pythonPath = path + "/python";
-	std::ofstream file;
-	if (hasGlobalFile()) {
-	    file.open(path + "/" + incDir + "/libdiagonalization.h");
-	    print_libdiagonalization_hdata(file);
-	    file.close();
-	    file.open(path + "/" + srcDir + "/libdiagonalization.cpp");
-	    print_libdiagonalization_cppdata(file);
-	    file.close();
-	}
-	file.open(path + "/" + incDir + "/libcomplexop.h");
-	print_libcomplexop_hdata(file);
-	file.close();
-	file.open(path + "/" + incDir + "/librarytensor.h");
-	print_librarytensor_hdata(file);
-	file.close();
+          std::ofstream file;
+          if (hasGlobalFile()) {
+              file.open(path + "/" + incDir + "/libdiagonalization.h");
+              print_libdiagonalization_hdata(file);
+              file.close();
+              file.open(path + "/" + srcDir + "/libdiagonalization.cpp");
+              print_libdiagonalization_cppdata(file);
+              file.close();
+          }
+          file.open(path + "/" + incDir + "/libcomplexop.h");
+          print_libcomplexop_hdata(file);
+          file.close();
+          file.open(path + "/" + incDir + "/librarytensor.h");
+          print_librarytensor_hdata(file);
+          file.close();
         // system(("mkdir -p " + pythonPath).c_str());
         // printCMakeLists();
         // printGenerator();
         // printPythonTest();
     }
 
-    void LibraryGenerator::printCMakeLists() const
-    {
-        std::string cmakelistsName = path + "/CMakeLists.txt";
-        LibraryGenerator::file CMakeLists(cmakelistsName);
-        CMakeLists << "cmake_minimum_required(VERSION 2.8)\n";
-        CMakeLists << "include(ExternalProject)\n";
+    // void LibraryGenerator::printCMakeLists() const
+    // {
+    //     std::string cmakelistsName = path + "/CMakeLists.txt";
+    //     LibraryGenerator::file CMakeLists(cmakelistsName);
+    //     CMakeLists << "cmake_minimum_required(VERSION 2.8)\n";
+    //     CMakeLists << "include(ExternalProject)\n";
 
-        CMakeLists << "# Ajout d'un module cmake personnalisé "
-                   << "pour générer boost\n";
-        CMakeLists << "list(APPEND CMAKE_MODULE_PATH  "
-                   << "\"${CMAKE_SOURCE_DIR}/../../Boost\")\n";
+    //     CMakeLists << "# Ajout d'un module cmake personnalisé "
+    //                << "pour générer boost\n";
+    //     CMakeLists << "list(APPEND CMAKE_MODULE_PATH  "
+    //                << "\"${CMAKE_SOURCE_DIR}/../../Boost\")\n";
 
-        CMakeLists << "project (auto_lib)\n";
+    //     CMakeLists << "project (auto_lib)\n";
 
-        CMakeLists << "# Trouver les bibliothèques et interpréteurs python"
-                   << " par défaut\n";
-        CMakeLists << "find_package(PythonInterp REQUIRED)\n";
-        CMakeLists << "find_package(PythonLibs REQUIRED)\n";
-        CMakeLists << "include(BuildBoost) # module personnalisé\n";
+    //     CMakeLists << "# Trouver les bibliothèques et interpréteurs python"
+    //                << " par défaut\n";
+    //     CMakeLists << "find_package(PythonInterp REQUIRED)\n";
+    //     CMakeLists << "find_package(PythonLibs REQUIRED)\n";
+    //     CMakeLists << "include(BuildBoost) # module personnalisé\n";
 
-        CMakeLists << "include_directories(${Boost_INCLUDE_DIR}\n";
-        CMakeLists << "${PYTHON_INCLUDE_DIRS} \n";
-        for (const auto& path : IPath)
-            CMakeLists << path << '\n';
-        CMakeLists << ")\n";
-        CMakeLists << "link_directories(${Boost_LIBRARY_DIR} \n";
-        for (const auto& path : LPath)
-            CMakeLists << path << '\n';
-        CMakeLists << ")\n";
-        CMakeLists << "# Génère et lie le module " << name << "\n";
-        CMakeLists << "add_library(" << name << " SHARED " 
-            << getSources() << ")\n";
-        CMakeLists << "target_link_libraries(" << name << " \n"
-                   << "                      ${Boost_LIBRARIES}\n"
-                   << "                      ${PYTHON_LIBRARIES}\n"
-                   << "                      -lstdc++ -lm -lgsl -lgslcblas\n";
-        dependencies.printLib(CMakeLists);
-        CMakeLists << "                      )\n";
-        CMakeLists << "add_dependencies(" << name << " Boost)\n";
+    //     CMakeLists << "include_directories(${Boost_INCLUDE_DIR}\n";
+    //     CMakeLists << "${PYTHON_INCLUDE_DIRS} \n";
+    //     for (const auto& path : IPath)
+    //         CMakeLists << path << '\n';
+    //     CMakeLists << ")\n";
+    //     CMakeLists << "link_directories(${Boost_LIBRARY_DIR} \n";
+    //     for (const auto& path : LPath)
+    //         CMakeLists << path << '\n';
+    //     CMakeLists << ")\n";
+    //     CMakeLists << "# Génère et lie le module " << name << "\n";
+    //     CMakeLists << "add_library(" << name << " SHARED " 
+    //         << getSources() << ")\n";
+    //     CMakeLists << "target_link_libraries(" << name << " \n"
+    //                << "                      ${Boost_LIBRARIES}\n"
+    //                << "                      ${PYTHON_LIBRARIES}\n"
+    //                << "                      -lstdc++ -lm -lgsl -lgslcblas\n";
+    //     dependencies.printLib(CMakeLists);
+    //     CMakeLists << "                      )\n";
+    //     CMakeLists << "add_dependencies(" << name << " Boost)\n";
 
-        CMakeLists << "# Ajuste le nom de la bibliothèque pour coller à ce "
-                   << "qu'attend Python\n";
-        CMakeLists << "set_target_properties(" << name 
-                   << " PROPERTIES SUFFIX .so)\n";
-        CMakeLists << "set_target_properties(" << name 
-                   << " PROPERTIES PREFIX \"\")\n";
-        CMakeLists << "set(CMAKE_CXX_FLAGS \"-O3 -std=c++17"
-                   << " -Wno-deprecated-declarations -fPIC\")\n";
-    }
+    //     CMakeLists << "# Ajuste le nom de la bibliothèque pour coller à ce "
+    //                << "qu'attend Python\n";
+    //     CMakeLists << "set_target_properties(" << name 
+    //                << " PROPERTIES SUFFIX .so)\n";
+    //     CMakeLists << "set_target_properties(" << name 
+    //                << " PROPERTIES PREFIX \"\")\n";
+    //     CMakeLists << "set(CMAKE_CXX_FLAGS \"-O3 -std=c++17"
+    //                << " -Wno-deprecated-declarations -fPIC\")\n";
+    // }
 
     std::string LibraryGenerator::regLibName() const
     {
@@ -608,104 +713,117 @@ namespace csl {
         return res;
     }
 
-    std::string LibraryGenerator::getHeaders() const
+    std::string LibraryGenerator::getGroupFileName(
+            LibraryGroup const &g
+            ) const
     {
-        std::ostringstream sout;
-        sout << "\"" << incDir << "/librarytensor.h\",\n";
-        sout << "\"" << incDir << "/libcomplexop.h\",\n";
-        sout << "\"" << incDir << "/common.h\",\n";
-        if (hasGlobalFile()) {
-            sout << "\"" << incDir << "/global.h\",\n";
-            sout << "\"" << incDir << "/libdiagonalization.h\",\n";
-        }
-        for (const auto &f : functions) {
-            sout << "\"" << incDir << "/" << getFunctionFileName(f) 
-                 << ".h\",\n";
-        }
-        return sout.str();
+        std::string res;
+        for (const char c : g.getName())
+            if (c >= 'A' and c <= 'Z')
+                res += c + 'a' - 'A';
+            else
+                res += c;
+        return res;
     }
 
-    std::string LibraryGenerator::getSources() const
-    {
-        std::ostringstream sout;
-        sout << name << "_pylink.cpp\n";
-        sout << srcDir << "/common.cpp\n";
-        if (hasGlobalFile()) {
-            sout << srcDir << "/libdiagonalization.cpp\n";
-            sout << srcDir << "/global.cpp\n";
-        }
-        for (const auto &f : functions)
-            sout << srcDir << "/" << getFunctionFileName(f) 
-                 << ".cpp\n";
+    // std::string LibraryGenerator::getHeaders() const
+    // {
+    //     std::ostringstream sout;
+    //     sout << "\"" << incDir << "/librarytensor.h\",\n";
+    //     sout << "\"" << incDir << "/libcomplexop.h\",\n";
+    //     sout << "\"" << incDir << "/common.h\",\n";
+    //     if (hasGlobalFile()) {
+    //         sout << "\"" << incDir << "/global.h\",\n";
+    //         sout << "\"" << incDir << "/libdiagonalization.h\",\n";
+    //     }
+    //     for (const auto &f : functions) {
+    //         sout << "\"" << incDir << "/" << getFunctionFileName(f) 
+    //              << ".h\",\n";
+    //     }
+    //     return sout.str();
+    // }
 
-        return sout.str();
-    }
+    // std::string LibraryGenerator::getSources() const
+    // {
+    //     std::ostringstream sout;
+    //     sout << name << "_pylink.cpp\n";
+    //     sout << srcDir << "/common.cpp\n";
+    //     if (hasGlobalFile()) {
+    //         sout << srcDir << "/libdiagonalization.cpp\n";
+    //         sout << srcDir << "/global.cpp\n";
+    //     }
+    //     for (const auto &f : functions)
+    //         sout << srcDir << "/" << getFunctionFileName(f) 
+    //              << ".cpp\n";
 
-    void LibraryGenerator::printGenerator() const
-    {
-        LibraryGenerator::file generator(path + "/generator.py");
-        generator << "#!/usr/bin/python\n";
-        generator << "# -*- coding: utf-8 -*-\n";
-        generator << "\n";
-        generator << "from pygccxml import parser\n";
-        generator << "from pyplusplus import module_builder\n";
-        generator << "\n";
-        generator << "# Configurations que vous pouvez avoir à "
-                  << "changer sur votre système\n";
-        generator << "generator_path = \"/usr/bin/castxml\"\n";
-        generator << "generator_name = \"castxml\"\n";
-        generator << "compiler = \"gnu\"\n";
-        generator << "compiler_path = \"/usr/bin/gcc\" \n";
-        generator << "\n";
-        generator << "# Créé une configuration pour CastXML\n";
-        generator << "xml_generator_config = "
-                  << "parser.xml_generator_configuration_t(\n";
-        generator << "xml_generator_path=generator_path,\n";
-        generator << "xml_generator=generator_name,\n";
-        generator << "compiler=compiler,\n";
-        generator << "compiler_path=compiler_path)\n";
-        generator << "\n";
-        generator << "# Liste de tous les fichiers d'en-tête "
-                  << "de votre bibliothèque\n";
-        generator << "header_collection = [" << getHeaders() << "]\n";
-        generator << "\n";
-        generator << "# Analyse les fichiers sources et créé un objet "
-                  << "module_builder\n";
-        generator << "builder = module_builder.module_builder_t(\n";
-        generator << "header_collection,\n";
-        generator << "xml_generator_path=generator_path,\n";
-        generator << "xml_generator_config=xml_generator_config)\n";
-        generator << "\n";
-        generator << "# Détecte automatiquement les propriétés et les "
-                  << "accesseurs/mutateurs associés\n";
-        generator << "builder.classes().add_properties(exclude_accessors=True) \n";
-        generator << "\n";
-        generator << "# Définit un nom pour le module\n";
-        generator << "builder.build_code_creator(module_name=\"" << name
-                  << "\")\n";
-        generator << "\n";
-        generator << "# Écrit le fichier d'interface C++\n";
-        generator << "builder.write_module('" << name 
-            << "_pylink.cpp')\n";
-    }
+    //     return sout.str();
+    // }
 
-    void LibraryGenerator::printPythonTest() const
-    {
-        std::string fileName = path + "/python/" + name + ".py";
-        if (auto file = std::ifstream(fileName); file) {
-            file.close();
-            return;
-        }
-        LibraryGenerator::file test(fileName);
-        test << "#!/usr/bin/python\n";
-        test << "# -*- coding: utf-8 -*-\n";
-        test << "\n";
-        test << "import numpy as np\n";
-        test << "import matplotlib.pyplot as plt\n";
-        test << "import " << name << "\n";
-        test << '\n';
-        test << "if __name__ == '__main__':";
-    }
+    // void LibraryGenerator::printGenerator() const
+    // {
+    //     LibraryGenerator::file generator(path + "/generator.py");
+    //     generator << "#!/usr/bin/python\n";
+    //     generator << "# -*- coding: utf-8 -*-\n";
+    //     generator << "\n";
+    //     generator << "from pygccxml import parser\n";
+    //     generator << "from pyplusplus import module_builder\n";
+    //     generator << "\n";
+    //     generator << "# Configurations que vous pouvez avoir à "
+    //               << "changer sur votre système\n";
+    //     generator << "generator_path = \"/usr/bin/castxml\"\n";
+    //     generator << "generator_name = \"castxml\"\n";
+    //     generator << "compiler = \"gnu\"\n";
+    //     generator << "compiler_path = \"/usr/bin/gcc\" \n";
+    //     generator << "\n";
+    //     generator << "# Créé une configuration pour CastXML\n";
+    //     generator << "xml_generator_config = "
+    //               << "parser.xml_generator_configuration_t(\n";
+    //     generator << "xml_generator_path=generator_path,\n";
+    //     generator << "xml_generator=generator_name,\n";
+    //     generator << "compiler=compiler,\n";
+    //     generator << "compiler_path=compiler_path)\n";
+    //     generator << "\n";
+    //     generator << "# Liste de tous les fichiers d'en-tête "
+    //               << "de votre bibliothèque\n";
+    //     generator << "header_collection = [" << getHeaders() << "]\n";
+    //     generator << "\n";
+    //     generator << "# Analyse les fichiers sources et créé un objet "
+    //               << "module_builder\n";
+    //     generator << "builder = module_builder.module_builder_t(\n";
+    //     generator << "header_collection,\n";
+    //     generator << "xml_generator_path=generator_path,\n";
+    //     generator << "xml_generator_config=xml_generator_config)\n";
+    //     generator << "\n";
+    //     generator << "# Détecte automatiquement les propriétés et les "
+    //               << "accesseurs/mutateurs associés\n";
+    //     generator << "builder.classes().add_properties(exclude_accessors=True) \n";
+    //     generator << "\n";
+    //     generator << "# Définit un nom pour le module\n";
+    //     generator << "builder.build_code_creator(module_name=\"" << name
+    //               << "\")\n";
+    //     generator << "\n";
+    //     generator << "# Écrit le fichier d'interface C++\n";
+    //     generator << "builder.write_module('" << name 
+    //         << "_pylink.cpp')\n";
+    // }
+
+    // void LibraryGenerator::printPythonTest() const
+    // {
+    //     std::string fileName = path + "/python/" + name + ".py";
+    //     if (auto file = std::ifstream(fileName); file) {
+    //         file.close();
+    //         return;
+    //     }
+    //     LibraryGenerator::file test(fileName);
+    //     test << "#!/usr/bin/python\n";
+    //     test << "# -*- coding: utf-8 -*-\n";
+    //     test << "\n";
+    //     test << "import numpy as np\n";
+    //     test << "import matplotlib.pyplot as plt\n";
+    //     test << "import " << name << "\n";
+    //     test << '\n';
+    //     test << "if __name__ == '__main__':";
+    // }
 
     void LibraryGenerator::updateDiagonalization() const
     {
@@ -720,16 +838,16 @@ namespace csl {
             cutSimilar(diag.masses);
             cutSimilar(diag.dependencies);
         }
-        for (auto &f : functions) {
-            for (const auto &diag : diagData) {
-                for (const auto &name : diag.mixings)
-                    f.removeParameter(name);
-                for (const auto &name : diag.masses)
-                    f.removeParameter(name);
-                for (const auto &name : diag.dependencies)
-                    f.removeParameter(name);
-            }
-        }
+        // for (auto &f : functions) {
+        //     for (const auto &diag : diagData) {
+        //         for (const auto &name : diag.mixings)
+        //             f.removeParameter(name);
+        //         for (const auto &name : diag.masses)
+        //             f.removeParameter(name);
+        //         for (const auto &name : diag.dependencies)
+        //             f.removeParameter(name);
+        //     }
+        // }
     }
 
     bool LibraryGenerator::needLibraryTensor() const
@@ -739,6 +857,52 @@ namespace csl {
         //     if (f.isTensorial())
         //         return true;
         // return false;
+    }
+
+    void LibraryGenerator::printGroup(LibraryGroup const &g) const
+    {
+        std::string nameHeader = "group_";
+        std::string nameSource = nameHeader;
+        for (const char c : g.getName())
+            if (c >= 'A' and c <= 'Z')
+                nameHeader += c + 'a' - 'A';
+            else
+                nameHeader += c;
+        nameSource = nameHeader;
+        nameHeader += ".h";
+        nameSource += ".cpp";
+
+        file header(path + "/" + incDir + "/" + nameHeader);
+        header << "#ifndef CSL_LIB_" << name << "_" << g.getName() 
+            << "_H_INCLUDED\n";
+        header << "#define CSL_LIB_" << name << "_" << g.getName() 
+            << "_H_INCLUDED\n\n";
+        header << "#include <array>\n";
+        header << "#include \"common.h\"\n";
+        header << "#include \"librarytensor.h\"\n";
+        header << "#include \"callable.h\"\n";
+        if (uniqueParamStruct)
+            header << "#include \"params.h\"\n";
+        for (const auto &f : g.getFunctions())
+            header << "#include \"" << getFunctionFileName(f) << ".h\"\n";
+        header << '\n';
+        header << "namespace " << regLibName() << " {\n\n";
+        if (!uniqueParamStruct)
+            g.print(header, true);
+        header << '\n';
+        g.printFunctionStack(header, 0);
+        header << '\n';
+        header << "}\n // End of namespace " << regLibName() << "\n\n";
+        header << "#endif\n";
+
+        file source(path + "/" + srcDir + "/" + nameSource);
+        source << "#include \"" << nameHeader << "\"\n";
+        source << "namespace " << regLibName() << " {\n\n";
+        g.print(source, false);
+        source << "\n} // End of namespace " << regLibName() << "\n";
+
+        for (const auto &f : g.getFunctions())
+            printFunction(f);
     }
 
     void LibraryGenerator::printFunction(LibFunction const& f) const
@@ -768,22 +932,26 @@ namespace csl {
 
         file source(path + "/" + srcDir + "/" + nameSource);
         std::string initInstruction;
-        if (hasGlobalFile()) {
-            initInstruction = 
-                indent(1) + "if (!parametersInitialized) {\n"
-                + indent(2) + "std::cerr << \"Error: diagonalization "
-                "parameters are not initialized.\"\n"
-                + indent(2) + "             \"Consider setting initial mass "
-                "parameters value and\"\n"
-                + indent(2) + "             \"call updateDiagonalization() "
-                "(see file global.h).\\n\";\n"
-                + indent(2) + "exit(1);\n"
-                + indent(1) + "}\n";
-        }
-        initInstruction += indent(1) + "clearcache();\n";
+        // if (hasGlobalFile()) {
+        //     initInstruction = 
+        //         indent(1) + "if (!parametersInitialized) {\n"
+        //         + indent(2) + "std::cerr << \"Error: diagonalization "
+        //         "parameters are not initialized.\"\n"
+        //         + indent(2) + "             \"Consider setting initial mass "
+        //         "parameters value and\"\n"
+        //         + indent(2) + "             \"call updateDiagonalization() "
+        //         "(see file global.h).\\n\";\n"
+        //         + indent(2) + "exit(1);\n"
+        //         + indent(1) + "}\n";
+        // }
+        // initInstruction += indent(1) + "clearcache();\n";
         dependencies.printInclude(source);
         source << "#include \"" << nameHeader << "\"\n";
         source << "#include \"common.h\"\n\n";
+        if (uniqueParamStruct)
+            source << "#include \"params.h\"\n";
+        source << "#include \"" << "group_" << getGroupFileName(f.getGroup())
+            << ".h\"\n\n";
         if (hasGlobalFile()) {
             source << "#include \"global.h\"\n";
         }
@@ -904,14 +1072,14 @@ namespace csl {
                     + toString(nJobs) + " all").c_str());
     }
 
-    void LibraryGenerator::buildPythonLib() const
-    {
-        [[maybe_unused]] int res = system(("cd " + path + ";"
-                + " python generator.py; "
-                + " cd python; "
-                + " cmake ..;"
-                + " make all; ").c_str());
-    }
+    // void LibraryGenerator::buildPythonLib() const
+    // {
+    //     [[maybe_unused]] int res = system(("cd " + path + ";"
+    //             + " python generator.py; "
+    //             + " cd python; "
+    //             + " cmake ..;"
+    //             + " make all; ").c_str());
+    // }
 
     std::vector<csl::Tensor> LibraryGenerator::gatherTensors() const
     {
@@ -928,11 +1096,15 @@ namespace csl {
             return pos != tensors.end();
         };
         std::vector<csl::Tensor> tensors;
-        for (const auto& f : functions) {
-            const std::vector<csl::Tensor>& f_tensors = f.getTensors();
-            for (const csl::Tensor& t : f_tensors)
-                if (!find(tensors, t))
-                    tensors.push_back(t);
+        for (const auto &g : groups) {
+            if (g->empty())
+                continue;
+            for (const auto& f : g->getFunctions()) {
+                const std::vector<csl::Tensor>& f_tensors = f.getTensors();
+                for (const csl::Tensor& t : f_tensors)
+                    if (!find(tensors, t))
+                        tensors.push_back(t);
+            }
         }
         std::sort(
                 tensors.begin(),
@@ -1026,6 +1198,23 @@ namespace csl {
     std::string LibraryGenerator::indent(short nIndent)
     {
         return std::string(nIndent * nSpaceIndent, ' ');
+    }
+
+    std::vector<LibParameter> diagonalizationParameters(
+            std::vector<LibraryGenerator::DiagonalizationData> const &diagData
+            )
+    {
+        std::vector<LibParameter> res;
+        res.reserve(4 * diagData.size());
+        for (const auto &data : diagData) {
+            for (const auto &mass : data.masses)
+                res.push_back({mass, "real_t"});
+            for (const auto &mix : data.mixings)
+                res.push_back({mix, "complex_t"});
+            for (const auto &dep : data.dependencies)
+                res.push_back({dep, "complex_t"});
+        }
+        return res;
     }
 
 } // End of namespace csl
