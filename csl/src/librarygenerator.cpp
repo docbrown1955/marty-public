@@ -567,6 +567,7 @@ namespace csl {
                 "File \"" + path + "/" + incDir + "/common.h\" not found.");
         header << "#ifndef CSL_LIB_CALLABLE" << "\n";
         header << "#define CSL_LIB_CALLABLE" << "\n";
+        header << "#include <string>\n";
         header << "#include <functional>\n\n";
 
         header << "namespace " << regLibName() << " {\n\n";

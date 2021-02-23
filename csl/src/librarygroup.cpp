@@ -81,7 +81,8 @@ namespace csl {
                     :LibraryGenerator::realUsing) << ", " << getParamName();
         out << ">, " << functions.size() << "> f_" << name << " = {\n";
         for (const auto &f : functions) {
-            out << LibraryGenerator::indent(nIndent + 1) << f.getName() << ",\n";
+            out << LibraryGenerator::indent(nIndent + 1);
+            out << "Callable{\"" << f.getName() << "\", " << f.getName() << "},\n";
         }
         out << LibraryGenerator::indent(nIndent) << "};\n\n";
     }
