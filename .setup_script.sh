@@ -235,8 +235,8 @@ cd $MARTY_LOC
 cd jsonparser&&   echo -e "$Makefile_setup" > Makefile&& cat Makefile.in >> Makefile
 cd $MARTY_LOC
 
-savePATH=$PATH
 export PATH=$PATH:/usr/local/opt/qt5/bin
+savePATH=$PATH
 grafed_debug=grafed/build-grafed-gui-Desktop_Qt_5_12_1_GCC_64bit-Debug
 grafed_release=grafed/build-grafed-gui-Desktop_Qt_5_12_1_GCC_64bit-Release
 unameOut="$(uname -s)"

@@ -48,14 +48,18 @@ grafed: lib
 	cp $(JSONDIR)/src/*.cpp $(JSONDIR)/include/*.h grafed-gui
 	cd build-grafed-gui-Desktop_Qt_5_12_1_GCC_64bit-Debug; \
 		qmake -makefile -o Makefile "CONFIG+=debug" "QMAKE_CXX=$(CXX)" "QMAKE_LINK=$(CXX)" ../grafed-gui/grafed-gui.pro; \
-		sed -i 's/-std=c++0x//g' Makefile; \
-		sed -i 's/-std=gnu++0x//g' Makefile; \
+		sed -i=.foo 's/-std=c++.[^7]//g' Makefile; \
+		sed -i=.foo 's/-std=gnu++..//g' Makefile; \
+		sed -i=.foo 's/[^ ^\n]*libc++//g' Makefile; \
+		rm *.foo;\
 		$(MAKE) clean;\
 		$(MAKE)
 	cd build-grafed-gui-Desktop_Qt_5_12_1_GCC_64bit-Release; \
 		qmake -makefile -o Makefile "QMAKE_CXX=$(CXX)" "QMAKE_LINK=$(CXX)" ../grafed-gui/grafed-gui.pro;\
-		sed -i 's/-std=c++0x//g' Makefile; \
-		sed -i 's/-std=gnu++0x//g' Makefile; \
+		sed -i=.foo 's/-std=c++.[^7]//g' Makefile; \
+		sed -i=.foo 's/-std=gnu++..//g' Makefile; \
+		sed -i=.foo 's/[^ ^\n]*libc++//g' Makefile; \
+		rm *.foo;\
 		$(MAKE) clean;\
 		$(MAKE) 
 

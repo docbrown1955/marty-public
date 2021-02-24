@@ -7,7 +7,7 @@ BLUE='\033[1;34m'
 BOLD='\033[1m'
 NORMAL='\033[0m'
 
-./.setup_script.sh $1
+source .setup_script.sh $1
 
 if [ "$?" == "0" ]
 then
