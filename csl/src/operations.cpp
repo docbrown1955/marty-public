@@ -1168,8 +1168,9 @@ bool Prod::askTerm(Expr_info expr, bool exact) const
     for (size_t i = 0; i < argument.size(); i++) {
         if (Comparator::freeIndexComparison(argument[i].get(),expr))
             return true;
-        else if (!exact and argument[i]->getType() == csl::Type::Pow and // Pow
-                 argument[i]->askTerm(expr))
+        else if (!exact //and argument[i]->getType() == csl::Type::Pow and // Pow
+                 && !argument[i]->isIndexed()
+                 && argument[i]->askTerm(expr))
             return true;
     }
 

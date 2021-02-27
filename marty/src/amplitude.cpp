@@ -1004,11 +1004,18 @@ bool AmplitudeCalculator::expandMinkoMetric(csl::Expr &res)
     //                 or expr->getParent_info() == e.get());
     // };
     // csl::DeepExpandIf_lock(res, predicate);
+    auto isConstrainedEmitter = [&](csl::Expr const &emitter) {
+        return csl::IsIndicialTensor(emitter)
+            and (emitter->getParent_info() == g.get()
+                    or emitter->getParent_info() == d.get())
+            and emitter->getFreeIndexStructure().size() < 2;
+    };
     auto isEmitter = [&](csl::Expr const &emitter) {
         return csl::IsIndicialTensor(emitter)
             and (emitter->getParent_info() == g.get()
                     or emitter->getParent_info() == d.get()
-                    or emitter->getParent_info() == e.get());
+                    or emitter->getParent_info() == e.get())
+            and emitter->getFreeIndexStructure().size() < 2;
     };
     auto isReceiver = [&](csl::Expr const &emitter, csl::Expr const &receiver) {
         csl::IndexStructure const &eindex = emitter->getIndexStructureView();
@@ -1026,7 +1033,13 @@ bool AmplitudeCalculator::expandMinkoMetric(csl::Expr &res)
         return false;
     };
 
-    csl::DeepPartialExpand(res, isEmitter, isReceiver);
+    while (csl::AnyOfLeafs(res, [&](csl::Expr const &sub) { 
+                return isConstrainedEmitter(sub); 
+    })) {
+        csl::DeepPartialExpand(res, isEmitter, isReceiver);
+    }
+    //csl::DeepPartialExpand(res, isEmitter, isReceiver);
+    //csl::DeepPartialExpand(res, isEmitter, isReceiver);
     csl::DeepFactor(res);
 
     return (init != res);
@@ -1105,6 +1118,7 @@ bool AmplitudeCalculator::simplifyEpsilonInProd(
 
 bool AmplitudeCalculator::expandGammaMatrices(csl::Expr &res) const
 {
+    csl::Expr init = res;
     auto predicate = [&](csl::Expr const &expr)
     {
         return csl::IsIndicialTensor(expr)
@@ -1122,7 +1136,7 @@ bool AmplitudeCalculator::expandGammaMatrices(csl::Expr &res) const
         return false;
     csl::DeepExpandIf_lock(res, predicate);
     // csl::Factor(res);
-    return false;
+    return init != res;
 }
 
 bool AmplitudeCalculator::simplifyConjugationMatrix(csl::Expr &res)

@@ -354,7 +354,7 @@ namespace csl {
                     ExpanderReceiver const &isReceiver
                     )
     {
-        csl::ForEachNode(init, [&isEmitter, &isReceiver](csl::Expr &prod) {
+        csl::ForEachNodeReversed(init, [&isEmitter, &isReceiver](csl::Expr &prod) {
             if (csl::IsProd(prod)) {
                 PartialExpandImplementation(prod, isEmitter, isReceiver);
             }

@@ -740,8 +740,15 @@ bool IntFraction::operator==(Expr_info expr) const
         if (int test = testDummy(expr); test != -1)
             return test;
     }    
-    if (expr->getPrimaryType() == csl::PrimaryType::Numerical) 
+    if (expr->getPrimaryType() == csl::PrimaryType::Numerical) {
+        if (expr->getType() == csl::Type::Complex) {
+            if (expr->getImaginaryPart() != CSL_0)
+                return false;
+            auto real = (expr->getRealPart()).value_or(CSL_0);
+            return (*this == real.get());
+        }
         return (expr->evaluateScalar()==(num*1./denom));
+    }
 
     return 0;
 }
