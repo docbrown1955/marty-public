@@ -85,7 +85,7 @@ namespace csl {
         static
         void cutParameters(
                 std::vector<LibParameter> &parameters,
-                int                        tensorParameter
+                int                       &tensorParameter
                 );
         static
         void sortParameters(

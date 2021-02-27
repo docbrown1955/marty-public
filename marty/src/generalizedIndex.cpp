@@ -530,6 +530,7 @@ namespace mty {
             [&](IndexChain const &c) { return c.externalize(7, false); },
             [&](IndexChain const &c) { return c.applyContractionProperties(); },
             [&](IndexChain const &c) { return c.contractDistant(); },
+            [&](IndexChain const &c) { return c.calculateTrace(); },
         };
         std::vector<IndexChain> res {{*this}};
         for (const auto &action : actions)
@@ -813,6 +814,73 @@ namespace mty {
             }
         } 
         return {*this};
+    }
+
+    // static size_t countGamma(IndexChain const &chain)
+    // {
+    //     auto first = chain.firstGamma();
+    //     auto last = 1 + chain.lastGamma().base();
+    //     size_t nG = 0;
+    //     while (first != last) {
+    //         if (toGammaIndex(**first).isGammaMu())
+    //             nG += (**first).size();
+    //         ++first;
+    //     }
+    //     return nG;
+    // }
+
+    std::vector<IndexChain> IndexChain::applyStandardRecursion() const
+    {
+        //size_t nGamma = countGamma(*this);
+        //if (nGamma % 2 == 1)
+            return {IndexChain{CSL_0, {}}};
+
+    }
+
+    std::vector<IndexChain> IndexChain::applyChiralRecursion() const
+    {
+        //size_t nGamma = countGamma(*this);
+        //if (nGamma % 2 == 1 || nGamma < 4)
+            return {IndexChain{CSL_0, {}}};
+    }
+
+    std::vector<IndexChain> IndexChain::calculateTrace_impl() const
+    {
+        if (!cycle)
+            return {};
+        auto lastG = 1 + lastGamma().base();
+        if (lastG == end()) {
+            return {IndexChain{4*factor, indices}};
+        }
+        auto gam = toGammaIndex(**lastG);
+        if (gam.isGamma5()) 
+            return applyChiralRecursion();
+        if (gam.isP_L() || gam.isP_R()) {
+            IndexChain copy = *this;
+            copy.erase(copy.begin() + std::distance(begin(), lastG));
+            auto S = copy.applyStandardRecursion();
+            auto P = copy.applyChiralRecursion();
+            csl::Expr fS = CSL_HALF;
+            csl::Expr fP = (gam.isP_L()) ? -CSL_HALF : CSL_HALF;
+            for (auto &c : S)
+                c.multiply(fS);
+            for (auto &c : P)
+                c.multiply(fP);
+            P.insert(
+                    P.end(), 
+                    std::make_move_iterator(S.begin()), 
+                    std::make_move_iterator(S.end())
+                    );
+            return P;
+        }
+        return applyStandardRecursion();
+    }
+
+    std::vector<IndexChain> IndexChain::calculateTrace() const
+    {
+        return recursiveAction([](IndexChain const &chain) {
+            return chain.calculateTrace_impl();
+        });
     }
 
     void IndexChain::print(std::ostream &out) const 

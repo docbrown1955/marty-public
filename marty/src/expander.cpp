@@ -112,7 +112,8 @@ Expander::Expander(const std::vector<Tensor>&      t_vertices,
 {
     HEPAssert(order == (int)vertices.size(),
             mty::error::ValueError,
-            "Wrong number of vertices for order " + toString(order));
+            "Wrong number of vertices (" + toString(vertices.size()) 
+            + ") for order " + toString(order));
     size_t i = 0;
     for (auto& field : insertions) {
         // std::cout << impulsions[i]->getName() << std::endl;
@@ -142,7 +143,8 @@ Expander::Expander(const std::vector<Tensor>&      t_vertices,
 {
     HEPAssert(order == (int)vertices.size(),
             mty::error::ValueError,
-            "Wrong number of vertices for order " + toString(order));
+            "Wrong number of vertices (" + toString(vertices.size()) 
+            + ") for order " + toString(order));
     size_t i = 0;
     for (auto& field : insertions) {
         // std::cout << impulsions[i]->getName() << std::endl;

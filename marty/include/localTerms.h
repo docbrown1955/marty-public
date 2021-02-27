@@ -27,6 +27,8 @@
 
 namespace mty {
 
+inline const csl::Expr FiniteFlag = csl::constant_s("Finite");
+
 csl::Expr getLocalTerm(
         IntegralType               type,
         std::vector<size_t> const &indices,

@@ -283,11 +283,6 @@ namespace csl {
                     diagonalizationParameters(diagData));
             groups.push_back(dummy);
             LibraryGroup::gatherParameters(groups, "param_t");
-            for (const auto &g : groups) {
-                std::cout << "**********************" << std::endl;
-                for (const auto& p : g->getParameters())
-                    std::cout << p.type << " " << p.name << ";" << std::endl;
-            }
             groups.erase(groups.end() - 1);
             file paramFile(path + "/" + incDir + "/params.h");
             paramFile << "#ifndef CSL_LIB_PARAM_H_INCLUDED\n",

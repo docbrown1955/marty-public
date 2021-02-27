@@ -52,7 +52,7 @@ void ModelBuilder::replace(
     });
     csl::vector_expr terms = clearDependencies(
     [&](Lagrangian::TermType const &term) {
-        return term->getFullExpression()
+        return term->getTerm()
             ->dependsExplicitlyOn(oldExpression.get());
     });
 
@@ -988,11 +988,14 @@ void ModelBuilder::applyDiracFermionEmbedding(
         std::vector<mty::Lagrangian::TermType>   &interaction)
 {
     std::vector<csl::Expr> interactionTerms(interaction.size());
-    for (size_t i = 0; i != interaction.size(); ++i)
-        interactionTerms[i] = interaction[i]->getFullExpression();
+    std::vector<csl::Expr> minusInteractionTerms(interaction.size());
+    for (size_t i = 0; i != interaction.size(); ++i) {
+        interactionTerms[i] = interaction[i]->getTerm();
+        minusInteractionTerms[i] = -interactionTerms[i];
+    }
     for (size_t i = 0; i != interaction.size(); ++i) {
         if (not interaction[i]->contains(leftWeyl.get())
-                and not interaction[i]->contains(rightWeyl.get()))
+                or not interaction[i]->contains(rightWeyl.get()))
             continue;
         csl::Expr term = csl::DeepCopy(interactionTerms[i]);
         csl::ForEachLeaf(term, [&](csl::Expr& expr)
@@ -1006,8 +1009,7 @@ void ModelBuilder::applyDiracFermionEmbedding(
             }
         });
         for (size_t j = i+1; j < interaction.size(); ++j) {
-            csl::Expr other = interactionTerms[j];
-            if (other == term) {
+            if (interactionTerms[j] == term) {
                 csl::ForEachNode(term, [&](csl::Expr& expr)
                 {
                     if (IsOfType<mty::QuantumField>(expr)) {
@@ -1026,12 +1028,12 @@ void ModelBuilder::applyDiracFermionEmbedding(
                         "Got wrong number of interaction terms from " + 
                         toString(term) + " (should be 1).");
                 interaction[i] = std::move(terms[0]);
-                interactionTerms[i] = interaction[i]->getFullExpression();
+                interactionTerms[i] = interaction[i]->getTerm();
                 interaction.erase(interaction.begin() + j);
                 interactionTerms.erase(interactionTerms.begin() + j);
                 break;
             }
-            else if (other == -term) {
+            else if (minusInteractionTerms[i] == term) {
                 csl::Transform(term, [&](csl::Expr& expr)
                 {
                     if (IsOfType<mty::QuantumField>(expr)) {
@@ -1063,7 +1065,7 @@ void ModelBuilder::applyDiracFermionEmbedding(
                         "Got wrong number of interaction terms from " + 
                         toString(term) + " (should be 1).");
                 interaction[i] = std::move(terms[0]);
-                interactionTerms[i] = interaction[i]->getFullExpression();
+                interactionTerms[i] = interaction[i]->getTerm();
                 interaction.erase(interaction.begin() + j);
                 interactionTerms.erase(interactionTerms.begin() + j);
                 break;
@@ -1125,7 +1127,7 @@ void ModelBuilder::gatherMasses()
             HEPAssert(content.size() == 2,
                     mty::error::TypeError,
                     "Mass term with more or less than two fields encountered: "
-                    + toString(L.mass[massTerms[0]]->getFullExpression()));
+                    + toString(L.mass[massTerms[0]]->getTerm()));
             if (content[0].getParent() == content[1].getParent())
                 content.erase(content.begin() + 1);
             if (content.size() == 1) {
@@ -1157,6 +1159,8 @@ void ModelBuilder::gatherMasses()
                     std::swap(content[0], content[1]);
                 content[0] = *std::dynamic_pointer_cast<mty::QuantumField>(
                         csl::GetComplexConjugate(content[0].copy()));
+                std::cout << "Dirac fermion embedding for " << content[0] 
+                    << std::endl;
                 diracFermionEmbedding(
                     std::dynamic_pointer_cast<mty::WeylFermion>(
                         content[0].getParent()),
@@ -1560,7 +1564,7 @@ void ModelBuilder::breakLagrangian(
 {
     for (size_t i = 0; i != L.kinetic.size(); ++i)
         if (L.kinetic[i]->contains(init.get())) {
-            csl::vector_expr broke = L.kinetic[i]->getFullExpression()
+            csl::vector_expr broke = L.kinetic[i]->getTerm()
                 ->breakSpace(brokenSpace,
                              newSpace);
             replaceTermInLagrangian(L.kinetic, i, broke);
@@ -1568,7 +1572,7 @@ void ModelBuilder::breakLagrangian(
 
     for (size_t i = 0; i != L.mass.size(); ++i)
         if (L.mass[i]->contains(init.get())) {
-            csl::vector_expr broke = L.mass[i]->getFullExpression()
+            csl::vector_expr broke = L.mass[i]->getTerm()
                 ->breakSpace(brokenSpace,
                              newSpace);
             replaceTermInLagrangian(L.mass, i, broke);
@@ -1576,7 +1580,7 @@ void ModelBuilder::breakLagrangian(
 
     for (size_t i = 0; i != L.interaction.size(); ++i)
         if (L.interaction[i]->contains(init.get())) {
-            csl::vector_expr broke = L.interaction[i]->getFullExpression()
+            csl::vector_expr broke = L.interaction[i]->getTerm()
                 ->breakSpace(brokenSpace,
                              newSpace);
             replaceTermInLagrangian(L.interaction, i, broke);
@@ -2160,7 +2164,7 @@ void ModelBuilder::abbreviateBigTerms(size_t maxLeafs)
     csl::ProgressBar bar(L.interaction.size());
     for (size_t i = 0; i != L.interaction.size(); ++i) {
         bar.progress(i);
-        csl::Expr term = L.interaction[i]->getFullExpression();
+        csl::Expr term = L.interaction[i]->getTerm();
         if (csl::CountLeafs(term) < maxLeafs) {
             continue;
         }
@@ -2197,19 +2201,19 @@ std::vector<csl::Expr> ModelBuilder::clearDependencies(
     terms.reserve(L.fullSize());
     for (size_t i = 0; i != L.kinetic.size(); ++i) 
         if (dependencyFunc(L.kinetic[i])) {
-            terms.push_back(L.kinetic[i]->getFullExpression());
+            terms.push_back(L.kinetic[i]->getTerm());
             L.kinetic.erase(L.kinetic.begin()+i);
             --i;
         }
     for (size_t i = 0; i != L.mass.size(); ++i) 
         if (dependencyFunc(L.mass[i])) {
-            terms.push_back(L.mass[i]->getFullExpression());
+            terms.push_back(L.mass[i]->getTerm());
             L.mass.erase(L.mass.begin()+i);
             --i;
         }
     for (size_t i = 0; i != L.interaction.size(); ++i) 
         if (dependencyFunc(L.interaction[i])) {
-            terms.push_back(L.interaction[i]->getFullExpression());
+            terms.push_back(L.interaction[i]->getTerm());
             L.interaction.erase(L.interaction.begin()+i);
             --i;
         }
@@ -2226,7 +2230,7 @@ std::vector<csl::Expr> ModelBuilder::clearDependencies(
     res.reserve(L.fullSize());
     for (size_t i = 0; i != terms.size(); ++i) 
         if (dependencyFunc(terms[i])) {
-            res.push_back(terms[i]->getFullExpression());
+            res.push_back(terms[i]->getTerm());
             terms.erase(terms.begin()+i);
             --i;
         }

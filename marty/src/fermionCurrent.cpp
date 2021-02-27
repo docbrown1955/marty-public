@@ -16,11 +16,6 @@
 #include "fermionCurrent.h"
 #include "fermionChain.h"
 #include "mrtError.h"
-
-#define FERMION_CHAIN_ERROR \
-    CallHEPError(mty::error::TypeError,\
-            "Chain " + toString(prod_s(tensors)) + " not recognized as a"\
-            " fermion current.")
 using namespace csl;
 namespace mty {
 
@@ -148,6 +143,11 @@ void FermionCurrent::setRight(csl::Expr const& t_right)
     right = t_right;
 }
 
+#define FERMION_CHAIN_ERROR \
+    CallHEPError(mty::error::TypeError,\
+            "Chain " + toString(prod_s(tensors)) + " not recognized as a"\
+            " fermion current.")
+
 FermionCurrent::Type FermionCurrent::determineTypeOfChain(
         std::vector<csl::Expr> const& tensors) const
 {
@@ -198,6 +198,7 @@ FermionCurrent::Type FermionCurrent::determineTypeOfChain(
 
     return FermionCurrent::Scalar;
 }
+#undef FERMION_CHAIN_ERROR
 
 void FermionCurrent::determineBorderIndices(
         std::vector<csl::Expr> const& tensors)
@@ -277,4 +278,3 @@ std::ostream& operator<<(std::ostream& out,
 
 }
 
-#undef FERMION_CHAIN_ERROR

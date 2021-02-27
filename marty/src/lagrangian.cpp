@@ -143,7 +143,7 @@ void Lagrangian::mergeTerms(vector<TermType>& terms)
         if (terms.size() > 5000)
             bar.progress(i);
         std::vector<mty::QuantumField> const &content = terms[i]->getContent();
-        csl::Expr expr = terms[i]->getFullExpression();
+        csl::Expr expr = terms[i]->getTerm();
         if (content.size() == 1) {
             linear.push_back(expr);
             continue;
@@ -166,12 +166,12 @@ void Lagrangian::mergeTerms(vector<TermType>& terms)
                 if (refreshed[i]->hasSameContent(*refreshed[j])) {
                     if (merged)
                         expressions.push_back(
-                                csl::Expanded(refreshed[j]->getFullExpression()));
+                                csl::Expanded(refreshed[j]->getTerm()));
                     else {
                         merged = true;
                         expressions = {
-                            csl::Expanded(refreshed[i]->getFullExpression()),
-                            csl::Expanded(refreshed[j]->getFullExpression())
+                            csl::Expanded(refreshed[i]->getTerm()),
+                            csl::Expanded(refreshed[j]->getTerm())
                         };
                     }
                     refreshed.erase(refreshed.begin() + j);
@@ -255,17 +255,17 @@ std::ostream& operator<<(std::ostream& fout, const Lagrangian& L)
     size_t i = 0;
     for (const auto& term : L.kinetic)
         fout << i++ << " (" << term->size() << ") : " 
-            << term->getFullExpression() << "\n\n";
+            << term->getTerm() << "\n\n";
     cout << L.mass.size() << " mass terms:\n";
     i = 0;
     for (const auto& term : L.mass)
         fout << i++ << " (" << term->size() 
-            << ") : " << term->getFullExpression() << "\n\n";
+            << ") : " << term->getTerm() << "\n\n";
     cout << L.interaction.size() << " interaction terms:\n";
     i = 0;
     for (const auto& term : L.interaction)
         fout << i++ << " (" << term->size() << ") : " 
-            << term->getFullExpression() << "\n\n";
+            << term->getTerm() << "\n\n";
 
     return fout;
 }

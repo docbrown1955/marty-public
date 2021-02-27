@@ -238,8 +238,6 @@ bool InteractionTerm::hasSameContent(
         std::vector<mty::QuantumField> const &fields
         ) const
 {
-    if (content.size() != fields.size())
-        return false;
     return areSimilarContent(content, fields);
 }
 
@@ -671,7 +669,7 @@ void InteractionTerm::gatherSymmetries(csl::Expr const& sum)
 bool InteractionTerm::areSimilarField(QuantumField const& A,
                                       QuantumField const& B)
 {
-    return (A.getParent().get() == B.getParent().get()
+    return (A.getParent_info() == B.getParent_info()
         and (A.getComplexProperty() == csl::ComplexProperty::Real
                or A.getConjugated() == B.getConjugated())
         and A.getDerivativeStructure().size()
@@ -683,13 +681,14 @@ bool InteractionTerm::areSimilarContent(
         std::vector<QuantumField> const &B
         )
 {
-    if (A.size() != B.size())
+    const size_t szA = A.size();
+    if (szA != B.size())
         return false;
-    std::vector<size_t> indicesLeft(B.size());
+    std::vector<size_t> indicesLeft(szA);
     for (size_t i = 0; i != indicesLeft.size(); ++i)
         indicesLeft[i] = i;
 
-    for (size_t i = 0; i != A.size(); ++i) {
+    for (size_t i = 0; i != szA; ++i) {
         const auto &fieldA = A[i];
         bool match = false;
         for (size_t k = 0; k != indicesLeft.size(); ++k) {

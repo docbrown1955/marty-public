@@ -27,6 +27,14 @@
 
 namespace mty {
 
+struct ParticleInsertion {
+    ParticleInsertion() = default;
+    ParticleInsertion(Particle t_p): p(t_p) {}
+    ParticleInsertion(Particle t_p, bool t_c): p(t_p), conjugate(t_c) {}
+    mty::Particle p;
+    bool          conjugate { false };
+};
+
 class FermionCurrent {
 
     public:
@@ -105,7 +113,7 @@ class FermionCurrent {
 };
 
 std::vector<FermionCurrent> parseChains(
-            csl::Expr            & product,
+            csl::Expr        &product,
             DiracSpace const* diracSpace,
             bool              findAbrev = false);
 

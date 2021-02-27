@@ -256,7 +256,7 @@ namespace csl {
 
     void LibFunction::cutParameters(
             std::vector<LibParameter> &parameters,
-            int                        tensorParameter
+            int                       &tensorParameter
             )
     {
         for (size_t i = 0; i != parameters.size(); ++i) {
@@ -276,7 +276,7 @@ namespace csl {
             int                        tensorParameter
             )
     {
-        if (tensorParameter != -1) {
+        if (static_cast<size_t>(tensorParameter) < parameters.size()) {
             std::sort(parameters.begin(), parameters.begin() + tensorParameter);
             std::sort(parameters.begin() + tensorParameter, parameters.end());
         }

@@ -13,7 +13,9 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
+#include "mrtError.h"
 #include "localTerms.h"
+#include "feynmanIntegral.h"
 
 // Source : Appendix A of hep-ph/0509141
 

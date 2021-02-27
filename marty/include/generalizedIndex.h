@@ -252,9 +252,9 @@ namespace mty {
         std::vector<IndexChain> simplify_impl() const;
         std::vector<IndexChain> simplify() const;
 
-        iterator firstGamma();
+        iterator       firstGamma();
         const_iterator firstGamma() const;
-        reverse_iterator lastGamma();
+        reverse_iterator       lastGamma();
         const_reverse_iterator lastGamma() const;
 
         void reserve(size_t sz) { indices.reserve(sz); }
@@ -312,6 +312,13 @@ namespace mty {
         std::vector<IndexChain> contractDistant_impl(
                 csl::Index const &index
                 ) const;
+
+        std::vector<IndexChain> applyStandardRecursion() const;
+        std::vector<IndexChain> applyChiralRecursion() const;
+
+        std::vector<IndexChain> calculateTrace_impl() const;
+
+        std::vector<IndexChain> calculateTrace() const;
 
         std::vector<IndexChain> contractDistant() const;
 

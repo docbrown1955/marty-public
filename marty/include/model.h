@@ -45,6 +45,12 @@ namespace mty {
 struct Wilson;
 class Insertion;
 
+enum class OperatorBasis {
+
+    Chiral,
+    Standard,
+};
+
 /*!
  * \brief Contains all objects in the theory.
  * In particular QuantumField objects, Gauge, Flavor, Particle...
@@ -61,8 +67,6 @@ public:
     inline static Model *current = nullptr;
 
 public:
-
-    public:
 
     ///////////////////////////////////////////////////
     // Constructors
@@ -144,7 +148,8 @@ public:
 
     std::vector<Wilson> getWilsonCoefficients(
             Amplitude const &ampl,
-            csl::Expr             factor
+            csl::Expr        factor,
+            OperatorBasis    basis = OperatorBasis::Chiral
             );
 
     friend

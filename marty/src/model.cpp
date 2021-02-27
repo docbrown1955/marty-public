@@ -134,6 +134,8 @@ mty::Amplitude Model::computeAmplitude(
         bool                      ruleMode
         )
 {
+    if (!ruleMode and feynmanRules.empty())
+        computeFeynmanRules();
     std::vector<csl::Tensor> vertices;
     options.setMaxLoops(order);
     if (ruleMode)
@@ -143,8 +145,6 @@ mty::Amplitude Model::computeAmplitude(
         csl::Expr tensor = csl::generateTensor(name, {&csl::Minkowski});
         vertices.push_back(csl::tensor_s(name, &csl::Minkowski, tensor));
     }
-    if (!ruleMode and feynmanRules.empty())
-        computeFeynmanRules();
     initSquaredMomenta(
             t_momenta, 
             recoverQuantumInsertions(insertions)
@@ -277,16 +277,39 @@ csl::Expr Model::computeSquaredAmplitude(
 
 std::vector<Wilson> Model::getWilsonCoefficients(
         Amplitude const &ampl,
-        csl::Expr             factor
+        csl::Expr        factor,
+        OperatorBasis    basis
         )
 {
     csl::ScopedProperty commut(&csl::option::checkCommutations, false);
     std::vector<csl::Expr> amplitudesEff;
     std::vector<csl::Expr> amplitudesfull(ampl.expressions);
-    for (auto &a : amplitudesfull) {
-        a = CSL_I * csl::Copy(a);
-        a = csl::Evaluated(csl::Expanded(a / factor), csl::eval::abbreviation);
-        csl::DeepExpandIf_lock(a, [&](csl::Expr const &e) { 
+    auto a = DiracIndices(2);
+    for (auto &ampl : amplitudesfull) {
+        ampl = CSL_I * csl::Copy(ampl);
+        if (basis == OperatorBasis::Chiral) {
+            csl::Replace(
+                    ampl,
+                    dirac4.gamma_chir({a[0], a[1]}),
+                    dirac4.P_R({a[0], a[1]}) - dirac4.P_L({a[0], a[1]})
+                    );
+        }
+        else if (basis == OperatorBasis::Standard) {
+            csl::Replace(
+                    ampl,
+                    dirac4.P_L({a[0], a[1]}),
+                    CSL_HALF*dirac4.getDelta()({a[0], a[1]}) 
+                    - CSL_HALF*dirac4.gamma_chir({a[0], a[1]})
+                    );
+            csl::Replace(
+                    ampl,
+                    dirac4.P_R({a[0], a[1]}),
+                    CSL_HALF*dirac4.getDelta()({a[0], a[1]}) 
+                    + CSL_HALF*dirac4.gamma_chir({a[0], a[1]})
+                    );
+        }
+        ampl = csl::Evaluated(csl::Expanded(ampl / factor), csl::eval::abbreviation);
+        csl::DeepExpandIf_lock(ampl, [&](csl::Expr const &e) { 
             return IsOfType<PolarizationField>(e); 
         });
     }

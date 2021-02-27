@@ -950,7 +950,7 @@ std::vector<DiracSpace::Chain> DiracSpace::simplifyGammaProd(
         for (auto &c : newChains) {
             std::vector<Chain> interm = simplifyGammaProd(c);
             if (interm.empty()) {
-                interm = simplifyFiertzProd(c);
+                //interm = simplifyFiertzProd(c);
                 if (interm.empty()) {
                     chains.push_back(std::move(c));
                     continue;

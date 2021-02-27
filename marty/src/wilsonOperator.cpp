@@ -94,6 +94,161 @@ namespace OperatorParser {
         return csl::sum_s(res);
     }
 
+    csl::Expr get_V_x_V5_Coefficient(
+            std::vector<Wilson> const &coefs
+            )
+    {
+        std::vector<Requirement> requirements {
+            {1, 1}, // Conjugated fermion
+            {1, 0}, // Non-conjugated fermion
+            {1, 1}, // Conjugated fermion
+            {1, 0}, // Non-conjugated fermion
+        };
+        std::vector<csl::Expr> res;
+        for (const auto &wilson : coefs) {
+            const std::vector<Insertion> insertions = getInsertions(
+                    requirements,
+                    wilson.op
+                    );
+            if (insertions.empty()) {
+                continue;
+            }
+            csl::Expr op_1 = build_V_x_V5(
+                    insertions[0],
+                    insertions[1],
+                    insertions[2],
+                    insertions[3]
+                    );
+            csl::Expr op_2 = build_V_x_V5(
+                    insertions[0],
+                    insertions[3],
+                    insertions[2],
+                    insertions[1]
+                    );
+            if (wilson.op == WilsonOperator{op_1})
+                res.push_back(wilson.coef.getCoefficient());
+            else if (wilson.op == WilsonOperator{op_2})
+                res.push_back(wilson.coef.getCoefficient());
+        }
+
+        return csl::sum_s(res);
+    }
+
+    csl::Expr get_V_x_V_Coefficient(
+            std::vector<Wilson> const &coefs
+            )
+    {
+        std::vector<Requirement> requirements {
+            {1, 1}, // Conjugated fermion
+            {1, 0}, // Non-conjugated fermion
+            {1, 1}, // Conjugated fermion
+            {1, 0}, // Non-conjugated fermion
+        };
+        std::vector<csl::Expr> res;
+        for (const auto &wilson : coefs) {
+            const std::vector<Insertion> insertions = getInsertions(
+                    requirements,
+                    wilson.op
+                    );
+            if (insertions.empty()) {
+                continue;
+            }
+            csl::Expr op_1 = build_V_x_V(
+                    insertions[0],
+                    insertions[1],
+                    insertions[2],
+                    insertions[3]
+                    );
+            csl::Expr op_2 = build_V_x_V(
+                    insertions[0],
+                    insertions[3],
+                    insertions[2],
+                    insertions[1]
+                    );
+            if (wilson.op == WilsonOperator{op_1})
+                res.push_back(wilson.coef.getCoefficient());
+            else if (wilson.op == WilsonOperator{op_2})
+                res.push_back(wilson.coef.getCoefficient());
+        }
+
+        return csl::sum_s(res);
+    }
+
+    static mty::QuantumField *qf(csl::Expr &expr) 
+    {
+        return dynamic_cast<mty::QuantumField*>(expr.get());
+    }
+
+    static csl::Expr fermionExpr(Insertion const &ins)
+    {
+        csl::Expr psi = ins.field.getQuantumParent()->getInstance();
+        qf(psi)->setIncoming(ins.field.isIncoming());
+        qf(psi)->setConjugated(ins.field.isComplexConjugate());
+        qf(psi)->setPoint(ins.momentum);
+        return psi;
+    }
+
+    csl::Expr build_V_x_V(
+            Insertion const &psi1L,
+            Insertion const &psi1R,
+            Insertion const &psi2L,
+            Insertion const &psi2R
+            )
+    {
+        csl::Expr p1 = fermionExpr(psi1L);
+        csl::Expr p2 = fermionExpr(psi1R);
+        csl::Expr p3 = fermionExpr(psi2L);
+        csl::Expr p4 = fermionExpr(psi2R);
+
+        csl::Index mu = csl::Minkowski.generateIndex();
+        csl::Index  alpha = p1->getIndexStructureView().back();
+        csl::Index  beta  = p2->getIndexStructureView().back();
+        csl::Index  gam   = p3->getIndexStructureView().back();
+        csl::Index  delta = p4->getIndexStructureView().back();
+        csl::Tensor gamma = dynamic_cast<DiracSpace const*>(
+                alpha.getSpace())->gamma;
+
+        for (size_t i = 0; i+1 < p1->getIndexStructureView().size(); ++i) 
+            p2->getIndexStructureView()[i] = p1->getIndexStructureView()[i];
+        for (size_t i = 0; i+1 < p3->getIndexStructureView().size(); ++i) 
+            p4->getIndexStructureView()[i] = p3->getIndexStructureView()[i];
+
+        return (p1 * gamma({+mu, alpha, beta}) * p2)
+             * (p3 * gamma({mu, gam, delta}) * p4);
+    }
+
+    csl::Expr build_V_x_V5(
+            Insertion const &psi1L,
+            Insertion const &psi1R,
+            Insertion const &psi2L,
+            Insertion const &psi2R
+            )
+    {
+        csl::Expr p1 = fermionExpr(psi1L);
+        csl::Expr p2 = fermionExpr(psi1R);
+        csl::Expr p3 = fermionExpr(psi2L);
+        csl::Expr p4 = fermionExpr(psi2R);
+
+        csl::Index mu = csl::Minkowski.generateIndex();
+        csl::Index  alpha = p1->getIndexStructureView().back();
+        csl::Index  beta  = p2->getIndexStructureView().back();
+        csl::Index  gam   = p3->getIndexStructureView().back();
+        csl::Index  eps   = p4->getIndexStructureView().back();
+        csl::Index  delta = eps.rename();
+        csl::Tensor gamma = dynamic_cast<DiracSpace const*>(
+                alpha.getSpace())->gamma;
+        csl::Tensor gamma5 = dynamic_cast<DiracSpace const*>(
+                alpha.getSpace())->gamma_chir;
+
+        for (size_t i = 0; i+1 < p1->getIndexStructureView().size(); ++i) 
+            p2->getIndexStructureView()[i] = p1->getIndexStructureView()[i];
+        for (size_t i = 0; i+1 < p3->getIndexStructureView().size(); ++i) 
+            p4->getIndexStructureView()[i] = p3->getIndexStructureView()[i];
+
+        return (p1 * gamma({+mu, alpha, beta}) * p2)
+             * (p3 * gamma({mu, gam, delta}) * gamma5({delta, eps}) * p4);
+    }
+
     csl::Expr buildMagneticOperator(
             Insertion const &incomingFermion,
             Insertion const &outgoingFermion,
@@ -102,22 +257,8 @@ namespace OperatorParser {
             Chirality        chirality
             )
     {
-        csl::Expr psi_star = outgoingFermion.field
-            .getQuantumParent()->getInstance();
-        ConvertToPtr<QuantumField>(psi_star)
-            ->setIncoming(outgoingFermion.field.isIncoming());
-        ConvertToPtr<QuantumField>(psi_star)
-            ->setConjugated(outgoingFermion.field.isComplexConjugate());
-        ConvertToPtr<QuantumField>(psi_star)
-            ->setPoint(outgoingFermion.momentum);
-        csl::Expr psi = incomingFermion.field
-            .getQuantumParent()->getInstance();
-        ConvertToPtr<QuantumField>(psi)
-            ->setIncoming(incomingFermion.field.isIncoming());
-        ConvertToPtr<QuantumField>(psi)
-            ->setConjugated(incomingFermion.field.isComplexConjugate());
-        ConvertToPtr<QuantumField>(psi)
-            ->setPoint(incomingFermion.momentum);
+        csl::Expr psi_star = fermionExpr(outgoingFermion);
+        csl::Expr psi = fermionExpr(incomingFermion);
         for (size_t i = 0; i != psi->getIndexStructureView().size(); ++i)
             csl::Replace(
                     psi_star, 

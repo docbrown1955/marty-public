@@ -2013,8 +2013,12 @@ csl::Expr FeynmanIntegral::getDivergentFactor() const
     //     std::cout << a << " ; ";
     // std::cout << std::endl;
     if (loopToolsId == -1)
-        return getLocalTerm(type, integralIndices, getMomenta(), getMasses());
-    return mty::getDivergentFactor(type, loopToolsId, argument);
+        return mty::FiniteFlag * getLocalTerm(
+                type, integralIndices, getMomenta(), getMasses()
+                );
+    return mty::FiniteFlag * mty::getDivergentFactor(
+            type, loopToolsId, argument
+            );
 }
 
 std::vector<csl::Expr> FeynmanIntegral::getMomenta() const
