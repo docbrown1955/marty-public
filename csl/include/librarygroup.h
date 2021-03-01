@@ -52,9 +52,10 @@ namespace csl {
             return functions;
         }
 
-        void addFunction(LibFunction const &func)
+        LibFunction &addFunction(LibFunction const &func)
         {
             functions.push_back(func);
+            return functions.back();
         }
 
         static

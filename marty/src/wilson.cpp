@@ -180,6 +180,9 @@ std::vector<csl::Expr> parseStructures(
         csl::Expr &prod
         )
 {
+    if (!csl::IsProd(prod)) {
+        return {};
+    }
     csl::IndexStructure quantumStructure;
     csl::vector_expr inOperator;
     for (auto& arg : prod) {
@@ -284,7 +287,7 @@ std::vector<Wilson> parseExpression(
                     operatorFactor,
                     localTerm);
         }
-        else {
+        else if (csl::IsProd(op)){
             mty::FermionChain chain(&mty::dirac4);
             csl::ForEachNode(op, [&](csl::Expr& el)
             {

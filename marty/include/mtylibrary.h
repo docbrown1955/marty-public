@@ -86,7 +86,8 @@ namespace mty {
                 ) 
         {
             csl::ScopedProperty p(&csl::option::checkCommutations, false);
-            csl::LibraryGenerator::addFunction(name, expr, groupName);
+            auto &f = csl::LibraryGenerator::addFunction(name, expr, groupName);
+            f.addInitInstruction("clearcache();");
         }
     };
 }

@@ -222,7 +222,7 @@ namespace csl {
         groups.push_back(std::make_shared<LibraryGroup>(groupName, complexReturn));
     }
 
-    void LibraryGenerator::addFunction(
+    LibFunction &LibraryGenerator::addFunction(
             std::string const &nameFunction,
             Expr               expression,
             std::string const &nameGroup
@@ -238,7 +238,7 @@ namespace csl {
                            csl::eval::literal
                          | csl::eval::numerical);
         auto f = LibFunction{nameFunction, expr, group};
-        group->addFunction(f);
+        return group->addFunction(f);
     }
 
     void LibraryGenerator::addDiagonalization(

@@ -175,6 +175,11 @@ namespace csl {
             }
     }
 
+    void LibFunction::addInitInstruction(std::string const &t_inst)
+    {
+        initInstructions.push_back(t_inst);
+    }
+
     void LibFunction::print(std::ostream& out,
                             bool          header,
                             std::string const &initInstruction
@@ -191,7 +196,10 @@ namespace csl {
         if (header)
             out << ";\n";
         else {
-            out << "{\n";
+            out << "\n{\n";
+            for (const auto &inst : initInstructions) {
+                out << LibraryGenerator::indent(1) << inst << '\n';
+            }
             for (const auto &param : parameters) {
                 out << LibraryGenerator::indent(1)
                     << "auto const &" << param.name << " = param." 

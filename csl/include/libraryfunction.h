@@ -81,6 +81,7 @@ namespace csl {
         void addParameter(std::string const &param);
         void setParameters(std::vector<LibParameter> const& t_parameters);
         void removeParameter(std::string_view param);
+        void addInitInstruction(std::string const &t_inst);
 
         static
         void cutParameters(
@@ -133,6 +134,8 @@ namespace csl {
         std::vector<csl::Tensor>  tensors;
 
         std::vector<std::string>  intermediateSteps;
+
+        std::vector<std::string>  initInstructions;
 
         std::vector<LibParameter> parameters;
 

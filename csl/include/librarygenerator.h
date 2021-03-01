@@ -150,7 +150,7 @@ namespace csl {
                 std::string const &groupName,
                 bool               complexReturn = true
                 );
-        void addFunction(
+        LibFunction &addFunction(
                 std::string const &nameFunction,
                 Expr               expression,
                 std::string const &nameGroup = "G"
