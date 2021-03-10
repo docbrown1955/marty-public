@@ -30,9 +30,10 @@ GSLCBLASLIB = lib/libgslcblas.a
 MAKE       = /usr/bin/make
 
 MODELDIR   = models/include
+SGLDIR     = sgl/include
  
 INCPATH    = -I.. -I./$(HEADDIR) -I$(MODELDIR) -I../csl/$(HEADDIR)\
-	     -I../jsonparser/$(HEADDIR) -I../grafed/$(HEADDIR)\
+	     -I../jsonparser/$(HEADDIR) -I../grafed/$(HEADDIR) -I$(SGLDIR)\
 	     -I../dependencies/LoopTools-2.15/include
 LIBPATH    = -L../dependencies/LoopTools-2.15/build
 INCLIBPATH = $(INCPATH) $(LIBPATH)
@@ -64,6 +65,10 @@ jsonOBJDEBUG = $(jsonSRC:../jsonparser/$(SRCDIR)/%.cpp=../jsonparser/$(OBJDIR)/%
 modelSRC      = $(wildcard models/src/*.cpp)
 modelOBJ      = $(modelSRC:models/src/%.cpp=models/obj/%.o) 
 modelOBJDEBUG = $(modelSRC:models/src/%.cpp=models/obj/%_debug.o) 
+
+sglSRC      = $(wildcard sgl/src/*.cpp)
+sglOBJ      = $(sglSRC:sgl/src/%.cpp=sgl/obj/%.o) 
+sglOBJDEBUG = $(sglSRC:sgl/src/%.cpp=sgl/obj/%_debug.o) 
 	
 BIN      = $(subst .cpp,.x,      $(subst $(PROGDIR)/,,$(PROG)))
 BINDEBUG = $(subst .cpp,_debug.x,$(subst $(PROGDIR)/,,$(PROG)))
@@ -74,7 +79,7 @@ all: lib release debug
 marty: lib
 
 lib: $(OBJ) $(OBJDEBUG) $(LIBDIR)/$(STATICLIBRARY) $(LIBDIR)/$(DYNAMICLIBRARY)\
-	$(modelOBJ) $(modelOBJDEBUG)
+	$(modelOBJ) $(modelOBJDEBUG) $(sglOBJDEBUG)
 install:
 	mkdir -p $(INSTALLDIR)/include/marty
 	echo "#include \"marty/marty.h\"" >> $(INSTALLDIR)/include/marty.h
@@ -100,7 +105,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 $(PROGOBJDIR)/%.o: $(PROGDIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $< $(INCPATH)
 
-%.x: $(PROGOBJDIR)/%.o $(OBJ) $(cslOBJ) $(jsonOBJ) $(drawerOBJ) $(modelOBJ)
+%.x: $(PROGOBJDIR)/%.o $(OBJ) $(cslOBJ) $(jsonOBJ) $(drawerOBJ) $(modelOBJ) $(sglOBJ)
 	$(CXX) $(CXXFLAGS) -o $(BINDIR)/$@ $^ $(LIBPATH) $(LIBS)
 
 
@@ -112,15 +117,15 @@ $(PROGOBJDIR)/%_debug.o: $(PROGDIR)/%.cpp
 	$(CXXDEBUG) $(CXXFLAGS) -o $@ -c $< $(INCPATH)
 
 %_debug.x:$(PROGOBJDIR)/%_debug.o  $(OBJDEBUG) $(cslOBJDEBUG) $(jsonOBJDEBUG) \
-	$(drawerOBJDEBUG) $(modelOBJDEBUG)
+	$(drawerOBJDEBUG) $(modelOBJDEBUG) $(sglOBJDEBUG)
 	$(CXXDEBUG) $(CXXFLAGS) -o $(BINDIR)/$@ $^ $(LIBPATH) $(LIBS)
 
 # Library compilations
 $(LIBDIR)/$(STATICLIBRARY): $(OBJ)
-	ar rcs $@ $(OBJ) $(cslOBJ) $(jsonOBJ) $(drawerOBJ) $(modelOBJ)
+	ar rcs $@ $(OBJ) $(cslOBJ) $(jsonOBJ) $(drawerOBJ) $(modelOBJ) $(sglOBJ)
 $(LIBDIR)/$(DYNAMICLIBRARY): $(OBJ)
 	$(CXX) $(CXXFLAGS) -shared -o $@ $(OBJ) $(cslOBJ) $(jsonOBJ) $(drawerOBJ)\
-	   $(modelOBJ) $(LIBPATH) $(LIBS)
+	   $(modelOBJ) $(sglOBJ) $(LIBPATH) $(LIBS)
 
 
 clean:

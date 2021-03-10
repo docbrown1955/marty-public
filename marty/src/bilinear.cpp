@@ -199,12 +199,10 @@ namespace mty {
                     Bilinear{p1, p4, {c1_A}},
                     Bilinear{p3, p2, {c1_B}}
                     });
-            std::cout << "BEFORE EOM" << std::endl;
             newBilinears.back().first.print();
             newBilinears.back().second.print();
             newBilinears.back().first.applyEOM();
             newBilinears.back().second.applyEOM();
-            std::cout << "AFTER EOM" << std::endl;
             newBilinears.back().first.print();
             newBilinears.back().second.print();
         }

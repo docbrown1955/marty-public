@@ -163,12 +163,14 @@ csl::Expr DiracSpace::calculateTrace(csl::vector_expr tensors) const
             return sum_s(terms);
         }
     }
-    if (tensors.empty())
+    if (tensors.empty()) {
         return csl::int_s(dim);
+    }
     expandAbbreviations(tensors);
     for (const auto& t : tensors)
-        if (!isGammaTensor(t))
+        if (!isGammaTensor(t)) {
             return prod_s(tensors, true);
+        }
     size_t count = countGammaMult(tensors);
     if (count % 2 == 1) {
         return CSL_0;

@@ -327,20 +327,6 @@ inline bool ruleO7(const Abstract* A, const Abstract* B)
 
 bool Integer::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
      switch(type) {
 
@@ -354,20 +340,6 @@ bool Integer::operator<(const Abstract* expr) const
 
 bool Float::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
      switch(type) {
 
@@ -384,20 +356,6 @@ bool Float::operator<(const Abstract* expr) const
 
 bool IntFraction::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
      switch(type) {
 
@@ -415,20 +373,6 @@ bool IntFraction::operator<(const Abstract* expr) const
 
 bool Complex::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
      switch(type) {
 
@@ -447,20 +391,6 @@ bool Complex::operator<(const Abstract* expr) const
 
 bool NumericalEval::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
      switch(type) {
 
@@ -480,20 +410,6 @@ bool NumericalEval::operator<(const Abstract* expr) const
 
 bool IntFactorial::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
      switch(type) {
 
@@ -523,20 +439,6 @@ bool IntFactorial::operator<(const Abstract* expr) const
 
 bool Imaginary::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
      switch(type) {
 
@@ -556,20 +458,6 @@ bool Imaginary::operator<(const Abstract* expr) const
 
 bool Constant::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
     switch(type) {
 
@@ -601,20 +489,6 @@ bool Constant::operator<(const Abstract* expr) const
 
 bool Arbitrary::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
     switch(type) {
 
@@ -647,20 +521,6 @@ bool Arbitrary::operator<(const Abstract* expr) const
 
 bool Variable::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
     switch(type) {
         case csl::Type::Integer:
@@ -693,20 +553,6 @@ bool Variable::operator<(const Abstract* expr) const
 
 bool Sum::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
     if (type == csl::Type::TensorElement)
         return sumRule_inverted(expr, this);
@@ -740,39 +586,11 @@ bool Sum::operator<(const Abstract* expr) const
 
 bool Polynomial::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     return *getRegularExpression() < expr;
 }
 
 bool Prod::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
     if (type == csl::Type::TensorElement or type == csl::Type::Sum)
         return prodRule_inverted(expr, this);
@@ -796,20 +614,6 @@ bool Prod::operator<(const Abstract* expr) const
 
 bool Pow::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
     switch(type) {
 
@@ -834,20 +638,6 @@ bool Pow::operator<(const Abstract* expr) const
 
 bool AbstractFunc::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
      csl::Type type = expr->getType();
      convertScalarFuncType(expr, type);
 
@@ -884,20 +674,6 @@ bool AbstractFunc::operator<(const Abstract* expr) const
 
 bool AbstractDuoFunc::operator<(Expr_info expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
     convertScalarFuncType(expr, type);
 
@@ -939,20 +715,6 @@ bool AbstractDuoFunc::operator<(Expr_info expr) const
 
 bool AbstractMultiFunc::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
      csl::Type type = expr->getType();
      convertScalarFuncType(expr, type);
 
@@ -995,20 +757,6 @@ bool AbstractMultiFunc::operator<(const Abstract* expr) const
 
 bool Angle::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
     convertScalarFuncType(expr, type);
 
@@ -1049,20 +797,6 @@ bool Angle::operator<(const Abstract* expr) const
 
 bool Commutator::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
     convertScalarFuncType(expr, type);
 
@@ -1106,20 +840,6 @@ bool Commutator::operator<(const Abstract* expr) const
 
 bool Scalar::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
     convertScalarFuncType(expr, type);
 
@@ -1157,20 +877,6 @@ bool Scalar::operator<(const Abstract* expr) const
 
 bool Derivative::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
     convertScalarFuncType(expr, type);
 
@@ -1215,20 +921,6 @@ bool Derivative::operator<(const Abstract* expr) const
 
 bool Integral::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
     convertScalarFuncType(expr, type);
 
@@ -1274,20 +966,6 @@ bool Integral::operator<(const Abstract* expr) const
 
 bool ScalarIntegral::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
     switch(type) {
 
@@ -1313,20 +991,6 @@ bool ScalarIntegral::operator<(const Abstract* expr) const
 
 bool VectorIntegral::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
     switch(type) {
 
@@ -1352,20 +1016,6 @@ bool VectorIntegral::operator<(const Abstract* expr) const
 
 bool Vector::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
     switch(type) {
 
@@ -1394,20 +1044,6 @@ bool Vector::operator<(const Abstract* expr) const
 
 bool Matrix::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
     switch(type) {
 
@@ -1435,20 +1071,6 @@ bool Matrix::operator<(const Abstract* expr) const
 
 bool HighDTensor::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
     switch(type) {
 
@@ -1475,20 +1097,6 @@ bool HighDTensor::operator<(const Abstract* expr) const
 
 bool TensorElement::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
     if (type == csl::Type::TensorElement)
         return ruleO4(this, expr);
@@ -1522,20 +1130,6 @@ bool TensorElement::operator<(const Abstract* expr) const
 
 bool ScalarField::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
     switch(type) {
 
@@ -1567,20 +1161,6 @@ bool ScalarField::operator<(const Abstract* expr) const
 
 bool TensorFieldElement::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and ((*expr < this) == (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
     switch(type) {
 
@@ -1611,20 +1191,6 @@ bool TensorFieldElement::operator<(const Abstract* expr) const
 
 bool TDerivativeElement::operator<(const Abstract* expr) const
 {
-#ifdef DEBUG
-    static bool passed = false;
-    if (not passed) {
-        passed = true;
-        if (expr->getType() != getType() and not ((*expr < this) != (*this < expr))) {
-            std::cout << getType() << "  " << expr->getType() << std::endl;
-            print();
-            expr->print();
-            std::cout << (*this < expr) << "  " << (*expr < this) << std::endl;
-            std::raise(SIGTERM);
-        }
-        passed = false;
-    }
-#endif
     csl::Type type = expr->getType();
     switch(type) {
 

@@ -190,6 +190,10 @@ class FeynmanIntegral: public csl::AbstractMultiFunc {
         return loopToolsId;
     }
 
+    std::vector<size_t> const &getIntegralIndices() const {
+        return integralIndices;
+    }
+
     bool isIndexed() const override { return false; }
 
     void print(int mode = 0,

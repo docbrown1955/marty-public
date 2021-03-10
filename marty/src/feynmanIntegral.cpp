@@ -1766,9 +1766,7 @@ FeynmanIntegral::FeynmanIntegral(IntegralType               t_type,
             "Expected " + toString(nArgumentsForIntegral(type)) + " arguments"
             " for integral of type " + toString(type) + ", " 
             + toString(t_argument.size()) + " given.");
-    if (loopToolsId == -1)  {
-        integralIndices = t_indices;
-    }
+    integralIndices = t_indices;
     argument = t_argument;
 }
 

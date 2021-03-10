@@ -500,7 +500,9 @@ void ModelBuilder::rotateFields(
         std::vector<mty::Particle>     const& fields,
         std::vector<mty::Particle>     const& newFields,
         std::vector<std::vector<csl::Expr>> const& rotation,
-        bool diagonalizeMasses)
+        bool diagonalizeMasses,
+        int  nMassLessFields
+        )
 {
     checksRotation(fields, newFields, rotation);
     addParticles(newFields, false);
@@ -529,6 +531,9 @@ void ModelBuilder::rotateFields(
                 rotation,
                 fullMassMatrix
                 );
+        for (int i = 0; i < nMassLessFields; ++i) {
+            newFields[i]->setMass(CSL_0);
+        }
     }
     applyUnitaryCondition(rotation);
 }
@@ -539,7 +544,8 @@ void ModelBuilder::rotateFields(
         std::vector<std::vector<csl::Expr>> const& rotation1,
         std::vector<mty::Particle>     const& fields2,
         std::vector<mty::Particle>     const& newFields2,
-        std::vector<std::vector<csl::Expr>> const& rotation2
+        std::vector<std::vector<csl::Expr>> const& rotation2,
+        int                                        nMassLessFields
         )
 {
     checksRotation(fields1, newFields1, rotation1);
@@ -577,11 +583,17 @@ void ModelBuilder::rotateFields(
             rotation2,
             fullMassMatrix
             );
+    for (int i = 0; i < nMassLessFields; ++i) {
+        newFields1[i]->setMass(CSL_0);
+        newFields2[i]->setMass(CSL_0);
+    }
 }
 
-std::vector<mty::Particle> ModelBuilder::rotateFields(
-        std::vector<mty::Particle>     const& fields,
-        bool diagonalizeMasses)
+void ModelBuilder::rotateFields(
+        std::vector<mty::Particle> const& fields,
+        bool diagonalizeMasses,
+        int  nMassLessFields
+        )
 {
     std::vector<mty::Particle> newFields(fields.size());
     for (size_t i = 0; i != fields.size(); ++i)
@@ -612,14 +624,18 @@ std::vector<mty::Particle> ModelBuilder::rotateFields(
                     );
         }
     }
-    rotateFields(fields, newFields, mixing, diagonalizeMasses);
-
-    return newFields;
+    rotateFields(fields, newFields, mixing, diagonalizeMasses, nMassLessFields);
+    for (size_t i = 0; i != newFields.size(); ++i) {
+        replace(newFields[i], fields[i]->getInstance());
+        if (diagonalizeMasses)
+            fields[i]->setMass(newFields[i]->getMass());
+    }
 }
 
-std::vector<mty::Particle> ModelBuilder::birotateFields(
+void ModelBuilder::birotateFields(
         std::vector<mty::Particle>     const& fields1,
-        std::vector<mty::Particle>     const& fields2
+        std::vector<mty::Particle>     const& fields2,
+        int                                   nMassLessFields
         )
 {
     std::vector<mty::Particle> newFields1(fields1.size());
@@ -666,18 +682,24 @@ std::vector<mty::Particle> ModelBuilder::birotateFields(
         }
     }
     rotateFields(fields1, newFields1, mixing1, 
-                 fields2, newFields2, mixing2);
+                 fields2, newFields2, mixing2,
+                 nMassLessFields);
     applyUnitaryCondition(mixing1);
     applyUnitaryCondition(mixing2);
-    newFields1.insert(newFields1.end(), newFields2.begin(), newFields2.end());
-    return newFields1;
+    for (size_t i = 0; i != newFields1.size(); ++i) {
+        replace(newFields1[i], fields1[i]->getInstance());
+        fields1[i]->setMass(newFields1[i]->getMass());
+        replace(newFields2[i], fields2[i]->getInstance());
+        fields2[i]->setMass(newFields2[i]->getMass());
+    }
 }
 
 void ModelBuilder::rotateFields(
         std::initializer_list<std::string>   fields,
         std::initializer_list<std::string>   newFields,
         std::vector<std::vector<csl::Expr>> const &rotation,
-        bool                                  diagonalizeMasses
+        bool                                  diagonalizeMasses,
+        int                                   nMassLessFields
         )
 {
     if (fields.size() == 0)
@@ -691,7 +713,13 @@ void ModelBuilder::rotateFields(
     for (const auto &name : newFields)
         newFields_p.push_back(fields_p[0]->generateSimilar(name));
 
-    rotateFields(fields_p, newFields_p, rotation, diagonalizeMasses);
+    rotateFields(
+            fields_p,
+            newFields_p,
+            rotation,
+            diagonalizeMasses,
+            nMassLessFields
+            );
 }
 
 void ModelBuilder::rotateFields(
@@ -700,7 +728,8 @@ void ModelBuilder::rotateFields(
         std::vector<std::vector<csl::Expr>> const &rotation1,
         std::initializer_list<std::string>    fields2,
         std::initializer_list<std::string>    newFields2,
-        std::vector<std::vector<csl::Expr>> const &rotation2
+        std::vector<std::vector<csl::Expr>> const &rotation2,
+        int                                        nMassLessFields
         )
 {
     if (fields1.size() == 0 or fields2.size() == 0)
@@ -723,13 +752,15 @@ void ModelBuilder::rotateFields(
 
     rotateFields(
             fields1_p, newFields1_p, rotation1, 
-            fields2_p, newFields2_p, rotation2
+            fields2_p, newFields2_p, rotation2,
+            nMassLessFields
             );
 }
 
-std::vector<mty::Particle> ModelBuilder::rotateFields(
+void ModelBuilder::rotateFields(
         std::initializer_list<std::string>  fields,
-        bool                                diagonalizeMasses
+        bool                                diagonalizeMasses,
+        int                                 nMassLessFields
         )
 {
     std::vector<mty::Particle> fields_p;
@@ -737,12 +768,13 @@ std::vector<mty::Particle> ModelBuilder::rotateFields(
     for (const auto &name : fields)
         fields_p.push_back(getParticle(name));
 
-    return rotateFields(fields_p, diagonalizeMasses);
+    rotateFields(fields_p, diagonalizeMasses, nMassLessFields);
 }
 
-std::vector<mty::Particle> ModelBuilder::birotateFields(
+void ModelBuilder::birotateFields(
         std::initializer_list<std::string> fields1,
-        std::initializer_list<std::string> fields2
+        std::initializer_list<std::string> fields2,
+        int                                nMassLessFields
         )
 {
     std::vector<mty::Particle> fields1_p;
@@ -755,7 +787,7 @@ std::vector<mty::Particle> ModelBuilder::birotateFields(
     for (const auto &name : fields2)
         fields2_p.push_back(getParticle(name));
 
-    return birotateFields(fields1_p, fields2_p);
+    birotateFields(fields1_p, fields2_p, nMassLessFields);
 }
 
 void ModelBuilder::applyUnitaryCondition(
@@ -842,11 +874,11 @@ void ModelBuilder::doPromoteToGoldstone(
                 mty::partialMinko(+mu, X)*gaugeBoson(_mu, X))
             * (mty::partialMinko(+nu, X)*gaugeBoson(_nu, X)));
     addLagrangianTerm(
-            factor * m*m*xi 
+            -factor * m*m*xi 
             * csl::GetComplexConjugate((*goldstone)(indices, X))
             * (*goldstone)(indices, X));
     addLagrangianTerm(
-            - factor * m 
+            factor * m 
             * csl::GetComplexConjugate(gaugeBoson(_mu, X))
             * (mty::partialMinko(+mu, X)*(*goldstone)(indices, X)),
             true);
@@ -2023,6 +2055,9 @@ void ModelBuilder::applyDiagonalizationData(
             masses.emplace_back(
                     csl::LibraryGenerator::regularName(p->getMass()->getName())
                     );
+            if (masses.back().empty()) {
+                masses.back() = "m_" + p->getName();
+            }
         }
         for (size_t i = 0; i != initMix.size1(); ++i)
             for (size_t j = 0; j != initMix.size2(); ++j) {

@@ -46,6 +46,7 @@ Insertion::Insertion(csl::Expr const& t_field)
     expression = t_field;
     incoming = field_ptr->isIncoming();
     particle = field_ptr->isParticle();
+    onShell = field_ptr->isOnShell();
 }
 
 Insertion::Insertion(std::string_view name)
@@ -107,6 +108,7 @@ csl::Expr Insertion::getExpression() const
     insert_ptr->setExternal(true);
     insert_ptr->setIncoming(incoming);
     insert_ptr->setParticle(particle);
+    insert_ptr->setOnShell(onShell);
     expression = insertion;
 
     return insertion;

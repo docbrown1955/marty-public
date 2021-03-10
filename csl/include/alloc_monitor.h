@@ -40,7 +40,7 @@ class __data_alloc {
 
     public:
 
-    std::map<Type, data_alloc> DATA;
+    std::map<Type, data_alloc> DATA{};
 
     void record(Type        type,
                 Time const& time) 

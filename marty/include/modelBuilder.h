@@ -166,7 +166,8 @@ public:
             std::vector<mty::Particle>     const &fields,
             std::vector<mty::Particle>     const &newFields,
             std::vector<std::vector<csl::Expr>> const &rotation,
-            bool                                  diagonalizeMasses = false
+            bool                                  diagonalizeMasses = false,
+            int                                   nMassLessFields = 0
             );
 
     void rotateFields(
@@ -175,24 +176,28 @@ public:
             std::vector<std::vector<csl::Expr>> const &rotation1,
             std::vector<mty::Particle>     const &fields2,
             std::vector<mty::Particle>     const &newFields2,
-            std::vector<std::vector<csl::Expr>> const &rotation2
+            std::vector<std::vector<csl::Expr>> const &rotation2,
+            int                                        nMassLessFields = 0
             );
 
-    std::vector<mty::Particle> rotateFields(
+    void rotateFields(
             std::vector<mty::Particle>     const &fields,
-            bool                                  diagonalizeMasses = false
+            bool                                  diagonalizeMasses = false,
+            int                                   nMassLessFields = 0
             );
 
-    std::vector<mty::Particle> birotateFields(
+    void birotateFields(
             std::vector<mty::Particle> const &fields1,
-            std::vector<mty::Particle> const &fields2
+            std::vector<mty::Particle> const &fields2,
+            int                               nMassLessFields = 0
             );
 
     void rotateFields(
             std::initializer_list<std::string>   fields,
             std::initializer_list<std::string>   newFields,
             std::vector<std::vector<csl::Expr>> const &rotation,
-            bool                                  diagonalizeMasses = false
+            bool                                  diagonalizeMasses = false,
+            int                                   nMassLessFields = 0
             );
 
     void rotateFields(
@@ -201,17 +206,20 @@ public:
             std::vector<std::vector<csl::Expr>> const &rotation1,
             std::initializer_list<std::string>   fields2,
             std::initializer_list<std::string>   newFields2,
-            std::vector<std::vector<csl::Expr>> const &rotation2
+            std::vector<std::vector<csl::Expr>> const &rotation2,
+            int                                        nMassLessFields = 0
             );
 
-    std::vector<mty::Particle> rotateFields(
+    void rotateFields(
             std::initializer_list<std::string> fields,
-            bool                                diagonalizeMasses = false
+            bool                               diagonalizeMasses = false,
+            int                                nMassLessFields = 0
             );
 
-    std::vector<mty::Particle> birotateFields(
+    void birotateFields(
             std::initializer_list<std::string> fields1,
-            std::initializer_list<std::string> fields2
+            std::initializer_list<std::string> fields2,
+            int                                nMassLessFields = 0
             );
 
     void applyUnitaryCondition(
