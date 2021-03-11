@@ -533,6 +533,9 @@ void ModelBuilder::rotateFields(
                 );
         for (int i = 0; i < nMassLessFields; ++i) {
             newFields[i]->setMass(CSL_0);
+            clearDependencies(L.mass, [&](Lagrangian::TermType const &t) {
+                return t->contains(newFields[i].get());
+            });
         }
     }
     applyUnitaryCondition(rotation);
@@ -586,6 +589,10 @@ void ModelBuilder::rotateFields(
     for (int i = 0; i < nMassLessFields; ++i) {
         newFields1[i]->setMass(CSL_0);
         newFields2[i]->setMass(CSL_0);
+        clearDependencies(L.mass, [&](Lagrangian::TermType const &t) {
+            return t->contains(newFields1[i].get())
+                || t->contains(newFields2[i].get());
+        });
     }
 }
 

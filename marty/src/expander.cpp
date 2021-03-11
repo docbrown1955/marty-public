@@ -308,7 +308,6 @@ Amplitude Expander::expandLagrangian()
             HEPAssert(csl::TestIndexSanity(ampl),
                     mty::error::RuntimeError,
                     "Bad index property for " + toString(ampl))
-            std::cout << ampl << std::endl;
             std::vector<Wilson> newWilsons 
                 = parseExpression(ampl, CSL_1, false);
             for (const auto &w : newWilsons) {
