@@ -76,6 +76,7 @@ namespace mty {
             sysres = system(("cp " + martySrc + "/lhaData.cpp " + targetSrc).c_str());
             sysres = system(("cp " + martyInc + "/lha.h " + targetInc).c_str());
             sysres = system(("cp " + martyInc + "/lhaData.h " + targetInc).c_str());
+            sysres = system(("cp " + martyInc + "/lhaBlocks.h " + targetInc).c_str());
             sysres = system(("cp " + pathToMarty + "/../csl/include/std_vector*.h " + targetInc).c_str());
         }
 

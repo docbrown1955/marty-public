@@ -67,8 +67,10 @@ void PMSSM_LEM::initContent()
     
     M_3 = mty::mssm_input::M3;
     M_2 = mty::mssm_input::M2;
-    M_W = mty::sm_input::M_W;
     M_A = mty::mssm_input::MA;
+
+    M_W = mty::sm_input::M_W;
+
     m_A0 = M_A;
     theta_W = mty::sm_input::theta_W;
     _beta = csl::atan_s(mty::mssm_input::tanb);
