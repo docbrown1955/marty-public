@@ -610,7 +610,7 @@ std::vector<mty::Particle> ModelData::getPhysicalParticles(
     for (const auto &p : particles) {
         if (!predicate(p))
             continue;
-        if (p->getParticleType() == mty::ParticleType::GhostBoson)
+        if (!p->isPhysical())
             continue;
         if (p->getParticleType() == mty::ParticleType::WeylFermion) {
             if (auto dirac = p->getDiracParent(); dirac) {

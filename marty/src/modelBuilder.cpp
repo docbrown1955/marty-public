@@ -634,6 +634,7 @@ void ModelBuilder::rotateFields(
     rotateFields(fields, newFields, mixing, diagonalizeMasses, nMassLessFields);
     for (size_t i = 0; i != newFields.size(); ++i) {
         replace(newFields[i], fields[i]->getInstance());
+        removeParticle(newFields[i]);
         if (diagonalizeMasses)
             fields[i]->setMass(newFields[i]->getMass());
     }
@@ -698,6 +699,7 @@ void ModelBuilder::birotateFields(
         fields1[i]->setMass(newFields1[i]->getMass());
         replace(newFields2[i], fields2[i]->getInstance());
         fields2[i]->setMass(newFields2[i]->getMass());
+        removeParticles({newFields1[i], newFields2[i]});
     }
 }
 
