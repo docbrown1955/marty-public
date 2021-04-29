@@ -1,8 +1,8 @@
 INSTALLDIR=/home/uhlrich/.local
 
-CC  = gcc-7
+CC = gcc-7
 CXX = g++-7
-FC  = gfortran-7
+FC = gfortran-7
 VERSION        = 1.0
 STATICLIBRARY  = libcsl.a
 DYNAMICLIBRARY = libcsl.so
@@ -49,5 +49,5 @@ $(OBJDIR)/%_debug.o: $(SRCDIR)/%.cpp
 	$(CXXDEBUG) $(CFLAGS) $(INCLUDE) -o $@ -c $< 
 
 clean:
-	rm $(OBJDIR)/*.o;
-	rm $(LIBDIR)/*.a $(LIBDIR)/*.so
+	-rm -f $(OBJDIR)/*.o;
+	-rm -f $(LIBDIR)/*.a $(LIBDIR)/*.so

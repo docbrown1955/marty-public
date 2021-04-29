@@ -164,11 +164,13 @@ namespace csl {
                 );
 
         void print() const;
+        void setupDirectory() const;
         void printHeader() const;
         void printGlobal() const;
         void printSource() const;
         void printCallable() const;
         void printTest() const;
+
 
         void printMakefile() const;
         void printPythonDir() const;

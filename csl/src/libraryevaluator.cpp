@@ -23,6 +23,7 @@
 #include "hardFactor.h"
 #include "interface.h"
 #include "literal.h"
+#include "replace.h"
 #include "utils.h"
 #include "error.h"
 #include "algo.h"
@@ -239,15 +240,15 @@ void LibEval::replaceTensors()
             if (indices[i].getSpace()->getSignedIndex()) {
                 indices[i].setName(getIndexName());
                 indices[i].setID(0);
-                init = Replaced(init,
-                               indices[j],
-                               indices[i]);
+                Replace(init,
+                        indices[j],
+                        indices[i]);
                 csl::Index newIndex(indices[j]);
                 newIndex.setName(getIndexName());
                 newIndex.setID(0);
-                init = Replaced(init,
-                               indices[j].getFlipped(),
-                               newIndex);
+                Replace(init,
+                        indices[j].getFlipped(),
+                        newIndex);
                 indices[j] = newIndex;
                 indices[i].setSign(true);
                 indices[j].setSign(true);
@@ -257,9 +258,9 @@ void LibEval::replaceTensors()
             else {
                 indices[i].setName(getIndexName());
                 indices[i].setID(0);
-                init = Replaced(init,
-                               indices[j],
-                               indices[i]);
+                Replace(init,
+                        indices[j],
+                        indices[i]);
                 indices.erase(indices.begin() + j);
                 break;
             }
@@ -654,9 +655,9 @@ void LibEvalSession::merge()
                 // lib_log << eval[i] << std::endl;
                 // lib_log << eval[j] << std::endl;
                 for (size_t k = 0; k != eval.size(); ++k)
-                    eval[k].init = Replaced(eval[k].init,
-                                           eval[j].expr,
-                                           eval[i].expr);
+                    Replace(eval[k].init,
+                            eval[j].expr,
+                            eval[i].expr);
                 eval.erase(eval.begin() + j);
                 --j;
             }

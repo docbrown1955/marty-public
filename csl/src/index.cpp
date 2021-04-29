@@ -630,26 +630,13 @@ bool IndexStructure::compareWithDummy(const IndexStructure& structure,
             if (not index[i].compareWithDummy(t_index[i])) {
                 return false;
             }
-            // if (index[i] == t_index[i]) {
-            //     for (const auto& cons : constraints)
-            //         if (cons.second == index[i] and cons.first != cons.second)
-            //             return false;
-            // }
             if (constraints.find(index[i]) == constraints.end()) {
                  constraints[index[i]] = t_index[i];
             }
             else {
-                if (constraints[index[i]] != t_index[i])
+                if (constraints[index[i]] != t_index[i]) {
                     return false;
-                // if (constraints.find(t_index[i]) == constraints.end()) {
-                //     if (not (constraints[index[i]] == t_index[i])) {
-                //         return false;
-                //     }
-                // }
-                // else if (constraints[index[i]] != t_index[i]
-                //         or constraints[t_index[i]] != index[i]) {
-                //     return false;
-                // }
+                }
                 if (not keepAllCosntraints)
                     constraints.erase(index[i]);
             }

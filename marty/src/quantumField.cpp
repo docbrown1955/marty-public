@@ -166,11 +166,6 @@ QuantumFieldParent::QuantumFieldParent(const string&             t_name,
     setSelfConjugate(other->isSelfConjugate());
 }
 
-QuantumFieldParent::~QuantumFieldParent()
-{
-
-}
-
 drawer::ParticleType QuantumFieldParent::getDrawType() const
 {
     return drawType;
@@ -235,24 +230,11 @@ void QuantumFieldParent::initPolarizationSum()
     if (polarizationSumInitialized)
         return;
     polarizationSumInitialized = true;
-    int spin_x_2 = getSpinDimension() - 1;
-    // if (spin_x_2 == 0)
-    //     return;
 
     vector<Index> indexA = getFullSetOfIndices();
     vector<Index> indexB = getFullSetOfIndices();
 
-    Index polar;
-    if (spin_x_2 == 0)
-        polar = 0;
-    else if (spin_x_2 == 1 or (spin_x_2 == 2 and mass == CSL_0))
-        polar = Euclid_R2.generateIndex();
-    else if (spin_x_2 == 2)
-        polar = Euclid_R3.generateIndex();
-    else
-        CallHEPError(mty::error::NotImplementedError,
-                "Spin(x2) " + toString(spin_x_2) + " not recognized for "
-                + "polarization sum.");
+    Index polar = Euclid_R2.generateIndex();
 
     Tensor impulsion = tensor_s("p",{&Minkowski});
     csl::Expr epsA = (*this)(polar, indexA, impulsion);
@@ -547,6 +529,11 @@ int QuantumFieldParent::getSpinDimension() const
 csl::Expr QuantumFieldParent::getMass() const
 {
     return mass;
+}
+
+csl::Expr QuantumFieldParent::getSquaredMass() const
+{
+    return csl::pow_s(mass, 2);
 }
 
 csl::Expr QuantumFieldParent::getWidth() const
@@ -1166,7 +1153,7 @@ csl::Expr QuantumField::getXiGauge() const
 
 csl::Expr QuantumField::getSquaredMass() const
 {
-    return csl::pow_s(getMass(), 2);
+    return getQuantumParent()->getSquaredMass();
 }
 
 bool QuantumField::getConjugated() const
@@ -1311,7 +1298,6 @@ void QuantumField::setExternal(bool t_external)
             "Particle " + toString(copy()) + " not physical. Cannot appear "
             "in external states.");
     external = t_external;
-    setOnShell(external);
 }
 
 void QuantumField::setOnShell(bool t_onShell)
@@ -1393,7 +1379,7 @@ bool QuantumField::hasContractionProperty(csl::Expr_info expr) const
 
 csl::Expr QuantumField::contraction(csl::Expr_info expr) const
 {
-    return chargeConjugation(expr);
+    return matrixChargeConjugation(expr);
 }
 
 csl::unique_Expr QuantumField::copy_unique() const
@@ -1411,9 +1397,10 @@ bool QuantumField::compareWithDummy(
         std::map<csl::Index, csl::Index>& constraints,
         bool keepAllCosntraints) const
 {
-    if (not IsOfType<QuantumField>(other))
+    QuantumField const* other_info = dynamic_cast<QuantumField const*>(other);
+    if (!other_info) {
         return false;
-    QuantumField const* other_info = ConvertToPtr<const QuantumField>(other);
+    }
     if (derivativeIndices.size() == 0
             and other_info->derivativeIndices.size() == 0) {
         auto copyMap = constraints;
@@ -1445,9 +1432,9 @@ bool QuantumField::compareWithDummy(
 
 bool QuantumField::operator==(csl::Expr_info other) const
 {
-    if (not IsOfType<QuantumField>(other))
+    QuantumField const* other_info = dynamic_cast<const QuantumField*>(other);
+    if (!other_info)
         return false;
-    QuantumField const* other_info = ConvertToPtr<const QuantumField>(other);
     if (derivativeIndices.size() == 0
             and other_info->derivativeIndices.size() == 0)
         return TensorFieldElement::operator==(other);
@@ -1486,7 +1473,7 @@ bool QuantumField::operator!=(const QuantumField& other) const
 
 bool QuantumField::isParticle() const
 {
-    return isIncomingParticle() or isOutgoingParticle();
+    return particle;
 }
 
 bool QuantumField::isIncoming() const
@@ -1514,7 +1501,7 @@ bool QuantumField::isOutgoingAntiParticle() const
     return (not incoming) and (not particle);
 }
 
-csl::Expr QuantumField::chargeConjugation(csl::Expr_info other) const
+csl::Expr QuantumField::matrixChargeConjugation(csl::Expr_info other) const
 {
     QuantumField newField(*this);
     int sign = (incoming == particle) ? -1 : 1;

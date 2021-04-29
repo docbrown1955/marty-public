@@ -19,6 +19,7 @@
 #include "mrtUtils.h"
 #include "quantumField.h"
 #include "mrtInterface.h"
+#include "sgl.h"
 
 using namespace std;
 using namespace csl;
@@ -148,53 +149,65 @@ void expandAbbreviations(csl::vector_expr& tensors)
     tensors = std::move(newTensors);
 }
 
+/*static void compare(
+        std::vector<csl::Expr> const &tensors,
+        sgl::GExpr        A,
+        csl::Expr  const &B
+        )
+{
+    sgl::TensorSet tensorset {
+        dirac4.gamma_chir,
+        dirac4.C_matrix,
+        dirac4.P_L,
+        dirac4.P_R,
+        {}
+    };
+    tensorset.gamma[0] = dirac4.getDelta();
+    tensorset.gamma[1] = dirac4.gamma;
+    tensorset.gamma[2] = dirac4.sigma;
+    sgl::Simplify(A);
+    auto Ab = csl::DeepRefreshed(sgl::sgl_to_csl(A, tensorset));
+    auto Bb = csl::DeepExpanded(
+            sgl::sgl_to_csl(sgl::csl_to_sgl(B, tensorset), tensorset)
+            );
+    csl::Replace(Ab, csl::DMinko, 4);
+    csl::Replace(Bb, csl::DMinko, 4);
+
+    auto diff = csl::DeepExpanded(Ab - Bb);
+    if (diff != CSL_0) {
+        for (const auto &t : tensors)
+            std::cout << t << "  ";
+        std::cout << "\nDIFF !" << std::endl;
+        std::cout << "SGL" << std::endl;
+        std::cout << Ab << std::endl;
+        std::cout << "CSL" << std::endl;
+        std::cout << Bb << std::endl;
+        std::cout << "Diff = " << diff << std::endl;
+        std::cin.get();
+    }
+}*/
+
 csl::Expr DiracSpace::calculateTrace(csl::vector_expr tensors) const
 {
-    for (const auto& t : tensors) {
-        if (t->getType() == csl::Type::Sum) {
-            csl::Expr expanded = Expanded(prod_s(tensors, true));
-            if (expanded->getType() != csl::Type::Sum)
-                return expanded;
-            std::vector<csl::Expr> terms;
-            terms.reserve(expanded->size());
-            for (const auto& arg : *expanded) {
-                terms.push_back(calculateTrace(arg));
-            }
-            return sum_s(terms);
-        }
+    sgl::TensorSet tensorset {
+        dirac4.gamma_chir,
+        dirac4.C_matrix,
+        dirac4.P_L,
+        dirac4.P_R,
+        {}
+    };
+    tensorset.gamma[0] = dirac4.delta;
+    tensorset.gamma[1] = dirac4.gamma;
+    tensorset.gamma[2] = dirac4.sigma;
+    try {
+        sgl::GExpr sglTest = sgl::csl_to_sgl(csl::prod_s(tensors, true), tensorset);
+        sgl::Simplify(sglTest);
+        return sgl::sgl_to_csl(sglTest, tensorset);
     }
-    if (tensors.empty()) {
-        return csl::int_s(dim);
+    catch (sgl::Exception ex) {
+        std::cerr << ex << std::endl;
+        throw ex;
     }
-    expandAbbreviations(tensors);
-    for (const auto& t : tensors)
-        if (!isGammaTensor(t)) {
-            return prod_s(tensors, true);
-        }
-    size_t count = countGammaMult(tensors);
-    if (count % 2 == 1) {
-        return CSL_0;
-    }
-
-    auto aligned = align(tensors);
-    size_t pos = 0;
-    csl::vector_expr res;
-    res.reserve(1 + aligned.cutsBtwCycles.size());
-    for (size_t i : aligned.cutsBtwCycles) {
-        csl::vector_expr t(i - pos);
-        std::move(aligned.tensors.begin()+pos,
-                  aligned.tensors.begin()+i,
-                  t.begin());
-        res.push_back(compute(t));
-        pos = i;
-    }
-    csl::vector_expr t(aligned.tensors.size() - pos);
-    std::move(aligned.tensors.begin() + pos,
-              aligned.tensors.end(),
-              t.begin());
-    res.push_back(compute(t));
-
-    return csl::prod_s(res);
 }
 
 void setDiracTensor4(const DiracSpace* self)
@@ -1386,6 +1399,28 @@ csl::vector_expr DiracSpace::applyChainIndices(
 csl::vector_expr DiracSpace::simplifyChain(
         csl::vector_expr const& tensors) const
 {
+    sgl::TensorSet tensorset {
+        dirac4.gamma_chir,
+        dirac4.C_matrix,
+        dirac4.P_L,
+        dirac4.P_R,
+        {}
+    };
+    tensorset.gamma[0] = dirac4.delta;
+    tensorset.gamma[1] = dirac4.gamma;
+    tensorset.gamma[2] = dirac4.sigma;
+    try {
+        sgl::GExpr sglTest = sgl::csl_to_sgl(csl::prod_s(tensors, true), tensorset);
+        sgl::Simplify(sglTest);
+        return {sgl::sgl_to_csl(sglTest, tensorset)};
+    }
+    catch (sgl::Exception ex) {
+        std::cerr << ex << std::endl;
+        std::cerr << "Exception occured during simplification of : " << '\n';
+        std::cerr << csl::prod_s(tensors, true) << '\n';
+        throw ex;
+    }
+
     auto aligned = alignOpen(tensors);
     aligned.cutsBtwCycles.push_back(aligned.tensors.size());
     auto indices = getBorderOfChains(aligned.tensors, aligned.cutsBtwCycles);
@@ -1453,8 +1488,9 @@ csl::vector_expr DiracSpace::simplifyChain(
         newTensors.push_back(c.factor);
         terms.push_back(csl::prod_s(newTensors));
     }
+    //compare(tensors, sglTest, csl::sum_s(terms));
 
-    return terms;
+    //return terms;
 }
 
 size_t DiracSpace::getSpinorDimension(size_t spaceTimeDim)

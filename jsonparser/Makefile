@@ -1,8 +1,8 @@
 INSTALLDIR=/home/uhlrich/.local
 
-CC  = gcc-7
+CC = gcc-7
 CXX = g++-7
-FC  = gfortran-7
+FC = gfortran-7
 VERSION=1.0
 
 CFLAGS  = -fPIC -Wall -Wextra -std=c++17 -O3
@@ -45,4 +45,4 @@ $(OBJDIR)/%_debug.o: $(SRCDIR)/%.cpp
 	$(CXXDEBUG) $(CFLAGS) -o $@ -c $< $(IPATH)
 
 clean:
-	rm $(OBJDIR)/*.o;
+	-rm -f $(OBJDIR)/*.o;

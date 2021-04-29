@@ -16,6 +16,7 @@
 #include "abreviation.h"
 #include "comparison.h"
 #include "parent.h"
+#include "replace.h"
 #include "variableParent.h"
 #include "literal.h"
 #include "indicial.h"
@@ -357,15 +358,15 @@ std::optional<Expr> Abbrev::findExisting(
             for (auto &i : intermediate)
                 i = i.rename();
             for (size_t i = 0; i != ab_ptr->initialStructure.size(); ++i)
-                comparison = Replaced(comparison,
-                                     ab_ptr->initialStructure[i],
-                                     intermediate[i],
-                                     false);
+                Replace(comparison,
+                        ab_ptr->initialStructure[i],
+                        intermediate[i],
+                        false);
             for (size_t i = 0; i != ab_ptr->initialStructure.size(); ++i)
-                comparison = Replaced(comparison,
-                                     intermediate[i],
-                                     structure[i],
-                                     false);
+                Replace(comparison,
+                        intermediate[i],
+                        structure[i],
+                        false);
             std::map<csl::Index, csl::Index> mapping;
             if (encapsulated->compareWithDummy(comparison.get(), mapping))
                 return (*ab)(structure.getIndex());
@@ -405,6 +406,8 @@ Expr Abbrev::makeAbbreviation(std::string name,
                               Expr const& encapsulated,
                               bool        split)
 {
+    if (encapsulated->size() == 0) // nothing to abbreviate
+        return encapsulated;
     if (name == "Ab" 
             && split 
             && (csl::IsSum(encapsulated) || csl::IsProd(encapsulated))) {

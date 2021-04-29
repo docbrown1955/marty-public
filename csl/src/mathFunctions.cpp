@@ -22,6 +22,7 @@
 #include "comparison.h"
 #include "interface.h"
 #include "index.h"
+#include "replace.h"
 
 using namespace std;
 
@@ -309,7 +310,8 @@ int Exp::getParity(Expr_info t_variable) const
 Expr exp_s(const Expr& expr)
 {
     csl::PrimaryType type = expr->getPrimaryType();
-    if (type == csl::PrimaryType::Numerical) {
+    if (type == csl::PrimaryType::Numerical
+            && expr->getType() != csl::Type::Complex) {
         double value = expr->evaluateScalar();
         int value_int = round(value);
         if (value == value_int) {
@@ -2027,7 +2029,7 @@ Expr DiracDelta::applyDiracDelta(const Expr& expr, const Expr& variable) const
     }
 
     ////////////
-    // Ad hoc treatment of indicial objects (very not stable, only order 1)
+    // Ad hoc treatment of indicial objects (only order 1)
     // of type a*X(mu) + b(mu).
     ////////////
     if (IsIndicialTensor(variable)) {
@@ -2049,10 +2051,10 @@ Expr DiracDelta::applyDiracDelta(const Expr& expr, const Expr& variable) const
         else if (argument->getType() == csl::Type::Prod) {
             fact = GetPolynomialTerm(argument, variable.get(), 1);
         }
-        auto res = Replaced(expr,
-                            variable->getParent(),
-                            rest/fact);
-        res /= abs_s(fact);
+        auto res = Replaced(
+                expr,
+                variable->getParent(),
+                rest/fact);
         return res;
     }
 
@@ -2085,7 +2087,7 @@ bool DiracDelta::operator==(Expr_info other) const
         if (freeStruct1.size() != freeStruct2.size()) {
             return false;
         }
-        expr = ReplaceIndices(expr, freeStruct1, freeStruct2);
+        Replace(expr, freeStruct1, freeStruct2);
         // for (size_t i = 0; i != freeStruct1.size(); ++i)
         //     if (freeStruct1[i] != freeStruct2[i])
         //         expr = ReplaceIndex(old2, freeStruct1[i], freeStruct2[i]);

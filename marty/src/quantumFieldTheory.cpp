@@ -740,6 +740,8 @@ csl::Expr ExternalLeg(
                        field.getIndexStructureView().getIndexView(),
                        field.isParticle(),
                        field.isIncoming(),
+                       field.isOnShell(),
+                       field.getPartnerShip(),
                        ruleMode,
                        lock);
 }
@@ -750,6 +752,8 @@ csl::Expr ExternalLeg(QuantumFieldParent & field,
                  vector<Index>        indices,
                  bool                 particle,
                  bool                 incoming,
+                 bool                 onshell,
+                 PartnerShip   const &partnerShip,
                  bool                 ruleMode,
                  bool                 lockConjugation
                  )
@@ -758,71 +762,27 @@ csl::Expr ExternalLeg(QuantumFieldParent & field,
 
     Index rho = Minkowski.generateIndex();
     csl::Expr expSign   = (incoming) ? -CSL_1 : CSL_1;
-    switch (spinDim) {
-        case 1:
-        if (not ruleMode and not mty::option::amputateExternalLegs)
-            return CSL_I * field(0,indices,P)*vectorintegral_s(X)
-                * exp_s(expSign*CSL_I*X(rho)*P(+rho));
-        return CSL_I*vectorintegral_s(X) 
-            * exp_s(expSign*CSL_I*X(rho)*P(+rho));
-
-        case 2:
-        {
-        Index lambda = Euclid_R2.generateIndex();
-        csl::Expr polarTensor = CSL_1; 
-        if (not ruleMode and not mty::option::amputateExternalLegs) {
-            polarTensor = field(lambda, indices, P);
-            if (lockConjugation)
-                ConvertToPtr<PolarizationField>(polarTensor)
-                    ->setConjugationLock(true);
-            if (not particle)
-                ConvertToPtr<PolarizationField>(polarTensor)
-                    ->setParticle(false);
-            if (not incoming)
-                ConvertToPtr<PolarizationField>(polarTensor)
-                    ->setIncoming(false);
-            return CSL_I * polarTensor * vectorintegral_s(X)
-                * exp_s(expSign*CSL_I*X(rho)*P(+rho));
-        }
-        return vectorintegral_s(X)*CSL_I*
-            exp_s(expSign*CSL_I*X(rho)*P(+rho));
-        }
-        break;
-
-        case 3:
-        {
-        Index lambda;
-        if (field.getMass() == CSL_0)
-            lambda = Euclid_R2.generateIndex();
-        else
-            lambda = Euclid_R3.generateIndex();
-        for (auto& i : indices)
-            if (i.getSpace()->getSignedIndex())
-                i.flipSign();
-        csl::Expr polarTensor = CSL_1;
-        if (not ruleMode and not mty::option::amputateExternalLegs) {
-            polarTensor = field(lambda, indices, P);
-            if (not particle)
-                ConvertToPtr<PolarizationField>(polarTensor)
-                    ->setParticle(false);
-            if (not incoming)
-                ConvertToPtr<PolarizationField>(polarTensor)
-                    ->setIncoming(false);
-            return -CSL_I * polarTensor * vectorintegral_s(X)
-                * exp_s(expSign*CSL_I*X(rho)*P(+rho));
-        }
-        return -vectorintegral_s(X)*CSL_I
-            * exp_s(expSign*CSL_I*X(rho)*P(+rho));
-        }
-        break;
-
-        default:
-        CallHEPError(mty::error::RuntimeError,
-                "Spin " + toString(spinDim) + " not recognized for LSZ "
-                + "insertion.");
-    }
-
-    return nullptr;
+    csl::Expr common = CSL_I * csl::vectorintegral_s(X)
+        * csl::exp_s(expSign * CSL_I * X(rho) * P(+rho));
+    if (spinDim == 3)
+        common = -common;
+    if (ruleMode || mty::option::amputateExternalLegs)
+        return common;
+    Index lambda = Euclid_R2.generateIndex();
+    for (auto& i : indices)
+        if (i.getSpace()->getSignedIndex())
+            i.flipSign();
+    csl::Expr polarTensor = field(lambda, indices, P);
+    auto ptr = ConvertToPtr<PolarizationField>(polarTensor);
+    if (lockConjugation)
+        ptr->setConjugationLock(true);
+    ptr->setExternal(true);
+    ptr->setParticle(particle);
+    ptr->setIncoming(incoming);
+    ptr->setOnShell(onshell);
+    if (spinDim == 2)
+        ptr->setPartnerShip(partnerShip);
+    return polarTensor * common;
 }
 
 csl::Expr MajoranaMassTerm(

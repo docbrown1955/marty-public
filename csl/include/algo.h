@@ -318,6 +318,13 @@ namespace csl {
             std::function<bool(Expr_info)> const& f,
             int                                   depth = -1);
 
+    bool isUnique(csl::Expr const &expr);
+
+    size_t Count(csl::Expr const &expr, csl::Expr const &search);
+    size_t CountIf(
+            csl::Expr const &expr, 
+            std::function<bool(csl::Expr const&)> const &f
+            );
 
     size_t CountNodes(Expr const &init);
     size_t CountLeafs(Expr const &init);

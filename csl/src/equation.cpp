@@ -19,6 +19,7 @@
 #include "literal.h"
 #include "numerical.h"
 #include "mathFunctions.h"
+#include "replace.h"
 #include "operations.h"
 #include "vector.h"
 #include "indicial.h"

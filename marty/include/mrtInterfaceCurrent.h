@@ -32,41 +32,6 @@ namespace mty {
 /*************************************************/
 ///////////////////////////////////////////////////
 
-inline void DisableParticle(Particle const& particle)
-{
-    DisableParticle(*mty::Model::current, particle);
-}
-
-inline void EnableParticle(Particle const& particle)
-{
-    EnableParticle(*mty::Model::current, particle);
-}
-
-inline void DisableParticle(std::string const& particle)
-{
-    DisableParticle(*mty::Model::current, particle);
-}
-
-inline void EnableParticle(std::string const& particle)
-{
-    EnableParticle(*mty::Model::current, particle);
-}
-
-inline 
-Amplitude ComputeAmplitude(
-            mty::Order             order,
-            std::vector<Insertion> insertions,
-            bool                   ruleMode = false
-            )
-{
-    return ComputeAmplitude(
-            order,
-            *mty::Model::current,
-            insertions,
-            ruleMode
-            );
-}
-
 inline 
 Amplitude SelfEnergy(
             mty::Order        order,
@@ -80,24 +45,6 @@ Amplitude SelfEnergy(
             mty::Particle    &particle)
 {
     return SelfEnergy(particle, *mty::Model::current);
-}
-
-
-inline
-Amplitude ComputeAmplitude(
-            mty::Order                       order,
-            std::vector<Insertion>           insertions,
-            std::vector<csl::Tensor>& impulsions,
-            bool                             ruleMode = false
-            )
-{
-    return ComputeAmplitude(
-            order,
-            *mty::Model::current,
-            insertions,
-            impulsions,
-            ruleMode
-            );
 }
 
 inline std::vector<FeynmanRule> ComputeFeynmanRules()
@@ -314,21 +261,6 @@ inline void BreakFlavorSymmetry(
 inline void Refreshed()
 {
     Refreshed(*mty::Model::current);
-}
-
-inline void IntegrateOutParticle(
-        mty::Particle & particle,
-        size_t maxDim = size_t(-1),
-        size_t nLoops = 0,
-        size_t maxDimOperator = 6)
-{
-    IntegrateOutParticle(
-            *mty::Model::current,
-            particle,
-            maxDim,
-            nLoops,
-            maxDimOperator
-            );
 }
 
 ///////////////////////////////////////////////////

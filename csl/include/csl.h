@@ -45,6 +45,7 @@
 #include "sort.h"
 #include "lock.h"
 
+#include "replace.h"
 #include "utils.h"
 #include "conditional.h"
 #include "algo.h"

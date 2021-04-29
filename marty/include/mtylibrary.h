@@ -38,6 +38,9 @@ namespace mty {
 #if !(defined __APPLE__ || defined __MACH__)
             // If we are not on MacOS, add -lgfortran
             addLibrary("-lgfortran");
+            setGccCompiler();
+#else
+            setClangCompiler();
 #endif
             if (csl::LibraryGenerator::isQuadruplePrecision()) {
                 addLibrary("-looptools-quad");
@@ -63,9 +66,41 @@ namespace mty {
         }
 
         void importLHAModule(
-                std::string const &pathToMarty
+                std::string const &t_pathToMarty
                 )
         {
+            lhaEnabled = true;
+            pathToMarty = t_pathToMarty;
+        }
+
+        void addFunction(
+                std::string const &name, 
+                csl::Expr expr,
+                std::string const &groupName = "G"
+                ) 
+        {
+            csl::ScopedProperty p(&csl::option::checkCommutations, false);
+            auto &f = csl::LibraryGenerator::addFunction(name, expr, groupName);
+            f.addInitInstruction("clearcache();");
+        }
+
+        void print()
+        {
+            if (lhaEnabled) doImportLHAModule();
+            csl::LibraryGenerator::print();
+        }
+
+        void build()
+        {
+            if (lhaEnabled) doImportLHAModule();
+            csl::LibraryGenerator::build();
+        }
+
+    private:
+
+        void doImportLHAModule()
+        {
+            csl::LibraryGenerator::setupDirectory();
             const auto martySrc = pathToMarty + "/src"; 
             const auto martyInc = pathToMarty + "/include"; 
             const auto targetSrc = path + "/src"; 
@@ -80,15 +115,7 @@ namespace mty {
             sysres = system(("cp " + pathToMarty + "/../csl/include/std_vector*.h " + targetInc).c_str());
         }
 
-        void addFunction(
-                std::string const &name, 
-                csl::Expr expr,
-                std::string const &groupName = "G"
-                ) 
-        {
-            csl::ScopedProperty p(&csl::option::checkCommutations, false);
-            auto &f = csl::LibraryGenerator::addFunction(name, expr, groupName);
-            f.addInitInstruction("clearcache();");
-        }
+        bool lhaEnabled { false };
+        std::string pathToMarty;
     };
 }

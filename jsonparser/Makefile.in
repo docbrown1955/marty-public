@@ -40,4 +40,4 @@ $(OBJDIR)/%_debug.o: $(SRCDIR)/%.cpp
 	$(CXXDEBUG) $(CFLAGS) -o $@ -c $< $(IPATH)
 
 clean:
-	rm $(OBJDIR)/*.o;
+	-rm -f $(OBJDIR)/*.o;

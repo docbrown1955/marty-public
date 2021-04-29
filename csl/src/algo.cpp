@@ -280,6 +280,36 @@ void VisitEachNodeCut(
     }
 }
 
+bool isUnique(csl::Expr const &expr)
+{
+    return csl::AllOfNodes(expr, [&](csl::Expr const &sub) {
+        return sub.use_count() == 1;
+    });
+}
+
+size_t Count(csl::Expr const &expr, csl::Expr const &search)
+{
+    size_t count = 0;
+    csl::VisitEachNode(expr, [&](csl::Expr const &sub) {
+        if (sub == search) 
+            ++count;
+    });
+    return count;
+}
+
+size_t CountIf(
+        csl::Expr const &expr, 
+        std::function<bool(csl::Expr const&)> const &f
+        )
+{
+    size_t count = 0;
+    csl::VisitEachNode(expr, [&](csl::Expr const &sub) {
+        if (f(sub))
+            ++count;
+    });
+    return count;
+}
+
 size_t CountNodes(Expr const &init)
 {
     size_t count = 0;

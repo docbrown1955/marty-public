@@ -23,7 +23,6 @@
 #ifndef MTY_WILSONOPERATOR_H_INCLUDED
 #define MTY_WILSONOPERATOR_H_INCLUDED 
 
-#include "effModel.h"
 #include "wilson.h"
 #include "diracology.h"
 #include "polarization.h"
@@ -84,6 +83,17 @@ namespace OperatorParser {
             );
 
     csl::Expr build_V_x_V5(
+            Insertion const &psi1L,
+            Insertion const &psi1R,
+            Insertion const &psi2L,
+            Insertion const &psi2R
+            );
+
+    csl::Expr get_V5_x_V_Coefficient(
+            std::vector<Wilson> const &coefs
+            );
+
+    csl::Expr build_V5_x_V(
             Insertion const &psi1L,
             Insertion const &psi1R,
             Insertion const &psi2L,

@@ -110,7 +110,7 @@ void Space::printDefinition(
         out << ",\n";
     }
     out << indent << "    " << "std::vector<std::string>({";
-    for (const auto n : defaultIndexNames)
+    for (const auto& n : defaultIndexNames)
         out << "\"" << csl::Abstract::regularLiteral(n) << "\", ";
 
     out << "})\n";

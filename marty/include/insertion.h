@@ -24,10 +24,10 @@
 #define INSERTION_H_INCLUDED
 
 #include <csl.h>
+#include "quantumField.h"
 
 namespace mty {
 
-class QuantumFieldParent;
 class Particle;
 
 class Insertion {
@@ -35,16 +35,18 @@ class Insertion {
     private: 
 
     mutable QuantumFieldParent * field;
-    mutable std::optional<csl::Expr> expression;
+    mutable bool      validExpression;
+    mutable csl::Expr expression;
     bool incoming;
     bool particle;
     bool onShell;
+    PartnerShip partnerShip;
 
     public:
 
     Insertion(QuantumFieldParent * t_field);
     Insertion(Particle             t_field);
-    Insertion(csl::Expr          const& t_field);
+    Insertion(csl::Expr     const& t_field);
     Insertion(std::string_view name);
     Insertion(const char name[]);
     Insertion(Insertion const& other) = default;
@@ -53,16 +55,37 @@ class Insertion {
     Insertion& operator=(Insertion && other)     = default;
     ~Insertion() = default;
 
-    QuantumFieldParent const *getField() const;
+    QuantumFieldParent *getField() const;
     void setField(QuantumFieldParent *t_field);
 
-    bool isIncoming() const;
+    bool isIncoming() const {
+        return incoming;
+    }
     void setIncoming(bool t_incoming);
 
-    bool isParticle() const;
+    bool isParticle() const {
+        return particle;
+    }
     void setParticle(bool t_particle);
 
-    bool isOnShell() const;
+    bool isIncomingParticle() const {
+        return isIncoming() && isParticle();
+    }
+    bool isIncomingAntiParticle() const {
+        return isIncoming() && !isParticle();
+    }
+    bool isOutgoingParticle() const {
+        return !isIncoming() && isParticle();
+    }
+    bool isOutoingAntiParticle() const {
+        return !isIncoming() && !isParticle();
+    }
+
+    void setPartnerShip(PartnerShip const &t_partnerShip);
+
+    bool isOnShell() const {
+        return onShell;
+    }
     void setOnShell(bool t_onShell);
 
     csl::Expr getExpression() const;

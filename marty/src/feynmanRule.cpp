@@ -18,9 +18,11 @@
 #include "quantumFieldTheory.h"
 #include "diracology.h"
 #include "amplitude.h"
+#include "amplitudeSimplification.h"
 #include "mrtOptions.h"
 #include "mrtInterface.h"
 #include "model.h"
+
 
 using namespace csl;
 namespace mty {
@@ -51,15 +53,10 @@ FeynmanRule& FeynmanRule::operator=(FeynmanRule const& other)
 
 FeynmanRule::FeynmanRule(
         mty::Model               &model,
-        TermType           const &t_term,
-        std::vector<csl::Tensor> impulsions)
+        TermType           const &t_term)
     :FeynmanRule()
 {
-    HEPAssert(t_term->getContent().size() <= impulsions.size(),
-            mty::error::ValueError,
-            "Not enough impulsions to compute feynman rule: "
-            + toString(impulsions.size()) + " given while expecting at least "
-            + toString(term->getContent().size()) + ".");
+    std::vector<csl::Tensor> momenta(t_term->getContent().size());
     setInteractionTerm(t_term);
     std::vector<csl::Expr> insertions;
     auto terms = InteractionTerm::createAndDispatch(
@@ -91,51 +88,43 @@ FeynmanRule::FeynmanRule(
         fieldProduct[i].setParticle(fieldProduct[i].isComplexConjugate());
         fieldProduct[i].setIncoming(true);
         fieldProduct[i].setExternal(true);
-        fieldProduct[i].setPoint(impulsions[i]);
+        momenta[i] = csl::Tensor("p_" + std::to_string(i+1), &csl::Minkowski);
+        fieldProduct[i].setPoint(momenta[i]);
         fieldProduct[i].resetIndexStructure();
         fieldProduct[i].setDerivativeStructure(csl::IndexStructure());
         csl::Expr shared = csl::make_shared<QuantumField>(fieldProduct[i]);
         insertions.push_back(shared);
     }
-    // for (size_t i = 0; i != fieldProduct.size(); ++i) {
-    //     size_t mini = i;
-    //     for (size_t j = i+1; j != fieldProduct.size(); ++j) {
-    //         if (compareFields(fieldProduct[j], fieldProduct[mini]))
-    //             mini = j;
-    //     }
-    //     if (i != mini) {
-    //         std::swap(fieldProduct[i], fieldProduct[mini]);
-    //         std::swap(insertions[i], insertions[mini]);
-    //         std::swap(impulsions[i], impulsions[mini]);
-    //     }
-    //     std::cout << fieldProduct[i] << std::endl;
-    // }
     for (size_t i = 0; i != std::ceil(fieldProduct.size() / 2.); ++i) {
         size_t i1 = i;
         size_t i2 = fieldProduct.size() - 1 - i;
         if (i1 != i2) {
             std::swap(insertions[i1], insertions[i2]);
-            std::swap(impulsions[i1], impulsions[i2]);
+            std::swap(momenta[i1], momenta[i2]);
             fieldProduct[i2].conjugate();
         }
         fieldProduct[i1].conjugate();
     }
     csl::ScopedProperty p1(&mty::option::applyMomentumConservation, false);
     csl::ScopedProperty p2(&mty::option::applyInsertionOrdering,    false);
-    auto res = ComputeAmplitude(
+    FeynOptions options;
+    options.setFeynmanRuleMode();
+    Kinematics kinematics(GetInsertion(insertions), momenta);
+    auto res = model.computeAmplitude(
             Order::TreeLevel,
-            model,
             GetInsertion(insertions),
-            impulsions,
-            true);
-    if (res.diagrams.empty()) {
+            kinematics,
+            options
+            );
+    if (res.empty()) {
         expr = CSL_0;
         diagram = csl::make_shared<wick::Graph>();
         return;
     }
 
-    diagram = res.diagrams[0];
-    for (auto& ampl : res.expressions) {
+    diagram = res.getDiagrams()[0].getDiagram();
+    std::vector<csl::Expr> expressions = res.obtainExpressions();
+    for (auto& ampl : expressions) {
         csl::Transform(ampl, [&](csl::Expr& el)
         {
             if (el->getType() == csl::Type::TensorElement) {
@@ -148,34 +137,44 @@ FeynmanRule::FeynmanRule(
             return false;
         });
     }
-    expr = csl::Expanded(csl::sum_s(res.expressions));
+    expr = csl::Expanded(csl::sum_s(expressions));
     expr = DeepRefreshed(expr);
     Factor(expr, true);
     if (mty::option::searchAbreviations)
-        mty::AmplitudeCalculator::findAbreviations(expr);
+        mty::simpli::findAbbreviations(expr);
     expr = csl::Factored(expr, true);
     if (mty::option::searchAbreviations)
-        mty::AmplitudeCalculator::findAbreviations(expr);
+        mty::simpli::findAbbreviations(expr);
 
     for (auto fieldParent : nonphysical)
         fieldParent->setPhysical(false);
 
-    bool left = true;
-    for (size_t i = 0; i != fieldProduct.size(); ++i) {
-        if (fieldProduct[i].isFermionic()) {
-            if (fieldProduct[i].isComplexConjugate() == left) {
-                auto alpha = fieldProduct[i].getIndexStructureView().back();
-                auto gam = alpha.rename();
-                csl::Replace(expr, alpha, gam);
-                if (left)
-                    expr *= dirac4.C_matrix({gam, alpha});
-                else
-                    expr *= dirac4.C_matrix({alpha, gam});
+    if (!expr->dependsExplicitlyOn(mty::dirac4.C_matrix.get())) {
+        // Here if the vertex is not regular (badly conjugated fermions), we 
+        // add the conjugation matrix if there is not already one (otherwise
+        // the vertex is already regular a priori). This allows to follow the 
+        // rules given in CERN-TH.6549/92:
+        // "Feynman rules for fermion-number-violating interactions"
+        // without having to keep track of currents: those modified vertices
+        // do the job at the Feynman rule level.
+        bool left = true;
+        for (size_t i = 0; i != fieldProduct.size(); ++i) {
+            if (fieldProduct[i].isFermionic()) {
+                if (fieldProduct[i].isComplexConjugate() == left) {
+                    auto alpha = fieldProduct[i].getIndexStructureView().back();
+                    auto gam = alpha.rename();
+                    csl::Replace(expr, alpha, gam);
+                    if (left)
+                        expr *= dirac4.C_matrix({gam, alpha});
+                    else
+                        expr *= dirac4.C_matrix({alpha, gam});
+                    csl::Expand(expr);
+                }
+                left = !left;
             }
-            left = !left;
         }
     }
-    AmplitudeCalculator::simplifyConjugationMatrix(expr);
+    simpli::simplifyFermionChains(expr);
 }
 
 std::vector<QuantumField>& FeynmanRule::getFieldProduct()
@@ -375,10 +374,10 @@ std::ostream& operator<<(std::ostream& out,
         out << " ";
     }
     out << ":\n\t";
-    out << csl::DeepFactored(csl::Evaluated(
+    out << csl::Evaluated(
                 rule.expr,
                 csl::eval::abbreviation
-                )) <<'\n';
+                ) <<'\n';
 
     return out;
 }

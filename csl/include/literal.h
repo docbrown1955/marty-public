@@ -42,7 +42,6 @@ class AbstractLiteral: public Complexified{
     public:
 
     AbstractLiteral();
-    ~AbstractLiteral();
 
     csl::PrimaryType getPrimaryType() const override {
         return csl::PrimaryType::Literal;
@@ -83,9 +82,6 @@ class Constant: public AbstractLiteral{
 
 #ifdef DEBUG
     ~Constant(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~Constant(){};
 #endif
 
     std::string const &getName() const override;
@@ -202,9 +198,6 @@ class Variable: public AbstractLiteral{
 
 #ifdef DEBUG
     ~Variable(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~Variable(){};
 #endif
 
     /*! \brief Gives the \b primary \b type of a Variable. 
@@ -344,9 +337,6 @@ class IntFactorial: public AbstractLiteral{
 
 #ifdef DEBUG
     ~IntFactorial(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~IntFactorial(){};
 #endif
 
     /*! \brief Returns the \b value in the factorial.
@@ -435,9 +425,6 @@ class Imaginary: public AbstractLiteral{
 
 #ifdef DEBUG
     ~Imaginary(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~Imaginary(){};
 #endif
 
     /*! Gives the **primary type** of the Imaginary.

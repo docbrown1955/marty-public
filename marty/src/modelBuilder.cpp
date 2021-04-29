@@ -58,6 +58,7 @@ void ModelBuilder::replace(
 
     for (auto& term : terms) {
         csl::Replace(term, oldExpression, newExpression);
+        csl::Expand(term);
         L.push_back(term);
     }
     csl::Abbrev::replace(oldExpression, newExpression);
@@ -77,6 +78,7 @@ void ModelBuilder::replace(
 
     for (auto& term : terms) {
         csl::Replace(term, oldExpression, newExpression);
+        csl::Expand(term);
         L.push_back(term);
     }
     csl::Abbrev::replace(oldExpression, newExpression);
@@ -94,8 +96,10 @@ void ModelBuilder::replace(
     });
 
     for (auto& term : terms) {
-        if (condition(term)) 
+        if (condition(term))  {
             csl::Replace(term, oldExpression, newExpression);
+            csl::Expand(term);
+        }
         L.push_back(term);
     }
     csl::Abbrev::replace(oldExpression, newExpression);
@@ -129,8 +133,10 @@ void ModelBuilder::replace(
         return term->getTerm()->dependsExplicitlyOn(part.get());
     });
     for (auto& term : terms) {
-        if (condition(term)) 
+        if (condition(term))  {
             csl::Replace(term, part, newExpression);
+            csl::Expand(term);
+        }
         L.push_back(term);
     }
     // if (!particleInFinalState)
@@ -379,7 +385,7 @@ void ModelBuilder::applyRotation(
     size_t index = 0;
     for (auto& term : interactionTerms) {
         bar.progress(index++);
-        term = csl::Replaced(term, fields, rotations);
+        csl::Replace(term, fields, rotations);
     }
     std::vector<csl::Parent> fieldParent(fields.size());
     std::vector<csl::Parent> newFieldParent(fields.size());
@@ -504,6 +510,15 @@ void ModelBuilder::rotateFields(
         int  nMassLessFields
         )
 {
+    if (!fields.empty() && fields[0]->getFieldStrength()) {
+        std::vector<mty::Particle> fs1(fields.size());
+        std::vector<mty::Particle> fs2(fields.size());
+        for (size_t i = 0; i != fs1.size(); ++i) {
+            fs1[i] = fields[i]->getFieldStrength();
+            fs2[i] = newFields[i]->getFieldStrength();
+        }
+        rotateFields(fs1, fs2, rotation, false);
+    }
     checksRotation(fields, newFields, rotation);
     addParticles(newFields, false);
 
@@ -534,7 +549,7 @@ void ModelBuilder::rotateFields(
         for (int i = 0; i < nMassLessFields; ++i) {
             newFields[i]->setMass(CSL_0);
             clearDependencies(L.mass, [&](Lagrangian::TermType const &t) {
-                return t->contains(newFields[i].get());
+                return t->containsExactly(newFields[i].get());
             });
         }
     }
@@ -590,8 +605,8 @@ void ModelBuilder::rotateFields(
         newFields1[i]->setMass(CSL_0);
         newFields2[i]->setMass(CSL_0);
         clearDependencies(L.mass, [&](Lagrangian::TermType const &t) {
-            return t->contains(newFields1[i].get())
-                || t->contains(newFields2[i].get());
+            return t->containsExactly(newFields1[i].get())
+                || t->containsExactly(newFields2[i].get());
         });
     }
 }
@@ -1035,8 +1050,8 @@ void ModelBuilder::applyDiracFermionEmbedding(
         minusInteractionTerms[i] = -interactionTerms[i];
     }
     for (size_t i = 0; i != interaction.size(); ++i) {
-        if (not interaction[i]->contains(leftWeyl.get())
-                or not interaction[i]->contains(rightWeyl.get()))
+        if (not interaction[i]->containsExactly(leftWeyl.get())
+                or not interaction[i]->containsExactly(rightWeyl.get()))
             continue;
         csl::Expr term = csl::DeepCopy(interactionTerms[i]);
         csl::ForEachLeaf(term, [&](csl::Expr& expr)
@@ -1123,7 +1138,7 @@ void ModelBuilder::gatherMasses()
         std::vector<size_t> massTerms;
         bool sameContent = true;
         for (size_t i = 0; i != L.mass.size(); ++i)
-            if (L.mass[i]->contains(part.get())
+            if (L.mass[i]->containsExactly(part.get())
                     and isValidMassTerm(*L.mass[i])) {
                 for (size_t pos : massTerms)
                     if (sameContent 
@@ -1223,17 +1238,17 @@ void ModelBuilder::refresh()
         else {
             bool found = false;
             for (const auto &k : L.kinetic)
-                if (k->contains(particles[i].get())) {
+                if (k->containsExactly(particles[i].get())) {
                     found = true;
                     break;
                 }
             for (const auto &m : L.mass)
-                if (m->contains(particles[i].get())) {
+                if (m->containsExactly(particles[i].get())) {
                     found = true;
                     break;
                 }
             for (const auto &in : L.interaction)
-                if (in->contains(particles[i].get())) {
+                if (in->containsExactly(particles[i].get())) {
                     found = true;
                     break;
                 }
@@ -1604,7 +1619,7 @@ void ModelBuilder::breakLagrangian(
         )
 {
     for (size_t i = 0; i != L.kinetic.size(); ++i)
-        if (L.kinetic[i]->contains(init.get())) {
+        if (L.kinetic[i]->containsExactly(init.get())) {
             csl::vector_expr broke = L.kinetic[i]->getTerm()
                 ->breakSpace(brokenSpace,
                              newSpace);
@@ -1612,7 +1627,7 @@ void ModelBuilder::breakLagrangian(
         }
 
     for (size_t i = 0; i != L.mass.size(); ++i)
-        if (L.mass[i]->contains(init.get())) {
+        if (L.mass[i]->containsExactly(init.get())) {
             csl::vector_expr broke = L.mass[i]->getTerm()
                 ->breakSpace(brokenSpace,
                              newSpace);
@@ -1620,7 +1635,7 @@ void ModelBuilder::breakLagrangian(
         }
 
     for (size_t i = 0; i != L.interaction.size(); ++i)
-        if (L.interaction[i]->contains(init.get())) {
+        if (L.interaction[i]->containsExactly(init.get())) {
             csl::vector_expr broke = L.interaction[i]->getTerm()
                 ->breakSpace(brokenSpace,
                              newSpace);
@@ -1825,7 +1840,7 @@ bool ModelBuilder::diagonalizeExplicitely(
     clearDependencies(L.mass, 
     [&](Lagrangian::TermType const &term) {
         for (const auto &f : newFields)
-            if (term->contains(f.get()))
+            if (term->containsExactly(f.get()))
                 return true;
         return false;
     });
@@ -1847,7 +1862,7 @@ bool ModelBuilder::diagonalizeExplicitely(
         mty::Particle massLess = 
             (D[0][0] == CSL_0) ? newFields[0] : newFields[1];
         for (size_t i = 0; i != L.mass.size(); ++i)
-            if (L.mass[i]->contains(massLess.get())) {
+            if (L.mass[i]->containsExactly(massLess.get())) {
                 L.mass.erase(L.mass.begin() + i);
                 --i;
             }
@@ -2021,14 +2036,14 @@ void ModelBuilder::applyDiagonalizationData(csl::LibraryGenerator &lib) const
 }
 
 void ModelBuilder::applyDiagonalizationData(
-        csl::LibraryGenerator    &lib,
-        Amplitude const &amplitude
+        csl::LibraryGenerator &lib,
+        Amplitude       const &amplitude
         ) const
 {
     std::vector<std::vector<mty::QuantumField const*>> fields;
     fields.reserve(amplitude.size());
-    for (const auto &g : amplitude.diagrams)
-        fields.emplace_back(g->getFields());
+    for (const auto &diag : amplitude.getDiagrams())
+        fields.emplace_back(diag.getDiagram()->getFields());
     auto isSpectrumNeeded = [&](Spectrum const &spectrum) {
         for (const auto &p : spectrum.getParticles())
             for (const auto &fieldsDiagram : fields)

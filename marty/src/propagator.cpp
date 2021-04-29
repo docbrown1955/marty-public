@@ -49,7 +49,7 @@ void Propagator::print(
     if (lib) {
         csl::Expr counter = DeepCopy(argument[0]);
         for (auto& index : counter->getIndexStructure())
-            counter = Replaced(counter, index, index.getFlipped());
+            Replace(counter, index, index.getFlipped());
         (1 / (argument[0] * counter 
               - argument[1] * argument[1] 
               + CSL_I*argument[1]*argument[2]))
@@ -128,7 +128,7 @@ std::optional<csl::Expr> Propagator::evaluate(
             and (argument[0] != CSL_0 or argument[1] != CSL_0)) {
         csl::Expr counter = DeepCopy(argument[0]);
         for (auto& index : counter->getIndexStructure())
-            counter = Replaced(counter, index, index.getFlipped());
+            Replace(counter, index, index.getFlipped());
         csl::Expr res = csl::Evaluated(argument[0] * counter
                   - argument[1] * argument[1]
                   + CSL_I * argument[1] * argument[2],
@@ -179,10 +179,10 @@ bool Propagator::operator==(csl::Expr_info other) const
 
     csl::Expr counter1 = DeepCopy(argument[0]);
     for (auto& index : counter1->getIndexStructure())
-        counter1 = Replaced(counter1, index, index.getFlipped());
+        Replace(counter1, index, index.getFlipped());
     csl::Expr counter2 = DeepCopy(other->getArgument(0));
     for (auto& index : counter2->getIndexStructure())
-        counter2 = Replaced(counter2, index, index.getFlipped());
+        Replace(counter2, index, index.getFlipped());
 
 
     return (Expanded(argument[0]*counter1) 
@@ -332,7 +332,7 @@ std::optional<csl::Expr> FermionPropStruct::replaceIndex(
     for (const auto& i : structure)
         if (i.exactMatch(indexToReplace)) {
             csl::Expr other = copy_unique();
-            other = ReplaceIndex(other, indexToReplace, newIndex);
+            Replace(other, indexToReplace, newIndex);
             if (refresh)
                 return Refreshed(std::move(other));
             return csl::Expr(std::move(other));

@@ -19,6 +19,7 @@
 #include "algo.h"
 #include "error.h"
 #include "interface.h"
+#include "replace.h"
 #include "indicial.h"
 #include "space.h"
 #include "options.h"
@@ -57,7 +58,7 @@ void PseudoIntegral::testIntegralDep(const Expr& term) const
                 }),
                CSLError::TypeError,
                "Integral dependency encountered in sum."
-               + toString(term) + ".");
+               + toString(term) + ".")
 }
 
 void PseudoIntegral::addSingleTerm(const Expr& term)
@@ -581,7 +582,7 @@ void ScalarIntegral::setVariable(Expr const &t_variable)
     CSL_ASSERT_SPEC(t_variable->getType() == csl::Type::Variable,
             CSLError::TypeError,
             "Expecting a variable in scalar integral, " + toString(t_variable)
-            + " given.");
+            + " given.")
     variable = t_variable;
 }
 
@@ -780,9 +781,7 @@ void VectorIntegral::setParent(const Parent& t_variable)
                 "VectorIntegral::setParent()");
     Parent old_variable = variables;
     variables = std::dynamic_pointer_cast<TensorParent>(t_variable);
-    argument = Replaced(argument,
-                       old_variable,
-                       variables);
+    Replace(argument, old_variable, variables);
     DeepRefresh(argument);
 }
 
@@ -932,9 +931,9 @@ bool VectorIntegral::compareWithDummy(
         // Trying to invert the variable if the integral domain is 
         // symmetric around 0.
         Index ind = variables->getSpace()[0]->generateIndex();
-        otherModified = Replaced(otherModified,
-                                            variables,
-                                            -(*variables)(ind));
+        Replace(otherModified,
+                (*variables)(ind),
+                -(*variables)(ind));
         auto res = compareWithDummy(otherModified.get(),
                                 constraints,
                                 keepAllCosntraints);
@@ -978,9 +977,9 @@ bool VectorIntegral::operator==(Expr_info other) const
         // Trying to invert the variable if the integral domain is 
         // symmetric around 0.
         Index ind = variables->getSpace()[0]->generateIndex();
-        otherModified = Replaced(otherModified,
-                                variables,
-                                -(*variables)(ind));
+        Replace(otherModified,
+                (*variables)(ind),
+                -(*variables)(ind));
         bool res = (*this == otherModified.get());
         Comparator::setDummyVecIntComparisonActive(true);
         return res;

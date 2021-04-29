@@ -18,6 +18,7 @@
 #include "indicial.h"
 #include "scopedProperty.h"
 #include "algo.h"
+#include "replace.h"
 #include "utils.h"
 #include "interface.h"
 #include "error.h"
@@ -278,8 +279,8 @@ Expr SelfContraction::applyIndices(const Expr&            A,
     for (auto& index : intermediateB)
         index = index.rename();
 
-    replaced = ReplaceIndices(replaced, freeStructures[0], structA);
-    replaced = ReplaceIndices(replaced, freeStructures[1], structB);
+    Replace(replaced, freeStructures[0], structA);
+    Replace(replaced, freeStructures[1], structB);
     // for (size_t i = 0; i != freeStructures[0].size(); ++i) {
     //     replaced = ReplaceIndex(replaced, freeStructures[0][i], intermediateA[i]);
     // }
@@ -727,7 +728,7 @@ bool ContractionChain::detectSpecialContraction()
                     Expr res = cont.getResult();
                     RenameIndices(res);
                     for (const auto& r : replacement) {
-                        res = Replaced(res, r.first, r.second, false);
+                        Replace(res, r.first, r.second, false);
                     }
                     resultOfContraction = scalarFactor
                                         * resultOfContraction
@@ -994,9 +995,6 @@ TensorParent::TensorParent(const string& t_name,
     :TensorParent(t_name, vector<const Space*>(1, t_space), t_tensor)
 {}
 
-TensorParent::~TensorParent()
-{}
-
 cslParent::PrimaryType TensorParent::getPrimaryType() const
 {
     return cslParent::Indicial;
@@ -1169,8 +1167,10 @@ bool TensorParent::dependsOn(Expr_info expr) const
 {
     if (IsIndicialTensor(expr))
         return expr->getParent_info() == this;
-    if (valued)
-        return tensor->dependsOn(expr);
+    // Removed. To re-enable it, must treat the dependency case when expr is 
+    // a number ...
+    // if (valued)
+    //     return tensor->dependsOn(expr);
     return false;
 }
 
@@ -1178,8 +1178,10 @@ bool TensorParent::dependsExplicitlyOn(Expr_info expr) const
 {
     if (IsIndicialTensor(expr))
         return expr->getParent_info() == this;
-    if (valued)
-        return tensor->dependsExplicitlyOn(expr);
+    // Removed. To re-enable it, must treat the dependency case when expr is 
+    // a number ...
+    // if (valued)
+    //     return tensor->dependsExplicitlyOn(expr);
     return false;
 }
 
@@ -1331,7 +1333,7 @@ void TensorParent::applyProperty(
     res = DeepCopy(res);
     RenameIndices(res);
     auto initStructure = self->getIndexStructure();
-    res = ReplaceIndices(res, structure, initStructure);
+    Replace(res, structure, initStructure);
     // auto intermediate  = initStructure;
     // for (size_t i = 0; i != structure.size(); ++i)
     //     intermediate[i] = intermediate[i].rename();
@@ -2032,11 +2034,11 @@ Expr MetricParent::contraction(const Abstract* self, Expr_info B) const
         // the metric (index present in self_struct) then we apply the metric
         // rule, i.e. raise or lower the index and remove the metric term.
         if (self_struct[0] == B_index) {
-            copy_B = ReplaceIndex(copy_B, B_index,self_struct[1]);
+            Replace(copy_B, B_index,self_struct[1]);
             return copy_B;
         }
         else if (self_struct[1] == B_index) {
-            copy_B = ReplaceIndex(copy_B, B_index,self_struct[0]);
+            Replace(copy_B, B_index,self_struct[0]);
             return copy_B;
         }
     // No contraction has been found: this function should be called only when
@@ -2148,11 +2150,11 @@ Expr DeltaParent::contraction(const Abstract* self, Expr_info B) const
         // the delta (index present in self_struct) then we apply the delta
         // rule, i.e. raise or lower the index and remove the delta term.
         if (self_struct[0] == B_index) {
-            copy_B = ReplaceIndex(copy_B, B_index,self_struct[1]);
+            Replace(copy_B, B_index,self_struct[1]);
             return copy_B;
         }
         else if (self_struct[1] == B_index) {
-            copy_B = ReplaceIndex(copy_B, B_index,self_struct[0]);
+            Replace(copy_B, B_index,self_struct[0]);
             return copy_B;
         }
     // No contraction has been found: this function should be called only when
@@ -2360,7 +2362,7 @@ Expr& TensorElement::applySelfStructureOn(Expr& expr) const
                 "TensorElement::applySelfStructureOn()",
                 "wrong number of free indices to apply structure");
     }
-    expr = ReplaceIndices(expr, structure, index);
+    Replace(expr, structure, index);
     // for (size_t i = 0; i != index.size(); ++i) {
     //     Index copy_index = index[i];
     //     expr = ReplaceIndex(expr, structure[i], copy_index);
@@ -3166,15 +3168,20 @@ void ISum::selfCheckIndexStructure()
                 and structure != (**arg).getFreeIndexStructure()) {
             DeepRefresh(*arg);
             DeepRefresh(argument[i]);
-            if (*arg == CSL_0 or argument[i] == CSL_0) {
+            if (*arg == CSL_0 
+                    or argument[i] == CSL_0 
+                    or argument[i]->getFreeIndexStructure() 
+                        == (**arg).getFreeIndexStructure()) {
                 mergeTerms();
                 selfCheckIndexStructure();
                 return;
             }
-            std::cout << argument[i] << std::endl;
-            std::cout << *arg << std::endl;
             cout << structure << endl;
             cout << (**arg).getFreeIndexStructure() << endl;
+            std::cout << argument[i] << std::endl;
+            std::cout << *arg << std::endl;
+            std::cout << csl::DeepRefreshed(argument[i]) << '\n';
+            std::cout << csl::DeepRefreshed(*arg) << '\n';
             callError(cslError::InvalidIndicialSum,
                     "Sum::selfCheckIndexStructure() const");
         }
@@ -3197,7 +3204,7 @@ optional<Expr> ISum::getHermitianConjugate(const vector<const Space*>& space) co
     if (not hermitian) {
         Expr res = copy();
         for (size_t i = 0; i != argument.size(); ++i)
-            res->setArgument(chooseOptional(newArg[i], argument[i]), i);
+            res->setArgument(newArg[i].value_or(argument[i]), i);
         return res;// ->refresh();
     }
 
@@ -3224,7 +3231,7 @@ optional<Expr> ISum::getTransposed(
     if (not symmetric) {
         Expr res = copy();
         for (size_t i = 0; i != argument.size(); ++i)
-            res->setArgument(chooseOptional(newArg[i], argument[i]), i);
+            res->setArgument(newArg[i].value_or(argument[i]), i);
         return res->refresh();
     }
 
@@ -3285,7 +3292,7 @@ void uniformizeIndices(csl::vector_expr& terms)
     for (size_t i = 1; i != terms.size(); ++i) {
         IndexStructure other = terms[i]->getFreeIndexStructure();
         for (size_t j = 0; j != structure.size(); ++j)
-            terms[i] = Replaced(terms[i], other[j], structure[j]);
+            Replace(terms[i], other[j], structure[j]);
     }
 }
 
@@ -3356,7 +3363,7 @@ void ISum::checkIndicialFactors(csl::vector_expr& factors) const
         for (size_t index = 0; index != structure.size(); ++index) {
             if (structure[index].getFree() and
                     freeStruct.find(structure[index]) == freeStruct.end())
-                copyFactors[i] = ReplaceIndex(copyFactors[i], 
+                Replace(copyFactors[i], 
                         structure[index],
                         !structure[index]);
         }
@@ -3679,13 +3686,13 @@ Expr IProd::suppressTerm(Expr_info term) const
             }
             Index foo = oldIndex.rename();
             for (auto &arg : newArgs) {
-                arg = ReplaceIndex(arg, oldIndex, foo);
-                arg = ReplaceIndex(arg, newIndex, oldIndex);
+                Replace(arg, oldIndex, foo);
+                Replace(arg, newIndex, oldIndex);
                 if (newIndex.getSpace()->getSignedIndex())
-                    arg = ReplaceIndex(arg, 
+                    Replace(arg, 
                             newIndex.getFlipped(),
                             oldIndex.getFlipped());
-                arg = ReplaceIndex(arg, foo, newIndex);
+                Replace(arg, foo, newIndex);
             }
         }
     }
@@ -3775,15 +3782,15 @@ optional<Expr> IProd::evaluate(csl::eval::mode user_mode) const
             Expr partial = copy_arg;
             size_t i = 0;
             for (const auto& index : index_counter) {
-                partial = Replaced(partial,
-                                  vec[i],
-                                  index,
-                                  false);
+                Replace(partial,
+                        vec[i],
+                        index,
+                        false);
                 if (vec[i].getSpace()->getSignedIndex())
-                    partial = Replaced(partial,
-                                      vec[i++].getFlipped(),
-                                      index.getFlipped(),
-                                      false);
+                    Replace(partial,
+                            vec[i++].getFlipped(),
+                            index.getFlipped(),
+                            false);
             }
             partial = Evaluated(partial, user_mode);
             if (partial != CSL_0)
@@ -3950,7 +3957,7 @@ optional<Expr> IProd::getTransposed(
     if (not symmetric) {
         Expr res = copy();
         for (size_t i = 0; i != argument.size(); ++i) {
-            res->setArgument(chooseOptional(newArg[i], argument[i]),
+            res->setArgument(newArg[i].value_or(argument[i]),
                              argument.size()-1-i);
         }
         return res->refresh();
@@ -4162,7 +4169,7 @@ Expr getBrokenExpr(const Expr&           init,
         if (replacement[i] != nullIndex) {
             for (const auto& pos : posInStruct[i])
                 if (oldStruct[pos] != replacement[i]) {
-                    res = Replaced(res, oldStruct[pos], replacement[i]);
+                    Replace(res, oldStruct[pos], replacement[i]);
                 }
         }
 
@@ -4534,8 +4541,9 @@ bool IProd::compareWithDummy(Expr_info        expr,
             }
             if (option::checkCommutations
                     and *Commutation(arg, foo) != CSL_0
-                    and not matched)
+                    and not matched) {
                 break;
+            }
         }
         if (not matched) {
             if (not dummySearch or Comparator::getDummyComparisonActive()) {

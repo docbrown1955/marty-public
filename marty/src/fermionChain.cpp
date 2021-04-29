@@ -51,6 +51,7 @@ bool FermionChain::applyOn(csl::Expr& prod,
             break;
     }
     if (allGamma and !chains.empty()) {
+        csl::Expr cpyProd = csl::Copy(prod);
         std::vector<csl::Expr> chainTensors;
         chainTensors.reserve(2 * chains.size());
         for (const auto& chain : chains) 
@@ -73,7 +74,7 @@ bool FermionChain::applyOn(csl::Expr& prod,
         prod[chains[0].pos[0]] 
             = csl::sum_s(chainTensors);
         csl::Refresh(prod);
-        return false;
+        return !prod->compareWithDummy(cpyProd.get());
     }
     for (const auto& chain : chains) {
         std::vector<csl::Expr> chainTensors;
@@ -92,7 +93,7 @@ bool FermionChain::applyOn(csl::Expr& prod,
                         and diracSpace->isDelta(chainTensors[i])) {
                     for (size_t j = 0; j != chainTensors.size(); ++j) {
                         if (i != j)
-                            chainTensors[j] = csl::Replaced(
+                            csl::Replace(
                                  chainTensors[j],
                                  chainTensors[i]->getIndexStructureView()[0],
                                  chainTensors[i]->getIndexStructureView()[1]);

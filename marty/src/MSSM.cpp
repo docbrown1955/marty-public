@@ -625,7 +625,7 @@ void MSSM_Model::initTrilinears()
     addLagrangianTerm(
             mu_h
             * cc(s_Qi({I, A, i})) 
-            * cc(Yu({I, J})) 
+            * cc(Yu({J, I})) 
             * s_Ui({J, A})
             * Hd(i),
             true // Add also the complex conjugate of this term
@@ -634,7 +634,7 @@ void MSSM_Model::initTrilinears()
     addLagrangianTerm(
             mu_h
             * cc(s_Qi({I, A, i})) 
-            * cc(Yd({I, J})) 
+            * cc(Yd({J, I})) 
             * s_Di({J, A})
             * Hu(i),
             true // Add also the complex conjugate of this term
@@ -643,7 +643,7 @@ void MSSM_Model::initTrilinears()
     addLagrangianTerm(
             mu_h
             * cc(s_Li({I, i})) 
-            * cc(Ye({I, J})) 
+            * cc(Ye({J, I})) 
             * s_Ei({J})
             * Hu(i),
             true // Add also the complex conjugate of this term
@@ -751,7 +751,7 @@ void MSSM_Model::initQuarticSLeptons()
     // ~L~L~E~E interaction
     addLagrangianTerm(
             -Ye({I, J}) 
-            * cc(Ye({K, L})) 
+            * cc(Ye({L, K})) 
             * cc(s_Li({K, i}))
             * s_Li({J, i})
             * cc(s_Ei({I}))
@@ -764,7 +764,7 @@ void MSSM_Model::initQuarticSQuarks()
     // ~Q~Q~U~U interaction
     addLagrangianTerm(
             -Yu({I, J}) 
-            * cc(Yu({K, L})) 
+            * cc(Yu({L, K})) 
             * cc(s_Qi({K, A, i}))
             * s_Qi({J, A, i})
             * cc(s_Ui({I, B}))
@@ -773,7 +773,7 @@ void MSSM_Model::initQuarticSQuarks()
     // ~Q~Q~D~D interaction
     addLagrangianTerm(
             -Yd({I, J}) 
-            * cc(Yd({K, L})) 
+            * cc(Yd({L, K})) 
             * cc(s_Qi({K, A, i}))
             * s_Qi({J, A, i})
             * cc(s_Di({I, B}))
@@ -786,7 +786,7 @@ void MSSM_Model::initQuarticSLeptonHiggs()
     // ~L~LH_dH_d interaction
     addLagrangianTerm(
             -Ye({I, J}) 
-            * cc(Ye({K, I})) 
+            * cc(Ye({I, K})) 
             * cc(s_Li({K, k})) 
             * s_Li({J, i})
             * eps({i, j}) * Hd(j)
@@ -795,7 +795,7 @@ void MSSM_Model::initQuarticSLeptonHiggs()
     // ~E~EH_dH_d interaction
     addLagrangianTerm(
             -Ye({I, J}) 
-            * cc(Ye({J, L})) 
+            * cc(Ye({L, J})) 
             * cc(s_Ei({I}))
             * s_Ei({L})
             * Hd(i) * cc(Hd(i))
@@ -807,7 +807,7 @@ void MSSM_Model::initQuarticSQuarkHiggs()
     // ~Q~QH_uH_u interaction
     addLagrangianTerm(
             -Yu({I, J}) 
-            * cc(Yu({K, I})) 
+            * cc(Yu({I, K})) 
             * cc(s_Qi({K, A, k})) 
             * s_Qi({J, A, i})
             * eps({i, j}) * Hu(j)
@@ -816,7 +816,7 @@ void MSSM_Model::initQuarticSQuarkHiggs()
     // ~Q~QH_dH_d interaction
     addLagrangianTerm(
             -Yd({I, J}) 
-            * cc(Yd({K, I})) 
+            * cc(Yd({I, K})) 
             * cc(s_Qi({K, A, k})) 
             * s_Qi({J, A, i})
             * eps({i, j}) * Hd(j)
@@ -826,7 +826,7 @@ void MSSM_Model::initQuarticSQuarkHiggs()
     // ~U~UH_uH_u interaction
     addLagrangianTerm(
             -Yu({I, J}) 
-            * cc(Yu({J, L})) 
+            * cc(Yu({L, J})) 
             * cc(s_Ui({I, A}))
             * s_Ui({L, A})
             * Hu(i) * cc(Hu(i))
@@ -834,7 +834,7 @@ void MSSM_Model::initQuarticSQuarkHiggs()
     // ~D~DH_dH_d interaction
     addLagrangianTerm(
             -Yd({I, J}) 
-            * cc(Yd({J, L})) 
+            * cc(Yd({L, J})) 
             * cc(s_Di({I, A}))
             * s_Di({L, A})
             * Hd(i) * cc(Hd(i))
@@ -843,7 +843,7 @@ void MSSM_Model::initQuarticSQuarkHiggs()
     // ~U~DH_uH_d interaction
     addLagrangianTerm(
             Yu({I, J}) 
-            * cc(Yd({J, L})) 
+            * cc(Yd({L, J})) 
             * cc(s_Ui({I, A})) 
             * s_Di({L, A})
             * Hu(i) * cc(Hd(i)),
@@ -856,7 +856,7 @@ void MSSM_Model::initQuarticSQuarkSLeptons()
     // ~D~Q~L~E interaction
     addLagrangianTerm(
             Yd({I, J}) 
-            * cc(Ye({K, L})) 
+            * cc(Ye({L, K})) 
             * cc(s_Di({I, A})) 
             * s_Qi({J, A, i})
             * cc(s_Li({K, i}))
@@ -1227,6 +1227,7 @@ void MSSM_Model::diagonalizeYukawas()
     mty::Particle sD_R = GetParticle(*this, "~D_R");
     csl::Index a1  = DiracIndex();
     csl::Index A   = generateIndex("C", D_L);
+
     replace(
             D_L({f_j, A, a1}),
             V_CKM({f_j, f_k}) * D_L({f_k, A, a1})

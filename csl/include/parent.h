@@ -130,6 +130,8 @@ class AbstractParent: public std::enable_shared_from_this<AbstractParent>{
 
     std::string const &getLatexName() const;
 
+    virtual std::string const &getBaseName() const;
+
     /*! \return commutable
      */
     bool getCommutable() const;

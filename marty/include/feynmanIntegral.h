@@ -63,7 +63,7 @@ void printLooptoolsId_D(int id,
 void printLooptoolsId_E(int id, 
                         std::ostream& out);
 
-static constexpr int loopToolsStep = 3;
+inline constexpr int loopToolsStep = 3;
 
 int loopToolsBegin(IntegralType type,
                    size_t       nIndices);
@@ -108,6 +108,7 @@ class FeynmanIntegral: public csl::AbstractMultiFunc {
     public:
 
     inline static bool evaluateIntegrals = false;
+    inline static const csl::Expr eps = csl::constant_s("I_eps");
 
     static csl::Expr replaceIntegral(csl::Expr const& expr);
 
@@ -188,6 +189,10 @@ class FeynmanIntegral: public csl::AbstractMultiFunc {
 
     int getLoopToolsID() const {
         return loopToolsId;
+    }
+
+    IntegralType getIntegralType() const {
+        return type;
     }
 
     std::vector<size_t> const &getIntegralIndices() const {

@@ -43,9 +43,6 @@ class Abs: public AbstractFunc{
 
 #ifdef DEBUG
     ~Abs(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~Abs(){};
 #endif
 
     /*! \brief Gives the **type** of the abs funtion function.
@@ -126,9 +123,6 @@ class Exp: public AbstractFunc{
 
 #ifdef DEBUG
     ~Exp(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~Exp(){};
 #endif
 
     /*! \brief Gives the **type** of the exponential function.
@@ -221,9 +215,6 @@ class Log: public AbstractFunc{
 
 #ifdef DEBUG
     ~Log(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~Log(){};
 #endif
 
     /*! \brief Gives the **type** of the logarithm function.
@@ -308,9 +299,6 @@ class Cos: public AbstractFunc{
 
 #ifdef DEBUG
     ~Cos(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~Cos(){};
 #endif
 
     /*! \brief Gives the **type** of the cos function.
@@ -397,9 +385,6 @@ class Sin: public AbstractFunc{
 
 #ifdef DEBUG
     ~Sin(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~Sin(){};
 #endif
 
     /*! \brief Gives the **type** of the sin function.
@@ -486,9 +471,6 @@ class Tan: public AbstractFunc{
 
 #ifdef DEBUG
     ~Tan(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~Tan(){};
 #endif
 
     /*! \brief Gives the **type** of the tan function.
@@ -575,9 +557,6 @@ class ACos: public AbstractFunc{
 
 #ifdef DEBUG
     ~ACos(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~ACos(){};
 #endif
 
     /*! \brief Gives the **type** of the acos function.
@@ -662,9 +641,6 @@ class ASin: public AbstractFunc{
 
 #ifdef DEBUG
     ~ASin(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~ASin(){};
 #endif
 
     /*! \brief Gives the **type** of the asin function.
@@ -750,9 +726,6 @@ class ATan: public AbstractFunc{
 
 #ifdef DEBUG
     ~ATan(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~ATan(){};
 #endif
 
     /*! \brief Gives the **type** of the atan function.
@@ -832,9 +805,6 @@ class Angle: public AbstractDuoFunc{
 
 #ifdef DEBUG
     ~Angle(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~Angle(){};
 #endif
 
     /*! \brief Gives the **type** of an Angle object.
@@ -909,9 +879,6 @@ class Cosh: public AbstractFunc{
 
 #ifdef DEBUG
     ~Cosh(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~Cosh(){};
 #endif
 
     /*! \brief Gives the **type** of the cosh function.
@@ -998,9 +965,6 @@ class Sinh: public AbstractFunc{
 
 #ifdef DEBUG
     ~Sinh(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~Sinh(){};
 #endif
 
     /*! \brief Gives the **type** of the sinh function.
@@ -1087,9 +1051,6 @@ class Tanh: public AbstractFunc{
 
 #ifdef DEBUG
     ~Tanh(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~Tanh(){};
 #endif
 
     /*! \brief Gives the **type** of the tanh function.
@@ -1176,9 +1137,6 @@ class ACosh: public AbstractFunc{
 
 #ifdef DEBUG
     ~ACosh(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~ACosh(){};
 #endif
 
     /*! \brief Gives the **type** of the acosh function.
@@ -1255,9 +1213,6 @@ class ASinh: public AbstractFunc{
 
 #ifdef DEBUG
     ~ASinh(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~ASinh(){};
 #endif
 
     /*! \brief Gives the **type** of the asinh function.
@@ -1334,9 +1289,6 @@ class ATanh: public AbstractFunc{
 
 #ifdef DEBUG
     ~ATanh(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~ATanh(){};
 #endif
 
     /*! \brief Gives the **type** of the atanh function.
@@ -1414,9 +1366,6 @@ class Factorial: public AbstractFunc{
 
 #ifdef DEBUG
     ~Factorial(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~Factorial(){};
 #endif
 
     /*! \brief Gives the **type** of the factorial function.
@@ -1487,9 +1436,6 @@ class DiracDelta: public AbstractFunc {
 
 #ifdef DEBUG
     ~DiracDelta(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~DiracDelta(){};
 #endif
 
     /*! \brief Gives the **type** of the atanh function.

@@ -366,7 +366,16 @@ void InteractionTerm::setPoint(csl::Tensor const& point)
 bool InteractionTerm::contains(const QuantumFieldParent* f) const
 {
     for (const auto& field : content)
-        if (field.getParent().get() == f)
+        if (f->contains(field.getQuantumParent()))
+            return true;
+
+    return false;
+}
+
+bool InteractionTerm::containsExactly(const QuantumFieldParent* f) const
+{
+    for (const auto& field : content)
+        if (field.getParent_info() == f)
             return true;
 
     return false;
@@ -795,10 +804,11 @@ bool hardComparison(
         if (el->isIndexed())
             tensorsInB.push_back(el);
     });
-
     if (tensorsInA.size() != tensorsInB.size()) {
         return false;
     }
+    std::sort(tensorsInA.begin(), tensorsInA.end());
+    std::sort(tensorsInB.begin(), tensorsInB.end());
     std::vector<std::pair<csl::Index, csl::Index>> mapping;
     for (size_t i = tensorsInA.size(); i --> 0 ;)
         if (tensorsInA[i]->getParent_info() 
@@ -857,10 +867,7 @@ bool hardComparison(
         ++index;
     }
     csl::DeepRefresh(B_replaced);
-    bool res = (csl::ContractionChain(A) 
-            == csl::ContractionChain(B_replaced));
-    res = res && (csl::ContractionChain(B_replaced)
-        == csl::ContractionChain(A));
+    const auto res = A->compareWithDummy(B_replaced.get());
     return res;
 }
 

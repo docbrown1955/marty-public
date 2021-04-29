@@ -24,6 +24,7 @@
 #include "mathFunctions.h"
 #include "vector.h"
 #include "simplification.h"
+#include "replace.h"
 #include "librarygenerator.h"
 #include "librarydependency.h"
 #include "commutation.h"
@@ -528,13 +529,18 @@ optional<Expr> Sum::derive(Expr_info expr) const
 
 Expr Sum::getNumericalFactor() const
 {
-    size_t i = 0;
-    while (i != argument.size()) {
+    const auto isValidFactor = [](csl::Expr const &num) {
+        constexpr auto lim = 10.;
+        return (csl::IsInteger(num) && std::fabs(num->evaluateScalar()) < lim)
+            || (csl::IsIntFraction(num) && std::fabs(num->evaluateScalar()) < lim);
+    };
+    const size_t sz = argument.size();
+    for (size_t i = 0; i != sz; ++i) {
         const auto &arg = argument[i];
         if (arg != CSL_0) {
-            return (csl::IsNumerical(arg)) ?  arg : arg->getNumericalFactor();
+            auto factor = (isValidFactor(arg)) ?  arg : arg->getNumericalFactor();
+            return isValidFactor(factor) ? factor : CSL_1;
         }
-        ++i;
     }
     return CSL_0;
 }
@@ -1319,7 +1325,7 @@ optional<Expr> Prod::getHermitianConjugate(
     Prod res;
     res.argument = argument;
     for (size_t i = 0; i != argument.size(); ++i)
-        res.setArgument(chooseOptional(newArg[i], argument[i]),
+        res.setArgument(newArg[i].value_or(argument[i]),
                          argument.size()-1-i);
 
     return res.refresh();
@@ -2727,7 +2733,7 @@ bool Pow::mergeTerms()
     }
     else if (argument[0]->isInteger()
             and argument[1]->isInteger()
-            and abs(argument[1]->evaluateScalar()) < 4) {
+            and abs(argument[1]->evaluateScalar()) < 10) {
         int res = pow(argument[0]->evaluateScalar(),
                       abs(argument[1]->evaluateScalar()));
         argument[0] = (argument[1]->evaluateScalar() < 0) ?
@@ -2781,14 +2787,44 @@ bool Pow::mergeTerms()
             }
         }
     }
-    else if (argument[0]->getType() == csl::Type::Prod) {
+    else if (argument[0]->getType() == csl::Type::Prod
+        && csl::IsInteger(argument[1])) {
         // (a*b*...)^c = a^c*b^c*....
-        csl::vector_expr newArgument(0);
-        for (int i=0; i<argument[0]->getNArgs(); i++)
-            newArgument.push_back(pow_s(argument[0]->getArgument(i),
-                                       argument[1]));
+        csl::vector_expr newArgument;
+        newArgument.reserve(argument[0]->size());
+        for (const auto &arg : argument[0])
+            newArgument.push_back(pow_s(arg, argument[1]));
         argument[1] = CSL_1;
         argument[0] = prod_s(newArgument);
+    }
+    else if (argument[0]->getType() == csl::Type::Prod) {
+        // (a*b*...)^c = a^c*b^c*....
+        const auto &arg = argument[0];
+        const auto &exponent = argument[1];
+        std::vector<csl::Expr> out;
+        std::vector<csl::Expr> in;
+        out.reserve(arg->size());
+        in.reserve(arg->size());
+        for (const auto &prodArg : arg) {
+            if (csl::IsNumerical(prodArg) && prodArg->isReal()
+                    && prodArg->evaluateScalar() > 0) {
+                out.push_back(csl::pow_s(prodArg, exponent));
+            }
+            else if (csl::IsPow(prodArg)) {
+                csl::Expr totalExponent = exponent * prodArg[1];
+                if (csl::IsInteger(totalExponent))
+                    out.push_back(csl::pow_s(prodArg, exponent));
+                else
+                    in.push_back(prodArg);
+            }
+            else 
+                in.push_back(prodArg);
+        }
+        if (out.size() > 0) {
+            out.push_back(csl::pow_s(csl::prod_s(in), exponent));
+            argument[0] = csl::prod_s(out);
+            argument[1] = CSL_1;
+        }
     }
     else if (argument[1] == CSL_1/2 or argument[1] == -CSL_1/2) {
         if (argument[0]->isInteger()) {
@@ -2819,8 +2855,8 @@ optional<Expr> Pow::expand(bool full,
         optional<Expr> opt2 = argument[1]->expand(true, inplace);
         if (not full and not opt1 and not opt2)
             return nullopt;
-        Expr foo1 = chooseOptional(opt1, argument[0]);
-        Expr foo2 = chooseOptional(opt2, argument[1]);
+        Expr foo1 = opt1.value_or(argument[0]);
+        Expr foo2 = opt2.value_or(argument[1]);
         if (foo2->isInteger() 
                 and foo2->evaluateScalar() > 0 
                 and foo1->getType() == csl::Type::Sum) {
@@ -2850,8 +2886,8 @@ optional<Expr> Pow::expand_if(std::function<bool(Expr const&)> const& f,
         optional<Expr> opt2 = argument[1]->expand_if(f, true, inplace);
         if (not full and not opt1 and not opt2)
             return nullopt;
-        Expr foo1 = chooseOptional(opt1, argument[0]);
-        Expr foo2 = chooseOptional(opt2, argument[1]);
+        Expr foo1 = opt1.value_or(argument[0]);
+        Expr foo2 = opt2.value_or(argument[1]);
         if (foo2->isInteger() 
                 and foo2->evaluateScalar() > 0 
                 and foo1->getType() == csl::Type::Sum

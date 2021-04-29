@@ -258,15 +258,11 @@ IndexStructure Abstract::getFreeIndexStructure() const
 
 Parent Abstract::getParent() const
 {
-    print();
-    CALL_SMERROR(CSLError::AbstractCallError);
     return nullptr;
 }
 
 Parent_info Abstract::getParent_info() const
 {
-    print();
-    CALL_SMERROR(CSLError::AbstractCallError);
     return nullptr;
 }
 

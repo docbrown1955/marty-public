@@ -21,4 +21,4 @@ install:
 	cp $(LOOPTOOLSDIR)/build-quad/libooptools*  $(INSTALLDIR)/lib
 
 clean:
-	rm -rf $(LOOPTOOLSDIR)/build*
+	-rm -rf $(LOOPTOOLSDIR)/build*

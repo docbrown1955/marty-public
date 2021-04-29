@@ -29,7 +29,7 @@
 
 namespace mty {
 
-struct Amplitude;
+class Amplitude;
 
 /**
  * @brief Helper struct to store mass block data when diagonalizing.
@@ -378,8 +378,8 @@ public:
     void applyDiagonalizationData(std::vector<csl::Expr> &expr) const;
     void applyDiagonalizationData(csl::LibraryGenerator &lib) const;
     void applyDiagonalizationData(
-            csl::LibraryGenerator         &lib,
-            mty::Amplitude const &amplitudes
+            csl::LibraryGenerator &lib,
+            mty::Amplitude const  &amplitudes
             ) const;
     void applyDiagonalizationData(
             csl::LibraryGenerator                                     &lib,

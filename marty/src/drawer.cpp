@@ -220,11 +220,8 @@ void Drawer::launchViewer(
 {
     if constexpr (enableApp) {
         drawer::LatexLinker::saveMultiple("graphs.json", links);
-        int res = system("grafed graphs.json &>/dev/null");
+        [[maybe_unused]] int res = system("grafed graphs.json &>/dev/null");
         res = system("sleep 0.5");
-        if (res != 0) {
-            std::cerr << "GRAFED launching failed ...\n";
-        }
     }
 }
 

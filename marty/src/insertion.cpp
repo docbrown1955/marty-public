@@ -21,7 +21,8 @@ namespace mty {
 
 Insertion::Insertion(QuantumFieldParent *t_field)
     :field(t_field),
-    expression(std::nullopt),
+    validExpression(false),
+    expression(CSL_UNDEF),
     incoming(true),
     particle(true),
     onShell(true)
@@ -43,10 +44,12 @@ Insertion::Insertion(csl::Expr const& t_field)
             + " a quantum field.");
     QuantumField *field_ptr = ConvertToPtr<QuantumField>(t_field);
     field = field_ptr->getQuantumParent();
-    expression = t_field;
-    incoming = field_ptr->isIncoming();
-    particle = field_ptr->isParticle();
-    onShell = field_ptr->isOnShell();
+    expression  = t_field;
+    incoming    = field_ptr->isIncoming();
+    particle    = field_ptr->isParticle();
+    onShell     = field_ptr->isOnShell();
+    partnerShip = field_ptr->getPartnerShip();
+    validExpression = true;
 }
 
 Insertion::Insertion(std::string_view name)
@@ -61,7 +64,7 @@ Insertion::Insertion(const char name[])
 
 }
 
-QuantumFieldParent const *Insertion::getField() const {
+QuantumFieldParent *Insertion::getField() const {
     return field;
 }
 
@@ -69,47 +72,44 @@ void Insertion::setField(QuantumFieldParent *t_field) {
     field = t_field;
 }
 
-bool Insertion::isIncoming() const
-{
-    return incoming;
-}
-
 void Insertion::setIncoming(bool t_incoming)
 {
+    validExpression = false;
     incoming = t_incoming;
-}
-
-bool Insertion::isParticle() const
-{
-    return particle;
 }
 
 void Insertion::setParticle(bool t_particle)
 {
+    validExpression = false;
     particle = t_particle;
-}
-
-bool Insertion::isOnShell() const
-{
-    return onShell;
 }
 
 void Insertion::setOnShell(bool t_onShell)
 {
+    validExpression = false;
     onShell = t_onShell;
+}
+
+void Insertion::setPartnerShip(PartnerShip const &t_partnerShip)
+{
+    validExpression = false;
+    partnerShip = t_partnerShip;
 }
 
 csl::Expr Insertion::getExpression() const
 {
-    if (expression)
-        return expression.value();
-    csl::Expr insertion = field->getInstance();
+    if (validExpression)
+        return expression;
+    csl::Expr insertion = (expression == CSL_UNDEF) ? 
+        field->getInstance() : expression;
     QuantumField *insert_ptr = ConvertToPtr<QuantumField>(insertion);
     insert_ptr->setExternal(true);
     insert_ptr->setIncoming(incoming);
     insert_ptr->setParticle(particle);
     insert_ptr->setOnShell(onShell);
+    insert_ptr->setPartnerShip(partnerShip);
     expression = insertion;
+    validExpression = true;
 
     return insertion;
 }

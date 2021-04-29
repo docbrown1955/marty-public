@@ -33,21 +33,25 @@ class TensorField;
 class TDerivative;
 
 template<class T>
+[[nodiscard]]
 inline csl::Type GetType(T const &expr)
 {
     return expr->getType();
 }
 template<class T>
+[[nodiscard]]
 inline csl::Type GetPrimaryType(T const &expr)
 {
     return expr->getPrimaryType();
 }
 
+[[nodiscard]]
 inline size_t Size(Expr const &expr)
 {
     return expr->size();
 }
 
+[[nodiscard]]
 inline Expr GetArgument(
         Expr const &expr,
         size_t      pos = 0
@@ -56,31 +60,37 @@ inline Expr GetArgument(
     return expr->getArgument(int(pos));
 }
 
+[[nodiscard]]
 inline bool GetCommutable(csl::Expr const &expr)
 {
     return !csl::option::checkCommutations || expr->getCommutable();
 }
 
+[[nodiscard]]
 inline bool GetCommutable(csl::Expr_info expr)
 {
     return !csl::option::checkCommutations || expr->getCommutable();
 }
 
+[[nodiscard]]
 inline bool GetCommutable(csl::Abstract const &expr)
 {
     return !csl::option::checkCommutations || expr.getCommutable();
 }
 
+[[nodiscard]]
 Expr GetSymbol(
         std::string_view name,
         Expr      const &init
         );
 
+[[nodiscard]]
 Parent GetParent(
         std::string_view name,
         Expr      const &init
         );
 
+[[nodiscard]]
 inline bool DependsOn(
         Expr const &init,
         Expr const &x)
@@ -88,6 +98,7 @@ inline bool DependsOn(
     return init->dependsOn(x.get());
 }
 
+[[nodiscard]]
 inline bool DependsExplicitlyOn(
         Expr const &init,
         Expr const &x)
@@ -95,6 +106,7 @@ inline bool DependsExplicitlyOn(
     return init->dependsExplicitlyOn(x.get());
 }
 
+[[nodiscard]]
 inline bool DependsOn(
         Expr const &init,
         csl::Parent const &x)
@@ -102,6 +114,7 @@ inline bool DependsOn(
     return init->dependsOn(x.get());
 }
 
+[[nodiscard]]
 inline bool DependsExplicitlyOn(
         Expr const &init,
         csl::Parent const &x)
@@ -113,6 +126,7 @@ void Expand(Expr& expression,
             bool  full = false,
             bool inplace = false);
 
+[[nodiscard]]
 Expr Expanded(const Expr& expression,
               bool        full = false,
               bool        inplace = false);
@@ -122,6 +136,7 @@ void ExpandIf(Expr& expression,
               bool  full = false,
               bool  inplace = false);
 
+[[nodiscard]]
 Expr ExpandedIf(const Expr& expression,
                 std::function<bool(Expr const&)> const& f,
                 bool        full = false,
@@ -135,6 +150,7 @@ inline void DeepExpand(
     Expand(expression, true, inplace);
 }
 
+[[nodiscard]]
 inline Expr DeepExpanded(
         Expr const &expression,
         bool inplace = false
@@ -152,6 +168,7 @@ inline void DeepExpandIf(
     ExpandIf(expression, f, true, inplace);
 }
 
+[[nodiscard]]
 inline Expr DeepExpandedIf(
         Expr const &expression,
         std::function<bool(Expr const&)> const& f,
@@ -169,6 +186,7 @@ void DeepExpandIf_lock(
         bool refactor = false
         );
 
+[[nodiscard]]
 Expr DeepExpandedIf_lock(
         Expr const &expression,
         std::function<bool(Expr const&)> const &f,
@@ -192,13 +210,16 @@ inline void Factor(
     Factor(expression, factor.get(), full);
 }
 
+[[nodiscard]]
 Expr Factored(const Expr& expression,
               bool        full = false);
 
+[[nodiscard]]
 Expr Factored(const Expr& expression,
               Expr_info   factor,
               bool        full = false);
 
+[[nodiscard]]
 inline Expr Factored(
         const Expr& expression,
         const Expr& factor,
@@ -230,6 +251,7 @@ inline void DeepFactor(
     Factor(expression, factor, true);
 }
 
+[[nodiscard]]
 inline Expr DeepFactored(
         const Expr& expression
         )
@@ -237,6 +259,7 @@ inline Expr DeepFactored(
     return Factored(expression, true);
 }
 
+[[nodiscard]]
 inline Expr DeepFactored(
         const Expr& expression,
         Expr_info   factor
@@ -245,6 +268,7 @@ inline Expr DeepFactored(
     return Factored(expression, factor, true);
 }
 
+[[nodiscard]]
 inline Expr DeepFactored(
         const Expr& expression,
         const Expr& factor
@@ -261,15 +285,18 @@ void DeepCollect(
         Expr &expr,
         std::vector<Expr> const &factors
         );
+[[nodiscard]]
 Expr Collected(
         Expr const &expr,
         std::vector<Expr> const &factors
         );
+[[nodiscard]]
 Expr DeepCollected(
         Expr const &expr,
         std::vector<Expr> const &factors
         );
 
+[[nodiscard]]
 Expr Distributed(Expr const& expression,
                  Expr_info   factor,
                  bool        full = false);
@@ -278,6 +305,7 @@ void Distribute(Expr&     expression,
                 Expr_info factor,
                 bool      full = false);
 
+[[nodiscard]]
 inline Expr Distributed(
         Expr const& expression,
         Expr const& factor,
@@ -294,6 +322,7 @@ inline void Distribute(
     Distribute(expression, factor.get(), full);
 }
 
+[[nodiscard]]
 inline Expr DeepDistributed(
         Expr const& expression,
         Expr_info   factor
@@ -310,6 +339,7 @@ inline void DeepDistribute(
     Distribute(expression, factor, true);
 }
 
+[[nodiscard]]
 inline Expr DeepDistributed(
         Expr const& expression,
         Expr const& factor)
@@ -325,6 +355,7 @@ inline void DeepDistribute(
     Distribute(expression, factor, true);
 }
 
+[[nodiscard]]
 Expr Distributed(Expr const& expression,
                  Parent_info   factor,
                  bool        full = false);
@@ -333,6 +364,7 @@ void Distribute(Expr&     expression,
                 Parent_info factor,
                 bool      full = false);
 
+[[nodiscard]]
 inline Expr Distributed(
         Expr const& expression,
         Parent const& factor,
@@ -349,6 +381,7 @@ inline void Distribute(
     Distribute(expression, factor.get(), full);
 }
 
+[[nodiscard]]
 inline Expr DeepDistributed(
         Expr const& expression,
         Parent_info   factor
@@ -365,6 +398,7 @@ inline void DeepDistribute(
     Distribute(expression, factor, true);
 }
 
+[[nodiscard]]
 inline Expr DeepDistributed(
         Expr const& expression,
         Parent const& factor)
@@ -380,6 +414,7 @@ inline void DeepDistribute(
     Distribute(expression, factor, true);
 }
 
+[[nodiscard]]
 Expr DistributedIf(
         Expr const& expression,
         std::function<bool(Expr const&)> f,
@@ -392,6 +427,7 @@ void DistributeIf(
         bool full = false
         );
 
+[[nodiscard]]
 inline Expr DeepDistributedIf(
         Expr const& expression,
         std::function<bool(Expr const&)> f
@@ -408,11 +444,14 @@ inline void DeepDistributeIf(
     return DistributeIf(expression, f, true);
 }
 
+[[nodiscard]]
 Expr GetTerm(const Expr& expression);
 
+[[nodiscard]]
 Expr Derived(const Expr& expression,
              Expr_info   variable);
 
+[[nodiscard]]
 inline Expr Derived(
         const Expr& expression,
         const Expr& variable)
@@ -434,10 +473,12 @@ inline void Derive(
     expression = Derived(expression, variable);
 }
 
+[[nodiscard]]
 Expr GetPolynomialTerm(const Expr& expression,
                        Expr_info   variable,
                        int order);
 
+[[nodiscard]]
 inline Expr GetPolynomialTerm(
         const Expr& expression,
         const Expr& variable,
@@ -446,8 +487,10 @@ inline Expr GetPolynomialTerm(
     return GetPolynomialTerm(expression, variable.get(), order);
 }
 
+[[nodiscard]]
 Expr Evaluated(const Expr& expression);
 
+[[nodiscard]]
 Expr Evaluated(const Expr& expression, 
                csl::eval::mode user_mode);
 
@@ -463,6 +506,7 @@ inline void Evaluate(
     expr = Evaluated(expr, user_mode);
 }
 
+[[nodiscard]]
 ComplexProperty GetComplexProperty(Expr const &expr);
 
 void SetComplexProperty(
@@ -487,56 +531,53 @@ inline void SetComplexProperty(
     SetComplexProperty(p, prop);
 }
 
+[[nodiscard]]
 Expr GetRealPart(const Expr& expression);
 
+[[nodiscard]]
 Expr GetImaginaryPart(const Expr& expression);
 
+[[nodiscard]]
 Expr GetComplexModulus(const Expr& expression);
 
+[[nodiscard]]
 Expr GetComplexArgument(const Expr& expression);
 
+[[nodiscard]]
 Expr GetComplexConjugate(const Expr& expression);
 
 
+[[nodiscard]]
 Expr GetTransposed(const Expr&  expression,
                    const Space* space,
                    bool         applyProp = true);
 
+[[nodiscard]]
 Expr GetTransposed(const Expr&                      expression,
                    const std::vector<const Space*>& spaces,
                    bool                             applyProp = true);
 
+[[nodiscard]]
 Expr GetHermitianConjugate(const Expr&  expression,
                            const Space* space);
 
+[[nodiscard]]
 Expr GetHermitianConjugate(const Expr&                      expression,
                            const std::vector<const Space*>& spaces);
 
-Expr Replaced(const Expr&  expression,
-             const Index& oldIndex,
-             const Index& newIndex,
-             bool         refresh = true);
-
-inline void Replace(
-        Expr &expr,
-        Index const &oldIndex,
-        Index const &newIndex,
-        bool         refresh = true
-        )
-{
-    expr = Replaced(expr, oldIndex, newIndex, refresh);
-}
-
+[[nodiscard]]
 Expr Swapped(const Expr&  expression,
           const Index& index1,
           const Index& index2,
           bool         refresh = true);
 
+[[nodiscard]]
 Expr Swapped(const Expr&  expression,
           const Expr& index1,
           const Expr& index2,
           bool         refresh = true);
 
+[[nodiscard]]
 Expr Swapped(const Expr&  expression,
           const Parent& index1,
           const Parent& index2,
@@ -557,46 +598,35 @@ inline void Swap(
 //         const Index& oldIndex,
 //         const Index& newIndex);
 // 
+[[nodiscard]]
 Expr ContractIndex(const Expr&  expression,
                    const Index& index);
-Expr ReplaceIndex(const Expr&  expression,
-                  const Index& old,
-                  const Index& newindex);
-Expr ReplaceIndices(
-        const Expr&  expression,
-        std::vector<Index> const& oldIndices,
-        std::vector<Index> const& newIndices,
-        bool                      refresh = true,
-        bool                      flipped = false);
 
-Expr ReplaceIndicesCarefully(
-        const Expr&  expression,
-        std::vector<csl::Index> const& oldIndices,
-        std::vector<csl::Index> const& newIndices,
-        bool                           refresh = true,
-        bool                           flipped = false);
-
-Expr ReplaceIndices(
-        const Expr&  expression,
-        csl::IndexStructure const& oldIndices,
-        csl::IndexStructure const& newIndices,
-        bool                      refresh = true,
-        bool                      flipped = false);
-
+[[nodiscard]]
 csl::Index GenerateIndex(const csl::Space*  space,
                          const std::string& name = "");
 
+[[nodiscard]]
 csl::Tensor GetDelta(const csl::Space* space);
+[[nodiscard]]
 csl::Tensor GetMetric(const csl::Space* space);
+[[nodiscard]]
 csl::Tensor GetEpsilon(const csl::Space* space);
 
+[[nodiscard]]
 csl::Tensor GetDelta(const csl::Space& space);
+[[nodiscard]]
 csl::Tensor GetMetric(const csl::Space& space);
+[[nodiscard]]
 csl::Tensor GetEpsilon(const csl::Space& space);
 
+[[nodiscard]]
 Parent GetParent(Expr const &tensor);
+[[nodiscard]]
 Tensor GetTensorParent(Expr const &tensor);
+[[nodiscard]]
 TensorField GetTensorFieldParent(Expr const &tensor);
+[[nodiscard]]
 TDerivative GetTDerivativeParent(Expr const &tensor);
 
 void AddSelfContraction(
@@ -632,350 +662,465 @@ void AddHermitianProperty(
         Expr const &B
         );
 
+[[nodiscard]]
 LibDependency GetLibraryDependencies(Expr const& expression);
 
+[[nodiscard]]
 inline bool IsIndexed(Expr const &expr) {
     return expr->isIndexed();
 }
+[[nodiscard]]
 inline bool IsNumerical(Expr const &expr) {
     return expr->getPrimaryType() == csl::PrimaryType::Numerical;
 }
+[[nodiscard]]
 inline bool IsLiteral(Expr const &expr) {
     return expr->getPrimaryType() == csl::PrimaryType::Literal;
 }
+[[nodiscard]]
 inline bool IsScalarFunction(Expr const &expr) {
     return expr->getPrimaryType() == csl::PrimaryType::ScalarFunction;
 }
+[[nodiscard]]
 inline bool IsMultiFunction(Expr const &expr) {
     return expr->getPrimaryType() == csl::PrimaryType::MultiFunction;
 }
+[[nodiscard]]
 inline bool IsVectorial(Expr const &expr) {
     return expr->getPrimaryType() == csl::PrimaryType::Vectorial;
 }
+[[nodiscard]]
 inline bool IsIndicial(Expr const &expr) {
     return expr->getPrimaryType() == csl::PrimaryType::Indicial;
 }
+[[nodiscard]]
 inline bool IsField(Expr const &expr) {
     return expr->getPrimaryType() == csl::PrimaryType::Field;
 }
+[[nodiscard]]
 inline bool IsArbitrary(Expr const &expr) {
     return expr->getPrimaryType() == csl::PrimaryType::Arbitrary;
 }
 
+[[nodiscard]]
 inline bool IsInteger(Expr const &expr) {
     return expr->getType() == csl::Type::Integer;
 }
+[[nodiscard]]
 inline bool IsFloat(Expr const &expr) {
     return expr->getType() == csl::Type::Float;
 }
+[[nodiscard]]
 inline bool IsIntFraction(Expr const &expr) {
     return expr->getType() == csl::Type::IntFraction;
 }
+[[nodiscard]]
 inline bool IsIntFactorial(Expr const &expr) {
     return expr->getType() == csl::Type::IntFactorial;
 }
+[[nodiscard]]
 inline bool IsComplex(Expr const &expr) {
     return expr->getType() == csl::Type::Complex;
 }
+[[nodiscard]]
 inline bool IsNumericalEval(Expr const &expr) {
     return expr->getType() == csl::Type::NumericalEval;
 }
+[[nodiscard]]
 inline bool IsImaginary(Expr const &expr) {
     return expr->getType() == csl::Type::Imaginary;
 }
+[[nodiscard]]
 inline bool IsConstant(Expr const &expr) {
     return expr->getType() == csl::Type::Constant;
 }
+[[nodiscard]]
 inline bool IsVariable(Expr const &expr) {
     return expr->getType() == csl::Type::Variable;
 }
+[[nodiscard]]
 inline bool IsExp(Expr const &expr) {
     return expr->getType() == csl::Type::Exp;
 }
+[[nodiscard]]
 inline bool IsLog(Expr const &expr) {
     return expr->getType() == csl::Type::Log;
 }
+[[nodiscard]]
 inline bool IsDiracDelta(Expr const &expr) {
     return expr->getType() == csl::Type::DiracDelta;
 }
+[[nodiscard]]
 inline bool IsAbs(Expr const &expr) {
     return expr->getType() == csl::Type::Abs;
 }
+[[nodiscard]]
 inline bool IsCos(Expr const &expr) {
     return expr->getType() == csl::Type::Cos;
 }
+[[nodiscard]]
 inline bool IsSin(Expr const &expr) {
     return expr->getType() == csl::Type::Sin;
 }
+[[nodiscard]]
 inline bool IsTan(Expr const &expr) {
     return expr->getType() == csl::Type::Tan;
 }
+[[nodiscard]]
 inline bool IsCosh(Expr const &expr) {
     return expr->getType() == csl::Type::Cosh;
 }
+[[nodiscard]]
 inline bool IsSinh(Expr const &expr) {
     return expr->getType() == csl::Type::Sinh;
 }
+[[nodiscard]]
 inline bool IsTanh(Expr const &expr) {
     return expr->getType() == csl::Type::Tanh;
 }
+[[nodiscard]]
 inline bool IsACos(Expr const &expr) {
     return expr->getType() == csl::Type::ACos;
 }
+[[nodiscard]]
 inline bool IsASin(Expr const &expr) {
     return expr->getType() == csl::Type::ASin;
 }
+[[nodiscard]]
 inline bool IsATan(Expr const &expr) {
     return expr->getType() == csl::Type::ATan;
 }
+[[nodiscard]]
 inline bool IsACosh(Expr const &expr) {
     return expr->getType() == csl::Type::ACosh;
 }
+[[nodiscard]]
 inline bool IsASinh(Expr const &expr) {
     return expr->getType() == csl::Type::ASinh;
 }
+[[nodiscard]]
 inline bool IsATanh(Expr const &expr) {
     return expr->getType() == csl::Type::ATanh;
 }
+[[nodiscard]]
 inline bool IsScalar(Expr const &expr) {
     return expr->getType() == csl::Type::Scalar;
 }
+[[nodiscard]]
 inline bool IsRealPart(Expr const &expr) {
     return expr->getType() == csl::Type::RealPart;
 }
+[[nodiscard]]
 inline bool IsImaginaryPart(Expr const &expr) {
     return expr->getType() == csl::Type::ImaginaryPart;
 }
+[[nodiscard]]
 inline bool IsITensor(Expr const &expr) {
     return expr->getType() == csl::Type::TensorElement;
 }
+[[nodiscard]]
 inline bool IsScalarField(Expr const &expr) {
     return expr->getType() == csl::Type::ScalarField;
 }
+[[nodiscard]]
 inline bool IsTensorField(Expr const &expr) {
     return expr->getType() == csl::Type::TensorFieldElement;
 }
+[[nodiscard]]
 inline bool IsTensorialDerivative(Expr const &expr) {
     return expr->getType() == csl::Type::TDerivativeElement;
 }
+[[nodiscard]]
 inline bool IsStandardDuo(Expr const &expr) {
     return expr->getType() == csl::Type::StandardDuo;
 }
+[[nodiscard]]
 inline bool IsStandardMult(Expr const &expr) {
     return expr->getType() == csl::Type::StandardMult;
 }
+[[nodiscard]]
 inline bool IsPow(Expr const &expr) {
     return expr->getType() == csl::Type::Pow;
 }
+[[nodiscard]]
 inline bool IsProd(Expr const &expr) {
     return expr->getType() == csl::Type::Prod;
 }
+[[nodiscard]]
 inline bool IsSum(Expr const &expr) {
     return expr->getType() == csl::Type::Sum;
 }
+[[nodiscard]]
 inline bool IsPolynomial(Expr const &expr) {
     return expr->getType() == csl::Type::Polynomial;
 }
+[[nodiscard]]
 inline bool IsDerivative(Expr const &expr) {
     return expr->getType() == csl::Type::Derivative;
 }
+[[nodiscard]]
 inline bool IsCommutator(Expr const &expr) {
     return expr->getType() == csl::Type::Commutator;
 }
+[[nodiscard]]
 inline bool IsAngle(Expr const &expr) {
     return expr->getType() == csl::Type::Angle;
 }
+[[nodiscard]]
 inline bool IsFactorial(Expr const &expr) {
     return expr->getType() == csl::Type::Factorial;
 }
+[[nodiscard]]
 inline bool IsIntegral(Expr const &expr) {
     return expr->getType() == csl::Type::Integral;
 }
+[[nodiscard]]
 inline bool IsScalarIntegral(Expr const &expr) {
     return expr->getType() == csl::Type::ScalarIntegral;
 }
+[[nodiscard]]
 inline bool IsVectorIntegral(Expr const &expr) {
     return expr->getType() == csl::Type::VectorIntegral;
 }
+[[nodiscard]]
 inline bool IsVector(Expr const &expr) {
     return expr->getType() == csl::Type::Vector;
 }
+[[nodiscard]]
 inline bool IsMatrix(Expr const &expr) {
     return expr->getType() == csl::Type::Matrix;
 }
+[[nodiscard]]
 inline bool IsHighDTensor(Expr const &expr) {
     return expr->getType() == csl::Type::HighDTensor;
 }
 
+[[nodiscard]]
 inline bool IsIndexed(Expr_info expr) {
     return expr->isIndexed();
 }
+[[nodiscard]]
 inline bool IsNumerical(Expr_info expr) {
     return expr->getPrimaryType() == csl::PrimaryType::Numerical;
 }
+[[nodiscard]]
 inline bool IsLiteral(Expr_info expr) {
     return expr->getPrimaryType() == csl::PrimaryType::Literal;
 }
+[[nodiscard]]
 inline bool IsScalarFunction(Expr_info expr) {
     return expr->getPrimaryType() == csl::PrimaryType::ScalarFunction;
 }
+[[nodiscard]]
 inline bool IsMultiFunction(Expr_info expr) {
     return expr->getPrimaryType() == csl::PrimaryType::MultiFunction;
 }
+[[nodiscard]]
 inline bool IsVectorial(Expr_info expr) {
     return expr->getPrimaryType() == csl::PrimaryType::Vectorial;
 }
+[[nodiscard]]
 inline bool IsIndicial(Expr_info expr) {
     return expr->getPrimaryType() == csl::PrimaryType::Indicial;
 }
+[[nodiscard]]
 inline bool IsField(Expr_info expr) {
     return expr->getPrimaryType() == csl::PrimaryType::Field;
 }
+[[nodiscard]]
 inline bool IsArbitrary(Expr_info expr) {
     return expr->getPrimaryType() == csl::PrimaryType::Arbitrary;
 }
 
+[[nodiscard]]
 inline bool IsInteger(Expr_info expr) {
     return expr->getType() == csl::Type::Integer;
 }
+[[nodiscard]]
 inline bool IsFloat(Expr_info expr) {
     return expr->getType() == csl::Type::Float;
 }
+[[nodiscard]]
 inline bool IsIntFraction(Expr_info expr) {
     return expr->getType() == csl::Type::IntFraction;
 }
+[[nodiscard]]
 inline bool IsIntFactorial(Expr_info expr) {
     return expr->getType() == csl::Type::IntFactorial;
 }
+[[nodiscard]]
 inline bool IsComplex(Expr_info expr) {
     return expr->getType() == csl::Type::Complex;
 }
+[[nodiscard]]
 inline bool IsNumericalEval(Expr_info expr) {
     return expr->getType() == csl::Type::NumericalEval;
 }
+[[nodiscard]]
 inline bool IsImaginary(Expr_info expr) {
     return expr->getType() == csl::Type::Imaginary;
 }
+[[nodiscard]]
 inline bool IsConstant(Expr_info expr) {
     return expr->getType() == csl::Type::Constant;
 }
+[[nodiscard]]
 inline bool IsVariable(Expr_info expr) {
     return expr->getType() == csl::Type::Variable;
 }
+[[nodiscard]]
 inline bool IsExp(Expr_info expr) {
     return expr->getType() == csl::Type::Exp;
 }
+[[nodiscard]]
 inline bool IsLog(Expr_info expr) {
     return expr->getType() == csl::Type::Log;
 }
+[[nodiscard]]
 inline bool IsDiracDelta(Expr_info expr) {
     return expr->getType() == csl::Type::DiracDelta;
 }
+[[nodiscard]]
 inline bool IsAbs(Expr_info expr) {
     return expr->getType() == csl::Type::Abs;
 }
+[[nodiscard]]
 inline bool IsCos(Expr_info expr) {
     return expr->getType() == csl::Type::Cos;
 }
+[[nodiscard]]
 inline bool IsSin(Expr_info expr) {
     return expr->getType() == csl::Type::Sin;
 }
+[[nodiscard]]
 inline bool IsTan(Expr_info expr) {
     return expr->getType() == csl::Type::Tan;
 }
+[[nodiscard]]
 inline bool IsCosh(Expr_info expr) {
     return expr->getType() == csl::Type::Cosh;
 }
+[[nodiscard]]
 inline bool IsSinh(Expr_info expr) {
     return expr->getType() == csl::Type::Sinh;
 }
+[[nodiscard]]
 inline bool IsTanh(Expr_info expr) {
     return expr->getType() == csl::Type::Tanh;
 }
+[[nodiscard]]
 inline bool IsACos(Expr_info expr) {
     return expr->getType() == csl::Type::ACos;
 }
+[[nodiscard]]
 inline bool IsASin(Expr_info expr) {
     return expr->getType() == csl::Type::ASin;
 }
+[[nodiscard]]
 inline bool IsATan(Expr_info expr) {
     return expr->getType() == csl::Type::ATan;
 }
+[[nodiscard]]
 inline bool IsACosh(Expr_info expr) {
     return expr->getType() == csl::Type::ACosh;
 }
+[[nodiscard]]
 inline bool IsASinh(Expr_info expr) {
     return expr->getType() == csl::Type::ASinh;
 }
+[[nodiscard]]
 inline bool IsATanh(Expr_info expr) {
     return expr->getType() == csl::Type::ATanh;
 }
+[[nodiscard]]
 inline bool IsScalar(Expr_info expr) {
     return expr->getType() == csl::Type::Scalar;
 }
+[[nodiscard]]
 inline bool IsRealPart(Expr_info expr) {
     return expr->getType() == csl::Type::RealPart;
 }
+[[nodiscard]]
 inline bool IsImaginaryPart(Expr_info expr) {
     return expr->getType() == csl::Type::ImaginaryPart;
 }
+[[nodiscard]]
 inline bool IsITensor(Expr_info expr) {
     return expr->getType() == csl::Type::TensorElement;
 }
+[[nodiscard]]
 inline bool IsScalarField(Expr_info expr) {
     return expr->getType() == csl::Type::ScalarField;
 }
+[[nodiscard]]
 inline bool IsTensorField(Expr_info expr) {
     return expr->getType() == csl::Type::TensorFieldElement;
 }
+[[nodiscard]]
 inline bool IsTensorialDerivative(Expr_info expr) {
     return expr->getType() == csl::Type::TDerivativeElement;
 }
+[[nodiscard]]
 inline bool IsStandardDuo(Expr_info expr) {
     return expr->getType() == csl::Type::StandardDuo;
 }
+[[nodiscard]]
 inline bool IsStandardMult(Expr_info expr) {
     return expr->getType() == csl::Type::StandardMult;
 }
+[[nodiscard]]
 inline bool IsPow(Expr_info expr) {
     return expr->getType() == csl::Type::Pow;
 }
+[[nodiscard]]
 inline bool IsProd(Expr_info expr) {
     return expr->getType() == csl::Type::Prod;
 }
+[[nodiscard]]
 inline bool IsSum(Expr_info expr) {
     return expr->getType() == csl::Type::Sum;
 }
+[[nodiscard]]
 inline bool IsPolynomial(Expr_info expr) {
     return expr->getType() == csl::Type::Polynomial;
 }
+[[nodiscard]]
 inline bool IsDerivative(Expr_info expr) {
     return expr->getType() == csl::Type::Derivative;
 }
+[[nodiscard]]
 inline bool IsCommutator(Expr_info expr) {
     return expr->getType() == csl::Type::Commutator;
 }
+[[nodiscard]]
 inline bool IsAngle(Expr_info expr) {
     return expr->getType() == csl::Type::Angle;
 }
+[[nodiscard]]
 inline bool IsFactorial(Expr_info expr) {
     return expr->getType() == csl::Type::Factorial;
 }
+[[nodiscard]]
 inline bool IsIntegral(Expr_info expr) {
     return expr->getType() == csl::Type::Integral;
 }
+[[nodiscard]]
 inline bool IsScalarIntegral(Expr_info expr) {
     return expr->getType() == csl::Type::ScalarIntegral;
 }
+[[nodiscard]]
 inline bool IsVectorIntegral(Expr_info expr) {
     return expr->getType() == csl::Type::VectorIntegral;
 }
+[[nodiscard]]
 inline bool IsVector(Expr_info expr) {
     return expr->getType() == csl::Type::Vector;
 }
+[[nodiscard]]
 inline bool IsMatrix(Expr_info expr) {
     return expr->getType() == csl::Type::Matrix;
 }
+[[nodiscard]]
 inline bool IsHighDTensor(Expr_info expr) {
     return expr->getType() == csl::Type::HighDTensor;
 }

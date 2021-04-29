@@ -264,14 +264,7 @@ namespace csl {
     void LibraryGenerator::print() const
     {
         updateDiagonalization();
-        [[maybe_unused]] int res = system(("mkdir -p " + path).c_str());
-        res = system(("mkdir -p " + path + "/" + srcDir).c_str());
-        res = system(("mkdir -p " + path + "/" + incDir).c_str());
-        res = system(("mkdir -p " + path + "/" + binDir).c_str());
-        res = system(("mkdir -p " + path + "/" + objDir).c_str());
-        res = system(("mkdir -p " + path + "/" + scriptDir).c_str());
-        res = system(("mkdir -p " + path + "/" + scriptObjDir).c_str());
-        res = system(("mkdir -p " + path + "/" + libDir).c_str());
+        setupDirectory();
         printSource();
         if (hasGlobalFile())
             printGlobal();
@@ -307,6 +300,18 @@ namespace csl {
         printTest();
         printMakefile();
         printPythonDir();
+    }
+
+    void LibraryGenerator::setupDirectory() const
+    {
+        [[maybe_unused]] int res = system(("mkdir -p " + path).c_str());
+        res = system(("mkdir -p " + path + "/" + srcDir).c_str());
+        res = system(("mkdir -p " + path + "/" + incDir).c_str());
+        res = system(("mkdir -p " + path + "/" + binDir).c_str());
+        res = system(("mkdir -p " + path + "/" + objDir).c_str());
+        res = system(("mkdir -p " + path + "/" + scriptDir).c_str());
+        res = system(("mkdir -p " + path + "/" + scriptObjDir).c_str());
+        res = system(("mkdir -p " + path + "/" + libDir).c_str());
     }
 
     void LibraryGenerator::printGlobal() const

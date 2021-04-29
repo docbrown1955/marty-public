@@ -44,5 +44,5 @@ $(OBJDIR)/%_debug.o: $(SRCDIR)/%.cpp
 	$(CXXDEBUG) $(CFLAGS) $(INCLUDE) -o $@ -c $< 
 
 clean:
-	rm $(OBJDIR)/*.o;
-	rm $(LIBDIR)/*.a $(LIBDIR)/*.so
+	-rm -f $(OBJDIR)/*.o;
+	-rm -f $(LIBDIR)/*.a $(LIBDIR)/*.so

@@ -1,8 +1,8 @@
 INSTALLDIR=/home/uhlrich/.local
 
-CC  = gcc-7
+CC = gcc-7
 CXX = g++-7
-FC  = gfortran-7
+FC = gfortran-7
 
 
 LOOPTOOLSVERSION=2.15
@@ -28,4 +28,4 @@ install:
 	cp $(LOOPTOOLSDIR)/build-quad/libooptools*  $(INSTALLDIR)/lib
 
 clean:
-	rm -rf $(LOOPTOOLSDIR)/build*
+	-rm -rf $(LOOPTOOLSDIR)/build*

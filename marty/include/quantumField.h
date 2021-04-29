@@ -104,6 +104,30 @@ std::ostream &operator<<(
         ParticleType  type
         );
 
+/**
+ * @brief Structure containing data about fermion ordering.
+ *
+ * @details Each external fermion in a process owns such data. self is the 
+ * integer corresponding to the fermion, partner the number representing its
+ * partner and isLeft a boolean telling if the fermion must be on the left of 
+ * the chain or not. Take an example with fermions \f$ \psi _i \f$;
+ * \f[
+ *      \left(\bar{\psi}_2 \psi _3\right)\left(\bar{\psi}_4 \psi _1\right),
+ * \f]
+ * fermions \f$ \psi _i \f$ have respectively PartnerShips \f$ (2, 3, true) \f$,
+ * \f$ (3, 2, false) \f$, \f$ (4, 1, true) \f$ and \f$ (1, 4, false) \f$.
+ */
+struct PartnerShip {
+    int self    { -1    };
+    int partner { -1    };
+    bool isLeft { false };
+
+    bool isHappyWith(PartnerShip const &other) const {
+        // Sufficient condition
+        return self != -1 && self == other.partner;
+    }
+};
+
 /*!
  * \brief Base class for parents of QuantumField objects.
  * \details A number of features are implemented in this class. Management of 
@@ -373,16 +397,15 @@ class QuantumFieldParent: public csl::TensorFieldParent {
                        const QuantumFieldParent* other);
 
     /*!
-     * \brief Destructor.
-     */ 
-    virtual ~QuantumFieldParent();
-
-    /*!
      * \brief Returns the drawing type of the particle.
      * \sa #drawType, setDrawType().
      * \return The drawing type of the particle.
      */
     drawer::ParticleType getDrawType() const;
+
+    virtual bool contains(QuantumFieldParent const *other) const {
+        return this == other;
+    }
 
     virtual bool isSameSpecies(QuantumFieldParent const *other) const {
         return this == other;
@@ -763,6 +786,8 @@ class QuantumFieldParent: public csl::TensorFieldParent {
      * \sa #mass, setMass().
      */
     csl::Expr getMass() const;
+
+    csl::Expr getSquaredMass() const;
 
     /*!
      * \brief Returns the expression of the witdh of the particle.
@@ -1621,6 +1646,26 @@ class QuantumField: public csl::TensorFieldElement {
      */
     csl::IndexStructure derivativeIndices;
 
+    /**
+     * @brief Wanted partner for fermion ordering in amplitude results, together
+     * with the number defining the fermion.
+     *
+     * @details Fermion ordering is determined outside (possibly by the user)
+     * and the information is stored in the quantum field itself to know what
+     * fermions must be paired together during simplifications. If fermions are
+     * not paired accordingly to the defined order (if there is one), Fierz 
+     * identities are applied to correct the amplitude, like in the following 
+     * with external fermions notes as 1,2,3,4 and \f$ \Gamma^A \f$ are chains
+     * of \f$ \gamma\f$-matrices:
+     * \f[
+     *    \left(\Gamma^A\right)_{14}\left(\Gamma^B\right)_{32} = \sum _{C,D}
+     *    C^{AB}_{CD}\left(\Gamma^C\right)_{12}\left(\Gamma^D\right)_{34},
+     * \f]
+     * where \f$ C^{AB}_{CD} \f$ are scalar coefficients determined by the 
+     * generalized Fierz identities.
+     */
+    PartnerShip partnerShip;
+
     public:
 
     /*!
@@ -1689,11 +1734,6 @@ class QuantumField: public csl::TensorFieldElement {
     QuantumField& operator=(QuantumField&&) = default;
 
     /*!
-     * \brief Default destructor.
-     */
-    ~QuantumField() override {};
-
-    /*!
      * \brief Returns a pointer to the QuantumFieldParent of the field.
      * \details As QuantumField inherits from csl::TensorFieldElement, its parent is
      * in the form of a csl::Parent. This function then makes a conversion to 
@@ -1760,6 +1800,10 @@ class QuantumField: public csl::TensorFieldElement {
      * \return The width of the particle.
      */
     csl::Expr getWidth() const;
+
+    PartnerShip getPartnerShip() const {
+        return partnerShip;
+    }
 
     /*!
      * \brief See QuantumFieldParent::isChiral().
@@ -1960,7 +2004,7 @@ class QuantumField: public csl::TensorFieldElement {
 
     csl::Expr contraction(csl::Expr_info other) const override;
 
-    csl::Expr chargeConjugation(csl::Expr_info other) const;
+    virtual csl::Expr matrixChargeConjugation(csl::Expr_info other) const;
 
     /*!
      * \brief Returns the complex conjugate expression of the field.
@@ -1994,7 +2038,7 @@ class QuantumField: public csl::TensorFieldElement {
      * otherwise.
      * \sa #incoming, isIncoming().
      */
-    void setIncoming(bool t_incoming);
+    virtual void setIncoming(bool t_incoming);
 
     /*!
      * \brief Sets the particle property of the particle.
@@ -2002,7 +2046,11 @@ class QuantumField: public csl::TensorFieldElement {
      * otherwise.
      * \sa #particle, isParticle().
      */
-    void setParticle(bool t_particle);
+    virtual void setParticle(bool t_particle);
+
+    void setPartnerShip(PartnerShip const &t_partnerShip) {
+        partnerShip = t_partnerShip;
+    }
 
     /*!
      * \brief Sets the derivative structure of the field.

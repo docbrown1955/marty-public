@@ -49,6 +49,12 @@ std::string const &AbstractParent::getLatexName() const
     return latexName;
 }
 
+std::string const &AbstractParent::getBaseName() const
+{
+    static std::string emptyName = "";
+    return emptyName;
+}
+
 bool AbstractParent::getCommutable() const
 {
     return commutable;

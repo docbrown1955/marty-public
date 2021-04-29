@@ -146,14 +146,6 @@ csl::Expr getLocalCTerm(
         std::vector<csl::Expr> const &masses
         )
 {
-    // std::cout << "HERE" << std::endl;
-    // for (const auto &m : momenta)
-    //     std::cout << m << " ; ";
-    // std::cout << std::endl;
-    // for (const auto &m : masses)
-    //     std::cout << m << " ; ";
-    // std::cout << std::endl;
-    // std::cin.get();
     csl::Expr p1 = momenta[0];
     csl::Expr p2 = momenta[1];
     csl::Expr m0 = masses[0];

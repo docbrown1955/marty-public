@@ -35,7 +35,6 @@ class AbstractNumerical: public AbstractBuildingBlock{
     public:
 
     AbstractNumerical();
-    ~AbstractNumerical(){}
 
     csl::PrimaryType getPrimaryType() const override {
         return csl::PrimaryType::Numerical;
@@ -50,6 +49,19 @@ class AbstractNumerical: public AbstractBuildingBlock{
 
     Expr getNumericalFactor() const override;
     std::optional<Expr> getTerm() const override;
+
+    bool dependsOn(Expr_info) const override {
+        return false;
+    }
+    bool dependsOn(Parent_info) const override {
+        return false;
+    }
+    bool dependsExplicitlyOn(Expr_info) const override {
+        return false;
+    }
+    bool dependsExplicitlyOn(Parent_info) const override {
+        return false;
+    }
 };
 
 inline AbstractNumerical::AbstractNumerical(): AbstractBuildingBlock(){}
@@ -83,9 +95,6 @@ class Integer: public AbstractNumerical{
 
 #ifdef DEBUG
     ~Integer(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~Integer(){};
 #endif
 
     /*! \brief Returns the \b type corresponding to an object Integer.
@@ -177,9 +186,6 @@ class Float: public AbstractNumerical{
 
 #ifdef DEBUG
     ~Float(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~Float(){};
 #endif
 
 
@@ -287,9 +293,6 @@ class IntFraction: public AbstractNumerical{
 
 #ifdef DEBUG
     ~IntFraction(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~IntFraction(){};
 #endif
 
     /*! \brief Gives the \b type of a IntFraction.
@@ -419,9 +422,6 @@ class Complex : public AbstractNumerical {
 
 #ifdef DEBUG
     ~Complex(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~Complex(){};
 #endif
 
     /*! \brief Gives the \b type of a Complex.

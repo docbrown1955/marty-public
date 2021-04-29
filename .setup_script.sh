@@ -242,6 +242,8 @@ grafed_release=grafed/build-grafed-gui-Desktop_Qt_5_12_1_GCC_64bit-Release
 unameOut="$(uname -s)"
 case "${unameOut}" in
     Darwin*)    
+        mkdir -p $grafed_debug
+        mkdir -p $grafed_release
         cd $grafed_debug && qmake -makefile -o Makefile "CONFIG+=debug" ../grafed-gui/grafed-gui.pro; cd $MARTY_LOC
         cd $grafed_release && qmake -makefile -o Makefile ../grafed-gui/grafed-gui.pro; cd $MARTY_LOC
         conf_release=`ls $grafed_release/.qmake*`

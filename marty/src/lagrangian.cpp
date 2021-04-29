@@ -116,17 +116,17 @@ void Lagrangian::mergeTerms()
 void Lagrangian::removeParticle(Particle const &particle)
 {
     for (size_t i = 0; i != kinetic.size(); ++i)
-        if (kinetic[i]->contains(particle.get())) {
+        if (kinetic[i]->containsExactly(particle.get())) {
             kinetic.erase(kinetic.begin() + i);
             --i;
         }
     for (size_t i = 0; i != mass.size(); ++i)
-        if (mass[i]->contains(particle.get())) {
+        if (mass[i]->containsExactly(particle.get())) {
             mass.erase(mass.begin() + i);
             --i;
         }
     for (size_t i = 0; i != interaction.size(); ++i)
-        if (interaction[i]->contains(particle.get())) {
+        if (interaction[i]->containsExactly(particle.get())) {
             interaction.erase(interaction.begin() + i);
             --i;
         }

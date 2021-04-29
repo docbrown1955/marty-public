@@ -35,7 +35,7 @@ class QuantumFieldParent;
  * at least one csl::Index (polarization) and one "space-time point" that is the 
  * impulsion of the particle.
  */
-class PolarizationField: public csl::TensorFieldElement {
+class PolarizationField: public mty::QuantumField {
 
     public:
 
@@ -54,11 +54,7 @@ class PolarizationField: public csl::TensorFieldElement {
 
     PolarizationField(PolarizationField const&) = default;
 
-    ~PolarizationField(){};
-
     bool getCommutable() const override;
-
-    bool isOnShell() const;
 
     std::optional<csl::Expr> getComplexConjugate() const override;
 
@@ -74,18 +70,6 @@ class PolarizationField: public csl::TensorFieldElement {
             ) const override;
 
     void printProp(std::ostream& out = std::cout) const override;
-
-    /*!
-     * \brief Returns a pointer to the QuantumFieldParent of the field.
-     * \details As QuantumField inherits from csl::TensorFieldElement, its parent is
-     * in the form of a csl::Parent. This function then makes a conversion to 
-     * a mty::QuantumFieldParent before returning the pointer.
-     * \return A pointer to the QuantumFieldParent of the field.
-     */
-    inline
-    QuantumFieldParent* getQuantumParent() const {
-        return static_cast<QuantumFieldParent*>(parent.get());
-    }
 
     /*!
      * \brief Returns a mty::Particle, pointer to the parent of the field.
@@ -108,44 +92,21 @@ class PolarizationField: public csl::TensorFieldElement {
         lockConjugation = t_lock;
     }
 
-    csl::Expr getMass() const;
-
-    void setParticle(bool t_particle);
-
-    void setIncoming(bool t_incoming);
-
-    void setOnShell(bool t_onShell);
-
-    bool isSelfConjugate() const;
-
-    bool isParticle() const {
-        return particle;
-    }
-
-    bool isAntiParticle() const {
-        return !isParticle();
-    }
-
-    bool isOutgoing() const {
-        return !isIncoming();
-    }
-
-    bool isIncoming() const {
-        return incoming;
-    }
-
-    bool isIncomingParticle() const;
-
-    bool isOutgoingParticle() const;
-
-    bool isIncomingAntiParticle() const;
-
-    bool isOutgoingAntiParticle() const;
+    void setParticle(bool) override;
+    void setIncoming(bool) override;
 
     friend
     std::ostream& operator<<(std::ostream& fout, const PolarizationField& pol);
 
     private:
+
+    PolarizationField complexConjugatedField(
+            bool keepFermionOrder = false
+            ) const;
+
+    bool hasFieldChargeConjugation(
+            mty::PolarizationField const *other
+            ) const;
 
     bool spaceIndexContraction(csl::Expr_info other) const;
     bool spinIndexContraction(csl::Expr_info other) const;
@@ -154,17 +115,12 @@ class PolarizationField: public csl::TensorFieldElement {
 
     csl::Expr sumPolarization(csl::Expr_info other) const;
 
-    csl::Expr chargeConjugation(csl::Expr_info other) const;
+    csl::Expr matrixChargeConjugation(csl::Expr_info other) const override;
+    csl::Expr fieldChargeConjugation(mty::PolarizationField const *other) const;
 
     void updateComplexConjugation();
 
     private:
-
-    bool particle;
-
-    bool incoming;
-
-    bool onShell;
 
     bool lockConjugation;
 };

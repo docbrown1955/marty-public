@@ -296,22 +296,23 @@ namespace mty {
         mty::Particle F_Z = Z->getFieldStrength();
         mty::Particle F_W = W->getFieldStrength();
         mty::Particle F_A = A->getFieldStrength();
-        csl::Expr s2_tw = s2_theta_W;
-        csl::Expr cot2_tw = (1 - s2_theta_W) / s2_theta_W;
-        csl::Expr cot_tw = csl::sqrt_s(cot2_tw);
-        csl::Expr cos_tw = csl::sqrt_s(1 - s2_theta_W);
+        csl::Expr s2_tw = csl::pow_s(csl::sin_s(theta_W), 2);
+        csl::Expr sin_tw = csl::sin_s(theta_W);
+        csl::Expr cot_tw = csl::cos_s(theta_W) / csl::sin_s(theta_W);
+        csl::Expr cot2_tw = csl::pow_s(cot_tw, 2);
+        csl::Expr cos_tw = csl::cos_s(theta_W);
         csl::Expr e = csl::sqrt_s(4*CSL_PI*alpha_em);
 
         // Source : Schwartz p.586 
 
         // h^3
         addLagrangianTerm(-e * csl::pow_s(m_h, csl::int_s(2)) 
-                / (4 * M_W * csl::sqrt_s(s2_theta_W)) 
+                / (4 * M_W * sin_tw) 
                 * csl::pow_s(h(X), csl::int_s(3)));
 
         // h^4
         addLagrangianTerm(- csl::pow_s(e * m_h / M_W, csl::int_s(2)) 
-                / (32 * s2_theta_W) 
+                / (32 * s2_tw) 
                 * csl::pow_s(h(X), csl::int_s(4)));
 
         // hWW
@@ -319,7 +320,7 @@ namespace mty {
                 *h(X)*W(+mu, X)*cc(W(mu, X)));
 
         // hZZ
-        addLagrangianTerm(pow_s(M_Z, 2)*e/(M_W*csl::sqrt_s(s2_tw))
+        addLagrangianTerm(pow_s(M_Z, 2)*e/(2*M_W*csl::sqrt_s(s2_tw))
                 *h(X)*Z(+mu, X)*Z(mu, X));
 
         // hhWW
@@ -327,7 +328,7 @@ namespace mty {
                 *h(X)*h(X)*W(+mu, X)*cc(W(mu, X)));
 
         // hhZZ
-        addLagrangianTerm(pow_s(M_Z, 2)*e*e/(2*M_W*M_W*s2_tw)
+        addLagrangianTerm(pow_s(M_Z, 2)*e*e/(4*M_W*M_W*s2_tw)
                 *h(X)*h(X)*Z(+mu, X)*Z(mu, X));
 
         // WWZ 
@@ -345,7 +346,7 @@ namespace mty {
         // WWWW
         g = CSL_HALF 
             * csl::pow_s(e, csl::int_s(2)) 
-            / s2_theta_W;
+            / s2_tw;
         addLagrangianTerm(g  * W(+mu, X) * W(mu, X) * cc(W(+nu, X)) * cc(W(nu, X)));
         addLagrangianTerm(-g * W(+mu, X) * W(nu, X) * cc(W(+nu, X)) * cc(W(mu, X)));
 
@@ -377,7 +378,7 @@ namespace mty {
                     false);
         };
         // hG^+W^-
-        g = CSL_1/2 * e / csl::sqrt_s(s2_theta_W);
+        g = CSL_1/2 * e / csl::sqrt_s(s2_tw);
         addLagrangianTerm(g * cc(W(mu)) * (
                     CSL_I * D(+mu, Gc) * h 
                     - CSL_I*D(+mu, h) * Gc
@@ -390,14 +391,14 @@ namespace mty {
                     ));
 
         //G^+G^-h
-        g = -CSL_1/2 * e / (M_W * csl::sqrt_s(s2_theta_W)) * m_h*m_h;
+        g = -CSL_1/2 * e / (M_W * csl::sqrt_s(s2_tw)) * m_h*m_h;
         addLagrangianTerm(g * cc(Gc) * Gc * h);
 
         // G^0G^0h
         addLagrangianTerm(g * G0 * G0 * h);
 
         // G+G-hh
-        g = -CSL_1/4 * csl::pow_s(e * m_h/ M_W, 2) / s2_theta_W;
+        g = -CSL_1/4 * csl::pow_s(e * m_h/ M_W, 2) / s2_tw;
         addLagrangianTerm(g / 2 * cc(Gc) * Gc * h * h);
 
         // G^0G^0hh
@@ -405,7 +406,7 @@ namespace mty {
 
         // Source: Schwartz p.594 to 597
         using containor = std::vector<std::tuple<Particle, Particle, bool>>;
-        csl::Expr v = 2*M_W/e * csl::sqrt_s(s2_theta_W);
+        csl::Expr v = 2*M_W/e * csl::sqrt_s(s2_tw);
         csl::Expr J_3 = CSL_0;
         csl::Expr J_EM = CSL_0;
         auto ffb_coupling = [&](Particle& f_left,
@@ -462,10 +463,10 @@ namespace mty {
             }
         }
 
-        addLagrangianTerm(e / csl::sqrt_s(s2_theta_W) / cos_tw * J_3);
-        addLagrangianTerm(e / cot_tw * J_EM);
+        addLagrangianTerm(e / csl::sqrt_s(s2_tw) / cos_tw * J_3);
+        addLagrangianTerm(-e / cot_tw * J_EM);
 
-        g = e / (csl::sqrt_s(2*s2_theta_W));
+        g = e / (csl::sqrt_s(2*s2_tw));
         addLagrangianTerm(-g * ffb_coupling(nu_e_L, W, e_L), true);
         addLagrangianTerm(-g * ffb_coupling(nu_mu_L, W, mu_L), true);
         addLagrangianTerm(-g * ffb_coupling(nu_tau_L, W, tau_L), true);

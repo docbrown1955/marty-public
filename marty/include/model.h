@@ -42,13 +42,17 @@ class Graph;
 
 namespace mty {
 
-struct Wilson;
+struct WilsonSet;
 class Insertion;
+class FeynOptions;
+class Kinematics;
+class Amplitude;
 
 enum class OperatorBasis {
 
     Chiral,
     Standard,
+    None,
 };
 
 /*!
@@ -97,16 +101,11 @@ public:
     mty::FeynmanRule& getFeynmanRule(size_t pos);
     mty::FeynmanRule const& getFeynmanRule(size_t pos) const;
 
-    mty::Expander::Options const &getOptions() const;
-    mty::Expander::Options &getOptions();
-
     ///////////////////////////////////////////////////
     // Modifiers
     ///////////////////////////////////////////////////
 
     void filterFeynmanRules();
-
-    void resetExpanderOptions();
 
     ///////////////////////////////////////////////////
     // Computation utilities
@@ -114,41 +113,110 @@ public:
 
     void computeFeynmanRules();
 
-    virtual
     mty::Amplitude computeAmplitude(
-            int                       order,
-            std::vector<csl::Expr>  const &insertions,
-            std::vector<csl::Tensor> &momenta,
-            bool                      ruleMode = false
-            );
-
-    virtual
-    mty::Amplitude computeAmplitude(
-            int                      order,
-            std::vector<csl::Expr> const &insertions,
-            bool                     ruleMode = false
+            int                         order,
+            std::vector<mty::Insertion> insertions,
+            FeynOptions                 options = {}
             );
 
     mty::Amplitude computeAmplitude(
+            int                         order,
+            std::vector<mty::Insertion> insertions,
+            Kinematics           const &kinematics,
+            FeynOptions                 options = {}
+            );
+
+    mty::Amplitude computeAmplitude(
+            int                         order,
+            std::vector<mty::Insertion> insertions,
+            std::vector<int>     const &fermionOrder,
+            FeynOptions                 options = {}
+            );
+
+    mty::Amplitude computeAmplitude(
+            int                         order,
+            std::vector<mty::Insertion> insertions,
+            std::vector<int>     const &fermionOrder,
+            Kinematics           const &kinematics,
+            FeynOptions                 options = {}
+            );
+
+    /**
+     * @brief Main method for the calculation of amplitude.
+     *
+     * @details This overload is the only one performing the calculation, all 
+     * the other overloads are simply redirections to simplify the interface, 
+     * setting default parameters etc.
+     *
+     * @param lagrangian    Set of interaction terms to use in the calculation.
+     * @param insertions    External fields.
+     * @param fermionOrder  Order for external fermions in the resulting amplitude.
+     * @param kinematics    Kinematics of the process, (squared) momenta etc.
+     * @param options       Options for the calculation.
+     * @param rules         Set of feynman rules if the calculation must be done
+     * using rules, otherwise empty vector.
+     *
+     * @return The result of the amplitude calculation.
+     */
+    mty::Amplitude computeAmplitude(
+            std::vector<Lagrangian::TermType> &lagrangian,
+            std::vector<Insertion>             insertions,
+            std::vector<int>                   fermionOrder,
+            Kinematics                  const &kinematics,
+            FeynOptions                 const &options,
+            std::vector<FeynmanRule const*>    rules = {}
+            );
+
+    mty::Amplitude computeAmplitude(
+            std::vector<FeynmanRule const*> &feynRules,
+            std::vector<Insertion>    const &insertions,
+            std::vector<int>          const &fermionOrder,
+            Kinematics                const &kinematics,
+            FeynOptions               const &options
+            );
+
+    csl::Expr computeSquaredAmplitude(
+            Amplitude const &ampl,
+            bool             applyDegreesOfFreedomFactor = true
+            );
+
+    csl::Expr computeSquaredAmplitude(
+            WilsonSet const &ampl,
+            bool            applyDegreesOfFreedomFactor = true
+            );
+
+    WilsonSet getWilsonCoefficients(
+            Amplitude const &ampl,
+            csl::Expr         factor = CSL_1,
+            OperatorBasis     basis = OperatorBasis::Chiral,
+            bool              squaredAfter = false
+            );
+
+    WilsonSet computeWilsonCoefficients(
             int                           order,
             std::vector<Insertion> const &insertions,
-            bool                          ruleMode = false
+            csl::Expr              const &factor,
+            OperatorBasis    basis = OperatorBasis::Chiral
             );
 
-    csl::Expr computeSquaredAmplitude(
-            Amplitude const &ampl,
-            bool             averageOverIncomingSpins = true
+    WilsonSet computeWilsonCoefficients_default(
+            int                           order,
+            std::vector<Insertion> const &insertions,
+            csl::Expr              const &factor,
+            OperatorBasis    basis = OperatorBasis::Chiral
             );
 
-    csl::Expr computeSquaredAmplitude(
-            int                       order,
-            std::vector<csl::Expr>  const &insertions,
-            std::vector<csl::Tensor> &momenta,
-            bool                      averageOverIncomingSpins = true);
+    WilsonSet computeWilsonCoefficients_2Fermions_1Vector(
+            int                           order,
+            std::vector<Insertion> const &insertions,
+            csl::Expr              const &factor,
+            OperatorBasis    basis = OperatorBasis::Chiral
+            );
 
-    std::vector<Wilson> getWilsonCoefficients(
-            Amplitude const &ampl,
-            csl::Expr        factor,
+    WilsonSet computeWilsonCoefficients_4Fermions(
+            int                           order,
+            std::vector<Insertion> const &insertions,
+            csl::Expr              const &factor,
             OperatorBasis    basis = OperatorBasis::Chiral
             );
 
@@ -163,16 +231,9 @@ protected:
             std::vector<csl::Expr> const &insertions
             );
 
-    void initSquaredMomenta(
-            std::vector<csl::Tensor>              &t_momenta,
-            std::vector<mty::QuantumField>  const &fieldInsertions
-            );
-
 protected:
 
     std::vector<mty::FeynmanRule> feynmanRules;
-
-    Expander::Options options;
 };
 
 } // End of namespace mty

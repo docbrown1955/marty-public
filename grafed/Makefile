@@ -1,8 +1,8 @@
 INSTALLDIR=/home/uhlrich/.local
 
-CC  = gcc-7
+CC = gcc-7
 CXX = g++-7
-FC  = gfortran-7
+FC = gfortran-7
 VERSION=1.0
 STATICLIBRARY  = libgrafed.a
 DYNAMICLIBRARY = libgrafed.so
@@ -46,6 +46,7 @@ grafed: lib
 	$(MAKE) debug
 	cp src/*.cpp include/*.h grafed-gui
 	cp $(JSONDIR)/src/*.cpp $(JSONDIR)/include/*.h grafed-gui
+	mkdir -p build-grafed-gui-Desktop_Qt_5_12_1_GCC_64bit-Debug;
 	cd build-grafed-gui-Desktop_Qt_5_12_1_GCC_64bit-Debug; \
 		qmake -makefile -o Makefile "CONFIG+=debug" "QMAKE_CXX=$(CXX)" "QMAKE_LINK=$(CXX)" ../grafed-gui/grafed-gui.pro; \
 		sed -i=.foo 's/-std=c++.[^7]//g' Makefile; \
@@ -54,6 +55,7 @@ grafed: lib
 		rm *.foo;\
 		$(MAKE) clean;\
 		$(MAKE)
+	mkdir -p build-grafed-gui-Desktop_Qt_5_12_1_GCC_64bit-Release;
 	cd build-grafed-gui-Desktop_Qt_5_12_1_GCC_64bit-Release; \
 		qmake -makefile -o Makefile "QMAKE_CXX=$(CXX)" "QMAKE_LINK=$(CXX)" ../grafed-gui/grafed-gui.pro;\
 		sed -i=.foo 's/-std=c++.[^7]//g' Makefile; \
@@ -105,9 +107,9 @@ $(PROGOBJDIR)/%_debug.o: $(PROGDIR)/%.cpp
 	$(CXXDEBUG) $(CFLAGS) -o $(BINDIR)/$@ $(jsonOBJDEBUG) $^ $(IPATH) $(LIBS)
 
 clean:
-	rm $(OBJDIR)/*.o;
-	rm $(PROGOBJDIR)/*.o;
-	rm $(LIBDIR)/*.a $(LIBDIR)/*.so;
-	rm $(BINDIR)/*.x;
-	rm build-grafed-gui-Desktop_Qt_5_12_1_GCC_64bit-Debug/*
-	rm build-grafed-gui-Desktop_Qt_5_12_1_GCC_64bit-Release/*
+	-rm -f $(OBJDIR)/*.o;
+	-rm -f $(PROGOBJDIR)/*.o;
+	-rm -f $(LIBDIR)/*.a $(LIBDIR)/*.so;
+	-rm -f $(BINDIR)/*.x;
+	-rm -f build-grafed-gui-Desktop_Qt_5_12_1_GCC_64bit-Debug/*
+	-rm -f build-grafed-gui-Desktop_Qt_5_12_1_GCC_64bit-Release/*

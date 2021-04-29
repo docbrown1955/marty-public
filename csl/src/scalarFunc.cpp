@@ -19,6 +19,7 @@
 #include "interface.h"
 #include "numericalEval.h"
 #include "cslcomplex.h"
+#include "replace.h"
 #include "mathFunctions.h"
 
 using namespace std;
@@ -269,10 +270,9 @@ Expr AbstractFunc::evalNumerical(Expr const& arg) const
        Expr foo_var = variable_s("foo");
        result->setArgument(foo_var);
        Expr f_prime = Derived(result, foo_var.get());
-       f_prime = Replaced(f_prime,
-                         foo_var,
-                         autonumber_s(arg
-                             ->evaluateScalar()));
+       Replace(f_prime,
+               foo_var,
+               autonumber_s(arg->evaluateScalar()));
        f_prime = Evaluated(f_prime);
        Expr delta_plus;
        Expr delta_minus;
@@ -441,8 +441,8 @@ optional<Expr> AbstractDuoFunc::findSubExpression(
         findSubExpression(subExpression, newExpression);
     if (subArg0 or subArg1) {
         Expr res = Copy(this);
-        res->setArgument(chooseOptional(subArg0, argument[0]), 0);
-        res->setArgument(chooseOptional(subArg1, argument[1]), 1);
+        res->setArgument(subArg0.value_or(argument[0]), 0);
+        res->setArgument(subArg1.value_or(argument[1]), 1);
         return Refreshed(res);
     }
 
@@ -492,8 +492,8 @@ optional<Expr> AbstractDuoFunc::getComplexConjugate() const
     optional<Expr> conjArg1 = argument[1]->getComplexConjugate();
     if (conjArg0 or conjArg1) {
         Expr conjugate = Copy(this);
-        conjugate->setArgument(chooseOptional(conjArg0, argument[0]), 0);
-        conjugate->setArgument(chooseOptional(conjArg1, argument[1]), 1);
+        conjugate->setArgument(conjArg0.value_or(argument[0]), 0);
+        conjugate->setArgument(conjArg1.value_or(argument[1]), 1);
         return Refreshed(conjugate);
     }
     return nullopt;
@@ -510,8 +510,8 @@ optional<Expr> AbstractDuoFunc::replaceIndex(
         argument[1]->replaceIndex(indexToReplace, newIndex, refresh);
     if (opt0 or opt1) {
         Expr copyExpr = copy();
-        copyExpr->setArgument(chooseOptional(opt0, argument[0]), 0);
-        copyExpr->setArgument(chooseOptional(opt1, argument[1]), 1);
+        copyExpr->setArgument(opt0.value_or(argument[0]), 0);
+        copyExpr->setArgument(opt1.value_or(argument[1]), 1);
         if (refresh)
             return Refreshed(copyExpr);
         return copyExpr;
@@ -531,8 +531,8 @@ std::optional<Expr> AbstractDuoFunc::replaceIndices(
         argument[1]->replaceIndices(oldIndices, newIndices, refresh, flipped);
     if (opt0 or opt1) {
         Expr copyExpr = copy();
-        copyExpr->setArgument(chooseOptional(opt0, argument[0]), 0);
-        copyExpr->setArgument(chooseOptional(opt1, argument[1]), 1);
+        copyExpr->setArgument(opt0.value_or(argument[0]), 0);
+        copyExpr->setArgument(opt1.value_or(argument[1]), 1);
         if (refresh)
             return Refreshed(copyExpr);
         return copyExpr;
@@ -547,8 +547,8 @@ optional<Expr> AbstractDuoFunc::factor(bool full)  const
        optional<Expr> arg1Facto = argument[1]->factor(true);
        if (arg0Facto or arg1Facto) {
            Expr res = Copy(this);
-           res->setArgument(chooseOptional(arg0Facto, argument[0]), 0);
-           res->setArgument(chooseOptional(arg1Facto, argument[1]), 1);
+           res->setArgument(arg0Facto.value_or(argument[0]), 0);
+           res->setArgument(arg1Facto.value_or(argument[1]), 1);
            return Refreshed(res);
        }
     }
@@ -563,8 +563,8 @@ optional<Expr> AbstractDuoFunc::factor(Expr_info expr, bool full) const
        optional<Expr> arg1Facto = argument[1]->factor(expr, true);
        if (arg0Facto or arg1Facto) {
            Expr res = copy();
-           res->setArgument(chooseOptional(arg0Facto, argument[0]), 0);
-           res->setArgument(chooseOptional(arg1Facto, argument[1]), 1);
+           res->setArgument(arg0Facto.value_or(argument[0]), 0);
+           res->setArgument(arg1Facto.value_or(argument[1]), 1);
            return Refreshed(res);
        }
     }
@@ -598,8 +598,8 @@ optional<Expr> AbstractDuoFunc::expand(bool full, bool inPlace) const
        optional<Expr> arg1Expand = argument[1]->expand(true, inPlace);
        if (arg0Expand or arg1Expand) {
            Expr res = copy();
-           res->setArgument(chooseOptional(arg0Expand, argument[0]), 0);
-           res->setArgument(chooseOptional(arg1Expand, argument[1]), 1);
+           res->setArgument(arg0Expand.value_or(argument[0]), 0);
+           res->setArgument(arg1Expand.value_or(argument[1]), 1);
            return Refreshed(res);
        }
     }
@@ -617,8 +617,8 @@ optional<Expr> AbstractDuoFunc::expand_if(
        optional<Expr> arg1Expand = argument[1]->expand_if(f, true, inPlace);
        if (arg0Expand or arg1Expand) {
            Expr res = copy();
-           res->setArgument(chooseOptional(arg0Expand, argument[0]), 0);
-           res->setArgument(chooseOptional(arg1Expand, argument[1]), 1);
+           res->setArgument(arg0Expand.value_or(argument[0]), 0);
+           res->setArgument(arg1Expand.value_or(argument[1]), 1);
            return Refreshed(res);
        }
     }
@@ -754,7 +754,7 @@ optional<Expr> AbstractMultiFunc::findSubExpression(
     if (found) {
         Expr res = copy();
         for (size_t i = 0; i != argument.size(); ++i)
-            res->setArgument(chooseOptional(argSub[i], argument[i]), i);
+            res->setArgument(argSub[i].value_or(argument[i]), i);
         return Refreshed(res);
     }
 
@@ -849,7 +849,7 @@ optional<Expr> AbstractMultiFunc::getComplexConjugate() const
         Expr conjugate = Copy(this);
         for (size_t i = 0; i != argument.size(); ++i)
             conjugate->setArgument(
-                    chooseOptional(optConjug[i], argument[i]), i);
+                    optConjug[i].value_or(argument[i]), i);
         return Refreshed(conjugate);
     }
 
@@ -936,7 +936,7 @@ optional<Expr> AbstractMultiFunc::factor(bool full) const
        if (factoFound) {
            Expr res = copy();
            for (size_t i = 0; i != argument.size(); ++i)
-               res->setArgument(chooseOptional(argFacto[i], argument[i]), i);
+               res->setArgument(argFacto[i].value_or(argument[i]), i);
 
            return Refreshed(res);
        }
@@ -959,7 +959,7 @@ optional<Expr> AbstractMultiFunc::factor(Expr_info expr, bool full) const
        if (factoFound) {
            Expr res = copy();
            for (size_t i = 0; i != argument.size(); ++i)
-               res->setArgument(chooseOptional(argFacto[i], argument[i]), i);
+               res->setArgument(argFacto[i].value_or(argument[i]), i);
 
            return Refreshed(res);
        }
@@ -1008,7 +1008,7 @@ optional<Expr> AbstractMultiFunc::expand(bool full,
        if (expandFound) {
            Expr res = copy();
            for (size_t i = 0; i != argument.size(); ++i)
-               res->setArgument(chooseOptional(argExpand[i], argument[i]), i);
+               res->setArgument(argExpand[i].value_or(argument[i]), i);
 
            return Refreshed(res);
        }
@@ -1026,10 +1026,8 @@ optional<Expr> AbstractMultiFunc::expand_if(
        Expr res = copy();
        for (size_t i = 0; i != res->size(); ++i)
            res->setArgument(
-                   chooseOptional(
-                       res[i]->expand_if(f, true, inPlace),
-                       res[i]), 
-                   i);
+                       res[i]->expand_if(f, true, inPlace).value_or(res[i]), 
+                       i);
 
        return Refreshed(res);
     }

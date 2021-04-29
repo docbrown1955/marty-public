@@ -17,7 +17,6 @@ int main() {
             Order::TreeLevel,
             {Incoming("C_1"), Outgoing("C_1"), Outgoing("A")}
             );
-    for (auto &r : res.expressions)
-        csl::Evaluate(r, csl::eval::abbreviation);
+            
     Display(res);
 }

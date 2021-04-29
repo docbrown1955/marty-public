@@ -18,9 +18,12 @@
 #include "diracology.h"
 #include "fermionChain.h"
 #include "interactionTerm.h"
+#include "quantumField.h"
 #include "model.h"
 #include "fermionCurrent.h"
 #include "mrtOptions.h"
+#include "sgl.h"
+#include "propagator.h"
 
 using namespace csl;
 namespace mty {
@@ -59,12 +62,10 @@ void WilsonCoefficient::setCoefficient(csl::Expr const& t_coefficient)
 ///////////////////////////////////////////////////
 
 WilsonOperator::WilsonOperator(csl::Expr const& t_op,
-                               csl::Expr const& t_factor,
-                               bool        localTerm)
-    :X(csl::tensor_s("X", &csl::Minkowski)),
-    factor(t_factor)
+                               csl::Expr const& t_factor)
+    :factor(t_factor)
 {
-    setExpression(t_op, localTerm);
+    setExpression(t_op);
 }
 
 csl::Expr WilsonOperator::getOp() const
@@ -87,24 +88,12 @@ void WilsonOperator::setFactor(csl::Expr const& t_factor)
     factor = t_factor;
 }
 
-csl::Tensor WilsonOperator::getPoint() const
-{
-    return X;
-}
-
-void WilsonOperator::setPoint(csl::Tensor const& Y)
-{
-    op = Replaced(op, X, Y);
-    X = Y;
-}
-
 csl::Expr WilsonOperator::getExpression() const
 {
     return factor * op;
 }
 
-void WilsonOperator::setExpression(csl::Expr const& t_expression,
-                                   bool        localTerm)
+void WilsonOperator::setExpression(csl::Expr const& t_expression)
 {
     csl::ScopedProperty p(&csl::option::checkCommutations, false);
     op = DeepCopy(t_expression);
@@ -117,15 +106,14 @@ void WilsonOperator::setExpression(csl::Expr const& t_expression,
             if (diracParent) {
                 field->setParent(diracParent);
             }
+            if (!mty::option::decomposeInLocalOperator) 
+                return;
             csl::IndexStructure& structure = field->getIndexStructureView();
             std::vector<csl::Index> indices = structure.getIndex();
-            auto polar = indices[0];
+            csl::Index polar = indices.front();
             indices.erase(indices.begin());
             if (!mty::option::decomposeInLocalOperator) {
-                if (localTerm)
-                    expr = (*field->getQuantumParent())(polar, indices, X);
-                else
-                    expr = (*field->getQuantumParent())(polar, indices, field->getPoint());
+                expr = (*field->getQuantumParent())(polar, indices, field->getPoint());
                 ConvertToShared<PolarizationField>(expr)->setIncoming(
                         field->isIncoming()
                         );
@@ -134,10 +122,7 @@ void WilsonOperator::setExpression(csl::Expr const& t_expression,
                         );
             }
             else {
-                if (localTerm)
-                    expr = field->getParent()(indices, X);
-                else
-                    expr = field->getParent()(indices, field->getPoint());
+                expr = field->getParent()(indices, field->getPoint());
                 ConvertToShared<QuantumField>(expr)->setIncoming(
                         field->isIncoming()
                         );
@@ -235,7 +220,7 @@ std::vector<csl::Expr> parseStructures(
 std::vector<Wilson> parseSum(
         csl::Expr const& sum,
         csl::Expr const& operatorFactor,
-        bool        localTerm
+        bool        recursive
         )
 {
     std::vector<Wilson> wilsons;
@@ -245,7 +230,7 @@ std::vector<Wilson> parseSum(
             parseExpression(
                     term,
                     operatorFactor,
-                    localTerm);
+                    recursive);
         wilsons.insert(
                 wilsons.end(),
                 std::make_move_iterator(interm.begin()),
@@ -258,11 +243,11 @@ std::vector<Wilson> parseSum(
 std::vector<Wilson> parseExpression(
         csl::Expr const& expr,
         csl::Expr const& operatorFactor,
-        bool        localTerm
+        bool        recursive
         )
 {
     if (csl::IsSum(expr)) {
-        return parseSum(expr, operatorFactor, localTerm);
+        return parseSum(expr, operatorFactor, recursive);
     }
     if (expr == CSL_0)
         return {};
@@ -285,28 +270,132 @@ std::vector<Wilson> parseExpression(
             return parseSum(
                     csl::Expanded(res.coef.getCoefficient() * op),
                     operatorFactor,
-                    localTerm);
+                    recursive);
         }
         else if (csl::IsProd(op)){
-            mty::FermionChain chain(&mty::dirac4);
-            csl::ForEachNode(op, [&](csl::Expr& el)
-            {
-                if (el->getType() == csl::Type::Prod)
-                    chain.applyOn(el);
-            });
+            sgl::TensorSet tset {
+                dirac4.gamma_chir,
+                dirac4.C_matrix,
+                dirac4.P_L,
+                dirac4.P_R,
+                {}
+            };
+            tset.gamma[0] = dirac4.getDelta();
+            tset.gamma[1] = dirac4.gamma;
+            tset.gamma[2] = dirac4.sigma;
+            //std::cout << "HERE" << std::endl;
+            //std::cout << op << std::endl;
+            if (!recursive){
+                auto sss = op->getFreeIndexStructure();
+                op = sgl::sgl_to_csl(sgl::Simplified(
+                            sgl::csl_to_sgl(op, tset), !recursive
+                            ), tset);
+                //std::cout << "After SGL" << std::endl;
+                //std::cout << op << std::endl;
+                auto d = dirac4.getDelta();
+                auto g = dirac4.gamma_chir;
+                auto a = dirac4.generateIndex();
+                auto b = dirac4.generateIndex();
+                //csl::Replace(op, dirac4.P_L({a, b}), CSL_HALF*d({a, b}) - CSL_HALF*g({a, b}));
+                //csl::Replace(op, dirac4.P_R({a, b}), CSL_HALF*d({a, b}) + CSL_HALF*g({a, b}));
+                csl::DeepRefresh(op);
+                //std::cout << "Final" << std::endl;
+                //std::cout << op << std::endl;
+            }
+            // mty::FermionChain chain(&mty::dirac4;
+            // csl::ForEachNode(op, [&](csl::Expr& el)
+            // {
+            //     if (el->getType() == csl::Type::Prod) {
+            //         chain.applyOn(el);
+            //     }
+            // });
             csl::Expand(op);
-            if (csl::IsSum(op))
+            if (csl::IsSum(op)) {
                 return parseSum(
                         csl::Expanded(res.coef.getCoefficient() * op),
                         operatorFactor,
-                        localTerm);
+                        true);
+            }
             res.coef.setCoefficient(
                     res.coef.getCoefficient() / operatorFactor);
-            res.op = WilsonOperator(op, operatorFactor, localTerm);
+            res.op = WilsonOperator(op, operatorFactor);
             return {res};
         }
     }
     return {Wilson{WilsonCoefficient(product), WilsonOperator(CSL_1)}};
 }
+
+void addWilson(
+        Wilson        const &wil,
+        std::vector<Wilson> &wilsons,
+        bool                 merge
+        )
+{
+    csl::Expr C = wil.coef.getCoefficient();
+    if (merge) {
+        for (auto& w : wilsons) {
+            if (w.op == wil.op) {
+                HEPAssert(w.op.getFactor() != CSL_0,
+                        mty::error::ValueError,
+                        "Zero encountered in operator factor !")
+                csl::Expr newCoef = 
+                        w.coef.getCoefficient()
+                        + (wil.op.getFactor() / w.op.getFactor()) * C;
+                csl::Factor(newCoef, true);
+                w.coef.setCoefficient(newCoef);
+                return;
+            }
+        }
+    }
+    wilsons.push_back({WilsonCoefficient(C), wil.op});
+}
+std::vector<Wilson> match(
+        std::vector<csl::Expr> &fullAmplitudes,
+        csl::Expr        const &operatorFactor,
+        bool                    squaredAfter
+        )
+{
+    csl::Abbrev::enableGenericEvaluation("Fc");
+    csl::Abbrev::enableGenericEvaluation("EXT");
+    for (auto& ampl : fullAmplitudes) {
+        csl::ForEachNode(ampl, [&](csl::Expr &expr)
+        {
+            if (IsOfType<Propagator>(expr)) {
+                csl::Expr m = expr[1];
+                expr[1] = CSL_0;
+                expr = Evaluated(expr, csl::eval::abbreviation);
+                RenameIndices(expr);
+                expr = 1 / (1 / expr - m*m);
+                csl::DeepExpand(expr);
+                HEPAssert(expr != CSL_INF,
+                        mty::error::ValueError,
+                        "Pole encountered of mass " + toString(m))
+            }
+        });
+        Evaluate(ampl);
+        // highMassApproximation(ampl);
+    }
+    csl::Abbrev::disableGenericEvaluation("Fc");
+    csl::Abbrev::disableGenericEvaluation("EXT");
+
+    std::vector<Wilson> fullWilson;
+    for (size_t i = 0; i != fullAmplitudes.size(); ++i) {
+        std::vector<Wilson> newWilsons = parseExpression(
+                DeepCopy(fullAmplitudes[i]),
+                operatorFactor,
+                squaredAfter
+                );
+        for (auto &w : newWilsons) {
+            // highMassApproximation(w);
+            w.coef.setCoefficient(
+                    csl::Factored(w.coef.getCoefficient())
+                    );
+            addWilson(w, fullWilson);
+        }
+    }
+
+    return fullWilson;
+}
+
 
 }

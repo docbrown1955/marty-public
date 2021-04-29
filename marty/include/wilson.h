@@ -24,11 +24,14 @@
 #define WILSON_H_INCLUDED
 
 #include <csl.h>
+#include "kinematics.h"
+#include "feynOptions.h"
 
 namespace mty {
 
 class Model;
 class FermionCurrent;
+class QuantumField;
 
 class WilsonCoefficient {
 
@@ -55,8 +58,7 @@ class WilsonOperator {
     public:
 
     WilsonOperator(csl::Expr const& t_op,
-                   csl::Expr const& t_factor = CSL_1,
-                   bool        localTerm = false);
+                   csl::Expr const& t_factor = CSL_1);
     WilsonOperator() = default;
     WilsonOperator(WilsonOperator const&) = default;
     WilsonOperator(WilsonOperator&&) = default;
@@ -70,12 +72,8 @@ class WilsonOperator {
     csl::Expr getFactor() const;
     void setFactor(csl::Expr const& t_factor);
 
-    csl::Tensor getPoint() const;
-    void setPoint(csl::Tensor const& Y);
-
     csl::Expr getExpression() const;
-    void setExpression(csl::Expr const& t_expression,
-                       bool        localTerm);
+    void setExpression(csl::Expr const& t_expression);
 
     static bool hardComparison(csl::Expr const& A,
                                csl::Expr const& B);
@@ -84,7 +82,6 @@ class WilsonOperator {
 
     private:
 
-    csl::Tensor X;
     csl::Expr factor;
     csl::Expr op;
 };
@@ -115,6 +112,14 @@ struct Wilson {
     }
 };
 
+struct WilsonSet: public std::vector<Wilson> {
+
+    using std::vector<Wilson>::vector;
+
+    Kinematics  kinematics {};
+    FeynOptions options {};
+};
+
 std::vector<csl::Expr> parseStructures(
         csl::Expr& product
         );
@@ -122,13 +127,25 @@ std::vector<csl::Expr> parseStructures(
 std::vector<Wilson> parseExpression(
         csl::Expr const& product,
         csl::Expr const& operatorFactor = CSL_1,
-        bool        localTerm = false
+        bool        recursive = false
         );
 
 std::vector<Wilson> parseSum(
         csl::Expr const& sum,
         csl::Expr const& operatorFactor = CSL_1,
-        bool        localTerm = false
+        bool        recursive = false
+        );
+
+void addWilson(
+        Wilson        const &wil,
+        std::vector<Wilson> &wilsons,
+        bool                 merge = true
+        );
+
+std::vector<Wilson> match(
+        std::vector<csl::Expr> &amplitudes,
+        csl::Expr        const &operatorFactor,
+        bool                    squaredAfter = false
         );
 
 }

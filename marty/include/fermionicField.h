@@ -213,6 +213,10 @@ class DiracFermion: public QuantumFieldParent {
             || rightPart.get() == other;
     }
 
+    bool contains(QuantumFieldParent const *other) const override {
+        return isSameSpecies(other);
+    }
+
     void printDefinition(
             std::ostream &out = std::cout,
             int           indentSize = 4,

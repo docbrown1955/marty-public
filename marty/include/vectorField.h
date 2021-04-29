@@ -205,6 +205,10 @@ class VectorBoson: public BaseVectorBoson {
 
     bool isSameSpecies(QuantumFieldParent const *other) const override;
 
+    bool contains(QuantumFieldParent const *other) const override {
+        return isSameSpecies(other);
+    }
+
     void printDefinition(
             std::ostream &out = std::cout,
             int           indentSize = 4,

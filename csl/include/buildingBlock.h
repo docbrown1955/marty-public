@@ -36,8 +36,6 @@ class AbstractBuildingBlock: public Abstract {
 
     AbstractBuildingBlock();
 
-    ~AbstractBuildingBlock(){}
-
     bool isBuildingBlock() const override { return true;}
 
     virtual bool commutesWith(Expr_info expr, int sign=-1) const override;
@@ -73,8 +71,6 @@ class Complexified: public AbstractBuildingBlock {
     public:
 
     Complexified();
-
-    ~Complexified(){};
 
     bool isReal() const override;
 

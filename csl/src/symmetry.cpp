@@ -16,6 +16,7 @@
 #include "abstract.h"
 #include "space.h"
 #include "error.h"
+#include "replace.h"
 #include "utils.h"
 #include "symmetry.h"
 
@@ -713,11 +714,9 @@ csl::vector_expr IndexedSymmetry::applySymmetry(const Expr& expr) const
     for (size_t i = 0; i != size(); ++i) {
         res[i] = DeepCopy(expr);
         for (size_t j = 0; j != permutation[i].size(); ++j) 
-            res[i] = ReplaceIndex(res[i], init[j],
-                                 fooIndices[j]);
+            Replace(res[i], init[j], fooIndices[j]);
         for (size_t j = 0; j != permutation[i].size(); ++j) 
-            res[i] = ReplaceIndex(res[i], fooIndices[j],
-                                 init[permutation[i][j]]);
+            Replace(res[i], fooIndices[j], init[permutation[i][j]]);
         res[i] = DeepRefreshed(res[i]);
     }
 

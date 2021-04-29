@@ -16,6 +16,7 @@
 #include "property.h"
 #include "indicial.h"
 #include "comparison.h"
+#include "replace.h"
 
 using namespace std;
 
@@ -112,7 +113,7 @@ csl::vector_expr PropertyList::apply(const Expr& expr) const
                 IndexStructure structure2 
                     = foo.value()->getFreeIndexStructure();
                 for (size_t i=0; i!=structure.size(); ++i)
-                    foo.value() = ReplaceIndex(foo.value(), structure2[i],structure[i]);
+                    Replace(foo.value(), structure2[i],structure[i]);
             }
             if (foo.value() != expr)
                 res.push_back(foo.value());

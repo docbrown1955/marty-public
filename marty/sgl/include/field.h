@@ -1,0 +1,93 @@
+#pragma once
+
+#include "multifunction.h"
+
+namespace sgl {
+
+    struct PartnerShip {
+        int self    { -1 };
+        int other   { -1 };
+        bool isLeft { false };
+    };
+
+    class Field: public AbstractLiteral {
+
+    public:
+
+        enum Order {
+            None,
+            Left,
+            Right
+        };
+
+        Field(
+                csl::Expr const &field,
+                bool             particle,
+                bool             incoming,
+                bool             onShell,
+                PartnerShip const &partnerShip,
+                Order            order = None
+             );
+
+        bool contains(csl::Index const &) const override {
+            return false;
+        }
+        void replace(csl::Index const&, csl::Index const&) override {}
+
+        csl::Index getIndex() const {
+            return index;
+        }
+
+        bool isOnShell() const { return onshell; }
+        bool isIncomingParticle()     const { return  incoming &&  particle; }
+        bool isIncomingAntiParticle() const { return  incoming && !particle; }
+        bool isOutgoingParticle()     const { return !incoming &&  particle; }
+        bool isOutgoingAntiParticle() const { return !incoming && !particle; }
+
+        bool isComplexConjugated() const {
+            return isIncomingAntiParticle() || isOutgoingParticle();
+        }
+
+        bool isZero() const override { return false; }
+
+        bool isHappyWith(Field const &other) const {
+            return partnerShip.self == -1 
+                || other.partnerShip.self == partnerShip.other;
+        }
+
+        bool isLeftField() const {
+            return partnerShip.isLeft;
+        }
+
+        void conjugate();
+
+        csl::Expr toCSL(TensorSet const &tensors) const override;
+
+        csl::Expr toCSL(TensorSet const &tensors, csl::Index index) const;
+
+        GExpr copy() const override;
+        GExpr refresh() const override;
+
+        void print(std::ostream &out = std::cout) const override;
+
+        bool isSame(Field const &other) const;
+
+    public:
+
+        csl::Expr initField;
+        csl::Index index;
+        csl::TensorField psi;
+        csl::Tensor p;
+        bool particle;
+        bool incoming;
+        bool onshell;
+        Order order;
+        PartnerShip partnerShip;
+    };
+
+    template<class ...Args>
+    std::shared_ptr<Field> field_s(Args &&...args)
+    {
+        return std::make_shared<Field>(std::forward<Args>(args)...);
+    }
+}

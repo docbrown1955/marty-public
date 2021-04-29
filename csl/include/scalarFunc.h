@@ -50,10 +50,6 @@ class AbstractFunc: public Abstract{
 
     explicit AbstractFunc(const Expr& t_argument);
 
-    /*! \brief Destructor.
-     */
-    ~AbstractFunc(){}
-
     /*! Gives the **primary type** of an AbstractFunc.
      * \return \b 20
      */
@@ -215,10 +211,6 @@ class AbstractDuoFunc: public Abstract{
     AbstractDuoFunc(const Expr& left,
                     const Expr& right);
 
-    /*! \brief Destructor.
-     */
-    ~AbstractDuoFunc(){};
-
     csl::Type getType() const override {
         return csl::Type::StandardDuo;
     }
@@ -361,10 +353,6 @@ class AbstractMultiFunc: public Abstract{
     /*! \brief Default Constructor, initializes the std::vector argument empty
      */
     AbstractMultiFunc();
-
-    /*! \brief Destructor.
-     */
-    ~AbstractMultiFunc(){};
 
     csl::Type getType() const override {
         return csl::Type::StandardMult;

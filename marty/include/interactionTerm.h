@@ -112,6 +112,16 @@ class InteractionTerm {
 
     bool contains(const QuantumFieldParent* p) const;
 
+    bool contains(mty::Particle const &p) const {
+        return contains(p.get());
+    }
+
+    bool containsExactly(const QuantumFieldParent* p) const;
+
+    bool containsExactly(mty::Particle const &p) const {
+        return containsExactly(p.get());
+    }
+
     bool operator==(const InteractionTerm& other) const;
 
     bool operator==(const csl::Expr& other) const;

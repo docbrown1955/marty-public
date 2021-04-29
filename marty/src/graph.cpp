@@ -22,6 +22,7 @@
 #include "feynruleMomentum.h"
 #include "mrtOptions.h"
 #include "diracology.h"
+#include "feynmanDiagram.h"
 
 using namespace std;
 using namespace csl;
@@ -572,7 +573,7 @@ int Graph::getTotalDegeneracyFactor() const
     return deg_factor;
 }
 
-vector<Vertex> Graph::getVertices() const
+vector<Vertex> const &Graph::getVertices() const
 {
     return connectedCompo.getVertices();
 }
@@ -684,7 +685,8 @@ bool Graph::isPhysical() const
                      and not (connectedCompo.size() == init->size())));
 }
 
-Vertex const *getVertexOf(
+// Returns the vertex in which one node is
+Vertex const *Graph::getVertexOf(
         std::shared_ptr<Node> const &node,
         std::vector<Vertex> const &vertices
         ) 
@@ -698,7 +700,8 @@ Vertex const *getVertexOf(
     return nullptr;
 }
 
-std::vector<std::shared_ptr<Node>> nextNodes(
+// Returns all nodes connected to another node
+std::vector<std::shared_ptr<Node>> Graph::nextNodes(
         std::shared_ptr<Node> const &node,
         std::vector<Vertex> const &vertices
         )
@@ -715,7 +718,27 @@ std::vector<std::shared_ptr<Node>> nextNodes(
     return next;
 }
 
-int walk(
+int Graph::countExternalLegs(
+        std::vector<csl::Tensor>::iterator first,
+        std::vector<csl::Tensor>::iterator last,
+        std::vector<Vertex>          const &vertices
+        )
+{
+    int nExt = 0;
+    while (first != last) {
+        auto pos = std::find_if(
+                vertices.begin(), 
+                vertices.end(), 
+                [&](Vertex const &vertex) {
+                   return vertex[0]->field->getPoint().get() == first->get(); 
+                });
+        nExt += pos->size() - 2;
+        ++first;
+    }
+    return nExt;
+}
+
+int Graph::walk(
         std::vector<csl::Tensor>::iterator first,
         std::vector<csl::Tensor>::iterator last,
         std::shared_ptr<Node>        const &node,
@@ -725,7 +748,7 @@ int walk(
     *last = node->field->getPoint();
     for (auto iter = first; iter != last; ++iter)
         if (iter->get() == last->get()) {
-            return std::distance(iter, last);
+            return countExternalLegs(iter, last, vertices);
         }
     ++last;
     auto next = nextNodes(node, vertices);
@@ -747,7 +770,8 @@ bool Graph::isValid() const
     if (!mty::option::excludeTadpoles
             && !mty::option::excludeMassCorrections
             && !mty::option::excludeTriangles
-            && !mty::option::excludeBoxes)
+            && !mty::option::excludeBoxes
+            && !mty::option::excludePentagons)
         return true;
     auto const &vertices = connectedCompo.getVertices();
     std::vector<csl::Tensor> points(vertices.size());
@@ -761,7 +785,16 @@ bool Graph::isValid() const
         return false;
     if (cycleLength == 4 && mty::option::excludeBoxes)
         return false;
+    if (cycleLength == 5 && mty::option::excludePentagons)
+        return false;
     return true;
+}
+
+int Graph::getNLoops() const 
+{
+    const int nV = static_cast<int>(connectedCompo.size());
+    const int nE = static_cast<int>(getNodes().size());
+    return nE - (nV - 1);
 }
 
 int Graph::getFieldDimension() const
@@ -1550,25 +1583,32 @@ csl::vector_expr WickCalculator::applyWickTheoremOnDiagrams(
     return convertGraphsToCorrelators(diagrams, witnessMapping, ruleMode);
 }
 
-Amplitude WickCalculator::getDiagrams(
+std::vector<mty::FeynmanDiagram> WickCalculator::getDiagrams_(
+        mty::Model const *model,
         const csl::Expr& initial,
         std::map<csl::Tensor, size_t>& vertexIds,
         bool symmetrizeExternalLegs,
         bool ruleMode)
 {
     std::vector<mty::FeynruleMomentum> emptyMap;
-    return getDiagrams(
-            initial, vertexIds, emptyMap, symmetrizeExternalLegs, ruleMode);
+    return getDiagrams_(
+            model, 
+            initial, 
+            vertexIds, 
+            emptyMap, 
+            symmetrizeExternalLegs, 
+            ruleMode
+            );
 }
 
-Amplitude WickCalculator::getDiagrams(
+std::vector<mty::FeynmanDiagram> WickCalculator::getDiagrams_(
+        mty::Model const *model,
         const csl::Expr& initial,
         std::map<csl::Tensor, size_t>& vertexIds,
         std::vector<mty::FeynruleMomentum>& witnessMapping,
         bool symmetrizeExternalLegs,
         bool ruleMode)
 {
-    // std::cout << "HERE" << std::endl;
     csl::Expr factor = CSL_1;
     vector<QuantumField> fields;
     if (initial->getType() == csl::Type::Prod) {
@@ -1581,7 +1621,7 @@ Amplitude WickCalculator::getDiagrams(
     else if (IsOfType<Wick>(initial))
         fields = convertExprToFields(initial->getOperand());
     if (fields.empty())
-        return Amplitude{};
+        return {};
     factor = Refreshed(factor);
     WickCalculator calculator = WickCalculator(
             Graph(fields, vertexIds, ruleMode));
@@ -1593,8 +1633,8 @@ Amplitude WickCalculator::getDiagrams(
     csl::vector_expr results = applyWickTheoremOnDiagrams(diagrams,
                                                           witnessMapping,
                                                           ruleMode);
-    // std::cout << "Factor = " << factor << std::endl;
-    Amplitude res;
+    std::vector<mty::FeynmanDiagram> res;
+    res.reserve(diagrams.size());
     for (size_t i = 0; i != diagrams.size(); ++i) {
         if (diagrams[i]->getFactor() == 0) {
             if (not witnessMapping.empty())
@@ -1604,11 +1644,7 @@ Amplitude WickCalculator::getDiagrams(
             --i;
         }
         else {
-            res.push_back(make_pair(
-                        results[i], 
-                        diagrams[i]));
-            // std::cout << "INIT RES" << std::endl;
-            // std::cout << res.expressions.back() << std::endl;
+            res.emplace_back(*model, results[i], diagrams[i]);
         }
     }
 

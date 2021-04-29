@@ -1,8 +1,8 @@
 INSTALLDIR=/home/uhlrich/.local
 
-CC  = gcc-7
+CC = gcc-7
 CXX = g++-7
-FC  = gfortran-7
+FC = gfortran-7
 CXXDEBUG = $(CXX) -g
 CXXFLAGS = -std=c++17 -Wall -Wextra -Wpedantic -Wfatal-errors -fPIC
 
@@ -15,7 +15,8 @@ OBJ = $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 OBJDEBUG = $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%_debug.o) 
 
 INCPATH = -Iinclude -I../include -I../../grafed/include\
-	  -I../../jsonparser/include -I../../csl/include
+	  -I../../jsonparser/include -I../../csl/include\
+		-I../sgl/include
 
 
 all: $(OBJ) $(OBJDEBUG)
@@ -27,5 +28,5 @@ $(OBJDIR)/%_debug.o: $(SRCDIR)/%.cpp
 
 .PHONY: clean
 clean:
-	rm $(OBJDIR)/*.o
-	rm $(LIBDIR)/*
+	-rm -f $(OBJDIR)/*.o
+	-rm -f $(LIBDIR)/*

@@ -20,6 +20,7 @@
 #include "comparison.h"
 #include "operations.h"
 #include "mathFunctions.h"
+#include "replace.h"
 #include "interface.h"
 
 using namespace std;
@@ -1054,7 +1055,7 @@ Vector::Vector(int t_nElements, const Expr& expr, const Expr& index): Vector()
         argument = csl::vector_expr(nArgs, expr);
         if (index->getType() == csl::Type::Variable)
             for (auto it=argument.begin(); it!=argument.end(); ++it)
-                *it = Replaced(*it,index,int_s(distance(argument.begin(),it)));
+                Replace(*it,index,int_s(distance(argument.begin(),it)));
         else if (*index == CSL_0)
             for (auto& el : *this)
                 el = Copy(el);

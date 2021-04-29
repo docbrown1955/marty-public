@@ -312,14 +312,18 @@ std::string_view Space::getIndexNameView(char spec) const
 char Space::getSpecFromIndexName(std::string const& t_name) const
 {
     if (specIndices.find(t_name) == specIndices.end()) {
-        for (char c = 1;
-                  c <= std::numeric_limits<char>::max();
-                  ++c)
+        constexpr char maxChar = std::numeric_limits<char>::max();
+        char c = 1;
+        while (true) {
             if (nameIndices.find(c) == nameIndices.end()) {
                 nameIndices[c] = t_name;
                 specIndices[t_name] = c;
                 return c;
             }
+            if (c == maxChar)
+                break;
+            ++c;
+        }
     }
     return specIndices[t_name];
 }
@@ -399,7 +403,7 @@ std::vector<Index> Space::generateIndices(
     return indices;
 }
 
-inline Expr DMinko = csl::constant_s("D");
+inline Expr DMinko = csl::constant_s("D", csl::int_s(4));
 
 inline const Space& buildMinkowski()
 {

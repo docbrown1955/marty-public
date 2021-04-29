@@ -54,9 +54,6 @@ class Sum: public AbstractMultiFunc{
 
 #ifdef DEBUG
     ~Sum(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~Sum(){};
 #endif
 
     /*! \brief Gives the **type** of a Sum object.
@@ -210,9 +207,6 @@ class Polynomial: public AbstractMultiFunc{
 
 #ifdef DEBUG
     ~Polynomial(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~Polynomial(){};
 #endif
 
     bool mergeTerms();
@@ -318,9 +312,6 @@ class Prod: public AbstractMultiFunc{
 
 #ifdef DEBUG
     ~Prod(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~Prod(){};
 #endif
 
     /*! \brief Gives the **type** of a Prod object.
@@ -511,9 +502,6 @@ class Pow: public AbstractDuoFunc{
 
 #ifdef DEBUG
     ~Pow(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~Pow(){};
 #endif
 
     /*! \brief Gives the **type** of a Pow object.
@@ -688,9 +676,6 @@ class Derivative: public Operator<AbstractDuoFunc>{
 
 #ifdef DEBUG
     ~Derivative(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~Derivative(){};
 #endif
 
     /*! \brief Gives the **type** of a Derivative object.
@@ -779,9 +764,6 @@ class Integral: public Operator<AbstractDuoFunc>{
 
 #ifdef DEBUG
     ~Integral(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~Integral(){};
 #endif
 
     /*! \brief Gives the **type** of a Integral object.

@@ -19,7 +19,6 @@
 #include "insertion.h"
 #include "mrtOptions.h"
 #include "amplitude.h"
-#include "effectiveTheory.h"
 #include "wilson.h"
 
 namespace mty {
@@ -154,68 +153,14 @@ csl::Tensor DiracCMatrix() {
 /*************************************************/
 ///////////////////////////////////////////////////
 
-void ForceParticle(mty::Model          &model,
-                   mty::Particle const &particle)
-{
-    auto& options = model.getOptions();
-    options.forceParticle(particle);
-}
-
-void ForceParticle(mty::Model        &model,
-                   std::string const &particle)
-{
-    auto& options = model.getOptions();
-    options.forceParticle(model.getParticle(particle));
-}
-
-void DisableParticle(mty::Model     &model,
-                     Particle const &particle)
-{
-    auto& options = model.getOptions();
-    options.disableParticle(particle);
-}
-
-void EnableParticle(mty::Model     &model,
-                    Particle const &particle)
-{
-    auto& options = model.getOptions();
-    options.enableParticle(particle);
-}
-
-void DisableParticle(mty::Model        &model,
-                     std::string const &particle)
-{
-    DisableParticle(model, GetParticle(model, particle));
-}
-
-void EnableParticle(mty::Model        &model,
-                    std::string const &particle)
-{
-    EnableParticle(model, GetParticle(model, particle));
-}
-
-Amplitude ComputeAmplitude(
-            mty::Order             order,
-            mty::Model            &model,
-            std::vector<Insertion> insertions,
-            bool                   ruleMode)
-{
-    return model.computeAmplitude(
-                order, 
-                GetExpression(insertions), 
-                ruleMode
-                );
-}
-
 Amplitude SelfEnergy(
             mty::Order     order,
             mty::Particle &particle,
             mty::Model    &model)
 {
     csl::ScopedProperty prop(&mty::option::amputateExternalLegs, true);
-    return ComputeAmplitude(
+    return model.computeAmplitude(
             order,
-            model,
             {Incoming(OffShell(particle)), Outgoing(OffShell(particle))}
             );
 }
@@ -225,46 +170,6 @@ Amplitude SelfEnergy(
             mty::Model    &model)
 {
     return SelfEnergy(mty::Order::OneLoop, particle, model);
-}
-
-Amplitude ComputeAmplitude(
-            mty::Order                      order,
-            mty::Model                     &model,
-            std::vector<Insertion>          insertions,
-            std::vector<csl::Tensor> &impulsions,
-            bool                            ruleMode)
-{
-    return model.computeAmplitude(
-                order, 
-                GetExpression(insertions), 
-                impulsions, 
-                ruleMode);
-}
-
-Amplitude ComputeAmplitude(
-            mty::Order             order,
-            mty::EffModel         &model,
-            std::vector<Insertion> insertions,
-            bool                   ruleMode)
-{
-    return model.computeAmplitude(
-                order, 
-                GetExpression(insertions), 
-                ruleMode);
-}
-
-Amplitude ComputeAmplitude(
-            mty::Order                      order,
-            mty::EffModel                  &model,
-            std::vector<Insertion>          insertions,
-            std::vector<csl::Tensor> &impulsions,
-            bool                            ruleMode)
-{
-    return model.computeAmplitude(
-                order, 
-                GetExpression(insertions), 
-                impulsions, 
-                ruleMode);
 }
 
 csl::Expr ComputeSquaredAmplitude(
@@ -352,7 +257,7 @@ void Display(mty::Amplitude const& amplitudes,
              std::ostream        & out,
              bool                  simplify)
 {
-    Display(amplitudes.expressions, out, simplify);
+    Display(amplitudes.obtainExpressions(), out, simplify);
 }
 
 void Show(std::vector<std::shared_ptr<wick::Graph>> const& graphs)
@@ -362,11 +267,11 @@ void Show(std::vector<std::shared_ptr<wick::Graph>> const& graphs)
 
 void Show(mty::Amplitude const& ampl)
 {
-    Drawer::launchViewer(ampl.diagrams);
+    Drawer::launchViewer(ampl.obtainGraphs());
 }
 
-void Display(std::vector<Wilson> const& wilsons,
-             std::ostream             & out)
+void Display(WilsonSet const& wilsons,
+             std::ostream   & out)
 {
     if (mty::option::searchAbreviations 
             and mty::option::displayAbbreviations)
@@ -650,28 +555,6 @@ void IntegrateOutParticle(
         bool            value)
 {
     particle->integrateOut(value);
-}
-
-void IntegrateOutParticle(
-        mty::Model    & model,
-        mty::Particle & particle,
-        size_t maxDim,
-        size_t nLoops,
-        size_t maxDimOperator)
-{
-    if (maxDim == size_t(-1))
-        maxDim = particle->isBosonic() ? 2 : 1;
-    EffectiveTheory::integrateOutParticle(model,
-                                          particle,
-                                          maxDim,
-                                          nLoops,
-                                          maxDimOperator);
-}
-
-csl::Expr GetWilsonForOperator(mty::EffModel const& model,
-                          csl::Expr          const& operatorExpr)
-{
-    return model.getCoefficientForOperator(operatorExpr);
 }
 
 ///////////////////////////////////////////////////

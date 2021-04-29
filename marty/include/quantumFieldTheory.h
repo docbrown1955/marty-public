@@ -31,6 +31,7 @@ namespace mty {
 
 class QuantumFieldParent;
 class QuantumField;
+struct PartnerShip;
 
 csl::Expr ScalarKineticTerm(
         QuantumFieldParent& field,
@@ -176,6 +177,8 @@ csl::Expr ExternalLeg(
         std::vector<csl::Index>   indices,
         bool                     particle,
         bool                     incoming,
+        bool                     onshell,
+        PartnerShip       const &partnerShip,
         bool                     ruleMode = false,
         bool                     lockConjugation = false
         );

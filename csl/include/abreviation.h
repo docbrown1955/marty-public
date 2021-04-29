@@ -28,6 +28,7 @@
 #include "interface.h"
 #include "index.h"
 #include "utils.h"
+#include "replace.h"
 #include "algo.h"
 
 namespace csl {
@@ -212,6 +213,10 @@ class Abbreviation: public BaseParent {
             << "\", " << regName << "_encaps);\n";
     }
 
+    std::string const &getBaseName() const override {
+        return baseName;
+    }
+
     void enableEvaluation() override {
         evaluation = true;
     };
@@ -269,18 +274,7 @@ class Abbreviation: public BaseParent {
                     }
                 }
             });
-            res = ReplaceIndices(res, initialStructure, structure, false, true);
-            // for (size_t i = 0; i != initialStructure.size(); ++i) {
-            //     res = Replaced(res,
-            //                   intermediate[i],
-            //                   structure[i],
-            //                   false);
-            //     if (structure[i].getSpace()->getSignedIndex())
-            //         res = Replaced(res,
-            //                       intermediate[i].getFlipped(),
-            //                       structure[i].getFlipped(),
-            //                       false);
-            // }
+            Replace(res, initialStructure, structure);
             return Evaluated(res, user_mode);
         }
         return std::nullopt;

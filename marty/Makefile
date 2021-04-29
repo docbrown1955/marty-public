@@ -1,8 +1,8 @@
 INSTALLDIR=/home/uhlrich/.local
 
-CC  = gcc-7
+CC = gcc-7
 CXX = g++-7
-FC  = gfortran-7
+FC = gfortran-7
 VERSION        = 1.0
 STATICLIBRARY  = libmarty.a
 DYNAMICLIBRARY = libmarty.so
@@ -10,7 +10,7 @@ DYNAMICLIBRARY = libmarty.so
 LTVERSION = 2.15
 
 CXXDEBUG         = $(CXX) -g # -D DEBUG
-CXXFLAGS 	 = $(MARTY_CXX_FLAGS) -Wall -Wextra -Wpedantic -std=c++17 -O3 -fPIC -Wfatal-errors -DDEBUGLOG
+CXXFLAGS 	 = $(MARTY_CXX_FLAGS) -Wall -Wextra -Wpedantic -std=c++17 -O3 -fPIC -Wfatal-errors
 
 SRCDIR     = src
 HEADDIR    = include
@@ -78,10 +78,15 @@ sglOBJDEBUG = $(sglSRC:sgl/src/%.cpp=sgl/obj/%_debug.o)
 BIN      = $(subst .cpp,.x,      $(subst $(PROGDIR)/,,$(PROG)))
 BINDEBUG = $(subst .cpp,_debug.x,$(subst $(PROGDIR)/,,$(PROG)))
 
-.PHONY: install clean
-all: lib release debug
+.PHONY: install clean models sgl
+all: models sgl lib release debug
 
 marty: lib
+
+models:
+	cd models; $(MAKE) all
+sgl:
+	cd sgl;   $(MAKE) all
 
 lib: $(OBJ) $(OBJDEBUG) $(LIBDIR)/$(STATICLIBRARY) $(LIBDIR)/$(DYNAMICLIBRARY)\
 	$(modelOBJ) $(modelOBJDEBUG) $(sglOBJDEBUG)
@@ -90,6 +95,7 @@ install:
 	echo "#include \"marty/marty.h\"" >> $(INSTALLDIR)/include/marty.h
 	cp include/*.h $(INSTALLDIR)/include/marty
 	cp models/include/* $(INSTALLDIR)/include/marty
+	cp sgl/include/* $(INSTALLDIR)/include/marty
 	cp lib/*.a lib/*.so $(INSTALLDIR)/lib
 
 release: $(BIN)
@@ -134,8 +140,9 @@ $(LIBDIR)/$(DYNAMICLIBRARY): $(OBJ)
 
 
 clean:
-	rm $(OBJDIR)/*.o;
-	rm $(PROGOBJDIR)/*.o;
-	rm lib/*.a lib/*.so
-	rm bin/*.x
-
+	cd models/&& $(MAKE) clean;
+	cd sgl/&&    $(MAKE) clean;
+	-rm -f $(OBJDIR)/*.o;
+	-rm -f $(PROGOBJDIR)/*.o;
+	-rm -f lib/*.a lib/*.so
+	-rm -f bin/*.x

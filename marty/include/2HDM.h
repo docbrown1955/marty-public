@@ -378,9 +378,9 @@ TwoHDM_Model<type>::TwoHDM_Model()
                         {"u_R", "c_R", "t_R"},
                         {"d_L", "s_L", "b_L"},
                         {"d_R", "s_R", "b_R"},
-                        {"e_L", "\\mu_L", "\\tau_L"},
-                        {"e_R", "\\mu_R", "\\tau_R"},
-                        {"\\nu_{eL}", "\\nu_{\\mu L}", "\\nu_{\\tau L}"}});
+                        {"e_L", "mu_L;\\mu_L", "tau_L;\\tau_L"},
+                        {"e_R", "mu_R;\\mu_R", "tau_R;\\tau_R"},
+                        {"nue;\\nu_{eL}", "num;\\nu_{\\mu L}", "nut;\\nu_{\\tau L}"}});
 
     Replaced(*this, 
             getParticle("W")->getMass(),

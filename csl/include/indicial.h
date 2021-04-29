@@ -89,9 +89,6 @@ class SelfContraction{
                     std::optional<std::function<bool(Expr_info, Expr_info)>>
                         t_condition = std::nullopt);
 
-    /*! \brief Destructor.
-     */
-    ~SelfContraction(){};
 
     /*! \return \b True if the SelfContraction is empty (no pair of integers).
      * \return \b False else.
@@ -166,8 +163,6 @@ class ContractionChain {
     ContractionChain(const ContractionChain& other) = default;
 
     ContractionChain& operator=(const ContractionChain& other) = default;
-
-    ~ContractionChain(){};
 
     std::optional<ContractionChain> splitAndEvaluate() const;
 
@@ -371,9 +366,6 @@ class TensorParent: public AbstractParent{
                 std::vector<const Space*> const& indices,
                 Args&& ...args);
 
-    /*! \brief Destructor.
-     */
-    ~TensorParent();
 
     cslParent::PrimaryType getPrimaryType() const override;
 
@@ -579,8 +571,6 @@ class EpsilonParent: public TensorParent{
 
     explicit EpsilonParent(const Space* t_space);
 
-    ~EpsilonParent(){};
-
     cslParent::Type getType() const override;
 
     bool hasContractionProperty(const Abstract* self,
@@ -611,8 +601,6 @@ class DeltaParent: public TensorParent{
     DeltaParent(const DeltaParent& abstract) = delete;
 
     explicit DeltaParent(const Space* t_space);
-
-    ~DeltaParent(){};
 
     cslParent::Type getType() const override;
 
@@ -667,9 +655,6 @@ class MetricParent: public TensorParent{
     MetricParent(const Space* t_space,
             const std::string& t_name="g");
      
-    /*! \brief Destructor
-     */
-    ~MetricParent(){};
 
     cslParent::Type getType() const override;
 
@@ -841,9 +826,6 @@ class TensorElement: public AbstractElement{
 
 #ifdef DEBUG
     ~TensorElement(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~TensorElement(){};
 #endif
 
     csl::PrimaryType getPrimaryType() const override {
@@ -1113,9 +1095,6 @@ class ISum: public Sum{
 
 #ifdef DEBUG
     ~ISum(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~ISum(){};
 #endif
 
     bool isIndexed() const override;
@@ -1218,9 +1197,6 @@ class IProd: public Prod{
 
 #ifdef DEBUG
     ~IProd(){ __record_data_alloc(static_cast<int>(getType())); }
-#else
-    /*! \brief Destructor. */
-    ~IProd(){};
 #endif
 
     bool isIndexed() const override;

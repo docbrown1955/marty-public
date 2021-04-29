@@ -374,59 +374,6 @@ public:
      */
     std::vector<csl::Tensor> const &getTensorCouplings() const;
 
-    /*!
-     * \brief Returns the list of predefined momenta as a const reference.
-     * \details Momenta are named from 1 to correspond to standard conventions
-     * \f$ (p_1, p_2, p_3, p_4\dots) \f$, but the std::vector starts from zero.
-     * To get \f$ p_2 \f$ for example, you must type
-     * \code
-     * std::vector<csl::Tensor> const &momenta = model.getMomenta();
-     * csl::Tensor p_2 = momenta[1];
-     * \endcode
-     * \return The list of predefined momenta entering amplitudes.
-     * \sa getMomentum()
-     */
-    std::vector<csl::Tensor> const &getMomenta() const;
-    /*!
-     * \brief Returns the list of predefined momenta as a reference.
-     * \details Momenta are named from 1 to correspond to standard conventions
-     * \f$ (p_1, p_2, p_3, p_4\dots) \f$, but the std::vector starts from zero.
-     * To get \f$ p_2 \f$ for example, you must type
-     * \code
-     * std::vector<csl::Tensor> &momenta = model.getMomenta();
-     * csl::Tensor p_2 = momenta[1];
-     * \endcode
-     * \return The list of predefined momenta entering amplitudes.
-     * \sa getMomentum()
-     */
-    std::vector<csl::Tensor> &getMomenta();
-    /*!
-     * \brief Returns the momentum \b pos as a const reference.
-     * \details Momenta are named from 1 to correspond to standard conventions
-     * \f$ (p_1, p_2, p_3, p_4\dots) \f$, but the std::vector starts from zero.
-     * To get \f$ p_2 \f$ for example, you must type
-     * \code
-     * csl::Tensor const &p_2 = model.getMomentum(1);
-     * \endcode
-     * \param pos Position of the momentum to get
-     * \return The momentum at position \b pos
-     * \sa getMomenta()
-     */
-    csl::Tensor const &getMomentum(size_t pos) const;
-    /*!
-     * \brief Returns the momentum \b pos as a reference.
-     * \details Momenta are named from 1 to correspond to standard conventions
-     * \f$ (p_1, p_2, p_3, p_4\dots) \f$, but the std::vector starts from zero.
-     * To get \f$ p_2 \f$ for example, you must type
-     * \code
-     * csl::Tensor &p_2 = model.getMomentum(1);
-     * \endcode
-     * \param pos Position of the momentum to get
-     * \return The momentum at position \b pos
-     * \sa getMomenta()
-     */
-    csl::Tensor &getMomentum(size_t pos);
-
     ///////////////////////////////////////////////////
     // Setters
     ///////////////////////////////////////////////////
@@ -975,6 +922,9 @@ public:
      */
     mty::FlavorGroup *getFlavorGroup(std::string_view t_name);
 
+    std::vector<mty::Particle> getParticles(
+            std::initializer_list<std::string_view> names
+            ) const;
     /**
      * @brief Returns a particle in the model given a name.
      *
@@ -1614,13 +1564,6 @@ protected:
     ///////////////////////////////////////////////////
 
     /**
-     * @brief Initializes the momenta of the model.
-     *
-     * @sa #momenta, #nMomentums, getMomentum(), getMomenta()
-     */
-    void initMomentums();
-
-    /**
      * @brief Initializes gauge terms (gauge bosons, ghosts) and fixes the 
      * gauge.
      *
@@ -1999,20 +1942,6 @@ protected:
      * @sa getTensorCouplings(), getTensorCoupling(), addTensorCoupling()
      */
     std::vector<csl::Tensor>        tensorCouplings;
-
-    /**
-     * @brief List of predefined momenta of the model.
-     *
-     * @sa getMomentum(), getMomenta(), #nMomentums
-     */
-    std::vector<csl::Tensor>        momenta;
-
-    /**
-     * @brief List of predefined squared momenta to simplify expressions.
-     *
-     * @details This scalars are defined as \f$ s_{ij} = p_i\cdot p_j. \f$.
-     */
-    std::map<std::pair<size_t, size_t>, csl::Expr> momentaSquared;
 
     /**
      * @brief Boolean that tells if the gauge model is initilialized.

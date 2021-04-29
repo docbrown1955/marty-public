@@ -13,6 +13,7 @@ all:
 	$(MAKE) csl
 	$(MAKE) jsonparser
 	$(MAKE) grafed
+	$(MAKE) sgl
 	$(MAKE) marty
 	@echo "$(GREEN)$(BOLD)Compilation finished, you may now type $(BLUE)\n $$ make install$(NC)$(NORMAL)"
 dep:
@@ -23,12 +24,14 @@ jsonparser:
 	cd jsonparser&&   $(MAKE) all
 grafed:
 	cd grafed&&       $(MAKE) all
+sgl:
+	cd marty/sgl&&    $(MAKE) all
 marty:
 	cd marty/models&& $(MAKE) all
 	cd marty&&        $(MAKE) all
 
 install:
-	cd marty&&        $(MAKE) install
+	cd marty&&        $(MAKE) install 
 	cd csl&&          $(MAKE) install
 	cd grafed&&       $(MAKE) install
 	cd jsonparser&&   $(MAKE) install
@@ -38,8 +41,8 @@ install:
 	@echo "(or start using the code, as you want)$(NC)$(NORMAL)"
 
 clean:
-	cd marty&&        $(MAKE) clean&
-	cd csl&&          $(MAKE) clean&
-	cd grafed&&       $(MAKE) clean&
-	cd jsonparser&&   $(MAKE) clean&
-	cd dependencies&& $(MAKE) clean
+	cd marty&&        $(MAKE) clean;
+	cd csl&&          $(MAKE) clean;
+	cd grafed&&       $(MAKE) clean;
+	cd jsonparser&&   $(MAKE) clean;
+	cd dependencies&& $(MAKE) clean;

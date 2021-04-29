@@ -23,6 +23,8 @@
 #ifndef HEPOPTIONS_H_INCLUDED
 #define HEPOPTIONS_H_INCLUDED 
 
+#include "sgloptions.h"
+
 namespace mty::option {
 
     ///////////////////////////////////////////////////
@@ -37,13 +39,14 @@ namespace mty::option {
     ///////////////////////////////////////////////////
 
     inline bool simplifyAmplitudes        = true;
-    inline bool simplifyConjugationMatrix = true;
+    inline bool orderExternalFermions     = false;
     inline bool discardLowerOrders        = true;
     inline bool evaluateFermionTraces     = true;
-    inline bool excludeTadpoles           = false;
+    inline bool excludeTadpoles           = true;
     inline bool excludeMassCorrections    = false;
     inline bool excludeTriangles          = false;
     inline bool excludeBoxes              = false;
+    inline bool excludePentagons          = false;
     inline bool computeFirstIntegral      = true;
     inline bool dimensionalRegularization = true;
     inline bool searchAbreviations        = true;
@@ -56,6 +59,10 @@ namespace mty::option {
     inline bool addLocalTerms             = true;
     inline bool verboseAmplitude          = true;
     inline bool testRepresentations       = true;
+    inline bool keepOnlyFirstMassInLoop   = false;
+
+    // This one is a reference ! Only to have this option available in mty::option
+    inline bool &keepEvanescentOperators  = sgl::option::keepEvanescentOperators;
 
     ///////////////////////////////////////////////////
     // Other options
@@ -74,7 +81,7 @@ namespace mty::option {
     inline bool applyFactorsAndSymmetries = true;
     inline bool applyMomentumConservation = true;
     inline bool applyInsertionOrdering    = true;
-    inline bool keepExternScalarLeg       = false;
+    inline bool keepExternScalarLeg       = true;
     inline bool enableAntiChiralProps     = true;
 }
 

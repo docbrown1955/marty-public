@@ -22,7 +22,6 @@
 #define HEPINTERFACE_H_INCLUDED
 
 #include "model.h"
-#include "effModel.h"
 #include "insertion.h"
 
 namespace mty {
@@ -493,108 +492,6 @@ csl::Space const *GetVectorSpace(
 /*************************************************/
 ///////////////////////////////////////////////////
 
-void ForceParticle(mty::Model     &model,
-                   Particle const &particle);
-
-void ForceParticle(mty::Model        &model,
-                   std::string const &particle);
-
-inline
-void ForceParticle(mty::Model                  &model,
-                   std::vector<Particle> const &particle)
-{
-    for (const auto &p : particle)
-        ForceParticle(model, p);
-}
-
-inline
-void ForceParticle(mty::Model                     &model,
-                   std::vector<std::string> const &particle)
-{
-    for (const auto &p : particle)
-        ForceParticle(model, p);
-}
-
-void ForceParticle(mty::Model        &model,
-                   std::string const &particle);
-/*!
- * \brief Disables a particle in computations.
- * \param model    Model in which the particle lives.
- * \param particle Particle to disable in computations.
- * \sa EnableParticle()
- */
-void DisableParticle(mty::Model    & model,
-                     Particle const& particle);
-
-/*!
- * \brief Disables a particle in computations.
- * \param model    Model in which the particle lives.
- * \param particle Particle to disable in computations.
- * \sa EnableParticle()
- */
-void DisableParticle(mty::Model    & model,
-                     std::string const& particle);
-
-inline void DisableParticle(
-        mty::Model                     &model,
-        std::vector<std::string> const &particles
-        )
-{
-    for (const auto &p : particles)
-        DisableParticle(model, p);
-}
-
-inline void DisableParticle(
-        mty::Model                       &model,
-        std::vector<mty::Particle> const &particles
-        )
-{
-    for (const auto &p : particles)
-        DisableParticle(model, p);
-}
-
-/*!
- * \brief Enables a particle in computations.
- * \param model    Model in which the particle lives.
- * \param particle Particle to disable in computations.
- * \sa DisableParticle()
- */
-void EnableParticle(mty::Model    & model,
-                    Particle const& particle);
-
-/*!
- * \brief Enables a particle in computations.
- * \param model    Model in which the particle lives.
- * \param particle Particle to disable in computations.
- * \sa DisableParticle()
- */
-void EnableParticle(mty::Model        &model,
-                    std::string const &particle);
-
-inline void EnableParticle(
-        mty::Model                     &model,
-        std::vector<std::string> const &particles
-        )
-{
-    for (const auto &p : particles)
-        EnableParticle(model, p);
-}
-
-inline void EnableParticle(
-        mty::Model                       &model,
-        std::vector<mty::Particle> const &particles
-        )
-{
-    for (const auto &p : particles)
-        EnableParticle(model, p);
-}
-
-Amplitude ComputeAmplitude(
-            mty::Order             order,
-            mty::Model            &model,
-            std::vector<Insertion> insertions,
-            bool                   ruleMode = false);
-
 Amplitude SelfEnergy(
             mty::Order     order,
             mty::Particle &particle,
@@ -603,26 +500,6 @@ Amplitude SelfEnergy(
 Amplitude SelfEnergy(
             mty::Particle &particle,
             mty::Model    &model);
-
-Amplitude ComputeAmplitude(
-            mty::Order                      order,
-            mty::Model                     &model,
-            std::vector<Insertion>          insertions,
-            std::vector<csl::Tensor>& impulsions,
-            bool                            ruleMode = false);
-
-Amplitude ComputeAmplitude(
-            mty::Order             order,
-            mty::EffModel         &model,
-            std::vector<Insertion> insertions,
-            bool                   ruleMode = false);
-
-Amplitude ComputeAmplitude(
-            mty::Order                      order,
-            mty::EffModel                  &model,
-            std::vector<Insertion>          insertions,
-            std::vector<csl::Tensor>  &impulsions,
-            bool                            ruleMode = false);
 
 csl::Expr ComputeSquaredAmplitude(
         mty::Model      &model,
@@ -647,7 +524,7 @@ void Display(mty::Amplitude const& amplitudes,
              std::ostream        & out = std::cout,
              bool                  simplify = false);
 
-void Display(std::vector<Wilson> const& wilsons,
+void Display(WilsonSet const& wilsons,
              std::ostream             & out = std::cout);
 
 void Show(std::vector<std::shared_ptr<wick::Graph>> const& diagrams);
@@ -950,16 +827,6 @@ void Refreshed(mty::Model & model);
 void IntegrateOutParticle(
         mty::Particle & particle,
         bool            value = true);
-
-void IntegrateOutParticle(
-        mty::Model    & model,
-        mty::Particle & particle,
-        size_t maxDim = size_t(-1),
-        size_t nLoops = 0,
-        size_t maxDimOperator = 6);
-
-csl::Expr GetWilsonForOperator(mty::EffModel const& model,
-                          csl::Expr          const& operatorExpr);
 
 ///////////////////////////////////////////////////
 /*************************************************/

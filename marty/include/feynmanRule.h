@@ -46,15 +46,13 @@ class FeynmanRule {
     using TermType = InteractionTerm::TermType;
 
     FeynmanRule(mty::Model                     &model,
-                TermType                 const &interactionTerm,
-                std::vector<csl::Tensor> impulsions);
+                TermType                 const &interactionTerm);
 
     FeynmanRule();
     FeynmanRule(FeynmanRule const& other);
     FeynmanRule& operator=(FeynmanRule const& other);
     FeynmanRule(FeynmanRule && other) = default;
     FeynmanRule& operator=(FeynmanRule && other) = default;
-    ~FeynmanRule() = default;
 
     std::vector<QuantumField>& getFieldProduct();
     std::vector<QuantumField> const& getFieldProduct() const;
@@ -97,10 +95,10 @@ class FeynmanRule {
 
     private:
 
-    std::vector<QuantumField> fieldProduct;
-    TermType term;
-    std::shared_ptr<wick::Graph>  diagram;
-    csl::Expr            expr;
+    std::vector<QuantumField>    fieldProduct;
+    TermType                     term;
+    std::shared_ptr<wick::Graph> diagram;
+    csl::Expr                    expr;
 };
 
 }

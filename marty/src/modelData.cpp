@@ -30,7 +30,6 @@ ModelData::ModelData()
     gauge(std::make_unique<mty::Gauge>()),
     flavor(nullptr)
 {
-    initMomentums();
 }
 ModelData::ModelData(std::unique_ptr<Gauge> &&t_gauge)
     :spaceTime(defaultSpaceTime),
@@ -643,31 +642,6 @@ std::vector<csl::Tensor> const &ModelData::getTensorCouplings() const
     return tensorCouplings;
 }
 
-std::vector<csl::Tensor> const &ModelData::getMomenta() const
-{
-    return momenta;
-}
-std::vector<csl::Tensor> &ModelData::getMomenta()
-{
-    return momenta;
-}
-csl::Tensor const &ModelData::getMomentum(size_t pos) const
-{
-    HEPAssert(pos < momenta.size(),
-            mty::error::IndexError,
-            "Index " + toString(pos) + " out of bounds for momenta (size "
-            + toString(momenta.size()) + ")");
-    return momenta[pos];
-}
-csl::Tensor &ModelData::getMomentum(size_t pos)
-{
-    HEPAssert(pos < momenta.size(),
-            mty::error::IndexError,
-            "Index " + toString(pos) + " out of bounds for momenta (size "
-            + toString(momenta.size()) + ")");
-    return momenta[pos];
-}
-
 ///////////////////////////////////////////////////
 // Setters
 ///////////////////////////////////////////////////
@@ -1053,25 +1027,62 @@ mty::FlavorGroup *ModelData::getFlavorGroup(std::string_view t_name)
     return nullptr;
 }
 
+static void particleNotFound(
+        std::vector<mty::Particle> const &particles,
+        std::string                const &name
+        )
+{
+    std::cerr << "Candidates are :" << std::endl;
+    for (const auto &p : particles) {
+        std::cerr << p->getName() << " (spin dim. = " << p->getSpinDimension()
+            << ")";
+        if (auto fs = p->getFieldStrength(); fs) {
+            std::cerr << " , Field Strength = " << fs->getName();
+        }
+        std::cerr << '\n';
+    }
+    CallHEPError(
+            mty::error::NameError,
+            "Particle of name \"" + name + "\" not found in model."
+            )
+}
+
+std::vector<mty::Particle> ModelData::getParticles(
+        std::initializer_list<std::string_view> names
+        ) const
+{
+    std::vector<mty::Particle> res(names.size());
+    auto nameIter = begin(names);
+    std::generate(begin(res), end(res),
+            [&]() {
+                return getParticle(*nameIter++);
+            });
+
+    return res;
+}
+
 mty::Particle ModelData::getParticle(std::string_view t_name) const
 {
     for (const auto& part : particles) {
         if (part->getName() == t_name or part->getLatexName() == t_name)
             return part;
+        if (auto fs = part->getFieldStrength(); fs && fs->getName() == t_name) {
+            return part;
+        }
     }
-    CallHEPError(mty::error::NameError,
-            "Particle of name \"" + std::string(t_name) 
-            + "\" not found in model.");
+    particleNotFound(particles, std::string(t_name));
     return nullptr;
 }
 mty::Particle ModelData::getParticle(mty::QuantumFieldParent const *field) const
 {
-    for (const auto& part : particles)
+    for (const auto& part : particles) {
         if (part.get() == field)
             return part;
-    CallHEPError(mty::error::NameError,
-            "Particle of name \"" + std::string(field->getName()) 
-            + "\" not found in model.");
+        if (auto fs = part->getFieldStrength(); fs && fs.get() == field) {
+            return part;
+        }
+    }
+    particleNotFound(particles, field->getName());
     return nullptr;
 }
 mty::Particle ModelData::getParticle(mty::QuantumFieldParent const &field) const
@@ -1337,7 +1348,7 @@ void ModelData::doAddBosonicMass(
 {
     particle->setMass(mass);
     for (size_t i = 0; i != L.mass.size(); ++i)
-        if (L.mass[i]->contains(particle.get())) {
+        if (L.mass[i]->containsExactly(particle.get())) {
             L.mass.erase(L.mass.begin() + i);
             --i;
         }
@@ -1360,8 +1371,8 @@ void ModelData::doAddFermionicMass(
     left->setMass(mass);
     right->setMass(mass);
     for (size_t i = 0; i != L.mass.size(); ++i)
-        if (L.mass[i]->contains(left.get())
-                or L.mass[i]->contains(right.get())) {
+        if (L.mass[i]->containsExactly(left.get())
+                or L.mass[i]->containsExactly(right.get())) {
             L.mass.erase(L.mass.begin() + i);
             --i;
         }
@@ -1515,7 +1526,6 @@ std::ostream &operator<<(
 
 void ModelData::init(bool initGaugeTerms)
 {
-    initMomentums();
     initGaugedGroups(initGaugeTerms);
 }
 
@@ -1539,23 +1549,5 @@ void ModelData::initGaugedGroups(bool initGaugeTerms)
     for (size_t i = 0; i != gauge->size(); ++i)
         addScalarCoupling(gauge->getGaugedGroup(i)->getCouplingConstant());
 }
-
-void ModelData::initMomentums()
-{
-    momenta = std::vector<csl::Tensor>(nMomentums);
-    for (size_t i = 0; i != nMomentums; ++i)
-        momenta[i] = csl::tensor_s(
-                "p_" + toString(i + 1),
-                &csl::Minkowski
-                );
-    for (size_t i = 0; i != nMomentums; ++i)
-        for (size_t j = i; j < nMomentums; ++j) {
-            momentaSquared[{i, j}] = csl::constant_s(
-                    "s_" + toString(i + 1) + toString(j + 1));
-            if (i != j)
-                momentaSquared[{j, i}] = momentaSquared[{i, j}];
-        }
-}
-
 
 } // End of namespace mty

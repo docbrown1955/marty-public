@@ -35,7 +35,6 @@ GoldstoneBoson::GoldstoneBoson(
     vectorBoson(t_vectorBoson)
 {
     setLatexName("G_" + t_vectorBoson->getLatexName());
-    setPhysical(false);
 }
 
 void GoldstoneBoson::printDefinition(

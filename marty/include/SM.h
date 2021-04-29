@@ -58,8 +58,7 @@ namespace mty::sm_input {
     inline 
     csl::Expr alpha_em = csl::constant_s(
             "alpha_em",
-            1 / csl::numericaleval_s(1.37035999139e+02L,
-                                    0.00000000031e+02L));
+            1 / csl::float_s(1.37035999139e+02L));
 
     inline 
     csl::Expr e = csl::constant_s(
@@ -74,15 +73,13 @@ namespace mty::sm_input {
     inline
     csl::Expr G_F = csl::constant_s(
             "G_F",
-            csl::numericaleval_s(1.1663787e-05L,
-                                0.0000006e-05L));
+            csl::float_s(1.1663787e-05L));
 
     // At 0
     inline 
     csl::Expr alpha_s = csl::constant_s(
             "alpha_s",
-            csl::numericaleval_s(1.1890e-01L,
-                                0.0016e-01L));
+            csl::float_s(1.1890e-01L));
     inline 
     csl::Expr g_s = csl::constant_s(
             "g_s",
@@ -95,27 +92,22 @@ namespace mty::sm_input {
     inline
     csl::Expr M_Z = csl::constant_s(
             "M_Z",
-            csl::numericaleval_s(9.11876e+01,
-                                0.00021e+01)); 
+            csl::float_s(9.11876e+01)); 
 
     inline
     csl::Expr m_b = csl::constant_s(
             "m_b",
-            csl::numericaleval_s(4.18,
-                                0.04,
-                                0.03));
+            csl::float_s(4.18));
 
     inline 
     csl::Expr m_t = csl::constant_s(
             "m_t",
-            csl::numericaleval_s(173,
-                                0.4));
+            csl::float_s(173));
 
     inline
     csl::Expr m_tau = csl::constant_s(
             "m_tau",
-            csl::numericaleval_s(1.77686,
-                                0.00012));
+            csl::float_s(1.77686));
 
     ///////////////////////////////////////////////////
     // Other inputs
@@ -124,15 +116,13 @@ namespace mty::sm_input {
     inline 
     csl::Expr M_W = csl::constant_s(
             "M_W",
-            csl::numericaleval_s(80.379,
-                                0.012)
+            csl::float_s(80.379)
             );
 
     inline 
     csl::Expr m_h = csl::constant_s(
             "m_h",
-            csl::numericaleval_s(125.18,
-                                0.16)
+            csl::float_s(125.18)
             );
 
     inline 
@@ -144,81 +134,64 @@ namespace mty::sm_input {
     inline 
     csl::Expr m_e = csl::constant_s(
             "m_e",
-            csl::numericaleval_s(5.109989461e-04L,
-                                0.000000031e-04L)
+            csl::float_s(5.109989461e-04L)
             );
 
     inline 
     csl::Expr m_mu = csl::constant_s(
             "m_mu",
-            csl::numericaleval_s(105.6583745e-03,
-                                000.0000024e-04L)
+            csl::float_s(105.6583745e-03)
             );
 
     inline
     csl::Expr m_u = csl::constant_s(
             "m_u", 
-            csl::numericaleval_s(2.2e-03,
-                                0.5e-03,
-                                0.4e-03));
+            csl::float_s(2.2e-03));
 
     inline
     csl::Expr m_d = csl::constant_s(
             "m_d", 
-            csl::numericaleval_s(4.7e-03,
-                                0.5e-03,
-                                0.3e-03));
+            csl::float_s(4.7e-03));
 
     inline
     csl::Expr m_c = csl::constant_s(
             "m_c", 
-            csl::numericaleval_s(1.275,
-                                0.025,
-                                0.035));
+            csl::float_s(1.275));
 
     inline
     csl::Expr m_s = csl::constant_s(
             "m_s",
-            csl::numericaleval_s(0.095,
-                                0.009,
-                                0.005));
+            csl::float_s(0.095));
     inline
     csl::Expr Gamma_W = csl::constant_s(
             "Gamma_W",
-            csl::numericaleval_s(2.085,
-                                0.042)
+            csl::float_s(2.085)
             );
 
     inline
     csl::Expr Gamma_Z = csl::constant_s(
             "Gamma_Z",
-            csl::numericaleval_s(2.4952,
-                                0.0023)
+            csl::float_s(2.4952)
             );
 
     // From ATLAS, found in PDG chapter on higgs physics
     inline
     csl::Expr Gamma_h = csl::constant_s(
             "Gamma_h",
-            csl::numericaleval_s(4.2e-3,
-                                1.5e-3,
-                                2.1e-3)
+            csl::float_s(4.2e-3)
             );
 
     inline
     csl::Expr Gamma_t = csl::constant_s(
             "Gamma_t",
-            csl::numericaleval_s(1.41,
-                                0.19,
-                                0.15)
+            csl::float_s(1.41)
             );
 
     // MSbar scheme at mu = 0GeV
     inline
     csl::Expr s2_theta_W = csl::constant_s(
             "s2_thetaW",
-            csl::numericaleval_s(0.23057,
-                                0.00005)
+            csl::float_s(0.23057)
             );
 
     inline 
@@ -237,94 +210,79 @@ namespace mty::sm_input {
     inline
     csl::Expr V_ud_mod = csl::constant_s(
             "V_ud_mod",
-            csl::numericaleval_s(0.97420,
-                                0.00021)
+            csl::float_s(0.97420)
             );
 
     inline
     csl::Expr V_us_mod = csl::constant_s(
             "V_us_mod",
-            csl::numericaleval_s(0.2243,
-                                0.0005)
+            csl::float_s(0.2243)
             );
 
     inline
     csl::Expr V_ub_mod = csl::constant_s(
             "V_ub_mod",
-            csl::numericaleval_s(3.94e-03,
-                                0.36e-03)
+            csl::float_s(3.94e-03)
             );
 
     inline
     csl::Expr V_cb_mod = csl::constant_s(
             "V_cb_mod",
-            csl::numericaleval_s(42.2e-03,
-                                0.80e-03)
+            csl::float_s(42.2e-03)
             );
 
     inline
     csl::Expr V_cd_mod = csl::constant_s(
             "V_cd_mod",
-            csl::numericaleval_s(0.2180,
-                                0.0004)
+            csl::float_s(0.2180)
             );
 
     inline
     csl::Expr V_cs_mod = csl::constant_s(
             "V_cs_mod",
-            csl::numericaleval_s(0.997,
-                                0.017)
+            csl::float_s(0.997)
             );
 
     inline
     csl::Expr V_td_mod = csl::constant_s(
             "V_td_mod",
-            csl::numericaleval_s(8.1e-03,
-                                0.5e-03)
+            csl::float_s(8.1e-03)
             );
 
     inline
     csl::Expr V_ts_mod = csl::constant_s(
             "V_ts_mod",
-            csl::numericaleval_s(39.4e-03,
-                                2.30e-03)
+            csl::float_s(39.4e-03)
             );
 
     inline
     csl::Expr V_tb_mod = csl::constant_s(
             "V_tb_mod",
-            csl::numericaleval_s(1.019,
-                                0.025)
+            csl::float_s(1.019)
             );
 
     inline
     csl::Expr A_wolf = csl::constant_s(
             "A_wolf",
-            csl::numericaleval_s(0.836,
-                                0.015)
+            csl::float_s(0.836)
             );
 
     inline
     csl::Expr lambda_wolf = csl::constant_s(
             "lambda_wolf",
-            csl::numericaleval_s(0.22453,
-                                0.00044)
+            csl::float_s(0.22453)
             );
 
     inline
     csl::Expr rho_bar_wolf = csl::constant_s(
             "rho_bar_wolf",
-            csl::numericaleval_s(0.122,
-                                0.018,
-                                0.017)
+            csl::float_s(0.122)
             );
 
     inline
     csl::Expr eta_bar_wolf = csl::constant_s(
             "eta_bar_wolf",
-            csl::numericaleval_s(0.355,
-                                0.012,
-                                0.011)
+            csl::float_s(0.355)
             );
 
     inline 
@@ -338,32 +296,28 @@ namespace mty::sm_input {
     inline
         csl::Expr V_ud = csl::constant_s(
                 "V_ud",
-                csl::numericaleval_s(0.97420,
-                                    0.00021),
+                csl::float_s(0.97420),
                 csl::ComplexProperty::Real
                 );
 
     inline
         csl::Expr V_us = csl::constant_s(
                 "V_us",
-                csl::numericaleval_s(0.2243,
-                                    0.0005),
+                csl::float_s(0.2243),
                 csl::ComplexProperty::Real
                 );
 
     inline
         csl::Expr V_cb = csl::constant_s(
                 "V_cb",
-                csl::numericaleval_s(42.2e-03,
-                                     0.80e-03),
+                csl::float_s(42.2e-03),
                 csl::ComplexProperty::Real
                 );
 
     inline
         csl::Expr V_tb = csl::constant_s(
                 "V_tb",
-                csl::numericaleval_s(1.019,
-                                     0.025),
+                csl::float_s(1.019),
                 csl::ComplexProperty::Complex
                 );
 

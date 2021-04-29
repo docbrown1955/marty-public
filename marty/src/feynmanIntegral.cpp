@@ -965,10 +965,10 @@ csl::Expr FeynmanIntegral::replaceIntegral(csl::Expr const& expr)
 
     csl::Parent variable = integral->getParent();
     csl::Expr res = csl::DeepExpandedIf(integral->getOperand(),
-                [&](csl::Expr const& el)
-                {
-                    return el->dependsExplicitlyOn(variable.get());
-                });
+    [&](csl::Expr const& el)
+    {
+        return el->dependsExplicitlyOn(variable.get());
+    });
 
     if (res->getType() == csl::Type::Sum) {
         std::vector<csl::Expr> terms;
@@ -983,8 +983,10 @@ csl::Expr FeynmanIntegral::replaceIntegral(csl::Expr const& expr)
     return factor * res;
 }
 
-csl::Expr FeynmanIntegral::replaceIntegral(csl::Expr        const& argument,
-                                      csl::Parent const& variable)
+csl::Expr FeynmanIntegral::replaceIntegral(
+        csl::Expr        const& argument,
+        csl::Parent      const& variable
+        )
 {
     if (argument == CSL_0)
         return CSL_0;
@@ -1028,6 +1030,12 @@ csl::Expr FeynmanIntegral::replaceIntegral(csl::Expr        const& argument,
     }
     else
         parse(argument);
+    const int Ncrit = std::max(0, 2*static_cast<int>(mass.size()) - 3);
+    if (option::keepOnlyFirstMassInLoop 
+            && static_cast<int>(indices.size()) < Ncrit) {
+        // Also check that non divergent integral
+        std::fill(momentum.begin(), momentum.end(), CSL_0);
+    }
 
     size_t firstZero = size_t(-1);
     for (size_t i = 0; i != momentum.size(); ++i)
@@ -1049,20 +1057,20 @@ csl::Expr FeynmanIntegral::replaceIntegral(csl::Expr        const& argument,
     momentum.erase(momentum.begin());
 
     applyIndices(momentum);
-    for (size_t i = 0; i != indices.size(); ++i) 
-        for (size_t j = i+1; j < indices.size(); ++j) 
-            if (indices[i] == indices[j]) {
-                return applyQSquared(
-                        indices[i],
-                        argument,
-                        variable,
-                        factor,
-                        momentum,
-                        mass,
-                        indices,
-                        firstTerm
-                        );
-            } 
+    //for (size_t i = 0; i != indices.size(); ++i) 
+    //    for (size_t j = i+1; j < indices.size(); ++j) 
+    //        if (indices[i] == indices[j]) {
+    //            return applyQSquared(
+    //                    indices[i],
+    //                    argument,
+    //                    variable,
+    //                    factor,
+    //                    momentum,
+    //                    mass,
+    //                    indices,
+    //                    firstTerm
+    //                    );
+    //        } 
 
     //std::cout << "Rank " << indices.size() << " " << 
         //mass.size() << "-point function."<< std::endl;
@@ -1752,22 +1760,19 @@ FeynmanIntegral::FeynmanIntegral(IntegralType             t_type,
             " for integral of type " + toString(type) + ", " 
             + toString(t_argument.size()) + " given.");
     argument = t_argument;
+    if (type == IntegralType::C) {
+        if (!argument[0]->dependsExplicitlyOn(eps.get()))
+            argument[0] += eps;
+    }
 }
 
 FeynmanIntegral::FeynmanIntegral(IntegralType               t_type,
                                  int                        t_looptoolsId,
                                  std::vector<csl::Expr>   const &t_argument,
                                  std::vector<size_t> const &t_indices)
-    :type(t_type),
-    loopToolsId(t_looptoolsId)
+    :FeynmanIntegral(t_type, t_looptoolsId, t_argument)
 {
-    HEPAssert(t_argument.size() == nArgumentsForIntegral(type),
-            mty::error::ValueError,
-            "Expected " + toString(nArgumentsForIntegral(type)) + " arguments"
-            " for integral of type " + toString(type) + ", " 
-            + toString(t_argument.size()) + " given.");
     integralIndices = t_indices;
-    argument = t_argument;
 }
 
 std::pair<csl::Expr, csl::Expr> FeynmanIntegral::getPair(size_t i) const
@@ -1971,7 +1976,7 @@ bool FeynmanIntegral::operator==(csl::Expr_info other) const
             return false;
 
     for (size_t i = 0; i != argument.size(); ++i)
-        if (argument[i] != other_int->argument[i])
+        if (!argument[i]->compareWithDummy(other_int->argument[i].get()))
             return false;
 
     return true;
@@ -2007,13 +2012,11 @@ bool FeynmanIntegral::operator<(csl::Expr_info other) const
 
 csl::Expr FeynmanIntegral::getDivergentFactor() const
 {
-    // for (const auto a : argument)
-    //     std::cout << a << " ; ";
-    // std::cout << std::endl;
-    if (loopToolsId == -1)
+    if (loopToolsId == -1) {
         return mty::FiniteFlag * getLocalTerm(
                 type, integralIndices, getMomenta(), getMasses()
                 );
+    }
     return mty::FiniteFlag * mty::getDivergentFactor(
             type, loopToolsId, argument
             );

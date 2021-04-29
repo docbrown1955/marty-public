@@ -44,9 +44,6 @@ public:
         irrep(t_irrep)
     {}
 
-    ~GeneratorParent() override 
-    {}
-
     void printDefinition(
             std::ostream &out        = std::cout,
             int           indentSize = 4,
@@ -75,9 +72,6 @@ public:
     template<class ...Args>
     GeneratorElement(Args &&...args)
         :csl::TensorElement(std::forward<Args>(args)...)
-    {}
-
-    ~GeneratorElement() override 
     {}
 
     csl::unique_Expr copy_unique() const override;

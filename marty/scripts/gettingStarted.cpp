@@ -1,5 +1,4 @@
 #include <marty.h>
-#include "docbrown.h"
 
 using namespace std;
 using namespace csl;
@@ -89,9 +88,8 @@ int main() {
     Display(rules); // Displays expressions in terminal
     // Show(rules); // Shows diagrams in the application
 
-    auto res = ComputeAmplitude(
+    auto res = toyModel.computeAmplitude(
        Order::TreeLevel,
-       toyModel,
        {Incoming("u"), Incoming(AntiPart("u")),
        Outgoing("d"), Outgoing(AntiPart("d"))}
        );
@@ -106,8 +104,6 @@ int main() {
     mty::Library myLib("toy", path_to_generated_library);
     myLib.addFunction("squared_ampl", squared_ampl, "G");
     myLib.build();
-
-    mty::doc::emmett->writeData();
 
     return 0;
 }

@@ -17,12 +17,13 @@
 #include "interface.h"
 #include "indicial.h"
 #include "tensorField.h"
+#include "replace.h"
 #include "space.h"
 #include "utils.h"
 #include "algo.h"
 #include "lock.h"
 
-#define OPT(expr, func) chooseOptional(expr->func, expr)
+#define OPT(expr, func) ((expr->func).value_or(expr))
 
 using namespace std;
 
@@ -426,17 +427,6 @@ Expr GetHermitianConjugate(const Expr&                 expression,
     return OPT(expression, getHermitianConjugate(spaces));
 }
 
-Expr Replaced(const Expr&  expression,
-             const Index& oldIndex,
-             const Index& newIndex,
-             bool         refresh)
-{
-    return OPT(expression,
-               replaceIndex(oldIndex,
-                                newIndex,
-                                refresh));
-}
-
 Expr Swapped(const Expr&  expression,
                const Index& index1,
                const Index& index2,
@@ -446,16 +436,18 @@ Expr Swapped(const Expr&  expression,
     foo.setName("FOO_INDEX");
     Expr res = Replaced(expression,
                        index1,
-                       foo,
-                       refresh);
+                       static_cast<csl::Index const&>(foo),
+                       false);
     res = Replaced(res,
                   index2,
                   index1,
-                  refresh);
+                  false);
     res = Replaced(res,
-                  foo,
+                  static_cast<csl::Index const&>(foo),
                   index2,
-                  refresh);
+                  false);
+    if (refresh)
+        return res->deepRefresh();
     return res;
 }
 
@@ -487,16 +479,13 @@ Expr Swapped(const Expr&  expression,
     Tensor foo = tensor_s("FOO", &Euclid_R2);
     Expr res = Replaced(expression,
                        parent1,
-                       foo,
-                       false);
+                       foo);
     res = Replaced(res,
                   parent2,
-                  parent1,
-                  false);
+                  parent1);
     res = Replaced(res,
                   foo,
-                  parent2,
-                  false);
+                  parent2);
     if (refresh)
         return res->deepRefresh();
     return res;
@@ -521,63 +510,6 @@ Expr ContractIndex(const Expr&  expression,
                    const Index& index)
 {
     return OPT(expression, contractIndex(index));
-}
-
-Expr ReplaceIndex(const Expr&  expression,
-                  const Index& old,
-                  const Index& newindex)
-{
-    return OPT(expression, replaceIndex(old, newindex));
-}
-
-Expr ReplaceIndicesCarefully(
-        const Expr&  expression,
-        std::vector<csl::Index> const& oldIndices,
-        std::vector<csl::Index> const& newIndices,
-        bool                      refresh,
-        bool                      flipped)
-{
-    std::vector<Index> interm(oldIndices);
-    for (auto &ind : interm)
-        ind = ind.rename();
-    Expr res = ReplaceIndices(expression, oldIndices, interm, refresh, flipped);
-    return ReplaceIndices(res, interm, newIndices, refresh, flipped);
-}
-
-Expr ReplaceIndices(const Expr&  expression,
-        std::vector<Index> const &oldIndices,
-        std::vector<Index> const &newIndices,
-        bool                      refresh,
-        bool                      flipped)
-{
-    CSL_ASSERT_SPEC(oldIndices.size() == newIndices.size(),
-            CSLError::ValueError,
-            "Old and new indices should be the same number.")
-    if (oldIndices.empty())
-        return expression;
-    for (size_t i = 0; i != oldIndices.size(); ++i)
-        if (oldIndices[i].getType() != cslIndex::Fixed
-                and oldIndices[i] == newIndices[i]) {
-            return ReplaceIndicesCarefully(
-                    expression, oldIndices, newIndices, refresh, flipped
-                    );
-        }
-    return OPT(expression, replaceIndices(oldIndices, newIndices, refresh, flipped));
-}
-
-Expr ReplaceIndices(const Expr&  expression,
-                  csl::IndexStructure const& oldIndices,
-                  csl::IndexStructure const& newIndices,
-                  bool                      refresh,
-                  bool                      flipped)
-{
-    return ReplaceIndices(
-            expression, 
-            oldIndices.getIndex(),
-            newIndices.getIndex(),
-            refresh,
-            flipped
-            );
 }
 
 csl::Index GenerateIndex(const csl::Space* space,

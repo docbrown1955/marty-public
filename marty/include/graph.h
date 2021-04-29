@@ -29,8 +29,9 @@
 
 namespace mty {
 class FeynruleMomentum;
-struct Amplitude;
+class FeynmanDiagram;
 class ConjugationList;
+class Model;
 }
 
 namespace mty::wick {
@@ -128,11 +129,6 @@ class Vertex: public std::vector<std::shared_ptr<Node>> {
      * \brief Copy constructor. See Vertex::operator=().
      */
     Vertex(const Vertex& other);
-
-    /*!
-     * \brief Destructor.
-     */
-    ~Vertex(){};
 
     /*!
      * \return external (i.e. if the Vertex comes from field insertions).
@@ -297,11 +293,6 @@ class ConnectedComponent {
      * \brief Copy constructor = C++ default.
      */
     ConnectedComponent(const ConnectedComponent& other) = default;
-
-    /*!
-     * \brief Destructor.
-     */
-    ~ConnectedComponent(){};
 
     std::vector<Vertex> const &getVertices() const;
 
@@ -493,7 +484,7 @@ class Graph {
 
     int getTotalDegeneracyFactor() const;
 
-    std::vector<Vertex> getVertices() const;
+    std::vector<Vertex> const &getVertices() const;
 
     void addFactor(int t_factor);
 
@@ -520,6 +511,8 @@ class Graph {
     bool isPhysical() const;
 
     bool isValid() const;
+
+    int getNLoops() const;
 
     /*!
      * \return The total number of fields in the Graph (counting powers of
@@ -590,6 +583,33 @@ class Graph {
      */
     friend std::ostream& operator<<(std::ostream& fout,
                                     const Graph&  g);
+
+    static 
+    Vertex const *getVertexOf(
+            std::shared_ptr<Node> const &node,
+            std::vector<Vertex> const &vertices
+            );
+
+    static
+    std::vector<std::shared_ptr<Node>> nextNodes(
+            std::shared_ptr<Node> const &node,
+            std::vector<Vertex> const &vertices
+            );
+
+    static
+    int countExternalLegs(
+            std::vector<csl::Tensor>::iterator first,
+            std::vector<csl::Tensor>::iterator last,
+            std::vector<Vertex>          const &vertices
+            );
+
+    static
+    int walk(
+            std::vector<csl::Tensor>::iterator first,
+            std::vector<csl::Tensor>::iterator last,
+            std::shared_ptr<Node>        const &node,
+            std::vector<Vertex>          const &vertices
+            );
 
     private:
     
@@ -783,14 +803,16 @@ class WickCalculator {
             std::vector<mty::FeynruleMomentum>& witnessMapping,
             bool ruleMode = true);
 
-    static mty::Amplitude getDiagrams(
+    static std::vector<mty::FeynmanDiagram> getDiagrams_(
+            mty::Model const *model,
             const csl::Expr& initialExpr,
             std::map<csl::Tensor, size_t>& vertexIds,
             std::vector<mty::FeynruleMomentum>& witnessMapping,
             bool symmetriseExternalLegs = false,
             bool ruleMode = true);
 
-    static mty::Amplitude getDiagrams(
+    static std::vector<mty::FeynmanDiagram> getDiagrams_(
+            mty::Model const *model,
             const csl::Expr& initialExpr,
             std::map<csl::Tensor, size_t>& vertexIds,
             bool symmetriseExternalLegs = false,

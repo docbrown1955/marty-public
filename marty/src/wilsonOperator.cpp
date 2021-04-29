@@ -134,6 +134,46 @@ namespace OperatorParser {
         return csl::sum_s(res);
     }
 
+    csl::Expr get_V5_x_V_Coefficient(
+            std::vector<Wilson> const &coefs
+            )
+    {
+        std::vector<Requirement> requirements {
+            {1, 1}, // Conjugated fermion
+            {1, 0}, // Non-conjugated fermion
+            {1, 1}, // Conjugated fermion
+            {1, 0}, // Non-conjugated fermion
+        };
+        std::vector<csl::Expr> res;
+        for (const auto &wilson : coefs) {
+            const std::vector<Insertion> insertions = getInsertions(
+                    requirements,
+                    wilson.op
+                    );
+            if (insertions.empty()) {
+                continue;
+            }
+            csl::Expr op_1 = build_V5_x_V(
+                    insertions[0],
+                    insertions[1],
+                    insertions[2],
+                    insertions[3]
+                    );
+            csl::Expr op_2 = build_V5_x_V(
+                    insertions[0],
+                    insertions[3],
+                    insertions[2],
+                    insertions[1]
+                    );
+            if (wilson.op == WilsonOperator{op_1})
+                res.push_back(wilson.coef.getCoefficient());
+            else if (wilson.op == WilsonOperator{op_2})
+                res.push_back(wilson.coef.getCoefficient());
+        }
+
+        return csl::sum_s(res);
+    }
+
     csl::Expr get_V_x_V_Coefficient(
             std::vector<Wilson> const &coefs
             )
@@ -247,6 +287,39 @@ namespace OperatorParser {
 
         return (p1 * gamma({+mu, alpha, beta}) * p2)
              * (p3 * gamma({mu, gam, delta}) * gamma5({delta, eps}) * p4);
+    }
+
+
+    csl::Expr build_V5_x_V(
+            Insertion const &psi1L,
+            Insertion const &psi1R,
+            Insertion const &psi2L,
+            Insertion const &psi2R
+            )
+    {
+        csl::Expr p1 = fermionExpr(psi1L);
+        csl::Expr p2 = fermionExpr(psi1R);
+        csl::Expr p3 = fermionExpr(psi2L);
+        csl::Expr p4 = fermionExpr(psi2R);
+
+        csl::Index mu = csl::Minkowski.generateIndex();
+        csl::Index  alpha = p1->getIndexStructureView().back();
+        csl::Index  eps  = p2->getIndexStructureView().back();
+        csl::Index  gam   = p3->getIndexStructureView().back();
+        csl::Index  delta   = p4->getIndexStructureView().back();
+        csl::Index  beta = eps.rename();
+        csl::Tensor gamma = dynamic_cast<DiracSpace const*>(
+                alpha.getSpace())->gamma;
+        csl::Tensor gamma5 = dynamic_cast<DiracSpace const*>(
+                alpha.getSpace())->gamma_chir;
+
+        for (size_t i = 0; i+1 < p1->getIndexStructureView().size(); ++i) 
+            p2->getIndexStructureView()[i] = p1->getIndexStructureView()[i];
+        for (size_t i = 0; i+1 < p3->getIndexStructureView().size(); ++i) 
+            p4->getIndexStructureView()[i] = p3->getIndexStructureView()[i];
+
+        return (p1 * gamma({+mu, alpha, beta})*gamma5({beta, eps}) * p2)
+             * (p3 * gamma({mu, gam, delta})  * p4);
     }
 
     csl::Expr buildMagneticOperator(
