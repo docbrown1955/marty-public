@@ -90,10 +90,10 @@ namespace mty {
             csl::LibraryGenerator::print();
         }
 
-        void build()
+        void build(unsigned int nJobs = 1)
         {
             if (lhaEnabled) doImportLHAModule();
-            csl::LibraryGenerator::build();
+            csl::LibraryGenerator::build(nJobs);
         }
 
     private:
