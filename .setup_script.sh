@@ -23,6 +23,7 @@ else
     fi
 fi
 
+EXIT_CMD=
 exitInstaller()
 {
     echo -e "${RED}${BOLD}Error: Installation aborted.${NC}${NORMAL}"
