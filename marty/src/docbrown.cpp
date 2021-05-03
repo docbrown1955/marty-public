@@ -21,8 +21,6 @@ DocBrown::DocBrown(
     ensurePath();
 }
 
-DocBrown::~DocBrown(){}
-
 std::string DocBrown::join(
         std::string_view path,
         std::string_view file

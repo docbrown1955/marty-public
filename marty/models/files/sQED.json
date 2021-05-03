@@ -1,0 +1,22 @@
+{
+    "gauge": {
+        "name": "EM",
+        "group": [
+            {
+                "name": "U1em",
+                "type": "U1",
+                "coupling" : { "name": "e" },
+                "boson": {"name" : "A"}
+            }
+        ]
+    },
+    "field": [
+        {
+            "name": "\phi",
+            "spin": 0,
+            "irrep": { "U1em": "-1" },
+            "mass" : { "name": "m" }
+        }
+    ]
+}
+

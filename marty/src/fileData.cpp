@@ -6,9 +6,7 @@ FileData::FileData(
         std::string_view t_headerName,
         std::string_view t_sourceName
         )
-    :header(),
-    source(),
-    headerName(t_headerName),
+    :headerName(t_headerName),
     sourceName(t_sourceName),
     m_indent(4, ' ')
 {}

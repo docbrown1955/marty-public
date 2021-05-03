@@ -20,8 +20,6 @@ public:
             std::string_view jsonCheckPointNames
             );
 
-    ~DocBrown();
-
     void addCheckPoint(std::shared_ptr<CheckPoint_Base> const &cp);
 
     void writeData();
