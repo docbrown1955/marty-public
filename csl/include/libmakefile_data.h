@@ -75,7 +75,7 @@ void print_libmakefile_data(std::ostream &out, bool quad, bool clang) {
     out << "scripts: $(BINARIES)\n";
     out << "lib: $(NAMELIB).so $(NAMELIB).a\n";
     out << "\n";
-    out << "$(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(HEADERS)\n";
+    out << "$(OBJDIR)/%.o: $(SRCDIR)/%.cpp\n";
     out << "	$(CXX) $(CFLAGS) -c $< -o $@ $(INCPATH)\n";
     out << "\n";
     out << "$(SOBJDIR)/%.o: $(SCRIPTDIR)/%.cpp\n";
