@@ -366,7 +366,7 @@ void InteractionTerm::setPoint(csl::Tensor const& point)
 bool InteractionTerm::contains(const QuantumFieldParent* f) const
 {
     for (const auto& field : content)
-        if (f->contains(field.getQuantumParent()))
+        if (field.getQuantumParent()->contains(f))
             return true;
 
     return false;

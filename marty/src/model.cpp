@@ -231,7 +231,6 @@ csl::Expr Model::computeSquaredAmplitude(
 {
     csl::ScopedProperty prop(&mty::option::decomposeInLocalOperator, false);
     auto wilsons = getWilsonCoefficients(ampl, CSL_1, OperatorBasis::None, true);
-    Display(wilsons);
     return computeSquaredAmplitude(
             wilsons,
             applyDegreesOfFreedomFactor

@@ -96,6 +96,8 @@ Insertion OffShell(Insertion const& init);
 Insertion Incoming(Insertion const& init);
 Insertion Outgoing(Insertion const& init);
 Insertion AntiPart(Insertion const& init);
+Insertion Left(Insertion const& init);
+Insertion Right(Insertion const& init);
 std::vector<Insertion> AntiPart(std::vector<Insertion> const &init);
 csl::Expr GetExpression(Insertion const& init);
 std::vector<csl::Expr> GetExpression(std::vector<Insertion> const& insertions);

@@ -4,7 +4,7 @@ CXX = g++-7
 VERSION=1.0
 
 CXXDEBUG          = $(CXX) -g -D DEBUG
-CFLAGS           = -Wall -Wextra -Wpedantic -std=c++17 -O3 -fPIC -DDEBUGLOG
+CFLAGS           = -Wall -Wextra -Wpedantic -std=c++17 -O3 -fPIC #-DDEBUGLOG
 
 SRCDIR     = src
 HEADDIR    = include

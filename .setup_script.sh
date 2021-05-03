@@ -26,7 +26,12 @@ fi
 exitInstaller()
 {
     echo -e "${RED}${BOLD}Error: Installation aborted.${NC}${NORMAL}"
-    exit 1
+    if [[ $0 != ${BASH_SOURCE} ]]
+    then
+        EXIT_CMD=return
+    else
+        EXIT_CMD=exit
+    fi
 }
 
 message()
@@ -111,7 +116,7 @@ testDependencies_Linux()
     fi
     if [ "$dep_ok" == "0" ]
     then
-        exitInstaller
+        exitInstaller $@
     else
         message "${GREEN}${BOLD}[1 / 5] All dependencies are ready for compilation${NC}${NORMAL}"
     fi
@@ -143,9 +148,9 @@ testDependencies()
     case "${unameOut}" in
         Linux*)     testDependencies_Linux;;
         Darwin*)    testDependencies_MACOS;;
-        CYGWIN*)    exitInstaller;;
-        MINGW*)     exitInstaller;;
-        *)          exitInstaller
+        CYGWIN*)    exitInstaller $@;; 
+        MINGW*)     exitInstaller $@;;
+        *)          exitInstaller $@
     esac
 }
 
@@ -155,17 +160,19 @@ ensure_path()
     then
         echo "Directory $1 does not exist and will be created. Confirm ? [y/n, default: y]"
         read c
-        if [ "$c" == "" ] || [ "$c" == "Y" ] || [ "$c" == "y" ] || [ "$c" == "yes" ] || [ "$c" == "Yes"]
+        if [ "$c" == "" ] || [ "$c" == "Y" ] || [ "$c" == "y" ] || [ "$c" == "yes" ] || [ "$c" == "Yes" ]
         then
             mkdir -p $1
             if [ ! -e $1 ]
             then
                 echo -e "${RED}${BOLD}Path $1 is invalid, please provide a valid path.${NORMAL}${NC}"
-                exitInstaller
+                exitInstaller $@
+                return
             fi
         else
             echo -e "${RED}${BOLD}Path $1 is invalid, please provide a valid path.${NORMAL}${NC}"
-            exitInstaller
+            exitInstaller $@
+            return
         fi
     fi
 }
@@ -173,6 +180,7 @@ ensure_path()
 message "${GREEN}${BOLD}MARTY installation script${NC}${NORMAL}"
 
 testDependencies
+[ ! -z $EXIT_CMD ] && $EXIT_CMD 1
 
 default_path=/usr/local
 if [ $# -ge 1 ]
@@ -197,9 +205,13 @@ inc_path=$(realpath -m $path/include)
 bin_path=$(realpath -m $path/bin)
 
 ensure_path $path
+[ ! -z $EXIT_CMD ] && $EXIT_CMD 1
 ensure_path $inc_path
+[ ! -z $EXIT_CMD ] && $EXIT_CMD 1
 ensure_path $lib_path
+[ ! -z $EXIT_CMD ] && $EXIT_CMD 1
 ensure_path $bin_path
+[ ! -z $EXIT_CMD ] && $EXIT_CMD 1
 message "${GREEN}${BOLD}[2 / 5] Installation path checked${NORMAL}${NC}"
 
 martyEnvFile=marty_env.sh
@@ -244,14 +256,19 @@ case "${unameOut}" in
     Darwin*)    
         mkdir -p $grafed_debug
         mkdir -p $grafed_release
-        cd $grafed_debug && qmake -makefile -o Makefile "CONFIG+=debug" ../grafed-gui/grafed-gui.pro; cd $MARTY_LOC
-        cd $grafed_release && qmake -makefile -o Makefile ../grafed-gui/grafed-gui.pro; cd $MARTY_LOC
+        cd $grafed_debug && qmake -makefile -o Makefile "CONFIG+=debug" \
+            "QMAKE_CXX=$CXX" "QMAKE_LINK=$CXX" ../grafed-gui/grafed-gui.pro;\
+            cd $MARTY_LOC
+        cd $grafed_release && qmake -makefile -o Makefile  \
+            "QMAKE_CXX=$CXX" "QMAKE_LINK=$CXX" ../grafed-gui/grafed-gui.pro;\
+            cd $MARTY_LOC
         conf_release=`ls $grafed_release/.qmake*`
         conf_debug=`ls $grafed_debug/.qmake*`
         if [ "$conf_debug" == "" ] || [ "$conf_release" == "" ]
         then
             echo -e "${RED}${BOLD}GRAFED qmake configuration failed...${NORMAL}${NC}"
-            exitInstaller
+            exitInstaller $@
+            [ ! -z $EXIT_CMD ] && $EXIT_CMD 1
         fi
     ;;
 esac

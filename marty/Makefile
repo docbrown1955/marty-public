@@ -10,7 +10,7 @@ DYNAMICLIBRARY = libmarty.so
 LTVERSION = 2.15
 
 CXXDEBUG         = $(CXX) -g # -D DEBUG
-CXXFLAGS 	 = $(MARTY_CXX_FLAGS) -Wall -Wextra -Wpedantic -std=c++17 -O3 -fPIC -Wfatal-errors
+CXXFLAGS 	 = $(MARTY_CXX_FLAGS) -Wall -Wextra -Wpedantic -std=c++17 -O3 -fPIC -Wfatal-errors 
 
 SRCDIR     = src
 HEADDIR    = include

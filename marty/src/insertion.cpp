@@ -69,6 +69,8 @@ QuantumFieldParent *Insertion::getField() const {
 }
 
 void Insertion::setField(QuantumFieldParent *t_field) {
+    validExpression = false;
+    expression = CSL_UNDEF;
     field = t_field;
 }
 
@@ -146,6 +148,30 @@ Insertion AntiPart(Insertion const& init)
 {
     Insertion other(init);
     other.setParticle(!init.isParticle());
+    return other;
+}
+
+Insertion Left(Insertion const &init)
+{
+    const auto left = init.getField()->getWeylFermion(Chirality::Left);
+    HEPAssert(left,
+            mty::error::TypeError,
+            "Expecting a Dirac fermion for Left-handed insertion, " 
+            + toString(init.getExpression()) + " given instead.")
+    Insertion other(init);
+    other.setField(left.get());
+    return other;
+}
+
+Insertion Right(Insertion const &init)
+{
+    const auto right = init.getField()->getWeylFermion(Chirality::Right);
+    HEPAssert(right,
+            mty::error::TypeError,
+            "Expecting a Dirac fermion for Right-handed insertion, " 
+            + toString(init.getExpression()) + " given instead.")
+    Insertion other(init);
+    other.setField(right.get());
     return other;
 }
 

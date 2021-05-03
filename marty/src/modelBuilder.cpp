@@ -1238,17 +1238,17 @@ void ModelBuilder::refresh()
         else {
             bool found = false;
             for (const auto &k : L.kinetic)
-                if (k->containsExactly(particles[i].get())) {
+                if (k->contains(particles[i].get())) {
                     found = true;
                     break;
                 }
             for (const auto &m : L.mass)
-                if (m->containsExactly(particles[i].get())) {
+                if (m->contains(particles[i].get())) {
                     found = true;
                     break;
                 }
             for (const auto &in : L.interaction)
-                if (in->containsExactly(particles[i].get())) {
+                if (in->contains(particles[i].get())) {
                     found = true;
                     break;
                 }

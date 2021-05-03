@@ -11,18 +11,18 @@ NOUNDERSCORE = 0
 QUAD = 0
 QUADSIZE = 16
 
-FC = gfortran-7
+FC = gfortran
 FFLAGS = -fPIC -O3 -ffixed-line-length-none -fno-range-check \
   $(DEF)QUAD=$(QUAD) $(DEF)QUADSIZE=$(QUADSIZE) \
   $(DEF)U77EXT=0
 
-CC = gcc-7
+CC = gcc
 CFLAGS = -fPIC -O3 -g -fomit-frame-pointer -ffast-math -fPIC -Wall -Wno-unused-result -m64 \
   -DQUAD=$(QUAD) -DQUADSIZE=$(QUADSIZE) \
   -DNOUNDERSCORE=$(NOUNDERSCORE) \
   -DBIGENDIAN=0
 
-CXX = g++-7
+CXX = g++
 CXXFLAGS = -fPIC -O3 -g -fomit-frame-pointer -ffast-math -Wall -m64
 
 ML = 1
@@ -30,7 +30,7 @@ MCC = mcc
 MCFLAGS = -fPIC -st -b64
 MCLIBS = -lpthread -lrt
 
-LDFLAGS = -L/usr/lib/gcc/x86_64-linux-gnu/7/liblto_plugin.so -L/home/uhlrich/.local/lib/../lib -L/home/uhlrich/.local/lib/../lib -L/home/uhlrich/.local/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/7 -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/home/uhlrich/.local/lib -L/home/uhlrich/.local/lib -L/home/uhlrich/.local/lib -L/usr/lib/gcc/x86_64-linux-gnu/7/../../.. -lgfortran -lm -lgcc_s -lgcc -lquadmath -lm -lgcc_s -lgcc -lgcc_s -lgcc
+LDFLAGS = -L/usr/lib/gcc/x86_64-linux-gnu/7/liblto_plugin.so -L/home/uhlrich/.local/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/7 -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/home/uhlrich/.local/lib -L/usr/lib/gcc/x86_64-linux-gnu/7/../../.. -lgfortran -lm -lgcc_s -lgcc -lquadmath -lm -lgcc_s -lgcc -lgcc_s -lgcc
 
 PARALLEL = -j 12
 
