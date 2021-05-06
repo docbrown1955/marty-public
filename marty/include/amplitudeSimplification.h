@@ -1,14 +1,34 @@
-/**
+// This file is part of MARTY.
+//
+// MARTY is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// MARTY is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with MARTY. If not, see <https://www.gnu.org/licenses/>.
+
+ /**
  * @file amplitudeSimplification.h
+ *
  * @brief File containing all the simplification routines for MARTY.
+ *
  * @details When a calculation is done (amplitude, squared amplitude or Wilson 
  * coefficient) it is simplified by the mty::simpli::simplify() method that 
  * uses directly or indirectly all the other routines in this file. The other
  * rountines can for the most part be called separatly, but for a full successful
  * simplification the order is extremely important and the mty::simpli::simplify()
  * method is a reference.
+ *
  * @author Grégoire Uhlrich
- * @version 1.5
+ *
+ * @version 1.3
+ *
  * @date 2021-04-16
  */
 #pragma once
@@ -331,7 +351,7 @@ namespace mty::simpli {
 
     /**
      * @brief Expands expressions containing momenta to contract all indices,
-     * typically replacing \f$ p_i^\mu\cdot p_{j\nu} \mapsto s_{ij} \f$.
+     * typically replacing \f$ p_i^\mu\cdot p_{j\mu} \mapsto s_{ij} \f$.
      *
      * @param res     Expression to expand.
      * @param momenta Set of momenta involved.
@@ -520,13 +540,9 @@ namespace mty::simpli {
      * \f]
      *
      * @param expr             Expression in which the the function is applied.
-     * @param applyDerivatives Boolean (default = true) telling if the 
-     * derivatives must be applied in the field. Otherwise derivatives are 
-     * simply removed.
      */
     void applyDerivativesInStructure(
-            csl::Expr &expr,
-            bool       applyDerivatives = true
+            csl::Expr &expr
             );
 
     /**

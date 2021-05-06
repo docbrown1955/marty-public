@@ -1562,7 +1562,7 @@ csl::Expr getMomentumSum(const vector<QuantumField>& insertions,
 ostream& operator<<(ostream& fout,
                     const mty::QuantumField& field) 
 {
-    field.print(0, fout);
+    field.print(1, fout);
 
     return fout;
 }

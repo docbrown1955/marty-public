@@ -195,12 +195,8 @@ std::string Abbrev::getFinalName(std::string_view initialName)
 
 void Abbrev::printAbbreviations(std::ostream& fout)
 {
-    for (const auto &[name, abbreviations] : abbreviationData) {
-        fout << abbreviations.size() << " abbreviations \"" << name << "\":\n";
-        for (const auto& ab : abbreviations) {
-            fout << ab->getName() << " = ";
-            fout << ab->getEncapsulated() << std::endl;
-        }
+    for (const auto &data : abbreviationData) {
+        printAbbreviations(data.first, fout);
     }
 }
 
@@ -209,7 +205,11 @@ void Abbrev::printAbbreviations(
         std::ostream    &fout
         )
 {
-    auto &abbreviations = getAbbreviationsForName(name);
+    auto abbreviations = getAbbreviationsForName(name);
+    std::sort(abbreviations.begin(), abbreviations.end(), 
+            [&](AbstractParent const *left, AbstractParent const *right) {
+                return left->getName() < right->getName();
+            });
     fout << abbreviations.size() << " \"" << name << "\" abbreviations:\n";
     for (const auto& ab : abbreviations) {
         fout << ab->getName() << " = " 

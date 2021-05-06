@@ -1,4 +1,19 @@
-#include "amplitudeSimplification.h"
+// This file is part of MARTY.
+//
+// MARTY is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// MARTY is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with MARTY. If not, see <https://www.gnu.org/licenses/>.
+
+ #include "amplitudeSimplification.h"
 #include "polarization.h"
 #include "colorSpace.h"
 #include "diracology.h"
@@ -210,8 +225,7 @@ namespace mty::simpli {
     }
 
     void applyDerivativesInStructure(
-            csl::Expr& expression,
-            bool       applyDerivatives
+            csl::Expr& expression
             )
     {
         csl::ForEachNode(
@@ -221,14 +235,8 @@ namespace mty::simpli {
                       and IsOfType<mty::QuantumField>(el->getOperand())) {
                 mty::QuantumField field = ConvertTo<mty::QuantumField>(
                         el->getOperand());
-                if (applyDerivatives) {
-                    field.addDerivative(el->getIndexStructureView()[0]);
-                }
+                field.addDerivative(el->getIndexStructureView()[0]);
                 el = field.copy();
-              }
-              else if (!applyDerivatives && IsOfType<mty::QuantumField>(el)) {
-                mty::QuantumField* field = ConvertToPtr<mty::QuantumField>(el);
-                field->setDerivativeStructure(csl::IndexStructure());
               }
             });
     }

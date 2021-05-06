@@ -49,8 +49,8 @@ InteractionTerm::InteractionTerm(
         csl::Expr                 const& t_term,
         vector<QuantumField> const& t_content)
     :term(DeepCopy(t_term)),
-    forcedContent(true),
-    content(t_content)
+    content(t_content),
+    forcedContent(true)
 {
     factors.reserve(10);
     permutations.reserve(10);
@@ -381,40 +381,31 @@ bool InteractionTerm::containsExactly(const QuantumFieldParent* f) const
     return false;
 }
 
-csl::Expr InteractionTerm::getFieldProduct(bool applyDerivatives) const
+csl::Expr InteractionTerm::getFieldProduct() const
 {
     csl::vector_expr terms(content.size());
-    if (applyDerivatives)
-        std::transform(
-                content.begin(),
-                content.end(),
-                terms.begin(),
-                [](QuantumField const& t_field){
-                     QuantumField field = t_field;
-                     csl::IndexStructure structure 
-                          = field.getDerivativeStructure();
-                     field.setDerivativeStructure(csl::IndexStructure());
-                     csl::Expr res = field.copy();
-                     for (const auto& index : structure)
-                         res = partialMinko(index,
-                                            field.getPoint()) * res;
-                     return res;
-                });
-    else
-        std::transform(
-                content.begin(),
-                content.end(),
-                terms.begin(),
-                [](QuantumField const& field){
-                    return field.copy();
-                });
+    std::transform(
+            content.begin(),
+            content.end(),
+            terms.begin(),
+            [](QuantumField const& t_field){
+                 QuantumField field = t_field;
+                 csl::IndexStructure structure 
+                      = field.getDerivativeStructure();
+                 field.setDerivativeStructure(csl::IndexStructure());
+                 csl::Expr res = field.copy();
+                 for (const auto& index : structure)
+                     res = partialMinko(index,
+                                        field.getPoint()) * res;
+                 return res;
+            });
 
     return prod_s(terms);
 }
 
 csl::Expr InteractionTerm::getFullExpression() const
 {
-    csl::Expr res = applyFactorAndSymmetriesOn(getFieldProduct(true));
+    csl::Expr res = applyFactorAndSymmetriesOn(getFieldProduct());
     res = DeepRefreshed(res);
     if (csl::Abbrev::getFreeStructure(res->getIndexStructure()).size() > 0) {
         std::cout << *this << std::endl;

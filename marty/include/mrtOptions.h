@@ -77,7 +77,6 @@ namespace mty::option {
     // not need them
     ///////////////////////////////////////////////////
 
-    inline bool applyDerivatives          = true;
     inline bool applyFactorsAndSymmetries = true;
     inline bool applyMomentumConservation = true;
     inline bool applyInsertionOrdering    = true;

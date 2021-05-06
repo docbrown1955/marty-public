@@ -322,13 +322,14 @@ csl::Expr FermionPropagator(
     csl::Expr diracStructure = (external) ?  delta({alpha, beta}) : (p + m);
 
     Expr sign = (reverted and not external) ? -1 : 1;
-    return 
+    const csl::Expr res = 
         sign * CSL_I
         * projectors
         * csl::prod_s(deltaFactor)
         * diracStructure
         * ExponentialFactor(pointA, pointB, P)
         * StandardDenominator(P, A.getMass(), A.getWidth(), external);
+    return res;
 }
 
 // These functions are not used anymore, see fermionFlow.h

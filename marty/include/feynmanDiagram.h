@@ -1,3 +1,25 @@
+// This file is part of MARTY.
+// 
+// MARTY is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// MARTY is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with MARTY. If not, see <https://www.gnu.org/licenses/>.
+/**
+ * @file feynmanDiagram.h
+ * @brief Contains the mty::FeynmanDiagram class.
+ * @author Grégoire Uhlrich
+ * @version 1.3
+ * @date 2021-05-05
+ */
+
 #pragma once
 
 #include <csl.h>
@@ -13,17 +35,47 @@ namespace mty {
     class Model;
     class Particle;
 
+    /**
+     * @brief Class containing a Feynman diagram, symbolic expression and graph
+     * included.
+     *
+     * @details The purpose of this class is to provide a container for the 
+     * result of a diagram calculation, and a simple interface to obtain 
+     * relevant information about the process. When an amplitude calculation is
+     * performed, the result contains a range of Feynman diagrams, each one (an
+     * instance of this class) containing as said above the graph that can be 
+     * displayed in GRAFED, and the fully simplified symbolic expression, main
+     * result of MARTY.
+     */
     class FeynmanDiagram {
 
     public:
+
+        /**
+         * @brief Type definition for the type used to store graphs.
+         */
         using diagram_t = std::shared_ptr<mty::wick::Graph>;
+
+        /**
+         * @brief Helper type definition ensuring that the type T is not a 
+         * mty::Particle.
+         *
+         * @tparam T 
+         */
         template<typename T>
         using isNotParticle_t = typename std::enable_if_t<
             !std::is_same_v<mty::Particle, std::decay_t<T>>
                 >;
 
+        /**
+         * @brief Possible types of particles in a diagram.
+         */
         enum DiagramParticleType {
-            External, Mediator, Loop, Any
+
+            External, /*!< External particles. */
+            Mediator, /*!< Internal particles outside loops. */
+            Loop,     /*!< Internal particles in loops. */
+            Any       /*!< Any type of particle. */ 
         };
 
         FeynmanDiagram(
@@ -32,19 +84,73 @@ namespace mty {
                 diagram_t  const &t_diagram
                 );
 
+        /**
+         * @brief Tells if the diagram vanishes.
+         *
+         * @note A bare output of MARTY should in principle not contain null
+         * diagrams.
+         *
+         * @return \b True  if the diagram's expression is equal to zero.
+         * @return \b False else.
+         */
         bool isZero() const {
             return CSL_0 == expression;
         }
 
+        /**
+         * @brief Returns the diagrams's expression as a const reference.
+         *
+         * @return #expression
+         */
         csl::Expr const &getExpression() const { return expression; }
+
+        /**
+         * @brief Returns the diagrams's expression as a reference.
+         *
+         * @return #expression
+         */
         csl::Expr       &getExpression()       { return expression; }
 
+        /**
+         * @brief Returns the diagram's graph as a const reference.
+         *
+         * @return #diagram
+         */
         diagram_t const &getDiagram() const { return diagram; }
 
+        /**
+         * @brief Returns the set of particles corresponding to a given type.
+         *
+         * @param type Type of the particle range to return. The default value
+         * is #Any, meaning all the particles in the diagram.
+         *
+         * @return #externalParticles if type is #External.
+         * @return #mediatorParticles if type is #Mediator.
+         * @return #loopParticles     if type is #Loop.
+         * @return #allParticles      if type is #Any.
+         */
         std::vector<mty::Particle> const &getParticles(
                 DiagramParticleType type = Any
                 ) const;
 
+        /**
+         * @brief Tells if one particle is contained in the diagram for a given
+         * type.
+         *
+         * @details This function is a general one, that is called by several
+         * specialization: isExternal(), isMediator(), isInLoop(), isInternal().
+         * Given a particle and a type (DiagramParticleType), this function 
+         * returns true if the particle is found is the range of particles of 
+         * the same type in the diagram.
+         *
+         * @param part Particle to search in the diagram.
+         * @param type Type that the particle must be. The default is #Any 
+         * meaning that this function searches in the whole diagram (all 
+         * particles).
+         *
+         * @return \b True if the particle has been found.
+         * @return \b False else.
+         */
         bool contains(
                 mty::Particle const &part,
                 DiagramParticleType  type = Any
@@ -63,12 +169,25 @@ namespace mty {
             return isMediator(particle) || isInLoop(particle);
         }
 
+        /**
+         * @return \b True if the diagram is at the tree level.
+         * @return \b False else.
+         */
         bool isTreeLevel() const {
             return getNLoops() == 0;
         }
+
+        /**
+         * @return \b True if the diagram has at least one loop.
+         * @return \b False else.
+         */
         bool isLoop() const {
             return !isTreeLevel();
         }
+
+        /**
+         * @return The number of loops of the diagram.
+         */
         int getNLoops() const;
 
         bool isTopology(int topology) const;
@@ -130,13 +249,52 @@ namespace mty {
 
     private:
 
+        /**
+         * @brief Pointer to the model in which the calculation has been done.
+         */
         Model const *model;
+
+        /**
+         * @brief Expression result of the calculation.
+         */
         csl::Expr    expression;
+
+        /**
+         * @brief Graph to forward to GRAFED to display it on screen.
+         */
         diagram_t    diagram;
+
+        /**
+         * @brief Length of the cycle (momentum integral) if the is one.
+         */
         int          cycleLength;
+
+        /**
+         * @brief List of all particles in the process.
+         */
         std::vector<mty::Particle> allParticles;
+
+        /**
+         * @brief List of external particles in the process.
+         */
         std::vector<mty::Particle> externalParticles;
+
+        /**
+         * @brief List of mediator particles in the process.
+         *
+         * @details Mediator particles are defined here as internal particles
+         * that do not appear in loops. An internal particle is then either
+         * a mediator or a looped particle.
+         *
+         * @sa #loopParticles
+         */
         std::vector<mty::Particle> mediatorParticles;
+
+        /**
+         * @brief List of particles in loops in the process.
+         *
+         * @sa #mediatorParticles
+         */
         std::vector<mty::Particle> loopParticles;
     };
 

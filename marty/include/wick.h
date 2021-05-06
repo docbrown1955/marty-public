@@ -46,7 +46,7 @@ class Wick: public csl::Operator<csl::AbstractFunc> {
 
     /*!
      * \brief Constructor with one parameter.
-     * \param expr csl csl::Expr initializing the argument of the operator.
+     * \param expr csl::Expr initializing the argument of the operator.
      */
     explicit
     Wick(const csl::Expr& expr);

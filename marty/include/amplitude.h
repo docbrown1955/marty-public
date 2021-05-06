@@ -1,3 +1,28 @@
+// This file is part of MARTY.
+// 
+// MARTY is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// MARTY is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with MARTY. If not, see <https://www.gnu.org/licenses/>.
+
+/**
+ * @file amplitude.h
+ *
+ * @brief Contains the mty::Amplitude object that stores the data of an 
+ * amplitude calculation.
+ *
+ * @author Grégoire Uhlrich
+ * @version 1.3
+ * @date 2021-05-05
+ */
 #pragma once
 
 #include "feynmanDiagram.h"
@@ -5,6 +30,14 @@
 
 namespace mty {
 
+    /**
+     * @brief Interface class containing the result of an amplitude calculation.
+     *
+     * @details This is the return type of the mty::Model::computeAmplitude()
+     * member. It contains the mty::FeynmanDiagram objects corresponding to the
+     * amplitude, the options that have been used during the calculation and the
+     * mty::Kinematics objects corresponding to the external particles layout.
+     */
     class Amplitude {
 
     public:
@@ -95,8 +128,21 @@ namespace mty {
 
     private:
 
+        /**
+         * @brief Set of options that have been used for the calculation.
+         */
         FeynOptions                      options;
+
+        /**
+         * @brief Range of mty::FeynmanDiagram of the process. Each diagram 
+         * contains a mathematical expression and the corresponding graph (that
+         * can be displayed using GRAFED).
+         */
         std::vector<mty::FeynmanDiagram> diagrams;
+
+        /**
+         * @brief Kinematics of the process.
+         */
         mty::Kinematics                  kinematics;
     };
 

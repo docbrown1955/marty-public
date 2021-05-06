@@ -1,4 +1,19 @@
-#include "amplitudeInitializer.h"
+// This file is part of MARTY.
+//
+// MARTY is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// MARTY is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with MARTY. If not, see <https://www.gnu.org/licenses/>.
+
+ #include "amplitudeInitializer.h"
 #include "feynmanDiagram.h"
 #include "diracology.h"
 #include "wick.h"
@@ -71,8 +86,6 @@ namespace mty {
 
         std::vector<csl::Expr> fieldVertices(insertions.size());
         for (size_t i = 0; i != insertions.size(); ++i) {
-            if (not mty::option::applyDerivatives)
-                insertions[i].setDerivativeStructure(csl::IndexStructure());
             fieldVertices[i] = insertions[i].copy();
         }
         Amplitude res { options, kinematics };
@@ -92,8 +105,8 @@ namespace mty {
                 cpyFieldVertices[insertions.size() + i] 
                     = lagrangian[termPos[i]]->getFieldProduct();
                 simpli::applyDerivativesInStructure(
-                        cpyFieldVertices[insertions.size()+i],
-                        options.applyDerivatives);
+                        cpyFieldVertices[insertions.size()+i]
+                        );
             }
 
             cpyFieldVertices.push_back(
@@ -145,8 +158,9 @@ namespace mty {
             const auto &termPos = terms[index];
             std::vector<FeynmanRule> localRules;
             localRules.reserve(termPos.size());
-            for (size_t i : termPos)
+            for (size_t i : termPos) {
                 localRules.push_back(*feynmanRules[i]);
+            }
             std::vector<csl::Tensor> vertices = getVertices(termPos.size());
             std::map<csl::Tensor, size_t> vertexIds;
             std::vector<csl::Tensor> witnessVertices;

@@ -224,7 +224,6 @@ csl::Expr FeynmanRule::getFieldProduct(
         ++first;
     }
     *iter = expr;
-
     csl::Expr res = ReplaceXiGauge(csl::prod_s(product));
     csl::RenameIndices(res);
     return res;
@@ -370,7 +369,7 @@ std::ostream& operator<<(std::ostream& out,
 {
     out << "Rule for ";
     for (const auto& f : rule.fieldProduct) {
-        f.getConjugatedField().print(1);
+        f.getConjugatedField().print(1, out);
         out << " ";
     }
     out << ":\n\t";

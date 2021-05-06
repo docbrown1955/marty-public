@@ -537,16 +537,6 @@ void Display(T const& printable,
     out << printable << std::endl;
 }
 
-template<class A1, class ...Args>
-void Display(A1 const& first,
-             Args &&...args)
-{
-    std::cout << first;
-    if (sizeof...(args) > 0)
-        Display(std::forward<Args>(args)...);
-
-}
-
 void DisplayAbbreviations(std::ostream &out = std::cout);
 void DisplayAbbreviations(std::string const &name,
                           std::ostream &out = std::cout);

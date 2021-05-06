@@ -469,22 +469,18 @@ void PMSSM_LEM::initContent()
     addParticle(nu_tau_L, false);
     
     N_1 = mty::weylfermion_s("N_1 ; N_1", *this, Chirality::Left);
-    N_1->setSelfConjugate(true);
     N_1->setMass(m_N_1);
     addParticle(N_1, false);
     
     N_2 = mty::weylfermion_s("N_2 ; N_2", *this, Chirality::Left);
-    N_2->setSelfConjugate(true);
     N_2->setMass(m_N_2);
     addParticle(N_2, false);
     
     N_3 = mty::weylfermion_s("N_3 ; N_3", *this, Chirality::Left);
-    N_3->setSelfConjugate(true);
     N_3->setMass(m_N_3);
     addParticle(N_3, false);
     
     N_4 = mty::weylfermion_s("N_4 ; N_4", *this, Chirality::Left);
-    N_4->setSelfConjugate(true);
     N_4->setMass(m_N_4);
     addParticle(N_4, false);
        
