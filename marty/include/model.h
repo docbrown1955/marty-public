@@ -15,7 +15,7 @@
 
 /*! \file
  * \author Gregoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief Contains the mty::Model class. It contains all objects in the theory.
  * In particular QuantumField objects, Gauge, Flavor, Particle...
  * \details All utilities for model building / computations are present in this

@@ -15,7 +15,7 @@
 
 /*! \file mathFunctions.h
  * \author Grégoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief Objects handling mathematical functions.
  */
 #ifndef MATHFUNCTIONS_H_INCLUDED

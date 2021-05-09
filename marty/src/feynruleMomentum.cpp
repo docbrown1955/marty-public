@@ -39,6 +39,8 @@ FeynruleMomentum::FeynruleMomentum(
             = rules[i].getFieldProduct();
         for (const auto& field : content) {
             keys.push_back({ field , vertices[i] });
+            for (auto &index : keys.back().field.getIndexStructureView())
+                index.setFree(false); // setting all dummy indices
             mapping.push_back(-1);
         }
     }
@@ -100,6 +102,12 @@ bool compareKey(FeynruleKey       const& key,
         return false;
     if (field.isComplexConjugate() != key.field.isComplexConjugate())
         return false;
+    auto structA = field.getIndexStructureView();
+    auto structB = key.field.getIndexStructureView();
+    for (size_t i = 0; i != structA.size(); ++i) {
+        if (structA[i] != structB[i])
+            return false;
+    }
     return true;
 }
 

@@ -13,7 +13,14 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
- #pragma once
+/**
+ * @file doc_brown_link.h
+ * @brief Contains macros for doc brown's debugger.
+ * @author Grégoire Uhlrich
+ * @version 1.3
+ * @date 2021-05-06
+ */
+#pragma once
 
 #ifdef DOC_BROWN_DEBUG_MODE
 

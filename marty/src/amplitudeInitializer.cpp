@@ -155,6 +155,17 @@ namespace mty {
         }
         Amplitude res { options, kinematics };
         for (size_t index = 0; index != terms.size(); ++index) {
+            ///////////////////////////////:
+            // This line is important as it disables all index contractions
+            // This allows to disbable index replacements from deltas and keep
+            // all fields with their initial indices, which is needed to
+            // recognize a field between the initial Feynman rules and the 
+            // initial non-simplified amplitude (in particular for 
+            // initMomentumVertices() and applyMomentumVertices())
+            const bool selfContractionEnabled = csl::option::applySelfContractions;
+            csl::option::applySelfContractions = false;
+            ///////////////////////////////:
+            
             const auto &termPos = terms[index];
             std::vector<FeynmanRule> localRules;
             localRules.reserve(termPos.size());
@@ -189,6 +200,10 @@ namespace mty {
                     false);
             options.applyFilters(amplitude);
 
+            ////////////////////////////////////////
+            // Setting this option to its old value
+            csl::option::applySelfContractions = selfContractionEnabled;
+            ////////////////////////////////////////
             for (size_t i = 0; i != amplitude.size(); ++i) {
                 simplifyRuledCalculation(
                         amplitude[i],

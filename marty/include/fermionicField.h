@@ -16,7 +16,7 @@
 /*!
  * @file 
  * @author Grégoire Uhlrich
- * @version 1.0
+ * @version 1.3
  
  * @brief Contains implementations for fermion (Weyl, Dirac, Majorana) for 
  * MARTY.
@@ -129,10 +129,6 @@ class WeylFermion: public QuantumFieldParent {
 
     void setDiracParent(Particle const &parent) override;
 
-    void setDrawType(drawer::ParticleType type) override;
-
-    void setMass(csl::Expr const &t_mass) override;
-
     protected:
 
     void initPropagator() override;
@@ -237,13 +233,7 @@ class DiracFermion: public QuantumFieldParent {
 
     csl::Expr getKineticTerm(csl::Tensor & X) override;
 
-    void setMass(csl::Expr const &t_mass) override;
-
-    void setDrawType(drawer::ParticleType type) override;
-
     Particle getWeylFermion(Chirality chirality) const override;
-
-    void setEnabledInDiagrams(bool t_enabled) override;
 
     private:
 

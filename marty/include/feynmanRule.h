@@ -16,7 +16,7 @@
 /*!
  * @file 
  * @author Grégoire Uhlrich
- * @version 1.0
+ * @version 1.3
  
  * \brief Contains the FeynmanRule object for Feynman rules.
  */
@@ -72,6 +72,8 @@ class FeynmanRule {
     void setInteractionTerm(TermType const& term);
     void setDiagram(std::shared_ptr<wick::Graph> const& diagram);
     void setExpr(csl::Expr const& expr);
+
+    void renameIndices();
 
     bool isZero() const;
     bool isEmpty() const;

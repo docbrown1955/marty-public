@@ -108,10 +108,10 @@ avoiding to find the same diagrams many times.
 all possible diagrams, applying the Wick theorem on every possible set of 
 interactions. It is also a well optimized algorithm to avoid any unnecessary 
 computation but may be interesting to look at.
-- amplitude.h contains the mty::AmplitudeCalculator class that is the main 
-simplification unit for *MARTY*. In particular, all the simplification 
-procedures (Dirac algebra, group algebra, momentum integral reductions, 
-Dirac equation, ...) are called from mty::AmplitudeCalculator::simplify().
+- amplitude.h contains the mty::Amplitude class that is the container 
+for *MARTY* amplitudes. 
+- feynmanDiagram.h contains the mty::FeynmanDiagram class that is the container 
+for *MARTY* Feynman diagrams, i.e. bits of amplitudes. 
 - diracology.h contains the Dirac space and all its content. Gamma matrices, 
 trace identities, are contained in this file.
 

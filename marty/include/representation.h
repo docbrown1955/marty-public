@@ -15,7 +15,7 @@
 
 /*! \file representation.h
  * \author Gregoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief Classes handling irreducible representations of semi simple Lie 
  * algebras, using the Cartan formalism: highest weight state representations.
  */

@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
- #include "partialExpand.h"
+#include "partialExpand.h"
 #include "indicial.h"
 #include "utils.h"
 #include "algo.h"
@@ -310,7 +310,12 @@ namespace csl {
             }
         for (const auto &chain : toExpand) {
             prodTerms.push_back(
-                    applyExpansion(prod, chain, isEmitter, isReceiver, chainsLeft)
+                    applyExpansion(
+                        prod, 
+                        chain,
+                        isEmitter,
+                        isReceiver,
+                        chainsLeft)
                     );
         }
         if (prodTerms.size() == 1)
@@ -369,7 +374,7 @@ namespace csl {
                     ExpanderReceiver const &isReceiver
                     )
     {
-        csl::ForEachNodeReversed(init, [&isEmitter, &isReceiver](csl::Expr &prod) {
+        csl::ForEachNode(init, [&isEmitter, &isReceiver](csl::Expr &prod) {
             if (csl::IsProd(prod)) {
                 PartialExpandImplementation(prod, isEmitter, isReceiver);
             }

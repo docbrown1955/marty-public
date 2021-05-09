@@ -897,16 +897,17 @@ void ModelBuilder::doPromoteToGoldstone(
             * csl::GetComplexConjugate(
                 mty::partialMinko(+mu, X)*gaugeBoson(_mu, X))
             * (mty::partialMinko(+nu, X)*gaugeBoson(_nu, X)));
-    addLagrangianTerm(
-            -factor * m*m*xi 
-            * csl::GetComplexConjugate((*goldstone)(indices, X))
-            * (*goldstone)(indices, X));
+    // Done by the addBosonicMass() below
+    // addLagrangianTerm(
+    //         -factor * m*m*xi 
+    //         * csl::GetComplexConjugate((*goldstone)(indices, X))
+    //         * (*goldstone)(indices, X));
     addLagrangianTerm(
             factor * m 
             * csl::GetComplexConjugate(gaugeBoson(_mu, X))
             * (mty::partialMinko(+mu, X)*(*goldstone)(indices, X)),
             true);
-    goldstone->setMass(m*csl::sqrt_s(xi));
+    addBosonicMass(goldstone, m*csl::sqrt_s(xi));
 }
 
 void ModelBuilder::doPromoteToGhost(
@@ -1051,7 +1052,7 @@ void ModelBuilder::applyDiracFermionEmbedding(
     }
     for (size_t i = 0; i != interaction.size(); ++i) {
         if (not interaction[i]->containsExactly(leftWeyl.get())
-                or not interaction[i]->containsExactly(rightWeyl.get()))
+                and not interaction[i]->containsExactly(rightWeyl.get()))
             continue;
         csl::Expr term = csl::DeepCopy(interactionTerms[i]);
         csl::ForEachLeaf(term, [&](csl::Expr& expr)
@@ -1087,9 +1088,10 @@ void ModelBuilder::applyDiracFermionEmbedding(
                 interactionTerms[i] = interaction[i]->getTerm();
                 interaction.erase(interaction.begin() + j);
                 interactionTerms.erase(interactionTerms.begin() + j);
+                minusInteractionTerms.erase(minusInteractionTerms.begin() + j);
                 break;
             }
-            else if (minusInteractionTerms[i] == term) {
+            else if (minusInteractionTerms[j] == term) {
                 csl::Transform(term, [&](csl::Expr& expr)
                 {
                     if (IsOfType<mty::QuantumField>(expr)) {
@@ -1124,6 +1126,7 @@ void ModelBuilder::applyDiracFermionEmbedding(
                 interactionTerms[i] = interaction[i]->getTerm();
                 interaction.erase(interaction.begin() + j);
                 interactionTerms.erase(interactionTerms.begin() + j);
+                minusInteractionTerms.erase(minusInteractionTerms.begin() + j);
                 break;
             }
         }
@@ -1351,26 +1354,20 @@ void ModelBuilder::breakGaugeSymmetry(
                 "Field " + toString(p->getName()) + " has no representation "
                 "for group " + toString(brokenGroup->getName()) + " and can "
                 "thus not be broken !")
-    std::vector<std::vector<mty::Particle>> newParticles(brokenFields.size());
     for (size_t i = 0; i != brokenFields.size(); ++i) {
-        newParticles[i] = breakParticle(
-                brokenFields[i],
-                brokenGroup,
-                newNames[i]);
-        csl::Space const* vectorSpace = brokenGroup->getVectorSpace(
-                brokenFields[i]->getGroupIrrep(brokenGroup)
-                );
-        brokenFields[i]->setBrokenParts(
-                vectorSpace,
-                newParticles[i]);
+        brokenFields[i]->breakParticle(brokenGroup, newNames[i]);
     }
     for (size_t i = 0; i != brokenFields.size(); ++i) {
         csl::Space const* vectorSpace = brokenGroup->getVectorSpace(
                 brokenFields[i]->getGroupIrrep(brokenGroup)
                 );
+        if (brokenFields[i]->getFieldStrength()) {
+            auto ff = brokenFields[i]->getFieldStrength();
+        }
         breakLagrangian(brokenFields[i], vectorSpace);
         if (brokenFields[i]->hasFieldStrength())
             breakLagrangian(brokenFields[i]->getFieldStrength(), vectorSpace);
+        if (brokenFields[i]->hasFieldStrength())
         removeParticle(brokenFields[i]);
     }
     for (size_t i = 0; i != gauge->size(); ++i)
@@ -1507,18 +1504,11 @@ void ModelBuilder::breakFlavorSymmetry(
     for (auto& part : particles)
         part->adjustFlavorRep(flavor.get());
 
-    std::vector<std::vector<mty::Particle>> newParticles(brokenFields.size());
     for (size_t i = 0; i != brokenFields.size(); ++i) {
-        newParticles[i] =
-            breakParticle(
-                    brokenFields[i],
+        brokenFields[i]->breakParticle(
                     brokenFlavor,
                     newFlavorGroups,
                     newNames[i]);
-        brokenFields[i]->setBrokenParts(
-                brokenFlavor->getFundamentalSpace(),
-                newParticles[i]
-                );
     }
     for (size_t i = 0; i != brokenFields.size(); ++i) {
         breakLagrangian(
@@ -1534,53 +1524,7 @@ void ModelBuilder::breakFlavorSymmetry(
     }
 }
 
-std::vector<mty::Particle> ModelBuilder::breakParticle(
-        mty::Particle            const &init,
-        mty::Group                     *brokenGroup,
-        std::vector<std::string> const &newNames
-        )
-{
-    std::vector<mty::Particle> newParticles;
-    csl::Space const* repSpace = brokenGroup->getVectorSpace(
-            init->getGroupIrrep(brokenGroup)
-            );
-    size_t nParts = repSpace->getDim();
-    newParticles.reserve(nParts);
-    for (size_t i = 0; i != nParts; ++i)  {
-        Particle newPart = init->generateSimilar(newNames[i]);
-        newPart->setGroupRep(brokenGroup,
-                             brokenGroup->getTrivialRep());
-        newParticles.push_back(newPart);
-        addParticle(newPart, false);
-    }
-
-    return newParticles;
-}
-std::vector<mty::Particle> ModelBuilder::breakParticle(
-        mty::Particle                  const &init,
-        mty::FlavorGroup                     *brokenFlavor,
-        std::vector<mty::FlavorGroup*> const &subGroups,
-        std::vector<std::string>       const &names
-        )
-{
-    std::vector<mty::Particle> newParticles;
-    newParticles.reserve(subGroups.size());
-    for (size_t i = 0; i != subGroups.size(); ++i)  {
-        Particle newPart = init->generateSimilar(names[i]);
-        newPart->setFlavorRep(brokenFlavor,
-                              brokenFlavor->getGroup()->getTrivialRep());
-        if (subGroups[i]) {
-            newPart->setFlavorRep(
-                    subGroups[i],
-                    subGroups[i]->getFundamentalRep());
-        }
-        newParticles.push_back(newPart);
-        addParticle(newPart, false);
-    }
-    return newParticles;
-}
-
-void replaceTermInLagrangian(
+void ModelBuilder::replaceTermInLagrangian(
         std::vector<Lagrangian::TermType> &lagrangian,
         size_t                            &i,
         csl::vector_expr                  &newTerms)
@@ -1588,6 +1532,7 @@ void replaceTermInLagrangian(
     std::vector<Lagrangian::TermType> newMass;
     newMass.reserve(newTerms.size());
     for (const auto& term : newTerms) {
+        addParticlesIn(term);
         std::vector<Lagrangian::TermType> interactions = 
             InteractionTerm::createAndDispatch(term);
         for (const auto& interac : interactions) {

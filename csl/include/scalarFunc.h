@@ -15,7 +15,7 @@
 
 /*! \file scalarFunc.h
  * \author Grégoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief Base classes for scalar functions.
  */
 #ifndef SCALARFUNC_H_INCLUDED

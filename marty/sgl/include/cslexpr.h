@@ -13,7 +13,14 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
- #pragma once
+/**
+ * @file cslexpr.h
+ * @brief SGL object representing a CSL Expression, sgl::CSLExpr.
+ * @author Grégoire Uhlrich
+ * @version 
+ * @date 2021-05-06
+ */
+#pragma once
 
 #include "multifunction.h"
 

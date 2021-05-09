@@ -13,13 +13,21 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
- #pragma once
+/**
+ * @file indexchain.h
+ * @brief sgl::IndexChain, main symbolic object of SGL representing a chain of
+ * gamma-matrices objects.
+ * @author Grégoire Uhlrich
+ * @version 
+ * @date 2021-05-06
+ */
+#pragma once
 
 #include <string>
 #include <map>
 #include "gammaindex.h"
 #include "momentumindex.h"
-#include "field.h"
+#include "sglfield.h"
 #include "cslexpr.h"
 
 namespace sgl {

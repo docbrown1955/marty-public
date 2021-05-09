@@ -51,6 +51,42 @@ namespace mty {
 
     }
 
+    csl::Expr &Amplitude::expression(size_t pos)
+    {
+        HEPAssert(pos < diagrams.size(),
+                mty::error::IndexError,
+                "Index " + std::to_string(pos) + " out of bounds of amplitude "
+                "of size " + std::to_string(size()) + ".")
+        return diagrams[pos].getExpression();
+    }
+
+    csl::Expr const &Amplitude::expression(size_t pos) const
+    {
+        HEPAssert(pos < diagrams.size(),
+                mty::error::IndexError,
+                "Index " + std::to_string(pos) + " out of bounds of amplitude "
+                "of size " + std::to_string(size()) + ".")
+        return diagrams[pos].getExpression();
+    }
+
+    FeynmanDiagram::diagram_t &Amplitude::diagram(size_t pos)
+    {
+        HEPAssert(pos < diagrams.size(),
+                mty::error::IndexError,
+                "Index " + std::to_string(pos) + " out of bounds of amplitude "
+                "of size " + std::to_string(size()) + ".")
+        return diagrams[pos].getDiagram();
+    }
+
+    FeynmanDiagram::diagram_t const &Amplitude::diagram(size_t pos) const
+    {
+        HEPAssert(pos < diagrams.size(),
+                mty::error::IndexError,
+                "Index " + std::to_string(pos) + " out of bounds of amplitude "
+                "of size " + std::to_string(size()) + ".")
+        return diagrams[pos].getDiagram();
+    }
+
     std::vector<csl::Expr> Amplitude::obtainExpressions() const
     {
         std::vector<csl::Expr> res(size());
@@ -84,8 +120,8 @@ namespace mty {
            );
     }
 
-    Amplitude Amplitude::select(
-            std::function<bool(mty::FeynmanDiagram const&)> selection
+    Amplitude Amplitude::filterOut(
+            std::function<bool(mty::FeynmanDiagram const&)> filter
             ) const
     {
         std::vector<mty::FeynmanDiagram> selected;
@@ -93,7 +129,7 @@ namespace mty {
         std::for_each(
                 begin(diagrams), end(diagrams), 
                 [&](FeynmanDiagram const& diag) {
-                    if (selection(diag))
+                    if (filter(diag))
                         selected.push_back(diag);
                 });
         return {options, std::move(selected), kinematics};

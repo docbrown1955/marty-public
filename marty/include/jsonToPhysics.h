@@ -15,7 +15,7 @@
 
 /*! \file jsonToPhysics.h
  * \author Gregoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief File that contains the JSONToHEP class, allowing to load a HEP model
  * from a .json file.
  */

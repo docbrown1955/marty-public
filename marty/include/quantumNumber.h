@@ -15,7 +15,7 @@
 
 /*! \file
  * \author Gregoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief Contains the QuantumNumber class.
  */
 #ifndef QUANTUM_NUMBER_H_INCLUDED

@@ -15,7 +15,7 @@
 
 /*! \file jsonObject.h
  * \author Gregoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief Stores object classes necessary to create a tree representing the
  * structure of .json files (Nodes and Leaf objects).
  */

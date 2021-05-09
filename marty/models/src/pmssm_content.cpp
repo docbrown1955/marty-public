@@ -569,7 +569,7 @@ void PMSSM_LEM::initContent()
     A_b = mty::mssm_input::Ab;
     mu = mty::mssm_input::mu;
     V_ud = mty::sm_input::V_ud;
-    e = mty::sm_input::e;
+    e = mty::sm_input::e_em;
     A_t = mty::mssm_input::At;
     V_cd = mty::sm_input::V_cd;
     V_td = mty::sm_input::V_td;

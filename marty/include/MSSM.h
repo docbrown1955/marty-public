@@ -18,7 +18,7 @@
  * @brief File containing MSSM input parameter and the base MSSM_Model class 
  * for SUSY models.
  * @author Grégoire Uhlrich
- * @version 1.0
+ * @version 1.3
  * @date 2020-09-01
  */
 #ifndef MSSM_H_INCLUDED

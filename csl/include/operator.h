@@ -15,7 +15,7 @@
 
 /*! \file operator.h
  * \author Grégoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief Generic template to handle operator expression, i.e.
  * expression that applies on expressions on the right.
  */

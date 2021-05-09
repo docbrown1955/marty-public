@@ -406,12 +406,13 @@ csl::Expr VectorPropagator(
                  * propagator_s(P(mu), m * sqrt_s(xi));
         prop_mu_nu = prop_mu_nu - side;
     }
-    return 
+    auto res = 
         - CSL_I 
         * csl::prod_s(deltaFactor)
         * prop_mu_nu
         * ExponentialFactor(pointA, pointB, P)
         * StandardDenominator(P, A.getMass(), A.getWidth(), external);
+    return res;
 }
 
 csl::Expr FieldStrengthPropagator(
@@ -854,8 +855,14 @@ csl::Expr MassTerm(csl::Expr const&         mass,
     for (auto& i : index2)
         i = i.getFlipped();
 
-    return -factor * 
-        GetComplexConjugate((*fieldL)(index1, X))*(*fieldR)(index2, X);
+    auto massTerm = -factor * 
+            GetComplexConjugate((*fieldL)(index1, X))*(*fieldR)(index2, X);
+    if (fieldL == fieldR) {
+        return massTerm;
+    }
+    else {
+        return massTerm + csl::GetHermitianConjugate(massTerm, &mty::dirac4);
+    }
 }
 
 }

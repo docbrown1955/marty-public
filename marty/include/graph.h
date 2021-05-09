@@ -15,7 +15,7 @@
 
 /*! \file graph.h
  * \author Gregoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief Handles graphs for applying wick theorem. In this file lies the
  * algorithm performing Wick contractions, i.e. that finds all different 
  * Feynman diagrams (with their numerical factor) that intervenes in a given 

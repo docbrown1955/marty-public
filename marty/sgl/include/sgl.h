@@ -13,23 +13,30 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
- #include "abstractgammasym.h"
+/**
+ * @file sgl.h
+ * @brief Main header file including the others.
+ * @author Grégoire Uhlrich
+ * @version 
+ * @date 2021-05-06
+ */
+#include "abstractgammasym.h"
 #include "multifunction.h"
 #include "exceptions.h"
 #include "typecast.h"
-#include "operations.h"
+#include "sgloperations.h"
 #include "cslexpr.h"
 #include "gammaindex.h"
 #include "metricindex.h"
 #include "epsilonindex.h"
-#include "commutation.h"
+#include "sglcommutation.h"
 #include "contraction.h"
 #include "simplify.h"
 #include "debuglog.h"
-#include "algo.h"
+#include "sglalgo.h"
 #include "fierz.h"
 #include "indexchain.h"
-#include "interface.h"
+#include "sglinterface.h"
 #include "tensorset.h"
 #include "cslconverter.h"
 

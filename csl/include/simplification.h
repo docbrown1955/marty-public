@@ -15,7 +15,7 @@
 
 /*! \file simplification.h
  * \author Grégoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief Automatic simplification framework. Sources in simplification.cpp and
  * alternateForms.cpp. 
  */

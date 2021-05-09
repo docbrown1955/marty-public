@@ -53,7 +53,7 @@ namespace mty {
                     return std::any_of(
                             begin(lfilters), end(lfilters), 
                             [&](LagrangianFilter const &f) {
-                                return f(*term->getInteractionTerm());
+                                return !f(*term->getInteractionTerm());
                             });
                 });
         return filtered;
@@ -69,7 +69,7 @@ namespace mty {
                     return std::any_of(
                             begin(lfilters), end(lfilters), 
                             [&](LagrangianFilter const &f) {
-                                return f(*term);
+                                return !f(*term);
                             });
                 });
     }
@@ -84,7 +84,7 @@ namespace mty {
                 return std::any_of(
                         begin(dfilters), end(dfilters),
                         [&](DiagramFilter const &d) {
-                            return d(diagram);
+                            return !d(diagram);
                         });
                 });
     }
@@ -119,14 +119,14 @@ namespace mty {
         addLagrangianFilter([](InteractionTerm const &term) {
             for (const auto &field : term.getContent())
                 if (!field.getQuantumParent()->isEnabledInDiagrams())
-                    return true;
-            return false;
+                    return false;
+            return true;
         });
         addDiagramFilter([=](FeynmanDiagram const &diagram) {
             if (diagram.getNLoops() != *loopOrder) {
-                return discardLowerOrders || *loopOrder < diagram.getNLoops();
+                return !(discardLowerOrders || *loopOrder < diagram.getNLoops());
             }
-            return false;
+            return true;
         });
     }
 

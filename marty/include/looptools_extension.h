@@ -15,7 +15,7 @@
 
 /*! \file
  * \author Gregoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief File containing a little looptools extension in order to call functions
  * of this librairy more easily from std::vector of data directly, with double,
  * complex numbers of csl expressions.

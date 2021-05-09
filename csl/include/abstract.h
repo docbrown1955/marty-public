@@ -15,7 +15,7 @@
 
 /*! \file abstract.h
  * \author Grégoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief Base classes for all exprs in the program.
  */
 #ifndef ABSTRACT_H_INCLUDED

@@ -13,8 +13,14 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
- #ifndef QCD_MODEL_H_INCLUDED
-#define QCD_MODEL_H_INCLUDED 
+/**
+ * @file QCD.h
+ * @brief Quantum Chromo-Dynamics model, mty::QCD_Model.
+ * @author Grégoire Uhlrich
+ * @version 1.3
+ * @date 2021-05-06
+ */
+#pragma once
 
 #include "model.h"
 
@@ -25,5 +31,3 @@ namespace mty {
     };
 
 }
-
-#endif /* ifndef QCD_MODEL_H_INCLUDED */

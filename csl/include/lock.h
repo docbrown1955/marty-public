@@ -18,7 +18,7 @@
  * @brief Contains the static class Lock, allowing to compress expressions 
  * before heavy calculation, and decompress them later.
  * @author Grégoire Uhlrich
- * @version 1.0
+ * @version 1.3
  * @date 2020-09-03
  */
 #ifndef LOCK_H_INCLUDED

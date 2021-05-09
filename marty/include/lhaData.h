@@ -17,7 +17,7 @@
  * @file lhaData.h
  * @brief Contains all data containers for .lha files.
  * @author Grégoire Uhlrich
- * @version 1.0
+ * @version 1.3
  * @date 2020-09-02
  */
 #ifndef LHADATA_H_INCLUDED

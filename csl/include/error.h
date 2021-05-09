@@ -15,7 +15,7 @@
 
 /*! \file error.h
  * \author Grégoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief File containing functions that are called by the program
  * when something wrong happened: determines the behaviour in unexpected
  * cases.

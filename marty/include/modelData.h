@@ -15,7 +15,7 @@
 
 /*! \file
  * \author Gregoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief First abstraction layer for a High-Energy Physics model. 
  */
 #ifndef MODEL_DATA_H_INCLUDED
@@ -536,6 +536,8 @@ public:
     void addParticles(
             std::vector<mty::Particle> const &parts,
             bool                              initializeTerms = true);
+
+    void addParticlesIn(csl::Expr const &expr);
 
     /**
      * @brief Removes a particle from the model.

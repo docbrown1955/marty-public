@@ -15,7 +15,7 @@
 
 /*! \file csl.h
  * \author Grégoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief File including the whole csl librairy.
  */
 #ifndef CSL_H_INCLUDED

@@ -15,7 +15,7 @@
 
 /*! \file
  * \author Gregoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief Contains evaluation flags for csl.
  */
 #ifndef EVALUATION_H_INCLUDED

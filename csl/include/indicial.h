@@ -15,7 +15,7 @@
 
 /*! \file indicial.h
  * \author Grégoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief Objects handling indexed expressions in order to perform indicial 
  * tensor calculations.
  * \bug For now setting an object fully symmetric or antisymmetric will cause 

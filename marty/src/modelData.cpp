@@ -756,6 +756,20 @@ void ModelData::addParticles(
         addParticle(p, initializeTerms);
 }
 
+void ModelData::addParticlesIn(csl::Expr const &expr)
+{
+    csl::VisitEachLeaf(expr, [&](csl::Expr const &sub) {
+        if (!csl::IsIndicialTensor(sub))
+            return;
+        auto ptr = std::dynamic_pointer_cast<mty::QuantumFieldParent>(
+                sub->getParent());
+        auto part = mty::Particle(ptr);
+        if (part && !findParticle(part)) {
+            addParticle(part, false);
+        }
+    });
+}
+
 void ModelData::removeParticle(mty::Particle const &part)
 {
     for (size_t i = 0; i != particles.size(); ++i) {

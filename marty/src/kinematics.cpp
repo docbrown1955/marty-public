@@ -49,7 +49,7 @@ namespace mty {
         momenta.resize(insertions.size());
         std::generate(begin(momenta), end(momenta), [&, i = 0]() mutable {
             auto p = csl::Tensor(
-                    "p_" + std::to_string(indices[i]+1),
+                    "p_" + std::to_string(indices[i]),
                     &csl::Minkowski);
             ++i;
             return p;
@@ -126,11 +126,11 @@ namespace mty {
                 csl::Expr prod = momenta[i](mu) * momenta[j](+mu);
                 if (prod->getIndexStructure().size() > 0) {
                     prod = csl::constant_s(
-                            "s_" + std::to_string(10*(indices[i]+1) + indices[j]+1)
+                            "s_" + std::to_string(10*(indices[i]) + indices[j])
                             );
                     addContraction(momenta[i], momenta[j], prod);
                 }
-                setSquaredMomenta(i, j, prod);
+                setSquaredMomentum(i, j, prod);
             }
         }
     }
@@ -145,7 +145,7 @@ namespace mty {
         p1->addSelfContraction(p1(mu), p2(+mu), res);
     }
 
-    void Kinematics::setSquaredMomenta(
+    void Kinematics::setSquaredMomentum(
             size_t           i, 
             size_t           j,
             csl::Expr const &res)
@@ -190,11 +190,11 @@ namespace mty {
         *this = subset(pos);
     }
 
-    Kinematics Kinematics::applyMap(
-            std::vector<size_t> const &mapping
+    Kinematics Kinematics::applyIndices(
+            std::vector<size_t> const &indices
             ) const
     {
-        return Kinematics{insertions, mapping};
+        return Kinematics{insertions, indices};
     }
 
     void Kinematics::replace(

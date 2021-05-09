@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
- #include "operations.h"
+ #include "sgloperations.h"
 #include "typecast.h"
 #include "cslexpr.h"
 #include "tensorset.h"

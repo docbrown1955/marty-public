@@ -15,7 +15,7 @@
 
 /*! \file
  * \author Gregoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief Contains QuantumField and QuantumFieldParent, basic objects handling
  * quantum fields as csl expression and physical properties.
  */
@@ -304,6 +304,8 @@ class QuantumFieldParent: public csl::TensorFieldParent {
      */
     std::map<QuantumFieldParent const*, Propagator_func> propagator;
 
+    std::vector<std::weak_ptr<mty::QuantumFieldParent>> relatives;
+
     public:
 
     /*!
@@ -419,7 +421,7 @@ class QuantumFieldParent: public csl::TensorFieldParent {
      * \param type Type of line for the particle in diagrams.
      * \sa #drawType, getDrawType().
      */
-    virtual void setDrawType(drawer::ParticleType type);
+    void setDrawType(drawer::ParticleType type);
 
     /*!
      * \brief Pure virtual function. Generates a partical similar to the current
@@ -965,7 +967,7 @@ class QuantumFieldParent: public csl::TensorFieldParent {
      * \param t_mass Name of the constant mass.
      * \sa #mass, getMass().
      */
-    virtual void setMass(const std::string& t_mass);
+    void setMass(const std::string& t_mass);
 
     /*!
      * \brief Sets the mass of the particle.
@@ -977,7 +979,7 @@ class QuantumFieldParent: public csl::TensorFieldParent {
      * \param value  Value of the mass (should be expressed in GeV).
      * \sa #mass, getMass().
      */
-    virtual void setMass(const std::string& t_mass, long double value);
+    void setMass(const std::string& t_mass, long double value);
 
     /*!
      * \brief Sets the mass of the particle.
@@ -988,7 +990,7 @@ class QuantumFieldParent: public csl::TensorFieldParent {
      * \param t_mass Expression of the new mass for the particle.
      * \sa #mass, getMass().
      */
-    virtual void setMass(const csl::Expr& t_mass);
+    void setMass(const csl::Expr& t_mass);
 
     /*!
      * \brief Sets the width of the particle.
@@ -997,7 +999,7 @@ class QuantumFieldParent: public csl::TensorFieldParent {
      * \param t_mass Expression of the new width for the particle.
      * \sa #width, getWidth().
      */
-    virtual void setWidth(const csl::Expr& t_width);
+    void setWidth(const csl::Expr& t_width);
 
     virtual void setGaugeChoice(gauge::Type type);
 
@@ -1008,7 +1010,7 @@ class QuantumFieldParent: public csl::TensorFieldParent {
      * \param t_selfConjugate Boolean telling if the field must be real.
      * \sa #selfConjugate, isSelfConjugate().
      */
-    virtual void setSelfConjugate(bool t_selfConjugate);
+    void setSelfConjugate(bool t_selfConjugate);
 
     /*!
      * \brief Sets the physical property of the particle.
@@ -1031,7 +1033,7 @@ class QuantumFieldParent: public csl::TensorFieldParent {
      * \param t_enabled Boolean telling if the field may appear in diagrams.
      * \sa #enabledInDiagrams, isEnabledInDiagrams().
      */
-    virtual void setEnabledInDiagrams(bool t_enabled);
+    void setEnabledInDiagrams(bool t_enabled);
 
     /*!
      * \brief Ajusts the flavor representation of the field to a new flavor 
@@ -1289,7 +1291,28 @@ class QuantumFieldParent: public csl::TensorFieldParent {
 
     operator csl::Expr();
 
+    void breakParticle(
+            mty::Group                     *brokenGroup,
+            std::vector<std::string> const &newNames
+            );
+    void breakParticle(
+            mty::FlavorGroup                     *brokenFlavor,
+            std::vector<mty::FlavorGroup*> const &subGroups,
+            std::vector<std::string>       const &names
+            );
+
     protected:
+
+    void addRelative(std::weak_ptr<mty::QuantumFieldParent> const &particle);
+
+    std::weak_ptr<mty::QuantumFieldParent> removeRelative(
+            QuantumFieldParent const *particle
+            );
+
+    void checkRelatives();
+
+    template<class Func>
+    void applyToRelatives(Func &&func);
 
     void printQuantumDefinition(
             std::ostream &out,
@@ -2222,6 +2245,19 @@ class QuantumField: public csl::TensorFieldElement {
      */
     bool isOutgoingAntiParticle() const;
 };
+
+template<class Func>
+void QuantumFieldParent::applyToRelatives(Func &&func) {
+    checkRelatives();
+    for (auto &rel : relatives) {
+        // Making sure to avoid any loop dependency here
+        auto shared = rel.lock();
+        auto self = shared->removeRelative(this);
+        func(mty::Particle(shared));
+        if (self.lock())
+            shared->addRelative(self);
+    }
+}
 
 /*!
  * \brief Creates and returns an expression corresponding to a QuantumField.

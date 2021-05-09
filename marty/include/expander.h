@@ -13,7 +13,15 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
- #pragma once
+/**
+ * @file expander.h
+ * @brief Contains the Expander class that expands the Lagrangian in 
+ * perturbation to find all Feynman diagrams for a given process.
+ * @author Grégoire Uhlrich
+ * @version 1.3
+ * @date 2021-05-06
+ */
+#pragma once
 
 #include "lagrangian.h"
 #include "insertion.h"

@@ -15,7 +15,7 @@
 
 /*! \file operations.h
  * \author Grégoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief Objects handling multi-argument functions, primordial operations (+,*,/,etc)
  */
 #ifndef OPERATIONS_H_INCLUDED

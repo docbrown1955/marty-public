@@ -15,7 +15,7 @@
 
 /*! \file wick.h
  * \author Gregoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief csl compatible expression representing the operator \<\> of 
  * correlators in quantum field theory. Applies only on QuantumField, and uses
  * WickCalculator to evaluate to expression (applying wick theorem).

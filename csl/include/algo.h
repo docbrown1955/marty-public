@@ -15,7 +15,7 @@
 
 /*! \file algo.h
  * \author Gregoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief Contains algorithms that look over (and possibly modify on the go)
  * expressions for you, given a certain function to apply to nodes in the tree
  * expression.

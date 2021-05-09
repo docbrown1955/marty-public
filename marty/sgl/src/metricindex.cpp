@@ -15,7 +15,7 @@
 
  #include "metricindex.h"
 #include "exceptions.h"
-#include "interface.h"
+#include "sglinterface.h"
 #include "debuglog.h"
 #include "cslexpr.h"
 #include "gammaindex.h"

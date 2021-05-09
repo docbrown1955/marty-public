@@ -15,7 +15,7 @@
 
 /*! \file
  * \author Gregoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief Contains **interface functions** for the user.
  */
 #ifndef HEP_INTERFACE_CURRENT_H_INCLUDED

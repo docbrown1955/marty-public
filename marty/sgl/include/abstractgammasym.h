@@ -13,7 +13,15 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
- #pragma once
+/**
+ * @file abstractgammasym.h
+ * @brief Contains the base class for the Symbolic Gamma Library (SGL) and the 
+ * GExpr definition.
+ * @author Grégoire Uhlrich
+ * @version 1.3
+ * @date 2021-05-06
+ */
+#pragma once
 
 #include "csl.h"
 #include <vector>

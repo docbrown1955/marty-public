@@ -14,474 +14,224 @@
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "SM.h"
-#include "fermionicField.h"
-#include "diracology.h"
+#include "CKM.h"
 #include "group.h"
+#include "diracology.h"
+#include "mrtInterface.h"
+#include "fermionicField.h"
 
 using namespace mty::sm_input;
 using namespace csl;
 
 namespace mty {
 
-    SM_Model::SM_Model()
-        :Model()
-    {
-        // SM_Model gauge (after EW breaking) = SU(3)_c x U(1)_em
-        gauge = std::make_unique<Gauge>();
-
-        auto U1  = mty::createGroup(group::Type::U1, "U1_em");
-        auto SU3 = mty::createGroup(group::Type::SU, "SU3_c", 3);
-        auto U1_ptr = U1.get();
-        auto SU3_ptr = SU3.get();
-
-        gauge->addGroup(U1,  "A", csl::sqrt_s(4*CSL_PI*alpha_em));
-        gauge->addGroup(SU3, "g", csl::sqrt_s(4*CSL_PI*alpha_s));
-
-        init();
-
-        mty::Particle e_L = mty::weylfermion_s(
-                "e_L",
-                mty::GaugeIrrep(
-                    gauge.get(),
-                    {U1_ptr->highestWeightRep({-1, 1}),
-                    SU3_ptr->getTrivialRep()}),
-                Chirality::Left);
-
-        mty::Particle e_R = mty::weylfermion_s(
-                "e_R",
-                mty::GaugeIrrep(
-                    gauge.get(),
-                    {U1_ptr->highestWeightRep({-1, 1}),
-                    SU3_ptr->getTrivialRep()}),
-                Chirality::Right);
-
-        addParticle(e_L);
-        addParticle(e_R);
-        addFermionicMass(e_L, e_R, m_e);
-
-        mty::Particle nu_e_L = mty::weylfermion_s(
-                "nu_e_L",
-                gauge->getTrivialRep()
-                );
-
-        addParticle(nu_e_L);
-
-        mty::Particle mu_L = mty::weylfermion_s(
-                "mu_L",
-                mty::GaugeIrrep(
-                    gauge.get(),
-                    {U1_ptr->highestWeightRep({-1, 1}),
-                    SU3_ptr->getTrivialRep()}),
-                Chirality::Left);
-
-        mty::Particle mu_R = mty::weylfermion_s(
-                "mu_R",
-                mty::GaugeIrrep(
-                    gauge.get(),
-                    {U1_ptr->highestWeightRep({-1, 1}),
-                    SU3_ptr->getTrivialRep()}),
-                Chirality::Right);
-
-        addParticle(mu_L);
-        addParticle(mu_R);
-        addFermionicMass(mu_L, mu_R, m_mu);
-
-        mty::Particle nu_mu_L = mty::weylfermion_s(
-                "nu_mu_L",
-                gauge->getTrivialRep()
-                );
-
-        addParticle(nu_mu_L);
-
-        mty::Particle tau_L = mty::weylfermion_s(
-                "tau_L",
-                mty::GaugeIrrep(
-                    gauge.get(),
-                    {U1_ptr->highestWeightRep({-1, 1}),
-                    SU3_ptr->getTrivialRep()}),
-                Chirality::Left);
-
-        mty::Particle tau_R = mty::weylfermion_s(
-                "tau_R",
-                mty::GaugeIrrep(
-                    gauge.get(),
-                    {U1_ptr->highestWeightRep({-1, 1}),
-                    SU3_ptr->getTrivialRep()}),
-                Chirality::Right);
-
-        addParticle(tau_L);
-        addParticle(tau_R);
-        addFermionicMass(tau_L, tau_R, m_tau);
-
-        mty::Particle nu_tau_L = mty::weylfermion_s(
-                "nu_tau_L",
-                gauge->getTrivialRep()
-                );
-
-        addParticle(nu_tau_L);
-
-        mty::Particle u_L = mty::weylfermion_s(
-                "u_L",
-                mty::GaugeIrrep(
-                    gauge.get(),
-                    {U1_ptr->highestWeightRep({2, 3}),
-                    SU3_ptr->highestWeightRep({1, 0})}),
-                Chirality::Left);
-
-        mty::Particle u_R = mty::weylfermion_s(
-                "u_R",
-                mty::GaugeIrrep(
-                    gauge.get(),
-                    {U1_ptr->highestWeightRep({2, 3}),
-                    SU3_ptr->highestWeightRep({1, 0})}),
-                Chirality::Right);
-
-        addParticle(u_L);
-        addParticle(u_R);
-        addFermionicMass(u_L, u_R, m_u);
-
-        mty::Particle d_L = mty::weylfermion_s(
-                "d_L",
-                mty::GaugeIrrep(
-                    gauge.get(),
-                    {U1_ptr->highestWeightRep({-1, 3}),
-                    SU3_ptr->highestWeightRep({1, 0})}),
-                Chirality::Left);
-
-        mty::Particle d_R = mty::weylfermion_s(
-                "d_R",
-                mty::GaugeIrrep(
-                    gauge.get(),
-                    {U1_ptr->highestWeightRep({-1, 3}),
-                    SU3_ptr->highestWeightRep({1, 0})}),
-                Chirality::Right);
-
-        addParticle(d_L);
-        addParticle(d_R);
-        addFermionicMass(d_L, d_R, m_d);
-
-        mty::Particle c_L = mty::weylfermion_s(
-                "c_L",
-                mty::GaugeIrrep(
-                    gauge.get(),
-                    {U1_ptr->highestWeightRep({2, 3}),
-                    SU3_ptr->highestWeightRep({1, 0})}),
-                Chirality::Left);
-
-        mty::Particle c_R = mty::weylfermion_s(
-                "c_R",
-                mty::GaugeIrrep(
-                    gauge.get(),
-                    {U1_ptr->highestWeightRep({2, 3}),
-                    SU3_ptr->highestWeightRep({1, 0})}),
-                Chirality::Right);
-
-        addParticle(c_L);
-        addParticle(c_R);
-        addFermionicMass(c_L, c_R, m_c);
-
-        mty::Particle s_L = mty::weylfermion_s(
-                "s_L",
-                mty::GaugeIrrep(
-                    gauge.get(),
-                    {U1_ptr->highestWeightRep({-1, 3}),
-                    SU3_ptr->highestWeightRep({1, 0})}),
-                Chirality::Left);
-
-        mty::Particle s_R = mty::weylfermion_s(
-                "s_R",
-                mty::GaugeIrrep(
-                    gauge.get(),
-                    {U1_ptr->highestWeightRep({-1, 3}),
-                    SU3_ptr->highestWeightRep({1, 0})}),
-                Chirality::Right);
-
-        addParticle(s_L);
-        addParticle(s_R);
-        addFermionicMass(s_L, s_R, m_s);
-
-        mty::Particle b_L = mty::weylfermion_s(
-                "b_L",
-                mty::GaugeIrrep(
-                    gauge.get(),
-                    {U1_ptr->highestWeightRep({-1, 3}),
-                    SU3_ptr->highestWeightRep({1, 0})}),
-                Chirality::Left);
-
-        mty::Particle b_R = mty::weylfermion_s(
-                "b_R",
-                mty::GaugeIrrep(
-                    gauge.get(),
-                    {U1_ptr->highestWeightRep({-1, 3}),
-                    SU3_ptr->highestWeightRep({1, 0})}),
-                Chirality::Right);
-
-        addParticle(b_L);
-        addParticle(b_R);
-        addFermionicMass(b_L, b_R, m_b);
-
-        mty::Particle t_L = mty::weylfermion_s(
-                "t_L",
-                mty::GaugeIrrep(
-                    gauge.get(),
-                    {U1_ptr->highestWeightRep({2, 3}),
-                    SU3_ptr->highestWeightRep({1, 0})}),
-                Chirality::Left);
-
-        mty::Particle t_R = mty::weylfermion_s(
-                "t_R",
-                mty::GaugeIrrep(
-                    gauge.get(),
-                    {U1_ptr->highestWeightRep({2, 3}),
-                    SU3_ptr->highestWeightRep({1, 0})}),
-                Chirality::Right);
-
-        addParticle(t_L);
-        addParticle(t_R);
-        addFermionicMass(t_L, t_R, m_t);
-
-        mty::Particle Z = mty::vectorboson_s(
-                "Z",
-                gauge.get(),
-                true);
-
-        mty::Particle W = mty::vectorboson_s(
-                "W",
-                mty::GaugeIrrep(
-                    gauge.get(),
-                    {U1_ptr->highestWeightRep({1, 1}),
-                    SU3_ptr->getTrivialRep()}),
-                false);
-
-        mty::Particle G0 = mty::scalarboson_s(
-                "G^0",
-                gauge.get(),
-                true);
-
-        mty::Particle Gc = mty::scalarboson_s(
-                "G^+",
-                mty::GaugeIrrep(
-                    gauge.get(),
-                    {U1_ptr->highestWeightRep({1, 1}),
-                    SU3_ptr->getTrivialRep()}),
-                false);
-
-        mty::Particle h = mty::scalarboson_s(
-                "h",
-                gauge->getTrivialRep(),
-                true
-                );
-
-        Z->setMass(M_Z);
-        G0->setMass(M_Z);
-        W->setMass(M_W);
-        Gc->setMass(M_W);
-        h->setMass(m_h);
-
-        auto cc = [](csl::Expr const& init) 
-        {
-            return csl::GetComplexConjugate(init);
-        };
-
-        addParticle(Z);
-        addParticle(W);
-        addParticle(G0);
-        addParticle(Gc);
-        addParticle(h);
-    
-        csl::Index mu = csl::Minkowski.generateIndex();
-        csl::Index nu = csl::Minkowski.generateIndex();
-        csl::Tensor X  = L.getPoint();
-        mty::Particle A = getParticle("A");
-        mty::Particle F_Z = Z->getFieldStrength();
-        mty::Particle F_W = W->getFieldStrength();
-        mty::Particle F_A = A->getFieldStrength();
-        csl::Expr s2_tw = csl::pow_s(csl::sin_s(theta_W), 2);
-        csl::Expr sin_tw = csl::sin_s(theta_W);
-        csl::Expr cot_tw = csl::cos_s(theta_W) / csl::sin_s(theta_W);
-        csl::Expr cot2_tw = csl::pow_s(cot_tw, 2);
-        csl::Expr cos_tw = csl::cos_s(theta_W);
-        csl::Expr e = csl::sqrt_s(4*CSL_PI*alpha_em);
-
-        // Source : Schwartz p.586 
-
-        // h^3
-        addLagrangianTerm(-e * csl::pow_s(m_h, csl::int_s(2)) 
-                / (4 * M_W * sin_tw) 
-                * csl::pow_s(h(X), csl::int_s(3)));
-
-        // h^4
-        addLagrangianTerm(- csl::pow_s(e * m_h / M_W, csl::int_s(2)) 
-                / (32 * s2_tw) 
-                * csl::pow_s(h(X), csl::int_s(4)));
-
-        // hWW
-        addLagrangianTerm(M_W*e/(csl::sqrt_s(s2_tw))
-                *h(X)*W(+mu, X)*cc(W(mu, X)));
-
-        // hZZ
-        addLagrangianTerm(pow_s(M_Z, 2)*e/(2*M_W*csl::sqrt_s(s2_tw))
-                *h(X)*Z(+mu, X)*Z(mu, X));
-
-        // hhWW
-        addLagrangianTerm(e*e/(2*s2_tw)
-                *h(X)*h(X)*W(+mu, X)*cc(W(mu, X)));
-
-        // hhZZ
-        addLagrangianTerm(pow_s(M_Z, 2)*e*e/(4*M_W*M_W*s2_tw)
-                *h(X)*h(X)*Z(+mu, X)*Z(mu, X));
-
-        // WWZ 
-        csl::Expr g = CSL_I * e * cot_tw;
-        addLagrangianTerm(g  * F_Z({mu, nu}, X) * W(+mu, X) * cc(W(+nu, X)));
-        addLagrangianTerm(-g * F_W({mu, nu}, X) * Z(+mu, X) * cc(W(+nu, X)));
-        addLagrangianTerm(g  * cc(F_W({mu, nu}, X)) * Z(+mu, X) * W(+nu, X));
-
-        // WWA
-        g = CSL_I * e;
-        addLagrangianTerm(g  * F_A({mu, nu}, X) * W(+mu, X) * cc(W(+nu, X)));
-        addLagrangianTerm(-g * F_W({mu, nu}, X) * A(+mu, X) * cc(W(+nu, X)));
-        addLagrangianTerm(g  * cc(F_W({mu, nu}, X)) * A(+mu, X) * W(+nu, X));
-
-        // WWWW
-        g = CSL_HALF 
-            * csl::pow_s(e, csl::int_s(2)) 
-            / s2_tw;
-        addLagrangianTerm(g  * W(+mu, X) * W(mu, X) * cc(W(+nu, X)) * cc(W(nu, X)));
-        addLagrangianTerm(-g * W(+mu, X) * W(nu, X) * cc(W(+nu, X)) * cc(W(mu, X)));
-
-        // WWZZ
-        g = pow_s(e ,  2) * cot2_tw;
-        addLagrangianTerm(g * Z(+mu, X) * W(mu, X)  * Z(+nu, X) * cc(W(nu, X)));
-        addLagrangianTerm(g * Z(+mu, X) * W(+nu, X) * Z(mu, X)  * cc(W(nu, X)));
-
-        // WWAA
-        g = pow_s(e ,  2);
-        addLagrangianTerm(g * A(+mu, X) * W(mu, X)  * A(+nu, X) * cc(W(nu, X)));
-        addLagrangianTerm(g * A(+mu, X) * W(+nu, X) * A(mu, X)  * cc(W(nu, X)));
-
-        // WWAZ
-        g = pow_s(e ,  2) * cot_tw;
-        addLagrangianTerm(g    * W(+mu, X)     * cc(W(+nu, X)) * A(mu, X)  * Z(nu, X));
-        addLagrangianTerm(g    * cc(W(+mu, X)) * W(+nu, X)     * A(mu, X)  * Z(nu, X));
-        addLagrangianTerm(-2*g * W(+mu, X)     * cc(W(mu, X))  * A(+nu, X) * Z(nu, X));
-
-        // Source for Goldstone interactions : arxiv:1209.6213.pdf
-        
-        auto D = [&](csl::Index mu, csl::Expr const &arg) 
-        {
-            return csl::tderivativeelement_s(
-                    mty::defaultSpaceTimePoint,
-                    mty::partialMinko_shared,
-                    mu,
-                    arg,
-                    false);
-        };
-        // hG^+W^-
-        g = CSL_1/2 * e / csl::sqrt_s(s2_tw);
-        addLagrangianTerm(g * cc(W(mu)) * (
-                    CSL_I * D(+mu, Gc) * h 
-                    - CSL_I*D(+mu, h) * Gc
-                    ),
-                true);
-        // hG^0Z
-        addLagrangianTerm(-CSL_I * g / cos_tw * Z(mu) * (
-                    CSL_I * D(+mu, G0) * h 
-                    - CSL_I*D(+mu, h) * G0
-                    ));
-
-        //G^+G^-h
-        g = -CSL_1/2 * e / (M_W * csl::sqrt_s(s2_tw)) * m_h*m_h;
-        addLagrangianTerm(g * cc(Gc) * Gc * h);
-
-        // G^0G^0h
-        addLagrangianTerm(g * G0 * G0 * h);
-
-        // G+G-hh
-        g = -CSL_1/4 * csl::pow_s(e * m_h/ M_W, 2) / s2_tw;
-        addLagrangianTerm(g / 2 * cc(Gc) * Gc * h * h);
-
-        // G^0G^0hh
-        addLagrangianTerm(g / 4 * cc(G0) * G0 * h * h);
-
-        // Source: Schwartz p.594 to 597
-        using containor = std::vector<std::tuple<Particle, Particle, bool>>;
-        csl::Expr v = 2*M_W/e * csl::sqrt_s(s2_tw);
-        csl::Expr J_3 = CSL_0;
-        csl::Expr J_EM = CSL_0;
-        auto ffb_coupling = [&](Particle& f_left,
-                                Particle& boson,
-                                Particle& f_right)
-        {
-            std::vector<csl::Index> indices = f_left->getFullSetOfIndices();
-            std::vector<csl::Index> indices2(indices);
-            for (auto& index : indices2)
-                index.flipSign();
-            indices2.back() = indices2.back().rename();
-            csl::Index alpha = indices.back();
-            csl::Index beta  = indices2.back();
-            return GetComplexConjugate(f_left(indices, X))
-                * mty::dirac4.gamma({+mu, alpha, beta})
-                * boson(mu, X)
-                * f_right(indices2, X);
-        };
-
-        gatherMasses();
-        for (auto& [left, right, up_type] : 
-                containor(
-                {{e_L,      e_R,     0},
-                 {mu_L,     mu_R,    0},
-                 {tau_L,    tau_R,   0},
-                 {nu_e_L,   nullptr, 1},
-                 {nu_mu_L,  nullptr, 1},
-                 {nu_tau_L, nullptr, 1},
-                 {u_L,      u_R,     1},
-                 {d_L,      d_R,     0},
-                 {c_L,      c_R,     1},
-                 {s_L,      s_R,     0},
-                 {t_L,      t_R,     1},
-                 {b_L,      b_R,     0}})) 
-        {
-            csl::Expr m = left->getMass();
-            if (m != CSL_0) {
-                QuantumFieldParent& diracF = *right->getDiracParent();
-                std::vector<csl::Index> indices = diracF.getFullSetOfIndices();
-                std::vector<csl::Index> indices2(indices);
-                for (auto& index : indices2)
-                    index.flipSign();
-                addLagrangianTerm(h(X) / v * m 
-                        * GetComplexConjugate(diracF(indices, X))
-                        * diracF(indices2, X));
-            }
-            J_3 = J_3 
-                + ((up_type) ? CSL_HALF : CSL_M_HALF) 
-                * ffb_coupling(left, Z, left);
-            csl::Expr emcharge = getCharge(left, "U1_em");
-            if (emcharge != CSL_0) {
-                J_EM = J_EM + emcharge*ffb_coupling(left, Z, left);
-                J_EM = J_EM + emcharge*ffb_coupling(right, Z, right);
-            }
-        }
-
-        addLagrangianTerm(e / csl::sqrt_s(s2_tw) / cos_tw * J_3);
-        addLagrangianTerm(-e / cot_tw * J_EM);
-
-        g = e / (csl::sqrt_s(2*s2_tw));
-        addLagrangianTerm(-g * ffb_coupling(nu_e_L, W, e_L), true);
-        addLagrangianTerm(-g * ffb_coupling(nu_mu_L, W, mu_L), true);
-        addLagrangianTerm(-g * ffb_coupling(nu_tau_L, W, tau_L), true);
-
-        addLagrangianTerm(g * V_ud * ffb_coupling(u_L, W, d_L), true);
-        addLagrangianTerm(g * V_us * ffb_coupling(u_L, W, s_L), true);
-        addLagrangianTerm(g * V_ub * ffb_coupling(u_L, W, b_L), true);
-        addLagrangianTerm(g * V_cd * ffb_coupling(c_L, W, d_L), true);
-        addLagrangianTerm(g * V_cs * ffb_coupling(c_L, W, s_L), true);
-        addLagrangianTerm(g * V_cb * ffb_coupling(c_L, W, b_L), true);
-        addLagrangianTerm(g * V_td * ffb_coupling(t_L, W, d_L), true);
-        addLagrangianTerm(g * V_ts * ffb_coupling(t_L, W, s_L), true);
-        addLagrangianTerm(g * V_tb * ffb_coupling(t_L, W, b_L), true);
-
-        L.mergeTerms();
+
+SM_Model::SM_Model()
+    :mty::Model("models/files/SM.json")
+{
+    getParticle("G")->setDrawType(drawer::ParticleType::Gluon);
+    replace(getScalarCoupling("g_s"), sm_input::g_s);
+
+    Particle H = GetParticle(*this, "H");
+
+    csl::Index i = GaugeIndex(*this, "SU2L", H);
+    csl::Index j = GaugeIndex(*this, "SU2L", H);
+
+    csl::Expr H2 = csl::GetComplexConjugate(H(i)) * H(i);
+    csl::Expr m2 = csl::constant_s("m2");
+    csl::Expr lam = csl::constant_s("lambda");
+
+    // Mexican hat potential
+    addLagrangianTerm(m2*H2);
+    addLagrangianTerm(-lam*csl::pow_s(H2, 2));
+    // later on: m   = m_h / sqrt(2)
+    //           lam = mh^2 / (2*v^2)
+    //           (With H0 -> (v + h0) / sqrt(2))
+
+    ///////////////////////////////////////////////////
+    // Breaking gauge SU(2)_L symmetry, renaming
+    ///////////////////////////////////////////////////
+
+    BreakGaugeSymmetry(*this, "U1Y");
+    BreakGaugeSymmetry(
+            *this,
+            "SU2L",
+            {"H", "W", "Q", "L"},
+            {{"H0", "H1"},
+            {"W1", "W2", "W3"},
+            {"U_L", "D_L"},
+            {"Nu_L", "E_L"}});
+
+    ///////////////////////////////////////////////////
+    // Replacements to get SM particles W +-
+    ///////////////////////////////////////////////////
+
+    Particle W1   = GetParticle(*this, "W1");
+    Particle W2   = GetParticle(*this, "W2");
+    Particle W_SM = GenerateSimilarParticle("W", W1);
+    W_SM->setSelfConjugate(false);
+
+    csl::Index mu = MinkowskiIndex();
+    csl::Index nu = MinkowskiIndex();
+    csl::Expr W_p = W_SM(+mu);
+    csl::Expr W_m = csl::GetComplexConjugate(W_SM(+mu));
+    csl::Expr F_W_p = W_SM({+mu,+nu});
+    csl::Expr F_W_m = csl::GetComplexConjugate(W_SM({+mu, +nu}));
+
+    replace(
+            W1,
+            (W_p + W_m) / csl::sqrt_s(2));
+    replace(
+            W2,
+            CSL_I * (W_p - W_m) / csl::sqrt_s(2));
+    replace(
+            GetFieldStrength(W1),
+            (F_W_p + F_W_m) / csl::sqrt_s(2));
+    replace(
+            GetFieldStrength(W2),
+            CSL_I * (F_W_p - F_W_m) / csl::sqrt_s(2));
+
+    ///////////////////////////////////////////////////
+    // Actual gauge (spontaneous) symmetry breaking
+    ///////////////////////////////////////////////////
+
+    csl::Expr v = sm_input::v;
+
+    Particle H0 = getParticle("H0");
+    Particle H1 = getParticle("H1");
+
+    Particle h0 = scalarboson_s("h0 ; h^0", *this); // SM Higgs boson
+    Particle Gp = scalarboson_s("Gp ; G^+", *this);
+    Particle G0 = scalarboson_s("G0 ; G^0", *this);
+    h0->setSelfConjugate(true);
+    G0->setSelfConjugate(true);
+
+    replace(H0, Gp());
+    replace(H1, (h0() + CSL_I*G0() + v)/csl::sqrt_s(2));
+
+    csl::Expr mh = sm_input::m_h;
+    replace(m2,  mh*mh / 2);
+    replace(lam, mh*mh / (2*v*v));
+
+    ///////////////////////////////////////////////////
+    // Diagonalizing what can be
+    ///////////////////////////////////////////////////
+
+    DiagonalizeMassMatrices(*this);
+    renameParticle("B", "A");
+    renameParticle("W3", "Z");
+
+    csl::Expr gY = getScalarCoupling("g_Y");
+    csl::Expr gL = getScalarCoupling("g_L");
+    csl::Expr theta_Weinberg = sm_input::theta_W;
+    csl::Expr e  = sm_input::e_em;
+
+    replace(
+            gL*gL + gY*gY,
+            csl::pow_s(gL/csl::cos_s(theta_Weinberg), csl::int_s(2)));
+    replace(
+            gY, 
+            e / csl::cos_s(theta_Weinberg));
+    replace(
+            gL, 
+            e / csl::sin_s(theta_Weinberg));
+
+    ///////////////////////////////////////////////////
+    // Taking care of yukawa couplings
+    ///////////////////////////////////////////////////
+
+    csl::Tensor Ye = GetYukawa(*this, "Ye");
+    csl::Tensor Yu = GetYukawa(*this, "Yu");
+    csl::Tensor Yd = GetYukawa(*this, "Yd");
+
+    csl::Expr m_e   = sm_input::m_e;
+    csl::Expr m_mu  = sm_input::m_mu;
+    csl::Expr m_tau = sm_input::m_tau;
+    csl::Expr m_u   = sm_input::m_u;
+    csl::Expr m_c   = sm_input::m_c;
+    csl::Expr m_t   = sm_input::m_t;
+    csl::Expr m_d   = sm_input::m_d;
+    csl::Expr m_s   = sm_input::m_s;
+    csl::Expr m_b   = sm_input::m_b;
+
+    const csl::Space* flavorSpace = GetSpace(Ye);
+    csl::Tensor M_e = csl::tensor_s(
+            "M_e",
+            {flavorSpace, flavorSpace},
+            csl::matrix_s({{m_e, CSL_0, CSL_0},
+                      {CSL_0, m_mu, CSL_0},
+                      {CSL_0, CSL_0, m_tau}}));
+
+    csl::Tensor M_u = csl::tensor_s(
+            "M_u",
+            {flavorSpace, flavorSpace},
+            csl::matrix_s({{m_u, CSL_0, CSL_0},
+                      {CSL_0, m_c, CSL_0},
+                      {CSL_0, CSL_0, m_t}}));
+
+    csl::Tensor M_d = csl::tensor_s(
+            "M_d",
+            {flavorSpace, flavorSpace},
+            csl::matrix_s({{m_d, CSL_0, CSL_0},
+                      {CSL_0, m_s, CSL_0},
+                      {CSL_0, CSL_0, m_b}}));
+
+
+    csl::Index f_i = GetIndex(flavorSpace);
+    csl::Index f_j = GetIndex(flavorSpace);
+    csl::Index f_k = GetIndex(flavorSpace);
+    csl::Index f_l = GetIndex(flavorSpace);
+    csl::Tensor delta_flav  = Delta(flavorSpace);
+
+    csl::Tensor U_uL = Unitary("U^u_L", flavorSpace);
+    csl::Tensor U_uR = Unitary("U^u_R", flavorSpace);
+    csl::Tensor U_dR = Unitary("U^d_R", flavorSpace);
+
+    buildCKM(flavorSpace);
+
+    csl::Expr factor = csl::sqrt_s(2) / v;
+    replace(Ye, factor*M_e({f_i, f_j}));
+    replace(Yu, factor*M_u({f_i, f_j}));
+    replace(Yd,
+            csl::prod_s({factor,
+                         V_CKM({f_i, f_k}), 
+                         M_d({f_k, f_l}),
+                         GetHermitianConjugate(V_CKM({f_l, f_j}),
+                                               flavorSpace)}, 
+                         true));
+
+    mty::Particle D_L = getParticle("D_L");
+    mty::Particle D_R = getParticle("D_R");
+    csl::Index a1  = DiracIndex();
+    csl::Index A   = GaugeIndex(*this, "SU3c", D_L);
+    replace(D_L({f_j, A, a1}), V_CKM({f_j, f_k}) * D_L({f_k, A, a1}));
+    replace(D_R({f_i, A, a1}), V_CKM({f_i, f_j}) * D_R({f_j, A, a1}));
+
+    ///////////////////////////////////////////////////
+    // Finally breaking SM flavor symmetry 
+    // to get the 3 fermion generations
+    ///////////////////////////////////////////////////
+
+    BreakFlavorSymmetry(*this,
+            "SM_flavor",
+            {"U_L", "U_R", "D_L", "D_R", "E_L", "E_R", "Nu_L"},
+           {{"u_L", "c_L", "t_L"},
+            {"u_R", "c_R", "t_R"},
+            {"d_L", "s_L", "b_L"},
+            {"d_R", "s_R", "b_R"},
+            {"e_L", "mu_L;\\mu_L", "tau_L;\\tau_L"},
+            {"e_R", "mu_R;\\mu_R", "tau_R;\\tau_R"},
+            {"nu_e;\\nu_{eL}", "nu_mu;\\nu_{\\mu L}", "nu_tau;\\nu_{\\tau L}"}}
+            );
+
+    replace(v, (2 * sm_input::M_W * csl::sin_s(theta_Weinberg)) / e);
+    replace(getParticle("W")->getMass(), sm_input::M_W);
+    getParticle("W")->setMass(sm_input::M_W);
+    replace(getParticle("Z")->getMass(), sm_input::M_Z);
+    getParticle("Z")->setMass(sm_input::M_Z);
+    promoteToGoldstone("Gp", "W");
+    promoteToGoldstone("G0", "Z");
+    refresh();
 }
 
 } // End of namespace mty

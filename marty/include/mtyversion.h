@@ -13,7 +13,15 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
- #pragma once
+/**
+ * @file mtyversion.h
+ * @brief Contains macros for MARTY's version in particular for doc brown's 
+ * debugger.
+ * @author Grégoire Uhlrich
+ * @version 1.3
+ * @date 2021-05-06
+ */
+#pragma once
 
-#define MARTY_VERSION 1.2
-#define MARTY_VERSION_STR "_v1_2"
+#define MARTY_VERSION 1.3
+#define MARTY_VERSION_STR "_v1_3"

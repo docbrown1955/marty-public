@@ -13,7 +13,14 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
- #pragma once
+/**
+ * @file sgloperations.h
+ * @brief Contains sgl::Prod and sgl::Sum for SGL.
+ * @author Grégoire Uhlrich
+ * @version 1.3
+ * @date 2021-05-06
+ */
+#pragma once
 
 #include "multifunction.h"
 

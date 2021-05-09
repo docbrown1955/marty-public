@@ -16,7 +16,7 @@
  #include "epsilonindex.h"
 #include "metricindex.h"
 #include "exceptions.h"
-#include "operations.h"
+#include "sgloperations.h"
 #include "indexchain.h"
 #include "contraction.h"
 #include "typecast.h"

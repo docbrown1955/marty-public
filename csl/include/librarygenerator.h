@@ -17,7 +17,7 @@
  * @file librarygenerator.h
  * @brief 
  * @author Grégoire Uhlrich
- * @version 1.0
+ * @version 1.3
  * @date 2020-11-05
  */
 #ifndef CSL_LIBRARY_GENERATOR

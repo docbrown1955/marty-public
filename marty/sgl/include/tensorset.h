@@ -13,7 +13,15 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
- #pragma once
+/**
+ * @file tensorset.h
+ * @brief CSL data for a Dirac space allowing to convert expressions from and to
+ * CSL.
+ * @author Grégoire Uhlrich
+ * @version 
+ * @date 2021-05-06
+ */
+#pragma once
 
 #include "abstractgammasym.h"
 

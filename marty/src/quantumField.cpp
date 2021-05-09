@@ -181,6 +181,7 @@ ParticleType QuantumFieldParent::getParticleType() const
 void QuantumFieldParent::setDrawType(drawer::ParticleType type)
 {
     drawType = type;
+    applyToRelatives([&](Particle p) { p->setDrawType(type); });
 }
 
 Index generateIndex(string       name,
@@ -614,6 +615,7 @@ void QuantumFieldParent::setFlavor(Flavor const *t_flavor)
     flavor = t_flavor;
     if (flavor)
         flavorRep = flavor->getTrivialRep();
+    applyToRelatives([&](Particle p) { p->setFlavor(t_flavor); });
 }
 
 FlavorIrrep QuantumFieldParent::getFlavorIrrep() const
@@ -728,21 +730,25 @@ void QuantumFieldParent::integrateOut(bool value)
 void QuantumFieldParent::setMass(const std::string& t_mass) 
 {
     mass = constant_s(t_mass);
+    applyToRelatives([&](Particle p) { p->setMass(mass); });
 }
 
 void QuantumFieldParent::setMass(const std::string& t_mass, long double value) 
 {
     mass = constant_s(t_mass, value);
+    applyToRelatives([&](Particle p) { p->setMass(mass); });
 }
 
 void QuantumFieldParent::setMass(const csl::Expr& t_mass) 
 {
     mass = t_mass;
+    applyToRelatives([&](Particle p) { p->setMass(mass); });
 }
 
 void QuantumFieldParent::setWidth(csl::Expr const& t_width)
 {
     width = t_width;
+    applyToRelatives([&](Particle p) { p->setWidth(width); });
 }
 
 void QuantumFieldParent::setGaugeChoice(gauge::Type /*type*/)
@@ -756,22 +762,26 @@ void QuantumFieldParent::setSelfConjugate(bool t_selfConjugate)
     complexProp = (selfConjugate and isBosonic()) ? 
                   csl::ComplexProperty::Real
                   :csl::ComplexProperty::Complex;
+    applyToRelatives([&](Particle p) { p->setSelfConjugate(t_selfConjugate); });
 }
 
 void QuantumFieldParent::setPhysical(bool t_physical)
 {
     physical = t_physical;
+    applyToRelatives([&](Particle p) { p->setPhysical(t_physical); });
 }
 
 void QuantumFieldParent::setEnabledInDiagrams(bool t_enabled)
 {
     enabledInDiagrams = t_enabled;
+    applyToRelatives([&](Particle p) { p->setEnabledInDiagrams(t_enabled); });
 }
 
 void QuantumFieldParent::adjustFlavorRep(Flavor* t_flavor)
 {
     flavor = t_flavor;
     flavorRep = FlavorIrrep(t_flavor, flavorRep);
+    applyToRelatives([&](Particle p) { p->adjustFlavorRep(t_flavor); });
 }
 
 void QuantumFieldParent::setGaugeIrrep(GaugeIrrep const &newRep)
@@ -779,6 +789,7 @@ void QuantumFieldParent::setGaugeIrrep(GaugeIrrep const &newRep)
     HEPAssert(newRep.size() == gauge->size(),
             mty::error::ValueError,
             "Wrong number of group for " + toString(newRep) + " in gauge.");
+    applyToRelatives([&](Particle p) { p->setGaugeIrrep(newRep); });
     for (size_t i = 0; i != newRep.size(); ++i)
         setGroupRep((*gauge)[i], newRep[i]);
 }
@@ -790,6 +801,7 @@ void QuantumFieldParent::setGroupRep(const std::string& group,
             mty::error::RuntimeError,
             "You must set a gauge for field " + std::string(getName()) 
             + " before setting its representation.");
+    applyToRelatives([&](Particle p) { p->setGroupRep(group, highestWeight); });
     for (size_t i = 0; i != gauge->size(); ++i) {
         if ((*gauge)[i]->getName() == group) {
             Irrep rep = (*gauge)[i]->highestWeightRep(highestWeight);
@@ -805,12 +817,14 @@ void QuantumFieldParent::setGroupRep(const std::string& group,
 void QuantumFieldParent::setGroupRep(std::string const& group,
                                      int                charge)
 {
+    applyToRelatives([&](Particle p) { p->setGroupRep(group, charge); });
     setGroupRep(group, std::vector<int>(1, charge));
 }
 
 void QuantumFieldParent::setGroupRep(Group*       group,
                                      const Irrep& newRep)
 {
+    applyToRelatives([&](Particle p) { p->setGroupRep(group, newRep); });
     symmetry.clear();
     for (size_t i = 0; i != gauge->size(); ++i) {
         Group* g = (*gauge)[i];
@@ -845,6 +859,7 @@ void QuantumFieldParent::setFundamentalFlavorRep(
         std::string const &flavorGroup
         )
 {
+    applyToRelatives([&](Particle p) { p->setFundamentalFlavorRep(flavorGroup); });
     for (const auto &group : *flavor) {
         if (group->getName() == flavorGroup) {
             setFlavorRep(group, group->getFundamentalRep());
@@ -857,6 +872,7 @@ void QuantumFieldParent::setFundamentalFlavorRep(
 void QuantumFieldParent::setFlavorRep(const FlavorGroup* group,
                                       const Irrep&       newRep)
 {
+    applyToRelatives([&](Particle p) { p->setFlavorRep(group, newRep); });
     symmetry.clear();
     for (size_t i = 0; i != flavor->size(); ++i) {
         FlavorGroup* flavGroup = (*flavor)[i];
@@ -893,6 +909,7 @@ void QuantumFieldParent::addQuantumNumber(
         QuantumNumber const& number,
         QuantumNumber::Value value)
 {
+    applyToRelatives([&](Particle p) { p->addQuantumNumber(number, value); });
     qNumbers[number.getID()] = value;
 }
 
@@ -1034,6 +1051,101 @@ QuantumFieldParent::operator csl::Expr()
             "indices. Please use operator().");
     return operator()();
 }
+
+void QuantumFieldParent::addRelative(
+        std::weak_ptr<mty::QuantumFieldParent> const &rel
+        )
+{
+    const auto pos = std::find_if(relatives.begin(), relatives.end(), 
+            [&](std::weak_ptr<mty::QuantumFieldParent> const &ptr) {
+                return ptr.lock() == rel.lock();
+            });
+    if (pos == relatives.end() && rel.lock().get() != this)
+        relatives.push_back(rel);
+}
+
+std::weak_ptr<mty::QuantumFieldParent> QuantumFieldParent::removeRelative(
+        QuantumFieldParent const *parent
+        )
+{
+    const auto pos = std::find_if(relatives.begin(), relatives.end(), 
+            [&](std::weak_ptr<mty::QuantumFieldParent> const &particle) {
+                return particle.lock().get() == parent;
+            });
+    if (pos != relatives.end()) {
+        auto particle = *pos;
+        relatives.erase(pos);
+        return particle;
+    }
+    return {};
+}
+
+void QuantumFieldParent::checkRelatives()
+{
+    for (size_t i = 0; i != relatives.size(); ++i) {
+        if (!relatives[i].lock()) {
+            relatives.erase(relatives.begin() + i);
+            --i;
+        }
+    }
+}
+
+void QuantumFieldParent::breakParticle(
+        mty::Group                     *brokenGroup,
+        std::vector<std::string> const &newNames
+        )
+{
+    applyToRelatives([&](Particle p) { 
+        p->breakParticle(brokenGroup, newNames); 
+    });
+    if (!brokenParts.empty())
+        return;
+    std::vector<mty::Particle> newParticles;
+    csl::Space const* repSpace = brokenGroup->getVectorSpace(
+            getGroupIrrep(brokenGroup)
+            );
+    size_t nParts = repSpace->getDim();
+    newParticles.reserve(nParts);
+    for (size_t i = 0; i != nParts; ++i)  {
+        Particle newPart = generateSimilar(newNames[i]);
+        newPart->setGroupRep(brokenGroup,
+                             brokenGroup->getTrivialRep());
+        newParticles.push_back(newPart);
+    }
+    csl::Space const* vectorSpace = brokenGroup->getVectorSpace(
+            getGroupIrrep(brokenGroup)
+            );
+    setBrokenParts(vectorSpace, newParticles);
+}
+
+void QuantumFieldParent::breakParticle(
+        mty::FlavorGroup                     *brokenFlavor,
+        std::vector<mty::FlavorGroup*> const &subGroups,
+        std::vector<std::string>       const &names
+        )
+{
+    applyToRelatives([&](Particle p) { 
+        p->breakParticle(brokenFlavor, subGroups, names); 
+    });
+    if (!brokenParts.empty())
+        return;
+    std::vector<mty::Particle> newParticles;
+    newParticles.reserve(subGroups.size());
+    for (size_t i = 0; i != subGroups.size(); ++i)  {
+        Particle newPart = generateSimilar(names[i]);
+        newPart->setFlavorRep(brokenFlavor,
+                              brokenFlavor->getGroup()->getTrivialRep());
+        if (subGroups[i]) {
+            newPart->setFlavorRep(
+                    subGroups[i],
+                    subGroups[i]->getFundamentalRep());
+        }
+        newParticles.push_back(newPart);
+    }
+    setBrokenParts(brokenFlavor->getFundamentalSpace(), newParticles);
+}
+
+
 
 ///////////////////////////////////////////////////
 /*************************************************/

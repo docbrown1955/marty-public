@@ -13,7 +13,14 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
- #pragma once
+/**
+ * @file epsilonindex.h
+ * @brief sgl::EpsilonIndex class for the fully anti-symmetric symbol.
+ * @author Grégoire Uhlrich
+ * @version 
+ * @date 2021-05-06
+ */
+#pragma once
 
 #include "generalizedindex.h"
 

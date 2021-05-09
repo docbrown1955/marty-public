@@ -15,10 +15,10 @@
 
  #include "fierz.h"
 #include "indexchain.h"
-#include "operations.h"
+#include "sgloperations.h"
 #include "simplify.h"
-#include "interface.h"
-#include "algo.h"
+#include "sglinterface.h"
+#include "sglalgo.h"
 #include "sgloptions.h"
 
 namespace sgl {

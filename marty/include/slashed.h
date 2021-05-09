@@ -16,7 +16,7 @@
 /*!
  * @file slashed.h
  * @author Grégoire Uhlrich
- * @version 1.0
+ * @version 1.3
  
  * \brief Contains the slashed object entering expressions.
  */

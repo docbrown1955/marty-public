@@ -15,7 +15,7 @@
 
 /*! \file
  * \author Gregoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief Some of csl enumerations
  */
 #ifndef ENUM_H_INCLUDED

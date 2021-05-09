@@ -15,7 +15,7 @@
 
 /*! \file
  * \author Gregoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief File containing classes handling gauge groups.
  * \details Many of formulas applied for group generators may be found in
  * http://chaosbook.org/GroupTheory/refs/PRD14-76.pdf, 'Group theory for

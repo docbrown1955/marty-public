@@ -16,7 +16,7 @@
 /*!
  * @file 
  * @author Grégoire Uhlrich
- * @version 1.0
+ * @version 1.3
  
  * @brief Contains vector particles of MARTY: vector and gauge bosons, and the
  * field strength object.
@@ -196,12 +196,7 @@ class VectorBoson: public BaseVectorBoson {
      * @param ...args  Parameter pack.
      */
     template<class ...Args>
-    inline VectorBoson(Args&& ...args)
-        :BaseVectorBoson(std::forward<Args>(args)...)
-    {
-        fieldStrength = csl::make_shared<FieldStrength>(this);
-        initPropagator();
-    }
+    inline VectorBoson(Args&& ...args);
 
     bool isSameSpecies(QuantumFieldParent const *other) const override;
 
@@ -218,20 +213,6 @@ class VectorBoson: public BaseVectorBoson {
     ParticleType getParticleType() const override {
         return ParticleType::VectorBoson;
     }
-
-    void setDrawType(drawer::ParticleType type) override;
-
-    void setName(std::string name) override;
-
-    void setLatexName(const std::string& name) override;
-
-    void setMass(const std::string& t_mass) override;
-
-    void setMass(const std::string& t_mass, long double value) override;
-
-    void setMass(const csl::Expr& t_mass) override;
-
-    void setSelfConjugate(bool t_selfConjugate) override;
 
     Particle generateSimilar(std::string const& t_name) const override;
 
@@ -415,14 +396,21 @@ class FieldStrength: public BaseVectorBoson {
         return ParticleType::FieldStrength;
     }
 
-    void setDrawType(drawer::ParticleType type) override;
-
     VectorBoson* getVectorParent() const;
 
     Particle generateSimilar(std::string const& t_name) const override;
 
     csl::Expr getEnergyDimension() const override;
 };
+
+template<class ...Args>
+inline VectorBoson::VectorBoson(Args&& ...args)
+    :BaseVectorBoson(std::forward<Args>(args)...)
+{
+    fieldStrength = csl::make_shared<FieldStrength>(this);
+    addRelative(fieldStrength);
+    initPropagator();
+}
 
 /**
  * @brief Delegates the construction of a vector boson and returns the result.

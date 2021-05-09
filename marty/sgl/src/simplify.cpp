@@ -15,13 +15,13 @@
 
  #include "simplify.h"
 #include "indexchain.h"
-#include "interface.h"
+#include "sglinterface.h"
 #include "cslconverter.h"
 #include "tensorset.h"
 #include "debuglog.h"
 #include "fierz.h"
-#include "operations.h"
-#include "algo.h"
+#include "sgloperations.h"
+#include "sglalgo.h"
 #include "sgloptions.h"
 #include "ordering.h"
 

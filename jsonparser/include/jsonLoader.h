@@ -15,7 +15,7 @@
 
 /*! \file jsonLoader.h
  * \author Gregoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief File containing the JSON::Reader and the JSON::Parser to read .json
  * files and get data from it.
  */

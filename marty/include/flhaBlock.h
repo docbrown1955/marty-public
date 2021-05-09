@@ -18,7 +18,7 @@
  * @brief Containing mty::flha::Block, allowing to define a lha block (MINPAR,
  * EXTPAR etc) with the corresponding variables modified when reading a file.
  * @author Grégoire Uhlrich
- * @version 1.0
+ * @version 1.3
  * @date 2020-08-31
  */
 

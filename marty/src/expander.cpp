@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
- #include "expander.h"
+#include "expander.h"
 #include "mrtOptions.h"
 #include "mrtError.h"
 #include "quantumField.h"

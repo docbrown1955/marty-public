@@ -14,7 +14,7 @@
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
  #include "abstractgammasym.h"
-#include "operations.h"
+#include "sgloperations.h"
 #include "exceptions.h"
 #include "typecast.h"
 #include "cslexpr.h"

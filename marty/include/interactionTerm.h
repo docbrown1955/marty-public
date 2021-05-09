@@ -14,11 +14,11 @@
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 /*!
- * @file Contains 
+ * @file interactionTerm.h
+ * \brief Class mty::InteractionTerm, general purpose container for Lagrangian
+ * terms in MARTY.
  * @author Grégoire Uhlrich
- * @version 1.0
- 
- * \brief
+ * @version 1.3
  */
 #ifndef INTERACTION_TERM_H_INCLUDED
 #define INTERACTION_TERM_H_INCLUDED

@@ -13,7 +13,15 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
- #pragma once
+/**
+ * @file momentumConservation.h
+ * @brief Helper class mty::MomentumConservater to apply momentum conservation 
+ * in amplitudes to simplify them.
+ * @author Grégoire Uhlrich
+ * @version 1.3
+ * @date 2021-05-06
+ */
+#pragma once
 
 #include <vector>
 #include "quantumField.h"

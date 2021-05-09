@@ -15,7 +15,7 @@
 
 /*! \file parent.h
  * \author Grégoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief Base classes for parents and elements.
  */
 #ifndef PARENT_H_INCLUDED

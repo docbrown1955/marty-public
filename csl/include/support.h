@@ -15,7 +15,7 @@
 
 /*! \file support.h
  * \author Grégoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief Some useful functions.
  */
 #ifndef SUPPORT_H_INCLUDED

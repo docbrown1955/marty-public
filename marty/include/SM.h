@@ -15,7 +15,7 @@
 
 /*! \file SM.h
  * \author Gregoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief File containing the Standard Model itself as a mty::Model object.
  * \details It contains also all input parameters for the standard model, 
  * including all values of SMINPUTS block of slha conventions and other 
@@ -33,12 +33,12 @@ namespace mty {
     /**
      * @brief Standard Model of particle physics.
      */
-    class SM_Model: public Model {
+    class SM_Model: public mty::Model {
 
-        public:
-
+    public:
         SM_Model();
     };
+
 } // End of namespace mty
 
 /**
@@ -61,8 +61,8 @@ namespace mty::sm_input {
             1 / csl::float_s(1.37035999139e+02L));
 
     inline 
-    csl::Expr e = csl::constant_s(
-            "e",
+    csl::Expr e_em = csl::constant_s(
+            "e_em",
             csl::Evaluated(
                 csl::sqrt_s(4 * M_PI * alpha_em), 
                 csl::eval::numerical | csl::eval::literal

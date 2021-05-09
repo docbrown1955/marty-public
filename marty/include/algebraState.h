@@ -15,7 +15,7 @@
 
 /*! \file algebraState.h
  * \author Gregoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief Class AlgebraState that represents the set of dinkin labels for a 
  * state in a semi simple Lie Algebra.
  */

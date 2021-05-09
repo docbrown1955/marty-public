@@ -48,7 +48,7 @@ namespace mty {
          *
          * @details A Lagrangian filter is a boolean predicate (function, 
          * lambda, ...) taking a mty::InteractionTerm as parameter (const
-         * reference) and returning true if the vertex must be discarded. 
+         * reference) and returning true if the vertex must be kept. 
          */
         using LagrangianFilter 
             = std::function<bool(mty::InteractionTerm const&)>;
@@ -57,7 +57,7 @@ namespace mty {
          *
          * @details A Feynman diagram filter is a boolean predicate (function, 
          * lambda, ...) taking a mty::FeynmanDiagram as parameter (const
-         * reference) and returning true if the diagram must be discarded. 
+         * reference) and returning true if the diagram must be kept. 
          */
         using DiagramFilter 
             = std::function<bool(mty::FeynmanDiagram const&)>;
@@ -114,7 +114,7 @@ namespace mty {
          * @details The vector must contain mty::Lagrangian::TermType objects 
          * even if the filters themselves take mty::InteractionTerm. This 
          * function removes from the vector all interaction terms for which
-         * one of the filters returns true (filter out).
+         * one of the filters returns false (filter out).
          *
          * @param lagrangian Lagrangian Set of interaction terms to filter.
          *
@@ -132,7 +132,7 @@ namespace mty {
          * filtering functions, this one does not remove the elements inside the
          * initial vector but returns a newly constructed vector containing 
          * pointers to the rules that passed all filters (i.e. for which all 
-         * filters returned false). This allows to avoid any copy of a 
+         * filters returned true). This allows to avoid any copy of a 
          * FeynmanRule object that is a high cost operation.
          *
          * @param lagrangian Set of Feynman rules (interpreted here as a 
@@ -151,7 +151,7 @@ namespace mty {
          * @brief Applies the diagram filters on a vector of Feynman diagrams.
          *
          * @details This function removes from the vector all diagrams 
-         * for which one of the filters returns true (filter out).
+         * for which one of the filters returns false (filter out).
          *
          * @param Set of diagrams to filter.
          *
@@ -281,8 +281,9 @@ namespace mty {
          *
          * @tparam Container Type of the container to filter.
          * @tparam Predicate Predicate type to apply.
-         * @param container  
-         * @param predicate  Filter
+         * @param container  Container on which the filter is applied.
+         * @param predicate  Inversed filter, must return true if the object 
+         * must be filtered out.
          */
         template<class Container, class Predicate>
         void applyFilters(

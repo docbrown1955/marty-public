@@ -15,7 +15,7 @@
 
 /*! \file
  * \author Gregoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief Semi simple Lie algebras: calculations of highest weight
  * representations, products and sums of representations.
  * \details Handles all semi-simple Lie algebras, including the exceptionnal 

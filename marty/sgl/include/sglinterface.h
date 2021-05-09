@@ -13,29 +13,19 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
- #pragma once
+/**
+ * @file sglinterface.h
+ * @brief Interface functions.
+ * @author Grégoire Uhlrich
+ * @version 
+ * @date 2021-05-06
+ */
+#pragma once
 
-#include "gammaindex.h"
+#include "abstractgammasym.h"
 
 namespace sgl {
 
-    struct Commutation {
-        GExpr      factor;
-        GammaIndex left;
-        GammaIndex right;
-        GExpr remnant;
-    };
-
-    std::ostream &operator<<(
-            std::ostream &out,
-            Commutation const &com
-            );
-
-    Commutation commute(
-            GammaIndex const &mu,
-            GammaIndex const &nu,
-            csl::Index const &a,
-            csl::Index const &b,
-            bool              inverseCall = false
-            );
+    GExpr DeepCopy(GExpr const &expr);
+    GExpr DeepRefreshed(GExpr const &expr);
 }

@@ -34,11 +34,8 @@ FeynmanRule::FeynmanRule()
 }
 
 FeynmanRule::FeynmanRule(FeynmanRule const& other)
-    :fieldProduct(other.fieldProduct),
-    diagram(other.diagram),
-    expr(DeepCopy(other.expr))
 {
-    setInteractionTerm(other.term);
+    *this = other;
 }
 
 FeynmanRule& FeynmanRule::operator=(FeynmanRule const& other)
@@ -47,6 +44,7 @@ FeynmanRule& FeynmanRule::operator=(FeynmanRule const& other)
     setInteractionTerm(other.term);
     diagram = other.diagram;
     expr = DeepCopy(other.expr);
+    renameIndices();
 
     return *this;
 }
@@ -225,7 +223,7 @@ csl::Expr FeynmanRule::getFieldProduct(
     }
     *iter = expr;
     csl::Expr res = ReplaceXiGauge(csl::prod_s(product));
-    csl::RenameIndices(res);
+    // csl::RenameIndices(res);
     return res;
 }
 
@@ -289,6 +287,21 @@ void FeynmanRule::setDiagram(std::shared_ptr<wick::Graph> const& t_diagram)
 void FeynmanRule::setExpr(csl::Expr const& t_expr)
 {
     expr = t_expr;
+}
+
+void FeynmanRule::renameIndices()
+{
+    std::vector<std::pair<csl::Index, csl::Index>> change;
+    change.reserve(5 * fieldProduct.size());
+    for (auto &field : fieldProduct) {
+        for (auto &index : field.getIndexStructureView()) {
+            change.push_back({index, index.rename()});
+            index = change.back().second;
+        }
+    }
+    for (const auto &[oldIndex, newIndex] : change) {
+        csl::Replace(expr, oldIndex, newIndex);
+    }
 }
 
 bool FeynmanRule::isSame(FeynmanRule const& other) const

@@ -1248,7 +1248,7 @@ void MSSM_Model::diagonalizeYukawas()
     Replaced(*this, 
             v_h,
             (2 * sm_input::M_W * csl::sin_s(sm_input::theta_W)) 
-            / sm_input::e
+            / sm_input::e_em
             );
 }
 void MSSM_Model::adjustCouplingConstants()
@@ -1257,7 +1257,7 @@ void MSSM_Model::adjustCouplingConstants()
     csl::Expr s2 = csl::pow_s(csl::sin_s(beta_h), 2);
     replace(c2, 1 - s2);
 
-    csl::Expr e = sm_input::e;
+    csl::Expr e = sm_input::e_em;
     csl::Expr thetaW = sm_input::theta_W;
     replace(
             g_L*g_L + g_Y*g_Y,

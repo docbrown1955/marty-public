@@ -15,7 +15,7 @@
 
 /*! \file group.h
  * \author Gregoire Uhlrich
- * \version 1.0
+ * \version 1.3
  * \brief Group objects handling different possible symmetry groups. For now
  * only semi-simple groups have representations and product of representations.
  */

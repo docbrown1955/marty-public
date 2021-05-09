@@ -85,6 +85,7 @@ BaseVectorBoson::BaseVectorBoson(
             const BaseVectorBoson* other)
     :BaseVectorBoson(*other)
 {
+    relatives.clear();
     setName(t_name);
 }
 
@@ -145,51 +146,6 @@ Particle VectorBoson::getGhost() const
 Particle VectorBoson::getGoldstone() const 
 {
     return goldstone;
-}
-
-void VectorBoson::setDrawType(drawer::ParticleType type)
-{
-    QuantumFieldParent::setDrawType(type);
-    if (fieldStrength)
-        fieldStrength->QuantumFieldParent::setDrawType(type);
-}
-
-void VectorBoson::setName(std::string t_name)
-{
-    QuantumFieldParent::setName(t_name);
-    fieldStrength->setName("F_" + t_name);
-}
-
-void VectorBoson::setLatexName(const std::string& t_name)
-{
-    QuantumFieldParent::setLatexName(t_name);
-    fieldStrength->setLatexName("F_" + t_name);
-}
-
-void VectorBoson::setMass(const std::string& t_mass) 
-{
-    csl::Expr mass = csl::constant_s(t_mass);
-    QuantumFieldParent::setMass(mass);
-    fieldStrength->setMass(mass);
-}
-
-void VectorBoson::setMass(const std::string& t_mass, long double value) 
-{
-    csl::Expr mass = csl::constant_s(t_mass, value);
-    QuantumFieldParent::setMass(mass);
-    fieldStrength->setMass(mass);
-}
-
-void VectorBoson::setMass(const csl::Expr& t_mass) 
-{
-    QuantumFieldParent::setMass(t_mass);
-    fieldStrength->setMass(t_mass);
-}
-
-void VectorBoson::setSelfConjugate(bool t_selfConjugate)
-{
-    QuantumFieldParent::setSelfConjugate(t_selfConjugate);
-    fieldStrength->setSelfConjugate(t_selfConjugate);
 }
 
 void VectorBoson::initPropagator()
@@ -289,6 +245,8 @@ void VectorBoson::setGaugeChoice(gauge::Type t_choice)
 
 void VectorBoson::setFieldStrength(Particle const& t_fieldStrength)
 {
+    if (fieldStrength)
+        removeRelative(fieldStrength.get());
     fieldStrength = std::dynamic_pointer_cast<FieldStrength>(t_fieldStrength);
     initPropagator();
 }
@@ -393,6 +351,7 @@ FieldStrength::FieldStrength(VectorBoson* t_vectorParent)
     :BaseVectorBoson(*t_vectorParent),
     vectorParent(t_vectorParent)
 {
+    relatives.clear();
     setName("F_" + t_vectorParent->getName());
     space.push_back(Lorentz->getVectorSpace(spin));
     // const size_t n = space.size();
@@ -413,11 +372,6 @@ void FieldStrength::printDefinition(
     out << "mty::Particle " << regName;
     out << indent << " = mty::fieldstrength_s(dynamic_cast<mty::VectorBoson*>("
         << csl::Abstract::regularName(name) << ".get()));\n";
-}
-
-void FieldStrength::setDrawType(drawer::ParticleType type)
-{
-    vectorParent->setDrawType(type);
 }
 
 VectorBoson* FieldStrength::getVectorParent() const

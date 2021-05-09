@@ -39,6 +39,8 @@ WeylFermion::WeylFermion(
     chirality(t_chirality),
     diracParent(t_parent)
 {
+    relatives.clear();
+    addRelative(t_parent.lock());
     initPropagator();
 }
 
@@ -49,8 +51,7 @@ WeylFermion::WeylFermion(
     :WeylFermion(t_name, t_model.getGauge(), t_chirality)
 {
     if (t_model.getFlavor()) {
-        flavor = t_model.getFlavor();
-        flavorRep = flavor->getTrivialRep();
+        setFlavor(t_model.getFlavor());
     }
 }
 
@@ -115,6 +116,7 @@ WeylFermion::WeylFermion(
         const WeylFermion* other)
     :WeylFermion(*other)
 {
+    relatives.clear();
     setName(t_name);
     initPropagator();
 }
@@ -188,16 +190,6 @@ Particle WeylFermion::getDiracParent() const
     return p;
 }
 
-void WeylFermion::setMass(csl::Expr const &t_mass)
-{
-    auto parent = diracParent.lock();
-    if (parent and (parent->getMass() != t_mass)) {
-        parent->setMass(t_mass);
-    }
-    else
-        QuantumFieldParent::setMass(t_mass);
-}
-
 void WeylFermion::setDiracParent(Particle const &diracFermion)
 {
     std::shared_ptr<DiracFermion> fermion = 
@@ -207,6 +199,7 @@ void WeylFermion::setDiracParent(Particle const &diracFermion)
             "Expected a dirac fermion, " + toString(diracFermion->getName())
             + " given.");
     diracParent = fermion;
+    addRelative(fermion);
 }
 
 Particle WeylFermion::getChiralityCounterPart() const
@@ -229,14 +222,6 @@ void WeylFermion::initPropagator()
         propagator[this] = &FermionPropagator;
     else
         propagator[this] = &IntegratedFermionPropagator;
-}
-
-void WeylFermion::setDrawType(drawer::ParticleType type)
-{
-    if (diracParent.lock())
-        diracParent.lock()->setDrawType(type);
-    else
-        QuantumFieldParent::setDrawType(type);
 }
 
 ///////////////////////////////////////////////////
@@ -281,10 +266,13 @@ DiracFermion::DiracFermion(
     leftPart(left),
     rightPart(right)
 {
+    relatives.clear();
     std::string nameLeft  = left->getName();
     std::string latexNameLeft  = left->getLatexName();
     name = DiracNameOf(nameLeft);
     latexName = DiracNameOf(latexNameLeft);
+    addRelative(left);
+    addRelative(right);
     initPropagator();
 }
 
@@ -294,8 +282,7 @@ DiracFermion::DiracFermion(
     :DiracFermion(t_name, model.getGauge())
 {
     if (model.getFlavor()) {
-        flavor = model.getFlavor();
-        flavorRep = flavor->getTrivialRep();
+        setFlavor(model.getFlavor());
     }
 }
 
@@ -308,6 +295,8 @@ DiracFermion::DiracFermion(
     rightPart = csl::make_shared<WeylFermion>(getName() + "_R", gauge, Chirality::Right);
     leftPart->setLatexName(getLatexName() + "_L");
     rightPart->setLatexName(getLatexName() + "_R");
+    addRelative(leftPart);
+    addRelative(rightPart);
     initPropagator();
 }
 
@@ -320,6 +309,8 @@ DiracFermion::DiracFermion(
     rightPart = csl::make_shared<WeylFermion>(getName() + "_R", irrep, Chirality::Right);
     leftPart->setLatexName(getLatexName() + "_L");
     rightPart->setLatexName(getLatexName() + "_R");
+    addRelative(leftPart);
+    addRelative(rightPart);
     initPropagator();
 }
 
@@ -339,6 +330,8 @@ DiracFermion::DiracFermion(
                                               Chirality::Right);
     leftPart->setLatexName(getLatexName() + "_L");
     rightPart->setLatexName(getLatexName() + "_R");
+    addRelative(leftPart);
+    addRelative(rightPart);
     initPropagator();
 }
 
@@ -357,6 +350,8 @@ DiracFermion::DiracFermion(
                                               irrep,
                                               t_isSelfConjugate,
                                               Chirality::Right);
+    addRelative(leftPart);
+    addRelative(rightPart);
     leftPart->setLatexName(getLatexName() + "_L");
     rightPart->setLatexName(getLatexName() + "_R");
     initPropagator();
@@ -379,6 +374,8 @@ DiracFermion::DiracFermion(
                                               Chirality::Right);
     leftPart->setLatexName(getLatexName() + "_L");
     rightPart->setLatexName(getLatexName() + "_R");
+    addRelative(leftPart);
+    addRelative(rightPart);
     initPropagator();
 }
 
@@ -387,6 +384,7 @@ DiracFermion::DiracFermion(
         const DiracFermion* other)
     :DiracFermion(*other)
 {
+    relatives.clear();
     setName(t_name);
     if (other->leftPart)
         leftPart  = csl::make_shared<WeylFermion>(
@@ -396,6 +394,8 @@ DiracFermion::DiracFermion(
                 getName() + "_R", other->rightPart.get());
     leftPart->setLatexName(getLatexName() + "_L");
     rightPart->setLatexName(getLatexName() + "_R");
+    addRelative(leftPart);
+    addRelative(rightPart);
     initPropagator();
 }
 
@@ -484,24 +484,6 @@ void DiracFermion::initPropagator()
     }
 }
 
-void DiracFermion::setMass(csl::Expr const &t_mass)
-{
-    QuantumFieldParent::setMass(t_mass);
-    if (leftPart)
-        leftPart->setMass(t_mass);
-    if (rightPart)
-        rightPart->setMass(t_mass);
-}
-
-void DiracFermion::setDrawType(drawer::ParticleType type)
-{
-    QuantumFieldParent::setDrawType(type);
-    if (leftPart)
-        leftPart->QuantumFieldParent::setDrawType(type);
-    if (rightPart)
-        rightPart->QuantumFieldParent::setDrawType(type);
-}
-
 Particle DiracFermion::getWeylFermion(Chirality chirality) const
 {
     HEPAssert(chirality != Chirality::None,
@@ -513,15 +495,6 @@ Particle DiracFermion::getWeylFermion(Chirality chirality) const
             "Particle " + std::string(getName()) + " has no " 
             + " weyl fermion.");
     return res;
-}
-
-void DiracFermion::setEnabledInDiagrams(bool t_enabled)
-{
-    QuantumFieldParent::setEnabledInDiagrams(t_enabled);
-    if (leftPart)
-        leftPart->setEnabledInDiagrams(t_enabled);
-    if (rightPart)
-        rightPart->setEnabledInDiagrams(t_enabled);
 }
 
 }

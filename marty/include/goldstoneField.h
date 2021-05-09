@@ -16,7 +16,7 @@
 /*!
  * @file 
  * @author Grégoire Uhlrich
- * @version 1.0
+ * @version 1.3
  
  * @brief Contains implementation of Goldtone bosons in MARTY.
  */

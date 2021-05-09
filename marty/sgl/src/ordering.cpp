@@ -19,7 +19,7 @@
 #include "indexchain.h"
 #include "gammaindex.h"
 #include "momentumindex.h"
-#include "field.h"
+#include "sglfield.h"
 #include "exceptions.h"
 #include "debuglog.h"
 

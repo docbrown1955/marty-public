@@ -18,7 +18,7 @@
  * @brief File containing the utility class able to read a LesHouches Accord 
  * file (.lha), in particular for SM and SUSY parameters.
  * @author Grégoire Uhlrich
- * @version 1.0
+ * @version 1.3
  * @date 2020-08-31
  */
 #ifndef FLHA_READER_INCLUDED

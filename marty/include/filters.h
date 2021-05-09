@@ -45,10 +45,10 @@
  *      Particle t = model.getParticle("t");
  *      options.addFilters(
  *          [&](mty::InteractionTerm const &term) { // disable Z, mty::FeynOptions::LagrangianFilter
- *              return term.contains(Z); // filter out if Z is present
+ *              return !term.contains(Z); // keep if Z absent
  *          },
  *          [&](mty::FeynmanDiagram const &diagram) { // force t, mty::FeynOptions::DiagramFilter
- *              return !diagram.contains(t); // filter out if t is not present
+ *              return diagram.contains(t); // keep if t present
  *          }
  *      );
  *      auto res = model.computeAmplitude(order, insertions, options);
@@ -59,6 +59,13 @@
  * However forcing the top quark must be a mty::FeynOptions::DiagramFilter because one cannot
  * remove vertices that contain the top quark, the condition is that the whole
  * diagram must contain at least one top quark.
+ *
+ * @note To enable the calculation without filtering but select specific 
+ * contributions at the end, see mty::Amplitude::filterOut() instead.
+ *
+ * @sa mty::InteractionTerm, mty::FeynmanDiagram, mty::FeynOptions, 
+ * mty::FeynOptions::DiagramFilter, mty::FeynOptions::LagrangianFilter,
+ * mty::FeynOptions::addFilter(), mty::FeynOptions::addFilters().
  *
  * @author Grégoire Uhlrich
  * @version 1.3
@@ -90,8 +97,8 @@ namespace mty::filter {
      * @param first Begin iterator.
      * @param last  End iterator
      *
-     * @return A mty::FeynOptions::LagrangianFilter filter filtering out all particles 
-     * contained between \b first and \b last.
+     * @return A mty::FeynOptions::LagrangianFilter filter filtering out all 
+     * particles contained between \b first and \b last.
      */
     template<class ParticleIterator>
     auto disableParticles(
@@ -101,23 +108,50 @@ namespace mty::filter {
     {
         return [particles = std::vector<mty::Particle>(first, last)]
             (InteractionTerm const &rule) {
-                return std::any_of(begin(particles), end(particles),
+                return std::all_of(begin(particles), end(particles),
                 [&](Particle const &p) {
-                    return rule.contains(p);
+                    return !rule.contains(p);
                 });
             };
     }
 
+    /**
+     * @brief Filter disabling a range of particles in a std::vector.
+     *
+     * @param particles Range of particles to disable.
+     *
+     * @return A mty::FeynOptions::LagrangianFilter filter filtering out all 
+     * particles contained in the \b particles range.
+     */
     inline auto disableParticles(std::vector<mty::Particle> const &particles)
     {
         return disableParticles(begin(particles), end(particles));
     }
 
+    /**
+     * @brief Filter disabling a range of particles in an initializer_list.
+     *
+     * @param particles Range of particles to disable.
+     *
+     * @return A mty::FeynOptions::LagrangianFilter filter filtering out all 
+     * particles contained in the \b particles range.
+     */
     inline auto disableParticles(std::initializer_list<mty::Particle> particles)
     {
         return disableParticles(begin(particles), end(particles));
     }
 
+    /**
+     * @brief Filter disabling a range of particles from their names
+     * in an initializer_list.
+     *
+     * @param names Range of particle names to disable.
+     * @param model Model in which particles are taken, default is the 
+     * current mty::Model.
+     *
+     * @return A mty::FeynOptions::LagrangianFilter filter filtering out all 
+     * particles contained in the \b particles range.
+     */
     inline auto disableParticles(
             std::initializer_list<std::string_view> names,
             mty::Model                       const &model = *Model::current
@@ -126,11 +160,29 @@ namespace mty::filter {
         return disableParticles(model.getParticles(names));
     }
 
+    /**
+     * @brief Filter disabling one particle.
+     *
+     * @param particle Particle to disable.
+     *
+     * @return A mty::FeynOptions::LagrangianFilter filter filtering out the
+     * particle \b particle.
+     */
     inline auto disableParticle(mty::Particle const &particle)
     {
         return disableParticles({particle});
     }
 
+    /**
+     * @brief Filter disabling one particle given its name.
+     *
+     * @param name  Name of the particle to disable.
+     * @param model Model in which the particle is taken, default is the 
+     * current mty::Model.
+     *
+     * @return A mty::FeynOptions::LagrangianFilter filter filtering out the
+     * particle named \b particle in the model \b model.
+     */
     inline auto disableParticle(
             std::string_view  name,
             mty::Model const &model = *Model::current
@@ -152,8 +204,8 @@ namespace mty::filter {
      * @param first Begin iterator.
      * @param last  End iterator.
      *
-     * @return A mty::FeynOptions::DiagramFilter filtering out diagrams containing \b all
-     * particles contained in the range.
+     * @return A mty::FeynOptions::DiagramFilter filtering out diagrams 
+     * containing \b all particles contained in the range.
      */
     template<class ParticleIterator>
     auto disableParticleCombination(
@@ -163,13 +215,22 @@ namespace mty::filter {
     {
         return [particles = std::vector<mty::Particle>(first, last)]
             (FeynmanDiagram const &rule) {
-                return std::all_of(begin(particles), end(particles),
+                return std::any_of(begin(particles), end(particles),
                 [&](Particle const &p) {
-                    return rule.contains(p);
+                    return !rule.contains(p);
                 });
             };
     }
 
+    /**
+     * @brief Filter disabling a particular combination of particles from a 
+     * std::vector.
+     *
+     * @param particles Range of particles, combination to disable in diagrams.
+     *
+     * @return A mty::FeynOptions::DiagramFilter filtering out diagrams 
+     * containing \b all particles contained in the range.
+     */
     inline auto disableParticleCombination(
             std::vector<mty::Particle> const &particles
             )
@@ -177,6 +238,15 @@ namespace mty::filter {
         return disableParticleCombination(begin(particles), end(particles));
     }
 
+    /**
+     * @brief Filter disabling a particular combination of particles from a 
+     * std::initializer_list.
+     *
+     * @param particles Range of particles, combination to disable in diagrams.
+     *
+     * @return A mty::FeynOptions::DiagramFilter filtering out diagrams 
+     * containing \b all particles contained in the range.
+     */
     inline auto disableParticleCombination(
             std::initializer_list<mty::Particle> particles
             )
@@ -184,6 +254,18 @@ namespace mty::filter {
         return disableParticleCombination(begin(particles), end(particles));
     }
 
+    /**
+     * @brief Filter disabling a particular combination of particle from their
+     * names.
+     *
+     * @param names Range of particle names, combination to disable in 
+     * diagrams.
+     * @param model Model in which the particles are taken, default is the 
+     * current mty::Model.
+     *
+     * @return A mty::FeynOptions::DiagramFilter filtering out diagrams 
+     * containing \b all particles contained in the range.
+     */
     inline auto disableParticleCombination(
             std::initializer_list<std::string_view> names,
             mty::Model                       const &model = *Model::current
@@ -206,47 +288,98 @@ namespace mty::filter {
      * @param first Begin iterator.
      * @param last  End   iterator.
      *
-     * @return A mty::FeynOptions::DiagramFilter filtering out diagrams that do not contain
-     * all the particles given in the range.
+     * @return A mty::FeynOptions::DiagramFilter filtering out diagrams that do 
+     * not contain all the particles given in the range.
      */
     template<class ParticleIterator>
-    auto forceAllParticles(
+    auto forceParticleCombination(
             ParticleIterator first,
             ParticleIterator last
             )
     {
         return [particles = std::vector<mty::Particle>(first, last)]
             (FeynmanDiagram const &diagram) {
-                return std::any_of(begin(particles), end(particles), 
+                return std::all_of(begin(particles), end(particles), 
                 [&](Particle const &p) {
-                    return !diagram.contains(p);
+                    return diagram.contains(p);
                 });
             };
     }
 
-    inline auto forceAllParticles(std::vector<mty::Particle> const &particles)
+    /**
+     * @brief Filter forcing a particular combination of particles given in a
+     * std::vector.
+     *
+     * @param particles Range of particles, combination to force in diagrams.
+     *
+     * @return A mty::FeynOptions::DiagramFilter filtering out diagrams that do 
+     * not contain all the particles given in the range.
+     */
+    inline auto forceParticleCombination(
+            std::vector<mty::Particle> const &particles
+            )
     {
-        return forceAllParticles(begin(particles), end(particles));
+        return forceParticleCombination(begin(particles), end(particles));
     }
 
-    inline auto forceAllParticles(std::initializer_list<mty::Particle> particles)
+    /**
+     * @brief Filter forcing a particular combination of particles given in a
+     * std::initializer_list.
+     *
+     * @param particles Range of particles, combination to force in diagrams.
+     *
+     * @return A mty::FeynOptions::DiagramFilter filtering out diagrams that do 
+     * not contain all the particles given in the range.
+     */
+    inline auto forceParticleCombination(
+            std::initializer_list<mty::Particle> particles
+            )
     {
-        return forceAllParticles(begin(particles), end(particles));
+        return forceParticleCombination(begin(particles), end(particles));
     }
 
-    inline auto forceAllParticles(
+    /**
+     * @brief Filter forcing a particular combination of particles given their
+     * names.
+     *
+     * @param names Range of particle names, combination to force in diagrams.
+     * @param model Model in which particles are taken, default is 
+     * mty::Model::current.
+     *
+     * @return A mty::FeynOptions::DiagramFilter filtering out diagrams that do 
+     * not contain all the particles given in the range.
+     */
+    inline auto forceParticleCombination(
             std::initializer_list<std::string_view> names,
             mty::Model                       const &model = *Model::current
             )
     {
-        return forceAllParticles(model.getParticles(names));
+        return forceParticleCombination(model.getParticles(names));
     }
 
+    /**
+     * @brief Filter forcing one particle in diagrams.
+     *
+     * @param particle Particle to force in diagrams.
+     *
+     * @return A mty::FeynOptions::DiagramFilter filtering out all diagrams that
+     * do not contain the given particle.
+     */
     inline auto forceParticle(mty::Particle const &particle)
     {
-        return forceAllParticles({particle});
+        return forceParticleCombination({particle});
     }
 
+    /**
+     * @brief Filter forcing one particle in diagrams given its name.
+     *
+     * @param name  Particle name to force in diagrams.
+     * @param model Model in which the particle is taken, default is 
+     * mty::Model::current.
+     *
+     * @return A mty::FeynOptions::DiagramFilter filtering out all diagrams that
+     * do not contain the given particle.
+     */
     inline auto forceParticle(
             std::string_view  name,
             mty::Model const &model = *Model::current
@@ -268,40 +401,67 @@ namespace mty::filter {
      * @param first Begin iterator.
      * @param last  End   iterator.
      *
-     * @return A mty::FeynOptions::DiagramFilter filtering out diagrams that do not contain
-     * any of the particles given in the range.
+     * @return A mty::FeynOptions::DiagramFilter filtering out diagrams that do 
+     * not contain any of the particles given in the range.
      */
     template<class ParticleIterator>
-    auto forceAnyParticle(
+    auto forceParticles(
             ParticleIterator first,
             ParticleIterator last
             )
     {
         return [particles = std::vector<mty::Particle>(first, last)]
             (FeynmanDiagram const &diagram) {
-                return std::all_of(begin(particles), end(particles), 
+                return std::any_of(begin(particles), end(particles), 
                 [&](Particle const &p) {
-                    return !diagram.contains(p);
+                    return diagram.contains(p);
                 });
             };
     }
 
-    inline auto forceAnyParticle(std::vector<mty::Particle> const &particles)
+    /**
+     * @brief Filter forcing particles in diagrams given in a std::vector.
+     *
+     * @param particles Particle range to force in diagrams.
+     *
+     * @return A mty::FeynOptions::DiagramFilter filtering out diagrams that do 
+     * not contain any of the particles given in the range.
+     */
+    inline auto forceParticles(std::vector<mty::Particle> const &particles)
     {
-        return forceAnyParticle(begin(particles), end(particles));
+        return forceParticles(begin(particles), end(particles));
     }
 
-    inline auto forceAnyParticle(std::initializer_list<mty::Particle> particles)
+    /**
+     * @brief Filter forcing particles in diagrams given in a
+     * std::initializer_list.
+     *
+     * @param particles Particle range to force in diagrams.
+     *
+     * @return A mty::FeynOptions::DiagramFilter filtering out diagrams that do 
+     * not contain any of the particles given in the range.
+     */
+    inline auto forceParticles(std::initializer_list<mty::Particle> particles)
     {
-        return forceAnyParticle(begin(particles), end(particles));
+        return forceParticles(begin(particles), end(particles));
     }
 
-    inline auto forceAnyParticle(
+    /**
+     * @brief Filter forcing particles in diagrams given their names.
+     *
+     * @param names Range of particle names to force in diagrams.
+     * @param model Model in which particles are taken, default is 
+     * mty::Model::current.
+     *
+     * @return A mty::FeynOptions::DiagramFilter filtering out diagrams that do 
+     * not contain any of the particles given in the range.
+     */
+    inline auto forceParticles(
             std::initializer_list<std::string_view> names,
             mty::Model                       const &model = *Model::current
             )
     {
-        return forceAnyParticle(model.getParticles(names));
+        return forceParticles(model.getParticles(names));
     }
 
 }

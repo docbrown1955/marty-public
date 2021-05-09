@@ -17,7 +17,7 @@
  * @file modelBuilder.h
  * @brief File containing the ModelBuilder class.
  * @author Grégoire Uhlrich
- * @version 1.0
+ * @version 1.3
  * @date 2020-08-14
  */
 
@@ -449,6 +449,11 @@ public:
 
 protected:
 
+    void replaceTermInLagrangian(
+            std::vector<Lagrangian::TermType> &lagrangian,
+            size_t                            &i,
+            csl::vector_expr                  &newTerms);
+
     void fillDependencies(
             std::vector<csl::Expr> &kinetic,
             std::vector<csl::Expr> &mass,
@@ -483,18 +488,6 @@ protected:
     bool doDiagonalizeSymbolically(
             mty::Particle const &field,
             bool                 forceDetZero = false
-            );
-
-    std::vector<mty::Particle> breakParticle(
-            mty::Particle            const &init,
-            mty::Group                     *brokenGroup,
-            std::vector<std::string> const &name
-            );
-    std::vector<mty::Particle> breakParticle(
-            mty::Particle                  const &init,
-            mty::FlavorGroup                     *brokenFlavor,
-            std::vector<mty::FlavorGroup*> const &subFields,
-            std::vector<std::string>       const &name
             );
 
     void breakLagrangian(

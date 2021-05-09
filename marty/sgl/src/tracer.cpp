@@ -20,7 +20,7 @@
 #include "exceptions.h"
 #include "epsilonindex.h"
 #include "debuglog.h"
-#include "operations.h"
+#include "sgloperations.h"
 
 namespace sgl::tracer {
 

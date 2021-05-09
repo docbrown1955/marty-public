@@ -36,9 +36,9 @@ namespace mty::Topology {
      * @details Enumeration values are aligned on powers of 2 to be able to 
      * compose topologies using the pipe | as the logical 'or'. For example, 
      * Triangle | Box corresponds to a topology "triangle or box". The topology
-     * #All refers to all the topologies and is equivalent to
+     * #Any refers to all the topologies and is equivalent to
      * \code
-     *      All = Tadpole | Mass | Triangle | Box | Pentagon
+     *      Any = Tadpole | Mass | Triangle | Box | Pentagon
      * \endcode
      * The topology does not count the number of propagators in the loop but the
      * number of particles connected to it. For only 3-vertices those two 
@@ -54,9 +54,9 @@ namespace mty::Topology {
         Box      = (1 << 3), /*!< Box 4-point function.  */
         Pentagon = (1 << 4), /*!< Pentagon 5-point function. */
         /**
-         * @brief All topologies i.e. combination of all 5 possible topologies.
+         * @brief Any topologies i.e. combination of all 5 possible topologies.
          */
-        All = Tadpole | Mass | Triangle | Box | Pentagon
+        Any = Tadpole | Mass | Triangle | Box | Pentagon
     };
 
     /**
@@ -100,7 +100,7 @@ namespace mty::Topology {
      * @return The modified output stream.
      */
     inline std::ostream &operator<<(std::ostream &out, Type t) {
-        if (t == All) out << "All";
+        if (t == Any) out << "Any";
         else          out << *(names.begin() + static_cast<int>(t)/2);
         return out;
     }
