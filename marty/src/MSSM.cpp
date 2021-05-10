@@ -130,7 +130,7 @@ void MSSM_Model::initGauginos()
 {
     s_B  = mty::weylfermion_s("~B", B->getGaugeIrrep(),  Chirality::Left);
     s_Wi = mty::weylfermion_s("~W", Wi->getGaugeIrrep(), Chirality::Left);
-    s_G  = mty::weylfermion_s("~G; \\tilde{G}", G->getGaugeIrrep(),  Chirality::Left);
+    s_G  = mty::weylfermion_s("sG; \\tilde{G}", G->getGaugeIrrep(),  Chirality::Left);
     s_B->setSelfConjugate(true);
     s_Wi->setSelfConjugate(true);
     s_G->setSelfConjugate(true);
@@ -946,6 +946,8 @@ void MSSM_Model::getToLowEnergyLagrangian()
     diagonalizeNeutralinos();
     std::cout << "Diagonalizing Charginos ..." << std::endl;
     diagonalizeCharginos();
+    std::cout << "Promoting Majorana fermions ..." << std::endl;
+    promoteMajoranas();
     std::cout << "Diagonalizing SFermions ..." << std::endl;
     csl::ScopedProperty p(&mty::InteractionTerm::abbreviateFactors, true);
     diagonalizeSFermions();
@@ -1385,6 +1387,16 @@ void MSSM_Model::diagonalizeCharginos()
     replace(C1p, C1->getWeylFermion(Chirality::Left)(a));
     replace(C2p, C2->getWeylFermion(Chirality::Left)(a));
 }
+
+void MSSM_Model::promoteMajoranas()
+{
+    promoteToMajorana("sG");
+    promoteToMajorana("N_1");
+    promoteToMajorana("N_2");
+    promoteToMajorana("N_3");
+    promoteToMajorana("N_4");
+}
+
 void MSSM_Model::diagonalizeSFermions()
 {
     bool diagonalizedSymbolically;

@@ -336,6 +336,7 @@ protected:
         void breakSMFlavorSymmetry();
         void diagonalizeNeutralinos();
         void diagonalizeCharginos();
+        void promoteMajoranas();
         void diagonalizeSFermions();
         void renameSFermions();
 

@@ -452,8 +452,6 @@ bool Transform(Expr                            & init,
             if (Transform((*init)[i], f, depth-1))
                 transformed = true;
     }
-    if (transformed)
-        init = Refreshed(init);
     if ((transformed = (f(init) or transformed)))
         init = Refreshed(init);
     return transformed;

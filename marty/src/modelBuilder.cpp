@@ -935,6 +935,45 @@ void ModelBuilder::doPromoteToGhost(
     gaugeBoson->setGhostBoson(t_ghost);
 }
 
+void ModelBuilder::doPromoteToMajorana(
+        mty::Particle     &particle,
+        std::string const &newParticleName
+        )
+{
+    std::shared_ptr<mty::WeylFermion> weylFermion
+        = std::dynamic_pointer_cast<mty::WeylFermion>(particle);
+    HEPAssert(weylFermion,
+            mty::error::TypeError,
+            "Expecting a vector boson, " + std::string(weylFermion->getName())
+            + " given.");    
+    HEPAssert(weylFermion->isSelfConjugate(),
+            mty::error::PhysicsError,
+            "Cannot promote a non self-conjugate Weyl fermion to a Majorana "
+            "fermion (" + weylFermion->getName() + " given).")
+
+    mty::Particle majorana = mty::diracfermion_s(
+            newParticleName.empty() ? weylFermion->getName() : newParticleName,
+            weylFermion->getGaugeIrrep(),
+            weylFermion->getFlavorIrrep()
+            );
+    majorana->setSelfConjugate(true);
+    std::vector<csl::Index> indexSet = weylFermion->getFullSetOfIndices();
+    std::cout << "HERE FOR : " << particle->getName() << '\n';
+    printSubPart({particle->getName()});
+    replace(
+            csl::GetComplexConjugate(particle(indexSet)), 
+            1 / csl::sqrt_s(2) * csl::GetComplexConjugate(majorana(indexSet))
+            );
+    printSubPart({particle->getName()});
+    replace(
+            particle(indexSet), 
+            1 / csl::sqrt_s(2) * majorana(indexSet)
+            );
+    printSubPart({particle->getName()});
+    std::cout << "HERE FOR : " << particle->getName() << '\n';
+    std::cin.get();
+}
+
 void ModelBuilder::findAbreviation(csl::Expr& product)
 {
     csl::IndexStructure quantumStructure;
@@ -1047,7 +1086,7 @@ void ModelBuilder::applyDiracFermionEmbedding(
     std::vector<csl::Expr> interactionTerms(interaction.size());
     std::vector<csl::Expr> minusInteractionTerms(interaction.size());
     for (size_t i = 0; i != interaction.size(); ++i) {
-        interactionTerms[i] = interaction[i]->getTerm();
+        interactionTerms[i] = interaction[i]->getFullExpression();
         minusInteractionTerms[i] = -interactionTerms[i];
     }
     for (size_t i = 0; i != interaction.size(); ++i) {
@@ -1065,6 +1104,8 @@ void ModelBuilder::applyDiracFermionEmbedding(
                 field->setChirality(!field->getChirality());
             }
         });
+        if (term == CSL_0)
+            continue;
         for (size_t j = i+1; j < interaction.size(); ++j) {
             if (interactionTerms[j] == term) {
                 csl::ForEachNode(term, [&](csl::Expr& expr)

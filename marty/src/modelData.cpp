@@ -1316,11 +1316,13 @@ void ModelData::addLagrangianTerm(
     if (enableChecks) {
         std::vector<mty::Lagrangian::TermType> terms 
             = mty::InteractionTerm::createAndDispatch(term);
-        for (const auto& t : terms)
+        for (const auto& t : terms) {
             addLagrangianTerm(t);
+        }
     }
-    else
+    else {
         addLagrangianTerm(std::make_shared<InteractionTerm>(term));
+    }
     if (addHermitic) {
         csl::Expr hermitic = csl::GetHermitianConjugate(term, &mty::dirac4);
         addLagrangianTerm(hermitic, false);
@@ -1335,8 +1337,9 @@ void ModelData::addLagrangianTerm(
         checkValidity(term);
     if (*term == CSL_0)
         return;
-    if (not L.contains(term))
+    if (not L.contains(term)) {
         L.push_back(term);
+    }
     std::vector<Particle> newParticles = term->getParticles();
     for (auto& newPart : newParticles) {
         bool found = false;

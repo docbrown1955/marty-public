@@ -255,6 +255,12 @@ public:
                 FieldType2 &&gaugeBoson
                 );
 
+    template<class FieldType, class ...Args>
+        void promoteToMajorana(
+                FieldType &&weylFermion,
+                Args      &&...args
+                );
+
     static void findAbreviation(csl::Expr &expr);
     void integrateOutParticle(
             mty::Particle const &particle,
@@ -485,6 +491,11 @@ protected:
             mty::Particle& gaugeBoson
             );
 
+    void doPromoteToMajorana(
+            mty::Particle     &weylFermion,
+            std::string const &newParticleName = ""
+            );
+
     bool doDiagonalizeSymbolically(
             mty::Particle const &field,
             bool                 forceDetZero = false
@@ -640,6 +651,27 @@ template<class FieldType1, class FieldType2>
                         getParticle(std::forward<FieldType1>(ghost)),
                         getParticle(std::forward<FieldType2>(gaugeBoson))
                         );
+    }
+
+template<class FieldType, class ...Args>
+    void ModelBuilder::promoteToMajorana(
+            FieldType &&weylFermion,
+            Args      &&...args
+            )
+    {
+        constexpr bool field_valid = 
+            std::is_convertible<
+                FieldType, 
+                mty::Particle const&>::value;
+
+        if constexpr(field_valid) {
+            return doPromoteToMajorana(weylFermion, std::forward<Args>(args)...);
+        }
+        else 
+            return promoteToMajorana(
+                    getParticle(std::forward<FieldType>(weylFermion)),
+                    std::forward<Args>(args)...
+                    );
     }
 
     template<class FieldType>

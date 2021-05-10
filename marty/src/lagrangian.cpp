@@ -233,9 +233,10 @@ void Lagrangian::push_back(TermType const &newTerm)
     if (not totalEmpty()) {
         Tensor selfPoint = getPoint();
         Tensor termPoint = newTerm->getPoint();
-        if (not termPoint)
+        if (not termPoint) {
             // No field in the interaction newTerm: constant
             return;
+        }
         if (selfPoint.get() != termPoint.get()) {
             newTerm->setPoint(selfPoint);
         }

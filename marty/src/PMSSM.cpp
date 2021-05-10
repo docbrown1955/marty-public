@@ -270,6 +270,8 @@ void PMSSM_Model::getToLowEnergyLagrangian()
     diagonalizeNeutralinos();
     std::cout << "Diagonalizing Charginos ..." << std::endl;
     diagonalizeCharginos();
+    std::cout << "Promoting Majorana fermions ..." << std::endl;
+    promoteMajoranas();
     std::cout << "Diagonalizing SFermions ..." << std::endl;
     diagonalizeSFermions();
     renameSFermions();
