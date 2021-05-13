@@ -408,8 +408,6 @@ csl::Expr InteractionTerm::getFullExpression() const
     csl::Expr res = applyFactorAndSymmetriesOn(getFieldProduct());
     res = DeepRefreshed(res);
     if (csl::Abbrev::getFreeStructure(res->getIndexStructure()).size() > 0) {
-        std::cout << *this << std::endl;
-        std::cout << "RES = " << res << std::endl;
         CallHEPError(mty::error::IndexError, "")
     }
     return res;

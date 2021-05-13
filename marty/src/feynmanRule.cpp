@@ -54,10 +54,6 @@ FeynmanRule::FeynmanRule(
         TermType           const &t_term)
     :FeynmanRule()
 {
-    std::cout << "HERE" << '\n';
-    std::cout << *t_term << '\n';
-    for (const auto &field : t_term->getContent())
-        std::cout << field << " : " << field.getParent_info() << '\n';
     std::vector<csl::Tensor> momenta(t_term->getContent().size());
     setInteractionTerm(t_term);
     std::vector<csl::Expr> insertions;
