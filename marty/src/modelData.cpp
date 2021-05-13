@@ -1048,10 +1048,11 @@ static void particleNotFound(
 {
     std::cerr << "Candidates are :" << std::endl;
     for (const auto &p : particles) {
-        std::cerr << p->getName() << " (spin dim. = " << p->getSpinDimension()
-            << ")";
+        std::cerr << p->getName() << " (" << p << " spin dim. = " 
+            << p->getSpinDimension() << ")";
         if (auto fs = p->getFieldStrength(); fs) {
-            std::cerr << " , Field Strength = " << fs->getName();
+            std::cerr << " , Field Strength = " << fs->getName()
+                << " (" << fs << ")";
         }
         std::cerr << '\n';
     }

@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
+#include "scopedProperty.h"
 #include "comparison.h"
 #include "indicial.h"
 #include "utils.h"
@@ -159,13 +160,12 @@ bool Comparator::compare(const Index& A, const Index& B)
         return true;
     }
     else {
-        freeIndexComparisonActive = false;
+        csl::ScopedProperty prop(&freeIndexComparisonActive, false);
         if (indexCorrespondance[A] == B)
         if (indexCorrespondance.find(B) == indexCorrespondance.end()) {
             indexCorrespondance[B] = A;
             return true;
         }
-        freeIndexComparisonActive = true;
     }
 
     return false;
@@ -184,13 +184,12 @@ bool Comparator::compare(const Index& A, const Index& B)
     }
     else {
         // Deactivating freeIndexComparison here in order to compare exactly.
-        freeIndexComparisonActive = false;
+        csl::ScopedProperty prop(&freeIndexComparisonActive, false);
         if (indexCorrespondance[A] == B) 
             if (indexCorrespondance.find(B) == indexCorrespondance.end()) {
                 indexCorrespondance[B] = A;
                 return true;
             }
-        freeIndexComparisonActive = true;
     }
     
     return false;
@@ -222,11 +221,10 @@ bool Comparator::dummyVecIntComparison(Expr_info A, Expr_info B)
 
 bool Comparator::freeIndexComparison(Expr_info A, Expr_info B)
 {
-    freeIndexComparisonActive = true;
+    csl::ScopedProperty prop(&freeIndexComparisonActive, true);
     bool rep = A->operator==(B);
     // rep = rep and indexCorrespondance.empty();
     indexCorrespondance.clear();
-    freeIndexComparisonActive = false;
 
     return rep;
 }

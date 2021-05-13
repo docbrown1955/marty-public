@@ -705,13 +705,7 @@ namespace csl {
 
     std::string LibraryGenerator::getFunctionFileName(LibFunction const &f) const
     {
-        std::string res;
-        for (const char c : f.getName())
-            if (c >= 'A' and c <= 'Z')
-                res += c + 'a' - 'A';
-            else
-                res += c;
-        return res;
+        return f.getName();
     }
 
     std::string LibraryGenerator::getGroupFileName(
@@ -908,14 +902,8 @@ namespace csl {
 
     void LibraryGenerator::printFunction(LibFunction const& f) const
     {
-        std::string nameHeader;
-        std::string nameSource;
-        for (const char c : f.getName())
-            if (c >= 'A' and c <= 'Z')
-                nameHeader += c + 'a' - 'A';
-            else
-                nameHeader += c;
-        nameSource = nameHeader;
+        std::string nameHeader = f.getName();
+        std::string nameSource = nameHeader;
         nameHeader += ".h";
         nameSource += ".cpp";
 

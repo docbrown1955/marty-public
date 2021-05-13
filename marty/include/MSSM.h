@@ -280,7 +280,7 @@ public:
 
 protected:
 
-    csl::Expr cc(csl::Expr const &init) {
+    static csl::Expr cc(csl::Expr const &init) {
         return csl::GetComplexConjugate(init);
     }
 
@@ -339,6 +339,7 @@ protected:
         void promoteMajoranas();
         void diagonalizeSFermions();
         void renameSFermions();
+        void generateDiracFermions();
 
     friend
     std::ostream &operator<<(

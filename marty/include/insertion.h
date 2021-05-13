@@ -77,7 +77,7 @@ class Insertion {
     bool isOutgoingParticle() const {
         return !isIncoming() && isParticle();
     }
-    bool isOutoingAntiParticle() const {
+    bool isOutgoingAntiParticle() const {
         return !isIncoming() && !isParticle();
     }
 

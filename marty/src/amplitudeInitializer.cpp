@@ -115,7 +115,7 @@ namespace mty {
             std::vector<std::vector<size_t>> externalSym
                 = getExternalSymmetries(fieldProd);
             std::vector<FeynmanDiagram> amplitude 
-                = wick::WickCalculator::getDiagrams_(
+                = wick::WickCalculator::getDiagrams(
                     model,
                     fieldProd,
                     vertexIds
@@ -191,7 +191,7 @@ namespace mty {
                 continue;
             }
             std::vector<mty::FeynmanDiagram> amplitude 
-                = wick::WickCalculator::getDiagrams_(
+                = wick::WickCalculator::getDiagrams(
                     model,
                     fieldProd,
                     vertexIds,

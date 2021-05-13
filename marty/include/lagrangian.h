@@ -124,6 +124,12 @@ class Lagrangian {
 
     static 
     void mergeTerms(std::vector<TermType>& terms);
+
+    protected:
+
+    void ensurePoint(csl::Expr &expr);
+
+    void ensurePoint(InteractionTerm &term);
 };
 
 inline 

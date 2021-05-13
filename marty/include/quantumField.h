@@ -942,8 +942,7 @@ class QuantumFieldParent: public csl::TensorFieldParent {
      * indices.
      * \sa getFullSetOfIndices(), operator()().
      */
-    csl::Expr getInstance(csl::Tensor point 
-            = csl::tensor_s("X", &csl::Minkowski));
+    csl::Expr getInstance(csl::Tensor point = defaultSpaceTimePoint);
 
     /*!
      * \brief Sets the integrated out property of the field.

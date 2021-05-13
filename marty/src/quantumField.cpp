@@ -1322,7 +1322,8 @@ bool QuantumField::isContractibleWith(const QuantumField& other) const
 bool QuantumField::isExactlyContractiblewith(const QuantumField& other) const
 {
     return (isContractibleWith(other)
-        and (isSelfConjugate() or (conjugated == not other.conjugated)));
+        and ((isSelfConjugate() && !IsOfType<WeylFermion>(parent))
+            or (conjugated != other.conjugated)));
 }
 
 void QuantumField::addDerivative(const Index& index)

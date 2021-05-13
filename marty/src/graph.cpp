@@ -1583,7 +1583,7 @@ csl::vector_expr WickCalculator::applyWickTheoremOnDiagrams(
     return convertGraphsToCorrelators(diagrams, witnessMapping, ruleMode);
 }
 
-std::vector<mty::FeynmanDiagram> WickCalculator::getDiagrams_(
+std::vector<mty::FeynmanDiagram> WickCalculator::getDiagrams(
         mty::Model const *model,
         const csl::Expr& initial,
         std::map<csl::Tensor, size_t>& vertexIds,
@@ -1591,7 +1591,7 @@ std::vector<mty::FeynmanDiagram> WickCalculator::getDiagrams_(
         bool ruleMode)
 {
     std::vector<mty::FeynruleMomentum> emptyMap;
-    return getDiagrams_(
+    return getDiagrams(
             model, 
             initial, 
             vertexIds, 
@@ -1601,7 +1601,7 @@ std::vector<mty::FeynmanDiagram> WickCalculator::getDiagrams_(
             );
 }
 
-std::vector<mty::FeynmanDiagram> WickCalculator::getDiagrams_(
+std::vector<mty::FeynmanDiagram> WickCalculator::getDiagrams(
         mty::Model const *model,
         const csl::Expr& initial,
         std::map<csl::Tensor, size_t>& vertexIds,

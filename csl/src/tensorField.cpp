@@ -861,13 +861,16 @@ bool TensorFieldElement::operator==(Expr_info expr) const
     }
     if (expr->getType() != getType()
             or parent != expr->getParent()
-            or point != expr->getPoint())
+            or point != expr->getPoint()) {
         return false;
+    }
     if (not Complexified::operator==(expr))
         return false;
-    if (Comparator::getFreeIndexComparisonActive())
-        return index.compareWithDummy(expr->getIndexStructure(),
+    if (Comparator::getFreeIndexComparisonActive()) {
+        return index.compareWithDummy(
+                expr->getIndexStructure(),
                 Comparator::indexCorrespondance);
+    }
     if (not index.exactMatch(expr->getIndexStructure()))
         return false;
 

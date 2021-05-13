@@ -406,12 +406,15 @@ Expr Abbrev::makeAbbreviation(std::string name,
                               Expr const& encapsulated,
                               bool        split)
 {
-    if (encapsulated->size() == 0) // nothing to abbreviate
-        return encapsulated;
+    // Important refresh to ensure the mathematical equivalence between the
+    // expression tested here and the entering later the abbreviation
+    Expr encaps = DeepRefreshed(encapsulated);
+    if (encaps->size() == 0) // nothing to abbreviate
+        return encaps;
     if (name == "Ab" 
             && split 
-            && (csl::IsSum(encapsulated) || csl::IsProd(encapsulated))) {
-        const size_t size = csl::Size(encapsulated);
+            && (csl::IsSum(encaps) || csl::IsProd(encaps))) {
+        const size_t size = csl::Size(encaps);
         std::vector<csl::Expr> abbrevs;
         std::vector<csl::Expr> numericals;
         std::vector<csl::Expr> funcs;
@@ -419,7 +422,7 @@ Expr Abbrev::makeAbbreviation(std::string name,
         std::vector<csl::Expr> tensors;
         std::vector<csl::Expr> others;
         for (size_t i = 0; i != size; ++i) { 
-            auto const &arg = encapsulated[i];
+            auto const &arg = encaps[i];
             if (isAnAbbreviation(arg)) {
                 abbrevs.push_back(arg);
             }
@@ -439,7 +442,7 @@ Expr Abbrev::makeAbbreviation(std::string name,
                     others.push_back(arg);
             }
         }
-        bool isProd = csl::IsProd(encapsulated);
+        bool isProd = csl::IsProd(encaps);
         std::vector<csl::Expr> last(6);
         last[0] = makeSubAbbrev(abbrevs, isProd);
         last[1] = makeSubAbbrev(funcs,   isProd);
@@ -459,7 +462,6 @@ Expr Abbrev::makeAbbreviation(std::string name,
         // auto res = makeAbbreviation(name, comb, false);
         // return res;
     }
-    Expr encaps = DeepRefreshed(encapsulated);
     if (avoidDuplicates) {
         if (auto ab = findExisting(name, encaps); ab)
             return ab.value();

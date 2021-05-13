@@ -36,7 +36,8 @@ void ModelBuilder::replace(
         )
 { 
     Particle init;
-    if (IsOfType<QuantumField>(oldExpression))
+    if (IsOfType<QuantumField>(oldExpression) 
+            && !oldExpression->isComplexConjugate())
         init = ConvertToPtr<QuantumField>(oldExpression)->getParticle();
 
     csl::VisitEachLeaf(newExpression, [&](csl::Expr const &sub)
@@ -269,10 +270,10 @@ std::vector<csl::Expr> ModelBuilder::getFullMassMatrix(
             csl::sum_s(fullMassMatrix)
             );
     fullMassMatrix.clear();
+    bool realField = (fields[0]->isSelfConjugate() && fields[0]->isBosonic());
     for (const auto &t : terms) {
         fullMassMatrix.push_back(
-                (fields[0]->isSelfConjugate()) ?
-                 2 * t->getTerm() : t->getTerm());
+                (realField) ?  2 * t->getTerm() : t->getTerm()); 
     }
 
     return fullMassMatrix;
@@ -476,6 +477,8 @@ void ModelBuilder::bidiagonalizeWithSpectrum(
         const auto &f1 = newFields1[i];
         const auto &f2 = newFields2[i];
         csl::Expr mass = csl::constant_s("m_" + std::string(f1->getName()));
+        fields1[i]->setMass(mass);
+        fields2[i]->setMass(mass);
         f1->setMass(mass);
         f2->setMass(mass);
         addLagrangianTerm(
@@ -520,7 +523,6 @@ void ModelBuilder::rotateFields(
         rotateFields(fs1, fs2, rotation, false);
     }
     checksRotation(fields, newFields, rotation);
-    addParticles(newFields, false);
 
     std::vector<csl::Expr> newExpressions = getRotationTerms(newFields, rotation);
     std::vector<csl::Expr> fullMassMatrix;
@@ -538,6 +540,7 @@ void ModelBuilder::rotateFields(
         applyRotation(fields, newFields, newExpressions);
     }
     removeParticles(fields);
+    addParticles(newFields, false);
 
     if (diagonalizeMasses) {
         diagonalizeWithSpectrum(
@@ -648,6 +651,9 @@ void ModelBuilder::rotateFields(
     }
     rotateFields(fields, newFields, mixing, diagonalizeMasses, nMassLessFields);
     for (size_t i = 0; i != newFields.size(); ++i) {
+        if (auto fs = newFields[i]->getFieldStrength(); fs) {
+            replace(fs, fields[i]->getFieldStrength()->getInstance());
+        }
         replace(newFields[i], fields[i]->getInstance());
         removeParticle(newFields[i]);
         if (diagonalizeMasses)
@@ -710,8 +716,15 @@ void ModelBuilder::birotateFields(
     applyUnitaryCondition(mixing1);
     applyUnitaryCondition(mixing2);
     for (size_t i = 0; i != newFields1.size(); ++i) {
+        if (auto fs = newFields1[i]->getFieldStrength(); fs) {
+            replace(fs, fields1[i]->getFieldStrength()->getInstance());
+        }
         replace(newFields1[i], fields1[i]->getInstance());
         fields1[i]->setMass(newFields1[i]->getMass());
+
+        if (auto fs = newFields2[i]->getFieldStrength(); fs) {
+            replace(fs, fields2[i]->getFieldStrength()->getInstance());
+        }
         replace(newFields2[i], fields2[i]->getInstance());
         fields2[i]->setMass(newFields2[i]->getMass());
         removeParticles({newFields1[i], newFields2[i]});
@@ -952,26 +965,51 @@ void ModelBuilder::doPromoteToMajorana(
             "fermion (" + weylFermion->getName() + " given).")
 
     mty::Particle majorana = mty::diracfermion_s(
-            newParticleName.empty() ? weylFermion->getName() : newParticleName,
+            newParticleName.empty() ? 
+                weylFermion->getName() 
+                : newParticleName,
             weylFermion->getGaugeIrrep(),
             weylFermion->getFlavorIrrep()
             );
     majorana->setSelfConjugate(true);
-    std::vector<csl::Index> indexSet = weylFermion->getFullSetOfIndices();
-    std::cout << "HERE FOR : " << particle->getName() << '\n';
-    printSubPart({particle->getName()});
+    mty::Particle ml = majorana->getWeylFermion(Chirality::Left);
+    mty::Particle mr = majorana->getWeylFermion(Chirality::Right);
+    std::vector<csl::Index> inIndex  = weylFermion->getFullSetOfIndices();
+    std::vector<csl::Index> outIndex = inIndex;
+    csl::Index a = outIndex.back();
+    csl::Index b = a.rename();
+    outIndex.back() = b;
+    csl::Tensor P_L = dirac4.P_L;
+    csl::Tensor P_R = dirac4.P_R;
+    csl::Tensor delta = dirac4.getDelta();
     replace(
-            csl::GetComplexConjugate(particle(indexSet)), 
-            1 / csl::sqrt_s(2) * csl::GetComplexConjugate(majorana(indexSet))
+            csl::GetComplexConjugate(particle(inIndex)), 
+            csl::GetComplexConjugate(majorana(outIndex))*P_R({b, a})
             );
-    printSubPart({particle->getName()});
     replace(
-            particle(indexSet), 
-            1 / csl::sqrt_s(2) * majorana(indexSet)
+            particle(inIndex), 
+            P_L({a, b})*majorana(outIndex)
             );
-    printSubPart({particle->getName()});
-    std::cout << "HERE FOR : " << particle->getName() << '\n';
-    std::cin.get();
+    std::vector<csl::Expr> kineticTerms = clearDependencies(
+            L.kinetic,
+            [&](Lagrangian::TermType const &term) {
+                return term->getTerm()->dependsExplicitlyOn(majorana.get());
+            });
+    for (auto &term : kineticTerms) {
+        csl::Replace(term, P_L({a, b}), delta({a, b})/csl::sqrt_s(2));
+        csl::Replace(term, P_R({a, b}), delta({a, b})/csl::sqrt_s(2));
+        L.push_back(term);
+    }
+    std::vector<csl::Expr> massTerms = clearDependencies(
+            L.mass,
+            [&](Lagrangian::TermType const &term) {
+                return term->getTerm()->dependsExplicitlyOn(majorana.get());
+            });
+    for (auto &term : massTerms) {
+        csl::Replace(term, P_L({a, b}), delta({a, b})/csl::sqrt_s(2));
+        csl::Replace(term, P_R({a, b}), delta({a, b})/csl::sqrt_s(2));
+        L.push_back(term);
+    }
 }
 
 void ModelBuilder::findAbreviation(csl::Expr& product)
@@ -1802,9 +1840,8 @@ bool ModelBuilder::diagonalizeExplicitely(
     }
     csl::Expr newParts = csl::vector_s(newFields.size());
     std::vector<csl::Index> indices = newFields[0]->getFullSetOfIndices();
-    csl::Tensor X = csl::tensor_s("X", &csl::Minkowski);
     for (size_t i = 0; i != newFields.size(); ++i)
-        newParts[i] = newFields[i](indices, X);
+        newParts[i] = newFields[i](indices);
 
     csl::Expr replacement = transfer->dot(newParts);
     for (size_t i = 0; i != replacement->size(); ++i) {
@@ -1814,9 +1851,8 @@ bool ModelBuilder::diagonalizeExplicitely(
         csl::Expr newParts = csl::vector_s(newFields.size());
         std::vector<csl::Index> indices 
             = newFields[0]->getFieldStrength()->getFullSetOfIndices();
-        csl::Tensor X = csl::tensor_s("X", &csl::Minkowski);
         for (size_t i = 0; i != newFields.size(); ++i)
-            newParts[i] = newFields[i]->getFieldStrength()(indices, X);
+            newParts[i] = newFields[i]->getFieldStrength()(indices);
 
         csl::Expr replacement = transfer->dot(newParts);
         for (size_t i = 0; i != replacement->size(); ++i) {
@@ -2042,7 +2078,7 @@ void ModelBuilder::applyDiagonalizationData(
 }
 
 void ModelBuilder::applyDiagonalizationData(
-        csl::LibraryGenerator                                     &lib,
+        csl::LibraryGenerator                            &lib,
         std::function<bool(mty::Spectrum const &)> const &cond
         ) const
 {
@@ -2053,7 +2089,7 @@ void ModelBuilder::applyDiagonalizationData(
         std::vector<std::string> masses;
         std::vector<std::string> expressions;
         std::vector<std::string> dependencies;
-        std::vector<mty::Particle> const &parts = s.getParticles();
+        std::vector<mty::Particle>  const &parts     = s.getParticles();
         Spectrum::matrix<csl::Expr> const &initMix   = s.getMixings();
         Spectrum::matrix<csl::Expr> const &initMix2  = s.getMixings2();
         Spectrum::matrix<csl::Expr> const &initMass  = s.getMassTerms();
@@ -2061,7 +2097,8 @@ void ModelBuilder::applyDiagonalizationData(
         mixings.reserve(initMix.size1()*initMix.size2() 
                       + initMix2.size1()*initMix2.size2());
         expressions.reserve(initMass.size1()*initMass.size2());
-        for (const auto &p : parts) {
+        for (size_t i = 0; i != initMix.size1(); ++i) {
+            const auto &p = parts[i];
             masses.emplace_back(
                     csl::LibraryGenerator::regularName(p->getMass()->getName())
                     );

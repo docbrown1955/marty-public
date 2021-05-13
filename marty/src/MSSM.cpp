@@ -128,8 +128,8 @@ void MSSM_Model::initGaugeAndFlavor()
 }
 void MSSM_Model::initGauginos()
 {
-    s_B  = mty::weylfermion_s("~B", B->getGaugeIrrep(),  Chirality::Left);
-    s_Wi = mty::weylfermion_s("~W", Wi->getGaugeIrrep(), Chirality::Left);
+    s_B  = mty::weylfermion_s("sB ; \\tilde{B}", B->getGaugeIrrep(),  Chirality::Left);
+    s_Wi = mty::weylfermion_s("sW ; \\tilde{W}", Wi->getGaugeIrrep(), Chirality::Left);
     s_G  = mty::weylfermion_s("sG; \\tilde{G}", G->getGaugeIrrep(),  Chirality::Left);
     s_B->setSelfConjugate(true);
     s_Wi->setSelfConjugate(true);
@@ -167,11 +167,11 @@ void MSSM_Model::initLeptons()
 void MSSM_Model::initSLeptons()
 {
     s_Li = mty::scalarboson_s(
-            "~L_L", 
+            "sL_L ; \\tilde{L_L}", 
             Li->getGaugeIrrep(), 
             Li->getFlavorIrrep());
     s_Ei = mty::scalarboson_s(
-            "~E_R", 
+            "sE_R ; \\tilde{E_R}", 
             Ei->getGaugeIrrep(), 
             Ei->getFlavorIrrep());
 
@@ -222,15 +222,15 @@ void MSSM_Model::initQuarks()
 void MSSM_Model::initSQuarks()
 {
     s_Qi = mty::scalarboson_s(
-            "~Q_L", 
+            "sQ_L ; \\tilde{Q_L}", 
             Qi->getGaugeIrrep(), 
             Qi->getFlavorIrrep());
     s_Ui = mty::scalarboson_s(
-            "~U_R", 
+            "sU_R ; \\tilde{U_R}", 
             Ui->getGaugeIrrep(), 
             Ui->getFlavorIrrep());
     s_Di = mty::scalarboson_s(
-            "~D_R", 
+            "sD_R ; \\tilde{D_R}", 
             Di->getGaugeIrrep(), 
             Di->getFlavorIrrep());
 
@@ -277,13 +277,13 @@ void MSSM_Model::initHiggs()
     Hu = mty::scalarboson_s("Hu", *this);
     Hu->setGroupRep("L", 1);
     Hu->setGroupRep("Y", {1, 2});
-    m_sHu = csl::constant_s("m_~Hu");
+    m_sHu = csl::constant_s("m_sHu");
     Hu->setMass(m_sHu);
 
     Hd = mty::scalarboson_s("Hd", *this);
     Hd->setGroupRep("L", 1);
     Hd->setGroupRep("Y", {-1, 2});
-    m_sHd = csl::constant_s("m_~Hd");
+    m_sHd = csl::constant_s("m_sHd");
     Hd->setMass(m_sHd);
 
     addParticles({Hu, Hd});
@@ -291,12 +291,12 @@ void MSSM_Model::initHiggs()
 void MSSM_Model::initHiggsinos()
 {
     s_Hu = mty::weylfermion_s(
-            "~Hu", 
+            "sHu ; \\tilde{Hu}", 
             Hu->getGaugeIrrep(), 
             Hd->getFlavorIrrep(),
             Chirality::Left);
     s_Hd = mty::weylfermion_s(
-            "~Hd", 
+            "sHd ; \\tilde{Hd}", 
             Hd->getGaugeIrrep(), 
             Hd->getFlavorIrrep(),
             Chirality::Left);
@@ -952,6 +952,7 @@ void MSSM_Model::getToLowEnergyLagrangian()
     csl::ScopedProperty p(&mty::InteractionTerm::abbreviateFactors, true);
     diagonalizeSFermions();
     renameSFermions();
+    generateDiracFermions();
     gatherMasses();
 
     promoteToGoldstone("G^+", "W");
@@ -965,28 +966,30 @@ void MSSM_Model::breakSU2LGaugeSymmetry()
 
             {"Hu", "Hd", "W", "c_A_L", 
             "Q_L", "L_L", 
-            "~Hu", "~Hd", "~W", 
-            "~Q_L", "~L_L"},
+            "sHu", "sHd", "sW", 
+            "sQ_L", "sL_L"},
 
-            {{"H_u^+", "H_u^0"},
-            {"H_d^0", "H_d^-"},
-            {"W^1", "W^2", "W^3"},
+            {{"Hup", "Hu0"},
+            {"Hd0", "Hdm"},
+            {"W1", "W2", "W3"},
             {"c_W_1", "c_W_2", "c_W_3"},
             {"U_L", "D_L"},
-            {"\\Nu _L", "E_L"},
-            {"~H_u^+", "~H_u^0"},
-            {"~H_d^0", "~H_d^-"},
-            {"~W^1", "~W^2", "~W^3"},
-            {"~U_L", "~D_L"},
-            {"~\\Nu _L", "~E_L"}});
+            {"Nu_L  ; \\Nu_L", "E_L"},
 
-    getParticle("~H_u^0")->setSelfConjugate(true);
-    getParticle("~H_d^0")->setSelfConjugate(true);
+            {"sHup  ; \\tilde{H}_u^+",   "sHu0 ; \\tilde{H}_u^0"},
+            {"sHd0  ; \\tilde{H}_d^0",   "sHdm ; \\tilde{H}_d^-"},
+            {"sW1   ; \\tilde{W}",       "sW2  ; \\tilde{W}^2", 
+                "sW3 ; \\tilde{W}^3"},
+            {"sU_L  ; \\tilde{U}_L",     "sD_L ; \\tilde{D}_L"},
+            {"sNu_L ; \\tilde{\\Nu}_L",  "sE_L ; \\tilde{E}_L"}});
+
+    getParticle("sHu0")->setSelfConjugate(true);
+    getParticle("sHd0")->setSelfConjugate(true);
 }
 void MSSM_Model::replaceWBoson()
 {
-    Particle W1   = GetParticle(*this, "W^1");
-    Particle W2   = GetParticle(*this, "W^2");
+    Particle W1   = GetParticle(*this, "W1");
+    Particle W2   = GetParticle(*this, "W2");
     Particle W_SM = GenerateSimilarParticle("W; W^+", W1);
     SetSelfConjugate(W_SM, false);
 
@@ -1010,10 +1013,10 @@ void MSSM_Model::replaceWBoson()
             GetFieldStrength(W2),
             CSL_I * (F_W_p - F_W_m) / csl::sqrt_s(2));
 
-    Particle s_W1   = GetParticle(*this, "~W^1");
-    Particle s_W2   = GetParticle(*this, "~W^2");
-    Particle s_W  = GenerateSimilarParticle("sWp ; \\tilde{W^+}", s_W1);
-    Particle s_Wc = GenerateSimilarParticle("sWm ; \\tilde{W^-}", s_W2);
+    Particle s_W1   = GetParticle(*this, "sW1");
+    Particle s_W2   = GetParticle(*this, "sW2");
+    Particle s_W  = GenerateSimilarParticle("sWp ; \\tilde{W}^+", s_W1);
+    Particle s_Wc = GenerateSimilarParticle("sWm ; \\tilde{W}^-", s_W2);
     s_W ->setSelfConjugate(false);
     s_Wc->setSelfConjugate(false);
     csl::Index alpha = mty::DiracIndex();
@@ -1030,14 +1033,14 @@ void MSSM_Model::replaceWBoson()
 void MSSM_Model::expandAroundVEVs()
 {
     v_h = sm_input::v;
-    beta_h = csl::constant_s("\\beta");
+    beta_h = csl::constant_s("beta");
     csl::Expr vu = v_h * csl::sin_s(beta_h);
     csl::Expr vd = v_h * csl::cos_s(beta_h);
 
-    Particle Hu0 = GetParticle(*this, "H_u^0");
-    Particle Hup = GetParticle(*this, "H_u^+");
-    Particle Hdm = GetParticle(*this, "H_d^-");
-    Particle Hd0 = GetParticle(*this, "H_d^0");
+    Particle Hu0 = GetParticle(*this, "Hu0");
+    Particle Hup = GetParticle(*this, "Hup");
+    Particle Hdm = GetParticle(*this, "Hdm");
+    Particle Hd0 = GetParticle(*this, "Hd0");
 
     Particle phi_u_c = scalarboson_s("phi_u; \\phi _u^+", *this);
     Particle phi_d_c = scalarboson_s("phi_d; \\phi _d^+", *this);
@@ -1073,16 +1076,8 @@ void MSSM_Model::expandAroundVEVs()
 void MSSM_Model::diagonalize2By2Matrices()
 {
     diagonalizeSymbolically("B");
-    renameParticle("W^3", "Z");
+    renameParticle("W3", "Z");
     renameParticle("B", "A");
-
-    // diagonalizeSymbolically("\\eta _u", true);
-    // renameParticle("\\eta _u", "A^0");
-    // renameParticle("\\eta _d", "G^0");
-
-    // diagonalizeSymbolically("\\phi _u^+", true);
-    // renameParticle("\\phi _u^+", "H^+");
-    // renameParticle("\\phi _d^+", "G^+");
 
     csl::Expr mu_2 = cc(mu_h) * mu_h;
     csl::Expr MZ2 = csl::pow_s(sm_input::M_Z, 2);
@@ -1090,12 +1085,6 @@ void MSSM_Model::diagonalize2By2Matrices()
             g_L*g_L + g_Y*g_Y,
             4 * MZ2 / (v_h*v_h));
     csl::Expr c2beta = 1 - 2 * csl::pow_s(csl::sin_s(beta_h), 2);
-    // Replaced(*this,
-    //         MZ2,
-    //         csl::Expanded((m_sHu*m_sHu - m_sHd*m_sHd)/c2beta)
-    //         - m_sHu*m_sHu
-    //         - m_sHd*m_sHd
-    //         - 2*mu_2);
     Replaced(*this,
             m_sHu,
             csl::sqrt_s(M_A0*M_A0 - m_sHd*m_sHd - 2*mu_2));
@@ -1139,7 +1128,7 @@ void MSSM_Model::diagonalize2By2Matrices()
     mty::Particle H = scalarboson_s("H0; H^0", *this);
     mty::SetSelfConjugate(h, true);
     mty::SetSelfConjugate(H, true);
-    alpha_h = csl::constant_s("alpha; \\alpha");
+    alpha_h = csl::constant_s("alpha");
     rotateFields(
            {rho_u, rho_d}, 
            {h, H},
@@ -1157,15 +1146,15 @@ void MSSM_Model::diagonalize2By2Matrices()
 }
 void MSSM_Model::diagonalizeYukawas()
 {
-    m_e   = sm_input::m_e;   // csl::constant_s("m_e");
-    m_mu  = sm_input::m_mu;  // csl::constant_s("m_\\mu");
-    m_tau = sm_input::m_tau; // csl::constant_s("m_\\tau");
-    m_u   = sm_input::m_u;   // csl::constant_s("m_u");
-    m_c   = sm_input::m_c;   // csl::constant_s("m_c");
-    m_t   = sm_input::m_t;   // csl::constant_s("m_t");
-    m_d   = sm_input::m_d;   // csl::constant_s("m_d");
-    m_s   = sm_input::m_s;   // csl::constant_s("m_s");
-    m_b   = sm_input::m_b;   // csl::constant_s("m_b");
+    m_e   = sm_input::m_e;   
+    m_mu  = sm_input::m_mu;  
+    m_tau = sm_input::m_tau; 
+    m_u   = sm_input::m_u;   
+    m_c   = sm_input::m_c;   
+    m_t   = sm_input::m_t;   
+    m_d   = sm_input::m_d;   
+    m_s   = sm_input::m_s;   
+    m_b   = sm_input::m_b;   
 
     const csl::Space* flavorSpace = csl::GetSpace(Ye);
     csl::Tensor M_e = csl::tensor_s(
@@ -1225,8 +1214,8 @@ void MSSM_Model::diagonalizeYukawas()
 
     mty::Particle D_L = GetParticle(*this, "D_L");
     mty::Particle D_R = GetParticle(*this, "D_R");
-    mty::Particle sD_L = GetParticle(*this, "~D_L");
-    mty::Particle sD_R = GetParticle(*this, "~D_R");
+    mty::Particle sD_L = GetParticle(*this, "sD_L");
+    mty::Particle sD_R = GetParticle(*this, "sD_R");
     csl::Index a1  = DiracIndex();
     csl::Index A   = generateIndex("C", D_L);
 
@@ -1281,8 +1270,8 @@ void MSSM_Model::breakSMFlavorSymmetry()
             *this,
             "SM_flavor",
 
-            {"U_L", "U_R", "D_L", "D_R", "E_L", "E_R", "\\Nu _L",
-            "~U_L", "~U_R", "~D_L", "~D_R", "~E_L", "~E_R", "~\\Nu _L"},
+            {"U_L", "U_R", "D_L", "D_R", "E_L", "E_R", "Nu_L",
+            "sU_L", "sU_R", "sD_L", "sD_R", "sE_L", "sE_R", "sNu_L"},
 
             {{"u_L", "c_L", "t_L"},
             {"u_R", "c_R", "t_R"},
@@ -1290,42 +1279,45 @@ void MSSM_Model::breakSMFlavorSymmetry()
             {"d_R", "s_R", "b_R"},
             {"e_L", "mu_L; \\mu_L", "tau_L; \\tau_L"},
             {"e_R", "mu_R; \\mu_R", "tau_R; \\tau_R"},
-            {"nu_e_L; \\nu_{eL}", "nu_mu_L; \\nu_{\\mu L}", "nu_tau_L; \\nu_{\\tau L}"},
-            {"su_L;\\tilde{u_L}", "sc_L;\\tilde{c_L}", "st_L;\\tilde{t_L}"},
-            {"su_R;\\tilde{u_R}", "sc_R;\\tilde{c_R}", "st_R;\\tilde{t_R}"},
-            {"sd_L;\\tilde{d_L}", "ss_L;\\tilde{s_L}", "sb_L;\\tilde{b_L}"},
-            {"sd_R;\\tilde{d_R}", "ss_R;\\tilde{s_R}", "sb_R;\\tilde{b_R}"},
-            {"se_L;\\tilde{e_L}", "smu_L; \\tilde{\\mu_L}", "stau_L; \\tilde{\\tau_L}"},
-            {"se_R;\\tilde{e_R}", "smu_R; \\tilde{\\mu_R}", "stau_R; \\tilde{\\tau_R}"},
-            {"snu_e_L; \\tilde{\\nu_{eL}}", "snu_mu_L; \\tilde{\\nu_{\\mu L}}", "snu_tau_L; \\tilde{\\nu_{\\tau L}}"}});
+            {"nu_e; \\nu_{eL}", "nu_mu; \\nu_{\\mu L}", "nu_tau; \\nu_{\\tau L}"},
+            {"su_L;\\tilde{u}_L", "sc_L;\\tilde{c}_L", "st_L;\\tilde{t}_L"},
+            {"su_R;\\tilde{u}_R", "sc_R;\\tilde{c}_R", "st_R;\\tilde{t}_R"},
+            {"sd_L;\\tilde{d}_L", "ss_L;\\tilde{s}_L", "sb_L;\\tilde{b}_L"},
+            {"sd_R;\\tilde{d}_R", "ss_R;\\tilde{s}_R", "sb_R;\\tilde{b}_R"},
+            {"se_L;\\tilde{e}_L", "smu_L; \\tilde{\\mu}_L", 
+                "stau_L; \\tilde{\\tau}_L"},
+            {"se_R;\\tilde{e}_R", "smu_R; \\tilde{\\mu}_R", 
+                "stau_R; \\tilde{\\tau}_R"},
+            {"snu_e; \\tilde{\\nu}_{eL}", "snu_mu; \\tilde{\\nu}_{\\mu L}", 
+                "snu_tau; \\tilde{\\nu}_{\\tau L}"}});
 }
 void MSSM_Model::diagonalizeNeutralinos()
 {
-    mty::Particle N1_init = getParticle("~B");
-    mty::Particle N2_init = getParticle("~W^3");
-    mty::Particle N3_init = getParticle("~H_d^0");
-    mty::Particle N4_init = getParticle("~H_u^0");
+    mty::Particle N1_init = getParticle("sB");
+    mty::Particle N2_init = getParticle("sW3");
+    mty::Particle N3_init = getParticle("sHd0");
+    mty::Particle N4_init = getParticle("sHu0");
 
     mty::Particle N1 = N1_init->generateSimilar("N_1");
     mty::Particle N2 = N1_init->generateSimilar("N_2");
     mty::Particle N3 = N1_init->generateSimilar("N_3");
     mty::Particle N4 = N1_init->generateSimilar("N_4");
-    csl::Expr N_B1 = csl::constant_s("N_B1; N_{B1}", csl::ComplexProperty::Complex);
-    csl::Expr N_W1 = csl::constant_s("N_W1; N_{W1}", csl::ComplexProperty::Complex);
-    csl::Expr N_d1 = csl::constant_s("N_d1; N_{d1}", csl::ComplexProperty::Complex);
-    csl::Expr N_u1 = csl::constant_s("N_u1; N_{u1}", csl::ComplexProperty::Complex);
-    csl::Expr N_B2 = csl::constant_s("N_B2; N_{B2}", csl::ComplexProperty::Complex);
-    csl::Expr N_W2 = csl::constant_s("N_W2; N_{W2}", csl::ComplexProperty::Complex);
-    csl::Expr N_d2 = csl::constant_s("N_d2; N_{d2}", csl::ComplexProperty::Complex);
-    csl::Expr N_u2 = csl::constant_s("N_u2; N_{u2}", csl::ComplexProperty::Complex);
-    csl::Expr N_B3 = csl::constant_s("N_B3; N_{B3}", csl::ComplexProperty::Complex);
-    csl::Expr N_W3 = csl::constant_s("N_W3; N_{W3}", csl::ComplexProperty::Complex);
-    csl::Expr N_d3 = csl::constant_s("N_d3; N_{d3}", csl::ComplexProperty::Complex);
-    csl::Expr N_u3 = csl::constant_s("N_u3; N_{u3}", csl::ComplexProperty::Complex);
-    csl::Expr N_B4 = csl::constant_s("N_B4; N_{B4}", csl::ComplexProperty::Complex);
-    csl::Expr N_W4 = csl::constant_s("N_W4; N_{W4}", csl::ComplexProperty::Complex);
-    csl::Expr N_d4 = csl::constant_s("N_d4; N_{d4}", csl::ComplexProperty::Complex);
-    csl::Expr N_u4 = csl::constant_s("N_u4; N_{u4}", csl::ComplexProperty::Complex);
+    csl::Expr N_B1 = csl::constant_s("N_B1", csl::ComplexProperty::Complex);
+    csl::Expr N_W1 = csl::constant_s("N_W1", csl::ComplexProperty::Complex);
+    csl::Expr N_d1 = csl::constant_s("N_d1", csl::ComplexProperty::Complex);
+    csl::Expr N_u1 = csl::constant_s("N_u1", csl::ComplexProperty::Complex);
+    csl::Expr N_B2 = csl::constant_s("N_B2", csl::ComplexProperty::Complex);
+    csl::Expr N_W2 = csl::constant_s("N_W2", csl::ComplexProperty::Complex);
+    csl::Expr N_d2 = csl::constant_s("N_d2", csl::ComplexProperty::Complex);
+    csl::Expr N_u2 = csl::constant_s("N_u2", csl::ComplexProperty::Complex);
+    csl::Expr N_B3 = csl::constant_s("N_B3", csl::ComplexProperty::Complex);
+    csl::Expr N_W3 = csl::constant_s("N_W3", csl::ComplexProperty::Complex);
+    csl::Expr N_d3 = csl::constant_s("N_d3", csl::ComplexProperty::Complex);
+    csl::Expr N_u3 = csl::constant_s("N_u3", csl::ComplexProperty::Complex);
+    csl::Expr N_B4 = csl::constant_s("N_B4", csl::ComplexProperty::Complex);
+    csl::Expr N_W4 = csl::constant_s("N_W4", csl::ComplexProperty::Complex);
+    csl::Expr N_d4 = csl::constant_s("N_d4", csl::ComplexProperty::Complex);
+    csl::Expr N_u4 = csl::constant_s("N_u4", csl::ComplexProperty::Complex);
 
     rotateFields(
            {N1_init, N2_init, N3_init, N4_init}, 
@@ -1340,24 +1332,24 @@ void MSSM_Model::diagonalizeNeutralinos()
 void MSSM_Model::diagonalizeCharginos()
 {
     mty::Particle C1_init = getParticle("sWp");
-    mty::Particle C2_init = getParticle("~H_u^+");
+    mty::Particle C2_init = getParticle("sHup");
     mty::Particle C3_init = getParticle("sWm");
-    mty::Particle C4_init = getParticle("~H_d^-");
+    mty::Particle C4_init = getParticle("sHdm");
 
-    mty::Particle C1p = C1_init->generateSimilar("C1p; \\chi_1^+");
-    mty::Particle C2p = C1_init->generateSimilar("C2p; \\chi_2^+");
-    mty::Particle C1m = C1_init->generateSimilar("C1m; \\chi_1^-");
-    mty::Particle C2m = C1_init->generateSimilar("C2m; \\chi_2^-");
+    mty::Particle C1p = C1_init->generateSimilar("C1p");
+    mty::Particle C2p = C1_init->generateSimilar("C2p");
+    mty::Particle C1m = C1_init->generateSimilar("C1m");
+    mty::Particle C2m = C1_init->generateSimilar("C2m");
 
-    csl::Expr V_Wp1 = csl::constant_s("V_Wp1; V_{Wp1}", csl::ComplexProperty::Complex);
-    csl::Expr V_Wp2 = csl::constant_s("V_Wp2; V_{Wp2}", csl::ComplexProperty::Complex);
-    csl::Expr U_Wm1 = csl::constant_s("U_Wm1; U_{Wm1}", csl::ComplexProperty::Complex);
-    csl::Expr U_Wm2 = csl::constant_s("U_Wm2; U_{Wm2}", csl::ComplexProperty::Complex);
+    csl::Expr V_Wp1 = csl::constant_s("V_Wp1", csl::ComplexProperty::Complex);
+    csl::Expr V_Wp2 = csl::constant_s("V_Wp2", csl::ComplexProperty::Complex);
+    csl::Expr U_Wm1 = csl::constant_s("U_Wm1", csl::ComplexProperty::Complex);
+    csl::Expr U_Wm2 = csl::constant_s("U_Wm2", csl::ComplexProperty::Complex);
 
-    csl::Expr V_u1 = csl::constant_s("V_u1; V_{u1}", csl::ComplexProperty::Complex);
-    csl::Expr V_u2 = csl::constant_s("V_u2; V_{u2}", csl::ComplexProperty::Complex);
-    csl::Expr U_d1 = csl::constant_s("U_d1; U_{d1}", csl::ComplexProperty::Complex);
-    csl::Expr U_d2 = csl::constant_s("U_d2; U_{d2}", csl::ComplexProperty::Complex);
+    csl::Expr V_u1 = csl::constant_s("V_u1", csl::ComplexProperty::Complex);
+    csl::Expr V_u2 = csl::constant_s("V_u2", csl::ComplexProperty::Complex);
+    csl::Expr U_d1 = csl::constant_s("U_d1", csl::ComplexProperty::Complex);
+    csl::Expr U_d2 = csl::constant_s("U_d2", csl::ComplexProperty::Complex);
 
     rotateFields(
            {C1_init, C2_init}, 
@@ -1472,6 +1464,30 @@ void MSSM_Model::renameSFermions()
         susyName = name + "_R";
         newName  = name + "_2; \\tilde{" + std::string(name.begin()+1, name.end()) + "_2}";
         renameParticle(susyName, newName);
+    }
+}
+
+void MSSM_Model::generateDiracFermions()
+{
+    constexpr std::array diracPairs = {
+        std::pair {"e_L", "e_R"},
+        std::pair {"mu_L", "mu_R"},
+        std::pair {"tau_L", "tau_R"},
+        std::pair {"u_L", "u_R"},
+        std::pair {"d_L", "d_R"},
+        std::pair {"s_L", "s_R"},
+        std::pair {"c_L", "c_R"},
+        std::pair {"t_L", "t_R"},
+        std::pair {"b_L", "b_R"},
+    };
+    for (const auto &[namePsiL, namePsiR] : diracPairs) {
+        if (findParticle(namePsiL) && findParticle(namePsiR)) {
+            const auto psiL = getParticle(namePsiL);
+            const auto psiR = getParticle(namePsiR);
+            if (psiL->getMass() == CSL_0 && psiR->getMass() == CSL_0) {
+                diracFermionEmbedding(namePsiL, namePsiR);
+            }
+        }
     }
 }
 

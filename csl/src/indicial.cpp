@@ -3147,9 +3147,12 @@ bool ISum::isIndexed() const
 
 IndexStructure ISum::getIndexStructure() const
 {
-    if (argument.size() > 0)
-        return argument[0]->getIndexStructure();
-    return IndexStructure();
+    auto arg = argument.begin();
+    while (arg != argument.end()) {
+        if (*arg != CSL_0) return (**arg).getIndexStructure();
+        ++arg;
+    }
+    return {};
 }
 
 void ISum::selfCheckIndexStructure()
@@ -3176,12 +3179,14 @@ void ISum::selfCheckIndexStructure()
                 selfCheckIndexStructure();
                 return;
             }
-            cout << structure << endl;
-            cout << (**arg).getFreeIndexStructure() << endl;
-            std::cout << argument[i] << std::endl;
-            std::cout << *arg << std::endl;
-            std::cout << csl::DeepRefreshed(argument[i]) << '\n';
-            std::cout << csl::DeepRefreshed(*arg) << '\n';
+            std::cerr << "In : " << '\n';
+            print();
+            std::cerr << structure << endl;
+            std::cerr << (**arg).getFreeIndexStructure() << endl;
+            std::cerr << argument[i] << std::endl;
+            std::cerr << *arg << std::endl;
+            std::cerr << csl::Evaluated(argument[i], csl::eval::abbreviation) << '\n';
+            std::cerr << csl::Evaluated(*arg, csl::eval::abbreviation) << '\n';
             callError(cslError::InvalidIndicialSum,
                     "Sum::selfCheckIndexStructure() const");
         }

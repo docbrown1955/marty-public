@@ -275,6 +275,7 @@ void PMSSM_Model::getToLowEnergyLagrangian()
     std::cout << "Diagonalizing SFermions ..." << std::endl;
     diagonalizeSFermions();
     renameSFermions();
+    generateDiracFermions();
     gatherMasses();
 
     promoteToGoldstone("Gp", "W");

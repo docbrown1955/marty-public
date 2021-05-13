@@ -803,7 +803,7 @@ class WickCalculator {
             std::vector<mty::FeynruleMomentum>& witnessMapping,
             bool ruleMode = true);
 
-    static std::vector<mty::FeynmanDiagram> getDiagrams_(
+    static std::vector<mty::FeynmanDiagram> getDiagrams(
             mty::Model const *model,
             const csl::Expr& initialExpr,
             std::map<csl::Tensor, size_t>& vertexIds,
@@ -811,7 +811,7 @@ class WickCalculator {
             bool symmetriseExternalLegs = false,
             bool ruleMode = true);
 
-    static std::vector<mty::FeynmanDiagram> getDiagrams_(
+    static std::vector<mty::FeynmanDiagram> getDiagrams(
             mty::Model const *model,
             const csl::Expr& initialExpr,
             std::map<csl::Tensor, size_t>& vertexIds,

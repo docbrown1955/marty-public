@@ -237,8 +237,10 @@ csl::Expr FermionPropagator(
         csl::Tensor      & P,
         bool                external)
 {
-    if (!A.isSelfConjugate() && A.isComplexConjugate())
+    if (!A.isSelfConjugate() && !B.isComplexConjugate())
         return -FermionPropagator(B, A, P, external);
+    //if (A.isComplexConjugate() && !B.isComplexConjugate())
+    //    return -FermionPropagator(B, A, P, external);
     // if (A.isComplexConjugate() == B.isComplexConjugate())
     //     return (A.isComplexConjugate()) ? 
     //         MajoranaConjugatedPropagator(A, B, P, external)
@@ -849,14 +851,13 @@ csl::Expr MassTerm(csl::Expr const&         mass,
         factor = factor * mass;
     if (fieldL->getSpinDimension() == 3)
         factor *= -1;
-    Tensor X = tensor_s("X", &csl::Minkowski);
     vector<Index> index1 = fieldL->getFullSetOfIndices();
     vector<Index> index2(index1);
     for (auto& i : index2)
         i = i.getFlipped();
 
     auto massTerm = -factor * 
-            GetComplexConjugate((*fieldL)(index1, X))*(*fieldR)(index2, X);
+            GetComplexConjugate((*fieldL)(index1))*(*fieldR)(index2);
     if (fieldL == fieldR) {
         return massTerm;
     }

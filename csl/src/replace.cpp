@@ -109,9 +109,13 @@ namespace csl {
             return;
         }
         csl::WeakDeepCopy(expr);
-        auto cc = &csl::GetComplexConjugate;
+        auto conditionalCC = [&](csl::Expr const &sub) {
+            if (sub->isComplexConjugate())
+                return CSL_UNDEF;
+            return csl::GetComplexConjugate(sub);
+        };
         std::vector<csl::Expr> ccFrom(from.size());
-        std::transform(from.begin(), from.end(), ccFrom.begin(), cc);
+        std::transform(from.begin(), from.end(), ccFrom.begin(), conditionalCC);
         applyThroughAbbreviations(
                 expr, 
                 [&](csl::Expr const &sub, bool isPredicate) {
@@ -359,7 +363,16 @@ namespace csl {
             )
     {
         auto parent = expr->getParent_info();
-        auto posF = std::find(begin(parentFrom), end(parentFrom), parent);
+        auto posF = end(parentFrom);
+        for (size_t i = 0; i != from.size(); ++i) {
+            if (parent != parentFrom[i])
+                continue;
+            // If replacement from complex conjugate, expr must also be
+            if (from[i]->isComplexConjugate() && !expr->isComplexConjugate())
+                continue;
+            posF = begin(parentFrom) + i;
+            break;
+        }
         if (posF != end(parentFrom)) {
             if (isPredicate)
                 return CSL_UNDEF;
@@ -370,7 +383,7 @@ namespace csl {
             IndexStructure structureToSave = expr->getIndexStructure();
             Expr newSub = csl::DeepCopy(res);
             RenameIndices(newSub);
-            if (expr->isComplexConjugate())
+            if (expr->isComplexConjugate() != from[i]->isComplexConjugate())
                 newSub = GetComplexConjugate(newSub);
             if (not structureToSave.empty())
                 csl::ApplyIndices(

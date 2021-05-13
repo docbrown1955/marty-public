@@ -180,7 +180,8 @@ void Lagrangian::mergeTerms(vector<TermType>& terms)
             if (merged) {
                 vector<TermType> terms
                     = InteractionTerm::createAndDispatch(
-                            sum_s(expressions));
+                            csl::DeepRefreshed(sum_s(expressions))
+                            );
                 if (terms.empty()) {
                     refreshed.erase(refreshed.begin() + i);
                     --i;
@@ -216,8 +217,10 @@ void Lagrangian::mergeTerms(vector<TermType>& terms)
 
 void Lagrangian::push_back(const csl::Expr& newTerm)
 {
+    csl::Expr cpy = csl::DeepCopy(newTerm);
+    ensurePoint(cpy);
     vector<TermType> terms 
-        = InteractionTerm::createAndDispatch(newTerm);
+        = InteractionTerm::createAndDispatch(cpy);
     for (const auto& term : terms)
         push_back(term);
 }
@@ -230,17 +233,7 @@ void Lagrangian::push_back(InteractionTerm const &term)
 
 void Lagrangian::push_back(TermType const &newTerm)
 {
-    if (not totalEmpty()) {
-        Tensor selfPoint = getPoint();
-        Tensor termPoint = newTerm->getPoint();
-        if (not termPoint) {
-            // No field in the interaction newTerm: constant
-            return;
-        }
-        if (selfPoint.get() != termPoint.get()) {
-            newTerm->setPoint(selfPoint);
-        }
-    }
+    ensurePoint(*newTerm);
 
     mty::interaction::Type type = determineTermType(*newTerm);
     switch(type) {
@@ -248,6 +241,20 @@ void Lagrangian::push_back(TermType const &newTerm)
         case mty::interaction::Mass:        mass.       push_back(newTerm); break;
         case mty::interaction::Interaction: interaction.push_back(newTerm); break;
     }
+}
+
+void Lagrangian::ensurePoint(csl::Expr &expr)
+{
+    csl::ForEachLeaf(expr, [&](csl::Expr &sub) {
+        if (csl::IsField(sub)) {
+            sub->setPoint(getPoint());
+        }
+    });
+}
+
+void Lagrangian::ensurePoint(mty::InteractionTerm &term)
+{
+    term.setPoint(getPoint());
 }
 
 std::ostream& operator<<(std::ostream& fout, const Lagrangian& L)
