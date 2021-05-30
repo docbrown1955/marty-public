@@ -263,7 +263,20 @@ namespace mty::simpli {
     ///////////////////////////////////////////////////
 
     /**
-     * @brief Expands minkoski metrics to contract all possible indices.
+     * @brief Expands Minkowski structures to contract all possible indices.
+     *
+     * @details This function calls expandMinkoMetric() and expandMinkoEpsilon()
+     * successively.
+     * 
+     * @param expr Expression in which Minkowski structures must be expanded.
+     *
+     * @return \b True  if something has been expanded.
+     * @return \b False else.
+     */
+    bool expandMinkoStructures(csl::Expr &expr);
+
+    /**
+     * @brief Expands Minkowski metrics to contract all possible indices.
      *
      * @details This function only expand sub-terms that allow to contract
      * one metric with another tensor that has a common index. All other terms
@@ -272,12 +285,30 @@ namespace mty::simpli {
      * @note Dev note : This is using the emitter / receiver pattern of 
      * csl::DeepPartialExpand(): to use without moderation !
      *
-     * @param expr Expression in which Minkowki metric terms must be expanded.
+     * @param expr Expression in which Minkowski metric terms must be expanded.
      *
      * @return \b True  if something has been expanded.
      * @return \b False else.
      */
     bool expandMinkoMetric(csl::Expr &expr);
+
+    /**
+     * @brief Expands Minkowski epsilon symbols to contract all possible 
+     * indices.
+     *
+     * @details This function only expand sub-terms that allow to contract
+     * one epsilon with another tensor that has a common index. All other terms
+     * are let in sums, not expanded.
+     *
+     * @note Dev note : This is using the emitter / receiver pattern of 
+     * csl::DeepPartialExpand(): to use without moderation !
+     *
+     * @param expr Expression in which Minkowski epsilon terms must be expanded.
+     *
+     * @return \b True  if something has been expanded.
+     * @return \b False else.
+     */
+    bool expandMinkoEpsilon(csl::Expr &expr);
 
     /**
      * @brief Simplifies the contraction of an epsilon tensor with a symmetric
@@ -383,6 +414,51 @@ namespace mty::simpli {
     };
 
     /**
+     * @brief Creates the relevant replacement (using momentum conservation) to
+     * replace one particular momentum.
+     *
+     * @details The two elements returned in a pair can be used directly in 
+     * a csl replacement function on a particular expression as presented in the
+     * following sample code
+     * \code
+     *      auto [p, momentumEquivalent] = getMomentumReplacement(args...);
+     *      csl::Replace(amplitude, p, momentumEquivalent);
+     * \endcode
+     *
+     * @param insertions  Insertions for the process.
+     * @param momenta     Set of external momenta of the process.
+     * @param posReplaced Position of the momentum (in \b momenta) that must be 
+     * replaced by the relevant combination of the others.
+     *
+     * @return A pair containing the momentum replacement to forward to 
+     * csl::Replace().
+     */
+    std::pair<csl::Expr, csl::Expr> getMomentumReplacement(
+            std::vector<mty::QuantumField> const &insertions,
+            std::vector<csl::Tensor>       const &momenta,
+            size_t                                posReplaced
+            );
+    /**
+     * @brief Applies the momentum conservation by replacing one of the external
+     * momenta by the combination of the others.
+     *
+     * @param init        Expression in which the momentum conservation is
+     * applied.
+     * @param insertions  Insertions for the process.
+     * @param momenta     Set of external momenta of the process.
+     * @param posReplaced Position of the momentum (in \b momenta) that must be 
+     * replaced by the relevant combination of the others.
+     *
+     * @sa getMomentumReplacement()
+     */
+    void replaceMomentum(
+            csl::Expr                            &init,
+            std::vector<mty::QuantumField> const &insertions,
+            std::vector<csl::Tensor>       const &momenta,
+            size_t                                posReplaced
+            );
+
+    /**
      * @brief Applies the momentum conservation by replacing one of the external
      * momenta by the combination of the others.
      *
@@ -390,9 +466,10 @@ namespace mty::simpli {
      * this function following an ordering rule for the external fields. To 
      * maximize the possible simplifications, the momentum that are kept are 
      * those of on-shell fermions (because they can later be simplified later
-     * on through the Dirac equation).
+     * on through the Dirac equation). This function calls replaceMomentum().
      *
-     * @param init       Expression in which the momentum conservation is applied.
+     * @param init       Expression in which the momentum conservation is 
+     * applied.
      * @param insertions Insertions for the process.
      * @param momenta    Set of external momenta of the process.
      */

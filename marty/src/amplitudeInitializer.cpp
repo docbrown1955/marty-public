@@ -63,6 +63,22 @@ namespace mty {
             std::vector<std::vector<size_t>> const &terms
             )
     {
+        csl::ScopedProperty p1(&mty::option::excludeTadpoles,
+                mty::option::excludeTadpoles 
+                    || !(options.getTopology() & Topology::Tadpole));
+        csl::ScopedProperty p2(&mty::option::excludeMassCorrections,
+                mty::option::excludeMassCorrections 
+                    || !(options.getTopology() & Topology::Mass));
+        csl::ScopedProperty p3(&mty::option::excludeTriangles,
+                mty::option::excludeTriangles 
+                    || !(options.getTopology() & Topology::Triangle));
+        csl::ScopedProperty p4(&mty::option::excludeBoxes,
+                mty::option::excludeBoxes 
+                    || !(options.getTopology() & Topology::Box));
+        csl::ScopedProperty p5(&mty::option::excludePentagons,
+                mty::option::excludePentagons 
+                    || !(options.getTopology() & Topology::Pentagon));
+
         Amplitude res = (feynRuleMode) ? 
             ruledCalculation(terms) : fullQuantumCalculation(terms);
         options.applyFilters(res.diagrams);
@@ -303,7 +319,6 @@ namespace mty {
                     kinematics.getMomenta(),
                     ind);
             simpli::suppressDiracDelta(res, PSum);
-            //simplifyImpulsions(res);
             csl::ForEachNodeCut(res, [&](csl::Expr& el)
             {
                 if (csl::IsProd(el)) {

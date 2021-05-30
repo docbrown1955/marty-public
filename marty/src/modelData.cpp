@@ -110,7 +110,7 @@ void ModelData::checkHermiticity()
         indicesLeft.erase(indicesLeft.begin());
         if (!mty::hardComparison(terms[i], hermitic[i])) {
             bool found = false;
-            for (size_t j = 1; j < indicesLeft.size(); ++j) {
+            for (size_t j = 0; j < indicesLeft.size(); ++j) {
                 if (!mty::hardComparison(terms[i], hermitic[indicesLeft[j]])) {
                     indicesLeft.erase(indicesLeft.begin() + j);
                     found = true;
@@ -1338,9 +1338,7 @@ void ModelData::addLagrangianTerm(
         checkValidity(term);
     if (*term == CSL_0)
         return;
-    if (not L.contains(term)) {
-        L.push_back(term);
-    }
+    L.push_back(term);
     std::vector<Particle> newParticles = term->getParticles();
     for (auto& newPart : newParticles) {
         bool found = false;

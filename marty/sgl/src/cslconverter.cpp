@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
- #include "cslconverter.h"
+#include "cslconverter.h"
 #include "tensorset.h"
 #include "exceptions.h"
 #include "sgloperations.h"
@@ -90,7 +90,7 @@ namespace sgl {
             LOG(cslexpr_s(expr))
             return cslexpr_s(expr);
         }
-        auto ptr = std::dynamic_pointer_cast<mty::QuantumField>(expr);
+        auto ptr = dynamic_cast<mty::QuantumField const*>(expr.get());
         if (ptr) {
             if (ptr->getQuantumParent()->isFermionic()) {
                 auto partnerShip = ptr->getPartnerShip();

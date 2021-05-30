@@ -203,6 +203,9 @@ class AbstractParent: public std::enable_shared_from_this<AbstractParent>{
     Expr const &getEncapsulated() const;
 
     virtual
+    Expr getExactEncapsulated(Expr_info self) const;
+
+    virtual
     void setEncapsulated(Expr const &);
 
     /*! \brief Returns the dimension of the parent relatively to a certain 

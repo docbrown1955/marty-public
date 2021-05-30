@@ -44,11 +44,12 @@ protected:
     csl::Tensor P_L;
     csl::Tensor P_R;
     csl::Tensor sigma;
+    csl::Tensor C;
 
     csl::Space const &dirac;
     csl::Space const &Minko;
 
-    mty::GaugedGroup *C;
+    mty::GaugedGroup *Color;
 
     mty::Particle G;
     mty::Particle F_G;
@@ -78,9 +79,9 @@ protected:
     mty::Particle smu_L;
     mty::Particle se_R;
     mty::Particle smu_R;
-    mty::Particle snu_e_L;
-    mty::Particle snu_mu_L;
-    mty::Particle snu_tau_L;
+    mty::Particle snu_e;
+    mty::Particle snu_mu;
+    mty::Particle snu_tau;
     mty::Particle st_1;
     mty::Particle st_2;
     mty::Particle stau_1;
@@ -136,9 +137,9 @@ protected:
     mty::Particle e_R;
     mty::Particle mu_R;
     mty::Particle tau_R;
-    mty::Particle nu_e_L;
-    mty::Particle nu_mu_L;
-    mty::Particle nu_tau_L;
+    mty::Particle nu_e;
+    mty::Particle nu_mu;
+    mty::Particle nu_tau;
     mty::Particle N_1_L;
     mty::Particle N_1_R;
     mty::Particle N_2_L;
@@ -164,6 +165,11 @@ protected:
     mty::Particle N_2;
     mty::Particle N_3;
     mty::Particle N_4;
+    mty::Particle e;
+    mty::Particle mu;
+    mty::Particle u;
+    mty::Particle d;
+    mty::Particle c;
     mty::Particle t;
     mty::Particle s;
     mty::Particle b;
@@ -176,7 +182,7 @@ protected:
     csl::Expr M_3;
     csl::Expr M_2;
     csl::Expr M_W;
-    csl::Expr _beta;
+    csl::Expr beta;
     csl::Expr M_A;
     csl::Expr M_Z;
     csl::Expr m_A0;
@@ -185,6 +191,11 @@ protected:
     csl::Expr alpha;
     csl::Expr m_h0;
     csl::Expr m_H0;
+    csl::Expr m_e;
+    csl::Expr m_mu;
+    csl::Expr m_d;
+    csl::Expr m_c;
+    csl::Expr m_u;
     csl::Expr m_t;
     csl::Expr m_s;
     csl::Expr m_b;
@@ -192,6 +203,8 @@ protected:
     csl::Expr theta_W;
     csl::Expr M_q1L;
     csl::Expr m_su_L;
+    csl::Expr m_sc_L;
+    csl::Expr m_sc_R;
     csl::Expr M_quR;
     csl::Expr m_su_R;
     csl::Expr V_ud;
@@ -206,21 +219,24 @@ protected:
     csl::Expr m_se_L;
     csl::Expr M_eR;
     csl::Expr m_se_R;
-    csl::Expr m_snu_e_L;
-    csl::Expr M__tauL;
-    csl::Expr m_snu_tau_L;
+    csl::Expr m_snu_e;
+    csl::Expr M_tauL;
+    csl::Expr m_snu_mu;
+    csl::Expr m_snu_tau;
     csl::Expr m_N_1;
     csl::Expr m_N_2;
     csl::Expr m_N_3;
     csl::Expr m_C1p;
     csl::Expr m_st_L;
     csl::Expr m_st_R;
+    csl::Expr m_smu_L;
+    csl::Expr m_smu_R;
     csl::Expr m_stau_L;
     csl::Expr m_stau_R;
     csl::Expr m_sb_L;
     csl::Expr m_sb_R;
-    csl::Expr e;
-    csl::Expr mu;
+    csl::Expr e_em;
+    csl::Expr mu_h;
     csl::Expr V_tb;
     csl::Expr V_us;
     csl::Expr A_b;
@@ -274,7 +290,7 @@ protected:
     csl::Expr M_q3L;
     csl::Expr M_qtR;
     csl::Expr M_qbR;
-    csl::Expr M__tauR;
+    csl::Expr M_tauR;
 };
 
 } // End of namespace mty

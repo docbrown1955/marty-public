@@ -786,12 +786,11 @@ void LibEvalSession::simplifySums()
 
 LibEvalSession LibEvalSession::parseExpression(
         Expr &expr,
-        bool  display,
         bool  findIntermediates
         )
 {
     LibEvalSession session;
-    session.parse(expr, display, findIntermediates);
+    session.parse(expr, findIntermediates);
 
     return session;
 }
@@ -808,49 +807,6 @@ csl::IndexStructure LibEvalSession::getFreeStructure(
     return csl::Abbrev::getFreeStructure(t_init);
 }
 
-void LibEvalSession::transform(
-        Expr &expr,
-        bool  findIntermediates)
-{
-    // static size_t n = 0;
-    // lib_log << "Transforming (" << n << ")\n" << expr << std::endl;
-    //LibraryExpander::apply(expr);
-    csl::ForEachNodeReversed(expr, [&](Expr& el)
-    {
-        if (el->getType() == csl::Type::Prod 
-                and el->isIndexed()) {
-            parseProduct(el, findIntermediates);
-        }
-        if (csl::Abbrev::getFreeStructure(el).size() == 0) {
-            if (el->size() == 0
-                    and csl::Abbrev::isAnAbbreviation(el)) {
-                auto parent = el->getParent_info();
-                if (abbreviations.find(parent) != abbreviations.end()) {
-                    if (el->isComplexConjugate())
-                        el = GetComplexConjugate(abbreviations[parent]);
-                    else
-                        el = abbreviations[parent];
-                    return;
-                }
-                Expr encaps = DeepCopy(parent->getEncapsulated());
-                parse(encaps, false, findIntermediates);
-                if (el->isComplexConjugate())
-                    el = GetComplexConjugate(addEval(encaps));
-                else
-                    el = addEval(encaps);
-                abbreviations[parent] = encaps;
-                return;
-            }
-            if (!findIntermediates or el->size() == 0)
-                return;
-            el = addEval(el);
-            return;
-        }
-    });
-    csl::DeepRefresh(expr);
-    // lib_log << "RES transform (" << n++ << ") = " << expr << std::endl;
-}
-
 size_t getNLeafs(csl::Expr const &expr) 
 {
     size_t n = 0;
@@ -860,18 +816,17 @@ size_t getNLeafs(csl::Expr const &expr)
 
 void LibEvalSession::parse(
         Expr &expr,
-        bool  display,
-        bool  findIntermediates
+        bool  findIntermediates,
+        std::map<csl::AbstractParent const*, csl::Expr> &parsedAbbrevs
         )
 {
     csl::ScopedProperty prop(&csl::option::canonicalSumNumericalFactor, false);
     csl::Evaluate(expr, csl::eval::numerical | csl::eval::literal);
-    std::map<AbstractParent const*, csl::Expr> parsedAbbrevs;
     csl::ForEachNodeReversed(expr, [&](Expr& el)
     {
         if (el->getType() == csl::Type::Prod 
                 and el->isIndexed()) {
-            parseProduct(el, findIntermediates);
+            parseProduct(el, findIntermediates, parsedAbbrevs);
         }
     });
     csl::DeepRefresh(expr);
@@ -892,7 +847,7 @@ void LibEvalSession::parse(
             }
             else {
                 csl::Expr encaps = parent->getEncapsulated();
-                parse(encaps);
+                parse(encaps, findIntermediates, parsedAbbrevs);
                 encaps = addEval(encaps);
                 parsedAbbrevs[parent] = encaps;
                 if (el->isComplexConjugate())
@@ -909,31 +864,15 @@ void LibEvalSession::parse(
         }
     });
     csl::Evaluate(expr, csl::eval::indicial);
-    return;
-    // static size_t n = 0;
-    // lib_log << "Parsing (" << n << ")\n" << expr << std::endl;
-    // std::vector<Expr> params;
-    // csl::VisitEachLeaf(expr, [&](Expr const &sub) {
-    //     if (csl::IsLiteral(sub) and not csl::Abbrev::find_opt(sub->getName())) {
-    //         auto pos = std::find(params.begin(), params.end(), sub);
-    //         if (pos == params.end())
-    //             params.push_back(sub);
-    //     }
-    // });
-    // std::cout << "HERE " << expr << std::endl;
-    // csl::DeepCollect(expr, params);
-    csl::Evaluate(expr, csl::eval::numerical | csl::eval::literal);
-    if (expr->size() > 0) {
-        csl::ProgressBar bar(expr->size());
-        size_t index = 0;
-        for (size_t i = 0; i != expr->size(); ++i) {
-            if (display)
-                bar.progress(index++);
-            transform((*expr)[i], findIntermediates);
-        }
-    }
-    transform(expr, findIntermediates);
-    // lib_log << "RES parse (" << n++ << ") = " << expr << std::endl;
+}
+
+void LibEvalSession::parse(
+        Expr &expr,
+        bool  findIntermediates
+        )
+{
+    std::map<csl::AbstractParent const*, csl::Expr> parsedAbbrevs;
+    parse(expr, findIntermediates, parsedAbbrevs);
 }
 
 Expr LibEvalSession::expandIProd(Expr const &iprod)
@@ -1007,7 +946,8 @@ Expr LibEvalSession::expandIProd(Expr const &iprod)
 
 void LibEvalSession::parseProduct(
         Expr &iprod,
-        bool  findIntermediates
+        bool  findIntermediates,
+        std::map<csl::AbstractParent const*, csl::Expr> &parsedAbbrevs
         )
 {
     CSL_ASSERT_SPEC(iprod->getType() == csl::Type::Prod
@@ -1085,7 +1025,7 @@ void LibEvalSession::parseProduct(
                 if (findIntermediates and expanded == prod)
                     args[pos] = addEval(prod);
                 else if (expanded != prod){
-                    parse(expanded, false, findIntermediates);
+                    parse(expanded, findIntermediates, parsedAbbrevs);
                     args[pos] = expanded;
                 }
                 else

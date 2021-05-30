@@ -121,6 +121,8 @@ class InteractionTerm {
 
     csl::Expr getTotalFactor() const;
 
+    csl::Expr getMass() const;
+
     /**
      * @brief Returns a reference to the field content of the interaction.
      *

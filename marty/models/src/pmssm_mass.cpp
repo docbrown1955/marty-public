@@ -21,13 +21,10 @@ namespace mty {
 void PMSSM_LEM::initMass0()
 {
     addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(-1, 2), M_3, sG({+i_C_1_1[ 0 ], +i_dirac[ 0 ]}, X), sG({+i_C_1_1[ 0 ], +i_dirac[ 0 ]}, X)}),
-        false);
-    addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(-1, 2), M_3, csl::GetComplexConjugate(sG({+i_C_1_1[ 0 ], +i_dirac[ 0 ]}, X)), csl::GetComplexConjugate(sG({+i_C_1_1[ 0 ], +i_dirac[ 0 ]}, X))}),
-        false);
-    addLagrangianTerm(
         csl::prod_s({csl::intfraction_s(1, 2), csl::pow_s(M_Z, 2), Z({+i_Minko[ 0 ]}, X), Z({i_Minko[ 0 ]}, X)}),
+        false);
+    addLagrangianTerm(
+        csl::prod_s({csl::pow_s(M_W, 2), W({+i_Minko[ 0 ]}, X), csl::GetComplexConjugate(W({i_Minko[ 0 ]}, X))}),
         false);
     addLagrangianTerm(
         csl::prod_s({csl::intfraction_s(-1, 2), csl::pow_s(m_H0, 2), csl::pow_s(H0(X), 2)}),
@@ -39,11 +36,12 @@ void PMSSM_LEM::initMass0()
         csl::prod_s({csl::intfraction_s(-1, 2), csl::pow_s(m_A0, 2), csl::pow_s(A0(X), 2)}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::pow_s(M_W, 2), W({+i_Minko[ 0 ]}, X), csl::GetComplexConjugate(W({i_Minko[ 0 ]}, X))}),
+        csl::prod_s({-1
+, csl::pow_s(m_Hp, 2), Hp(X), csl::GetComplexConjugate(Hp(X))}),
         false);
     addLagrangianTerm(
         csl::prod_s({-1
-, csl::pow_s(m_Hp, 2), Hp(X), csl::GetComplexConjugate(Hp(X))}),
+, m_c, csl::GetComplexConjugate(c({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), c({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)}),
         false);
     addLagrangianTerm(
         csl::prod_s({-1
@@ -51,7 +49,15 @@ void PMSSM_LEM::initMass0()
         false);
     addLagrangianTerm(
         csl::prod_s({-1
+, m_u, csl::GetComplexConjugate(u({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), u({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)}),
+        false);
+    addLagrangianTerm(
+        csl::prod_s({-1
 , m_b, csl::GetComplexConjugate(b({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), b({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)}),
+        false);
+    addLagrangianTerm(
+        csl::prod_s({-1
+, m_d, csl::GetComplexConjugate(d({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), d({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)}),
         false);
     addLagrangianTerm(
         csl::prod_s({-1
@@ -59,19 +65,19 @@ void PMSSM_LEM::initMass0()
         false);
     addLagrangianTerm(
         csl::prod_s({-1
+, m_e, csl::GetComplexConjugate(e({+i_dirac[ 0 ]}, X)), e({+i_dirac[ 0 ]}, X)}),
+        false);
+    addLagrangianTerm(
+        csl::prod_s({-1
+, m_mu, csl::GetComplexConjugate(mu({+i_dirac[ 0 ]}, X)), mu({+i_dirac[ 0 ]}, X)}),
+        false);
+    addLagrangianTerm(
+        csl::prod_s({-1
 , m_tau, csl::GetComplexConjugate(tau({+i_dirac[ 0 ]}, X)), tau({+i_dirac[ 0 ]}, X)}),
         false);
     addLagrangianTerm(
         csl::prod_s({-1
-, csl::pow_s(m_snu_e_L, 2), snu_e_L(X), csl::GetComplexConjugate(snu_e_L(X))}),
-        false);
-    addLagrangianTerm(
-        csl::prod_s({-1
-, csl::pow_s(m_snu_e_L, 2), snu_mu_L(X), csl::GetComplexConjugate(snu_mu_L(X))}),
-        false);
-    addLagrangianTerm(
-        csl::prod_s({-1
-, csl::pow_s(m_snu_tau_L, 2), snu_tau_L(X), csl::GetComplexConjugate(snu_tau_L(X))}),
+, csl::pow_s(m_sc_L, 2), sc_L({+i_C_1_0[ 0 ]}, X), csl::GetComplexConjugate(sc_L({+i_C_1_0[ 0 ]}, X))}),
         false);
     addLagrangianTerm(
         csl::prod_s({-1
@@ -79,15 +85,11 @@ void PMSSM_LEM::initMass0()
         false);
     addLagrangianTerm(
         csl::prod_s({-1
+, csl::pow_s(m_sc_R, 2), sc_R({+i_C_1_0[ 0 ]}, X), csl::GetComplexConjugate(sc_R({+i_C_1_0[ 0 ]}, X))}),
+        false);
+    addLagrangianTerm(
+        csl::prod_s({-1
 , csl::pow_s(m_su_R, 2), su_R({+i_C_1_0[ 0 ]}, X), csl::GetComplexConjugate(su_R({+i_C_1_0[ 0 ]}, X))}),
-        false);
-    addLagrangianTerm(
-        csl::prod_s({-1
-, csl::pow_s(m_su_L, 2), sc_L({+i_C_1_0[ 0 ]}, X), csl::GetComplexConjugate(sc_L({+i_C_1_0[ 0 ]}, X))}),
-        false);
-    addLagrangianTerm(
-        csl::prod_s({-1
-, csl::pow_s(m_su_R, 2), sc_R({+i_C_1_0[ 0 ]}, X), csl::GetComplexConjugate(sc_R({+i_C_1_0[ 0 ]}, X))}),
         false);
     addLagrangianTerm(
         csl::prod_s({-1
@@ -95,7 +97,15 @@ void PMSSM_LEM::initMass0()
         false);
     addLagrangianTerm(
         csl::prod_s({-1
+, csl::pow_s(m_ss_L, 2), ss_L({+i_C_1_0[ 0 ]}, X), csl::GetComplexConjugate(ss_L({+i_C_1_0[ 0 ]}, X))}),
+        false);
+    addLagrangianTerm(
+        csl::prod_s({-1
 , csl::pow_s(m_sd_R, 2), sd_R({+i_C_1_0[ 0 ]}, X), csl::GetComplexConjugate(sd_R({+i_C_1_0[ 0 ]}, X))}),
+        false);
+    addLagrangianTerm(
+        csl::prod_s({-1
+, csl::pow_s(m_ss_R, 2), ss_R({+i_C_1_0[ 0 ]}, X), csl::GetComplexConjugate(ss_R({+i_C_1_0[ 0 ]}, X))}),
         false);
     addLagrangianTerm(
         csl::prod_s({-1
@@ -103,15 +113,11 @@ void PMSSM_LEM::initMass0()
         false);
     addLagrangianTerm(
         csl::prod_s({-1
+, csl::pow_s(m_smu_L, 2), smu_L(X), csl::GetComplexConjugate(smu_L(X))}),
+        false);
+    addLagrangianTerm(
+        csl::prod_s({-1
 , csl::pow_s(m_se_R, 2), se_R(X), csl::GetComplexConjugate(se_R(X))}),
-        false);
-    addLagrangianTerm(
-        csl::prod_s({-1
-, csl::pow_s(m_se_L, 2), smu_L(X), csl::GetComplexConjugate(smu_L(X))}),
-        false);
-    addLagrangianTerm(
-        csl::prod_s({-1
-, csl::pow_s(m_se_R, 2), smu_R(X), csl::GetComplexConjugate(smu_R(X))}),
         false);
 }
 
@@ -119,43 +125,42 @@ void PMSSM_LEM::initMass1()
 {
     addLagrangianTerm(
         csl::prod_s({-1
-, csl::pow_s(m_ss_L, 2), ss_L({+i_C_1_0[ 0 ]}, X), csl::GetComplexConjugate(ss_L({+i_C_1_0[ 0 ]}, X))}),
+, csl::pow_s(m_smu_R, 2), smu_R(X), csl::GetComplexConjugate(smu_R(X))}),
         false);
     addLagrangianTerm(
         csl::prod_s({-1
-, csl::pow_s(m_ss_R, 2), ss_R({+i_C_1_0[ 0 ]}, X), csl::GetComplexConjugate(ss_R({+i_C_1_0[ 0 ]}, X))}),
-        false);
-    addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(-1, 2), m_N_1, N_1({+i_dirac[ 0 ]}, X), N_1({+i_dirac[ 0 ]}, X)}),
-        false);
-    addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(-1, 2), m_N_1, csl::GetComplexConjugate(N_1({+i_dirac[ 0 ]}, X)), csl::GetComplexConjugate(N_1({+i_dirac[ 0 ]}, X))}),
-        false);
-    addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(-1, 2), m_N_2, N_2({+i_dirac[ 0 ]}, X), N_2({+i_dirac[ 0 ]}, X)}),
-        false);
-    addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(-1, 2), m_N_2, csl::GetComplexConjugate(N_2({+i_dirac[ 0 ]}, X)), csl::GetComplexConjugate(N_2({+i_dirac[ 0 ]}, X))}),
-        false);
-    addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(-1, 2), m_N_3, N_3({+i_dirac[ 0 ]}, X), N_3({+i_dirac[ 0 ]}, X)}),
-        false);
-    addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(-1, 2), m_N_3, csl::GetComplexConjugate(N_3({+i_dirac[ 0 ]}, X)), csl::GetComplexConjugate(N_3({+i_dirac[ 0 ]}, X))}),
-        false);
-    addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(-1, 2), m_N_4, N_4({+i_dirac[ 0 ]}, X), N_4({+i_dirac[ 0 ]}, X)}),
-        false);
-    addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(-1, 2), m_N_4, csl::GetComplexConjugate(N_4({+i_dirac[ 0 ]}, X)), csl::GetComplexConjugate(N_4({+i_dirac[ 0 ]}, X))}),
+, csl::pow_s(m_snu_e, 2), snu_e(X), csl::GetComplexConjugate(snu_e(X))}),
         false);
     addLagrangianTerm(
         csl::prod_s({-1
-, m_C1p, csl::GetComplexConjugate(C_1_L({+i_dirac[ 0 ]}, X)), csl::GetComplexConjugate(C_1_R({+i_dirac[ 0 ]}, X))}),
+, csl::pow_s(m_snu_e, 2), snu_mu(X), csl::GetComplexConjugate(snu_mu(X))}),
         false);
     addLagrangianTerm(
         csl::prod_s({-1
-, m_C2p, csl::GetComplexConjugate(C_2_L({+i_dirac[ 0 ]}, X)), csl::GetComplexConjugate(C_2_R({+i_dirac[ 0 ]}, X))}),
+, csl::pow_s(m_snu_tau, 2), snu_tau(X), csl::GetComplexConjugate(snu_tau(X))}),
+        false);
+    addLagrangianTerm(
+        csl::prod_s({-1
+, m_C1p, csl::GetComplexConjugate(C_1({+i_dirac[ 0 ]}, X)), C_1({+i_dirac[ 0 ]}, X)}),
+        false);
+    addLagrangianTerm(
+        csl::prod_s({-1
+, m_C2p, csl::GetComplexConjugate(C_2({+i_dirac[ 0 ]}, X)), C_2({+i_dirac[ 0 ]}, X)}),
+        false);
+    addLagrangianTerm(
+        csl::prod_s({csl::intfraction_s(-1, 2), M_3, csl::GetComplexConjugate(sG({+i_C_1_1[ 0 ], +i_dirac[ 0 ]}, X)), sG({+i_C_1_1[ 0 ], +i_dirac[ 0 ]}, X)}),
+        false);
+    addLagrangianTerm(
+        csl::prod_s({csl::intfraction_s(-1, 2), m_N_1, csl::GetComplexConjugate(N_1({+i_dirac[ 0 ]}, X)), N_1({+i_dirac[ 0 ]}, X)}),
+        false);
+    addLagrangianTerm(
+        csl::prod_s({csl::intfraction_s(-1, 2), m_N_2, csl::GetComplexConjugate(N_2({+i_dirac[ 0 ]}, X)), N_2({+i_dirac[ 0 ]}, X)}),
+        false);
+    addLagrangianTerm(
+        csl::prod_s({csl::intfraction_s(-1, 2), m_N_3, csl::GetComplexConjugate(N_3({+i_dirac[ 0 ]}, X)), N_3({+i_dirac[ 0 ]}, X)}),
+        false);
+    addLagrangianTerm(
+        csl::prod_s({csl::intfraction_s(-1, 2), m_N_4, csl::GetComplexConjugate(N_4({+i_dirac[ 0 ]}, X)), N_4({+i_dirac[ 0 ]}, X)}),
         false);
     addLagrangianTerm(
         csl::prod_s({-1
@@ -167,14 +172,6 @@ void PMSSM_LEM::initMass1()
         false);
     addLagrangianTerm(
         csl::prod_s({-1
-, csl::pow_s(m_stau_L, 2), stau_1(X), csl::GetComplexConjugate(stau_1(X))}),
-        false);
-    addLagrangianTerm(
-        csl::prod_s({-1
-, csl::pow_s(m_stau_R, 2), stau_2(X), csl::GetComplexConjugate(stau_2(X))}),
-        false);
-    addLagrangianTerm(
-        csl::prod_s({-1
 , csl::pow_s(m_sb_L, 2), sb_1({+i_C_1_0[ 0 ]}, X), csl::GetComplexConjugate(sb_1({+i_C_1_0[ 0 ]}, X))}),
         false);
     addLagrangianTerm(
@@ -183,10 +180,11 @@ void PMSSM_LEM::initMass1()
         false);
     addLagrangianTerm(
         csl::prod_s({-1
-, csl::pow_s(Gp->getMass(), 2), Gp(X), csl::GetComplexConjugate(Gp(X))}),
+, csl::pow_s(m_stau_L, 2), stau_1(X), csl::GetComplexConjugate(stau_1(X))}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::pow_s(M_W, 2), Gp(X), csl::GetComplexConjugate(Gp(X))}),
+        csl::prod_s({-1
+, csl::pow_s(m_stau_R, 2), stau_2(X), csl::GetComplexConjugate(stau_2(X))}),
         false);
 }
 

@@ -276,12 +276,41 @@ namespace mty {
         }
 
         /**
+         * @brief Returns the kinematics of the process.
+         *
+         * @return #kinematics.
+         */
+        mty::Kinematics &getKinematics() {
+            return kinematics;
+        }
+
+        /**
          * @brief Computes and returns the sum of all diagrams i.e. the total 
          * amplitude.
          *
          * @return The sum of all the diagrams' expressions.
          */
         csl::Expr getSum() const;
+
+        /**
+         * @brief Returns a copy of the amplitude.
+         *
+         * @details This function creates a deep copy ensuring that no object,
+         * symbolic expressions included, is shared between the copy and the
+         * initial object. Building blocks are still shared as e.g. momenta and
+         * squared momenta.
+         *
+         * @return The copy of the amplitude.
+         */
+        Amplitude copy() const;
+
+        /**
+         * @brief Replaces one kinematic context by another, replacing the 
+         * relevant momenta in expressions.
+         *
+         * @param t_kinematics New kinematic context for the process.
+         */
+        void setKinematics(Kinematics const &t_kinematics);
 
     private:
 

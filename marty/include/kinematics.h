@@ -26,6 +26,10 @@
 #include <numeric>
 #include "insertion.h"
 
+namespace mty::wick {
+    class Graph;
+}
+
 namespace mty {
 
     /**
@@ -48,6 +52,7 @@ namespace mty {
          *
          * @param t_insertions Insertions of the process.
          */
+        explicit
         Kinematics(std::vector<mty::Insertion> const &t_insertions);
 
         /**
@@ -143,6 +148,13 @@ namespace mty {
         }
 
         /**
+         * @return #indices
+         */
+        std::vector<size_t> const &getIndices() const {
+            return indices;
+        }
+
+        /**
          * @brief Returns the combinatorial factor corresponding to the process.
          *
          * @details This function takes into account two different factors 
@@ -207,6 +219,10 @@ namespace mty {
                 std::vector<size_t> const &indices
                 ) const;
 
+        void sortFromIndices();
+
+        Kinematics alignedWith(Kinematics const &other) const;
+
         /**
          * @brief Replaces in an expression the relevant (squared-)momenta 
          * corresponding to the replacement of one Kinematics object to another.
@@ -219,6 +235,11 @@ namespace mty {
          */
         static void replace(
                 csl::Expr        &expr,
+                Kinematics const &k1,
+                Kinematics const &k2
+                );
+
+        static Kinematics merge(
                 Kinematics const &k1,
                 Kinematics const &k2
                 );
@@ -279,7 +300,7 @@ namespace mty {
                 csl::Tensor     &p2, 
                 csl::Expr const &res
                 );
-
+        
         /**
          * @brief Sets a squared momentum from its indices and the corresponding
          * expression.
@@ -319,6 +340,16 @@ namespace mty {
          * @details There are exactly \f$N\f$ momenta for \f$N\f$ insertions.
          */
         std::vector<csl::Tensor>    momenta;
+
+        /**
+         * @brief Indices of momenta.
+         *
+         * @details Momenta are defined as \f$ p_i \f$ with indices \f$ i \f$. 
+         * This member allows the Kinematics to keep this information, 
+         * considering for example that a set of momenta \f$ (p_2, p_3, p_1) \f$ 
+         * will have indices \f$ (2, 3, 1) \f$.
+         */
+        std::vector<size_t> indices;
 
         /**
          * @brief Set of squared external momenta for the process.

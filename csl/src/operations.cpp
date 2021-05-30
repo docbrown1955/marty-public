@@ -1392,8 +1392,11 @@ void Prod::print(
             out<<"*";
     }
     if (denominatorIndices.size() > 0) {
-        if (numeratorIndices.size() == 0)
+        if (numeratorIndices.size() == 0 
+                || (numeratorIndices.size() == 1 
+                    && argument[numeratorIndices[0]] == CSL_M_1)) {
             out << "1";
+        }
         out<<"/";
         if (denominatorIndices.size() == 1)
             argument[denominatorIndices[0]]->getArgument(0)->print(3, out, lib);

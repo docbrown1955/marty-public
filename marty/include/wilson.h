@@ -104,6 +104,10 @@ struct Wilson {
         coef.getCoefficient()->print(0, out);
     }
 
+    csl::Expr getExpression() const {
+        return csl::prod_s({op.getFactor(), coef.getCoefficient(), op.getOp()});
+    }
+
     friend
     std::ostream& operator<<(std::ostream& out,
                              Wilson const& wil) {
@@ -116,9 +120,25 @@ struct WilsonSet: public std::vector<Wilson> {
 
     using std::vector<Wilson>::vector;
 
+    std::vector<csl::Expr> obtainExpressions() const {
+        std::vector<csl::Expr> res(size());
+        for (size_t i = 0; i != size(); ++i) {
+            res[i] = (*this)[i].getExpression();
+        }
+        return res;
+    }
+
+    void merge();
+
     Kinematics  kinematics {};
     FeynOptions options {};
 };
+
+void parseStructures(
+        csl::Expr              &arg,
+        std::vector<csl::Expr> &inOperator,
+        csl::IndexStructure    &quantumStructure
+        );
 
 std::vector<csl::Expr> parseStructures(
         csl::Expr& product
@@ -127,12 +147,14 @@ std::vector<csl::Expr> parseStructures(
 std::vector<Wilson> parseExpression(
         csl::Expr const& product,
         csl::Expr const& operatorFactor = CSL_1,
+        bool        standardBasis = false,
         bool        recursive = false
         );
 
 std::vector<Wilson> parseSum(
         csl::Expr const& sum,
         csl::Expr const& operatorFactor = CSL_1,
+        bool        standardBasis = false,
         bool        recursive = false
         );
 
@@ -145,6 +167,7 @@ void addWilson(
 std::vector<Wilson> match(
         std::vector<csl::Expr> &amplitudes,
         csl::Expr        const &operatorFactor,
+        bool                    standardBasis = false,
         bool                    squaredAfter = false
         );
 

@@ -623,6 +623,16 @@ csl::Expr DiracSpace::calculateTrace(csl::Expr const& init) const
 
 void DiracSpace::initProperties()
 {
+    /////////////////////////////////////////////////////
+    // In this function hermitian conjugation properties 
+    // are determined considering fermion bilinears with
+    // an implicit gamma^0 commuting with the bilinear.
+    // Then, properties are different than usual because
+    // the commutation with gamma^0 is taken directly
+    // into account at the same time, allowing MARTY to
+    // never use any gamma^0 matrix.
+    /////////////////////////////////////////////////////
+
     sigma->addAntiSymmetry(0, 1);
     // gamma_chir->setFullySymmetric();
     // P_L->setFullySymmetric();
@@ -719,10 +729,10 @@ void DiracSpace::initProperties()
     C_matrix->setComplexProperty(csl::ComplexProperty::Real);
     C_matrix->addHermitianProperty(this,
                                C_matrix({a1, a4}),
-                               -C_matrix({a1, a4}));
+                               C_matrix({a1, a4}));
     C_matrix->addTransposedProperty(this,
                                C_matrix({a1, a4}),
-                               -C_matrix({a1, a4}));
+                               C_matrix({a1, a4}));
 
     gamma_chir->addTransposedProperty(
             this,

@@ -1153,14 +1153,16 @@ void QuantumFieldParent::breakParticle(
 /*************************************************/
 ///////////////////////////////////////////////////
 
-QuantumField::QuantumField(): QuantumField(nullptr, nullptr)
+QuantumField::QuantumField()
+    :QuantumField(nullptr, nullptr)
 {
 
 }
 
 QuantumField::QuantumField(const Tensor& t_vector,
                            const Parent&  t_parent)
-    :TensorFieldElement(t_vector, t_parent)
+    :TensorFieldElement(t_vector, t_parent),
+    partnerShip()
 {
     if (parent) {
         Complexified::setComplexProperty(parent->getComplexProp());
@@ -1172,7 +1174,8 @@ QuantumField::QuantumField(const Tensor& t_vector,
 QuantumField::QuantumField(const Tensor&            t_vector,
                            const Parent&             t_parent,
                            const std::vector<Index>& indices)
-    :TensorFieldElement(t_vector, t_parent, indices)
+    :TensorFieldElement(t_vector, t_parent, indices),
+    partnerShip()
 {
     if (parent) {
         Complexified::setComplexProperty(parent->getComplexProp());
@@ -1184,7 +1187,8 @@ QuantumField::QuantumField(const Tensor&            t_vector,
 QuantumField::QuantumField(const Tensor&        t_vector,
                            const Parent&         t_parent,
                            const IndexStructure& indices)
-    :TensorFieldElement(t_vector, t_parent, indices)
+    :TensorFieldElement(t_vector, t_parent, indices),
+    partnerShip()
 {
     if (parent) {
         Complexified::setComplexProperty(parent->getComplexProp());
@@ -1346,8 +1350,7 @@ csl::IndexStructure QuantumField::getDerivativeStructure() const
 csl::Expr QuantumField::getPropagator(const QuantumField& other,
                                  Tensor&            vertex) const
 {
-    if (not isExactlyContractiblewith(other)
-            or (isExternal() and other.isExternal()))
+    if (not isExactlyContractiblewith(other))
         return CSL_0;
     if (!isSelfConjugate() and conjugated and !other.conjugated) {
         // Always contract phi.phi_star is this order (particle -> antiparticle)
@@ -1485,6 +1488,7 @@ bool QuantumField::hasContractionProperty(csl::Expr_info expr) const
     if (csl::IsIndicialTensor(expr)
             and expr->getParent_info() == mty::dirac4.C_matrix.get()
             and isSelfConjugate() 
+            and IsOfType<DiracFermion>(parent)
             and isFermionic())
         return true;
     return false;
@@ -1617,7 +1621,7 @@ bool QuantumField::isOutgoingAntiParticle() const
 csl::Expr QuantumField::matrixChargeConjugation(csl::Expr_info other) const
 {
     QuantumField newField(*this);
-    int sign = (incoming == particle) ? -1 : 1;
+    int sign = conjugated ? 1 : -1;
     newField.setParticle(!newField.particle);
     csl::Index spaceIndex = index.back();
     csl::IndexStructure const &C = other->getIndexStructureView();

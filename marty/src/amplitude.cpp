@@ -143,4 +143,22 @@ namespace mty {
         return csl::sum_s(terms);
     }
 
+    Amplitude Amplitude::copy() const
+    {
+        std::vector<FeynmanDiagram> diagramCopy;
+        diagramCopy.reserve(diagrams.size());
+        for (size_t i = 0; i != diagrams.size(); ++i) {
+            diagramCopy.emplace_back(diagrams[i].copy());
+        }
+        return Amplitude { options, diagramCopy, kinematics };
+    }
+
+    void Amplitude::setKinematics(Kinematics const &t_kinematics)
+    {
+        for (auto &diag : diagrams) {
+            Kinematics::replace(diag.getExpression(), kinematics, t_kinematics);
+        }
+        kinematics = t_kinematics;
+    }
+
 } // namespace mty

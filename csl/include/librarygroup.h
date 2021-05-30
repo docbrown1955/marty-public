@@ -67,9 +67,9 @@ namespace csl {
             return functions;
         }
 
-        LibFunction &addFunction(LibFunction const &func)
+        LibFunction &addFunction(LibFunction &&func)
         {
-            functions.push_back(func);
+            functions.emplace_back(std::move(func));
             return functions.back();
         }
 

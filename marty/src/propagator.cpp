@@ -32,9 +32,11 @@ Propagator::Propagator(csl::Expr const& impulsion,
     :AbstractMultiFunc()
 {
     if (impulsion == CSL_0 && mass == CSL_0) {
-        std::cerr << "Warning division by zero in propagator (p = m = 0).";
+        std::cerr << "Warning: division by zero in propagator (p = m = 0).";
         std::cerr << "This may come from tadpole diagrams or non renormalized "
             "two-point function contributions (in (n > 2)-point function).\n";
+        std::cerr << "Regulating with the propagator regulator \""
+            << Peps->getName() << "\"." << '\n';
     }
     argument = {impulsion, mass, width};
     if (auto m_impulsion = Expanded(-1*impulsion); m_impulsion < impulsion)
@@ -134,9 +136,7 @@ std::optional<csl::Expr> Propagator::evaluate(
                   + CSL_I * argument[1] * argument[2],
                   user_mode);
         csl::DeepExpand(res);
-        if (res == CSL_0) {
-            return propagator_s(CSL_0, CSL_0);
-        }
+        res += Peps;
         return 1 / res;
     }
     std::optional<csl::Expr> arg1_opt = argument[0]->evaluate(user_mode);
@@ -217,17 +217,17 @@ FermionPropStruct::FermionPropStruct(
 
 void FermionPropStruct::print(
         int mode,
-        std::ostream&,
+        std::ostream &out,
         bool) const
 {
-    std::cout << "Fermi(";
-    argument[0]->print(1);
-    std::cout << ", ";
-    argument[1]->print(1);
-    std::cout << ")";
-    std::cout << "_" << structure;
+    out << "Fermi(";
+    argument[0]->print(1, out);
+    out << ", ";
+    argument[1]->print(1, out);
+    out << ")";
+    out << "_" << structure;
     if (mode == 0)
-        std::cout << std::endl;
+        out << std::endl;
 }
 
 std::string FermionPropStruct::printLaTeX(int mode) const

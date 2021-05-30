@@ -26,7 +26,6 @@
 #include "quantumField.h"
 
 namespace mty {
-class QuantumFieldParent;
 
 /*!
  * 
@@ -38,6 +37,8 @@ class QuantumFieldParent;
 class PolarizationField: public mty::QuantumField {
 
     public:
+
+        void test(int);
 
     PolarizationField();
 

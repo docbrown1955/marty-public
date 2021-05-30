@@ -20,6 +20,15 @@
 namespace mty {
 
     FeynmanDiagram::FeynmanDiagram(
+            mty::Model const &t_model
+            )
+        :model(&t_model),
+        expression(CSL_UNDEF)
+    {
+
+    }
+
+    FeynmanDiagram::FeynmanDiagram(
             mty::Model const &t_model,
             csl::Expr  const &t_expression,
             diagram_t  const &t_diagram
@@ -29,6 +38,7 @@ namespace mty {
         diagram(t_diagram)
     {
         updateParticleData();
+        nLoops = diagram->getNLoops();
     }
 
     std::vector<mty::Particle> const &FeynmanDiagram::getParticles(
@@ -66,7 +76,7 @@ namespace mty {
 
     int FeynmanDiagram::getNLoops() const
     {
-        return diagram->getNLoops();
+        return nLoops;
     }
 
     bool FeynmanDiagram::isTopology(int topology) const 
@@ -84,35 +94,54 @@ namespace mty {
         getParticles(type).push_back(part);
     }
 
-    void FeynmanDiagram::updateParticleData()
+    void FeynmanDiagram::loadParticlesFromVertices(
+            std::vector<mty::wick::Vertex> const &vertices
+            )
     {
-        auto const &vertices = diagram->getVertices();
-        std::vector<csl::Tensor> points(vertices.size());
+        std::vector<csl::Tensor> loopVertices(vertices.size());
         auto first = vertices[0][0];
         int path = mty::wick::Graph::walk(
-                points.begin(), points.begin(), first, vertices
+                loopVertices.begin(), loopVertices.begin(), first, vertices
                 );
-        cycleLength = (path == -1) ? 0 : path;
-        std::for_each(begin(vertices), end(vertices), 
-        [&](mty::wick::Vertex const &vertex) {
-            if (vertex.isExternal()) {
-                // External Field
-                addParticle(*vertex[0]->field, External);
-            }
-            else {
+        if (path == -1) {
+            cycleLength = 0;
+            loopVertices.clear();
+        }
+        else {
+            cycleLength = path;
+        }
+        for (const auto &vertex : vertices) {
+            for (const auto &node : vertex) {
                 // Internal Fields
-                std::for_each(begin(vertex), end(vertex), 
-                [&](std::shared_ptr<mty::wick::Node> const &node) {
-                    csl::Tensor pA = node->field->getPoint();
-                    csl::Tensor pB = node->partner.lock()->field->getPoint();
-                    auto posA = std::find(begin(points), end(points), pA);
-                    auto posB = std::find(begin(points), end(points), pB);
-                    auto type = (posA == end(points) || posB == end(points)) ? 
-                        Mediator : Loop;
-                    addParticle(*node->field, type);
-                });
+                if (node->field->isExternal()
+                        || node->partner.lock()->field->isExternal()) {
+                    addParticle(*node->field, External);
+                    continue;
+                }
+                csl::Tensor pA = node->field->getPoint();
+                csl::Tensor pB = node->partner.lock()->field->getPoint();
+                auto posA = std::find(
+                        begin(loopVertices), end(loopVertices), pA);
+                auto posB = std::find(
+                        begin(loopVertices), end(loopVertices), pB);
+                auto type = (posA == end(loopVertices) 
+                            && posB == end(loopVertices)) ? 
+                    Mediator : Loop;
+                addParticle(*node->field, type);
             }
-        });
+        }
+    }
+
+    void FeynmanDiagram::updateParticleData()
+    {
+        updateParticleData(diagram->getVertices());
+    }
+
+    void FeynmanDiagram::updateParticleData(
+            std::vector<mty::wick::Vertex> const &vertices
+            )
+    {
+        loadParticlesFromVertices(vertices);
         mergeParticles();
     }
 
@@ -137,6 +166,61 @@ namespace mty {
                 end(loopParticles));
         auto last = std::unique(begin(allParticles), end(allParticles));
         allParticles.erase(last, end(allParticles));
+    }
+
+    FeynmanDiagram FeynmanDiagram::copy() const
+    {
+        return FeynmanDiagram { 
+            *model, 
+            csl::DeepCopy(expression),
+            std::make_shared<mty::wick::Graph>(*diagram)
+        };
+    }
+
+    FeynmanDiagram FeynmanDiagram::combine(
+            FeynmanDiagram const &A,
+            FeynmanDiagram const &B,
+            Particle       const &mediator
+            )
+    {
+        std::vector<mty::wick::Vertex> newVertices = A.diagram->getVertices();
+        newVertices.insert(
+                newVertices.end(),
+                B.diagram->getVertices().begin(),
+                B.diagram->getVertices().end()
+                );
+        auto isMediator = [&](mty::wick::Vertex const &vertex) {
+            if (vertex.size() > 1)
+                return false;
+            auto const &node = vertex[0];
+            return node->field->getQuantumParent() == mediator.get();
+        };
+        bool mediatorFound = false;
+        for (size_t i = 0; i != newVertices.size(); ++i) {
+            if (isMediator(newVertices[i])) {
+                for (size_t j = i+1; j < newVertices.size(); ++j) {
+                    if (isMediator(newVertices[j])) {
+                        newVertices[i].push_back(newVertices[j][0]);
+                        newVertices[i].setExternal(false);
+                        newVertices.erase(newVertices.begin() + j);
+                        mediatorFound = true;
+                        break;
+                    }
+                }
+                if (mediatorFound)
+                    break;
+            }
+        }
+        HEPAssert(mediatorFound,
+                mty::error::RuntimeError,
+                "Mediator \"" + mediator->getName() + "\" not found to connect"
+                " diagrams.")
+
+        FeynmanDiagram res(*A.model);
+        res.updateParticleData(newVertices);
+        res.diagram = (A.getNLoops() > B.getNLoops()) ? A.diagram : B.diagram;
+        res.nLoops  = A.nLoops + B.nLoops;
+        return res;
     }
 
 }

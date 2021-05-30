@@ -28,6 +28,8 @@
 #include <functional>
 #include "lagrangian.h"
 #include "mrtOptions.h"
+#include "topology.h"
+#include "operatorBasis.h"
 
 namespace mty {
 
@@ -87,6 +89,39 @@ namespace mty {
         int getExpansionOrder() const { return expansionOrder; }
 
         /**
+         * @return #topology
+         */
+        int getTopology()       const { return topology; }
+
+        /**
+         * @return #lfilters
+         */
+        std::vector<LagrangianFilter> const &getLagrangianFilters() const {
+            return lfilters;
+        }
+
+        /**
+         * @return #dfilters
+         */
+        std::vector<DiagramFilter> const &getDiagramFilters() const {
+            return dfilters;
+        }
+
+        /**
+         * @return #wilsonOperatorCoefficient
+         */
+        csl::Expr getWilsonOperatorCoefficient() const {
+            return wilsonOperatorCoefficient;
+        }
+
+        /**
+         * @return #wilsonOperatorBasis
+         */
+        OperatorBasis getWilsonOperatorBasis() const {
+            return wilsonOperatorBasis;
+        }
+
+        /**
          * @brief Sets the value of #feynRuleCalculation to true (the default 
          * value of this member is false).
          *
@@ -107,6 +142,39 @@ namespace mty {
          * @param nExternalLegs Number of external legs of the process.
          */
         void setLoopOrder(int t_nLoops, int nExternalLegs);
+
+        /**
+         * @brief Sets the topology for the calculation.
+         *
+         * @param t_topology Topologies allowed.
+         *
+         * @sa mty::Topology
+         */
+        void setTopology(int t_topology);
+
+        /**
+         * @brief Sets the Wilson operator coefficient 
+         * #wilsonOperatorCoefficient.
+         *
+         * @param factor Factor used in Wilson coefficient decomposition.
+         */
+        void setWilsonOperatorCoefficient(csl::Expr const &factor);
+
+        /**
+         * @brief Sets the Wilson operator basis #wilsonOperatorBasis.
+         *
+         * @param basis Basis used in Wilson coefficient decomposition.
+         */
+        void setWilsonOperatorBasis(OperatorBasis basis);
+
+        /**
+         * @brief Tells if a diagram passes all diagram filters.
+         *
+         * @param diagram
+         *
+         * @return 
+         */
+        bool passFilters(FeynmanDiagram const &diagram) const;
 
         /**
          * @brief Applies the Lagrangian filters on a vector of vertices.
@@ -153,12 +221,16 @@ namespace mty {
          * @details This function removes from the vector all diagrams 
          * for which one of the filters returns false (filter out).
          *
-         * @param Set of diagrams to filter.
+         * @param diagrams     Set of diagrams to filter.
+         * @param forceFilters Boolean that ensures (is true) that the filters
+         * are applied whatever are the other options (#partialCalculation in
+         * particular).
          *
          * @sa #dfilters, addFilter(), addFilters()
          */
         void applyFilters(
-                std::vector<FeynmanDiagram> &diagrams
+                std::vector<FeynmanDiagram> &diagrams,
+                bool                         forceFilters = false
                 ) const;
 
         /**
@@ -344,6 +416,12 @@ namespace mty {
          */
         bool verboseAmplitude      { mty::option::verboseAmplitude       };
 
+        /**
+         * @brief Set this option to true to disable the DiagramFilters if the
+         * calculation is only a part of the full calculation.
+         */
+        bool partialCalculation { false };
+
     private:
 
         /**
@@ -373,6 +451,12 @@ namespace mty {
         int                           expansionOrder;
 
         /**
+         * @brief Topology allowed for the calculation. The default is 
+         * mty::Topology::Any.
+         */
+        int                           topology = mty::Topology::Any;
+
+        /**
          * @brief List of lagrangian filters.
          *
          * @details Those filters are applied by MARTY before any calculation
@@ -394,6 +478,29 @@ namespace mty {
          * @sa filters.h for built-in filters
          */
         std::vector<DiagramFilter>    dfilters;
+
+        /**
+         * @brief Prefactor used for Wilson coefficients.
+         *
+         * @details An amplitude is decomposed on pairs of Wilson coefficients
+         * and operators the following way:
+         * \f[
+         *      i\mathcal{M} \equiv -if\sum _i C_i \hat{\mathcal{O}}_i,
+         * \f]
+         * with \f$ C_i \f$ the Wilson coefficients, \f$ \hat{\mathcal{O}}_i \f$
+         * the operators, and $f$ a convention-dependent factor. This member 
+         * corresponds to the \f$ f \f$used by MARTY when calculating the 
+         * \f$ C_i \f$.
+         */
+        csl::Expr wilsonOperatorCoefficient { CSL_1 };
+
+        /**
+         * @brief Operator basis for Wilson coefficients.
+         *
+         * @details The chiral basis uses projectors \f$ P_L,P_R \f$ whereas
+         * the standard one uses \f$ \1,\gamma^5 \f$.
+         */
+        OperatorBasis wilsonOperatorBasis = OperatorBasis::Chiral;
     };
 
 } // namespace mty

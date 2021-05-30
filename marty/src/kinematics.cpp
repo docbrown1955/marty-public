@@ -17,12 +17,14 @@
 #include "kinematics.h"
 #include "insertion.h"
 #include "mrtError.h"
+#include "graph.h"
 
 namespace mty {
 
     Kinematics::Kinematics(std::vector<mty::Insertion> const &t_insertions)
         :Kinematics(t_insertions, defaultIndices(t_insertions.size()))
     {
+
     }
 
     Kinematics::Kinematics(
@@ -30,21 +32,23 @@ namespace mty {
             std::vector<csl::Tensor>    const &t_momenta
             )
         :insertions(t_insertions),
-        momenta(t_momenta)
+        momenta(t_momenta),
+        indices(defaultIndices(insertions.size()))
     {
         HEPAssert(insertions.size() == momenta.size(),
                 mty::error::ValueError,
                 "Expecting same number of insertions and momenta, got "
                 + std::to_string(insertions.size()) + " and "
                 + std::to_string(momenta.size()) + ".")
-        initMomentaSquared(defaultIndices(insertions.size()));
+        initMomentaSquared(indices);
     }
 
     Kinematics::Kinematics(
             std::vector<mty::Insertion> const &t_insertions,
-            std::vector<size_t>         const &indices
+            std::vector<size_t>         const &t_indices
             )
-        :insertions(t_insertions)
+        :insertions(t_insertions),
+        indices(t_indices)
     {
         momenta.resize(insertions.size());
         std::generate(begin(momenta), end(momenta), [&, i = 0]() mutable {
@@ -122,7 +126,11 @@ namespace mty {
         squaredMomenta.resize(momenta.size() * momenta.size());
         const csl::Index mu = csl::Minkowski.generateIndex();
         for (size_t i = 0; i != momenta.size(); ++i) {
+            if (insertions[i].isMediator())
+                continue;
             for (size_t j = i; j != momenta.size(); ++j) {
+                if (insertions[j].isMediator())
+                    continue;
                 csl::Expr prod = momenta[i](mu) * momenta[j](+mu);
                 if (prod->getIndexStructure().size() > 0) {
                     prod = csl::constant_s(
@@ -133,6 +141,9 @@ namespace mty {
                 setSquaredMomentum(i, j, prod);
             }
         }
+        for (auto &s : squaredMomenta)
+            if (!s) 
+                s = CSL_UNDEF;
     }
 
     void Kinematics::addContraction(
@@ -163,11 +174,13 @@ namespace mty {
         Kinematics res;
         res.insertions.reserve(sz);
         res.momenta.reserve(sz);
+        res.indices.reserve(sz);
         res.squaredMomenta.reserve(sz * sz);
 
         for (const size_t i : pos) {
             res.insertions.push_back(insertions[i]);
             res.momenta.push_back(momenta[i]);
+            res.indices.push_back(indices[i]);
             for (const size_t j : pos) {
                 res.squaredMomenta.push_back(
                         squaredMomenta[squaredMomentumIndex(i, j)]
@@ -190,11 +203,59 @@ namespace mty {
         *this = subset(pos);
     }
 
+    void Kinematics::sortFromIndices()
+    {
+        const size_t sz = size();
+        std::vector<size_t> minPos;
+        minPos.reserve(sz);
+        std::vector<size_t> indicesLeft(sz);
+        std::iota(indicesLeft.begin(), indicesLeft.end(), 0);
+        while (!indicesLeft.empty()) {
+            size_t mini = 0;
+            for (size_t i = 1; i != indicesLeft.size(); ++i) {
+                const size_t index = indicesLeft[i];
+                if (indices[index] < indices[indicesLeft[mini]])
+                    mini = i;
+            }
+            minPos.push_back(indicesLeft[mini]);
+            indicesLeft.erase(indicesLeft.begin() + mini);
+        }
+        *this = subset(minPos);
+    }
+
+    Kinematics Kinematics::alignedWith(Kinematics const &other) const
+    {
+        HEPAssert(size() == other.size(),
+                mty::error::RuntimeError,
+                "Cannot align the following kinematics " 
+                + toString(*this) + '\n' + toString(other))
+        std::vector<mty::Insertion> alignedInsertions = insertions;
+        std::vector<csl::Tensor>    alignedMomenta    = momenta;
+        for (size_t i = 0; i != size(); ++i) {
+            bool match = false;
+            for (size_t j = i; j != size(); ++j) {
+                if (other.insertions[i] == alignedInsertions[j]) {
+                    if (i != j) {
+                        std::swap(alignedInsertions[i], alignedInsertions[j]);
+                        std::swap(alignedMomenta[i],    alignedMomenta[j]);
+                    }
+                    match = true;
+                    break;
+                }
+            }
+            HEPAssert(match,
+                    mty::error::RuntimeError,
+                    "Cannot align the following kinematics " 
+                    + toString(*this) + '\n' + toString(other))
+        }
+        return Kinematics { alignedInsertions, alignedMomenta };
+    }
+
     Kinematics Kinematics::applyIndices(
-            std::vector<size_t> const &indices
+            std::vector<size_t> const &t_indices
             ) const
     {
-        return Kinematics{insertions, indices};
+        return Kinematics{insertions, t_indices};
     }
 
     void Kinematics::replace(
@@ -210,6 +271,40 @@ namespace mty {
                 + ".")
         csl::Replace(expr, k1.getMomenta(),        k2.getMomenta());
         csl::Replace(expr, k1.getSquaredMomenta(), k2.getSquaredMomenta());
+    }
+
+    Kinematics Kinematics::merge(
+            Kinematics const &k1,
+            Kinematics const &k2
+            )
+    {
+        Kinematics res;
+        const size_t s1 = k1.size();
+        const size_t s2 = k2.size();
+        const size_t sT = s1 + s2;
+        res.insertions.reserve(sT);
+        res.indices.reserve(sT);
+        res.momenta.reserve(sT);
+        for (size_t i1 = 0; i1 != s1; ++i1) {
+            res.insertions.push_back(k1.insertions[i1]);
+            res.momenta.push_back(k1.momenta[i1]);
+            res.indices.push_back(k1.indices[i1]);
+        }
+        for (size_t i2 = 0; i2 != s2; ++i2) {
+            res.insertions.push_back(k2.insertions[i2]);
+            res.momenta.push_back(k2.momenta[i2]);
+            res.indices.push_back(k2.indices[i2]);
+        }
+        res.squaredMomenta.resize(sT*sT);
+        res.initMomentaSquared(res.indices);
+
+        std::vector<size_t> subset(res.size());
+        std::iota(subset.begin(), subset.end(), 0);
+        auto last = std::remove_if(subset.begin(), subset.end(), [&](size_t pos) {
+            return res.insertions[pos].isMediator();
+        });
+        subset.erase(last, subset.end());
+        return res.subset(subset);
     }
 
     std::ostream &operator<<(

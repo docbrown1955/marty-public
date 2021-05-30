@@ -148,19 +148,24 @@ public:
 
     static LibEvalSession parseExpression(
             Expr &expr,
-            bool  display = false,
             bool  findIntermediates = true
             );
 
     void parse(
             Expr &expr,
-            bool  display = false,
+            bool findIntermediates,
+            std::map<csl::AbstractParent const*, csl::Expr> &parsedAbbrevs
+            );
+
+    void parse(
+            Expr &expr,
             bool  findIntermediates = true
             );
 
     void parseProduct(
             Expr &iprod,
-            bool  findIntermediates = true
+            bool  findIntermediates,
+            std::map<csl::AbstractParent const*, csl::Expr> &parsedAbbrevs
             );
 
     void gatherUnEvalAndTensors(Expr const &result);
@@ -188,11 +193,6 @@ protected:
             LibEval        const &init,
             std::vector<LibEval> &newEvals,
             std::vector<int>     &nOccurences
-            );
-
-    void transform(
-            Expr &expr,
-            bool  findIntermediates = true
             );
 
     static Expr expandIProd(Expr const &iprod);

@@ -76,7 +76,7 @@ void PMSSM_Model::approximateInputMatrices()
     M2 = mssm_input::M2;
     M3 = mssm_input::M3;
     mu_h = mssm_input::mu;
-    beta_h = csl::atan_s(mssm_input::tanb);
+    beta_h = mssm_input::beta;
     csl::Expr MqL = M2_s_Q->getTensor();
     MqL[0][0] = csl::pow_s(mssm_input::Mq1L, 2);
     MqL[2][2] = csl::pow_s(mssm_input::Mq3L, 2);
@@ -136,30 +136,31 @@ void PMSSM_Model::approximateInputMatrices()
 
 void PMSSM_Model::approximateQuarkMasses()
 {
-    replace(m_u,  CSL_0);
-    replace(m_c,  CSL_0);
-    replace(m_d,  CSL_0);
-    // replace(m_s,  CSL_0);
-    replace(m_e,  CSL_0);
-    replace(m_mu, CSL_0);
+    // replace(m_u,  CSL_0);
+    // replace(m_c,  CSL_0);
+    // replace(m_d,  CSL_0);
+    // // replace(m_s,  CSL_0);
+    // replace(m_e,  CSL_0);
+    // replace(m_mu, CSL_0);
 }
 
 void PMSSM_Model::approximateCKM()
 {
     csl::Expr V = V_CKM->getTensor();
     csl::vector_expr terms = clearDependencies(
-    [&](Lagrangian::TermType const &term) {
-        csl::Expr expr = term->getTerm();
-        return expr->dependsOn(sm_input::V_ud_mod.get())
-            or expr->dependsOn(sm_input::V_us_mod.get())
-            or expr->dependsOn(sm_input::V_ub_mod.get())
-            or expr->dependsOn(sm_input::V_cd_mod.get())
-            or expr->dependsOn(sm_input::V_cs_mod.get())
-            or expr->dependsOn(sm_input::V_cb_mod.get())
-            or expr->dependsOn(sm_input::V_td_mod.get())
-            or expr->dependsOn(sm_input::V_ts_mod.get())
-            or expr->dependsOn(sm_input::V_tb_mod.get());
-    });
+            L.interaction,
+            [&](Lagrangian::TermType const &term) {
+                csl::Expr expr = term->getTerm();
+                return expr->dependsOn(sm_input::V_ud_mod.get())
+                    or expr->dependsOn(sm_input::V_us_mod.get())
+                    or expr->dependsOn(sm_input::V_ub_mod.get())
+                    or expr->dependsOn(sm_input::V_cd_mod.get())
+                    or expr->dependsOn(sm_input::V_cs_mod.get())
+                    or expr->dependsOn(sm_input::V_cb_mod.get())
+                    or expr->dependsOn(sm_input::V_td_mod.get())
+                    or expr->dependsOn(sm_input::V_ts_mod.get())
+                    or expr->dependsOn(sm_input::V_tb_mod.get());
+            });
 
     auto isSmallCKM = [&](csl::Expr const &el)
     {
@@ -280,6 +281,8 @@ void PMSSM_Model::getToLowEnergyLagrangian()
 
     promoteToGoldstone("Gp", "W");
     promoteToGoldstone("G0", "Z");
+
+    refresh();
 }
 
 } // End of namespace mty

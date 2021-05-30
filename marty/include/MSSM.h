@@ -70,9 +70,13 @@ namespace mty::mssm_input {
      */
     inline csl::Expr cgrav = csl::constant_s("c_g");
     /**
+     * @brief Diagonalization angle for (h0 H0).
+     */
+    inline csl::Expr alpha = csl::constant_s("alpha");
+    /**
      * @brief Ratio of Higgs vacuum expectation values.
      */
-    inline csl::Expr tanb = csl::constant_s("tanb");
+    inline csl::Expr beta = csl::constant_s("beta");
     /**
      * @brief mu parameter.
      */

@@ -256,6 +256,35 @@ csl::Expr InteractionTerm::getTotalFactor() const
     return globalFactor * ((factors.empty()) ? CSL_1 : sum_s(factors));
 }
 
+csl::Expr InteractionTerm::getMass() const
+{
+    HEPAssert(content.size() == 2,
+            mty::error::TypeError,
+            "Cannot obtain a mass from the non-mass term " + toString(*this))
+    csl::Expr mass = csl::DeepCopy(globalFactor);
+    csl::ForEachLeaf(mass, [&](csl::Expr &sub) {
+        if (csl::IsIndicialTensor(sub) && mty::dirac4.isCMatrix(sub)) {
+            if (sub->getIndexStructureView()[0] 
+                    == content[0].getIndexStructureView().back()) {
+                sub = CSL_1;
+            }
+            else {
+                sub = CSL_M_1;
+            }
+        }
+    });
+    auto part = content[0].getQuantumParent();
+    if (part->getSpinDimension() != 3)
+        mass = -mass;
+    if (part->isSelfConjugate())
+        mass = 2 * mass;
+    csl::DeepExpand(mass);
+    csl::DeepFactor(mass);
+    if (part->isBosonic())
+        mass = csl::sqrt_s(mass);
+    return mass;
+}
+
 vector<QuantumField>& InteractionTerm::getContent()
 {
     return content;
@@ -777,9 +806,9 @@ ostream& operator<<(ostream              & out,
     return out;
 }
 
-bool hardComparison(
-        csl::Expr const& A,
-        csl::Expr const& B)
+static bool hardComparison_impl(
+        csl::Expr const &A,
+        csl::Expr       &B)
 {
     std::vector<csl::Expr> tensorsInA;
     std::vector<csl::Expr> tensorsInB;
@@ -806,7 +835,13 @@ bool hardComparison(
         }
         else {
             csl::IndexStructure Astruct = tensorsInA[i]->getIndexStructure();
+            auto last = std::remove_if(Astruct.begin(), Astruct.end(),
+                    [&](csl::Index const &i) { return i.getFree(); });
+            Astruct.erase(last, Astruct.end());
             csl::IndexStructure Bstruct = tensorsInB[i]->getIndexStructure();
+            last = std::remove_if(Bstruct.begin(), Bstruct.end(),
+                    [&](csl::Index const &i) { return i.getFree(); });
+            Bstruct.erase(last, Bstruct.end());
             for (size_t j = 0; j != Astruct.size(); ++j) {
                 auto pos = std::find_if(
                         mapping.begin(),
@@ -820,21 +855,20 @@ bool hardComparison(
             }
         }
 
-    csl::Expr B_replaced = DeepCopy(B);
     std::vector<csl::Index> intermediateIndices;
     intermediateIndices.reserve(mapping.size());
     for (const auto &mappy : mapping)
         intermediateIndices.push_back(mappy.first.rename());
     size_t index = 0;
     for (auto& mappy : mapping) {
-        B_replaced = csl::Replaced(
-                B_replaced, 
+        B = csl::Replaced(
+                B, 
                 mappy.first, 
                 intermediateIndices[index], 
                 false);
         if (mappy.first.getSpace()->getSignedIndex())
-            B_replaced = csl::Replaced(
-                    B_replaced,
+            B = csl::Replaced(
+                    B,
                     mappy.first.getFlipped(),
                     intermediateIndices[index].getFlipped(),
                     false);
@@ -842,22 +876,32 @@ bool hardComparison(
     }
     index = 0;
     for (auto& mappy : mapping) {
-        B_replaced = csl::Replaced(
-                B_replaced, 
+        B = csl::Replaced(
+                B, 
                 intermediateIndices[index], 
                 mappy.second, 
                 false);
         if (mappy.first.getSpace()->getSignedIndex())
-            B_replaced = csl::Replaced(
-                    B_replaced,
+            B = csl::Replaced(
+                    B,
                     intermediateIndices[index].getFlipped(),
                     mappy.second.getFlipped(),
                     false);
         ++index;
     }
-    csl::DeepRefresh(B_replaced);
-    const auto res = A->compareWithDummy(B_replaced.get());
+    csl::DeepRefresh(B);
+    const auto res = A->compareWithDummy(B.get());
     return res;
+}
+
+bool hardComparison(
+        csl::Expr const& A,
+        csl::Expr const& B
+        )
+{
+    auto B_renameIndices = csl::DeepCopy(B);
+    csl::RenameIndices(B_renameIndices);
+    return hardComparison_impl(A, B_renameIndices);
 }
 
 } // End of namespace mty

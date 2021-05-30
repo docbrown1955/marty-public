@@ -22,6 +22,13 @@ namespace sgl {
             csl::Space const *diracSpace
             )
     {
+        static std::map<
+            std::pair<csl::Space const*, csl::Space const*>, 
+            TensorSet
+                > builtSets;
+        auto pos = builtSets.find(std::make_pair(minkoSpace, diracSpace));
+        if (pos != builtSets.end()) 
+            return pos->second;
         TensorSet res;
         res.gamma_chir = csl::Tensor(
                 "gamma5",
@@ -48,6 +55,7 @@ namespace sgl {
                 "sigma",
                 {minkoSpace, minkoSpace, diracSpace, diracSpace}
                 );
+        builtSets[std::make_pair(minkoSpace, diracSpace)] = res;
         return res;
     }
 

@@ -204,6 +204,14 @@ Expr const &AbstractParent::getEncapsulated() const
     return CSL_UNDEF;
 }
 
+Expr AbstractParent::getExactEncapsulated(Expr_info) const
+{
+    std::cout << getName() << ": type " << getType() << std::endl;
+    callError(cslError::AbstractFuncCalled,
+            "AbstractParent::getExactEncapsulated() const");
+    return CSL_UNDEF;
+}
+
 void AbstractParent::setEncapsulated(Expr const &)
 {
     callError(cslError::AbstractFuncCalled,

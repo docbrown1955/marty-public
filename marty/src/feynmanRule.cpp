@@ -22,7 +22,7 @@
 #include "mrtOptions.h"
 #include "mrtInterface.h"
 #include "model.h"
-
+#include "wilson.h"
 
 using namespace csl;
 namespace mty {
@@ -43,7 +43,7 @@ FeynmanRule& FeynmanRule::operator=(FeynmanRule const& other)
     fieldProduct = other.fieldProduct;
     setInteractionTerm(other.term);
     diagram = other.diagram;
-    expr = DeepCopy(other.expr);
+    expr = DeepRefreshed(other.expr);
     renameIndices();
 
     return *this;
@@ -107,6 +107,7 @@ FeynmanRule::FeynmanRule(
     csl::ScopedProperty p2(&mty::option::applyInsertionOrdering,    false);
     FeynOptions options;
     options.setFeynmanRuleMode();
+    options.setWilsonOperatorBasis(OperatorBasis::None);
     Kinematics kinematics(GetInsertion(insertions), momenta);
     auto res = model.computeAmplitude(
             Order::TreeLevel,
@@ -119,9 +120,9 @@ FeynmanRule::FeynmanRule(
         diagram = csl::make_shared<wick::Graph>();
         return;
     }
-
+    auto wilsons = model.getWilsonCoefficients(res, options, true);
     diagram = res.getDiagrams()[0].getDiagram();
-    std::vector<csl::Expr> expressions = res.obtainExpressions();
+    std::vector<csl::Expr> expressions = wilsons.obtainExpressions();
     for (auto& ampl : expressions) {
         csl::Transform(ampl, [&](csl::Expr& el)
         {
@@ -135,44 +136,9 @@ FeynmanRule::FeynmanRule(
             return false;
         });
     }
-    expr = csl::Expanded(csl::sum_s(expressions));
-    expr = DeepRefreshed(expr);
-    Factor(expr, true);
-    if (mty::option::searchAbreviations)
-        mty::simpli::findAbbreviations(expr);
-    expr = csl::Factored(expr, true);
-    if (mty::option::searchAbreviations)
-        mty::simpli::findAbbreviations(expr);
-
+    expr = csl::Factored(csl::sum_s(expressions));
     for (auto fieldParent : nonphysical)
         fieldParent->setPhysical(false);
-
-    if (!expr->dependsExplicitlyOn(mty::dirac4.C_matrix.get())) {
-        // Here if the vertex is not regular (badly conjugated fermions), we 
-        // add the conjugation matrix if there is not already one (otherwise
-        // the vertex is already regular a priori). This allows to follow the 
-        // rules given in CERN-TH.6549/92:
-        // "Feynman rules for fermion-number-violating interactions"
-        // without having to keep track of currents: those modified vertices
-        // do the job at the Feynman rule level.
-        bool left = true;
-        for (size_t i = 0; i != fieldProduct.size(); ++i) {
-            if (fieldProduct[i].isFermionic()) {
-                if (fieldProduct[i].isComplexConjugate() == left) {
-                    auto alpha = fieldProduct[i].getIndexStructureView().back();
-                    auto gam = alpha.rename();
-                    csl::Replace(expr, alpha, gam);
-                    if (left)
-                        expr *= dirac4.C_matrix({gam, alpha});
-                    else
-                        expr *= dirac4.C_matrix({alpha, gam});
-                    csl::Expand(expr);
-                }
-                left = !left;
-            }
-        }
-    }
-    simpli::simplifyFermionChains(expr);
 }
 
 std::vector<QuantumField>& FeynmanRule::getFieldProduct()
@@ -302,6 +268,7 @@ void FeynmanRule::renameIndices()
     for (const auto &[oldIndex, newIndex] : change) {
         csl::Replace(expr, oldIndex, newIndex);
     }
+    csl::RenameIndices(expr); // only for dummy indices
 }
 
 bool FeynmanRule::isSame(FeynmanRule const& other) const
@@ -369,12 +336,12 @@ bool FeynmanRule::operator>(FeynmanRule const& other) const
 
 bool FeynmanRule::operator<=(FeynmanRule const& other) const
 {
-    return not (other < *this);
+    return !(other < *this);
 }
 
 bool FeynmanRule::operator>=(FeynmanRule const& other) const
 {
-    return not (*this < other);
+    return !(*this < other);
 }
 
 std::ostream& operator<<(std::ostream& out,
@@ -385,11 +352,9 @@ std::ostream& operator<<(std::ostream& out,
         f.getConjugatedField().print(1, out);
         out << " ";
     }
-    out << ":\n\t";
-    out << csl::Evaluated(
-                rule.expr,
-                csl::eval::abbreviation
-                ) <<'\n';
+    out << "  ==>  ";
+    out << rule.expr << " \n\t = ";
+    out << csl::Evaluated(rule.expr, csl::eval::abbreviation) <<'\n';
 
     return out;
 }

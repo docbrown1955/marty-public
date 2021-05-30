@@ -302,8 +302,8 @@ void ModelBuilder::fillDependenciesForRotation(
 }
 
 void ModelBuilder::fillDependenciesForRotation(
-        std::vector<csl::Expr>                &kinetic,
-        std::vector<csl::Expr>                &interaction,
+        std::vector<csl::Expr>           &kinetic,
+        std::vector<csl::Expr>           &interaction,
         std::vector<mty::Particle> const &fields
         )
 {
@@ -460,7 +460,7 @@ void ModelBuilder::bidiagonalizeWithSpectrum(
         std::vector<csl::Expr>              const &massMatrix
         )
 {
-    clearDependencies(
+    auto l = clearDependencies(
             L.mass,
             [&](Lagrangian::TermType const &term) {
             for (const auto &field : term->getContent()) {
@@ -948,6 +948,93 @@ void ModelBuilder::doPromoteToGhost(
     gaugeBoson->setGhostBoson(t_ghost);
 }
 
+bool isProjected(
+        csl::Expr const &prod, 
+        csl::Expr const &field
+        )
+{
+    csl::Index a = field->getIndexStructureView().back();
+    for (const auto &arg : prod) {
+        if (csl::IsIndicialTensor(arg)) {
+            auto const &tensor = csl::IsTensorialDerivative(arg) ? arg[0] : arg;
+            if (tensor.get() != field.get()) {
+                auto parent = tensor->getParent_info();
+                if (parent == mty::dirac4.P_L.get()
+                        || parent == mty::dirac4.P_R.get()) {
+                    return true;
+                }
+                auto qfield = dynamic_cast<mty::WeylFermion const*>(parent);
+                if (qfield)
+                    return true;
+            }
+        }
+    }
+    return false;
+}
+
+auto replaceMajorana(
+        csl::Expr           &expr,
+        mty::Particle const &xi,
+        mty::Particle        Lambda
+        )
+{
+    HEPAssert(csl::IsProd(expr),
+            mty::error::TypeError,
+            "Expected a product as interaction term, " + toString(expr)
+            + " given.")
+    const size_t sz = expr->size();
+    bool left = false;
+    auto d   = dirac4.getDelta();
+    auto P_L = dirac4.P_L;
+    auto P_R = dirac4.P_R;
+    auto cc = csl::GetComplexConjugate;
+    auto C = dirac4.C_matrix;
+    bool leftMajorana = false;
+    for (size_t i = 0; i != sz; ++i) {
+        auto &arg = (csl::IsTensorialDerivative(expr[i])) ? 
+            expr[i][0] : expr[i];
+        if (IsOfType<QuantumField>(arg)) {
+            mty::QuantumFieldParent const *qparent 
+                = ConvertToPtr<QuantumField>(arg)->getQuantumParent();
+            if (qparent->isFermionic())
+                left = !left;
+            if (qparent == xi.get()) {
+                auto indices = arg->getIndexStructureView().getIndex();
+                auto a = indices.back();
+                auto b = a.rename();
+                indices.back() = b;
+                const bool conjug = arg->isComplexConjugate();
+                const bool alreadyProjected = isProjected(expr, arg);
+                const csl::Expr f = (leftMajorana) ? CSL_HALF : CSL_1;
+                if (left && conjug) {
+                    const auto P = (alreadyProjected) ? 
+                        f*d({b, a}) : P_R({b, a});
+                    arg = cc(Lambda(indices)) * P;
+                }
+                else if (left && !conjug) {
+                    auto c = b.rename();
+                    indices.back() = c;
+                    const auto P = (alreadyProjected) ? 
+                        f*d({c, b}) : P_L({c, b});
+                    arg = -cc(Lambda(indices)) * P * C({b, a});
+                }
+                else if (conjug) {
+                    auto c = b.rename();
+                    indices.back() = c;
+                    const auto P = (alreadyProjected) ? 
+                        f*d({b, c}) : P_R({b, c});
+                    arg = -C({a, b}) * P * Lambda(indices);
+                }
+                else {
+                    const auto P = (alreadyProjected) ? 
+                        f*d({a, b}) : P_L({a, b});
+                    arg = P * Lambda(indices);
+                }
+            }
+        }
+    }
+}
+
 void ModelBuilder::doPromoteToMajorana(
         mty::Particle     &particle,
         std::string const &newParticleName
@@ -972,44 +1059,20 @@ void ModelBuilder::doPromoteToMajorana(
             weylFermion->getFlavorIrrep()
             );
     majorana->setSelfConjugate(true);
-    mty::Particle ml = majorana->getWeylFermion(Chirality::Left);
-    mty::Particle mr = majorana->getWeylFermion(Chirality::Right);
-    std::vector<csl::Index> inIndex  = weylFermion->getFullSetOfIndices();
-    std::vector<csl::Index> outIndex = inIndex;
-    csl::Index a = outIndex.back();
-    csl::Index b = a.rename();
-    outIndex.back() = b;
-    csl::Tensor P_L = dirac4.P_L;
-    csl::Tensor P_R = dirac4.P_R;
-    csl::Tensor delta = dirac4.getDelta();
-    replace(
-            csl::GetComplexConjugate(particle(inIndex)), 
-            csl::GetComplexConjugate(majorana(outIndex))*P_R({b, a})
-            );
-    replace(
-            particle(inIndex), 
-            P_L({a, b})*majorana(outIndex)
-            );
-    std::vector<csl::Expr> kineticTerms = clearDependencies(
-            L.kinetic,
+    std::vector<csl::Expr> terms = clearDependencies(
             [&](Lagrangian::TermType const &term) {
-                return term->getTerm()->dependsExplicitlyOn(majorana.get());
+                return term->getTerm()->dependsExplicitlyOn(particle.get());
             });
-    for (auto &term : kineticTerms) {
-        csl::Replace(term, P_L({a, b}), delta({a, b})/csl::sqrt_s(2));
-        csl::Replace(term, P_R({a, b}), delta({a, b})/csl::sqrt_s(2));
-        L.push_back(term);
+    for (auto &term : terms) {
+        csl::ForEachNode(term, [&](csl::Expr &prod) {
+            if (csl::IsProd(prod)) {
+                replaceMajorana(prod, particle, majorana);
+            }
+        });
+        L.push_back(csl::DeepRefreshed(term));
     }
-    std::vector<csl::Expr> massTerms = clearDependencies(
-            L.mass,
-            [&](Lagrangian::TermType const &term) {
-                return term->getTerm()->dependsExplicitlyOn(majorana.get());
-            });
-    for (auto &term : massTerms) {
-        csl::Replace(term, P_L({a, b}), delta({a, b})/csl::sqrt_s(2));
-        csl::Replace(term, P_R({a, b}), delta({a, b})/csl::sqrt_s(2));
-        L.push_back(term);
-    }
+    removeParticle(particle);
+    addParticle(majorana, false);
 }
 
 void ModelBuilder::findAbreviation(csl::Expr& product)
@@ -1243,15 +1306,7 @@ void ModelBuilder::gatherMasses()
                         < L.mass[massTerms[i]]->getContent().size()) {
                     std::swap(massTerms[0], massTerms[i]);
                 }
-            csl::Expr mass = L.mass[massTerms[0]]->getTotalFactor();
-            if (part->getSpinDimension() != 3)
-                mass = -mass;
-            if (part->isSelfConjugate())
-                mass = 2 * mass;
-            csl::DeepExpand(mass);
-            csl::DeepFactor(mass);
-            if (part->isBosonic())
-                mass = csl::sqrt_s(mass);
+            csl::Expr mass = L.mass[massTerms[0]]->getMass();
             if (mass->isBuildingBlock())
                 part->setMass(mass);
             else {
@@ -1674,17 +1729,10 @@ void ModelBuilder::breakLagrangian(
 bool ModelBuilder::isValidMassTerm(mty::InteractionTerm const& term)
 {
     csl::Expr factor = csl::DeepCopy(term.getTerm());
-    csl::ForEachLeaf(factor, [&](csl::Expr& el)
-    {
-        if (IsOfType<mty::QuantumField>(el))
-            el = CSL_1;
-    });
-    csl::ResetDummyIndices(factor);
-    if (factor->getFreeIndexStructure().size() > 0) {
-        return false;
-    }
     return csl::AllOfNodes(factor, [&](csl::Expr const &sub) { 
-            return (sub->getType() != csl::Type::TDerivativeElement); 
+        return (sub->getType() != csl::Type::TDerivativeElement)
+            && (!csl::IsIndicialTensor(sub)
+                    || (IsOfType<QuantumField>(sub) || mty::dirac4.isCMatrix(sub))); 
     });
 }
 

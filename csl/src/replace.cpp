@@ -299,7 +299,7 @@ namespace csl {
             if (parent && parent->isAnAbbreviation()) {
                 if (hasWeakDependency(sub, predicate)) {
                     std::string const &name = parent->getBaseName();
-                    csl::Expr encaps = csl::DeepCopy(parent->getEncapsulated());
+                    csl::Expr encaps = parent->getExactEncapsulated(sub.get());
                     applyThroughAbbreviations(encaps, rule);
                     sub = csl::Abbrev::makeAbbreviation(name, encaps);
                     return true;

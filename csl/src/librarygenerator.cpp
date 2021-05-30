@@ -238,7 +238,7 @@ namespace csl {
                            csl::eval::literal
                          | csl::eval::numerical);
         auto f = LibFunction{nameFunction, expr, group};
-        return group->addFunction(f);
+        return group->addFunction(std::move(f));
     }
 
     void LibraryGenerator::addDiagonalization(

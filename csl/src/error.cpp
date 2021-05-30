@@ -54,7 +54,7 @@ void CallErrorImpl(CSLError          error,
 {
     std::cerr << error << " in " << func << " (" << file << " l. " << line 
         << ").\n";
-    std::raise(SIGTERM);
+    throw error;
 }
 
 void CallErrorImpl(CSLError          error,
@@ -65,5 +65,5 @@ void CallErrorImpl(CSLError          error,
 {
     std::cerr << error << " in " << func << " (" << file << " l. " << line 
         << "): " << message << '\n';
-    std::raise(SIGTERM);
+    throw error;
 }

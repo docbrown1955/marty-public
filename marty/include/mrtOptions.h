@@ -60,6 +60,7 @@ namespace mty::option {
     inline bool verboseAmplitude          = true;
     inline bool testRepresentations       = true;
     inline bool keepOnlyFirstMassInLoop   = false;
+    inline bool useMassiveSimplifications = true;
 
     // This one is a reference ! Only to have this option available in mty::option
     inline bool &keepEvanescentOperators  = sgl::option::keepEvanescentOperators;

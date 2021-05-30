@@ -624,46 +624,88 @@ namespace mty::simpli {
     /*************************************************/
     ///////////////////////////////////////////////////
 
+    static bool hasCommonIndex(
+            csl::Expr  const &A,
+            csl::Expr  const &B,
+            csl::Space const *space = nullptr
+            )
+    {
+        csl::IndexStructure const &Aindex = 
+            csl::IsIndicialTensor(A) ?
+            A->getIndexStructureView()
+            :A->getIndexStructure();
+        csl::IndexStructure const &Bindex =
+            csl::IsIndicialTensor(B) ?
+            B->getIndexStructureView()
+            :B->getIndexStructure();
+        for (const auto &i : Aindex) {
+            if (space && i.getSpace() != space)
+                continue;
+            for (const auto &j : Bindex) {
+                if (i == j) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    bool expandMinkoStructures(csl::Expr &expr)
+    {
+        const bool exp1 = expandMinkoMetric(expr);
+        const bool exp2 = expandMinkoEpsilon(expr);
+        return exp1 || exp2;
+    }
+        
     bool expandMinkoMetric(csl::Expr &expr)
     {
         csl::Tensor g = csl::Minkowski.getMetric();
         csl::Tensor d = csl::Minkowski.getDelta();
-        csl::Tensor e = csl::Minkowski.getEpsilon();
+        if (!expr->dependsOn(g.get()) && !expr->dependsOn(d.get()))
+            return false;
         auto init { expr };
-        auto isConstrainedEmitter = [&](csl::Expr const &emitter) {
-            return csl::IsIndicialTensor(emitter)
-                and (emitter->getParent_info() == g.get()
-                        or emitter->getParent_info() == d.get())
-                and emitter->getFreeIndexStructure().size() < 2;
+        auto stopCondition = [&](csl::Expr const &expr) {
+            return !csl::AnyOfLeafs(expr, [&](csl::Expr const &emitter) {
+                        return csl::IsIndicialTensor(emitter)
+                            and (emitter->getParent_info() == g.get()
+                                    or emitter->getParent_info() == d.get())
+                            and emitter->getFreeIndexStructure().size() < 2;
+                    });
         };
         auto isEmitter = [&](csl::Expr const &emitter) {
             return csl::IsIndicialTensor(emitter)
-                and (emitter->getParent_info() == g.get()
-                        or emitter->getParent_info() == d.get()
-                        or emitter->getParent_info() == e.get())
-                and emitter->getFreeIndexStructure().size() < 2;
+                && (emitter->getParent_info() == g.get()
+                        || emitter->getParent_info() == d.get())
+                && emitter->getFreeIndexStructure().size() < 2;
         };
         auto isReceiver = [&](csl::Expr const &emitter, csl::Expr const &receiver) {
-            csl::IndexStructure const &eindex = emitter->getIndexStructureView();
-            csl::IndexStructure const &rindex =
-                csl::IsIndicialTensor(receiver) ?
-                receiver->getIndexStructureView()
-                :receiver->getIndexStructure();
-            for (const auto &ri : rindex) {
-                if (ri.getSpace() == &csl::Minkowski) {
-                    for (const auto &ei : eindex)
-                        if (ri == ei)
-                            return true;
-                }
-            }
-            return false;
+            return hasCommonIndex(emitter, receiver, &csl::Minkowski);
         };
 
-        while (csl::AnyOfLeafs(expr, [&](csl::Expr const &sub) {
-                    return isConstrainedEmitter(sub);
-        })) {
+        do {
             csl::DeepPartialExpand(expr, isEmitter, isReceiver);
-        }
+        } while (!stopCondition(expr));
+
+        csl::DeepFactor(expr);
+
+        return (init != expr);
+    }
+
+    bool expandMinkoEpsilon(csl::Expr &expr)
+    {
+        csl::Tensor e = csl::Minkowski.getEpsilon();
+        if (!expr->dependsOn(e.get()))
+            return false;
+        auto init { expr };
+        auto isEmitter = [&](csl::Expr const &emitter) {
+            return csl::IsIndicialTensor(emitter)
+                && emitter->getParent_info() == e.get();
+        };
+        auto isReceiver = [&](csl::Expr const &emitter, csl::Expr const &receiver) {
+            return hasCommonIndex(emitter, receiver, &csl::Minkowski);
+        };
+
+        csl::DeepPartialExpand(expr, isEmitter, isReceiver);
         csl::DeepFactor(expr);
 
         return (init != expr);
@@ -866,31 +908,53 @@ namespace mty::simpli {
         return (!A.isOnShell() && B.isOnShell());
     }
 
+    std::pair<csl::Expr, csl::Expr> getMomentumReplacement(
+            std::vector<mty::QuantumField> const &insertions,
+            std::vector<csl::Tensor>       const &momenta,
+            size_t                                posReplaced
+            )
+    {
+        csl::Expr momentumSum = CSL_0;
+        csl::Index mu = csl::Minkowski.generateIndex();
+        for (size_t i = 0; i != insertions.size(); ++i) {
+            if (i != posReplaced)
+                momentumSum += (insertions[i].isIncoming()) ? 
+                    csl::Tensor(momenta[i])(mu)
+                    : -csl::Tensor(momenta[i])(mu);
+        }
+        if (insertions[posReplaced].isIncoming())
+            momentumSum *= CSL_M_1;
+        return {
+            csl::Tensor(momenta[posReplaced])(mu),
+            momentumSum
+        };
+    }
+
+    void replaceMomentum(
+            csl::Expr                            &init,
+            std::vector<mty::QuantumField> const &insertions,
+            std::vector<csl::Tensor>       const &momenta,
+            size_t                                posReplaced
+            )
+    {
+        auto [p, momentumEquivalence] = getMomentumReplacement(
+                insertions, momenta, posReplaced
+                );
+        csl::Replace(init, p, momentumEquivalence);
+    }
+
     void simplifyImpulsions(
             csl::Expr                            &init,
             std::vector<mty::QuantumField> const &insertions,
             std::vector<csl::Tensor>       const &momenta
             )
     {
-        csl::Expr momentumSum = CSL_0;
-        csl::Index mu = csl::Minkowski.generateIndex();
         size_t mini = 0;
         for (size_t i = 1; i != insertions.size(); ++i) {
             if (compareFields(insertions[i], insertions[mini]))
                 mini = i;
         }
-        for (size_t i = 0; i != insertions.size(); ++i) {
-            if (i != mini)
-                momentumSum += (insertions[i].isIncoming()) ? 
-                    csl::Tensor(momenta[i])(mu)
-                    : -csl::Tensor(momenta[i])(mu);
-        }
-        if (insertions[mini].isIncoming())
-            momentumSum *= CSL_M_1;
-        csl::Replace(
-                init,
-                csl::Tensor(momenta[mini])(mu),
-                momentumSum);
+        replaceMomentum(init, insertions, momenta, mini);
     }
 
     void applyEOM(
@@ -972,8 +1036,8 @@ namespace mty::simpli {
         csl::ScopedProperty commut(&csl::option::checkCommutations, false);
         csl::Refresh(expr);
         if (mode != WilsonCoefficient && mode != FeynmanRule) {
-            MomentumConservater cons(insertions, momenta);
-            cons.apply(expr);
+            //MomentumConservater cons(insertions, momenta);
+            //cons.apply(expr);
         }
         std::vector<csl::Expr> factors;
         if (csl::IsProd(expr)) {
@@ -986,10 +1050,21 @@ namespace mty::simpli {
                 csl::Refresh(expr);
         }
         csl::ScopedProperty prop(&mty::option::applyFermionChain, false);
+
+        ///////////////////////
+
+        // Warning here: The two following lines are important to ensure that
+        // 1: no sub-expression is shared with another (DeepRefreshed())
+        // 2: no index (name + id) is shared between two different tensors
+        // (except of course two tensors contracted with each other)
         csl::DeepRefresh(expr);
+        csl::RenameIndices(expr);
+
+        ///////////////////////
+
         reduceTensorIntegrals(expr);
-        // if (!xsec)
-        //     simplifyImpulsions(expr);
+        //if (mode != SquaredAmplitude && mode != FeynmanRule)
+        //    simplifyImpulsions(expr, insertions, momenta);
         expandMomentaExperimental(expr, momenta);
         size_t maxLoop = 10;
         bool simplified;
@@ -998,7 +1073,7 @@ namespace mty::simpli {
         csl::Abbrev::disableGenericEvaluation("EXT");
         size_t loop = 0;
         do {
-            simplified = expandMinkoMetric(expr);
+            simplified = expandMinkoStructures(expr);
             simplified = simplifyEpsilon(expr) || simplified;
             simplified = expandGammaMatrices(expr) || simplified;
             if (loop == 0 
@@ -1016,6 +1091,7 @@ namespace mty::simpli {
         } while (simplified and loop++ != maxLoop);
         if (mode != FeynmanRule && option::abbreviateColorStructures)
             findColorAbbreviation(expr);
+
         expandMomentaExperimental(expr, momenta);
         if (mode == Amplitude and option::applyEquationsOfMotion) {
             applyEOM(expr, insertions, momenta);

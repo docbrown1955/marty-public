@@ -79,6 +79,10 @@ namespace mty {
         };
 
         FeynmanDiagram(
+                mty::Model const &t_model
+                );
+
+        FeynmanDiagram(
                 mty::Model const &t_model,
                 csl::Expr  const &t_expression,
                 diagram_t  const &t_diagram
@@ -405,6 +409,33 @@ namespace mty {
             return isInternal(model->getParticle(std::forward<T>(particle)));
         }
 
+        /**
+         * @brief Returns a copy of the diagram.
+         *
+         * @details This method deep copies the expression and the graph to
+         * create a new diagram with no shared object with the initial one.
+         *
+         * @return The diagram copy.
+         */
+        FeynmanDiagram copy() const;
+
+        /**
+         * @brief Combines two Feynman diagrams, connecting them by one external
+         * leg.
+         *
+         * @param A        First diagram.
+         * @param B        Second diagram.
+         * @param mediator External particle in both diagram connecting the two.
+         *
+         * @return The combined diagram. The expression is invalid and must be
+         * determined.
+         */
+        static FeynmanDiagram combine(
+                FeynmanDiagram const &A,
+                FeynmanDiagram const &B,
+                Particle       const &mediator
+                );
+
     private:
 
         /**
@@ -460,10 +491,19 @@ namespace mty {
                     );
         }
 
+        void loadParticlesFromVertices(
+                std::vector<mty::wick::Vertex> const &vertices
+                );
+
         /**
          * @brief Gathers particles from the graph given in initialization.
          */
         void updateParticleData();
+
+        /**
+         * @brief Gathers particles from graph vertices.
+         */
+        void updateParticleData(std::vector<mty::wick::Vertex> const &vertices);
 
         /**
          * @brief Merges all particles found by updateParticleData() in the 
@@ -489,9 +529,15 @@ namespace mty {
         diagram_t    diagram;
 
         /**
-         * @brief Length of the cycle (momentum integral) if the is one.
+         * @brief Length of the cycle (momentum integral) if the calculation
+         * is at one-loop.
          */
-        int          cycleLength;
+        int cycleLength;
+
+        /**
+         * @brief Number of loops in the diagram.
+         */
+        int nLoops;
 
         /**
          * @brief List of all particles in the process.

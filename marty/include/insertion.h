@@ -35,11 +35,12 @@ class Insertion {
     private: 
 
     mutable QuantumFieldParent * field;
-    mutable bool      validExpression;
-    mutable csl::Expr expression;
-    bool incoming;
-    bool particle;
-    bool onShell;
+    mutable bool      validExpression { false };
+    mutable csl::Expr expression      { CSL_UNDEF };
+    bool incoming { true };
+    bool particle { true };
+    bool onShell  { true };
+    bool mediator { false };
     PartnerShip partnerShip;
 
     public:
@@ -88,7 +89,22 @@ class Insertion {
     }
     void setOnShell(bool t_onShell);
 
+    bool isMediator() const {
+        return mediator;
+    }
+    void setMediator(bool t_mediator) {
+        mediator = t_mediator;
+        if (mediator) 
+            setOnShell(false);
+    }
+
     csl::Expr getExpression() const;
+
+    bool operator==(Insertion const &other) const;
+
+    bool operator!=(Insertion const &other) const {
+        return !(*this == other);
+    }
 };
 
 Insertion OnShell (Insertion const& init);
@@ -96,6 +112,7 @@ Insertion OffShell(Insertion const& init);
 Insertion Incoming(Insertion const& init);
 Insertion Outgoing(Insertion const& init);
 Insertion AntiPart(Insertion const& init);
+Insertion Mediator(Insertion const& init);
 Insertion Left(Insertion const& init);
 Insertion Right(Insertion const& init);
 std::vector<Insertion> AntiPart(std::vector<Insertion> const &init);

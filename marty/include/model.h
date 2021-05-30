@@ -33,7 +33,9 @@
 #include "group.h"
 #include "feynmanRule.h"
 #include "graph.h"
+#include "operatorBasis.h"
 #include "gaugedGroup.h"
+#include "kinematics.h"
 #include "doc_brown_link.h"
 
 namespace mty::wick{
@@ -47,13 +49,6 @@ class Insertion;
 class FeynOptions;
 class Kinematics;
 class Amplitude;
-
-enum class OperatorBasis {
-
-    Chiral,
-    Standard,
-    None,
-};
 
 /*!
  * \brief Contains all objects in the theory.
@@ -141,6 +136,34 @@ public:
             FeynOptions                 options = {}
             );
 
+    mty::Amplitude computePartialAmplitude(
+            int                         order,
+            std::vector<mty::Insertion> insertions,
+            FeynOptions                 options = {}
+            );
+
+    mty::Amplitude computePartialAmplitude(
+            int                         order,
+            std::vector<mty::Insertion> insertions,
+            Kinematics           const &kinematics,
+            FeynOptions                 options = {}
+            );
+
+    mty::Amplitude computePartialAmplitude(
+            int                         order,
+            std::vector<mty::Insertion> insertions,
+            std::vector<int>     const &fermionOrder,
+            FeynOptions                 options = {}
+            );
+
+    mty::Amplitude computePartialAmplitude(
+            int                         order,
+            std::vector<mty::Insertion> insertions,
+            std::vector<int>     const &fermionOrder,
+            Kinematics           const &kinematics,
+            FeynOptions                 options = {}
+            );
+
     /**
      * @brief Main method for the calculation of amplitude.
      *
@@ -186,38 +209,60 @@ public:
             );
 
     WilsonSet getWilsonCoefficients(
-            Amplitude const &ampl,
-            csl::Expr         factor = CSL_1,
-            OperatorBasis     basis = OperatorBasis::Chiral,
-            bool              squaredAfter = false
+            Amplitude   const &ampl,
+            FeynOptions const &feynOptions = {},
+            bool               squaredAfter = false
             );
 
     WilsonSet computeWilsonCoefficients(
             int                           order,
             std::vector<Insertion> const &insertions,
-            csl::Expr              const &factor,
-            OperatorBasis    basis = OperatorBasis::Chiral
+            FeynOptions            const &feynOptions = {}
             );
 
     WilsonSet computeWilsonCoefficients_default(
             int                           order,
             std::vector<Insertion> const &insertions,
-            csl::Expr              const &factor,
-            OperatorBasis    basis = OperatorBasis::Chiral
+            FeynOptions            const &feynOptions = {}
             );
 
     WilsonSet computeWilsonCoefficients_2Fermions_1Vector(
-            int                           order,
             std::vector<Insertion> const &insertions,
-            csl::Expr              const &factor,
-            OperatorBasis    basis = OperatorBasis::Chiral
+            FeynOptions            const &feynOptions = {}
+            );
+
+    WilsonSet computeWilsonBoxes_4Fermions(
+            Kinematics const &kinematics,
+            FeynOptions       feynOptions = {}
+            );
+
+    WilsonSet computeSingleWilsonPenguin_4Fermions(
+            Kinematics                const &kinematics,
+            std::pair<size_t, size_t> const &treeCoupling,
+            std::pair<size_t, size_t> const &loopCoupling,
+            Insertion                 const &mediator,
+            FeynOptions               const &feynOptions = {}
+            );
+
+    WilsonSet computeWilsonPenguins_4Fermions(
+            Kinematics const &kinematics,
+            FeynOptions       feynOptions = {}
             );
 
     WilsonSet computeWilsonCoefficients_4Fermions(
-            int                           order,
             std::vector<Insertion> const &insertions,
-            csl::Expr              const &factor,
-            OperatorBasis    basis = OperatorBasis::Chiral
+            FeynOptions            const &feynOptions = {}
+            );
+
+    Amplitude connectAmplitudes(
+            Amplitude   const &M1,
+            Amplitude   const &M2,
+            FeynOptions const &options = {}
+            );
+
+    static void projectOnBasis(
+            csl::Expr    &expr,
+            OperatorBasis basis
             );
 
     friend
@@ -230,6 +275,48 @@ protected:
     std::vector<mty::QuantumField> recoverQuantumInsertions(
             std::vector<csl::Expr> const &insertions
             );
+
+    struct KinematicLink {
+        Kinematics  kinematics;
+        csl::Tensor pL;
+        csl::Tensor pR;
+        std::pair<csl::Expr, csl::Expr> pL_replacement;
+        std::pair<csl::Expr, csl::Expr> pR_replacement;
+        mty::Particle mediator;
+
+        /**
+         * @return 0 if **expr** is not a mediator.
+         * @return -1 if **expr** is the left mediator.
+         * @return 1 if **expr** is the right mediator.
+         */
+        int isMediator(csl::Expr const &expr) const;
+    };
+
+    KinematicLink connectKinematics(
+            Amplitude &M1,
+            Amplitude &M2
+            ) const;
+
+    std::pair<csl::Expr, csl::Expr> getMomentumReplacement(
+            Amplitude const &M,
+            size_t           replacedMomentum
+            ) const;
+
+    void replaceMomentumForLink(
+            Amplitude                             &M,
+            std::pair<csl::Expr, csl::Expr> const &pReplacement
+            ) const;
+
+    bool mediatorToPropagator(
+            csl::Expr           &prod,
+            KinematicLink const &link
+            ) const;
+
+    csl::Expr connectMediator(
+            csl::Expr     const &M1,
+            csl::Expr     const &M2,
+            KinematicLink const &link
+            ) const;
 
 protected:
 

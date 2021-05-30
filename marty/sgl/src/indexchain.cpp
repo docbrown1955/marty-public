@@ -618,8 +618,9 @@ namespace sgl {
             }
         }
         auto optmove = firstMove();
-        if (optmove)
+        if (optmove) {
             return moveIndex(optmove->first, optmove->second);
+        }
         if (m_argument.size() > 1
                 && isC(m_argument.front())
                 && isC(m_argument.back())) {
@@ -759,6 +760,7 @@ namespace sgl {
             if (!gam) {
                 errorPrint();
                 LOG("Bad argument :", gam->copy())
+                std::cerr << copy() << '\n';
                 throw Exception::TypeError;
             }
             if (gam->isGammaMu() || gam->isSigma()) {
@@ -766,6 +768,7 @@ namespace sgl {
                 indices.push_back(*gam);
             }
             else if (indices.size() != m_argument.size() - 1) {
+                std::cerr << copy() << '\n';
                 throw Exception::MathError;
             }
         }
@@ -792,6 +795,7 @@ namespace sgl {
                 indices.push_back(*gam);
             }
             else if (indices.size() != m_argument.size() - 1) {
+                errorPrint();
                 throw Exception::MathError;
             }
         }

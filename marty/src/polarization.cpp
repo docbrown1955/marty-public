@@ -310,7 +310,7 @@ csl::Expr PolarizationField::sumPolarization(csl::Expr_info other) const
 
 csl::unique_Expr PolarizationField::copy_unique() const
 {
-    return make_unique<PolarizationField>(*this);
+    return std::make_unique<PolarizationField>(*this);
 }
 
 void PolarizationField::printCode(

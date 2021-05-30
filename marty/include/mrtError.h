@@ -111,9 +111,11 @@ namespace mty::error{
 } // End of namespace mty::error
 
 #define CallHEPError(error, spec)\
-    {std::cerr << error << " in function " << __func__ << "() (file "\
+    {\
+        std::cerr << error << " in function " << __func__ << "() (file "\
               << __FILE__ << " l." << __LINE__ << "): " << spec << '\n';\
-    std::raise(SIGTERM);}\
+        throw error;\
+    }\
 
 #define HEPAssert(condition, error, spec)\
     if (not (condition)) CallHEPError(error, spec)\

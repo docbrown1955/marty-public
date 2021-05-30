@@ -793,10 +793,19 @@ csl::Expr MajoranaMassTerm(
         csl::Expr         const &mass, 
         QuantumFieldParent *field)
 {
-    vector<Index> index = field->getFullSetOfIndices();
-    csl::Expr psi     = (*field)(index);
-    csl::Expr psi_bar = GetComplexConjugate((*field)(index));
-    return -CSL_HALF * mass * (psi*psi + psi_bar*psi_bar);
+    vector<Index> index1 = field->getFullSetOfIndices();
+    vector<Index> index2 = index1;
+    auto a = index1.back();
+    auto b = a.rename();
+    index2.back() = b;
+    auto C = dirac4.C_matrix({a, b});
+    csl::Expr psi     = (*field)(index1);
+    csl::Expr psi_bar = GetComplexConjugate((*field)(index1));
+    return -CSL_HALF * mass * (
+            (*field)(index1)*C*(*field)(index2)
+            + csl::GetComplexConjugate((*field)(index1))
+                *C*csl::GetComplexConjugate((*field)(index2))
+            );
 }
 
 csl::Expr MajoranaMassTerm(
@@ -807,18 +816,22 @@ csl::Expr MajoranaMassTerm(
     if (&fieldL == &fieldR)
         return MajoranaMassTerm(mass, fieldL);
     vector<Index> index1 = fieldL->getFullSetOfIndices();
-    vector<Index> index2 = fieldL->getFullSetOfIndices();
-    for (auto &i : index2)
-        i = i.getFlipped();
-    csl::Expr psiL     = (*fieldL)(index1);
-    csl::Expr psiL_bar = GetComplexConjugate((*fieldL)(index1));
-    csl::Expr psiR     = (*fieldR)(index2);
-    csl::Expr psiR_bar = GetComplexConjugate((*fieldR)(index2));
-    return -mass * (psiL*psiR + psiL_bar*psiR_bar);
+    vector<Index> index2 = index1;
+    auto a = index1.back();
+    auto b = a.rename();
+    index2.back() = b;
+    auto C = dirac4.C_matrix({a, b});
+    return - mass * (
+            (*fieldR)(index1)*C*(*fieldL)(index2)
+            + csl::GetComplexConjugate((*fieldL)(index1))
+                *C*csl::GetComplexConjugate((*fieldR)(index2))
+            );
 }
 
-csl::Expr MassTerm(csl::Expr const         &mass,
-              QuantumFieldParent *field)
+csl::Expr MassTerm(
+        csl::Expr const    &mass,
+        QuantumFieldParent *field
+        )
 {
     if (mass == CSL_0)
         return CSL_0;
@@ -832,7 +845,8 @@ csl::Expr MassTerm(csl::Expr const         &mass,
     return MassTerm(mass, field, field);
 }
 
-csl::Expr MassTerm(csl::Expr const&         mass,
+csl::Expr MassTerm(
+        csl::Expr const&         mass,
               QuantumFieldParent* fieldL,
               QuantumFieldParent* fieldR)
 {
@@ -840,6 +854,11 @@ csl::Expr MassTerm(csl::Expr const&         mass,
         return CSL_0;
     if (!(fieldL->getGaugeIrrep()*fieldR->getGaugeIrrep().getConjugatedRep())
             .containsTrivialRep()) {
+        return MajoranaMassTerm(mass, fieldL, fieldR);
+    }
+    if (fieldL->getChirality() != Chirality::None 
+            && fieldR->getChirality() != Chirality::None
+            && fieldL->getChirality() == fieldR->getChirality()) {
         return MajoranaMassTerm(mass, fieldL, fieldR);
     }
     csl::Expr factor = 

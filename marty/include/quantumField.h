@@ -1666,7 +1666,7 @@ class QuantumField: public csl::TensorFieldElement {
      * \sa addDerivative(), hasDerivative(), getDerivativeStructure(),
      * wick::Graph, wick::WickCalculator, Expander, AmplitudeCalculator.
      */
-    csl::IndexStructure derivativeIndices;
+    csl::IndexStructure derivativeIndices {};
 
     /**
      * @brief Wanted partner for fermion ordering in amplitude results, together
@@ -1686,7 +1686,7 @@ class QuantumField: public csl::TensorFieldElement {
      * where \f$ C^{AB}_{CD} \f$ are scalar coefficients determined by the 
      * generalized Fierz identities.
      */
-    PartnerShip partnerShip;
+    PartnerShip partnerShip {};
 
     public:
 

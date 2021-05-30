@@ -21,6 +21,7 @@
  * \brief
  */
 #include "csl.h"
+#include "sgl.h"
 #include "graph.h"
 #include "drawer.h"
 #include "amplitude.h"

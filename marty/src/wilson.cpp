@@ -52,7 +52,8 @@ void WilsonCoefficient::setCoefficient(csl::Expr const& t_coefficient)
                 mty::error::RuntimeError,
                 "Non empty index structure encountered for coef " 
                 + toString(t_coefficient))
-    coefficient = DeepRefreshed(t_coefficient);
+    // coefficient = DeepRefreshed(t_coefficient);
+    coefficient = csl::Copy(t_coefficient);
 }
 
 ///////////////////////////////////////////////////
@@ -155,34 +156,69 @@ bool WilsonOperator::operator==(WilsonOperator const& other) const
                           DeepRefreshed(other.op));
 }
 
+
+///////////////////////////////////////////////////
+/*************************************************/
+// WilsonSet Class                               //
+/*************************************************/
+///////////////////////////////////////////////////
+
+void WilsonSet::merge()
+{
+    WilsonSet other;
+    for (const auto &wil : *this)
+        addWilson(wil, other);
+    *this = std::move(other);
+    auto last = std::remove_if(begin(), end(), [&](Wilson const &wil) {
+        return wil.coef.getCoefficient() == CSL_0;
+    });
+    erase(last, end());
+}
+
 ///////////////////////////////////////////////////
 /*************************************************/
 // Other functions                               //
 /*************************************************/
 ///////////////////////////////////////////////////
 
+void parseStructures(
+        csl::Expr              &arg,
+        std::vector<csl::Expr> &inOperator,
+        csl::IndexStructure    &quantumStructure
+        )
+{
+    if (IsOfType<PolarizationField>(arg) or IsOfType<QuantumField>(arg)) {
+        quantumStructure += arg->getIndexStructureView();
+        inOperator.push_back(arg);
+        arg = CSL_1;
+    }
+    else if (arg->getType() == csl::Type::TDerivativeElement
+            and (IsOfType<PolarizationField>(arg->getOperand())
+                or IsOfType<QuantumField>(arg->getOperand()))) {
+        inOperator.push_back(arg->getOperand());
+        quantumStructure += arg->getOperand()->getIndexStructureView();
+        arg = CSL_1;
+    }
+    else if (csl::IsIndicialTensor(arg) 
+            && arg->getFreeIndexStructure().size() > 0) {
+        quantumStructure += arg->getIndexStructureView();
+        inOperator.push_back(arg);
+        arg = CSL_1;
+    }
+}
+
 std::vector<csl::Expr> parseStructures(
         csl::Expr &prod
         )
 {
-    if (!csl::IsProd(prod)) {
-        return {};
-    }
     csl::IndexStructure quantumStructure;
     csl::vector_expr inOperator;
+    if (!csl::IsProd(prod)) {
+        parseStructures(prod, inOperator, quantumStructure);
+        return inOperator;
+    }
     for (auto& arg : prod) {
-        if (IsOfType<PolarizationField>(arg) or IsOfType<QuantumField>(arg)) {
-            quantumStructure += arg->getIndexStructureView();
-            inOperator.push_back(arg);
-            arg = CSL_1;
-        }
-        else if (arg->getType() == csl::Type::TDerivativeElement
-                and (IsOfType<PolarizationField>(arg->getOperand())
-                    or IsOfType<QuantumField>(arg->getOperand()))) {
-            inOperator.push_back(arg->getOperand());
-            quantumStructure += arg->getOperand()->getIndexStructureView();
-            arg = CSL_1;
-        }
+        parseStructures(arg, inOperator, quantumStructure);
     }
     for (size_t k = 0; k != prod->size(); ++k) {
         csl::Expr &arg = prod[k];
@@ -220,6 +256,7 @@ std::vector<csl::Expr> parseStructures(
 std::vector<Wilson> parseSum(
         csl::Expr const& sum,
         csl::Expr const& operatorFactor,
+        bool        standardBasis,
         bool        recursive
         )
 {
@@ -230,6 +267,7 @@ std::vector<Wilson> parseSum(
             parseExpression(
                     term,
                     operatorFactor,
+                    standardBasis,
                     recursive);
         wilsons.insert(
                 wilsons.end(),
@@ -243,11 +281,12 @@ std::vector<Wilson> parseSum(
 std::vector<Wilson> parseExpression(
         csl::Expr const& expr,
         csl::Expr const& operatorFactor,
+        bool        standardBasis,
         bool        recursive
         )
 {
     if (csl::IsSum(expr)) {
-        return parseSum(expr, operatorFactor, recursive);
+        return parseSum(expr, operatorFactor, standardBasis, recursive);
     }
     if (expr == CSL_0)
         return {};
@@ -270,6 +309,7 @@ std::vector<Wilson> parseExpression(
             return parseSum(
                     csl::Expanded(res.coef.getCoefficient() * op),
                     operatorFactor,
+                    standardBasis,
                     recursive);
         }
         else if (csl::IsProd(op)){
@@ -286,38 +326,32 @@ std::vector<Wilson> parseExpression(
             //std::cout << "HERE" << std::endl;
             //std::cout << op << std::endl;
             if (!recursive){
-                auto sss = op->getFreeIndexStructure();
                 op = sgl::sgl_to_csl(sgl::Simplified(
                             sgl::csl_to_sgl(op, tset), !recursive
                             ), tset);
-                //std::cout << "After SGL" << std::endl;
-                //std::cout << op << std::endl;
                 auto d = dirac4.getDelta();
                 auto g = dirac4.gamma_chir;
                 auto a = dirac4.generateIndex();
                 auto b = dirac4.generateIndex();
-                //csl::Replace(op, dirac4.P_L({a, b}), CSL_HALF*d({a, b}) - CSL_HALF*g({a, b}));
-                //csl::Replace(op, dirac4.P_R({a, b}), CSL_HALF*d({a, b}) + CSL_HALF*g({a, b}));
                 csl::DeepRefresh(op);
-                //std::cout << "Final" << std::endl;
-                //std::cout << op << std::endl;
+                if (standardBasis) {
+                    Model::projectOnBasis(op, OperatorBasis::Standard);
+                }
             }
-            // mty::FermionChain chain(&mty::dirac4;
-            // csl::ForEachNode(op, [&](csl::Expr& el)
-            // {
-            //     if (el->getType() == csl::Type::Prod) {
-            //         chain.applyOn(el);
-            //     }
-            // });
             csl::Expand(op);
             if (csl::IsSum(op)) {
                 return parseSum(
                         csl::Expanded(res.coef.getCoefficient() * op),
                         operatorFactor,
+                        standardBasis,
                         true);
             }
             res.coef.setCoefficient(
                     res.coef.getCoefficient() / operatorFactor);
+            res.op = WilsonOperator(op, operatorFactor);
+            return {res};
+        }
+        else {
             res.op = WilsonOperator(op, operatorFactor);
             return {res};
         }
@@ -352,6 +386,7 @@ void addWilson(
 std::vector<Wilson> match(
         std::vector<csl::Expr> &fullAmplitudes,
         csl::Expr        const &operatorFactor,
+        bool                    standardBasis,
         bool                    squaredAfter
         )
 {
@@ -373,7 +408,6 @@ std::vector<Wilson> match(
             }
         });
         Evaluate(ampl);
-        // highMassApproximation(ampl);
     }
     csl::Abbrev::disableGenericEvaluation("Fc");
     csl::Abbrev::disableGenericEvaluation("EXT");
@@ -383,10 +417,10 @@ std::vector<Wilson> match(
         std::vector<Wilson> newWilsons = parseExpression(
                 DeepCopy(fullAmplitudes[i]),
                 operatorFactor,
+                standardBasis,
                 squaredAfter
                 );
         for (auto &w : newWilsons) {
-            // highMassApproximation(w);
             w.coef.setCoefficient(
                     csl::Factored(w.coef.getCoefficient())
                     );

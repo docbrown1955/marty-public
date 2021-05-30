@@ -61,14 +61,14 @@ namespace mty::flha {
         std::set<InputFlag> MINPAR_flags;
         MINPAR_flags.insert(InputFlag(1, mty::mssm_input::m_0));
         MINPAR_flags.insert(InputFlag(2, mty::mssm_input::m_1));
-        MINPAR_flags.insert(InputFlag(3, mty::mssm_input::tanb));
+        MINPAR_flags.insert(InputFlag(3, mty::mssm_input::beta));
         MINPAR_flags.insert(InputFlag(4, mty::mssm_input::sgn_mu));
         MINPAR_flags.insert(InputFlag(5, mty::mssm_input::A_0));
 
         Block MINPAR = std::make_pair(flha::MINPAR, MINPAR_flags);
 
         std::set<InputFlag> EXTPAR_flags;
-        EXTPAR_flags.insert(InputFlag(25, mssm_input::tanb));
+        EXTPAR_flags.insert(InputFlag(25, mssm_input::beta));
         EXTPAR_flags.insert(InputFlag(1, mssm_input::M1));
         EXTPAR_flags.insert(InputFlag(2, mssm_input::M2));
         EXTPAR_flags.insert(InputFlag(3, mssm_input::M3));

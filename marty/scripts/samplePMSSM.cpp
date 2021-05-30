@@ -23,7 +23,7 @@ using namespace mty;
 
 int main() {
 
-    PMSSM_LEM pmssm_model;
+    PMSSM_Model pmssm_model;
     std::cout << pmssm_model << std::endl;
 
     Display(pmssm_model.getFeynmanRules());

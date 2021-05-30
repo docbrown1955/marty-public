@@ -188,7 +188,7 @@ std::vector<FeynmanRule> ComputeFeynmanRules(mty::Model& model)
 void ContractIndices(csl::Expr &init)
 {
     init = csl::Evaluated(init, csl::eval::abbreviation);
-    csl::LibEvalSession::parseExpression(init, false, false);
+    csl::LibEvalSession::parseExpression(init, false);
 }
 
 void ContractIndices(std::vector<csl::Expr> &init)

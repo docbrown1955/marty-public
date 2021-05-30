@@ -80,12 +80,12 @@ class FeynmanRule {
     bool isSame(FeynmanRule const& other) const;
     size_t getSize() const;
 
-    bool operator==(FeynmanRule const& other) const;
-    bool operator!=(FeynmanRule const& other) const;
-    bool operator<(FeynmanRule const& other) const;
-    bool operator>(FeynmanRule const& other) const;
-    bool operator<=(FeynmanRule const& other) const;
-    bool operator>=(FeynmanRule const& other) const;
+    bool operator==(FeynmanRule const&) const;
+    bool operator!=(FeynmanRule const&) const;
+    bool operator< (FeynmanRule const&) const;
+    bool operator> (FeynmanRule const&) const;
+    bool operator<=(FeynmanRule const&) const;
+    bool operator>=(FeynmanRule const&) const;
 
     friend
     std::ostream& operator<<(std::ostream& out,

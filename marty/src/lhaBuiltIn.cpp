@@ -145,14 +145,14 @@ LHAInputData getMINPARInput(int model)
     case 1: // mSUGRA
         minpar.push_back({1, m_0,    false}); 
         minpar.push_back({2, m_1,    false}); 
-        minpar.push_back({3, tanb,   false}); 
+        minpar.push_back({3, beta,   false}); 
         minpar.push_back({4, sgn_mu, false}); 
         minpar.push_back({5, A_0,    false}); 
         break;
     case 2: // mGMSB
         minpar.push_back({1, Lambda, false}); 
         minpar.push_back({2, Mmess,  false}); 
-        minpar.push_back({3, tanb,   false}); 
+        minpar.push_back({3, beta,   false}); 
         minpar.push_back({4, sgn_mu, false}); 
         minpar.push_back({5, N_5,    false}); 
         minpar.push_back({6, cgrav,  false}); 
@@ -160,11 +160,11 @@ LHAInputData getMINPARInput(int model)
     case 3: // mAMSB
         minpar.push_back({1, m_0,    false}); 
         minpar.push_back({2, m_3,    false}); 
-        minpar.push_back({3, tanb,   false}); 
+        minpar.push_back({3, beta,   false}); 
         minpar.push_back({4, sgn_mu, false}); 
         break;
     default: // Other models
-        minpar.push_back({3, tanb,   false}); 
+        minpar.push_back({3, beta,   false}); 
     }
 
     return minpar;
@@ -188,7 +188,7 @@ LHAInputData getEXTPARInput()
     extpar.push_back({22, MH2, false});
     extpar.push_back({23, mu, false});
     extpar.push_back({24, MA, false});
-    extpar.push_back({25, tanb, false});
+    extpar.push_back({25, beta, false});
     extpar.push_back({26, MA0, false});
     extpar.push_back({27, MHp, false});
 

@@ -31,6 +31,8 @@ class Propagator: public csl::AbstractMultiFunc {
 
     public:
 
+    static inline csl::Expr Peps = csl::constant_s("reg_prop");
+
     Propagator() = default;
 
     Propagator(csl::Expr const& impulsion,

@@ -9,8 +9,8 @@ DYNAMICLIBRARY = libmarty.so
 
 LTVERSION = 2.15
 
-CXXDEBUG         = $(CXX) -g # -D DEBUG
-CXXFLAGS 	 = $(MARTY_CXX_FLAGS) -Wall -Wextra -Wpedantic -std=c++17 -O3 -fPIC -Wfatal-errors -DDEBUGLOG
+CXXDEBUG         = $(CXX) -g 
+CXXFLAGS 	 = $(MARTY_CXX_FLAGS) -Wall -Wextra -Wpedantic -std=c++17 -O3 -fPIC 
 
 SRCDIR     = src
 HEADDIR    = include
@@ -34,11 +34,11 @@ GSLLIB = lib/libgsl.a
 GSLCBLASLIB = lib/libgslcblas.a
 MAKE       = /usr/bin/make
 
-MODELDIR   = models/include
-SGLDIR     = sgl/include
+MODELINCDIR   = models/include
+SGLINCDIR     = sgl/include
  
-INCPATH    = -I.. -I./$(HEADDIR) -I$(MODELDIR) -I../csl/$(HEADDIR)\
-	     -I../jsonparser/$(HEADDIR) -I../grafed/$(HEADDIR) -I$(SGLDIR)\
+INCPATH    = -I.. -I./$(HEADDIR) -I$(MODELINCDIR) -I../csl/$(HEADDIR)\
+	     -I../jsonparser/$(HEADDIR) -I../grafed/$(HEADDIR) -I$(SGLINCDIR)\
 	     -I../dependencies/LoopTools-2.15/include
 LIBPATH    = -L../dependencies/LoopTools-2.15/build
 INCLIBPATH = $(INCPATH) $(LIBPATH)
@@ -83,13 +83,11 @@ all: models sgl lib release debug
 
 marty: lib
 
-models:
-	cd models; $(MAKE) all
-sgl:
-	cd sgl;   $(MAKE) all
+models: $(modelOBJ) $(modelOBJDEBUG)
+sgl: $(sglOBJ) $(sglOBJDEBUG)
 
-lib: $(OBJ) $(OBJDEBUG) $(LIBDIR)/$(STATICLIBRARY) $(LIBDIR)/$(DYNAMICLIBRARY)\
-	$(modelOBJ) $(modelOBJDEBUG) $(sglOBJDEBUG)
+lib: $(OBJ) $(OBJDEBUG) sgl models \
+	$(LIBDIR)/$(STATICLIBRARY) $(LIBDIR)/$(DYNAMICLIBRARY)
 install:
 	mkdir -p $(INSTALLDIR)/include/marty
 	echo "#include \"marty/marty.h\"" >> $(INSTALLDIR)/include/marty.h
@@ -109,6 +107,14 @@ debug:   $(BINDEBUG)
 .PRECIOUS: models/obj/%_debug.o
 
 # Création des différents *.o à partir des *.cpp
+sgl/$(OBJDIR)/%.o: sgl/$(SRCDIR)/%.cpp 
+	$(CXX) $(CXXFLAGS) -o $@ -c $< $(INCPATH)
+
+# Création des différents *.o à partir des *.cpp
+models/$(OBJDIR)/%.o: models/$(SRCDIR)/%.cpp 
+	$(CXX) $(CXXFLAGS) -o $@ -c $< $(INCPATH)
+
+# Création des différents *.o à partir des *.cpp
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp 
 	$(CXX) $(CXXFLAGS) -o $@ -c $< $(INCPATH)
 
@@ -119,6 +125,14 @@ $(PROGOBJDIR)/%.o: $(PROGDIR)/%.cpp
 %.x: $(PROGOBJDIR)/%.o $(OBJ) $(cslOBJ) $(jsonOBJ) $(drawerOBJ) $(modelOBJ) $(sglOBJ)
 	$(CXX) $(CXXFLAGS) -o $(BINDIR)/$@ $^ $(LIBPATH) $(LIBS)
 
+
+# Création des différents *.o à partir des *.cpp
+sgl/$(OBJDIR)/%_debug.o: sgl/$(SRCDIR)/%.cpp 
+	$(CXXDEBUG) $(CXXFLAGS) -o $@ -c $< $(INCPATH)
+
+# Création des différents *.o à partir des *.cpp
+models/$(OBJDIR)/_debug%.o: models/$(SRCDIR)/%.cpp 
+	$(CXXDEBUG) $(CXXFLAGS) -o $@ -c $< $(INCPATH)
 
 # Version avec deboggage 
 $(OBJDIR)/%_debug.o: $(SRCDIR)/%.cpp
@@ -132,16 +146,16 @@ $(PROGOBJDIR)/%_debug.o: $(PROGDIR)/%.cpp
 	$(CXXDEBUG) $(CXXFLAGS) -o $(BINDIR)/$@ $^ $(LIBPATH) $(LIBS)
 
 # Library compilations
-$(LIBDIR)/$(STATICLIBRARY): $(OBJ)
+$(LIBDIR)/$(STATICLIBRARY): $(OBJ) $(sglOBJ) $(modelOBJ)
 	ar rcs $@ $(OBJ) $(cslOBJ) $(jsonOBJ) $(drawerOBJ) $(modelOBJ) $(sglOBJ)
-$(LIBDIR)/$(DYNAMICLIBRARY): $(OBJ)
+$(LIBDIR)/$(DYNAMICLIBRARY): $(OBJ) $(sglOBJ) $(modelOBJ)
 	$(CXX) $(CXXFLAGS) -shared -o $@ $(OBJ) $(cslOBJ) $(jsonOBJ) $(drawerOBJ)\
 	   $(modelOBJ) $(sglOBJ) $(LIBPATH) $(LIBS)
 
 
 clean:
-	cd models/&& $(MAKE) clean;
-	cd sgl/&&    $(MAKE) clean;
+	-rm -f sgl/$(OBJDIR)/*.o;
+	-rm -f models/$(OBJDIR)/*.o;
 	-rm -f $(OBJDIR)/*.o;
 	-rm -f $(PROGOBJDIR)/*.o;
 	-rm -f lib/*.a lib/*.so

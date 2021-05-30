@@ -229,57 +229,84 @@ class Abbreviation: public BaseParent {
         evaluation = not evaluation;
     };
 
+    /**
+     * @brief Returns the encapsulated expression, applying to it the correct 
+     * index structure.
+     *
+     * @param self Abbreviated expression.
+     *
+     * @return The encapsulated expression with the correct index structure. 
+     *
+     * @details This function uses getEncapsulated() and applies the current 
+     * index structure, from the abbreviation object **self**, to it. The result
+     * is then the mathematically equivalent encapsulated expression. Therefore
+     * this function performs calculations (contrary to getEncapsulated()) but
+     * yields an expression that can replace the initial abbreviation object in
+     * expressions ensuring that the result is still mathematically valid.
+     */
+    csl::Expr getExactEncapsulated(Expr_info self) const override
+    {
+        Expr res = DeepCopy(getEncapsulated());
+        if (self->isComplexConjugate())
+            res = csl::GetComplexConjugate(res);
+        csl::IndexStructure structure = self->getIndexStructure();
+        CSL_ASSERT_SPEC(structure.size() == initialStructure.size(),
+                CSLError::RuntimeError,
+                "Wrong indicial structure " + toString(structure)
+                + " to apply for " + toString(initialStructure) 
+                + " initially.");
+        // csl::IndexStructure intermediate(structure);
+        // for (auto &index : intermediate)
+        //     index = index.rename();
+        std::map<csl::Index, csl::Index> mapping;
+        csl::ForEachLeaf(res, [&](Expr &sub)
+        {
+            if (!IsIndicialTensor(sub))
+                return;
+            IndexStructure &index = sub->getIndexStructureView();
+            for (auto &i : index) {
+                auto pos = std::find(
+                        initialStructure.begin(), 
+                        initialStructure.end(),
+                        i);
+                if (pos == initialStructure.end()) {
+                    auto pos2 = mapping.find(i);
+                    const bool sign = i.getSign();
+                    if (pos2 == mapping.end()) {
+                        mapping[i] = i.rename();
+                        mapping[i].setSign(false);
+                        i = mapping[i];
+                        if (sign)
+                            i = +i;
+                    }
+                    else {
+                        i = mapping[i];
+                        if (sign)
+                            i = +i;
+                    }
+                }
+            }
+        });
+        Replace(res, initialStructure, structure);
+        return res;
+    }
+
     std::optional<Expr> evaluate(
             Expr_info self,
             csl::eval::mode user_mode = csl::eval::base) const override {
-        if (evaluation or csl::eval::isContained(user_mode, csl::eval::abbreviation)) {
-            Expr res = DeepCopy(encapsulated);
-            if (self->isComplexConjugate())
-                res = csl::GetComplexConjugate(res);
-            csl::IndexStructure structure = self->getIndexStructure();
-            CSL_ASSERT_SPEC(structure.size() == initialStructure.size(),
-                    CSLError::RuntimeError,
-                    "Wrong indicial structure " + toString(structure)
-                    + " to apply for " + toString(initialStructure) 
-                    + " initially.");
-            // csl::IndexStructure intermediate(structure);
-            // for (auto &index : intermediate)
-            //     index = index.rename();
-            std::map<csl::Index, csl::Index> mapping;
-            csl::ForEachLeaf(res, [&](Expr &sub)
-            {
-                if (!IsIndicialTensor(sub))
-                    return;
-                IndexStructure &index = sub->getIndexStructureView();
-                for (auto &i : index) {
-                    auto pos = std::find(
-                            initialStructure.begin(), 
-                            initialStructure.end(),
-                            i);
-                    if (pos == initialStructure.end()) {
-                        auto pos2 = mapping.find(i);
-                        const bool sign = i.getSign();
-                        if (pos2 == mapping.end()) {
-                            mapping[i] = i.rename();
-                            mapping[i].setSign(false);
-                            i = mapping[i];
-                            if (sign)
-                                i = +i;
-                        }
-                        else {
-                            i = mapping[i];
-                            if (sign)
-                                i = +i;
-                        }
-                    }
-                }
-            });
-            Replace(res, initialStructure, structure);
+        if (evaluation or csl::eval::isContained(user_mode, csl::eval::abbreviation)){
+            auto res = getExactEncapsulated(self);
             return Evaluated(res, user_mode);
         }
         return std::nullopt;
     }
 
+    /**
+     * @return The initial encapsulated expression. 
+     *
+     * @details To have the exact index correspondence with the actual 
+     * abbreviation see getExactEncapsulated().
+     */
     Expr const &getEncapsulated() const override {
         return encapsulated;
     }

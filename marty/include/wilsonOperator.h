@@ -100,6 +100,17 @@ namespace OperatorParser {
             Insertion const &psi2R
             );
 
+    csl::Expr get_V5_x_V5_Coefficient(
+            std::vector<Wilson> const &coefs
+            );
+
+    csl::Expr build_V5_x_V5(
+            Insertion const &psi1L,
+            Insertion const &psi1R,
+            Insertion const &psi2L,
+            Insertion const &psi2R
+            );
+
     csl::Expr buildMagneticOperator(
             Insertion const &incomingFermion,
             Insertion const &outgoingFermion,

@@ -271,7 +271,7 @@ void MSSM_Model::initSQuarks()
 void MSSM_Model::initHiggs()
 {
     mu_h   = mssm_input::mu;
-    beta_h = csl::atan_s(mssm_input::tanb);
+    beta_h = mssm_input::beta;
     b_h    = csl::constant_s("b");
 
     Hu = mty::scalarboson_s("Hu", *this);
@@ -384,6 +384,7 @@ void MSSM_Model::initGauginoInteractions(
         std::vector<csl::Index> f_index = fermion->getFullSetOfIndices();
         std::vector<csl::Index> s_index = f_index;
         csl::Index a = f_index.back();
+        csl::Index b = a.rename();
         s_index.erase(s_index.end() - 1); // Dirac index
 
         csl::Index j;
@@ -402,7 +403,8 @@ void MSSM_Model::initGauginoInteractions(
         addLagrangianTerm(
                 - csl::sqrt_s(2) * coupling 
                 * cc(scalar(s_index)) * T({A, i, j}) * fermion(f_index)
-                * gaugino({A, a}),
+                * dirac4.C_matrix({a, b})
+                * gaugino({A, b}),
                 true
                 );
     }
@@ -429,12 +431,14 @@ void MSSM_Model::initU1GauginoInteractions(
         std::vector<csl::Index> f_index = fermion->getFullSetOfIndices();
         std::vector<csl::Index> s_index = f_index;
         csl::Index a = f_index.back();
+        csl::Index b = a.rename();
         s_index.erase(s_index.end() - 1); // Dirac index
 
         addLagrangianTerm(
                 -csl::sqrt_s(2) * coupling 
                 * charge * cc(scalar(s_index)) * fermion(f_index)
-                * gaugino(a),
+                * dirac4.C_matrix({a, b})
+                * gaugino(b),
                 true
                 );
     }
@@ -483,6 +487,8 @@ void MSSM_Model::initYukawas()
 
     // Dirac space
     csl::Index a = mty::DiracIndex();
+    csl::Index b = mty::DiracIndex();
+    csl::Tensor C = mty::dirac4.C_matrix;
 
     Ye = csl::Tensor("Y_e", {flavorSpace, flavorSpace});
     Yu = csl::Tensor("Y_u", {flavorSpace, flavorSpace});
@@ -508,7 +514,8 @@ void MSSM_Model::initYukawas()
             * Yu({I, J}) 
             * Qi({J, A, i, a})
             * eps({i, j}) 
-            * s_Hu({j, a}),
+            * C({a, b})
+            * s_Hu({j, b}),
             true // Add also the complex conjugate of this term
             );
     addLagrangianTerm(
@@ -534,7 +541,8 @@ void MSSM_Model::initYukawas()
             * Yd({I, J}) 
             * Qi({J, A, i, a})
             * eps({i, j}) 
-            * s_Hd({j, a}),
+            * C({a, b})
+            * s_Hd({j, b}),
             true // Add also the complex conjugate of this term
             );
     addLagrangianTerm(
@@ -560,7 +568,8 @@ void MSSM_Model::initYukawas()
             * Ye({I, J}) 
             * Li({J, i, a})
             * eps({i, j}) 
-            * s_Hd({j, a}),
+            * C({a, b})
+            * s_Hd({j, b}),
             true // Add also the complex conjugate of this term
             );
     addLagrangianTerm(
@@ -1070,8 +1079,7 @@ void MSSM_Model::expandAroundVEVs()
     M_A0 = csl::constant_s("M_A");
     Replaced(*this,
             b_h,
-            (2*csl::sin_s(beta_h)*csl::cos_s(beta_h) 
-             * (M_A0 * M_A0)) / 2);
+            csl::sin_s(beta_h)*csl::cos_s(beta_h) * (M_A0 * M_A0));
 }
 void MSSM_Model::diagonalize2By2Matrices()
 {
@@ -1128,7 +1136,7 @@ void MSSM_Model::diagonalize2By2Matrices()
     mty::Particle H = scalarboson_s("H0; H^0", *this);
     mty::SetSelfConjugate(h, true);
     mty::SetSelfConjugate(H, true);
-    alpha_h = csl::constant_s("alpha");
+    alpha_h = mssm_input::alpha;
     rotateFields(
            {rho_u, rho_d}, 
            {h, H},
@@ -1370,12 +1378,10 @@ void MSSM_Model::diagonalizeCharginos()
     C1->setMass(C1p->getMass());
     C2->setMass(C2p->getMass());
     auto C = mty::dirac4.C_matrix;
-    replace(C1m, csl::GetComplexConjugate(
-                C1->getWeylFermion(Chirality::Right)(b)
-                ));
-    replace(C2m, csl::GetComplexConjugate(
-                C2->getWeylFermion(Chirality::Right)(b)
-            ));
+    replace(cc(C1m(a)), -C({a, b}) * C1->getWeylFermion(Chirality::Right)(b));
+    replace(cc(C2m(a)), -C({a, b}) * C2->getWeylFermion(Chirality::Right)(b));
+    replace(C1m, -C({b, a}) * cc(C1->getWeylFermion(Chirality::Right)(b)));
+    replace(C2m, -C({b, a}) * cc(C2->getWeylFermion(Chirality::Right)(b)));
     replace(C1p, C1->getWeylFermion(Chirality::Left)(a));
     replace(C2p, C2->getWeylFermion(Chirality::Left)(a));
 }

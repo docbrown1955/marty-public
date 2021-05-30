@@ -32,6 +32,21 @@ namespace mty {
         expansionOrder = 2 * (*loopOrder - 1) + nExternalLegs;
     }
 
+    void FeynOptions::setTopology(int t_topology)
+    {
+        topology = t_topology;
+    }
+
+    void FeynOptions::setWilsonOperatorCoefficient(csl::Expr const &factor)
+    {
+        wilsonOperatorCoefficient = csl::DeepCopy(factor);
+    }
+
+    void FeynOptions::setWilsonOperatorBasis(OperatorBasis basis)
+    {
+        wilsonOperatorBasis = basis;
+    }
+
     void FeynOptions::setFeynmanRuleMode()
     {
         *loopOrder     = 0;
@@ -75,18 +90,20 @@ namespace mty {
     }
 
     void FeynOptions::applyFilters(
-            std::vector<FeynmanDiagram> &diagrams
+            std::vector<FeynmanDiagram> &diagrams,
+            bool                         forceFilters
             ) const
     {
-        applyFilters(
-                diagrams,
-                [=](FeynmanDiagram const &diagram) {
-                return std::any_of(
-                        begin(dfilters), end(dfilters),
-                        [&](DiagramFilter const &d) {
-                            return !d(diagram);
-                        });
-                });
+        if (forceFilters || !partialCalculation)
+            applyFilters(
+                    diagrams,
+                    [=](FeynmanDiagram const &diagram) {
+                    return std::any_of(
+                            begin(dfilters), end(dfilters),
+                            [&](DiagramFilter const &d) {
+                                return !d(diagram);
+                            });
+                    });
     }
 
     void FeynOptions::resetFilters()

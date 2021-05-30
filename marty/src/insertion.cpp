@@ -20,12 +20,7 @@
 namespace mty {
 
 Insertion::Insertion(QuantumFieldParent *t_field)
-    :field(t_field),
-    validExpression(false),
-    expression(CSL_UNDEF),
-    incoming(true),
-    particle(true),
-    onShell(true)
+    :field(t_field)
 {
 
 }
@@ -116,6 +111,14 @@ csl::Expr Insertion::getExpression() const
     return insertion;
 }
 
+bool Insertion::operator==(Insertion const &other) const
+{
+    return field == other.field
+        && incoming == other.incoming
+        && particle == other.particle
+        && mediator == other.mediator;
+}
+
 Insertion OnShell(Insertion const& init)
 {
     Insertion other(init);
@@ -148,6 +151,13 @@ Insertion AntiPart(Insertion const& init)
 {
     Insertion other(init);
     other.setParticle(!init.isParticle());
+    return other;
+}
+
+Insertion Mediator(Insertion const& init)
+{
+    Insertion other(init);
+    other.setMediator(true);
     return other;
 }
 

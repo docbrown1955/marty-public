@@ -15,6 +15,7 @@
 
 #include "spectrum.h"
 #include "modelBuilder.h"
+#include "diracology.h"
 #include "lagrangian.h"
 
 ///////////////////////////////////////////////////
@@ -263,12 +264,28 @@ Spectrum::MatrixEl Spectrum::getMassFromTerm(
             sub = CSL_1;
         }
     });
+
     HEPAssert(massFields.size() >= 1,
             mty::error::RuntimeError,
             "Term " + toString(term) + " contains less than two fields !")
     if (massFields.size() == 1)
         // Assuming phi(X)^2 here.
         massFields.push_back(massFields[0]);
+    csl::ForEachLeaf(expression, [&](csl::Expr &sub)
+    {
+        if (csl::IsIndicialTensor(sub) 
+                && sub->getParent_info() == mty::dirac4.C_matrix.get()) {
+            if (sub->getIndexStructureView()[0] 
+                    == massFields[0].getIndexStructureView().back()) {
+            // psi C psi
+                sub = CSL_1;
+            }
+            else {
+            // psi C^dagger psi = -psi C psi
+                sub = CSL_M_1;
+            }
+        }
+    });
     csl::DeepRefresh(expression);
     csl::Expand(expression);
     csl::Factor(expression);

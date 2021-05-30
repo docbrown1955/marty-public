@@ -224,13 +224,59 @@ mty::Amplitude Model::computeAmplitude(
             );
 }
 
+mty::Amplitude Model::computePartialAmplitude(
+        int                         order,
+        std::vector<mty::Insertion> insertions,
+        FeynOptions                 options
+        )
+{
+    options.partialCalculation = true;
+    return computeAmplitude(order, insertions, options);
+}
+
+mty::Amplitude Model::computePartialAmplitude(
+        int                         order,
+        std::vector<mty::Insertion> insertions,
+        Kinematics           const &kinematics,
+        FeynOptions                 options
+        )
+{
+    options.partialCalculation = true;
+    return computeAmplitude(order, insertions, kinematics, options);
+}
+
+mty::Amplitude Model::computePartialAmplitude(
+        int                         order,
+        std::vector<mty::Insertion> insertions,
+        std::vector<int>     const &fermionOrder,
+        FeynOptions                 options
+        )
+{
+    options.partialCalculation = true;
+    return computeAmplitude(order, insertions, fermionOrder, options);
+}
+
+mty::Amplitude Model::computePartialAmplitude(
+        int                         order,
+        std::vector<mty::Insertion> insertions,
+        std::vector<int>     const &fermionOrder,
+        Kinematics           const &kinematics,
+        FeynOptions                 options
+        )
+{
+    options.partialCalculation = true;
+    return computeAmplitude(order, insertions, fermionOrder, kinematics, options);
+}
+
 csl::Expr Model::computeSquaredAmplitude(
         Amplitude const &ampl,
         bool              applyDegreesOfFreedomFactor
         )
 {
     csl::ScopedProperty prop(&mty::option::decomposeInLocalOperator, false);
-    auto wilsons = getWilsonCoefficients(ampl, CSL_1, OperatorBasis::None, true);
+    FeynOptions options = ampl.getOptions();
+    options.setWilsonOperatorBasis(OperatorBasis::None);
+    auto wilsons = getWilsonCoefficients(ampl, options, true);
     return computeSquaredAmplitude(
             wilsons,
             applyDegreesOfFreedomFactor
@@ -316,48 +362,62 @@ csl::Expr Model::computeSquaredAmplitude(
     return squared;
 }
 
+void Model::projectOnBasis(
+        csl::Expr    &expr,
+        OperatorBasis basis
+        )
+{
+    auto a = DiracIndices(2);
+    if (basis == OperatorBasis::Chiral) {
+        csl::Replace(
+                expr,
+                dirac4.gamma_chir({a[0], a[1]}),
+                dirac4.P_R({a[0], a[1]}) - dirac4.P_L({a[0], a[1]})
+                );
+    }
+    else if (basis == OperatorBasis::Standard) {
+        csl::Replace(
+                expr,
+                dirac4.P_L({a[0], a[1]}),
+                CSL_HALF*dirac4.getDelta()({a[0], a[1]}) 
+                - CSL_HALF*dirac4.gamma_chir({a[0], a[1]})
+                );
+        csl::Replace(
+                expr,
+                dirac4.P_R({a[0], a[1]}),
+                CSL_HALF*dirac4.getDelta()({a[0], a[1]}) 
+                + CSL_HALF*dirac4.gamma_chir({a[0], a[1]})
+                );
+    }
+}
+
 WilsonSet Model::getWilsonCoefficients(
-        Amplitude const &ampl,
-        csl::Expr        factor,
-        OperatorBasis    basis,
-        bool             squaredAfter
+        Amplitude   const &ampl,
+        FeynOptions const &feynOptions,
+        bool               squaredAfter
         )
 {
     csl::ScopedProperty commut(&csl::option::checkCommutations, false);
     std::vector<csl::Expr> amplitudesfull(ampl.obtainExpressions());
-    auto a = DiracIndices(2);
+    const auto basis  = feynOptions.getWilsonOperatorBasis();
+    const auto factor = feynOptions.getWilsonOperatorCoefficient();
     csl::Abbrev::enableGenericEvaluation("EXT");
     for (auto &ampl : amplitudesfull) {
         if (!squaredAfter)
             ampl = CSL_I * csl::Copy(ampl);
-        if (basis == OperatorBasis::Chiral) {
-            csl::Replace(
-                    ampl,
-                    dirac4.gamma_chir({a[0], a[1]}),
-                    dirac4.P_R({a[0], a[1]}) - dirac4.P_L({a[0], a[1]})
-                    );
-        }
-        else if (basis == OperatorBasis::Standard) {
-            csl::Replace(
-                    ampl,
-                    dirac4.P_L({a[0], a[1]}),
-                    CSL_HALF*dirac4.getDelta()({a[0], a[1]}) 
-                    - CSL_HALF*dirac4.gamma_chir({a[0], a[1]})
-                    );
-            csl::Replace(
-                    ampl,
-                    dirac4.P_R({a[0], a[1]}),
-                    CSL_HALF*dirac4.getDelta()({a[0], a[1]}) 
-                    + CSL_HALF*dirac4.gamma_chir({a[0], a[1]})
-                    );
-        }
+        projectOnBasis(ampl, basis);
         csl::Evaluate(ampl);
         csl::DeepExpandIf_lock(ampl, [&](csl::Expr const &e) { 
-            return bool(dynamic_cast<mty::QuantumField const*>(e.get())); 
+            return bool(dynamic_cast<mty::QuantumField const*>(e.get()))
+                or (csl::IsIndicialTensor(e) && e->getFreeIndexStructure().size() > 0); 
         });
     }
     csl::Abbrev::disableGenericEvaluation("EXT");
-    auto wilsons = match(amplitudesfull, factor, squaredAfter);
+    auto wilsons = match(
+            amplitudesfull, 
+            factor,
+            basis == OperatorBasis::Standard, 
+            squaredAfter);
     auto const &insertions = ampl.getKinematics().getInsertions();
     auto const &momenta    = ampl.getKinematics().getMomenta();
     for (auto &w : wilsons) {
@@ -388,13 +448,16 @@ WilsonSet Model::getWilsonCoefficients(
 WilsonSet Model::computeWilsonCoefficients(
         int                           order,
         std::vector<Insertion> const &insertions,
-        csl::Expr              const &factor,
-        OperatorBasis                 basis
+        FeynOptions            const &feynOptions
         )
 {
-    if (order == 0) {
-        return computeWilsonCoefficients_default(order, insertions, factor, basis);
+    if (order == TreeLevel) {
+        return computeWilsonCoefficients_default(
+                order, insertions, feynOptions
+                );
     }
+
+    // One-loop calculation here
     size_t nF{0}, nV{0};
     size_t nTot = insertions.size();
     std::for_each(insertions.begin(), insertions.end(), 
@@ -407,62 +470,105 @@ WilsonSet Model::computeWilsonCoefficients(
             });
     if (nTot == 3 && nF == 2 && nV == 1)
         return computeWilsonCoefficients_2Fermions_1Vector(
-                order, insertions, factor, basis
+                insertions, feynOptions
                 );
     if (nTot == 4 && nF == 4)
         return computeWilsonCoefficients_4Fermions(
-                order, insertions, factor, basis
+                insertions, feynOptions
                 );
     return computeWilsonCoefficients_default(
-            order, insertions, factor, basis
+            OneLoop, insertions, feynOptions
             );
 }
 
 WilsonSet Model::computeWilsonCoefficients_default(
         int                           order,
         std::vector<Insertion> const &insertions,
-        csl::Expr              const &factor,
-        OperatorBasis                 basis
+        FeynOptions            const &feynOptions
         )
 {
-    auto ampl = computeAmplitude(
-            order, insertions
-            );
-    auto wilsons = computeWilsonCoefficients(order, insertions, factor, basis);
+    auto ampl = computeAmplitude(order, insertions, feynOptions);
+    auto wilsons = getWilsonCoefficients(ampl, feynOptions);
     return wilsons;
 }
 
 WilsonSet Model::computeWilsonCoefficients_2Fermions_1Vector(
-        int                           order,
         std::vector<Insertion> const &insertions,
-        csl::Expr              const &factor,
-        OperatorBasis                 basis 
+        FeynOptions            const &feynOptions
         )
 {
+    return computeWilsonCoefficients_default(
+            OneLoop, insertions, feynOptions);
+}
+
+WilsonSet Model::computeWilsonBoxes_4Fermions(
+        Kinematics const &kinematics,
+        FeynOptions       feynOptions
+        )
+{
+    csl::ScopedProperty verbose(&mty::option::verboseAmplitude, false);
+    csl::ScopedProperty prop(&mty::option::keepOnlyFirstMassInLoop, true);
+    feynOptions.setTopology(Topology::Box);
     auto ampl = computeAmplitude(
-            order, insertions
-            );
-    auto wilsons = computeWilsonCoefficients(order, insertions, factor, basis);
-    // Replace (q.A) by the (chromo-)magnetic operator
+            OneLoop, kinematics.getInsertions(), feynOptions);
+    ampl.setKinematics(kinematics.alignedWith(ampl.getKinematics()));
+    auto wilsons = getWilsonCoefficients(ampl, feynOptions);
     return wilsons;
 }
 
-WilsonSet Model::computeWilsonCoefficients_4Fermions(
-        int                           order,
-        std::vector<Insertion> const &insertions,
-        csl::Expr              const &,//factor,
-        OperatorBasis                 //basis 
+WilsonSet Model::computeSingleWilsonPenguin_4Fermions(
+        Kinematics                const &kinematics,
+        std::pair<size_t, size_t> const &treeCoupling,
+        std::pair<size_t, size_t> const &loopCoupling,
+        Insertion                 const &mediator,
+        FeynOptions               const &feynOptions
+        )
+{
+    csl::ScopedProperty verbose(&mty::option::verboseAmplitude, false);
+    auto const &insertions = kinematics.getInsertions();
+    std::vector<Insertion> treeInsertions = {
+        OffShell(insertions[treeCoupling.first]), 
+        OffShell(insertions[treeCoupling.second]),
+        OffShell(Mediator(mediator))
+    };
+    std::vector<Insertion> loopInsertions = {
+        OffShell(insertions[loopCoupling.first]), 
+        OffShell(insertions[loopCoupling.second]),
+        mediator.isIncoming() ? 
+            OffShell(Mediator(Outgoing(mediator)))
+            : OffShell(Mediator(Incoming(mediator)))
+    };
+    auto treeAmplitude = computePartialAmplitude(
+            TreeLevel, treeInsertions, feynOptions);
+    if (treeAmplitude.empty()) {
+        return {};
+    }
+    csl::ScopedProperty prop(
+            &mty::option::keepOnlyFirstMassInLoop, 
+            mediator.getField()->getMass() != CSL_0 
+                && mty::option::useMassiveSimplifications
+            );
+    auto loopAmplitude = computePartialAmplitude(
+            OneLoop, loopInsertions, feynOptions);
+    if (loopAmplitude.empty()) {
+        return {};
+    }
+
+    Amplitude connexion = connectAmplitudes(
+            treeAmplitude, loopAmplitude, feynOptions);
+    feynOptions.applyFilters(connexion.getDiagrams(), true);
+    connexion.setKinematics(kinematics.alignedWith(connexion.getKinematics()));
+    return getWilsonCoefficients(connexion, feynOptions);
+}
+
+WilsonSet Model::computeWilsonPenguins_4Fermions(
+        Kinematics const &kinematics,
+        FeynOptions       feynOptions
         )
 {
     auto bosons = getPhysicalParticles([&](Particle const &p) { 
         return p->isBosonic(); 
     });
-    std::array<size_t, 4> fermionPos;
-    auto first = fermionPos.begin();
-    for (size_t i = 0; i != insertions.size(); ++i) {
-        if (insertions[i].getField()->getSpinDimension() == 2)
-            *first++ = i;
-    }
     constexpr std::array<std::array<size_t, 4>, 6> pairs {{
         {0, 1, 2, 3},
         {0, 2, 1, 3},
@@ -473,43 +579,264 @@ WilsonSet Model::computeWilsonCoefficients_4Fermions(
     }};
     std::vector<Amplitude> amplitudes;
     amplitudes.reserve(bosons.size());
+    feynOptions.setTopology(Topology::Triangle | Topology::Mass);
+    WilsonSet res;
     for (const mty::Particle &mediator : bosons) {
         for (const auto &[first, second, other1, other2] : pairs) {
-            std::vector<Insertion> ins = {
-                insertions[fermionPos[first]], 
-                insertions[fermionPos[second]],
-                Incoming(mediator)
-            };
-            auto conjugated = Outgoing(mediator);
-            auto treeCoupling = computeAmplitude(
-                    Order::TreeLevel,
-                    ins
+            WilsonSet contrib = computeSingleWilsonPenguin_4Fermions(
+                    kinematics,
+                    {first, second},
+                    {other1, other2},
+                    mediator,
+                    feynOptions
                     );
-            if (treeCoupling.empty() && !mediator->isSelfConjugate()) {
-                ins = {
-                    insertions[fermionPos[first]], 
-                    insertions[fermionPos[second]],
-                    Outgoing(mediator)
-                };
-                conjugated = Incoming(mediator);
-                treeCoupling = computeAmplitude(
-                        Order::TreeLevel,
-                        ins
-                        );
+            if (!contrib.empty() && mty::option::verboseAmplitude) {
+                std::cout << "Found penguins for \"" << mediator->getName() 
+                    << "\" mediator !" << std::endl;
             }
-            if (treeCoupling.empty())
-                continue;
-            auto loopCoupling = computeAmplitude(
-                    order,
-                    {insertions[other1], insertions[other2], conjugated}
-                    );
-            if (loopCoupling.empty())
-                continue;
+            for (const auto &wil : contrib)
+                addWilson(wil, res, false);
+            if (!mediator->isSelfConjugate()) {
+                WilsonSet contrib = computeSingleWilsonPenguin_4Fermions(
+                        kinematics,
+                        {first, second},
+                        {other1, other2},
+                        AntiPart(mediator),
+                        feynOptions
+                        );
+                if (!contrib.empty() && mty::option::verboseAmplitude) {
+                    std::cout << "Found penguins for \"" << mediator->getName() 
+                        << "\" mediator !" << std::endl;
+                }
+                for (const auto &wil : contrib)
+                    addWilson(wil, res, false);
+            }
         }
     }
-    return WilsonSet{};
+    return res;
 }
 
+WilsonSet Model::computeWilsonCoefficients_4Fermions(
+        std::vector<Insertion> const &insertions,
+        FeynOptions            const &feynOptions
+        )
+{
+    if (mty::option::verboseAmplitude)
+        std::cout << "Using special 4-fermion calculation" << std::endl;
+    WilsonSet res;
+    if (mty::option::verboseAmplitude)
+        std::cout << "Box calculation ..." << std::endl;
+    Kinematics kinematics { insertions };
+    WilsonSet contrib = computeWilsonBoxes_4Fermions(
+            kinematics, feynOptions);
+    for (const auto &wil : contrib)
+        addWilson(wil, res, false);
+    if (mty::option::verboseAmplitude)
+        std::cout << "Penguin calculation ..." << std::endl;
+    contrib = computeWilsonPenguins_4Fermions(
+            kinematics, feynOptions);
+    for (const auto &wil : contrib)
+        addWilson(wil, res, false);
+
+    res.merge();
+
+    return res;
+}
+
+static int linkPosition(Kinematics const &M)
+{
+    auto const &insertions = M.getInsertions();
+    for (size_t i = 0; i != insertions.size(); ++i) {
+        if (insertions[i].isMediator())
+            return static_cast<int>(i);
+    }
+        
+    return -1;
+}
+
+std::pair<csl::Expr, csl::Expr> Model::getMomentumReplacement(
+        Amplitude const &M,
+        size_t           replacedMomentum
+        ) const
+{
+    std::vector<mty::QuantumField> fields;
+    fields.reserve(M.getKinematics().size());
+    for (const auto &ins : M.getKinematics().getInsertions()) {
+        fields.push_back(
+                *dynamic_cast<mty::QuantumField*>(ins.getExpression().get()));
+    }
+    return mty::simpli::getMomentumReplacement(
+            fields, M.getKinematics().getMomenta(), replacedMomentum
+            );
+}
+
+void Model::replaceMomentumForLink(
+        Amplitude                             &M,
+        std::pair<csl::Expr, csl::Expr> const &pReplacement
+        ) const
+{
+    for (auto &diag : M.getDiagrams()) {
+        csl::Replace(
+                diag.getExpression(), pReplacement.first, pReplacement.second);
+    }
+}
+
+int Model::KinematicLink::isMediator(csl::Expr const &expr) const
+{
+    if (!csl::IsIndicialTensor(expr))
+        return 0;
+    const auto parent = expr->getParent();
+    const auto point  = expr->getPoint();
+    if (parent != mediator)
+        return 0;
+    if (point == pL)
+        return -1;
+    return point == pR;
+}
+
+Model::KinematicLink Model::connectKinematics(
+        Amplitude &M1,
+        Amplitude &M2
+        ) const
+{
+    Kinematics &k1 = M1.getKinematics();
+    k1.sortFromIndices();
+    Kinematics &k2 = M2.getKinematics();
+    k2.sortFromIndices();
+    const int linkM1 = linkPosition(k1);
+    const int linkM2 = linkPosition(k2);
+    HEPAssert(linkM1 != -1 && linkM2 != -1,
+            mty::error::TypeError,
+            "To connect two amplitudes they must contain exactly one mediator "
+            "each, see mty::Mediator() for mty::Insertion objects.")
+    size_t const mediatorIndex = k1.size() + k2.size() - 1;
+    size_t maxIndex = 0;
+    std::vector<size_t> newK1Indices(k1.size() - 1);
+    std::vector<size_t> newK2Indices(k2.size() - 1);
+    for (size_t &i : newK1Indices)
+        i = ++maxIndex;
+    for (size_t &i : newK2Indices)
+        i = ++maxIndex;
+    newK1Indices.insert(newK1Indices.begin() + linkM1, mediatorIndex);
+    newK2Indices.insert(newK2Indices.begin() + linkM2, mediatorIndex);
+
+    Kinematics newK1 = k1.applyIndices(newK1Indices);
+    M1.setKinematics(newK1);
+    auto pL_replacement = getMomentumReplacement(M1, linkM1);
+    Kinematics newK2 = k2.applyIndices(newK2Indices);
+    M2.setKinematics(newK2);
+    auto pR_replacement = getMomentumReplacement(M2, linkM2);
+
+    csl::Tensor pL = newK1.momentum(linkM1);
+    csl::Tensor pR = newK2.momentum(linkM2);
+    mty::Particle mediator = getParticle(newK1.insertion(linkM1).getField());
+
+    return {
+            Kinematics::merge(newK1, newK2), 
+            pL,
+            pR, 
+            pL_replacement,
+            pR_replacement, 
+            mediator
+    };
+}
+
+bool Model::mediatorToPropagator(
+        csl::Expr           &prod,
+        KinematicLink const &link
+        ) const
+{
+    std::pair<int, int> mediatorPos { -1, -1 };
+    for (size_t i = 0; i != prod->size(); ++i) {
+        int isMed = link.isMediator(prod[i]);
+        if (isMed == -1) {
+            mediatorPos.first = i;
+        }
+        else if (isMed == 1) {
+            mediatorPos.second = i;
+        }
+    }
+    if (mediatorPos.first == -1 || mediatorPos.second == -1)
+        return false;
+    auto phiA = *dynamic_cast<mty::QuantumField const*>(
+            prod[mediatorPos.first].get());
+    phiA.getIndexStructureView().erase(phiA.getIndexStructureView().begin());
+    auto phiB = *dynamic_cast<mty::QuantumField const*>(
+            prod[mediatorPos.second].get());
+    phiB.getIndexStructureView().erase(phiB.getIndexStructureView().begin());
+    phiB.setPoint(phiA.getPoint());
+    phiA.setExternal(false);
+    phiB.setExternal(false);
+    csl::Tensor p = link.pL;
+    auto prop = phiA.getPropagator(phiB, p);
+    csl::Replace(prop, link.pL_replacement.first, link.pL_replacement.second);
+    prod[mediatorPos.first] = prop;
+    prod[mediatorPos.second] = CSL_1;
+    csl::Refresh(prod);
+    return true;
+}
+
+csl::Expr Model::connectMediator(
+        csl::Expr     const &M1,
+        csl::Expr     const &M2,
+        KinematicLink const &link
+        ) const
+{
+    csl::Abbrev::enableGenericEvaluation("EXT");
+    csl::Expr M1_copy = csl::DeepCopy(M1);
+    csl::Expr M2_copy = csl::DeepCopy(M2);
+    csl::Expr full = M1_copy;
+    RenameIndices(full);
+    full *= M2_copy;
+    csl::Evaluate(full);
+    csl::Abbrev::disableGenericEvaluation("EXT");
+    auto isMediator = [&](csl::Expr const &sub) {
+        return link.isMediator(sub) != 0;
+    };
+    csl::DeepPartialExpand(full, isMediator, isMediator);
+    csl::Transform(full, [&](csl::Expr &node) {
+        if (csl::IsProd(node)) {
+            mediatorToPropagator(node, link);
+            return true;
+        }
+        return false;
+    });
+    return full;
+}
+
+Amplitude Model::connectAmplitudes(
+        Amplitude   const &M1,
+        Amplitude   const &M2,
+        FeynOptions const &options
+        )
+{
+    Amplitude M1_copy = M1.copy();
+    Amplitude M2_copy = M2.copy();
+    KinematicLink kinematicLink = connectKinematics(M1_copy, M2_copy);
+    replaceMomentumForLink(M1_copy, kinematicLink.pL_replacement);
+    replaceMomentumForLink(M2_copy, kinematicLink.pR_replacement);
+
+    Amplitude res(M1.getOptions(), kinematicLink.kinematics);
+    for (const auto &diag1 : M1_copy.getDiagrams()) {
+        for (const auto &diag2 : M2_copy.getDiagrams()) {
+            csl::Expr full = connectMediator(
+                    diag1.getExpression(),
+                    diag2.getExpression(),
+                    kinematicLink
+                    );
+            FeynmanDiagram combinedDiag = FeynmanDiagram::combine(
+                    diag1, 
+                    diag2,
+                    kinematicLink.mediator
+                    );
+            combinedDiag.getExpression() = full;
+            res.add({ combinedDiag });
+        }
+    }
+    options.applyFilters(res.getDiagrams());
+    
+    return res;
+}
 
 void Model::filterFeynmanRules()
 {
