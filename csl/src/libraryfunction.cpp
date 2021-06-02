@@ -202,7 +202,7 @@ namespace csl {
             }
             for (const auto &param : parameters) {
                 out << LibraryGenerator::indent(1)
-                    << "auto const &" << param.name << " = param." 
+                    << "const " << param.type << ' ' << param.name << " = param." 
                     << param.name << ";\n";
             }
             // group->printParameterInitialization(out, 1);

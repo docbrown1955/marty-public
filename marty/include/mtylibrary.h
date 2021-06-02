@@ -58,8 +58,7 @@ namespace mty {
 
         void generateSpectrum(Model &model) {
             model.applyDiagonalizationData(*this);
-            for (const auto &p : model.getParticles()) {
-                csl::Expr m = p->getMass();
+            for (const auto &m : model.getAbbreviatedMassExpressions()) {
                 if (csl::Abbrev::find_opt(m))
                     addFunction(m->getName(), m, "G");
             }

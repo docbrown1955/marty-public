@@ -1311,9 +1311,11 @@ void ModelBuilder::gatherMasses()
                 part->setMass(mass);
             else {
                 std::string name = "m_" + std::string(part->getName());
-                mass = csl::Abbrev::makeAbbreviation(
+                csl::Expr abbreviatedMass = csl::Abbrev::makeAbbreviation(
                         name,
                         mass);
+                mass = csl::constant_s(name);
+                abbreviatedMassExpressions.push_back(abbreviatedMass);
             }
             std::vector<mty::QuantumField> content 
                 = L.mass[massTerms[0]]->getContent();

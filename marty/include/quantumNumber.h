@@ -99,6 +99,7 @@ class QuantumNumber {
      * \param t_conserved Boolean that tells if the quantum number is conserved
      * (default = true).
      */
+    explicit
     QuantumNumber(std::string const& t_name,
                   bool               t_conserved = true);
 

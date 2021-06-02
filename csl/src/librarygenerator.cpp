@@ -281,6 +281,7 @@ namespace csl {
             paramFile << "#ifndef CSL_LIB_PARAM_H_INCLUDED\n",
             paramFile << "#define CSL_LIB_PARAM_H_INCLUDED\n\n";
             paramFile << "#include \"common.h\"\n";
+            paramFile << "#include \"csl/initSanitizer.h\"\n";
             paramFile << '\n';
             paramFile << "namespace " << regLibName() << " {\n\n";
             dummy->print(paramFile, true);
@@ -876,6 +877,7 @@ namespace csl {
         header << "#include \"common.h\"\n";
         header << "#include \"librarytensor.h\"\n";
         header << "#include \"callable.h\"\n";
+        header << "#include \"csl/initSanitizer.h\"\n";
         if (uniqueParamStruct)
             header << "#include \"params.h\"\n";
         for (const auto &f : g.getFunctions())

@@ -75,28 +75,44 @@ void PMSSM_LEM::initContent()
     theta_W = sm_input::theta_W;
     beta = mssm_input::beta;
     m_A0 = M_A;
-    m_Hp = csl::Abbrev::makeAbbreviation("m_Hp", csl::sqrt_s(M_A*M_A + M_W*M_W));
+    abbreviatedMassExpressions.push_back(
+            csl::Abbrev::makeAbbreviation("m_Hp", csl::sqrt_s(M_A*M_A + M_W*M_W)));
+    m_Hp = csl::constant_s("m_Hp");
     alpha = mssm_input::alpha;
     csl::Expr mh2_mean = M_A*M_A + M_Z*M_Z;
     csl::Expr mh2_dev = csl::sqrt_s(
             csl::pow_s(M_A*M_A - M_Z*M_Z, 2)
             + csl::pow_s(2*M_A*M_Z*csl::sin_s(2*beta), 2)
             );
-    m_h0 = csl::Abbrev::makeAbbreviation("m_h0", CSL_HALF * (mh2_mean - mh2_dev));
-    m_H0 = csl::Abbrev::makeAbbreviation("m_H0", CSL_HALF * (mh2_mean + mh2_dev));
+    abbreviatedMassExpressions.push_back(
+            csl::Abbrev::makeAbbreviation(
+                "m_h0", csl::sqrt_s(CSL_HALF * (mh2_mean - mh2_dev))));
+    m_h0 = csl::constant_s("m_h0");
+    abbreviatedMassExpressions.push_back(
+            csl::Abbrev::makeAbbreviation(
+                "m_H0", csl::sqrt_s(CSL_HALF * (mh2_mean + mh2_dev))));
+    m_H0 = csl::constant_s("m_H0");
     m_c = sm_input::m_c;
     m_t = sm_input::m_t;
     m_u = sm_input::m_u;
     M_q1L = mssm_input::Mq1L;
     csl::Expr m_sc_L_encaps = csl::pow_s(csl::sum_s({csl::prod_s({csl::intfraction_s(-1, 2), csl::pow_s(M_W, 2)}) , csl::pow_s(m_c, 2) , csl::pow_s(M_q1L, 2) , csl::prod_s({csl::intfraction_s(1, 12), csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(theta_W), 2)}) , csl::prod_s({csl::intfraction_s(-1, 6), csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(beta), 2), csl::pow_s(csl::sin_s(theta_W), 2)})}), csl::intfraction_s(1, 2));
-    m_sc_L = csl::Abbrev::makeAbbreviation("m_sc_L", m_sc_L_encaps);
+    abbreviatedMassExpressions.push_back(
+            csl::Abbrev::makeAbbreviation("m_sc_L", m_sc_L_encaps));
+    m_sc_L = csl::constant_s("m_sc_L");
     csl::Expr m_su_L_encaps = csl::pow_s(csl::sum_s({csl::prod_s({csl::intfraction_s(-1, 2), csl::pow_s(M_W, 2)}) , csl::pow_s(m_u, 2) , csl::pow_s(M_q1L, 2) , csl::prod_s({csl::intfraction_s(1, 12), csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(theta_W), 2)}) , csl::prod_s({csl::intfraction_s(-1, 6), csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(beta), 2), csl::pow_s(csl::sin_s(theta_W), 2)})}), csl::intfraction_s(1, 2));
-    m_su_L = csl::Abbrev::makeAbbreviation("m_su_L", m_su_L_encaps);
+    abbreviatedMassExpressions.push_back(
+            csl::Abbrev::makeAbbreviation("m_su_L", m_su_L_encaps));
+    m_su_L = csl::constant_s("m_su_L");
     M_quR = mssm_input::MquR;
     csl::Expr m_sc_R_encaps = csl::pow_s(csl::sum_s({csl::pow_s(m_c, 2) , csl::pow_s(M_quR, 2) , csl::prod_s({csl::intfraction_s(1, 3), csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(theta_W), 2)}) , csl::prod_s({csl::intfraction_s(-2, 3), csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(beta), 2), csl::pow_s(csl::sin_s(theta_W), 2)})}), csl::intfraction_s(1, 2));
-    m_sc_R = csl::Abbrev::makeAbbreviation("m_sc_R", m_sc_R_encaps);
+    abbreviatedMassExpressions.push_back(
+            csl::Abbrev::makeAbbreviation("m_sc_R", m_sc_R_encaps));
+    m_sc_R = csl::constant_s("m_sc_R");
     csl::Expr m_su_R_encaps = csl::pow_s(csl::sum_s({csl::pow_s(m_u, 2) , csl::pow_s(M_quR, 2) , csl::prod_s({csl::intfraction_s(1, 3), csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(theta_W), 2)}) , csl::prod_s({csl::intfraction_s(-2, 3), csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(beta), 2), csl::pow_s(csl::sin_s(theta_W), 2)})}), csl::intfraction_s(1, 2));
-    m_su_R = csl::Abbrev::makeAbbreviation("m_su_R", m_su_R_encaps);
+    abbreviatedMassExpressions.push_back(
+            csl::Abbrev::makeAbbreviation("m_su_R", m_su_R_encaps));
+    m_su_R = csl::constant_s("m_su_R");
     m_b = sm_input::m_b;
     m_d = sm_input::m_d;
     m_s = sm_input::m_s;
@@ -109,7 +125,9 @@ void PMSSM_LEM::initContent()
     V_td->setComplexProperty(csl::ComplexProperty::Complex);
     csl::Expr m_sd_R_encaps = csl::pow_s(csl::sum_s({csl::prod_s({V_td, csl::GetComplexConjugate(V_td), csl::pow_s(M_qbR, 2)}) , csl::prod_s({V_cd, csl::GetComplexConjugate(V_cd), csl::pow_s(M_qdR, 2)}) , csl::prod_s({csl::pow_s(V_ud, 2), csl::pow_s(M_qdR, 2)}) , csl::prod_s({csl::pow_s(m_d, 2), csl::pow_s(csl::cos_s(beta), (-2))}) , csl::prod_s({-1
 , csl::pow_s(m_d, 2), csl::pow_s(csl::cos_s(beta), (-2)), csl::pow_s(csl::sin_s(beta), 2)}) , csl::prod_s({csl::intfraction_s(-1, 6), csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(theta_W), 2)}) , csl::prod_s({csl::intfraction_s(1, 3), csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(beta), 2), csl::pow_s(csl::sin_s(theta_W), 2)})}), csl::intfraction_s(1, 2));
-    m_sd_R = csl::Abbrev::makeAbbreviation("m_sd_R", m_sd_R_encaps);
+    abbreviatedMassExpressions.push_back(
+            csl::Abbrev::makeAbbreviation("m_sd_R", m_sd_R_encaps));
+    m_sd_R = csl::constant_s("m_sd_R");
     V_us = sm_input::V_us;
     V_cs = sm_input::V_cs;
     V_cs->setComplexProperty(csl::ComplexProperty::Complex);
@@ -117,36 +135,54 @@ void PMSSM_LEM::initContent()
     V_ts->setComplexProperty(csl::ComplexProperty::Complex);
     csl::Expr m_ss_R_encaps = csl::pow_s(csl::sum_s({csl::prod_s({V_ts, csl::GetComplexConjugate(V_ts), csl::pow_s(M_qbR, 2)}) , csl::prod_s({V_cs, csl::GetComplexConjugate(V_cs), csl::pow_s(M_qdR, 2)}) , csl::prod_s({csl::pow_s(V_us, 2), csl::pow_s(M_qdR, 2)}) , csl::prod_s({csl::pow_s(m_s, 2), csl::pow_s(csl::cos_s(beta), (-2))}) , csl::prod_s({-1
 , csl::pow_s(m_s, 2), csl::pow_s(csl::cos_s(beta), (-2)), csl::pow_s(csl::sin_s(beta), 2)}) , csl::prod_s({csl::intfraction_s(-1, 6), csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(theta_W), 2)}) , csl::prod_s({csl::intfraction_s(1, 3), csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(beta), 2), csl::pow_s(csl::sin_s(theta_W), 2)})}), csl::intfraction_s(1, 2));
-    m_ss_R = csl::Abbrev::makeAbbreviation("m_ss_R", m_ss_R_encaps);
+    abbreviatedMassExpressions.push_back(
+            csl::Abbrev::makeAbbreviation("m_ss_R", m_ss_R_encaps));
+    m_ss_R = csl::constant_s("m_ss_R");
     M_q3L = mssm_input::Mq3L;
     csl::Expr m_sd_L_encaps = csl::pow_s(csl::sum_s({csl::prod_s({V_cd, csl::GetComplexConjugate(V_cd), csl::pow_s(M_q1L, 2)}) , csl::prod_s({csl::pow_s(V_ud, 2), csl::pow_s(M_q1L, 2)}) , csl::prod_s({V_td, csl::GetComplexConjugate(V_td), csl::pow_s(M_q3L, 2)}) , csl::prod_s({csl::pow_s(m_d, 2), csl::pow_s(csl::cos_s(beta), (-2))}) , csl::prod_s({csl::intfraction_s(-1, 2), csl::pow_s(M_W, 2), csl::pow_s(csl::sin_s(beta), 2)}) , csl::prod_s({-1
 , csl::pow_s(m_d, 2), csl::pow_s(csl::cos_s(beta), (-2)), csl::pow_s(csl::sin_s(beta), 2)}) , csl::prod_s({csl::intfraction_s(-1, 12), csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(beta), 2), csl::pow_s(csl::sin_s(theta_W), 2)})}), csl::intfraction_s(1, 2));
-    m_sd_L = csl::Abbrev::makeAbbreviation("m_sd_L", m_sd_L_encaps);
+    abbreviatedMassExpressions.push_back(
+            csl::Abbrev::makeAbbreviation("m_sd_L", m_sd_L_encaps));
+    m_sd_L = csl::constant_s("m_sd_L");
     csl::Expr m_ss_L_encaps = csl::pow_s(csl::sum_s({csl::prod_s({V_cs, csl::GetComplexConjugate(V_cs), csl::pow_s(M_q1L, 2)}) , csl::prod_s({csl::pow_s(V_us, 2), csl::pow_s(M_q1L, 2)}) , csl::prod_s({V_ts, csl::GetComplexConjugate(V_ts), csl::pow_s(M_q3L, 2)}) , csl::prod_s({csl::pow_s(m_s, 2), csl::pow_s(csl::cos_s(beta), (-2))}) , csl::prod_s({csl::intfraction_s(-1, 2), csl::pow_s(M_W, 2), csl::pow_s(csl::sin_s(beta), 2)}) , csl::prod_s({-1
 , csl::pow_s(m_s, 2), csl::pow_s(csl::cos_s(beta), (-2)), csl::pow_s(csl::sin_s(beta), 2)}) , csl::prod_s({csl::intfraction_s(-1, 12), csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(beta), 2), csl::pow_s(csl::sin_s(theta_W), 2)})}), csl::intfraction_s(1, 2));
-    m_ss_L = csl::Abbrev::makeAbbreviation("m_ss_L", m_ss_L_encaps);
+    abbreviatedMassExpressions.push_back(
+            csl::Abbrev::makeAbbreviation("m_ss_L", m_ss_L_encaps));
+    m_ss_L = csl::constant_s("m_ss_L");
     m_e = sm_input::m_e;
     m_mu = sm_input::m_mu;
     m_tau = sm_input::m_tau;
     M_eR = mssm_input::MeR;
     csl::Expr m_se_R_encaps = csl::pow_s(csl::sum_s({csl::pow_s(M_eR, 2) , csl::prod_s({csl::pow_s(m_e, 2), csl::pow_s(csl::cos_s(beta), (-2))}) , csl::prod_s({-1
 , csl::pow_s(m_e, 2), csl::pow_s(csl::cos_s(beta), (-2)), csl::pow_s(csl::sin_s(beta), 2)}) , csl::prod_s({csl::intfraction_s(-1, 2), csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(theta_W), 2)}) , csl::prod_s({csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(beta), 2), csl::pow_s(csl::sin_s(theta_W), 2)})}), csl::intfraction_s(1, 2));
-    m_se_R = csl::Abbrev::makeAbbreviation("m_se_R", m_se_R_encaps);
+    abbreviatedMassExpressions.push_back(
+            csl::Abbrev::makeAbbreviation("m_se_R", m_se_R_encaps));
+    m_se_R = csl::constant_s("m_se_R");
     csl::Expr m_smu_R_encaps = csl::pow_s(csl::sum_s({csl::pow_s(M_eR, 2) , csl::prod_s({csl::pow_s(m_mu, 2), csl::pow_s(csl::cos_s(beta), (-2))}) , csl::prod_s({-1
 , csl::pow_s(m_mu, 2), csl::pow_s(csl::cos_s(beta), (-2)), csl::pow_s(csl::sin_s(beta), 2)}) , csl::prod_s({csl::intfraction_s(-1, 2), csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(theta_W), 2)}) , csl::prod_s({csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(beta), 2), csl::pow_s(csl::sin_s(theta_W), 2)})}), csl::intfraction_s(1, 2));
-    m_smu_R = csl::Abbrev::makeAbbreviation("m_smu_R", m_smu_R_encaps);
+    abbreviatedMassExpressions.push_back(
+            csl::Abbrev::makeAbbreviation("m_smu_R", m_smu_R_encaps));
+    m_smu_R = csl::constant_s("m_smu_R");
     M_eL = mssm_input::MeL;
     csl::Expr m_se_L_encaps = csl::pow_s(csl::sum_s({csl::prod_s({csl::intfraction_s(-1, 2), csl::pow_s(M_W, 2)}) , csl::pow_s(M_eL, 2) , csl::prod_s({csl::pow_s(m_e, 2), csl::pow_s(csl::cos_s(beta), (-2))}) , csl::prod_s({-1
 , csl::pow_s(m_e, 2), csl::pow_s(csl::cos_s(beta), (-2)), csl::pow_s(csl::sin_s(beta), 2)}) , csl::prod_s({csl::intfraction_s(-1, 4), csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(theta_W), 2)}) , csl::prod_s({csl::intfraction_s(1, 2), csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(beta), 2), csl::pow_s(csl::sin_s(theta_W), 2)})}), csl::intfraction_s(1, 2));
-    m_se_L = csl::Abbrev::makeAbbreviation("m_se_L", m_se_L_encaps);
+    abbreviatedMassExpressions.push_back(
+            csl::Abbrev::makeAbbreviation("m_se_L", m_se_L_encaps));
+    m_se_L = csl::constant_s("m_se_L");
     csl::Expr m_smu_L_encaps = csl::pow_s(csl::sum_s({csl::prod_s({csl::intfraction_s(-1, 2), csl::pow_s(M_W, 2)}) , csl::pow_s(M_eL, 2) , csl::prod_s({csl::pow_s(m_mu, 2), csl::pow_s(csl::cos_s(beta), (-2))}) , csl::prod_s({-1
 , csl::pow_s(m_mu, 2), csl::pow_s(csl::cos_s(beta), (-2)), csl::pow_s(csl::sin_s(beta), 2)}) , csl::prod_s({csl::intfraction_s(-1, 4), csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(theta_W), 2)}) , csl::prod_s({csl::intfraction_s(1, 2), csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(beta), 2), csl::pow_s(csl::sin_s(theta_W), 2)})}), csl::intfraction_s(1, 2));
-    m_smu_L = csl::Abbrev::makeAbbreviation("m_smu_L", m_smu_L_encaps);
+    abbreviatedMassExpressions.push_back(
+            csl::Abbrev::makeAbbreviation("m_smu_L", m_smu_L_encaps));
+    m_smu_L = csl::constant_s("m_smu_L");
     csl::Expr m_snu_e_encaps = csl::pow_s(csl::sum_s({csl::prod_s({csl::intfraction_s(-1, 2), csl::pow_s(M_W, 2)}) , csl::pow_s(M_eL, 2) , csl::prod_s({csl::intfraction_s(-1, 4), csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(theta_W), 2)}) , csl::prod_s({csl::intfraction_s(1, 2), csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(beta), 2), csl::pow_s(csl::sin_s(theta_W), 2)})}), csl::intfraction_s(1, 2));
-    m_snu_e = csl::Abbrev::makeAbbreviation("m_snu_e", m_snu_e_encaps);
+    abbreviatedMassExpressions.push_back(
+            csl::Abbrev::makeAbbreviation("m_snu_e", m_snu_e_encaps));
+    m_snu_e = csl::constant_s("m_snu_e");
     M_tauL = mssm_input::MtauL;
     csl::Expr m_snu_tau_encaps = csl::pow_s(csl::sum_s({csl::prod_s({csl::intfraction_s(-1, 2), csl::pow_s(M_W, 2)}) , csl::pow_s(M_tauL, 2) , csl::prod_s({csl::intfraction_s(-1, 4), csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(theta_W), 2)}) , csl::prod_s({csl::intfraction_s(1, 2), csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(beta), 2), csl::pow_s(csl::sin_s(theta_W), 2)})}), csl::intfraction_s(1, 2));
-    m_snu_tau = csl::Abbrev::makeAbbreviation("m_snu_tau", m_snu_tau_encaps);
+    abbreviatedMassExpressions.push_back(
+            csl::Abbrev::makeAbbreviation("m_snu_tau", m_snu_tau_encaps));
+    m_snu_tau = csl::constant_s("m_snu_tau");
     m_C1p = csl::constant_s("m_C1p");
     m_C2p = csl::constant_s("m_C2p");
     M_3 = mssm_input::M3;

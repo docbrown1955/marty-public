@@ -80,7 +80,9 @@ namespace csl {
         out << " {\n";
         for (size_t i = 0; i != parameters.size(); ++i) {
             out << LibraryGenerator::indent(nIndent + 1);
-            out << parameters[i].type << " " << parameters[i].name << ";\n";
+            out << "csl::InitSanitizer<" << parameters[i].type << "> " 
+                << parameters[i].name << " { \"" << parameters[i].name 
+                << "\" };\n";
         }
         out << LibraryGenerator::indent(nIndent) << "};\n";
     }

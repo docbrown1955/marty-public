@@ -71,6 +71,7 @@
 #include "timer.h"
 #include "timeMonitor.h"
 #include "linear_map.h"
+#include "initSanitizer.h"
 
 #include "librarygenerator.h"
 #include "libraryfunction.h"

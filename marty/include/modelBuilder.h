@@ -114,6 +114,13 @@ public:
      */
     ModelBuilder &operator=(ModelBuilder const &other) = delete;
 
+    /**
+     * @return #abbreviatedMassExpressions
+     */
+    std::vector<csl::Expr> const &getAbbreviatedMassExpressions() const {
+        return abbreviatedMassExpressions;
+    }
+
     ///////////////////////////////////////////////////
     // Replacements
     ///////////////////////////////////////////////////
@@ -354,24 +361,24 @@ public:
     void diagonalizeYukawa(
             std::string              const &nameYukawa,
             std::vector<std::string> const &nameMass,
-            csl::Expr                     const &globalFactor = CSL_1
+            csl::Expr                const &globalFactor = CSL_1
             );
     void diagonalizeYukawa(
             std::string              const &nameYukawa,
             std::vector<std::string> const &nameMass,
-            csl::Expr                     const &globalFactor,
+            csl::Expr                const &globalFactor,
             csl::Tensor                    &mixing,
             std::vector<mty::Particle>      mixed
             );
     void diagonalizeYukawa(
-            std::string         const &nameYukawa,
-            std::vector<csl::Expr>   const &diagonal,
-            csl::Tensor                mixing,
-            std::vector<mty::Particle> mixed
+            std::string            const &nameYukawa,
+            std::vector<csl::Expr> const &diagonal,
+            csl::Tensor                   mixing,
+            std::vector<mty::Particle>    mixed
             );
 
     void addSpectrum(
-            std::vector<mty::Particle>     const &particles,
+            std::vector<mty::Particle>          const &particles,
             std::vector<std::vector<csl::Expr>> const &mass,
             std::vector<std::vector<csl::Expr>> const &mix,
             std::vector<std::vector<csl::Expr>> const &mix2
@@ -388,7 +395,7 @@ public:
             mty::Amplitude const  &amplitudes
             ) const;
     void applyDiagonalizationData(
-            csl::LibraryGenerator                                     &lib,
+            csl::LibraryGenerator                            &lib,
             std::function<bool(mty::Spectrum const &)> const &condition
             ) const;
     void addMassAbbreviations(
@@ -398,8 +405,8 @@ public:
     void abbreviateBigTerms(size_t maxLeafs = 30);
 
     void checksRotation(
-            std::vector<mty::Particle>     const &fields,
-            std::vector<mty::Particle>     const &newFields,
+            std::vector<mty::Particle>          const &fields,
+            std::vector<mty::Particle>          const &newFields,
             std::vector<std::vector<csl::Expr>> const &rotation
             );
 
@@ -555,6 +562,13 @@ protected:
      * terms.
      */
     std::vector<Spectrum> spectra;
+
+    /**
+     * @brief Vector of abbreviated masses in the model, determined by the 
+     * ModelBuilder::gatherMasses() function and written to libraries by the 
+     * mty::Library::generateSpectrum() function.
+     */
+    std::vector<csl::Expr> abbreviatedMassExpressions;
 };
 
 ///////////////////////////////////////////////////

@@ -10,7 +10,8 @@ DYNAMICLIBRARY = libmarty.so
 LTVERSION = 2.15
 
 CXXDEBUG         = $(CXX) -g 
-CXXFLAGS 	 = $(MARTY_CXX_FLAGS) -Wall -Wextra -Wpedantic -std=c++17 -O3 -fPIC 
+CXXFLAGS 	     = -Wall -Wextra -Wpedantic -std=c++17 -O3 -fPIC $(MARTY_CXX_FLAGS) 
+CXXNOOPTIFLAGS = -Wall -Wextra -Wpedantic -std=c++17     -fPIC $(MARTY_CXX_FLAGS) 
 
 SRCDIR     = src
 HEADDIR    = include
@@ -112,7 +113,7 @@ sgl/$(OBJDIR)/%.o: sgl/$(SRCDIR)/%.cpp
 
 # Création des différents *.o à partir des *.cpp
 models/$(OBJDIR)/%.o: models/$(SRCDIR)/%.cpp 
-	$(CXX) $(CXXFLAGS) -o $@ -c $< $(INCPATH)
+	$(CXX) $(CXXNOOPTIFLAGS) -o $@ -c $< $(INCPATH)
 
 # Création des différents *.o à partir des *.cpp
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp 
@@ -131,8 +132,8 @@ sgl/$(OBJDIR)/%_debug.o: sgl/$(SRCDIR)/%.cpp
 	$(CXXDEBUG) $(CXXFLAGS) -o $@ -c $< $(INCPATH)
 
 # Création des différents *.o à partir des *.cpp
-models/$(OBJDIR)/_debug%.o: models/$(SRCDIR)/%.cpp 
-	$(CXXDEBUG) $(CXXFLAGS) -o $@ -c $< $(INCPATH)
+models/$(OBJDIR)/%_debug.o: models/$(SRCDIR)/%.cpp 
+	$(CXXDEBUG) $(CXXNOOPTIFLAGS) -o $@ -c $< $(INCPATH)
 
 # Version avec deboggage 
 $(OBJDIR)/%_debug.o: $(SRCDIR)/%.cpp
