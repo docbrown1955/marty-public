@@ -217,13 +217,13 @@ namespace csl {
             << LibraryGenerator::complexUsing << "> const*, " 
             << complexParams.size() << ">;\n";
         out << '\n';
-        out << LibraryGenerator::indent(1) << "out << \"param_t struct:\\n\";";
-        out << LibraryGenerator::indent(1) << "out << \"Real parameters\\n\";";
+        out << LibraryGenerator::indent(2) << "out << \"param_t struct:\\n\";\n";
+        out << LibraryGenerator::indent(2) << "out << \"Real parameters\\n\";\n";
         printPrintParameterList("real_params", realParams, out, nIndent+1);
         out << '\n';
-        out << LibraryGenerator::indent(1) << "out << \"Complex parameters\\n\";";
+        out << LibraryGenerator::indent(2) << "out << \"Complex parameters\\n\";\n";
         printPrintParameterList("complex_params", complexParams, out, nIndent+1);
-        out << LibraryGenerator::indent(1) << "out << \"\\n\";";
+        out << LibraryGenerator::indent(2) << "out << \"\\n\";\n";
         out << LibraryGenerator::indent(nIndent) << "}\n";
     }
 
