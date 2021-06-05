@@ -113,7 +113,7 @@ namespace csl {
         LibDependency getDependencies() const;
         std::shared_ptr<LibraryGroup> getGroup(std::string_view name) const;
         bool hasGlobalFile() const {
-            return !diagData.empty();
+            return !diagData.empty() || !massExpressions.empty();
         }
         bool hasUniqueParamStruct() const {
             return uniqueParamStruct;
@@ -155,6 +155,7 @@ namespace csl {
                 Expr               expression,
                 std::string const &nameGroup = "G"
                 );
+        void addMassExpression(std::string const &mass);
         void addDiagonalization(
                 std::vector<std::string> const &mixing,
                 std::vector<std::string> const &masses,
@@ -171,6 +172,15 @@ namespace csl {
         void printCallable() const;
         void printTest() const;
 
+        void printDiagonalizationFacility(
+                std::ostream &header,
+                std::ostream &source
+                ) const;
+
+        void printMassExpressionsFacility(
+                std::ostream &header,
+                std::ostream &source
+                ) const;
 
         void printMakefile() const;
         void printPythonDir() const;
@@ -230,13 +240,18 @@ namespace csl {
         std::vector<DiagonalizationData> diagData;
 
         mutable
-        std::vector<LibParameter> uniqueParams;
+        std::vector<std::string> massExpressions;
 
         bool uniqueParamStruct;
     };
 
-    std::vector<LibParameter> diagonalizationParameters(
+    std::vector<LibParameter> inputParams(
             std::vector<LibraryGenerator::DiagonalizationData> const &diagData
+            );
+
+    std::vector<LibParameter> outputParams(
+            std::vector<LibraryGenerator::DiagonalizationData> const &diagData,
+            std::vector<std::string> const &massExpressions
             );
 
 } // End of namespace csl

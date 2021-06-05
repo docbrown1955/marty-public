@@ -22,6 +22,19 @@
 
 namespace mty::simpli {
 
+    static int getDMinkoPower(csl::Expr const &expr) 
+    {
+        if (expr == csl::DMinko) {
+            return 1;
+        }
+        if (csl::IsPow(expr) && expr[0] == csl::DMinko) {
+            HEPAssert(csl::IsInteger(expr[1]),
+                    mty::error::RuntimeError,
+                    "Expected integer power of D, got " + toString(expr));
+            return static_cast<int>(expr[1]->evaluateScalar());
+        }
+        return 0;
+    }
 
     void addLocalTerms(csl::Expr &res)
     {
@@ -45,18 +58,23 @@ namespace mty::simpli {
         csl::ForEachNode(res, [&](csl::Expr &sub) {
             if (csl::IsProd(sub)) {
                 int integral = -1;
-                int dpos = -1;
+                int dpos   = -1;
+                int dpower = 0;
                 for (size_t i = 0; i < sub->size(); ++i) {
                     if (IsOfType<FeynmanIntegral>(sub[i]))
                         integral = i;
-                    else if (sub[i] == csl::DMinko)
+                    else if (int power = getDMinkoPower(sub[i]); power > 0) {
+                        dpower = power;
                         dpos = i;
+                    }
                 }
                 if (dpos != -1 && integral != -1) {
                     sub[dpos] = CSL_1;
-                    sub[integral] = 4*sub[integral] + 
-                        ConvertToPtr<FeynmanIntegral>(sub[integral])
-                            ->getDivergentFactor();
+                    sub[integral] = csl::pow_s(4, dpower)*(
+                            sub[integral] 
+                            + csl::intfraction_s(dpower, 4)
+                                *ConvertToPtr<FeynmanIntegral>(sub[integral])
+                                    ->getDivergentFactor());
                     csl::Refresh(sub);
                 }
             }

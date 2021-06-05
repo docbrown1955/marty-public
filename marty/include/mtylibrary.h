@@ -45,7 +45,7 @@ namespace mty {
             if (csl::LibraryGenerator::isQuadruplePrecision()) {
                 addLibrary("-looptools-quad");
                 addInclude("marty/looptools_quad_extension.h");
-
+                addLibrary("-lquadmath");
             }
             else {
                 addLibrary("-looptools");
@@ -59,8 +59,10 @@ namespace mty {
         void generateSpectrum(Model &model) {
             model.applyDiagonalizationData(*this);
             for (const auto &m : model.getAbbreviatedMassExpressions()) {
-                if (csl::Abbrev::find_opt(m))
+                if (csl::Abbrev::find_opt(m)) {
+                    addMassExpression(m->getName());
                     addFunction(m->getName(), m, "G");
+                }
             }
         }
 

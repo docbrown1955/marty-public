@@ -23,7 +23,7 @@ class InitSanitizer {
 public:
 
     constexpr InitSanitizer(char const t_name[])
-        :name(t_name)
+        :m_name(t_name)
     {
 
     }
@@ -33,9 +33,13 @@ public:
     }
 
     InitSanitizer &operator=(T const &t) {
-        safe = true;
-        value = t;
+        m_safe = true;
+        m_value = t;
         return *this;
+    }
+
+    char const *name() {
+        return m_name;
     }
 
     operator T () const {
@@ -43,13 +47,25 @@ public:
     }
 
     T get() const {
-        if (!safe) {
-            std::cerr << "Error: param \"" << name << "\" is used ";
-            std::cerr << "uninitialized, please assign it a value using ";
-            std::cerr << "standard value assignement.\n";
+        if (!m_safe) {
+            std::cerr << "Error: param \"" << m_name << "\" is used ";
+            std::cerr << "uninitialized, please assign it a m_value using ";
+            std::cerr << "standard m_value assignement.\n";
             assert(false);
         }
-        return value;
+        return m_value;
+    }
+
+    void reset() {
+        m_safe = false;
+    }
+
+    void print(std::ostream &out = std::cout) const
+    {
+        if (m_safe)
+            out << m_name << " = " << m_value << '\n';
+        else
+            out << m_name << " uninitialized.\n";
     }
 
     friend 
@@ -58,15 +74,15 @@ public:
         InitSanitizer const &san
         )
     {
-        out << san.value;
+        out << san.m_value;
         return out;
     }
 
 private:
 
-    char const *name;
-    T           value;
-    bool        safe { false };
+    char const *m_name;
+    T           m_value;
+    bool        m_safe { false };
 };
 
 } // namespace csl

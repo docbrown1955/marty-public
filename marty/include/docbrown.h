@@ -71,13 +71,15 @@ private:
     std::string jsonCheckPoints;
 };
 
-inline std::unique_ptr<DocBrown> emmett
-    = std::make_unique<DocBrown>(
-            "emmett",
-            "emmett_debugger" MARTY_VERSION_STR ".h", 
-            "emmett_debugger" MARTY_VERSION_STR ".cpp",
-            "emmett_debugger" MARTY_VERSION_STR ".json",
-            "emmett_checkpoints" MARTY_VERSION_STR ".json"
-            );
+#ifdef DOC_BROWN_DEBUG_MODE
+    inline std::unique_ptr<DocBrown> emmett
+        = std::make_unique<DocBrown>(
+                "emmett",
+                "emmett_debugger" MARTY_VERSION_STR ".h", 
+                "emmett_debugger" MARTY_VERSION_STR ".cpp",
+                "emmett_debugger" MARTY_VERSION_STR ".json",
+                "emmett_checkpoints" MARTY_VERSION_STR ".json"
+                );
+#endif
 
 }

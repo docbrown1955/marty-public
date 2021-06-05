@@ -241,6 +241,14 @@ namespace csl {
         return group->addFunction(std::move(f));
     }
 
+    void LibraryGenerator::addMassExpression(std::string const &mass)
+    {
+        auto pos = std::find(massExpressions.begin(), massExpressions.end(), mass);
+        if (pos == massExpressions.end()) {
+            massExpressions.push_back(mass);
+        }
+    }
+
     void LibraryGenerator::addDiagonalization(
             std::vector<std::string> const &mixings,
             std::vector<std::string> const &masses,
@@ -273,17 +281,22 @@ namespace csl {
                 = std::make_shared<LibraryGroup>("", false);
             dummy->addFunction(LibFunction("dummy", CSL_0, dummy));
             dummy->getFunctions()[0].setParameters(
-                    diagonalizationParameters(diagData));
+                    inputParams(diagData));
             groups.push_back(dummy);
             LibraryGroup::gatherParameters(groups, "param_t");
             groups.erase(groups.end() - 1);
             file paramFile(path + "/" + incDir + "/params.h");
             paramFile << "#ifndef CSL_LIB_PARAM_H_INCLUDED\n",
             paramFile << "#define CSL_LIB_PARAM_H_INCLUDED\n\n";
+            paramFile << "#include <array>\n";
             paramFile << "#include \"common.h\"\n";
+            paramFile << "#include \"libcomplexop.h\"\n";
             paramFile << "#include \"csl/initSanitizer.h\"\n";
             paramFile << '\n';
             paramFile << "namespace " << regLibName() << " {\n\n";
+            dummy->setForcedParameters(
+                    outputParams(diagData, massExpressions)
+                    );
             dummy->print(paramFile, true);
             paramFile << "\n\n";
             paramFile << "}\n\n";
@@ -318,6 +331,7 @@ namespace csl {
     void LibraryGenerator::printGlobal() const
     {
         LibraryGenerator::file header(path + "/" + incDir + "/global.h");
+        LibraryGenerator::file source(path + "/" + srcDir + "/global.cpp");
         CSL_ASSERT_SPEC(
                 header,
                 CSLError::IOError,
@@ -328,13 +342,38 @@ namespace csl {
         if (uniqueParamStruct)
             header << "#include \"params.h\"\n";
         header << "#include \"common.h\"\n\n";
-
         header << "namespace " << regLibName() << " {\n\n";
+
+        source << "#include \"global.h\"\n";
+        source << "#include \"libdiagonalization.h\"\n";
+        source << "#include \"" << regLibName() << ".h\"\n";
+        source << "#include \"libcomplexop.h\"\n\n";
+        source << "namespace " << regLibName() << " {\n\n";
+        source << '\n';
+
+        if (!diagData.empty()) {
+            printDiagonalizationFacility(header, source);
+        }
+        if (!massExpressions.empty() && uniqueParamStruct) {
+            printMassExpressionsFacility(header, source);
+        }
+        header << '\n';
+        header << "} // End of namespace " << regLibName() << "\n\n";
+        header << "#endif\n";
+        source << "} // End of namespace " << regLibName() << "\n\n";
+    }
+
+    void LibraryGenerator::printDiagonalizationFacility(
+            std::ostream &header,
+            std::ostream &source
+            ) const
+    {
         header << "struct SpectrumInput;\n";
         header << "struct SpectrumOutput;\n\n";
         header << "SpectrumOutput updateDiagonalization(SpectrumInput const&);\n\n";
-        if (uniqueParamStruct)
+        if (uniqueParamStruct) {
             header << "void updateDiagonalization(param_t &params);\n\n";
+        }
         header << "////////////////////////////////////////////////////\n";
         header << "// Here are the parameters to set before calling    \n"
                << "// updateDiagonalization()                          \n";
@@ -393,17 +432,7 @@ namespace csl {
                    << "diagData." << regularName(mix) << ";\n";
         }
         header << "}\n";
-        header << '\n';
-        header << "} // End of namespace " << regLibName() << "\n\n";
-        header << "#endif\n";
 
-        LibraryGenerator::file source(path + "/" + srcDir + "/global.cpp");
-        source << "#include \"global.h\"\n";
-        source << "#include \"libdiagonalization.h\"\n";
-        source << "#include \"" << regLibName() << ".h\"\n";
-        source << "#include \"libcomplexop.h\"\n\n";
-        source << "namespace " << regLibName() << " {\n\n";
-        source << '\n';
         if (uniqueParamStruct) {
             source << "void updateDiagonalization(param_t &params)\n";
             source << "{\n";
@@ -462,18 +491,44 @@ namespace csl {
                 source << "&outputs." << mass << ", ";
             source << "}\n";
             source << indent(2) << ");\n";
-            source << '\n';
             if (diag.squaredMass) {
                 for (const auto &mass : diag.masses) {
-                    source << "outputs." << mass << " = ";
+                    source << indent(1) << "outputs." << mass << " = ";
                     source << ((quadruple) ? "sqrtq(" : "std::sqrt(");
                     source << "outputs." << mass << ");\n";
                 }
             }
+            source << '\n';
         }
         source << indent(1) << "return outputs;\n";
         source << "}\n\n";
-        source << "} // End of namespace " << regLibName() << "\n\n";
+    }
+
+    void LibraryGenerator::printMassExpressionsFacility(
+            std::ostream &header,
+            std::ostream &source
+            ) const
+    {
+        header << "void updateMassExpressions(param_t &params);\n\n";
+        header << "void updateSpectrum(param_t &params);\n\n";
+        source << "void updateMassExpressions(param_t &params)\n";
+        source << "{\n";
+        for (const auto &mass : massExpressions) {
+            if (quadruple) {
+                source << indent(1) << "params." << mass << " = crealq("
+                    << mass << "(params));\n";
+            }
+            else {
+                source << indent(1) << "params." << mass << " = "
+                    << mass << "(params).real();\n";
+            }
+        }
+        source << "}\n\n";
+        source << "void updateSpectrum(param_t &params)\n";
+        source << "{\n";
+        source << indent(1) << "updateDiagonalization(params);\n";
+        source << indent(1) << "updateMassExpressions(params);\n";
+        source << "}\n\n";
     }
 
     void LibraryGenerator::printHeader() const
@@ -1191,20 +1246,34 @@ namespace csl {
         return std::string(nIndent * nSpaceIndent, ' ');
     }
 
-    std::vector<LibParameter> diagonalizationParameters(
+    std::vector<LibParameter> inputParams(
             std::vector<LibraryGenerator::DiagonalizationData> const &diagData
             )
     {
         std::vector<LibParameter> res;
         res.reserve(4 * diagData.size());
         for (const auto &data : diagData) {
+            for (const auto &dep : data.dependencies)
+                res.push_back({dep, "complex_t"});
+        }
+        return res;
+    }
+
+    std::vector<LibParameter> outputParams(
+            std::vector<LibraryGenerator::DiagonalizationData> const &diagData,
+            std::vector<std::string> const &massExpressions
+            )
+    {
+        std::vector<LibParameter> res;
+        res.reserve(4 * diagData.size() + massExpressions.size());
+        for (const auto &data : diagData) {
             for (const auto &mass : data.masses)
                 res.push_back({mass, "real_t"});
             for (const auto &mix : data.mixings)
                 res.push_back({mix, "complex_t"});
-            for (const auto &dep : data.dependencies)
-                res.push_back({dep, "complex_t"});
         }
+        for (const auto &mass : massExpressions)
+            res.push_back({mass, "real_t"});
         return res;
     }
 

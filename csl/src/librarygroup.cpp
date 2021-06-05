@@ -70,6 +70,163 @@ namespace csl {
         *this = *v[0];
     }
 
+    void LibraryGroup::setForcedParameters(
+            std::vector<LibParameter> const &t_params)
+    {
+        forcedParameters = t_params;
+        int tp = -1;
+        LibFunction::cutParameters(forcedParameters, tp);
+        tp = -1;
+        LibFunction::sortParameters(forcedParameters, tp);
+        for (const auto &fp : forcedParameters) {
+            for (size_t i = 0; i != parameters.size(); ++i) {
+                if (parameters[i].name == fp.name) {
+                    parameters.erase(parameters.begin() + i);
+                    if (posTensorParam >= static_cast<int>(i))
+                        --posTensorParam;
+                    break;
+                }
+            }
+        }
+    }
+
+    static
+    std::pair<std::vector<LibParameter>, std::vector<LibParameter>>
+        separateComplexParameters(
+                std::vector<LibParameter> const &params1,
+                std::vector<LibParameter> const &params2
+                )
+    {
+        std::pair<std::vector<LibParameter>, std::vector<LibParameter>> res;
+        res.first.reserve(params1.size()+params2.size());  // real params
+        res.second.reserve(params1.size()+params2.size()); // complex params
+        for (const auto &par : params1) {
+            if (par.type == LibraryGenerator::realUsing)
+                res.first.push_back(par);
+            else
+                res.second.push_back(par);
+        }
+        for (const auto &par : params2) {
+            if (par.type == LibraryGenerator::realUsing)
+                res.first.push_back(par);
+            else
+                res.second.push_back(par);
+        }
+        return res;
+    }
+
+    void LibraryGroup::printResetParameterList(
+            std::string               const &nameContainer,
+            std::vector<LibParameter> const &params,
+            std::ostream &out,
+            int           nIndent
+            )
+    {
+        constexpr size_t limitParams = 5;
+        const auto newParamLine = '\n' + LibraryGenerator::indent(nIndent + 2);
+        out << LibraryGenerator::indent(nIndent) << "for (auto &par : "
+            << nameContainer << "{";
+        size_t count = 0;
+        if (params.size() > limitParams) {
+            out << newParamLine;
+        }
+        for (const auto &par : params) {
+            if (++count > limitParams) {
+                count = 0;
+                out << newParamLine;
+            }
+            out << '&' << par.name << ", ";
+        }
+        out << "})\n";
+        out << LibraryGenerator::indent(nIndent) << "{\n";
+        out << LibraryGenerator::indent(nIndent + 1) << "par->reset();\n";
+        out << LibraryGenerator::indent(nIndent) << "}\n";
+    }
+
+    void LibraryGroup::printResetDefinition(
+            std::ostream &out,
+            int           nIndent
+            ) const
+    {
+        auto const &[realParams, complexParams] = separateComplexParameters(
+                parameters, forcedParameters
+                );
+        out << LibraryGenerator::indent(nIndent) << "void reset()\n";
+        out << LibraryGenerator::indent(nIndent) << "{\n";
+        out << LibraryGenerator::indent(nIndent+1) 
+            << "using real_params = std::array<csl::InitSanitizer<"
+            << LibraryGenerator::realUsing << ">*, " 
+            << realParams.size() << ">;\n";
+        out << LibraryGenerator::indent(nIndent+1) 
+            << "using complex_params = std::array<csl::InitSanitizer<"
+            << LibraryGenerator::complexUsing << ">*, " 
+            << complexParams.size() << ">;\n";
+        out << '\n';
+        printResetParameterList("real_params", realParams, out, nIndent+1);
+        out << '\n';
+        printResetParameterList("complex_params", complexParams, out, nIndent+1);
+        out << LibraryGenerator::indent(nIndent) << "}\n";
+    }
+
+    void LibraryGroup::printPrintParameterList(
+            std::string               const &nameContainer,
+            std::vector<LibParameter> const &params,
+            std::ostream &out,
+            int           nIndent
+            )
+    {
+        constexpr size_t limitParams = 5;
+        const auto newParamLine = '\n' + LibraryGenerator::indent(nIndent + 2);
+        out << LibraryGenerator::indent(nIndent) << "for (auto const &par : "
+            << nameContainer << "{";
+        size_t count = 0;
+        if (params.size() > limitParams) {
+            out << newParamLine;
+        }
+        for (const auto &par : params) {
+            if (++count > limitParams) {
+                count = 0;
+                out << newParamLine;
+            }
+            out << '&' << par.name << ", ";
+        }
+        out << "})\n";
+        out << LibraryGenerator::indent(nIndent) << "{\n";
+        out << LibraryGenerator::indent(nIndent + 1) << "out << \"  -> \";\n";
+        out << LibraryGenerator::indent(nIndent + 1) << "par->print(out);\n";
+        out << LibraryGenerator::indent(nIndent) << "}\n";
+    }
+
+    void LibraryGroup::printPrintDefinition(
+            std::ostream &out,
+            int           nIndent
+            ) const
+    {
+        auto const &[realParams, complexParams] = separateComplexParameters(
+                parameters, forcedParameters
+                );
+        out << LibraryGenerator::indent(nIndent) 
+            << "void print(std::ostream &out = std::cout)\n";
+        out << LibraryGenerator::indent(nIndent) << "{\n";
+        out << LibraryGenerator::indent(nIndent+1) 
+            << "using real_params = std::array<csl::InitSanitizer<"
+            << LibraryGenerator::realUsing << "> const*, " 
+            << realParams.size() << ">;\n";
+        out << LibraryGenerator::indent(nIndent+1) 
+            << "using complex_params = std::array<csl::InitSanitizer<"
+            << LibraryGenerator::complexUsing << "> const*, " 
+            << complexParams.size() << ">;\n";
+        out << '\n';
+        out << LibraryGenerator::indent(1) << "out << \"param_t struct:\\n\";";
+        out << LibraryGenerator::indent(1) << "out << \"Real parameters\\n\";";
+        printPrintParameterList("real_params", realParams, out, nIndent+1);
+        out << '\n';
+        out << LibraryGenerator::indent(1) << "out << \"Complex parameters\\n\";";
+        printPrintParameterList("complex_params", complexParams, out, nIndent+1);
+        out << LibraryGenerator::indent(1) << "out << \"\\n\";";
+        out << LibraryGenerator::indent(nIndent) << "}\n";
+    }
+
     void LibraryGroup::printStructDefinition(
             std::ostream &out,
             int           nIndent
@@ -77,13 +234,42 @@ namespace csl {
     {
         out << LibraryGenerator::indent(nIndent);
         out << "struct " << getParamName();
-        out << " {\n";
-        for (size_t i = 0; i != parameters.size(); ++i) {
+        out << " {\n\n";
+        out << LibraryGenerator::indent(nIndent + 1)
+            << "///////////////////////////////////////\n";
+        out << LibraryGenerator::indent(nIndent + 1)
+            << "// Elementary parameters to be defined \n";
+        out << LibraryGenerator::indent(nIndent + 1)
+            << "///////////////////////////////////////\n\n";
+        for (const auto &par : parameters) {
             out << LibraryGenerator::indent(nIndent + 1);
-            out << "csl::InitSanitizer<" << parameters[i].type << "> " 
-                << parameters[i].name << " { \"" << parameters[i].name 
+            out << "csl::InitSanitizer<" << par.type << "> " 
+                << par.name << " { \"" << par.name 
                 << "\" };\n";
         }
+        out << "\n\n";
+        out << LibraryGenerator::indent(nIndent + 1)
+            << "///////////////////////////////////////\n";
+        out << LibraryGenerator::indent(nIndent + 1)
+            << "// Parameters functions of others  \n";
+        out << LibraryGenerator::indent(nIndent + 1)
+            << "// through diagonalization or mass \n";
+        out << LibraryGenerator::indent(nIndent + 1)
+            << "// expressions, see updateSpectrum()  \n";
+        out << LibraryGenerator::indent(nIndent + 1)
+            << "// in global.h or set them by hand  \n";
+        out << LibraryGenerator::indent(nIndent + 1)
+            << "///////////////////////////////////////\n\n";
+        for (const auto &par : forcedParameters) {
+            out << LibraryGenerator::indent(nIndent + 1);
+            out << "csl::InitSanitizer<" << par.type << "> " 
+                << par.name << " { \"" << par.name 
+                << "\" };\n";
+        }
+        out << '\n';
+        printResetDefinition(out, nIndent + 1);
+        out << '\n';
+        printPrintDefinition(out, nIndent + 1);
         out << LibraryGenerator::indent(nIndent) << "};\n";
     }
 
@@ -104,9 +290,14 @@ namespace csl {
         out << LibraryGenerator::indent(nIndent) << "};\n\n";
     }
 
-    void LibraryGroup::printParameterDefinition(std::ostream &out) const
+    void LibraryGroup::printParameterDefinition(
+            std::ostream &out,
+            bool unusedParam
+            ) const
     {
-        out << getParamName() << " const &param";
+        out << getParamName() << " const &";
+        if (!unusedParam)
+            out << "param";
     }
 
     void LibraryGroup::printParameterInitialization(

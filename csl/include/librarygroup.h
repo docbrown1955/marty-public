@@ -73,6 +73,12 @@ namespace csl {
             return functions.back();
         }
 
+        std::vector<LibParameter> const &getForcedParameters() const {
+            return forcedParameters;
+        }
+
+        void setForcedParameters(std::vector<LibParameter> const &t_params);
+
         static
         std::vector<LibParameter> gatherParameters(
                 std::vector<std::shared_ptr<LibraryGroup>> &groups,
@@ -80,6 +86,32 @@ namespace csl {
                 );
 
         void gatherParameters();
+
+        static
+        void printResetParameterList(
+                std::string               const &nameContainer,
+                std::vector<LibParameter> const &params,
+                std::ostream &out,
+                int nIndent
+                );
+
+        void printResetDefinition(
+                std::ostream &out,
+                int nIndent
+                ) const;
+
+        static
+        void printPrintParameterList(
+                std::string               const &nameContainer,
+                std::vector<LibParameter> const &params,
+                std::ostream &out,
+                int nIndent
+                );
+
+        void printPrintDefinition(
+                std::ostream &out,
+                int nIndent
+                ) const;
 
         void printStructDefinition(
                 std::ostream &out,
@@ -91,7 +123,10 @@ namespace csl {
                 int           nIndent
                 ) const;
 
-        void printParameterDefinition(std::ostream &out) const;
+        void printParameterDefinition(
+                std::ostream &out,
+                bool          unusedParam
+                ) const;
 
         void printParameterInitialization(
                 std::ostream &out,
@@ -115,6 +150,7 @@ namespace csl {
         bool        complexReturn;
         mutable int                       posTensorParam;
         mutable std::vector<LibParameter> parameters;
+        mutable std::vector<LibParameter> forcedParameters;
         mutable std::vector<LibFunction>  functions;
     };
 

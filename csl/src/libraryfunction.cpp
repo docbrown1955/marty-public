@@ -191,7 +191,7 @@ namespace csl {
         }
         printName(out);
         out << LibraryGenerator::indent(2);
-        group->printParameterDefinition(out);
+        group->printParameterDefinition(out, csl::IsNumerical(expression));
         out << '\n' << LibraryGenerator::indent(2) << ")";
         if (header)
             out << ";\n";
@@ -284,12 +284,16 @@ namespace csl {
             int                        tensorParameter
             )
     {
+        auto comp = [&](LibParameter const &A, LibParameter const &B) {
+            return A.type < B.type 
+                || (A.type == B.type && A.name < B.name);
+        };
         if (static_cast<size_t>(tensorParameter) < parameters.size()) {
-            std::sort(parameters.begin(), parameters.begin() + tensorParameter);
-            std::sort(parameters.begin() + tensorParameter, parameters.end());
+            std::sort(parameters.begin(), parameters.begin() + tensorParameter, comp);
+            std::sort(parameters.begin() + tensorParameter, parameters.end(), comp);
         }
         else
-            std::sort(parameters.begin(), parameters.end());
+            std::sort(parameters.begin(), parameters.end(), comp);
     }
 
     void LibFunction::parse()
