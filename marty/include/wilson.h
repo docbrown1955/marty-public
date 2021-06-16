@@ -78,6 +78,7 @@ class WilsonOperator {
     static bool hardComparison(csl::Expr const& A,
                                csl::Expr const& B);
 
+    bool operator< (WilsonOperator const& other) const;
     bool operator==(WilsonOperator const& other) const;
 
     private:
@@ -129,6 +130,7 @@ struct WilsonSet: public std::vector<Wilson> {
     }
 
     void merge();
+    void sort();
 
     Kinematics  kinematics {};
     FeynOptions options {};

@@ -2776,6 +2776,16 @@ bool Pow::mergeTerms()
             argument[1] = CSL_1;
         }
     }
+    else if (argument[0]->getType() == csl::Type::IntFraction
+            and argument[1]->isInteger()
+            and std::fabs(argument[1]->evaluateScalar()) < 4) {
+        const long long num = round(
+                csl::pow_s(argument[0]->getNum(), argument[1])->evaluateScalar());
+        const long long denom = round(
+                csl::pow_s(argument[0]->getDenom(), argument[1])->evaluateScalar());
+        argument[0] = csl::intfraction_s(num, denom);
+        argument[1] = CSL_1;
+    }
     else if (argument[0]->getPrimaryType() == csl::PrimaryType::Numerical and
             argument[1]->getType() == csl::Type::IntFraction and
             std::abs(argument[1]->getNum()) == 1 and

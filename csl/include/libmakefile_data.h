@@ -49,10 +49,17 @@ void print_libmakefile_data(std::ostream &out, bool quad, bool clang) {
                 "\t\t-freciprocal-math\n\n";
 #endif
     }
-    if (!quad)
-      out << "CFLAGS = -std=c++17 -O2 $(MATH_OPTI) -Wall -Wextra -Wpedantic -Wno-deprecated-declarations -fPIC\n";
-    else
-      out << "CFLAGS = -std=c++17 -O2 $(MATH_OPTI) -Wall -Wextra -Wpedantic -Wno-deprecated-declarations -fPIC -DQUAD=1 -DQUADSIZE=16\n";
+    out << "DEFAULTFLAGS = -std=c++17 -Wall -Wextra -Wpedantic -Wno-deprecated-declarations -fPIC\n";
+    out << "OPTIFLAGS = -O2 $(MATH_OPTI)\n";
+    if (!quad) {
+      out << "CXXFLAGS  = $(DEFAULTFLAGS) $(OPTIFLAGS)\n";
+      out << "LINKFLAGS = $(DEFAULTFLAGS)\n";
+    }
+    else {
+      out << "QUADFLAGS = -DQUAD=1 -DQUADSIZE=16\n";
+      out << "CXXFLAGS  = $(DEFAULTFLAGS) $(OPTIFLAGS) $(QUADFLAGS)\n";
+      out << "LINKFLAGS = $(DEFAULTFLAGS) $(QUADFLAGS)\n";
+    }
     out << "\n";
     out << "SRCDIR = src\n";
     out << "INCDIR = include\n";
@@ -76,16 +83,16 @@ void print_libmakefile_data(std::ostream &out, bool quad, bool clang) {
     out << "lib: $(NAMELIB).so $(NAMELIB).a\n";
     out << "\n";
     out << "$(OBJDIR)/%.o: $(SRCDIR)/%.cpp\n";
-    out << "	$(CXX) $(CFLAGS) -c $< -o $@ $(INCPATH)\n";
+    out << "	$(CXX) $(CXXFLAGS) -c $< -o $@ $(INCPATH)\n";
     out << "\n";
     out << "$(SOBJDIR)/%.o: $(SCRIPTDIR)/%.cpp\n";
-    out << "	$(CXX) $(CFLAGS) -c $< -o $@ $(INCPATH)\n";
+    out << "	$(CXX) $(CXXFLAGS) -c $< -o $@ $(INCPATH)\n";
     out << "\n";
     out << "%.x: $(SOBJDIR)/%.o $(OBJ)\n";
-    out << "	$(CXX) $(CFLAGS) -o $(BINDIR)/$@ $< $(OBJ) $(INCPATH) $(LIBPATH) $(LIBS)\n";
+    out << "	$(CXX) $(LINKFLAGS) -o $(BINDIR)/$@ $< $(OBJ) $(INCPATH) $(LIBPATH) $(LIBS)\n";
     out << "\n";
     out << "$(NAMELIB).so: $(OBJ)\n";
-    out << "	$(CXX) $(CFLAGS) -shared -o $(LIBDIR)/$@ $(OBJ) $(LIBPATH) $(LIBS)\n";
+    out << "	$(CXX) $(CXXFLAGS) -shared -o $(LIBDIR)/$@ $(OBJ) $(LIBPATH) $(LIBS)\n";
     out << "$(NAMELIB).a: $(OBJ)\n";
     out << "	ar rcs $(LIBDIR)/$@ $(OBJ)\n";
     out << "\n";

@@ -241,7 +241,7 @@ public:
             std::pair<size_t, size_t> const &treeCoupling,
             std::pair<size_t, size_t> const &loopCoupling,
             Insertion                 const &mediator,
-            FeynOptions               const &feynOptions = {}
+            FeynOptions                      feynOptions = {}
             );
 
     WilsonSet computeWilsonPenguins_4Fermions(

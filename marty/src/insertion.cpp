@@ -158,7 +158,7 @@ Insertion Mediator(Insertion const& init)
 {
     Insertion other(init);
     other.setMediator(true);
-    return other;
+    return OffShell(other);
 }
 
 Insertion Left(Insertion const &init)

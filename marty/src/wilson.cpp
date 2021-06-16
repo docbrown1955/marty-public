@@ -150,6 +150,12 @@ bool WilsonOperator::hardComparison(csl::Expr const& A,
     return mty::hardComparison(A, B);
 }
 
+bool WilsonOperator::operator<(WilsonOperator const& other) const
+{
+    return hardOrdering(DeepRefreshed(op), 
+                        DeepRefreshed(other.op));
+}
+
 bool WilsonOperator::operator==(WilsonOperator const& other) const
 {
     return hardComparison(DeepRefreshed(op), 
@@ -173,6 +179,13 @@ void WilsonSet::merge()
         return wil.coef.getCoefficient() == CSL_0;
     });
     erase(last, end());
+}
+
+void WilsonSet::sort()
+{
+    std::sort(begin(), end(), [&](Wilson const &A, Wilson const &B) {
+        return A.op < B.op;
+    });
 }
 
 ///////////////////////////////////////////////////

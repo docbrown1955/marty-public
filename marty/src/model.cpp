@@ -351,6 +351,7 @@ csl::Expr Model::computeSquaredAmplitude(
                     csl::GetComplexConjugate(ampl[i].coef.getCoefficient()), 
                     ampl[j].coef.getCoefficient()
                     });
+            csl::Replace(prod, csl::DMinko, 4);
             res.push_back(prod);
             if (i != j) {
                 res.push_back(csl::GetHermitianConjugate(prod, &dirac4));
@@ -439,6 +440,7 @@ WilsonSet Model::getWilsonCoefficients(
         w.coef.setCoefficient(a);
     }
     WilsonSet res(wilsons.begin(), wilsons.end());
+    res.sort();
     res.options    = ampl.getOptions();
     res.kinematics = ampl.getKinematics();
 
@@ -521,39 +523,42 @@ WilsonSet Model::computeSingleWilsonPenguin_4Fermions(
         std::pair<size_t, size_t> const &treeCoupling,
         std::pair<size_t, size_t> const &loopCoupling,
         Insertion                 const &mediator,
-        FeynOptions               const &feynOptions
+        FeynOptions                      feynOptions
         )
 {
     csl::ScopedProperty verbose(&mty::option::verboseAmplitude, false);
     auto const &insertions = kinematics.getInsertions();
     std::vector<Insertion> treeInsertions = {
-        OffShell(insertions[treeCoupling.first]), 
-        OffShell(insertions[treeCoupling.second]),
-        OffShell(Mediator(mediator))
+        insertions[treeCoupling.first], 
+        insertions[treeCoupling.second],
+        Mediator(mediator)
     };
     std::vector<Insertion> loopInsertions = {
-        OffShell(insertions[loopCoupling.first]), 
-        OffShell(insertions[loopCoupling.second]),
+        insertions[loopCoupling.first], 
+        insertions[loopCoupling.second],
         mediator.isIncoming() ? 
-            OffShell(Mediator(Outgoing(mediator)))
-            : OffShell(Mediator(Incoming(mediator)))
+            Mediator(Outgoing(mediator))
+            : Mediator(Incoming(mediator))
     };
     auto treeAmplitude = computePartialAmplitude(
             TreeLevel, treeInsertions, feynOptions);
     if (treeAmplitude.empty()) {
         return {};
     }
+    const bool massless = mediator.getField()->getMass() == CSL_0;
     csl::ScopedProperty prop(
             &mty::option::keepOnlyFirstMassInLoop, 
-            mediator.getField()->getMass() != CSL_0 
-                && mty::option::useMassiveSimplifications
+            !massless && mty::option::useMassiveSimplifications
             );
     auto loopAmplitude = computePartialAmplitude(
             OneLoop, loopInsertions, feynOptions);
     if (loopAmplitude.empty()) {
         return {};
     }
-
+    if (massless) {
+        auto wil = getWilsonCoefficients(loopAmplitude);
+        Display(wil);
+    }
     Amplitude connexion = connectAmplitudes(
             treeAmplitude, loopAmplitude, feynOptions);
     feynOptions.applyFilters(connexion.getDiagrams(), true);
@@ -579,7 +584,6 @@ WilsonSet Model::computeWilsonPenguins_4Fermions(
     }};
     std::vector<Amplitude> amplitudes;
     amplitudes.reserve(bosons.size());
-    feynOptions.setTopology(Topology::Triangle | Topology::Mass);
     WilsonSet res;
     for (const mty::Particle &mediator : bosons) {
         for (const auto &[first, second, other1, other2] : pairs) {
@@ -639,6 +643,7 @@ WilsonSet Model::computeWilsonCoefficients_4Fermions(
         addWilson(wil, res, false);
 
     res.merge();
+    res.sort();
 
     return res;
 }

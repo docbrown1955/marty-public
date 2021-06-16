@@ -806,9 +806,7 @@ ostream& operator<<(ostream              & out,
     return out;
 }
 
-static bool hardComparison_impl(
-        csl::Expr const &A,
-        csl::Expr       &B)
+int matchBOnA(csl::Expr const& A, csl::Expr &B)
 {
     std::vector<csl::Expr> tensorsInA;
     std::vector<csl::Expr> tensorsInB;
@@ -823,7 +821,7 @@ static bool hardComparison_impl(
             tensorsInB.push_back(el);
     });
     if (tensorsInA.size() != tensorsInB.size()) {
-        return false;
+        return tensorsInA.size() < tensorsInB.size();
     }
     std::sort(tensorsInA.begin(), tensorsInA.end());
     std::sort(tensorsInB.begin(), tensorsInB.end());
@@ -831,7 +829,7 @@ static bool hardComparison_impl(
     for (size_t i = tensorsInA.size(); i --> 0 ;)
         if (tensorsInA[i]->getParent_info() 
                 != tensorsInB[i]->getParent_info()) {
-            return false;
+            return tensorsInA[i]->getName() < tensorsInB[i]->getName();
         }
         else {
             csl::IndexStructure Astruct = tensorsInA[i]->getIndexStructure();
@@ -890,8 +888,17 @@ static bool hardComparison_impl(
         ++index;
     }
     csl::DeepRefresh(B);
-    const auto res = A->compareWithDummy(B.get());
-    return res;
+    return -1;
+}
+
+static bool hardComparison_impl(
+        csl::Expr const &A,
+        csl::Expr       &B)
+{
+    const int match = matchBOnA(A, B);
+    if (match != -1)
+        return false;
+    return A->compareWithDummy(B.get());
 }
 
 bool hardComparison(
@@ -902,6 +909,26 @@ bool hardComparison(
     auto B_renameIndices = csl::DeepCopy(B);
     csl::RenameIndices(B_renameIndices);
     return hardComparison_impl(A, B_renameIndices);
+}
+
+static bool hardOrdering_impl(
+        csl::Expr const &A,
+        csl::Expr       &B)
+{
+    const int match = matchBOnA(A, B);
+    if (match != -1)
+        return match;
+    return A < B;
+}
+
+bool hardOrdering(
+        csl::Expr const& A,
+        csl::Expr const& B
+        )
+{
+    auto B_renameIndices = csl::DeepCopy(B);
+    csl::RenameIndices(B_renameIndices);
+    return hardOrdering_impl(A, B_renameIndices);
 }
 
 } // End of namespace mty

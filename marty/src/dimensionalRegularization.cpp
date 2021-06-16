@@ -79,6 +79,7 @@ namespace mty::simpli {
                 }
             }
         });
+        csl::Replace(res, csl::DMinko, csl::int_s(4));
     }
 
 }
