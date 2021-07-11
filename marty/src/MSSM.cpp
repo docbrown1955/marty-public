@@ -1116,7 +1116,8 @@ void MSSM_Model::diagonalize2By2Matrices()
            {eta_u, eta_d}, 
            {G0, A0},
            {{csl::sin_s(beta_h), csl::cos_s(beta_h)},
-            {-csl::cos_s(beta_h), csl::sin_s(beta_h)}}
+            {-csl::cos_s(beta_h), csl::sin_s(beta_h)}},
+            true, 1 // diagonalize, one massless state
            ); 
 
     mty::Particle phi_u = getParticle("phi_u");
@@ -1127,7 +1128,8 @@ void MSSM_Model::diagonalize2By2Matrices()
            {phi_u, phi_d}, 
            {Gp, Hp},
            {{csl::sin_s(beta_h), csl::cos_s(beta_h)},
-            {-csl::cos_s(beta_h), csl::sin_s(beta_h)}}
+            {-csl::cos_s(beta_h), csl::sin_s(beta_h)}},
+            true, 1 // diagonalize, one massless state
            ); 
 
     mty::Particle rho_u = getParticle("rho_u");
@@ -1141,7 +1143,8 @@ void MSSM_Model::diagonalize2By2Matrices()
            {rho_u, rho_d}, 
            {h, H},
            {{csl::cos_s(alpha_h), csl::sin_s(alpha_h)},
-            {-csl::sin_s(alpha_h), csl::cos_s(alpha_h)}}
+            {-csl::sin_s(alpha_h), csl::cos_s(alpha_h)}},
+            true // diagonalize, no massless state
            ); 
 
 
@@ -1504,5 +1507,44 @@ std::ostream &operator<<(
 {
     return out << *static_cast<Model const*>(&model);
 }
+
+MSSM_HEM::MSSM_HEM(
+        std::string const &slhaFile,
+        std::string const &saveFile
+        )
+    :MSSM_Model(slhaFile, saveFile, false)
+{
+    std::ofstream save;
+    if (!saveFile.empty())
+        save.open(saveFile);
+    std::cout << "Initializing gauge and particle content ..." 
+        << std::endl;
+    initContent();
+    std::cout << "Initializing interactions ..." << std::endl;
+    initInteractions();
+    if (save) {
+        save << "****************************" << std::endl;
+        save << "**   Initial Lagrangian   **" << std::endl;
+        save << "****************************" << std::endl;
+        save << *this << "\n\n";
+    }
+    promoteToMajorana("sB");
+    promoteToMajorana("sW");
+    promoteToMajorana("sG");
+    std::cout << "Gathering MSSM inputs ..." << std::endl;
+    gatherMSSMInputs();
+    std::cout << "Checking Hermiticity ..." << std::endl;
+    checkHermiticity();
+
+    computeFeynmanRules();
+    if (save) {
+        std::ostream &out = save;
+        mty::Display(ComputeFeynmanRules(*this), out);
+        mty::DisplayAbbreviations(out);
+    }
+    if (save)
+        save.close();
+}
+
 
 } // End of namespace mty

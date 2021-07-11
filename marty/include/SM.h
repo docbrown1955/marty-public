@@ -204,61 +204,61 @@ namespace mty::sm_input {
             );
 
     ///////////////////////////////////////////////////
-    //  CKM Matrix
+    //  CKM Matrix PDG 2020
     ///////////////////////////////////////////////////
 
     inline
     csl::Expr V_ud_mod = csl::constant_s(
             "V_ud_mod",
-            csl::float_s(0.97420)
+            csl::float_s(0.97370) 
             );
 
     inline
     csl::Expr V_us_mod = csl::constant_s(
             "V_us_mod",
-            csl::float_s(0.2243)
+            csl::float_s(0.2245)
             );
 
     inline
     csl::Expr V_ub_mod = csl::constant_s(
             "V_ub_mod",
-            csl::float_s(3.94e-03)
+            csl::float_s(3.82e-03)
             );
 
     inline
     csl::Expr V_cb_mod = csl::constant_s(
             "V_cb_mod",
-            csl::float_s(42.2e-03)
+            csl::float_s(41.0e-03)
             );
 
     inline
     csl::Expr V_cd_mod = csl::constant_s(
             "V_cd_mod",
-            csl::float_s(0.2180)
+            csl::float_s(0.2210)
             );
 
     inline
     csl::Expr V_cs_mod = csl::constant_s(
             "V_cs_mod",
-            csl::float_s(0.997)
+            csl::float_s(0.987)
             );
 
     inline
     csl::Expr V_td_mod = csl::constant_s(
             "V_td_mod",
-            csl::float_s(8.1e-03)
+            csl::float_s(8.0e-03)
             );
 
     inline
     csl::Expr V_ts_mod = csl::constant_s(
             "V_ts_mod",
-            csl::float_s(39.4e-03)
+            csl::float_s(38.8e-03)
             );
 
     inline
     csl::Expr V_tb_mod = csl::constant_s(
             "V_tb_mod",
-            csl::float_s(1.019)
+            csl::float_s(1.013)
             );
 
     inline
@@ -296,29 +296,29 @@ namespace mty::sm_input {
     inline
         csl::Expr V_ud = csl::constant_s(
                 "V_ud",
-                csl::float_s(0.97420),
+                V_ud_mod->getValue(),
                 csl::ComplexProperty::Real
                 );
 
     inline
         csl::Expr V_us = csl::constant_s(
                 "V_us",
-                csl::float_s(0.2243),
+                V_us_mod->getValue(),
                 csl::ComplexProperty::Real
                 );
 
     inline
         csl::Expr V_cb = csl::constant_s(
                 "V_cb",
-                csl::float_s(42.2e-03),
+                V_cb_mod->getValue(),
                 csl::ComplexProperty::Real
                 );
 
     inline
         csl::Expr V_tb = csl::constant_s(
                 "V_tb",
-                csl::float_s(1.019),
-                csl::ComplexProperty::Complex
+                V_tb_mod->getValue(),
+                csl::ComplexProperty::Real
                 );
 
     // As PDG says: angles in the first quadrant so cos > 0 and sin > 0
@@ -357,7 +357,7 @@ namespace mty::sm_input {
 
     inline
         csl::Expr sin_CKM_13 = csl::Evaluated(
-                csl::sqrt_s(V_cb*V_cb + V_tb*V_tb),
+                csl::sqrt_s(1 - csl::pow_s(cos_CKM_13, 2)),
                 csl::eval::literal | csl::eval::numerical
                 );
 

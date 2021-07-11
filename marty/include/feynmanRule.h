@@ -65,8 +65,14 @@ class FeynmanRule {
     std::shared_ptr<wick::Graph>& getDiagram();
     std::shared_ptr<wick::Graph> const& getDiagram() const;
     csl::Expr getExpr() const;
-    bool contains(mty::QuantumFieldParent *parent) const;
-    size_t count(mty::QuantumFieldParent *parent) const;
+    bool contains(mty::QuantumFieldParent const *parent) const;
+    size_t count(mty::QuantumFieldParent const *parent) const;
+    bool contains(mty::Particle const &p) const { 
+        return contains(p.get()); 
+    }
+    size_t count(mty::Particle const &p) const { 
+        return count(p.get()); 
+    }
 
     void setFieldProduct(std::vector<QuantumField> const& fieldProduct);
     void setInteractionTerm(TermType const& term);
@@ -102,6 +108,8 @@ class FeynmanRule {
     std::shared_ptr<wick::Graph> diagram;
     csl::Expr                    expr;
 };
+
+int fermionicFactor(std::vector<mty::QuantumField> const &fieldProduct);
 
 }
 

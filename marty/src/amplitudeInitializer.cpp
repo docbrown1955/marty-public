@@ -409,6 +409,8 @@ namespace mty {
             [[maybe_unused]] size_t pos
             )
     {
+        if (A.isSelfConjugate() != B.isSelfConjugate())
+            return !A.isSelfConjugate();
         if (A.isComplexConjugate() != B.isComplexConjugate())
             return !A.isComplexConjugate();
         if (A.getName() != B.getName())

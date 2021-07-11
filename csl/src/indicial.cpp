@@ -4228,6 +4228,27 @@ std::vector<Expr> sumDummyIndices(
     return res;
 }
 
+void sortIndices(
+        std::vector<csl::Index> &indices,
+        std::vector<size_t>     &positions
+        )
+{
+    for (size_t i = 0; i != indices.size(); ++i) {
+        size_t posMini = i;
+        for (size_t j = i+1; j != indices.size(); ++j) {
+            if (indices[j] < indices[posMini])
+                posMini = j;
+        }
+        if (posMini != i) {
+            std::swap(indices[i], indices[posMini]);
+            std::for_each(positions.begin(), positions.end(), [&](size_t &s) {
+                if (s == posMini) s = i;
+                else if (s == i)  s = posMini;
+            });
+        }
+    }
+}
+
 csl::vector_expr IProd::breakSpace(
         const Space*                brokenSpace,
         const vector<const Space*>& newSpaces,
@@ -4265,6 +4286,7 @@ csl::vector_expr IProd::breakSpace(
                         std::distance(brokenIndices.begin(), pos)
                         );
         }
+    sortIndices(brokenIndices, dummyIndices);
 
     vector<csl::vector_expr> brokenExpr(argument.size());
     for (size_t i = 0; i != argument.size(); ++i) {

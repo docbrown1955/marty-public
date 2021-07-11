@@ -357,6 +357,15 @@ private:
     std::string saveFile;
 };
 
+class MSSM_HEM: public MSSM_Model {
+
+public:
+    MSSM_HEM(
+            std::string const &flhaFile = "",
+            std::string const &saveFile = ""
+            );
+};
+
 } // End of namespace mty
 
 #endif

@@ -535,7 +535,7 @@ csl::Expr DiracSpace::applyChiralRecursion(
     // Trace(gamma_5 g g g) = 0
     if (tensors.size() < 4)
         return CSL_0;
-    // Trace(gamma_5 g g g g) = 4i epsilon mu,nu,rho,sigma
+    // Trace(gamma_5 g g g g) = -4i epsilon mu,nu,rho,sigma
     if (tensors.size() == 4) {
         return -4*CSL_I * spaceTime->getEpsilon()(tensors);
     }

@@ -54,7 +54,6 @@ namespace sgl {
         a(t_a),
         b(t_b)
     {
-        checkGammaAndConjugation();
     }
 
     IndexChain::IndexChain(
@@ -68,7 +67,6 @@ namespace sgl {
         m_argument.reserve(mu.size());
         for (const auto &i : mu)
             m_argument.push_back(i);
-        checkGammaAndConjugation();
     }
 
     IndexChain::IndexChain(
@@ -91,7 +89,6 @@ namespace sgl {
         b(t_b),
         psiL(field_s(t_a))
     {
-        checkGammaAndConjugation();
     }
 
     IndexChain::IndexChain(
@@ -106,7 +103,6 @@ namespace sgl {
         m_argument.reserve(mu.size());
         for (const auto &i : mu)
             m_argument.push_back(i);
-        checkGammaAndConjugation();
     }
 
     IndexChain::IndexChain(
@@ -129,7 +125,6 @@ namespace sgl {
         b(t_b.index),
         psiR(field_s(t_b))
     {
-        checkGammaAndConjugation();
     }
 
     IndexChain::IndexChain(
@@ -144,7 +139,6 @@ namespace sgl {
         m_argument.reserve(mu.size());
         for (const auto &i : mu)
             m_argument.push_back(i);
-        checkGammaAndConjugation();
     }
 
 
@@ -170,7 +164,6 @@ namespace sgl {
         psiL(field_s(t_a)),
         psiR(field_s(t_b))
     {
-        checkGammaAndConjugation();
     }
 
     IndexChain::IndexChain(
@@ -186,11 +179,10 @@ namespace sgl {
         m_argument.reserve(mu.size());
         for (const auto &i : mu)
             m_argument.push_back(i);
-        checkGammaAndConjugation();
     }
 
 
-    void IndexChain::checkGammaAndConjugation()
+    std::optional<GExpr> IndexChain::checkGammaAndConjugation() const
     {
         for (const auto &arg : m_argument)
             if (!IsType<GammaIndex>(arg)
@@ -200,15 +192,22 @@ namespace sgl {
                 throw Exception::MathError;
             }
         if (m_argument.empty())
-            return;
+            return std::nullopt;
         if (psiL && ConvertTo<GammaIndex>(m_argument.front())->isC()) {
-            psiL->conjugate();
-            m_argument.erase(m_argument.begin());
+            csl::Expr factor = psiL->isComplexConjugated() ? CSL_1 : CSL_M_1;
+            IndexChain cpy(*this);
+            cpy.psiL->conjugate();
+            cpy.m_argument.erase(cpy.m_argument.begin());
+            return cslexpr_s(factor)*cpy.copy();
         }
         if (psiR && ConvertTo<GammaIndex>(m_argument.back())->isC()) {
-            psiR->conjugate();
-            m_argument.erase(m_argument.end() - 1);
+            csl::Expr factor = !psiR->isComplexConjugated() ? CSL_1 : CSL_M_1;
+            IndexChain cpy(*this);
+            cpy.psiR->conjugate();
+            cpy.m_argument.erase(cpy.m_argument.end() - 1);
+            return cslexpr_s(factor)*cpy.copy();
         }
+        return std::nullopt;
     }
 
     bool IndexChain::isZero() const
@@ -1163,6 +1162,7 @@ namespace sgl {
                     sign *= -1;
             }
         });
+        LOG("RES :", sign, newChain.copy())
         return { sign, newChain };
     }
 

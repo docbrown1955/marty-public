@@ -64,6 +64,7 @@
 #include "2HDM.h"
 #include "MSSM.h"
 #include "PMSSM.h"
+#include "NMFV.h"
 #include "wilson.h"
 #include "wilsonOperator.h"
 #include "propagator.h"

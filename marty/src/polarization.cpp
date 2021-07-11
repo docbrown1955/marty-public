@@ -158,7 +158,7 @@ csl::Expr PolarizationField::matrixChargeConjugation(csl::Expr_info other) const
         return -mty::dirac4.C_matrix(structure.getIndex()) * copy();
     }
     PolarizationField newPolar(*this);
-    int sign = (incoming == particle) ? -1 : 1;
+    int sign = (isComplexConjugate()) ? -1 : 1;
     newPolar.setParticle(!newPolar.particle);
     csl::Index spaceIndex = index.back();
     csl::IndexStructure const &C = other->getIndexStructureView();
@@ -292,7 +292,7 @@ csl::Expr PolarizationField::sumPolarization(csl::Expr_info other) const
             if (mass == CSL_0)
                 return -(g({mu, nu})) * deltaFactor;
             else
-                return -(g({mu, nu}) - P(mu)*P(nu)/(mass*mass));
+                return -(g({mu, nu}) - P(mu)*P(nu)/(mass*mass)) * deltaFactor;
             }
 
             default:

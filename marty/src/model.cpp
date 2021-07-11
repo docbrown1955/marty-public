@@ -513,6 +513,7 @@ WilsonSet Model::computeWilsonBoxes_4Fermions(
     feynOptions.setTopology(Topology::Box);
     auto ampl = computeAmplitude(
             OneLoop, kinematics.getInsertions(), feynOptions);
+    Show(ampl);
     ampl.setKinematics(kinematics.alignedWith(ampl.getKinematics()));
     auto wilsons = getWilsonCoefficients(ampl, feynOptions);
     return wilsons;
@@ -555,10 +556,10 @@ WilsonSet Model::computeSingleWilsonPenguin_4Fermions(
     if (loopAmplitude.empty()) {
         return {};
     }
-    if (massless) {
-        auto wil = getWilsonCoefficients(loopAmplitude);
-        Display(wil);
-    }
+    // if (massless) {
+    //     auto wil = getWilsonCoefficients(loopAmplitude);
+    //     Display(wil);
+    // }
     Amplitude connexion = connectAmplitudes(
             treeAmplitude, loopAmplitude, feynOptions);
     feynOptions.applyFilters(connexion.getDiagrams(), true);

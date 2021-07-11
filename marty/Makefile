@@ -10,7 +10,7 @@ DYNAMICLIBRARY = libmarty.so
 LTVERSION = 2.15
 
 CXXDEBUG         = $(CXX) -g 
-CXXFLAGS 	     = -Wall -Wextra -Wpedantic -std=c++17 -O3 -fPIC $(MARTY_CXX_FLAGS) 
+CXXFLAGS 	     = -Wall -Wextra -Wpedantic -std=c++17 -O3 -fPIC $(MARTY_CXX_FLAGS)
 CXXNOOPTIFLAGS = -Wall -Wextra -Wpedantic -std=c++17     -fPIC $(MARTY_CXX_FLAGS) 
 
 SRCDIR     = src

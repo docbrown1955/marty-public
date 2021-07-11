@@ -241,13 +241,13 @@ void Display(std::vector<csl::Expr> const& amplitudes,
         out << i++ << "  :  ";
         if (A->getType() == csl::Type::Sum) {
             for (int i = 0; i != A->getNArgs(); ++i) {
-                A->getArgument(i)->print();
+                A->getArgument(i)->print(0, out);
                 if (i != A->getNArgs()-1)
                     out << " + ";
             }
         }
         else
-            A->print();
+            A->print(0, out);
         out << "\n\n";
     }
     out << "Total : " << amplitudes.size() << " particle amplitudes.\n";

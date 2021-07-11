@@ -33,10 +33,9 @@ public:
 
     PMSSM_Model(
             std::string const &slhaFile = "",
-            std::string const &saveFile = ""
+            std::string const &saveFile = "",
+            bool               init     = true
             );
-
-    ~PMSSM_Model();
 
 protected:
 
@@ -47,6 +46,14 @@ protected:
     void approximateSFermionMixings();
     void renameSFermions();
     void getToLowEnergyLagrangian();
+
+    void addAllowedMixing(std::vector<std::string> const &names);
+    void mergeAllowedMixings();
+    bool isSuppressedMixing(mty::InteractionTerm const &massTerm) const;
+
+protected:
+
+    std::vector<std::set<std::string>> allowedMixings;
 };
 
 } // End of namespace mty

@@ -858,6 +858,8 @@ Graph::Expr_type Graph::getPartialExpression(
         terms_ampl.push_back(
                 vectorintegral_s(finalOrder[i]->getPropagator(
                 *finalOrder[i+1], parent), parent));
+        std::cout << "FIELDS " << *finalOrder[i] << " " << *finalOrder[i+1] << '\n';
+        std::cout << "PROPAGATOR " << terms_ampl.back() << '\n';
         if (not witnessMapping.isEmpty()) {
             if (finalOrder[i]->isComplexConjugate()) {
                 witnessMapping.push(*finalOrder[i+1], parent);

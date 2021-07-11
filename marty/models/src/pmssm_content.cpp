@@ -326,7 +326,7 @@ void PMSSM_LEM::initContent()
     snu_tau->setMass(m_snu_tau);
     addParticle(snu_tau, false);
     
-    st_1 = mty::scalarboson_s("st_1 ; \\tilde{st_1}", *this);
+    st_1 = mty::scalarboson_s("st_1 ; \\tilde{t_1}", *this);
     st_1->setMass(m_st_L);
     st_1->setGroupRep("C", {1, 0});
     addParticle(st_1, false);
@@ -336,7 +336,7 @@ void PMSSM_LEM::initContent()
     st_2->setGroupRep("C", {1, 0});
     addParticle(st_2, false);
     
-    sb_1 = mty::scalarboson_s("sb_1 ; \\tilde{sb_1}", *this);
+    sb_1 = mty::scalarboson_s("sb_1 ; \\tilde{b_1}", *this);
     sb_1->setMass(m_sb_L);
     sb_1->setGroupRep("C", {1, 0});
     addParticle(sb_1, false);
@@ -346,11 +346,11 @@ void PMSSM_LEM::initContent()
     sb_2->setGroupRep("C", {1, 0});
     addParticle(sb_2, false);
     
-    stau_1 = mty::scalarboson_s("stau_1 ; \\tilde{stau_1}", *this);
+    stau_1 = mty::scalarboson_s("stau_1 ; \\tilde{\\tau_1}", *this);
     stau_1->setMass(m_stau_L);
     addParticle(stau_1, false);
     
-    stau_2 = mty::scalarboson_s("stau_2 ; \\tilde{tau_2}", *this);
+    stau_2 = mty::scalarboson_s("stau_2 ; \\tilde{\\tau_2}", *this);
     stau_2->setMass(m_stau_R);
     addParticle(stau_2, false);
     
@@ -931,6 +931,12 @@ void PMSSM_LEM::initInteractions()
     initInteractions172();
     initInteractions173();
     initInteractions174();
+    initInteractions175();
+    initInteractions176();
+    initInteractions177();
+    initInteractions178();
+    initInteractions179();
+    initInteractions180();
 }
 
 void PMSSM_LEM::initSpectrum()

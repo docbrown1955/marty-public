@@ -136,7 +136,8 @@ FeynmanRule::FeynmanRule(
             return false;
         });
     }
-    expr = csl::Factored(csl::sum_s(expressions));
+    expr = fermionicFactor(fieldProduct)
+        * csl::Factored(csl::sum_s(expressions));
     for (auto fieldParent : nonphysical)
         fieldParent->setPhysical(false);
 }
@@ -218,7 +219,7 @@ csl::Expr FeynmanRule::getExpr() const
     return expr;
 }
 
-bool FeynmanRule::contains(QuantumFieldParent *parent) const
+bool FeynmanRule::contains(QuantumFieldParent const *parent) const
 {
     for (const auto& field : fieldProduct)
         if (field.getParent_info() == parent)
@@ -226,7 +227,7 @@ bool FeynmanRule::contains(QuantumFieldParent *parent) const
     return false;
 }
 
-size_t FeynmanRule::count(QuantumFieldParent *parent) const
+size_t FeynmanRule::count(QuantumFieldParent const *parent) const
 {
     size_t c = 0;
     for (const auto& field : fieldProduct)
@@ -357,6 +358,22 @@ std::ostream& operator<<(std::ostream& out,
     out << csl::Evaluated(rule.expr, csl::eval::abbreviation) <<'\n';
 
     return out;
+}
+
+int fermionicFactor(std::vector<mty::QuantumField> const &fieldProduct)
+{
+    constexpr bool firstMustBeCC = true;
+    bool even = false;
+    int sign = 1;
+    for (const auto &field : fieldProduct) {
+        if (field.isFermionic()) {
+            bool mustBeCC = firstMustBeCC ^ even;
+            if (mustBeCC != field.isComplexConjugate())
+                sign *= -1;
+            even = !even;
+        }
+    }
+    return sign;
 }
 
 }

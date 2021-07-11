@@ -221,6 +221,12 @@ protected:
         void initInteractions172();
         void initInteractions173();
         void initInteractions174();
+        void initInteractions175();
+        void initInteractions176();
+        void initInteractions177();
+        void initInteractions178();
+        void initInteractions179();
+        void initInteractions180();
     void initSpectrum();
 
 protected:

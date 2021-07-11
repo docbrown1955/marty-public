@@ -189,7 +189,7 @@ namespace sgl {
 
         bool isTrace() const { return a == b && !(psiL || psiR); }
 
-        void checkGammaAndConjugation();
+        std::optional<GExpr> checkGammaAndConjugation() const;
 
         static csl::Index easyIndex(int i) {
             if (auto pos = m_easyIndex.find(i); pos != m_easyIndex.end())
@@ -270,23 +270,22 @@ namespace sgl {
         if (chain->isZero()) 
             return cslexpr_s(CSL_0);
         auto factor = chain->getFactor();
-        return (factor != CSL_1) ? 
-            factor*chain->getTerm() : 
-            GExpr(chain);
+        if (factor != CSL_1) {
+            auto term = std::dynamic_pointer_cast<IndexChain>(chain->getTerm());
+            auto opt_chain = term->checkGammaAndConjugation();
+            return factor * opt_chain.value_or(term);
+        }
+        return chain->checkGammaAndConjugation().value_or(chain);
     }
 
     template<class ...Args>
     GExpr indexchain_s(
             std::initializer_list<GExpr> gammas,
             Args &&...args) {
-        auto chain = std::make_shared<IndexChain>(
-                std::vector<GExpr>{gammas}, std::forward<Args>(args)...);
-        if (chain->isZero()) 
-            return cslexpr_s(CSL_0);
-        auto factor = chain->getFactor();
-        return (factor != CSL_1) ? 
-            factor*chain->getTerm() : 
-            GExpr(chain);
+        return indexchain_s(
+                std::vector<GExpr>(gammas.begin(), gammas.end()),
+                std::forward<Args>(args)...
+                );
     }
 
     GExpr indexchain_s(

@@ -27,28 +27,29 @@ namespace mty {
 ///////////////////////////////////////////////////
 
 PMSSM_Model::PMSSM_Model(
-        std::string const &t_flhafile,
-        std::string const &t_saveFile
+        std::string const &t_slhafile,
+        std::string const &t_saveFile,
+        bool               init
         )
-    :mty::MSSM_Model(t_flhafile, t_saveFile, false)
+    :mty::MSSM_Model(t_slhafile, t_saveFile, false)
 {
-    std::cout << "Initializing gauge and particle content ..." << std::endl;
-    initContent();
-    std::cout << "Initializing interactions ..." << std::endl;
-    initInteractions();
-    std::cout << "Gathering MSSM inputs ..." << std::endl;
-    gatherMSSMInputs();
-    approximateYukawa();
-    approximateInputMatrices();
-    std::cout << "Getting to low energy Lagrangian ..." << std::endl;
-    getToLowEnergyLagrangian();
-    std::cout << "Checking Hermiticity ..." << std::endl;
-    checkHermiticity();
-}
-
-PMSSM_Model::~PMSSM_Model()
-{
-
+    addAllowedMixing({"st_L", "st_R"});
+    addAllowedMixing({"sb_L", "sb_R"});
+    addAllowedMixing({"stau_L", "stau_R"});
+    if (init) {
+        std::cout << "Initializing gauge and particle content ..." << std::endl;
+        initContent();
+        std::cout << "Initializing interactions ..." << std::endl;
+        initInteractions();
+        std::cout << "Gathering MSSM inputs ..." << std::endl;
+        gatherMSSMInputs();
+        approximateYukawa();
+        approximateInputMatrices();
+        std::cout << "Getting to low energy Lagrangian ..." << std::endl;
+        getToLowEnergyLagrangian();
+        std::cout << "Checking Hermiticity ..." << std::endl;
+        checkHermiticity();
+    }
 }
 
 void PMSSM_Model::approximateYukawa()
@@ -197,38 +198,63 @@ void PMSSM_Model::approximateCKM()
     }
 }
 
+void PMSSM_Model::addAllowedMixing(std::vector<std::string> const &names)
+{
+    allowedMixings.emplace_back(names.begin(), names.end());
+    mergeAllowedMixings();
+}
+
+void PMSSM_Model::mergeAllowedMixings()
+{
+    for (size_t i = 0; i != allowedMixings.size(); ++i) {
+        for (size_t j = i+1; j < allowedMixings.size(); ++j) {
+            bool common = false;
+            for (const auto &name : allowedMixings[i])
+                if (allowedMixings[j].find(name) != allowedMixings[i].end()) {
+                    common = true;
+                    break;
+                }
+            if (common) {
+                for (const auto &name : allowedMixings[j])
+                    allowedMixings[i].insert(name);
+                allowedMixings.erase(allowedMixings.begin() + j);
+                --j;
+            }
+        }
+    }
+}
+
+bool PMSSM_Model::isSuppressedMixing(mty::InteractionTerm const &massTerm) const
+{
+    std::vector<mty::QuantumField> const &content = massTerm.getContent();
+    if (content.size() != 2)
+        return false;
+    constexpr static auto sfermionNames = {
+        "se_L", "se_R", "smu_L", "smu_R", "stau_L", "stau_R",
+        "su_L", "su_R", "sc_L",  "sc_R",  "st_L",   "st_R",
+        "sd_L", "sd_R", "ss_L",  "ss_R",  "sb_L",   "sb_R",
+        "snu_e", "snu_mu", "snu_tau"
+    };
+    auto pos = std::find(sfermionNames.begin(), sfermionNames.end(), 
+            content[0].getName());
+    if (pos == sfermionNames.end())
+        return false;
+    std::string const &A = content[0].getName();
+    std::string const &B = content[1].getName();
+    return std::all_of(allowedMixings.begin(), allowedMixings.end(),
+            [&](std::set<std::string> const &mixed) {
+                return mixed.find(A) == mixed.end()
+                    || mixed.find(B) == mixed.end();
+            });
+}
+
 void PMSSM_Model::approximateSFermionMixings()
 {
-    auto stop = [&](mty::QuantumField const &field)
-    {
-        return field.getParent_info() == getParticle("st_L").get()
-            or field.getParent_info() == getParticle("st_R").get();
-    };
-    auto sbottom = [&](mty::QuantumField const &field)
-    {
-        return field.getParent_info() == getParticle("sb_L").get()
-            or field.getParent_info() == getParticle("sb_R").get();
-    };
-    auto stau = [&](mty::QuantumField const &field)
-    {
-        return field.getParent_info() == getParticle("stau_L").get()
-            or field.getParent_info() == getParticle("stau_R").get();
-    };
-
     for (size_t i = 0; i != L.mass.size(); ++i) {
-        std::vector<mty::QuantumField> const &content 
-            = L.mass[i]->getContent();
-        if (content[0].getParent_info() == content[1].getParent_info())
-            continue;
-        mty::QuantumField const &A = content[0];
-        mty::QuantumField const &B = content[1];
-        if (A.getSpinDimension() != 1
-                or (stop(A) and stop(B))
-                or (sbottom(A) and sbottom(B))
-                or (stau(A) and stau(B)))
-            continue;
-        L.mass.erase(L.mass.begin() + i);
-        --i;
+        if (isSuppressedMixing(*L.mass[i])) {
+            L.mass.erase(L.mass.begin() + i);
+            --i;
+        }
     }
 }
 void PMSSM_Model::renameSFermions()

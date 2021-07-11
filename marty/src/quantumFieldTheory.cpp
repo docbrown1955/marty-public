@@ -222,7 +222,10 @@ csl::Expr ScalarPropagator(
         deltaFactor[i] = space->getDelta()({structA[i], structB[i]});
     }
 
-    csl::Expr mass = ReplaceXiGauge(A.getMass());
+    csl::Expr mass = A.getMass();
+    if (!external) {
+        mass = ReplaceXiGauge(mass);
+    }
 
     return 
         CSL_I 
