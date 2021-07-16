@@ -194,6 +194,8 @@ public:
         name = t_name;
     }
 
+    bool isName(std::string_view t_name) const;
+
     /**
      * @brief Returns the first element (if found) with id \b id.
      *
@@ -444,6 +446,9 @@ std::ostream &operator<<(
         std::ostream      &out,
         LHAFileData const &data
         );
+
+
+std::string tolower(std::string const &str);
 
 } // End of namespace mty::lha
 

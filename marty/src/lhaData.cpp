@@ -91,6 +91,17 @@ LHABlock::LHABlock(std::string const &t_name)
     setName(t_name);
 }
 
+bool LHABlock::isName(std::string_view t_name) const
+{
+    if (name.size() != t_name.size())
+        return false;
+    for (size_t i = 0; i != name.size(); ++i) {
+        if (std::tolower(name[i]) != std::tolower(t_name[i]))
+            return false;
+    }
+    return true;
+}
+
 std::optional<LHAElement> LHABlock::getElement(size_t id) const
 {
     for (const auto &e : elements) {
@@ -174,7 +185,7 @@ size_t LHAFileData::findBlock(
         ) const
 {
     for (size_t i = 0; i != blocks.size(); ++i) 
-        if (blocks[i].getName() == nameBlock)
+        if (blocks[i].isName(nameBlock))
             return i;
     return npos;
 }
@@ -191,7 +202,7 @@ std::vector<FloatType> LHAFileData::getValues(
         ) const 
 {
     for (const auto &block : blocks)
-        if (block.getName() == nameBlock) {
+        if (block.isName(nameBlock)) {
             std::vector<FloatType> res;
             res.reserve(block.size());
             for (const auto &el : block) {
@@ -209,7 +220,7 @@ std::optional<FloatType> LHAFileData::getValue(
         ) const
 {
     for (const auto &block : blocks)
-        if (block.getName() == nameBlock) 
+        if (block.isName(nameBlock))
             for (const auto &el : block)
                 if (el.id == id)
                     return el.value;
@@ -224,7 +235,7 @@ std::optional<FloatType> LHAFileData::getValue(
         ) const
 {
     for (const auto &block : blocks)
-        if (block.getName() == nameBlock) 
+        if (block.isName(nameBlock)) 
             for (const auto &el : block)
                 if (el.id == i and el.id_sup == j)
                     return el.value;
@@ -288,6 +299,15 @@ std::ostream &operator<<(
     }
 
     return out;
+}
+
+std::string tolower(std::string const &str)
+{
+    std::string cpy(str);
+    std::for_each(cpy.begin(), cpy.end(), [&](char &c) {
+        c = std::tolower(c);
+    });
+    return cpy;
 }
 
 } // End of namespace lha

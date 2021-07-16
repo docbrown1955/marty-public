@@ -806,6 +806,45 @@ ostream& operator<<(ostream              & out,
     return out;
 }
 
+static void sortTensors(std::vector<csl::Expr> &tensors)
+{
+    auto free = [&](csl::IndexStructure const &index) {
+        return csl::Abbrev::getFreeStructure(index);
+    };
+    std::sort(tensors.begin(), tensors.end());
+    std::reverse(tensors.begin(), tensors.end());
+    std::vector<csl::Expr> sorted;
+    sorted.reserve(tensors.size());
+    csl::IndexStructure contractedIndices;
+    auto step = [&](size_t pos) {
+        contractedIndices = free(
+                contractedIndices + tensors[pos]->getIndexStructureView());
+        sorted.push_back(tensors[pos]);
+        tensors.erase(tensors.begin() + pos);
+    };
+
+    while (!tensors.empty()) {
+        if (contractedIndices.empty()) {
+            step(0);
+            continue;
+        }
+        bool foundCommon = false;
+        for (size_t i = 0; i != tensors.size(); ++i) {
+            if (dynamic_cast<mty::QuantumField const*>(tensors[i].get()))
+                continue;
+            auto const &index = tensors[i]->getIndexStructureView();
+            if (contractedIndices.hasCommonIndex(index)) {
+                step(i);
+                foundCommon = true;
+                break;
+            }
+        }
+        if (!foundCommon)
+            step(0);
+    }
+    tensors = std::move(sorted);
+}
+
 int matchBOnA(csl::Expr const& A, csl::Expr &B)
 {
     std::vector<csl::Expr> tensorsInA;
@@ -823,10 +862,10 @@ int matchBOnA(csl::Expr const& A, csl::Expr &B)
     if (tensorsInA.size() != tensorsInB.size()) {
         return tensorsInA.size() < tensorsInB.size();
     }
-    std::sort(tensorsInA.begin(), tensorsInA.end());
-    std::sort(tensorsInB.begin(), tensorsInB.end());
+    sortTensors(tensorsInA);
+    sortTensors(tensorsInB);
     std::vector<std::pair<csl::Index, csl::Index>> mapping;
-    for (size_t i = tensorsInA.size(); i --> 0 ;)
+    for (size_t i = 0; i != tensorsInA.size(); ++i) {
         if (tensorsInA[i]->getParent_info() 
                 != tensorsInB[i]->getParent_info()) {
             return tensorsInA[i]->getName() < tensorsInB[i]->getName();
@@ -852,7 +891,7 @@ int matchBOnA(csl::Expr const& A, csl::Expr &B)
                     mapping.push_back({ Bstruct[j], Astruct[j] });
             }
         }
-
+    }
     std::vector<csl::Index> intermediateIndices;
     intermediateIndices.reserve(mapping.size());
     for (const auto &mappy : mapping)

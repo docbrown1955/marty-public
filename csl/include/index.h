@@ -622,6 +622,8 @@ class IndexStructure{
      */
     IndexStructure operator+(const IndexStructure& structure) const;
 
+    bool hasCommonIndex(csl::IndexStructure const &other) const;
+
     /*!
      * \brief Compares the IndexStructure with \b structure. Each index must
      * match exactly (see Index::exactMatch()) with the Index at the same place

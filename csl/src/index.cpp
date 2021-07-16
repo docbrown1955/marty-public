@@ -579,6 +579,15 @@ IndexStructure IndexStructure::operator+(const IndexStructure& structure) const
     return newStructure;
 }
 
+bool IndexStructure::hasCommonIndex(const IndexStructure& structure) const
+{
+    for (const auto &A : *this)
+        for (const auto &B : structure)
+            if (A == B)
+                return true;
+    return false;
+}
+
 bool IndexStructure::exactMatch(const IndexStructure& structure) const
 {
     if (index.size() != structure.size()) 

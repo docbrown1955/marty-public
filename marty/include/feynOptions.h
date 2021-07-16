@@ -94,6 +94,13 @@ namespace mty {
         int getTopology()       const { return topology; }
 
         /**
+         * @return #fermionOrder
+         */
+        std::vector<int> const &getFermionOrder() const { 
+            return fermionOrder; 
+        }
+
+        /**
          * @return #lfilters
          */
         std::vector<LagrangianFilter> const &getLagrangianFilters() const {
@@ -151,6 +158,16 @@ namespace mty {
          * @sa mty::Topology
          */
         void setTopology(int t_topology);
+
+        /**
+         * @brief Sets the fermion order used to express the amplitude.
+         *
+         * @param order Fermion order to apply, range of integers from \f$ 0 \f$
+         * to \f$ N-1 \f$ for \f$ N \f$ external fermions in the process.
+         *
+         * @sa #fermionOrder
+         */
+        void setFermionOrder(std::vector<int> const &order);
 
         /**
          * @brief Sets the Wilson operator coefficient 
@@ -455,6 +472,27 @@ namespace mty {
          * mty::Topology::Any.
          */
         int                           topology = mty::Topology::Any;
+
+        /**
+         * @brief Order for fermions in bilinears.
+         *
+         * @details The order of fermions in the result in fixed, useful for 
+         * Wilson coefficient extraction. For example, a process with for 
+         * external fermions \f$ \psi_0,\ \psi_1,\ \psi_2 \f$ and \f$ \psi_3 \f$
+         * can be expressed with the order \f$ (0123) \f$ with terms of the type
+         * \f[
+         *     \left(\bar{\psi}_0\Gamma^A\psi_1\right)
+         *          \left(\bar{\psi}_1\Gamma^B\psi_2\right,
+         * \f]
+         * while an order \f$ (2013) \f$ corresponds to something such as
+         * \f[
+         *     \left(\bar{\psi}_2\Gamma^C\psi_0\right)
+         *          \left(\bar{\psi}_1\Gamma^D\psi_3\right,
+         * \f]
+         * with \f$ \Gamma^{A,B,C,D} \f$ arbitrary \f$ \gamma \f$-matrix
+         * combinations.
+         */
+        std::vector<int>              fermionOrder;
 
         /**
          * @brief List of lagrangian filters.

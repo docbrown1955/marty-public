@@ -121,21 +121,6 @@ public:
             FeynOptions                 options = {}
             );
 
-    mty::Amplitude computeAmplitude(
-            int                         order,
-            std::vector<mty::Insertion> insertions,
-            std::vector<int>     const &fermionOrder,
-            FeynOptions                 options = {}
-            );
-
-    mty::Amplitude computeAmplitude(
-            int                         order,
-            std::vector<mty::Insertion> insertions,
-            std::vector<int>     const &fermionOrder,
-            Kinematics           const &kinematics,
-            FeynOptions                 options = {}
-            );
-
     mty::Amplitude computePartialAmplitude(
             int                         order,
             std::vector<mty::Insertion> insertions,
@@ -145,21 +130,6 @@ public:
     mty::Amplitude computePartialAmplitude(
             int                         order,
             std::vector<mty::Insertion> insertions,
-            Kinematics           const &kinematics,
-            FeynOptions                 options = {}
-            );
-
-    mty::Amplitude computePartialAmplitude(
-            int                         order,
-            std::vector<mty::Insertion> insertions,
-            std::vector<int>     const &fermionOrder,
-            FeynOptions                 options = {}
-            );
-
-    mty::Amplitude computePartialAmplitude(
-            int                         order,
-            std::vector<mty::Insertion> insertions,
-            std::vector<int>     const &fermionOrder,
             Kinematics           const &kinematics,
             FeynOptions                 options = {}
             );
@@ -184,7 +154,6 @@ public:
     mty::Amplitude computeAmplitude(
             std::vector<Lagrangian::TermType> &lagrangian,
             std::vector<Insertion>             insertions,
-            std::vector<int>                   fermionOrder,
             Kinematics                  const &kinematics,
             FeynOptions                 const &options,
             std::vector<FeynmanRule const*>    rules = {}
@@ -193,7 +162,6 @@ public:
     mty::Amplitude computeAmplitude(
             std::vector<FeynmanRule const*> &feynRules,
             std::vector<Insertion>    const &insertions,
-            std::vector<int>          const &fermionOrder,
             Kinematics                const &kinematics,
             FeynOptions               const &options
             );
@@ -208,9 +176,26 @@ public:
             bool            applyDegreesOfFreedomFactor = true
             );
 
+    csl::Expr computeSquaredAmplitude(
+            Amplitude const &amplL,
+            Amplitude const &amplR,
+            bool             applyDegreesOfFreedomFactor = true
+            );
+
+    csl::Expr computeSquaredAmplitude(
+            WilsonSet const &amplL,
+            WilsonSet const &amplR,
+            bool            applyDegreesOfFreedomFactor = true
+            );
+
     WilsonSet getWilsonCoefficients(
             Amplitude   const &ampl,
-            FeynOptions const &feynOptions = {},
+            FeynOptions const &feynOptions,
+            bool               squaredAfter = false
+            );
+
+    WilsonSet getWilsonCoefficients(
+            Amplitude   const &ampl,
             bool               squaredAfter = false
             );
 
@@ -322,6 +307,8 @@ protected:
 
     std::vector<mty::FeynmanRule> feynmanRules;
 };
+
+int operatorDegeneracy(std::vector<mty::Insertion> const &insertions);
 
 } // End of namespace mty
 

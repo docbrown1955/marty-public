@@ -37,6 +37,11 @@ namespace mty {
         topology = t_topology;
     }
 
+    void FeynOptions::setFermionOrder(std::vector<int> const &order)
+    {
+        fermionOrder = order;
+    }
+
     void FeynOptions::setWilsonOperatorCoefficient(csl::Expr const &factor)
     {
         wilsonOperatorCoefficient = csl::DeepCopy(factor);

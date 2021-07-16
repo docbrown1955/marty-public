@@ -17,6 +17,7 @@
 #include "lhaData.h"
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 
 namespace mty::lha {
 
@@ -105,7 +106,7 @@ std::vector<std::string> Reader::split(std::string const &line)
 bool Reader::isBlockLine(std::vector<std::string> const &line)
 {
     return line.size() >= 2
-        and line[0] == "BLOCK";
+        and mty::lha::tolower(line[0]) == "block";
 }
 
 bool Reader::isPositiveInteger(std::string const &str)

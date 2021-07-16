@@ -325,6 +325,12 @@ void PolarizationField::printCode(
 
 void PolarizationField::printProp(std::ostream& out) const
 {
+    if (isFermionic()) {
+        if (isParticle())
+            out << "_u";
+        else
+            out << "_v";
+    }
     if (conjugated)
         out << "^(*)";
 }

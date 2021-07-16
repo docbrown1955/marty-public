@@ -87,22 +87,22 @@ namespace mty {
     csl::Expr Kinematics::getDegreesOfFreedomFactor() const
     {
         csl::Expr factor = CSL_1;
-        std::vector<size_t> incomingIndices;
-        incomingIndices.reserve(insertions.size());
+        std::vector<size_t> outgoingIndices;
+        outgoingIndices.reserve(insertions.size());
         for (size_t i = 0; i != insertions.size(); ++i) {
             if (insertions[i].isIncoming())
                 factor *= insertions[i].getField()->getNDegreesOfFreedom();
             else
-                incomingIndices.push_back(i);
+                outgoingIndices.push_back(i);
         }
 
-        while (!incomingIndices.empty()) {
-            const size_t i = incomingIndices[0];
+        while (!outgoingIndices.empty()) {
+            const size_t i = outgoingIndices[0];
             std::vector<size_t> identicalFields;
             identicalFields.reserve(insertions.size());
             identicalFields.push_back(0);
-            for (size_t index = 1; index != incomingIndices.size(); ++index) {
-                const size_t j = incomingIndices[index];
+            for (size_t index = 1; index != outgoingIndices.size(); ++index) {
+                const size_t j = outgoingIndices[index];
                 if (areIdenticalFields(insertions[i], insertions[j])) {
                     identicalFields.push_back(index);
                 }
@@ -110,7 +110,7 @@ namespace mty {
             int combi = std::tgamma(static_cast<int>(1+identicalFields.size()));
             if (combi != 1)
                 factor *= combi;
-            removeIndices(incomingIndices, identicalFields);
+            removeIndices(outgoingIndices, identicalFields);
         }
         return factor;
     }

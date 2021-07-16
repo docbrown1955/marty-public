@@ -102,60 +102,20 @@ mty::Amplitude Model::computeAmplitude(
         FeynOptions                 options
         )
 {
-    auto fermionOrder = defaultFermionOrder(insertions);
     if (!options.getFeynRuleCalculation())
         options.setLoopOrder(order, static_cast<int>(insertions.size()));
     if (options.getFeynRuleCalculation()) {
         std::vector<Lagrangian::TermType> lagrangian = L.interaction;
         options.applyFilters(lagrangian);
         return computeAmplitude(
-                lagrangian, insertions, fermionOrder, kinematics, options
+                lagrangian, insertions, kinematics, options
                 );
     }
     else {
         std::vector<FeynmanRule> const &rules = getFeynmanRules();
         auto filteredRules = options.applyFilters(rules);
         return computeAmplitude(
-                filteredRules, insertions, fermionOrder, kinematics, options
-                );
-    }
-}
-
-mty::Amplitude Model::computeAmplitude(
-        int                         order,
-        std::vector<mty::Insertion> insertions,
-        std::vector<int>     const &fermionOrder,
-        FeynOptions                 options
-        )
-{
-    Kinematics kinematics { insertions };
-    return computeAmplitude(
-            order, insertions, fermionOrder, kinematics, options
-            );
-}
-
-mty::Amplitude Model::computeAmplitude(
-        int                         order,
-        std::vector<mty::Insertion> insertions,
-        std::vector<int>     const &fermionOrder,
-        Kinematics           const &kinematics,
-        FeynOptions                 options
-        )
-{
-    if (!options.getFeynRuleCalculation())
-        options.setLoopOrder(order, static_cast<int>(insertions.size()));
-    if (options.getFeynRuleCalculation()) {
-        std::vector<Lagrangian::TermType> lagrangian = L.interaction;
-        options.applyFilters(lagrangian);
-        return computeAmplitude(
-                lagrangian, insertions, fermionOrder, kinematics, options
-                );
-    }
-    else {
-        std::vector<FeynmanRule> const &rules = getFeynmanRules();
-        auto filteredRules = options.applyFilters(rules);
-        return computeAmplitude(
-                filteredRules, insertions, fermionOrder, kinematics, options
+                filteredRules, insertions, kinematics, options
                 );
     }
 }
@@ -163,12 +123,12 @@ mty::Amplitude Model::computeAmplitude(
 mty::Amplitude Model::computeAmplitude(
         std::vector<Lagrangian::TermType> &lagrangian,
         std::vector<mty::Insertion>        insertions,
-        std::vector<int>                   fermionOrder,
         Kinematics                  const &kinematics,
         FeynOptions                 const &options,
         std::vector<FeynmanRule const*>    rules
         )
 {
+    std::vector<int> fermionOrder = options.getFermionOrder();
     if (fermionOrder.empty())
         fermionOrder = defaultFermionOrder(insertions);
     if (options.orderExternalFermions)
@@ -210,7 +170,6 @@ mty::Amplitude Model::computeAmplitude(
 mty::Amplitude Model::computeAmplitude(
         std::vector<FeynmanRule const*> &feynRules,
         std::vector<Insertion>    const &insertions,
-        std::vector<int>          const &fermionOrder,
         Kinematics                const &kinematics,
         FeynOptions               const &options
         )
@@ -220,7 +179,7 @@ mty::Amplitude Model::computeAmplitude(
     for (size_t i = 0; i != lagrangian.size(); ++i) 
         lagrangian[i] = feynRules[i]->getInteractionTerm();
     return computeAmplitude(
-            lagrangian, insertions, fermionOrder, kinematics, options, feynRules
+            lagrangian, insertions, kinematics, options, feynRules
             );
 }
 
@@ -245,47 +204,74 @@ mty::Amplitude Model::computePartialAmplitude(
     return computeAmplitude(order, insertions, kinematics, options);
 }
 
-mty::Amplitude Model::computePartialAmplitude(
-        int                         order,
-        std::vector<mty::Insertion> insertions,
-        std::vector<int>     const &fermionOrder,
-        FeynOptions                 options
+csl::Expr Model::computeSquaredAmplitude(
+        Amplitude const &ampl,
+        bool             applyDegreesOfFreedomFactor
         )
 {
-    options.partialCalculation = true;
-    return computeAmplitude(order, insertions, fermionOrder, options);
-}
-
-mty::Amplitude Model::computePartialAmplitude(
-        int                         order,
-        std::vector<mty::Insertion> insertions,
-        std::vector<int>     const &fermionOrder,
-        Kinematics           const &kinematics,
-        FeynOptions                 options
-        )
-{
-    options.partialCalculation = true;
-    return computeAmplitude(order, insertions, fermionOrder, kinematics, options);
+    return computeSquaredAmplitude(ampl, ampl, applyDegreesOfFreedomFactor);
 }
 
 csl::Expr Model::computeSquaredAmplitude(
-        Amplitude const &ampl,
+        Amplitude const &amplL,
+        Amplitude const &amplR,
         bool              applyDegreesOfFreedomFactor
         )
 {
     csl::ScopedProperty prop(&mty::option::decomposeInLocalOperator, false);
-    FeynOptions options = ampl.getOptions();
-    options.setWilsonOperatorBasis(OperatorBasis::None);
-    auto wilsons = getWilsonCoefficients(ampl, options, true);
+
+    FeynOptions optionsL = amplL.getOptions();
+    optionsL.setWilsonOperatorBasis(OperatorBasis::None);
+    auto wilsonsL = getWilsonCoefficients(amplL, optionsL, true);
+
+    if (&amplL == &amplR) { // same ampl, no need to recalculate
+        return computeSquaredAmplitude(
+                wilsonsL,
+                wilsonsL,
+                applyDegreesOfFreedomFactor
+                );
+    }
+    FeynOptions optionsR = amplR.getOptions();
+    optionsR.setWilsonOperatorBasis(OperatorBasis::None);
+    auto wilsonsR = getWilsonCoefficients(amplR, optionsR, true);
+
     return computeSquaredAmplitude(
-            wilsons,
+            wilsonsL,
+            wilsonsR,
             applyDegreesOfFreedomFactor
             );
+}
 
+static
+std::vector<csl::Expr> evalForSquare(WilsonSet const &wilsons)
+{
+    csl::Abbrev::enableGenericEvaluation("EXT");
+    csl::Abbrev::enableGenericEvaluation("Fc");
+    csl::Abbrev::enableGenericEvaluation("Color");
+    csl::Abbrev::enableGenericEvaluation("P");
+    std::vector<csl::Expr> eval(wilsons.size());
+    for (size_t i = 0; i != wilsons.size(); ++i)  {
+        eval[i] = csl::Evaluated(wilsons[i].op.getOp());
+    }
+    csl::Abbrev::disableGenericEvaluation("EXT");
+    csl::Abbrev::disableGenericEvaluation("Fc");
+    csl::Abbrev::disableGenericEvaluation("Color");
+    csl::Abbrev::disableGenericEvaluation("P");
+
+    return eval;
 }
 
 csl::Expr Model::computeSquaredAmplitude(
         WilsonSet const &ampl,
+        bool             applyDegreesOfFreedomFactor
+        )
+{
+    return computeSquaredAmplitude(ampl, ampl, applyDegreesOfFreedomFactor);
+}
+
+csl::Expr Model::computeSquaredAmplitude(
+        WilsonSet const &amplL,
+        WilsonSet const &amplR,
         bool             applyDegreesOfFreedomFactor
         )
 {
@@ -296,39 +282,30 @@ csl::Expr Model::computeSquaredAmplitude(
             "that has been decomposed in operators. Please set mty::option::"
             "decomposeInOperators or mty::option::decomposeInLocalOperator to "
             "false.")
-    auto insertions  = ampl.kinematics.getInsertions();
-    auto momenta     = ampl.kinematics.getMomenta();
-    if (ampl.empty())
+    auto insertions  = amplL.kinematics.getInsertions();
+    auto momenta     = amplL.kinematics.getMomenta();
+    if (amplL.empty() || amplR.empty())
         return CSL_0;
-    csl::Abbrev::enableGenericEvaluation("EXT");
-    csl::Abbrev::enableGenericEvaluation("Fc");
-    csl::Abbrev::enableGenericEvaluation("Color");
-    csl::Abbrev::enableGenericEvaluation("P");
-    std::vector<csl::Expr> eval(ampl.size());
-    for (size_t i = 0; i != ampl.size(); ++i)  {
-        eval[i] = csl::Evaluated(ampl[i].op.getOp());
-        // csl::DeepFactor(eval[i]);
-    }
-    csl::Abbrev::disableGenericEvaluation("EXT");
-    csl::Abbrev::disableGenericEvaluation("Fc");
-    csl::Abbrev::disableGenericEvaluation("Color");
-    csl::Abbrev::disableGenericEvaluation("P");
+    const bool areSame = (&amplL == &amplR);
+    std::vector<csl::Expr> evalL = evalForSquare(amplL);
+    std::vector<csl::Expr> evalR = (areSame) ? evalL : evalForSquare(amplR);
     csl::Expr incomingDof = CSL_1;
     if (applyDegreesOfFreedomFactor) {
-        incomingDof = ampl.kinematics.getDegreesOfFreedomFactor();
+        incomingDof = amplL.kinematics.getDegreesOfFreedomFactor();
     }
     csl::vector_expr res;
     size_t index = 0;
     std::cout << "Squaring amplitude ..." << std::endl;
-    csl::ProgressBar bar(ampl.size()*(ampl.size() + 1)/2);
-    for (size_t i = 0; i != ampl.size(); ++i) {
-        for (size_t j = i; j != ampl.size(); ++j) {
+    csl::ProgressBar bar(amplL.size()*(amplR.size() + 1)/2);
+    for (size_t i = 0; i != amplL.size(); ++i) {
+        // If same start at i and add complex conjugate
+        for (size_t j = areSame*i; j != amplR.size(); ++j) {
             if (mty::option::verboseAmplitude)
                 bar.progress(index++);
-            csl::Expr renamed = csl::Factored(csl::DeepCopy(eval[j]));
+            csl::Expr renamed = csl::Factored(csl::DeepCopy(evalL[j]));
             csl::RenameIndices(renamed);
             csl::Expr prod = renamed
-                * csl::GetHermitianConjugate(eval[i], &dirac4)
+                * csl::GetHermitianConjugate(evalR[i], &dirac4)
                 / incomingDof;
             auto predic = [&](csl::Expr const &sub) {
                 return IsOfType<PolarizationField>(sub);
@@ -338,22 +315,22 @@ csl::Expr Model::computeSquaredAmplitude(
                     prod, 
                     recoverQuantumInsertions(GetExpression(insertions)),
                     momenta,
-                    ampl.options,
+                    amplL.options,
                     simpli::SquaredAmplitude
                     );
             csl::Expr factor = csl::Abbrev::makeAbbreviation(
-                    csl::GetComplexConjugate(ampl[i].op.getFactor())
-                    * ampl[j].op.getFactor()
+                    csl::GetComplexConjugate(amplR[i].op.getFactor())
+                    * amplL[j].op.getFactor()
                     );
             prod = csl::prod_s({
                     prod, 
                     factor, 
-                    csl::GetComplexConjugate(ampl[i].coef.getCoefficient()), 
-                    ampl[j].coef.getCoefficient()
+                    csl::GetComplexConjugate(amplR[i].coef.getCoefficient()), 
+                    amplL[j].coef.getCoefficient()
                     });
             csl::Replace(prod, csl::DMinko, 4);
             res.push_back(prod);
-            if (i != j) {
+            if (areSame && i != j) {
                 res.push_back(csl::GetHermitianConjugate(prod, &dirac4));
             }
         }
@@ -394,6 +371,35 @@ void Model::projectOnBasis(
 
 WilsonSet Model::getWilsonCoefficients(
         Amplitude   const &ampl,
+        bool               squaredAfter
+        )
+{
+    return getWilsonCoefficients(ampl, ampl.getOptions(), squaredAfter);
+}
+
+int operatorDegeneracy(std::vector<mty::Insertion> const &insertions)
+{
+    std::vector<size_t> indicesLeft(insertions.size());
+    std::iota(indicesLeft.begin(), indicesLeft.end(), 0);
+    int factor = 1;
+    while (!indicesLeft.empty()) {
+        int nFields = 1;
+        for (size_t i = 1; i != indicesLeft.size(); ++i) {
+            if (insertions[indicesLeft[0]].isEquivalent(
+                        insertions[indicesLeft[i]])) {
+                indicesLeft.erase(indicesLeft.begin() + i);
+                ++nFields;
+                --i;
+            }
+        }
+        indicesLeft.erase(indicesLeft.begin());
+        factor *= nFields;
+    }
+    return factor;
+}
+
+WilsonSet Model::getWilsonCoefficients(
+        Amplitude   const &ampl,
         FeynOptions const &feynOptions,
         bool               squaredAfter
         )
@@ -421,6 +427,7 @@ WilsonSet Model::getWilsonCoefficients(
             squaredAfter);
     auto const &insertions = ampl.getKinematics().getInsertions();
     auto const &momenta    = ampl.getKinematics().getMomenta();
+    const int degeneracy = operatorDegeneracy(insertions);
     for (auto &w : wilsons) {
         csl::Expr a = w.coef.getCoefficient();
         if (!squaredAfter)
@@ -436,6 +443,11 @@ WilsonSet Model::getWilsonCoefficients(
         csl::matcher::compress(a, 2);
         if (squaredAfter) {
             a = csl::Abbrev::makeAbbreviation("Cw", a);
+        }
+        else {
+            // Taking into account degeneracy if it is a real Wilson coefficient 
+            // calculation
+            a /= csl::int_s(degeneracy);
         }
         w.coef.setCoefficient(a);
     }
@@ -556,6 +568,7 @@ WilsonSet Model::computeSingleWilsonPenguin_4Fermions(
     if (loopAmplitude.empty()) {
         return {};
     }
+    Show(loopAmplitude);
     // if (massless) {
     //     auto wil = getWilsonCoefficients(loopAmplitude);
     //     Display(wil);

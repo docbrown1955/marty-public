@@ -111,6 +111,14 @@ csl::Expr Insertion::getExpression() const
     return insertion;
 }
 
+bool Insertion::isEquivalent(Insertion const &other) const
+{
+    if (field != other.field || mediator != other.mediator)
+        return false;
+    return field->isSelfConjugate()
+        || ((particle == other.particle) == (incoming == other.incoming));
+}
+
 bool Insertion::operator==(Insertion const &other) const
 {
     return field == other.field

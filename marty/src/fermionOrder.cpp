@@ -134,10 +134,8 @@ namespace mty {
             )
     {
         std::vector<mty::Insertion*> fermions = fermionsOf(insertions);
-        HEPAssert(fermions.size() == order.size(),
-                mty::error::ValueError,
-                "Found " + toString(fermions.size()) + " for a fermion ordering"
-                " of " + toString(order.size()) + " fermions.")
+        if (fermions.size() != order.size())
+            return;
         for (size_t i = 0; i != order.size()/2; ++i) {
             const int i1 = order[2*i];
             const int i2 = order[2*i + 1];

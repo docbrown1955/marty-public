@@ -240,21 +240,12 @@ csl::Expr FermionPropagator(
         csl::Tensor      & P,
         bool                external)
 {
-    if (!A.isSelfConjugate() && !B.isComplexConjugate())
+    if (A.isComplexConjugate() && !B.isComplexConjugate())
         return -FermionPropagator(B, A, P, external);
-    //if (A.isComplexConjugate() && !B.isComplexConjugate())
-    //    return -FermionPropagator(B, A, P, external);
-    // if (A.isComplexConjugate() == B.isComplexConjugate())
-    //     return (A.isComplexConjugate()) ? 
-    //         MajoranaConjugatedPropagator(A, B, P, external)
-    //         :MajoranaPropagator(A, B, P, external);
     csl::IndexStructure const& structA = A.getIndexStructureView();
     csl::IndexStructure const& structB = B.getIndexStructureView();
     csl::Tensor        pointA  = A.getPoint();
     csl::Tensor        pointB  = B.getPoint();
-    bool reverted = A.isComplexConjugate() and !B.isComplexConjugate();
-    if (reverted)
-        std::swap(pointA, pointB);
 
     csl::vector_expr deltaFactor(structA.size()-1);
     for (size_t i = 0; i != structA.size()-1; ++i) {
@@ -315,20 +306,14 @@ csl::Expr FermionPropagator(
     }
 
     csl::Tensor delta = diracSpace->getDelta();
-    //csl::Expr diracStructure = (external) ?  delta({alpha, beta})
-    //    : fermionPropStruct_s(P(Minkowski.generateIndex()), 
-    //                          A.getMass(),
-    //                          alpha,
-    //                          beta);
     csl::Expr m = (A.isChiral() and B.isChiral() and chirA != chirB) ? 
         CSL_0 : A.getMass() * delta({alpha, beta});
     csl::Expr p = (A.isChiral() and B.isChiral() and chirA == chirB) ?
         CSL_0 : slashed_s(P, alpha, beta, diracSpace);
     csl::Expr diracStructure = (external) ?  delta({alpha, beta}) : (p + m);
 
-    Expr sign = (reverted and not external) ? -1 : 1;
     const csl::Expr res = 
-        sign * CSL_I
+        CSL_I
         * projectors
         * csl::prod_s(deltaFactor)
         * diracStructure

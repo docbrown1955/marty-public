@@ -100,6 +100,8 @@ class Insertion {
 
     csl::Expr getExpression() const;
 
+    bool isEquivalent(Insertion const &other) const;
+
     bool operator==(Insertion const &other) const;
 
     bool operator!=(Insertion const &other) const {
