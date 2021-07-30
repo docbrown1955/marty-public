@@ -116,7 +116,7 @@ namespace OperatorParser {
             Insertion const &outgoingFermion,
             Insertion const &vectorBoson,
             csl::Tensor      momentum,
-            Chirality        chirality
+            bool             chiralOperator
             );
 
     std::optional<Insertion> getInsertion(

@@ -291,6 +291,109 @@ std::vector<Wilson> parseSum(
     return wilsons;
 }
 
+static std::vector<Wilson> applyFactor(
+        std::vector<Wilson> &&wilsons,
+        csl::Expr     const &factor
+        )
+{
+    for (auto &w : wilsons)
+        w.coef.setCoefficient(
+                factor * w.coef.getCoefficient()
+                );
+    return wilsons;
+}
+
+std::vector<Wilson> sglSimplifyForWilson(
+        csl::Expr const &op,
+        csl::Expr const &operatorFactor,
+        Wilson           res,
+        bool             standardBasis,
+        bool             recursive
+        )
+{
+    sgl::TensorSet tset {
+        dirac4.gamma_chir,
+        dirac4.C_matrix,
+        dirac4.P_L,
+        dirac4.P_R,
+        {}
+    };
+    tset.gamma[0] = dirac4.getDelta();
+    tset.gamma[1] = dirac4.gamma;
+    tset.gamma[2] = dirac4.sigma;
+    //std::cout << "HERE" << std::endl;
+    //std::cout << op << std::endl;
+    csl::Expr newOp = csl::Copy(op);
+    if (!recursive){
+        newOp = sgl::sgl_to_csl(sgl::Simplified(
+                    sgl::csl_to_sgl(newOp, tset), !recursive
+                    ), tset);
+        auto d = dirac4.getDelta();
+        auto g = dirac4.gamma_chir;
+        auto a = dirac4.generateIndex();
+        auto b = dirac4.generateIndex();
+        csl::DeepRefresh(newOp);
+        if (standardBasis) {
+            Model::projectOnBasis(newOp, OperatorBasis::Standard);
+        }
+    }
+    csl::Expand(newOp);
+    if (csl::IsSum(newOp)) {
+        return applyFactor(
+                parseSum(newOp, operatorFactor, standardBasis, true),
+                res.coef.getCoefficient()
+                );
+    }
+    res.coef.setCoefficient(
+            res.coef.getCoefficient() / operatorFactor);
+    res.op = WilsonOperator(newOp, operatorFactor);
+    return {res};
+}
+
+std::vector<Wilson> copyWilsons(std::vector<Wilson> const &wilsons)
+{
+    std::vector<Wilson> res(wilsons.size());
+    for (size_t i = 0; i != res.size(); ++i) {
+        res[i].op.setOp(csl::DeepCopy(wilsons[i].op.getOp()));
+        res[i].op.setFactor(csl::DeepCopy(wilsons[i].op.getFactor()));
+        res[i].coef.setCoefficient(csl::DeepCopy(wilsons[i].coef.getCoefficient()));
+    }
+    return res;
+}
+
+std::vector<Wilson> cachedWilsonCalculation(
+        csl::Expr const& product,
+        csl::Expr const& operatorFactor,
+        Wilson           res,
+        csl::Expr        op,
+        bool             standardBasis,
+        bool             recursive
+        )
+{
+    res.coef = csl::DeepRefreshed(product);
+    if (csl::IsSum(op)) {
+        return applyFactor(
+                parseSum(op, operatorFactor, standardBasis, recursive),
+                res.coef.getCoefficient()
+                );
+    }
+    else if (csl::IsProd(op)){
+        return sglSimplifyForWilson(
+                op, operatorFactor,
+                res, standardBasis, recursive);
+        // return cachedWilson.calculate(op,
+        //         [&](csl::Expr const &op_i) {
+        //             return sglSimplifyForWilson(
+        //                     op_i, operatorFactor,
+        //                     res, standardBasis, recursive);
+        //         });
+    }
+    else {
+        res.op = WilsonOperator(op, operatorFactor);
+        return {res};
+    }
+}
+
 std::vector<Wilson> parseExpression(
         csl::Expr const& expr,
         csl::Expr const& operatorFactor,
@@ -316,58 +419,15 @@ std::vector<Wilson> parseExpression(
     Wilson res = {WilsonCoefficient(CSL_1), WilsonOperator(CSL_0)};
     std::vector<csl::Expr> inOperator = parseStructures(product);
     if (!inOperator.empty()) {
-        res.coef = csl::DeepRefreshed(product);
-        csl::Expr op = csl::DeepExpanded(csl::prod_s(inOperator));
-        if (csl::IsSum(op)) {
-            return parseSum(
-                    csl::Expanded(res.coef.getCoefficient() * op),
-                    operatorFactor,
-                    standardBasis,
-                    recursive);
-        }
-        else if (csl::IsProd(op)){
-            sgl::TensorSet tset {
-                dirac4.gamma_chir,
-                dirac4.C_matrix,
-                dirac4.P_L,
-                dirac4.P_R,
-                {}
-            };
-            tset.gamma[0] = dirac4.getDelta();
-            tset.gamma[1] = dirac4.gamma;
-            tset.gamma[2] = dirac4.sigma;
-            //std::cout << "HERE" << std::endl;
-            //std::cout << op << std::endl;
-            if (!recursive){
-                op = sgl::sgl_to_csl(sgl::Simplified(
-                            sgl::csl_to_sgl(op, tset), !recursive
-                            ), tset);
-                auto d = dirac4.getDelta();
-                auto g = dirac4.gamma_chir;
-                auto a = dirac4.generateIndex();
-                auto b = dirac4.generateIndex();
-                csl::DeepRefresh(op);
-                if (standardBasis) {
-                    Model::projectOnBasis(op, OperatorBasis::Standard);
-                }
-            }
-            csl::Expand(op);
-            if (csl::IsSum(op)) {
-                return parseSum(
-                        csl::Expanded(res.coef.getCoefficient() * op),
-                        operatorFactor,
-                        standardBasis,
-                        true);
-            }
-            res.coef.setCoefficient(
-                    res.coef.getCoefficient() / operatorFactor);
-            res.op = WilsonOperator(op, operatorFactor);
-            return {res};
-        }
-        else {
-            res.op = WilsonOperator(op, operatorFactor);
-            return {res};
-        }
+        csl::Expr op = csl::DeepExpanded(csl::prod_s(inOperator, true));
+        return cachedWilsonCalculation(
+                product,
+                operatorFactor,
+                res,
+                op,
+                standardBasis,
+                recursive
+                );
     }
     return {Wilson{WilsonCoefficient(product), WilsonOperator(CSL_1)}};
 }

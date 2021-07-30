@@ -14,8 +14,7 @@ namespace mty {
 
         struct MixingInfo {
             Mixing mixing;
-            size_t i;
-            size_t j;
+            std::vector<size_t> mixedParticles;
         };
 
         NMFV_Model(
@@ -37,6 +36,14 @@ namespace mty {
         {
 
         }
+
+        void getToLowEnergyLagrangian();
+
+        void addPairMixing(
+                Mixing mix, 
+                size_t i, 
+                size_t j
+                );
 
         void addMixing(MixingInfo mix);
     };

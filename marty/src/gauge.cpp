@@ -304,9 +304,9 @@ ostream& operator<<(ostream& fout, const GaugeIrrep& irrep)
             // first term of sum (single)
             // first term of product (single)
             AlgebraState s = irrep[i][0];
-            cout << s[0];
+            fout << s[0];
             if (s[1] != 1)
-                cout << "/" << s[1];
+                fout << "/" << s[1];
         }
 
         if (i != irrep.size() - 1)

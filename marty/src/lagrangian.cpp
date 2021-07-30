@@ -136,68 +136,56 @@ void Lagrangian::mergeTerms(vector<TermType>& terms)
 {
     // Refreshing first all the terms
     std::vector<csl::Expr> linear;
-    vector<TermType> refreshed;
-    refreshed.reserve(terms.size());
-    csl::ProgressBar bar(terms.size(), "Extracting all interaction terms");
     for (size_t i = 0; i != terms.size(); ++i) {
-        if (terms.size() > 5000)
-            bar.progress(i);
         std::vector<mty::QuantumField> const &content = terms[i]->getContent();
-        csl::Expr expr = terms[i]->getTerm();
         if (content.size() == 1) {
-            linear.push_back(expr);
+            linear.push_back(terms[i]->getTerm());
+            terms.erase(terms.begin() + i);
+            --i;
             continue;
         }
-        vector<TermType> foo = 
-            InteractionTerm::createAndDispatch(expr);
-        for (auto& term : foo)
-            refreshed.push_back(term);
     }
 
-    // Merging identical terms
-    if (refreshed.size() > 1) {
-        csl::ProgressBar bar(terms.size(), "Merging all interaction terms");
-        for (size_t i = 0; i + 1 < refreshed.size(); ++i) {
-            if (refreshed.size() > 5000)
-                bar.progress(i);
-            bool merged = false;
-            std::vector<csl::Expr> expressions;
-            for (size_t j = i+1; j < refreshed.size(); ++j)
-                if (refreshed[i]->hasSameContent(*refreshed[j])) {
-                    if (merged)
-                        expressions.push_back(
-                                csl::Expanded(refreshed[j]->getTerm()));
-                    else {
-                        merged = true;
-                        expressions = {
-                            csl::Expanded(refreshed[i]->getTerm()),
-                            csl::Expanded(refreshed[j]->getTerm())
-                        };
-                    }
-                    refreshed.erase(refreshed.begin() + j);
-                    --j;
+    csl::ProgressBar bar(terms.size(), "Merging all interaction terms");
+    for (size_t i = 0; i + 1 < terms.size(); ++i) {
+        if (terms.size() > 5000)
+            bar.progress(i);
+        bool merged = false;
+        std::vector<csl::Expr> expressions;
+        for (size_t j = i+1; j < terms.size(); ++j)
+            if (terms[i]->hasSameContent(*terms[j])) {
+                if (merged)
+                    expressions.push_back(
+                            csl::Expanded(terms[j]->getTerm()));
+                else {
+                    merged = true;
+                    expressions = {
+                        csl::Expanded(terms[i]->getTerm()),
+                        csl::Expanded(terms[j]->getTerm())
+                    };
                 }
-            if (merged) {
-                vector<TermType> terms
-                    = InteractionTerm::createAndDispatch(
-                            csl::DeepRefreshed(sum_s(expressions))
-                            );
-                if (terms.empty()) {
-                    refreshed.erase(refreshed.begin() + i);
-                    --i;
-                }
-                else if (terms.size() == 1) {
-                    refreshed[i] = terms[0];
-                    if (terms.size() > 1)
-                        CallHEPError(mty::error::RuntimeError,
-                                "More than 1 term created with same content, "
-                                + static_cast<string>("should not happen."));
-                }
+                terms.erase(terms.begin() + j);
+                --j;
+            }
+        if (merged) {
+            vector<TermType> newTerms
+                = InteractionTerm::createAndDispatch(
+                        csl::DeepRefreshed(sum_s(expressions))
+                        );
+            if (newTerms.empty()) {
+                terms.erase(terms.begin() + i);
+                --i;
+            }
+            else if (newTerms.size() == 1) {
+                terms[i] = newTerms[0];
+                if (newTerms.size() > 1)
+                    CallHEPError(mty::error::RuntimeError,
+                            "More than 1 term created with same content, "
+                            + static_cast<string>("should not happen."));
             }
         }
     }
 
-    terms = std::move(refreshed);
     auto linearSum = csl::sum_s(linear);
     if (csl::IsSum(linearSum))
         linear = linearSum->getVectorArgument();

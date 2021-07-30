@@ -185,16 +185,19 @@ bool PolarizationField::hasFieldChargeConjugation(
         return false;
     if (index.back() != other->index.back())
         return false;
-    const bool res = partner.isLeft != isComplexConjugate();
-    return res;
+    return (partner.isLeft != isComplexConjugate());
 }
 
 csl::Expr PolarizationField::fieldChargeConjugation(
         mty::PolarizationField const *other
         ) const
 {
-    auto pol_self  = complexConjugatedField(true);
-    auto pol_other = other->complexConjugatedField(true);
+    auto pol_self  = *this;
+    auto pol_other = *other;
+    pol_self .particle = !this ->particle;
+    pol_other.particle = !other->particle;
+    pol_self .updateComplexConjugation();
+    pol_other.updateComplexConjugation();
 
     return -pol_self.copy() * pol_other.copy();
 }

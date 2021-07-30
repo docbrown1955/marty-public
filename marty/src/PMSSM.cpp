@@ -210,7 +210,7 @@ void PMSSM_Model::mergeAllowedMixings()
         for (size_t j = i+1; j < allowedMixings.size(); ++j) {
             bool common = false;
             for (const auto &name : allowedMixings[i])
-                if (allowedMixings[j].find(name) != allowedMixings[i].end()) {
+                if (allowedMixings[j].find(name) != allowedMixings[j].end()) {
                     common = true;
                     break;
                 }
@@ -227,7 +227,8 @@ void PMSSM_Model::mergeAllowedMixings()
 bool PMSSM_Model::isSuppressedMixing(mty::InteractionTerm const &massTerm) const
 {
     std::vector<mty::QuantumField> const &content = massTerm.getContent();
-    if (content.size() != 2)
+    if (content.size() != 2 
+            || content[0].getParent_info() == content[1].getParent_info())
         return false;
     constexpr static auto sfermionNames = {
         "se_L", "se_R", "smu_L", "smu_R", "stau_L", "stau_R",
@@ -289,7 +290,7 @@ void PMSSM_Model::getToLowEnergyLagrangian()
     std::cout << "Breaking flavor symmetry ...\n";
     breakSMFlavorSymmetry();
     approximateQuarkMasses();
-    approximateCKM();
+    // approximateCKM();
     std::cout << "Diagonalizing MSSM mass matrices ...\n";
     L.mergeTerms();
     approximateSFermionMixings();

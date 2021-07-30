@@ -178,13 +178,6 @@ namespace mty {
         void setWilsonOperatorCoefficient(csl::Expr const &factor);
 
         /**
-         * @brief Sets the Wilson operator basis #wilsonOperatorBasis.
-         *
-         * @param basis Basis used in Wilson coefficient decomposition.
-         */
-        void setWilsonOperatorBasis(OperatorBasis basis);
-
-        /**
          * @brief Tells if a diagram passes all diagram filters.
          *
          * @param diagram
@@ -389,6 +382,16 @@ namespace mty {
          * @brief Initializes the default filters.
          */
         void initDefaultFilters();
+
+        /**
+         * @brief Sets the Wilson operator basis #wilsonOperatorBasis.
+         *
+         * @note This method is private because the operator basis is for now
+         * fixed to the standard basis, more suitable for identification.
+         *
+         * @param basis Basis used in Wilson coefficient decomposition.
+         */
+        void setWilsonOperatorBasis(OperatorBasis basis);
 
     public:
 

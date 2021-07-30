@@ -447,6 +447,7 @@ void ModelBuilder::diagonalizeWithSpectrum(
         for (const auto &el : row)
             if (el->size() > 0)
                 return;
+    addParticleFamily(newFields);
     spectra.push_back({fields, newFields, massMatrix, mixing});
 }
 
@@ -494,6 +495,8 @@ void ModelBuilder::bidiagonalizeWithSpectrum(
         for (const auto &el : row)
             if (el->size() > 0)
                 return;
+    addParticleFamily(newFields1);
+    addParticleFamily(newFields2);
     spectra.push_back({
             fields1,
             fields2,
@@ -841,6 +844,45 @@ void ModelBuilder::applyUnitaryCondition(
         }
 }
 
+void ModelBuilder::addParticleFamily(std::vector<mty::Particle> const &family)
+{
+    for (const auto &oldFamily : particleFamilies) {
+        for (const auto &part : family) {
+            HEPAssert(std::find(oldFamily.begin(), oldFamily.end(), part) 
+                    == oldFamily.end(),
+                    mty::error::ValueError,
+                    "Particle \"" + part->getName() + "\" already belongs to a "
+                    "family !"
+                    )
+        }
+    }
+    particleFamilies.push_back(family);
+}
+
+void ModelBuilder::addParticleFamily(std::vector<std::string> const &family)
+{
+    std::vector<mty::Particle> particles(family.size());
+    for (size_t i = 0; i != particles.size(); ++i) 
+        particles[i] = getParticle(family[i]);
+    return addParticleFamily(particles);
+}
+
+void ModelBuilder::removeParticleFamily(mty::Particle const &particle)
+{
+    auto last = std::remove_if(
+            particleFamilies.begin(),
+            particleFamilies.end(),
+            [&](std::vector<mty::Particle> const &family) {
+                return std::count(family.begin(), family.end(), particle) > 0;
+            });
+    particleFamilies.erase(last, particleFamilies.end());
+}
+
+void ModelBuilder::removeParticleFamily(std::string const &particle)
+{
+    return removeParticleFamily(getParticle(particle));
+}
+
 void ModelBuilder::saveModel(
         std::ostream &out,
         int           indentSize
@@ -1035,6 +1077,24 @@ auto replaceMajorana(
     }
 }
 
+void ModelBuilder::clearProjectorsInMass()
+{
+    csl::Tensor P_L = dirac4.P_L;
+    csl::Tensor P_R = dirac4.P_R;
+    std::vector<csl::Expr> terms = clearDependencies(
+            L.mass,
+            [&](Lagrangian::TermType const &term) {
+                return term->getTerm()->dependsExplicitlyOn(P_L.get())
+                    || term->getTerm()->dependsExplicitlyOn(P_R.get());
+            });
+    csl::Index a = DiracIndex();
+    csl::Index b = DiracIndex();
+    csl::Tensor id  = dirac4.getDelta();
+    for (auto &term : terms) {
+        L.push_back(csl::Replaced(term, P_L({a,b}), id({a,b}) - P_R({a,b})));
+    }
+}
+
 void ModelBuilder::doPromoteToMajorana(
         mty::Particle     &particle,
         std::string const &newParticleName
@@ -1071,6 +1131,7 @@ void ModelBuilder::doPromoteToMajorana(
         });
         L.push_back(csl::DeepRefreshed(term));
     }
+    clearProjectorsInMass();
     removeParticle(particle);
     addParticle(majorana, false);
 }
@@ -1693,6 +1754,28 @@ void ModelBuilder::breakLagrangian(
             std::vector<csl::Space const*>(brokenSpace->getDim(), nullptr)
             );
 }
+
+static std::vector<csl::Expr> expandBrokenIndices(
+        csl::Expr  const &init,
+        csl::Space const *brokenSpace,
+        std::vector<csl::Space const*> const &newSpace
+        )
+{
+    // Expanding all broken indices because for now the breakSpace method
+    // is only well-defined for expanded expressions.
+    csl::Expr interm = csl::DeepExpandedIf(init, [&](csl::Expr const &expr) {
+        return csl::AnyOfLeafs(expr, [&](csl::Expr const &sub) {
+            if (csl::IsIndicialTensor(sub)) {
+                for (const auto &index : sub->getIndexStructureView())
+                    if (index.getSpace() == brokenSpace)
+                        return true;
+            }
+            return false;
+        });       
+    });
+    return interm->breakSpace(brokenSpace, newSpace);
+}
+
 void ModelBuilder::breakLagrangian(
         mty::Particle                  const &init,
         csl::Space const                     *brokenSpace,
@@ -1701,25 +1784,31 @@ void ModelBuilder::breakLagrangian(
 {
     for (size_t i = 0; i != L.kinetic.size(); ++i)
         if (L.kinetic[i]->containsExactly(init.get())) {
-            csl::vector_expr broke = L.kinetic[i]->getTerm()
-                ->breakSpace(brokenSpace,
-                             newSpace);
+            csl::vector_expr broke 
+                = expandBrokenIndices(
+                        L.kinetic[i]->getTerm(),
+                        brokenSpace,
+                        newSpace);
             replaceTermInLagrangian(L.kinetic, i, broke);
         }
 
     for (size_t i = 0; i != L.mass.size(); ++i)
         if (L.mass[i]->containsExactly(init.get())) {
-            csl::vector_expr broke = L.mass[i]->getTerm()
-                ->breakSpace(brokenSpace,
-                             newSpace);
+            csl::vector_expr broke 
+                = expandBrokenIndices(
+                        L.mass[i]->getTerm(),
+                        brokenSpace,
+                        newSpace);
             replaceTermInLagrangian(L.mass, i, broke);
         }
 
     for (size_t i = 0; i != L.interaction.size(); ++i)
         if (L.interaction[i]->containsExactly(init.get())) {
-            csl::vector_expr broke = L.interaction[i]->getTerm()
-                ->breakSpace(brokenSpace,
-                             newSpace);
+            csl::vector_expr broke 
+                = expandBrokenIndices(
+                        L.interaction[i]->getTerm(),
+                        brokenSpace,
+                        newSpace);
             replaceTermInLagrangian(L.interaction, i, broke);
         }
 }
@@ -2076,6 +2165,7 @@ void ModelBuilder::addSpectrum(
         std::vector<std::vector<csl::Expr>> const &mix2
         )
 {
+    addParticleFamily(parts);
     spectra.emplace_back(
             parts,
             mass,

@@ -1557,6 +1557,8 @@ bool QuantumField::operator==(csl::Expr_info other) const
         return TensorFieldElement::operator==(other);
     if (derivativeIndices.size() != other_info->derivativeIndices.size())
         return false;
+    if (isFermionic() && particle != other_info->particle)
+        return false;
 
     std::shared_ptr<QuantumField> fieldA 
         = csl::make_shared<QuantumField>(*this);

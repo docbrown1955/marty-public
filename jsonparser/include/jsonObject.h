@@ -135,6 +135,24 @@ class Node: public Object {
         Child c = std::move(child);
         addChild(c);
     }
+
+    /*!
+     * \brief Adds a child in the Node.
+     * \param child New child added in \b children.
+     */
+    virtual void addChild(Child&& child) {
+        children.push_back(std::move(child));
+    }
+
+    /*!
+     * \brief Adds a child in the Node.
+     * \param child New child added in \b children.
+     */
+    template<class T>
+    inline void addChild(std::unique_ptr<T>&& child) {
+        Child c = std::move(child);
+        addChild(c);
+    }
     
     /*!
      * \return **children.size()**, the number of children.
@@ -251,6 +269,35 @@ class List: public Node {
             exit(1);
         }
         Node::addChild(child);
+    }
+
+    /*!
+     * \brief Adds a child in the List. Checks if the specifier is the same as 
+     * the one of the List (each element must have the same). 
+     * \param child New child added in \b children.
+     */
+    void addChild(Child&& child) override {
+        if (child->getSpecifier() != specifier) {
+            std::cerr << "JSONParsingError: difference specification"
+                << " \"" << child->getSpecifier() << "\" in list.\n";
+            exit(1);
+        }
+        Node::addChild(std::move(child));
+    }
+
+    /*!
+     * \brief Adds a child in the List. Checks if the specifier is the same as 
+     * the one of the List (each element must have the same). 
+     * \param child New child added in \b children.
+     */
+    template<class T>
+    void addChild(std::unique_ptr<T>&& child) {
+        if (child->getSpecifier() != specifier) {
+            std::cerr << "JSONParsingError: difference specification"
+                << " \"" << child->getSpecifier() << "\" in list.\n";
+            exit(1);
+        }
+        Node::addChild(std::move(child));
     }
 };
 

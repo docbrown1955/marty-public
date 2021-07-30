@@ -722,7 +722,7 @@ void MSSM_Model::initQuarticDTerms()
                 });
                 csl::Replace(quadratic2, B, A);
                 addLagrangianTerm(
-                        csl::Refreshed(CSL_M_HALF 
+                        csl::Refreshed(CSL_HALF 
                             * quadratic1 * quadratic2
                         ));
             }
@@ -1263,7 +1263,7 @@ void MSSM_Model::adjustCouplingConstants()
     csl::Expr thetaW = sm_input::theta_W;
     replace(
             g_L*g_L + g_Y*g_Y,
-            csl::pow_s(g_L/csl::cos_s(thetaW), csl::int_s(2)));
+            csl::pow_s(g_L, 2) * (1 + csl::pow_s(csl::tan_s(thetaW), 2)));
     replace(
             g_Y, 
             e / csl::cos_s(thetaW));

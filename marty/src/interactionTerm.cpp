@@ -106,7 +106,7 @@ void abbreviantLINT(csl::Expr &prod)
             prod[i] = CSL_1;
         }
         prod[abbreviate[0]] = csl::Abbrev::makeAbbreviation(
-                "TMP_LINT",
+                "L_term",
                 csl::prod_s(abbreviation, true)
                 );
         csl::Refresh(prod);
@@ -132,7 +132,7 @@ vector<InteractionTerm::TermType>
         )
 {
     csl::Expr abbreviated = expression;
-    csl::Expr expanded = DeepExpandedIf(abbreviated, [&](csl::Expr const &sum)
+    csl::Expr expanded = DeepExpandedIf_lock(abbreviated, [&](csl::Expr const &sum)
     {
         return AnyOfLeafs(sum, [&](csl::Expr const &sub)
         {
@@ -150,8 +150,6 @@ vector<InteractionTerm::TermType>
     std::vector<std::vector<mty::QuantumField>> contents(expanded->size());
     std::vector<csl::Expr> fieldProducts(contents.size());
     for (size_t i = 0; i != contents.size(); ++i) {
-        //if (abbreviateFactors)
-        //    abbreviantLINT(expanded[i]);
         fillContent(expanded[i], contents[i]);
     }
     std::vector<size_t> indicesLeft(contents.size());
@@ -194,7 +192,7 @@ vector<InteractionTerm::TermType>
             interac.push_back(std::make_shared<InteractionTerm>(term));
         }
     }
-    //csl::Abbrev::enableGenericEvaluation("TMP_LINT");
+    //csl::Abbrev::enableGenericEvaluation("L_term");
     //for (auto &i : interac)
     //    i = std::make_shared<InteractionTerm>(
     //            csl::Evaluated(i->getTerm())
@@ -631,7 +629,7 @@ void InteractionTerm::gatherFactorsAndSymmetries()
                     return;
                 sub = sub->getNumericalFactor()
                     * csl::Abbrev::makeAbbreviation(
-                        "TMP_LINT",
+                        "L_term",
                         csl::Refreshed(csl::GetTerm(sub))
                         );
             }
@@ -650,7 +648,7 @@ void InteractionTerm::gatherFactorsAndSymmetries()
                         return;
                     sub = sub->getNumericalFactor()
                         * csl::Abbrev::makeAbbreviation(
-                            "TMP_LINT",
+                            "L_term",
                             csl::Refreshed(csl::GetTerm(sub))
                             );
                 }

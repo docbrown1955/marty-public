@@ -159,6 +159,7 @@ namespace mty {
                 insertions, 
                 kinematics.getMomenta(),
                 false);
+        // std::cout << "LSZ = " << LSZInsertion << '\n';
         if (options.orderInsertions)
             orderInsertions(insertions, kinematics);
 
@@ -170,6 +171,7 @@ namespace mty {
             fieldVertices[i] = insertions[i].copy();
         }
         Amplitude res { options, kinematics };
+        // size_t III = 0;
         for (size_t index = 0; index != terms.size(); ++index) {
             ///////////////////////////////:
             // This line is important as it disables all index contractions
@@ -185,8 +187,10 @@ namespace mty {
             const auto &termPos = terms[index];
             std::vector<FeynmanRule> localRules;
             localRules.reserve(termPos.size());
+            // std::cout << "For rules:" << '\n';
             for (size_t i : termPos) {
                 localRules.push_back(*feynmanRules[i]);
+                // std::cout << localRules.back() << '\n';
             }
             std::vector<csl::Tensor> vertices = getVertices(termPos.size());
             std::map<csl::Tensor, size_t> vertexIds;
@@ -215,6 +219,8 @@ namespace mty {
                     true,
                     false);
             options.applyFilters(amplitude);
+            // if (!amplitude.empty())
+            //     std::cout << "Field prod = " << fieldProd << '\n';
 
             ////////////////////////////////////////
             // Setting this option to its old value
@@ -235,6 +241,8 @@ namespace mty {
                 std::cout << amplitude.size() << " new particle amplitude"
                     << plural << " found" << " (set of vertices " << index+1 
                     << " / " << terms.size() << ")\n";
+                //if (++III == 8)
+                //    std::cin.get();
             } 
             res.add(amplitude);
         }

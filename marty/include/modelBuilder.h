@@ -460,6 +460,16 @@ public:
             std::vector<csl::Expr>              const &massMatrix
             );
 
+    std::vector<std::vector<mty::Particle>> const &getParticleFamilies() const {
+        return particleFamilies;
+    }
+
+    void addParticleFamily(std::vector<mty::Particle> const &families);
+    void removeParticleFamily(mty::Particle const &particle);
+
+    void addParticleFamily(std::vector<std::string> const &familyNames);
+    void removeParticleFamily(std::string const &particleName);
+
 protected:
 
     void replaceTermInLagrangian(
@@ -497,6 +507,8 @@ protected:
             mty::Particle& ghost,
             mty::Particle& gaugeBoson
             );
+
+    void clearProjectorsInMass();
 
     void doPromoteToMajorana(
             mty::Particle     &weylFermion,
@@ -569,6 +581,8 @@ protected:
      * mty::Library::generateSpectrum() function.
      */
     std::vector<csl::Expr> abbreviatedMassExpressions;
+
+    std::vector<std::vector<mty::Particle>> particleFamilies;
 };
 
 ///////////////////////////////////////////////////

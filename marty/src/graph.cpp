@@ -858,6 +858,9 @@ Graph::Expr_type Graph::getPartialExpression(
         terms_ampl.push_back(
                 vectorintegral_s(finalOrder[i]->getPropagator(
                 *finalOrder[i+1], parent), parent));
+        // std::cout << "Propagator : " << '\n';
+        // std::cout << *finalOrder[i] << " " << *finalOrder[i+1] << '\n';
+        // std::cout << terms_ampl.back() << '\n';
         if (not witnessMapping.isEmpty()) {
             if (finalOrder[i]->isComplexConjugate()) {
                 witnessMapping.push(*finalOrder[i+1], parent);
@@ -871,6 +874,7 @@ Graph::Expr_type Graph::getPartialExpression(
     }
 
     terms_ampl.push_back(int_s(getCommutationSign(initialOrder, finalOrder)));
+    // std::cout << "SIGN : " << terms_ampl.back() << '\n';
     csl::Expr res = prod_s(terms_ampl, true);
 
     return {res, C_info};

@@ -3479,25 +3479,25 @@ optional<Expr> ISum::factor(bool full) const
     Expr sum = copy();
     Expr product = CSL_1;
     for (const auto& f : factors) {
-        Expr expanded = Factored(sum, f.get());
-        if (expanded->getType() == csl::Type::Prod) {
+        Expr factored = Factored(sum, f.get());
+        if (factored->getType() == csl::Type::Prod) {
             bool toDevelop = false;
-            for (size_t i = 0; i != expanded->size(); ++i) {
-                if (expanded[i]->getType() == csl::Type::Sum)  {
-                    if (expanded[i] != f) {
+            for (size_t i = 0; i != factored->size(); ++i) {
+                if (factored[i]->getType() == csl::Type::Sum)  {
+                    if (factored[i] != f) {
                         toDevelop = true;
-                        sum = expanded[i];
+                        sum = factored[i];
                     }
                     else
-                        product = product * expanded[i];
+                        product = product * factored[i];
                 }
                 else
-                    product = product * expanded[i];
+                    product = product * factored[i];
             }
             if (toDevelop)
                 return Factored(sum) * product;
             else
-                return expanded;
+                return factored;
         }
     }
     if (product != CSL_1)
@@ -3702,7 +3702,7 @@ Expr IProd::suppressTerm(Expr_info term) const
         }
     }
 
-    return prod_s(newArgs);
+    return prod_s(newArgs, true);
 }
 
 void IProd::setArgument(const Expr& t_argument, int iArg)

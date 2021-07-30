@@ -54,6 +54,7 @@ class Lagrangian {
     friend class ModelBuilder;
     friend class MSSM_Model;
     friend class PMSSM_Model;
+    friend class NMFV_Model;
     friend class Expander;
 
     public:

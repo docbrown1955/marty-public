@@ -747,28 +747,25 @@ optional<Expr> Sum::factor(Expr_info expr, bool full) const
                 if (arg[i]->askTerm(expr))
                     toFactor.push_back(i);
                 else {
-                    newAbstract = sum_s(newAbstract, arg[i]);
+                    return std::nullopt;
                 }
             }
             else
-                newAbstract = sum_s(newAbstract, arg[i]);
+                return std::nullopt;
         }
     }
 
-    // If the number of arguments that can be factored is greater than 2, 
-    // We factor them
     Expr copyExpr = expr->copy();
     if (toFactor.size() == argument.size()) {
-        Expr factored = CSL_0;
+        std::vector<csl::Expr> factored;
+        factored.reserve(toFactor.size());
         for (size_t i=0; i<toFactor.size(); i++) {
             Expr foo = arg[toFactor[i]]->suppressTerm(expr);
             if (foo*copyExpr != arg[toFactor[i]])
                 return nullopt;
-            factored = sum_s(factored, arg[toFactor[i]]->suppressTerm(expr));
+            factored.push_back(arg[toFactor[i]]->suppressTerm(expr));
         }
-        newAbstract = sum_s(newAbstract, factored * copyExpr);
-
-        return newAbstract;
+        return csl::prod_s(sum_s(factored), copyExpr, true);
     }
     else
         return nullopt;

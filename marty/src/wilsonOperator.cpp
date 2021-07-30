@@ -35,6 +35,70 @@ std::ostream &operator<<(
 
 namespace OperatorParser {
 
+    static std::array<csl::Expr, 6> buildMagneticOperators(
+            std::vector<Insertion> const &insertions
+            )
+    {
+
+        csl::Expr op_p1 = buildMagneticOperator(
+                insertions[0], insertions[1], insertions[2],
+                insertions[0].momentum,
+                false
+                );
+        csl::Expr op_p2 = buildMagneticOperator(
+                insertions[0], insertions[1], insertions[2],
+                insertions[1].momentum,
+                false
+                );
+        csl::Expr op_p3 = buildMagneticOperator(
+                insertions[0], insertions[1], insertions[2],
+                insertions[2].momentum,
+                false
+                );
+        csl::Expr op_p1c = buildMagneticOperator(
+                insertions[0], insertions[1], insertions[2],
+                insertions[0].momentum,
+                true
+                );
+        csl::Expr op_p2c = buildMagneticOperator(
+                insertions[0], insertions[1], insertions[2],
+                insertions[1].momentum,
+                true
+                );
+        csl::Expr op_p3c = buildMagneticOperator(
+                insertions[0], insertions[1], insertions[2],
+                insertions[2].momentum,
+                true
+                );
+        return {op_p1, op_p2, op_p3, op_p1c, op_p2c, op_p3c};
+    }
+
+    csl::Expr getMagneticContribution(
+            Wilson                   const &wilson,
+            std::array<csl::Expr, 6> const &magneticOperators,
+            Chirality                       chirality,
+            int                             s1,
+            int                             s2
+            )
+    {
+        auto const &[op_p1, op_p2, op_p3, op_p1c, op_p2c, op_p3c] 
+            = magneticOperators;
+        csl::Expr cFactor = (chirality == Chirality::Left) ? -1 : 1; 
+        if (wilson.op == WilsonOperator{op_p1}) 
+            return CSL_1 / 4 * s1 * wilson.coef.getCoefficient();
+        else if (wilson.op == WilsonOperator{op_p2})
+            return CSL_1 / 4 * s2 * wilson.coef.getCoefficient();
+        else if (wilson.op == WilsonOperator{op_p3})
+            return -CSL_1 / 2 * wilson.coef.getCoefficient();
+        if (wilson.op == WilsonOperator{op_p1c}) 
+            return cFactor / 4 * s1 * wilson.coef.getCoefficient();
+        else if (wilson.op == WilsonOperator{op_p2c})
+            return cFactor / 4 * s2 * wilson.coef.getCoefficient();
+        else if (wilson.op == WilsonOperator{op_p3c})
+            return -cFactor / 2 * wilson.coef.getCoefficient();
+        return CSL_0;
+    }
+
     csl::Expr getMagneticCoefficient(
             std::vector<Wilson> const &coefs,
             Chirality                  chirality
@@ -60,35 +124,16 @@ namespace OperatorParser {
             int sign_p2 = insertions[2].field.isIncoming() ? -1 : 1;
             if (insertions[1].field.isIncoming())
                 sign_p2 *= -1;
-            csl::Expr op_p1 = buildMagneticOperator(
-                    insertions[0],
-                    insertions[1],
-                    insertions[2],
-                    insertions[0].momentum,
-                    chirality
-                    );
-            csl::Expr op_p2 = buildMagneticOperator(
-                    insertions[0],
-                    insertions[1],
-                    insertions[2],
-                    insertions[1].momentum,
-                    chirality
-                    );
-            csl::Expr op_p3 = buildMagneticOperator(
-                    insertions[0],
-                    insertions[1],
-                    insertions[2],
-                    insertions[2].momentum,
-                    chirality
-                    );
-            if (wilson.op == WilsonOperator{op_p1})
-                res.push_back(CSL_1 / 4 * sign_p1 
-                        * wilson.coef.getCoefficient());
-            else if (wilson.op == WilsonOperator{op_p2})
-                res.push_back(CSL_1 / 4 * sign_p2 
-                        * wilson.coef.getCoefficient());
-            else if (wilson.op == WilsonOperator{op_p3})
-                res.push_back(-CSL_1 / 2 * wilson.coef.getCoefficient());
+            std::array magOperators = buildMagneticOperators(insertions);
+            csl::Expr contrib = getMagneticContribution(
+                    wilson,
+                    magOperators,
+                    chirality,
+                    sign_p1, 
+                    sign_p2);
+            if (contrib != CSL_0) {
+                res.push_back(contrib);
+            }
         }
 
         return csl::sum_s(res);
@@ -400,7 +445,7 @@ namespace OperatorParser {
             Insertion const &outgoingFermion,
             Insertion const &vectorBoson,
             csl::Tensor      momentum,
-            Chirality        chirality
+            bool             chiralOperator
             )
     {
         csl::Expr psi_star = fermionExpr(outgoingFermion);
@@ -459,16 +504,10 @@ namespace OperatorParser {
         mu = mu.getFlipped();
 
         csl::Expr projector;
-        switch(chirality) {
-            case Chirality::Left:
-                projector = diracSpace->P_L({alpha, beta});
-                break;
-            case Chirality::Right:
-                projector = diracSpace->P_R({alpha, beta});
-                break;
-            default:
-                projector = diracSpace->getDelta()({alpha, beta});
-        }
+        if (chiralOperator)
+            projector = diracSpace->gamma_chir({alpha, beta});
+        else
+            projector = diracSpace->getDelta()({alpha, beta});
 
         return psi_star * projector * generator * psi * (momentum(mu) * A);
     }

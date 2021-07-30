@@ -31,6 +31,7 @@
 #include "polarization.h"
 #include "fermionOrder.h"
 #include "wilson.h"
+#include "penguinpatch.h"
 
 #include "amplitudeInitializer.h"
 #include "amplitudeSimplification.h"
@@ -221,7 +222,7 @@ csl::Expr Model::computeSquaredAmplitude(
     csl::ScopedProperty prop(&mty::option::decomposeInLocalOperator, false);
 
     FeynOptions optionsL = amplL.getOptions();
-    optionsL.setWilsonOperatorBasis(OperatorBasis::None);
+    // optionsL.setWilsonOperatorBasis(OperatorBasis::None);
     auto wilsonsL = getWilsonCoefficients(amplL, optionsL, true);
 
     if (&amplL == &amplR) { // same ampl, no need to recalculate
@@ -232,7 +233,7 @@ csl::Expr Model::computeSquaredAmplitude(
                 );
     }
     FeynOptions optionsR = amplR.getOptions();
-    optionsR.setWilsonOperatorBasis(OperatorBasis::None);
+    // optionsR.setWilsonOperatorBasis(OperatorBasis::None);
     auto wilsonsR = getWilsonCoefficients(amplR, optionsR, true);
 
     return computeSquaredAmplitude(
@@ -404,15 +405,17 @@ WilsonSet Model::getWilsonCoefficients(
         bool               squaredAfter
         )
 {
+    mty::cachedWilson.clear();
     csl::ScopedProperty commut(&csl::option::checkCommutations, false);
     std::vector<csl::Expr> amplitudesfull(ampl.obtainExpressions());
-    const auto basis  = feynOptions.getWilsonOperatorBasis();
+    const auto basis  = OperatorBasis::Standard;
     const auto factor = feynOptions.getWilsonOperatorCoefficient();
     csl::Abbrev::enableGenericEvaluation("EXT");
     for (auto &ampl : amplitudesfull) {
-        if (!squaredAfter)
+        if (!squaredAfter) {
             ampl = CSL_I * csl::Copy(ampl);
-        projectOnBasis(ampl, basis);
+            projectOnBasis(ampl, basis);
+        }
         csl::Evaluate(ampl);
         csl::DeepExpandIf_lock(ampl, [&](csl::Expr const &e) { 
             return bool(dynamic_cast<mty::QuantumField const*>(e.get()))
@@ -423,7 +426,7 @@ WilsonSet Model::getWilsonCoefficients(
     auto wilsons = match(
             amplitudesfull, 
             factor,
-            basis == OperatorBasis::Standard, 
+            !squaredAfter && (basis == OperatorBasis::Standard), 
             squaredAfter);
     auto const &insertions = ampl.getKinematics().getInsertions();
     auto const &momenta    = ampl.getKinematics().getMomenta();
@@ -451,6 +454,10 @@ WilsonSet Model::getWilsonCoefficients(
         }
         w.coef.setCoefficient(a);
     }
+    if (!squaredAfter 
+            && basis == OperatorBasis::Standard
+            && requiresPenguinPatch(ampl))
+        applyPenguinPatch(wilsons, ampl.getKinematics());
     WilsonSet res(wilsons.begin(), wilsons.end());
     res.sort();
     res.options    = ampl.getOptions();
@@ -522,10 +529,9 @@ WilsonSet Model::computeWilsonBoxes_4Fermions(
 {
     csl::ScopedProperty verbose(&mty::option::verboseAmplitude, false);
     csl::ScopedProperty prop(&mty::option::keepOnlyFirstMassInLoop, true);
-    feynOptions.setTopology(Topology::Box);
+    feynOptions.setTopology(feynOptions.getTopology() & Topology::Box);
     auto ampl = computeAmplitude(
             OneLoop, kinematics.getInsertions(), feynOptions);
-    Show(ampl);
     ampl.setKinematics(kinematics.alignedWith(ampl.getKinematics()));
     auto wilsons = getWilsonCoefficients(ampl, feynOptions);
     return wilsons;
@@ -568,7 +574,6 @@ WilsonSet Model::computeSingleWilsonPenguin_4Fermions(
     if (loopAmplitude.empty()) {
         return {};
     }
-    Show(loopAmplitude);
     // if (massless) {
     //     auto wil = getWilsonCoefficients(loopAmplitude);
     //     Display(wil);
@@ -642,19 +647,24 @@ WilsonSet Model::computeWilsonCoefficients_4Fermions(
     if (mty::option::verboseAmplitude)
         std::cout << "Using special 4-fermion calculation" << std::endl;
     WilsonSet res;
-    if (mty::option::verboseAmplitude)
-        std::cout << "Box calculation ..." << std::endl;
     Kinematics kinematics { insertions };
-    WilsonSet contrib = computeWilsonBoxes_4Fermions(
+    WilsonSet contrib;
+    if (feynOptions.getTopology() & Topology::Box) {
+        if (mty::option::verboseAmplitude)
+            std::cout << "Box calculation ..." << std::endl;
+        contrib = computeWilsonBoxes_4Fermions(
             kinematics, feynOptions);
-    for (const auto &wil : contrib)
-        addWilson(wil, res, false);
-    if (mty::option::verboseAmplitude)
-        std::cout << "Penguin calculation ..." << std::endl;
-    contrib = computeWilsonPenguins_4Fermions(
-            kinematics, feynOptions);
-    for (const auto &wil : contrib)
-        addWilson(wil, res, false);
+        for (const auto &wil : contrib)
+            addWilson(wil, res, false);
+    }
+    if (feynOptions.getTopology() & (Topology::Mass | Topology::Triangle)) {
+        if (mty::option::verboseAmplitude)
+            std::cout << "Penguin calculation ..." << std::endl;
+        contrib = computeWilsonPenguins_4Fermions(
+                kinematics, feynOptions);
+        for (const auto &wil : contrib)
+            addWilson(wil, res, false);
+    }
 
     res.merge();
     res.sort();

@@ -25,6 +25,7 @@
 
 #include <csl.h>
 #include "kinematics.h"
+#include "cache.h"
 #include "feynOptions.h"
 
 namespace mty {
@@ -136,6 +137,18 @@ struct WilsonSet: public std::vector<Wilson> {
     FeynOptions options {};
 };
 
+std::vector<Wilson> copyWilsons(std::vector<Wilson> const &wilsons);
+
+inline Cache<
+        csl::Expr,                      // Key type
+        std::vector<Wilson>            // Result type
+        > cachedWilson(
+                [](csl::Expr const &A, csl::Expr const &B) {
+                    return (A == B) || mty::hardComparison(A, B);
+                },          // Comparator
+                copyWilsons // Releaser
+                );
+
 void parseStructures(
         csl::Expr              &arg,
         std::vector<csl::Expr> &inOperator,
@@ -144,6 +157,23 @@ void parseStructures(
 
 std::vector<csl::Expr> parseStructures(
         csl::Expr& product
+        );
+
+std::vector<Wilson> cachedWilsonCalculation(
+        csl::Expr const& product,
+        csl::Expr const& operatorFactor,
+        Wilson           res,
+        csl::Expr        op,
+        bool             standardBasis,
+        bool             recursive
+        );
+
+std::vector<Wilson> sglSimplifyForWilson(
+        csl::Expr const &op,
+        csl::Expr const &operatorFactor,
+        Wilson           res,
+        bool             standardBasis,
+        bool             recursive
         );
 
 std::vector<Wilson> parseExpression(

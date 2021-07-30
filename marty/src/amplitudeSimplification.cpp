@@ -1033,6 +1033,7 @@ namespace mty::simpli {
             Mode                                  mode
             )
     {
+        // std::cout << "HERE FOR " << expr << '\n';
         csl::ScopedProperty commut(&csl::option::checkCommutations, false);
         csl::Refresh(expr);
         if (mode != WilsonCoefficient && mode != FeynmanRule) {
@@ -1109,6 +1110,8 @@ namespace mty::simpli {
             addLocalTerms(expr);
             csl::DeepFactor(expr);
         }
+        // std::cout << "Before Abbrevs" << '\n';
+        // std::cout << expr << '\n';
 
         //////////////////////
         
@@ -1136,6 +1139,7 @@ namespace mty::simpli {
                 expr *= factor;
         }
         csl::DeepRefresh(expr);
+        // std::cout << "Factors = " << prod_s(factors) << '\n';
 
         if (mode == Amplitude) {
             abbreviateIntegral(expr);
@@ -1143,6 +1147,8 @@ namespace mty::simpli {
                 abbreviateAll(expr);
             csl::DeepRefresh(expr);
         }
+        // std::cout << "RES = " << '\n';
+        // std::cout << expr << '\n';
     }
 
 } // namespace mty
