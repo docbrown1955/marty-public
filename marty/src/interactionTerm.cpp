@@ -445,6 +445,8 @@ csl::Expr InteractionTerm::getFullExpression() const
     csl::Expr res = applyFactorAndSymmetriesOn(getFieldProduct());
     res = DeepRefreshed(res);
     if (csl::Abbrev::getFreeStructure(res->getIndexStructure()).size() > 0) {
+        std::cerr << "Term : " << getTerm() << '\n';
+        std::cerr << "Res  : " << res << '\n';
         CallHEPError(mty::error::IndexError, "")
     }
     return res;

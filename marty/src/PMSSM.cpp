@@ -35,13 +35,13 @@ PMSSM_Model::PMSSM_Model(
 {
     addAllowedMixing({"st_L", "st_R"});
     addAllowedMixing({"sb_L", "sb_R"});
-    addAllowedMixing({"sc_L", "sc_R"});
-    addAllowedMixing({"ss_L", "ss_R"});
-    addAllowedMixing({"su_L", "su_R"});
-    addAllowedMixing({"sd_L", "sd_R"});
+    // addAllowedMixing({"sc_L", "sc_R"});
+    // addAllowedMixing({"ss_L", "ss_R"});
+    // addAllowedMixing({"su_L", "su_R"});
+    // addAllowedMixing({"sd_L", "sd_R"});
     addAllowedMixing({"stau_L", "stau_R"});
-    addAllowedMixing({"smu_L", "smu_R"});
-    addAllowedMixing({"se_L", "se_R"});
+    // addAllowedMixing({"smu_L", "smu_R"});
+    // addAllowedMixing({"se_L", "se_R"});
     if (init) {
         std::cout << "Initializing gauge and particle content ..." << std::endl;
         initContent();

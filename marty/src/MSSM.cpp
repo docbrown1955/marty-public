@@ -400,11 +400,15 @@ void MSSM_Model::initGauginoInteractions(
                 break;
             }
 
+        bool isLeft = (fermion->getChirality() == Chirality::Left);
+        csl::Expr scal = (isLeft) ? cc(scalar(s_index)) : scalar(s_index);
+        csl::Expr ferm = (isLeft) ? fermion(f_index) : cc(fermion(f_index));
+        csl::Expr connexion = (isLeft) ? 
+            dirac4.C_matrix({a, b}) : -dirac4.getDelta()({a, b});
         addLagrangianTerm(
-                - csl::sqrt_s(2) * coupling 
-                * cc(scalar(s_index)) * T({A, i, j}) * fermion(f_index)
-                * dirac4.C_matrix({a, b})
-                * gaugino({A, b}),
+                csl::DeepRefreshed(csl::prod_s({
+                    -csl::sqrt_s(2), coupling, T({A, i, j}),
+                    scal, ferm, connexion, gaugino({A, b})})),
                 true
                 );
     }
@@ -434,11 +438,15 @@ void MSSM_Model::initU1GauginoInteractions(
         csl::Index b = a.rename();
         s_index.erase(s_index.end() - 1); // Dirac index
 
+        bool isLeft = (fermion->getChirality() == Chirality::Left);
+        csl::Expr scal = (isLeft) ? cc(scalar(s_index)) : scalar(s_index);
+        csl::Expr ferm = (isLeft) ? fermion(f_index) : cc(fermion(f_index));
+        csl::Expr connexion = (isLeft) ? 
+            dirac4.C_matrix({a, b}) : -dirac4.getDelta()({a, b});
         addLagrangianTerm(
-                -csl::sqrt_s(2) * coupling 
-                * charge * cc(scalar(s_index)) * fermion(f_index)
-                * dirac4.C_matrix({a, b})
-                * gaugino(b),
+                csl::DeepRefreshed(csl::prod_s({
+                    -csl::sqrt_s(2), coupling, charge,
+                    scal, ferm, connexion, gaugino(b)})),
                 true
                 );
     }
