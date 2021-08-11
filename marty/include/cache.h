@@ -53,7 +53,7 @@ private:
 
     U const &add(T const &key, U const &value) {
         if (auto pos = find(key) ; pos == end()) {
-            cached.push_back({key, value});
+            cached.push_back({key, releaser(value)});
             return cached.back().second;
         }
         else {

@@ -23,6 +23,8 @@
 #include "algo.h"
 #include "utils.h"
 #include "scopedProperty.h"
+#include "hardComparison.h"
+#include "dichotomy.h"
 
 namespace csl {
 
@@ -44,26 +46,36 @@ size_t dichoFinder(
         std::vector<AbstractParent*> const &v
         )
 {
-    size_t first = 0;
-    size_t last = v.size();
-    while (last != first) {
-        size_t mid = (first + last) / 2;
-        auto const &midExpr = v[mid]->getEncapsulated();
-        if (expr < midExpr)
-            last = mid;
-        else if (midExpr < expr) {
-            if (mid == first)
-                ++first;
-            else
-                first = mid;
-        }
-        else
-            return mid;
-        if (first + 1 == mid) {
-            return (expr < v[first]->getEncapsulated()) ? first : mid;
-        }
-    }
-    return first;
+    auto iter = csl::dichotomyFindIf(v.begin(), v.end(), 
+            [&](AbstractParent const *parent) {
+                const auto &encaps = parent->getEncapsulated();
+                if (expr < encaps)
+                    return +1;
+                else if (encaps < expr)
+                    return -1;
+                return 0;
+            });
+    return iter - v.begin();
+    // size_t first = 0;
+    // size_t last = v.size();
+    // while (last != first) {
+    //     size_t mid = (first + last) / 2;
+    //     auto const &midExpr = v[mid]->getEncapsulated();
+    //     if (expr < midExpr)
+    //         last = mid;
+    //     else if (midExpr < expr) {
+    //         if (mid == first)
+    //             ++first;
+    //         else
+    //             first = mid;
+    //     }
+    //     else
+    //         return mid;
+    //     if (first + 1 == mid) {
+    //         return (expr < v[first]->getEncapsulated()) ? first : mid;
+    //     }
+    // }
+    // return first;
 }
 
 bool Abbrev::compareParents::operator()(
@@ -97,7 +109,7 @@ void Abbrev::cleanEmptyAbbreviation()
     }
 }
 
-void Abbrev::addAbreviation(
+void Abbrev::addAbbreviation(
         AbstractParent* ptr,
         std::string const &name
         )
@@ -107,16 +119,19 @@ void Abbrev::addAbreviation(
     //           "Abbreviation " + std::string(ptr->getName())
     //           + " already exists.");
     auto &abbreviations = getAbbreviationsForName(name.data());
+    auto encapsulated = ptr->getEncapsulated();
+    size_t insertionPos;
     if (useDichotomy) {
-        size_t pos = dichoFinder(ptr->getEncapsulated(), abbreviations);
-        abbreviations.insert(abbreviations.begin() + pos, ptr);
+        insertionPos = dichoFinder(encapsulated, abbreviations);
+        abbreviations.insert(abbreviations.begin() + insertionPos, ptr);
     }
     else {
+        insertionPos = abbreviations.size();
         abbreviations.push_back(ptr);
     }
 }
 
-void Abbrev::removeAbreviation(
+void Abbrev::removeAbbreviation(
         AbstractParent* ptr,
         std::string const &name
         )
@@ -178,6 +193,71 @@ AbstractParent* Abbrev::find_opt(std::string_view name)
 AbstractParent* Abbrev::find_opt(Expr const& abreviation) 
 {
     return find_opt(abreviation->getName());
+}
+
+void Abbrev::compressAbbreviations(std::string const &name)
+{
+    if (name.empty()) {
+        for (auto &el : abbreviationData)
+            compressAbbreviations_impl(el.second);
+    }
+    else {
+        compressAbbreviations_impl(getAbbreviationsForName(name));
+    }
+}
+
+static std::vector<csl::Expr> commonFactors(
+        csl::Expr const &prod1,
+        csl::Expr const &prod2
+        )
+{
+    auto iter1 = prod1->begin();
+    auto iter2 = prod2->begin();
+    const auto end1 = prod1->end();
+    const auto end2 = prod2->end();
+    std::vector<csl::Expr> factors;
+    factors.reserve(std::min(end1 - iter1, end2 - iter2));
+    while (iter1 != end1 && iter2 != end2) {
+        if (csl::IsNumerical(*iter1) || *iter1 < *iter2) {
+            ++iter1;
+        }
+        else if (csl::IsNumerical(*iter2) || *iter2 < *iter1) {
+            ++iter2;
+        }
+        else {
+            if (*iter1 == *iter2) { // Should not need it if total order ...
+                factors.push_back(*iter1);  // ... but we never know
+            }
+            ++iter1;
+            ++iter2;
+        }
+    }
+    return factors;
+}
+
+void Abbrev::compressAbbreviations_impl(
+        std::vector<AbstractParent*> &abbreviations
+        )
+{
+    for (size_t i = 0; i != abbreviations.size(); ++i) {
+        csl::Expr encaps_i = abbreviations[i]->getEncapsulated();
+        if (!csl::IsProd(encaps_i) || csl::IsIndexed(encaps_i))
+            continue;
+        for (size_t j = i+1; j < abbreviations.size(); ++j) {
+            csl::Expr encaps_j = abbreviations[i]->getEncapsulated();
+            if (!csl::IsProd(encaps_j) || csl::IsIndexed(encaps_j))
+                continue;
+            const int diff = std::abs(
+                    static_cast<int>(csl::Size(encaps_i)) 
+                    - static_cast<int>(csl::Size(encaps_j))
+                    );
+            if (diff <= 2) {
+                [[maybe_unused]]
+                std::vector<csl::Expr> factors = commonFactors(
+                        encaps_i, encaps_j);
+            }
+        }
+    }
 }
 
 std::string Abbrev::getFinalName(std::string_view initialName)
@@ -346,7 +426,7 @@ std::optional<Expr> Abbrev::findExisting(
     }
     else {
         for (const auto& ab : abbreviations) {
-            Expr comparison = DeepCopy(ab->getEncapsulated());
+            Expr comparison = ab->getEncapsulated();
             auto ab_ptr = dynamic_cast<Abbreviation<TensorParent>*>(ab);
             if (not ab_ptr) {
                 continue;
@@ -354,19 +434,30 @@ std::optional<Expr> Abbrev::findExisting(
             if (structure.size() != ab_ptr->initialStructure.size()) {
                 continue;
             }
-            auto intermediate = structure;
-            for (auto &i : intermediate)
-                i = i.rename();
-            for (size_t i = 0; i != ab_ptr->initialStructure.size(); ++i)
-                Replace(comparison,
-                        ab_ptr->initialStructure[i],
-                        intermediate[i],
-                        false);
-            for (size_t i = 0; i != ab_ptr->initialStructure.size(); ++i)
-                Replace(comparison,
-                        intermediate[i],
-                        structure[i],
-                        false);
+            if (comparison->getType() != encapsulated->getType()
+                    || comparison->size() != encapsulated->size()) {
+                continue;
+            }
+            bool diff = false;
+            for (size_t i = 0; i != encapsulated->size(); ++i) 
+                if (encapsulated[i]->getType() != comparison[i]->getType()) {
+                    diff = true;
+                    break;
+                }
+            if (diff) {
+                continue;
+            }
+            csl::Replace(comparison, ab_ptr->initialStructure, structure);
+            //for (size_t i = 0; i != ab_ptr->initialStructure.size(); ++i)
+            //    Replace(comparison,
+            //            ab_ptr->initialStructure[i],
+            //            intermediate[i],
+            //            false);
+            //for (size_t i = 0; i != ab_ptr->initialStructure.size(); ++i)
+            //    Replace(comparison,
+            //            intermediate[i],
+            //            structure[i],
+            //            false);
             std::map<csl::Index, csl::Index> mapping;
             if (encapsulated->compareWithDummy(comparison.get(), mapping))
                 return (*ab)(structure.getIndex());
@@ -411,6 +502,13 @@ Expr Abbrev::makeAbbreviation(std::string name,
     Expr encaps = DeepRefreshed(encapsulated);
     if (encaps->size() == 0) // nothing to abbreviate
         return encaps;
+    if (csl::IsProd(encaps) && csl::IsNumerical(encaps[0])
+            && csl::Size(encaps) > 2) {
+        auto prod = csl::prod_s(
+                std::vector<csl::Expr>(encaps->begin()+1, encaps->end()), true);
+        auto prodAbbrev = makeAbbreviation(name, prod, split);
+        return makeAbbreviation(name, prodAbbrev*encaps[0], split);
+    }
     if (name == "Ab" 
             && split 
             && (csl::IsSum(encaps) || csl::IsProd(encaps))) {

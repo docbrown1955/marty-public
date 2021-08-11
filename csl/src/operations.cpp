@@ -2298,7 +2298,8 @@ Expr prod_s(const Expr& leftOperand, const Expr& rightOperand, bool explicitProd
 
     if (csl::option::canonicalSumNumericalFactor
             and lType == csl::Type::Sum
-            and rPType == csl::PrimaryType::Numerical) {
+            and rPType == csl::PrimaryType::Numerical
+            and rType != csl::Type::Float) {
         Expr copy = Copy(leftOperand);
         for (size_t i = 0; i != copy->size(); ++i)
             (*copy)[i] = (*copy)[i] * rightOperand;
@@ -2306,7 +2307,8 @@ Expr prod_s(const Expr& leftOperand, const Expr& rightOperand, bool explicitProd
     }
     if (csl::option::canonicalSumNumericalFactor
             and rType == csl::Type::Sum
-            and lPType == csl::PrimaryType::Numerical) {
+            and lPType == csl::PrimaryType::Numerical
+            and lType != csl::Type::Float) {
         Expr copy = Copy(rightOperand);
         for (size_t i = 0; i != copy->size(); ++i)
             (*copy)[i] = (*copy)[i] * leftOperand;
@@ -2602,7 +2604,10 @@ void Pow::print(
         bool lib) const
 {
     if (lib and LibraryGenerator::isQuadruplePrecision()) {
-        out << "cpowq(";
+        if (argument[0]->isReal() && argument[1]->isReal())
+            out << "powq(";
+        else
+            out << "cpowq(";
         argument[0]->print(1, out, lib);
         out << ", ";
         argument[1]->print(1, out, lib);

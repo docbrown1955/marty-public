@@ -303,7 +303,8 @@ void LibEval::printLib(
         bool
         )
 {
-    auto var = LibraryGenerator::complexUsing;
+    auto var = (expr->isReal()) ? 
+        LibraryGenerator::realUsing : LibraryGenerator::complexUsing;
     if (indices.size() == 0 and not init->isIndexed()) {
         printExpression(
                 out,
@@ -569,10 +570,10 @@ LibEvalSession::Perf LibEvalSession::getPerf(Expr &init)
         nOp += (nEval.init->size() == 0) ? 
             0 : nEval.init->size() - 1;
     // for (size_t i = 0; i != newEval.size(); ++i) 
-    //     if (nOccurences[i] <= 1 and !newEval[i].init->isIndexed()) {
-    //         // lib_log << "Unique use for : \n";
-    //         // lib_log << newEval[i] << std::endl;
-    //         // lib_log << "Removing it ... \n";
+    //     if (nOccurences[i] <= 1 
+    //             and newEval[i].expr != init
+    //             and !newEval[i].init->isIndexed()
+    //             and newEval[i].init->size() < 5) {
     //         if (init->dependsExplicitlyOn(newEval[i].expr.get()))
     //             init = Replaced(
     //                     init,
@@ -593,7 +594,7 @@ LibEvalSession::Perf LibEvalSession::getPerf(Expr &init)
     //         nOccurences.erase(nOccurences.begin() + i);
     //         --i;
     //     }
-    eval = newEval;
+    eval = std::move(newEval);
     std::sort(eval.begin(), eval.end(), 
     [&](LibEval const &A,
         LibEval const &B)
@@ -603,7 +604,7 @@ LibEvalSession::Perf LibEvalSession::getPerf(Expr &init)
     auto last = std::unique(eval.begin(), eval.end());
     eval.erase(last, eval.end());
 
-    return {eval.size(), nOp, newEval};
+    return {eval.size(), nOp, eval};
 }
 
 void LibEvalSession::getPerf(
@@ -612,6 +613,16 @@ void LibEvalSession::getPerf(
         std::vector<int>     &nOccurences
         )
 {
+    auto pos = std::find(newEvals.begin(),
+                         newEvals.end(),
+                         init);
+    if (pos == newEvals.end()) {
+        newEvals.push_back(init);
+        nOccurences.push_back(0);
+    }
+    else {
+        ++nOccurences[std::distance(newEvals.begin(), pos)];
+    }
     Expr recursive = init.init;
     csl::VisitEachLeaf(recursive, [&](Expr const& expr)
     {
@@ -620,24 +631,6 @@ void LibEvalSession::getPerf(
                     newEvals, 
                     nOccurences);
     });
-    // For abbreviations ?
-    // Expr recursive = init.init;
-    // csl::VisitEachLeaf(recursive, [&](Expr const& expr)
-    // {
-    //     if (LibEval::isInstance(expr))
-    //         getPerf(exprToEval(expr, eval),
-    //                 newEvals, 
-    //                 nOccurences);
-    // });
-    auto pos = std::find(newEvals.begin(),
-                         newEvals.end(),
-                         init);
-    if (pos == newEvals.end()) {
-        newEvals.push_back(init);
-        nOccurences.push_back(1);
-    }
-    else
-        ++nOccurences[std::distance(newEvals.begin(), pos)];
 }
 
 void LibEvalSession::merge()

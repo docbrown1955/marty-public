@@ -110,7 +110,7 @@ namespace mty::filter {
             (InteractionTerm const &rule) {
                 return std::all_of(begin(particles), end(particles),
                 [&](Particle const &p) {
-                    return !rule.contains(p);
+                    return !rule.containsWeakly(p);
                 });
             };
     }

@@ -24,6 +24,7 @@
 #include "mrtOptions.h"
 #include "sgl.h"
 #include "propagator.h"
+#include "mrtInterface.h"
 
 using namespace csl;
 namespace mty {
@@ -113,24 +114,13 @@ void WilsonOperator::setExpression(csl::Expr const& t_expression)
             std::vector<csl::Index> indices = structure.getIndex();
             csl::Index polar = indices.front();
             indices.erase(indices.begin());
-            if (!mty::option::decomposeInLocalOperator) {
-                expr = (*field->getQuantumParent())(polar, indices, field->getPoint());
-                ConvertToShared<PolarizationField>(expr)->setIncoming(
-                        field->isIncoming()
-                        );
-                ConvertToShared<PolarizationField>(expr)->setConjugated(
-                        field->isComplexConjugate()
-                        );
-            }
-            else {
-                expr = field->getParent()(indices, field->getPoint());
-                ConvertToShared<QuantumField>(expr)->setIncoming(
-                        field->isIncoming()
-                        );
-                ConvertToShared<QuantumField>(expr)->setConjugated(
-                        field->isComplexConjugate()
-                        );
-            }
+            expr = field->getParent()(indices, field->getPoint());
+            ConvertToShared<QuantumField>(expr)->setIncoming(
+                    field->isIncoming()
+                    );
+            ConvertToShared<QuantumField>(expr)->setConjugated(
+                    field->isComplexConjugate()
+                    );
         }
         else if (IsOfType<QuantumField>(expr)) {
             QuantumField *field = ConvertToPtr<QuantumField>(expr);
@@ -147,7 +137,7 @@ bool WilsonOperator::hardComparison(csl::Expr const& A,
 {
     if (A == CSL_1 or B == CSL_1)
         return A == CSL_1 and B == CSL_1;
-    return mty::hardComparison(A, B);
+    return csl::hardComparison(A, B);
 }
 
 bool WilsonOperator::operator<(WilsonOperator const& other) const
@@ -169,8 +159,12 @@ bool WilsonOperator::operator==(WilsonOperator const& other) const
 /*************************************************/
 ///////////////////////////////////////////////////
 
-void WilsonSet::merge()
+void WilsonSet::merge(bool sorted)
 {
+    if (sorted) {
+        mergeSorted(*this);
+        return;
+    }
     WilsonSet other;
     for (const auto &wil : *this)
         addWilson(wil, other);
@@ -183,9 +177,47 @@ void WilsonSet::merge()
 
 void WilsonSet::sort()
 {
-    std::sort(begin(), end(), [&](Wilson const &A, Wilson const &B) {
-        return A.op < B.op;
-    });
+    sort(*this);
+}
+
+void WilsonSet::sort(std::vector<Wilson> &wilsons)
+{
+    std::sort(wilsons.begin(), wilsons.end(), 
+        [&](Wilson const &A, Wilson const &B) {
+            return A.op < B.op;
+        });
+}
+
+void WilsonSet::mergeSorted(std::vector<Wilson> &wilsons)
+{
+    bool display = (wilsons.size() > 1000);
+    if (display)
+        std::cout << "Merging identical operators ..." << std::endl;
+    csl::ProgressBar bar(wilsons.size());
+    size_t index = 0;
+    for (size_t i = 0; i != wilsons.size(); ++i) {
+        if (display)
+            bar.progress(index);
+        size_t j = i+1;
+        while (j < wilsons.size() && wilsons[i].op == wilsons[j].op) {
+            ++j;
+        }
+        if (j > i+1) {
+            std::vector<csl::Expr> coefs(j - i);
+            csl::Expr factor = wilsons[i].op.getFactor();
+            for (size_t k = 0; k != j - i; ++k) {
+                auto const &wil = wilsons[i+k];
+                coefs[k] = wil.coef.getCoefficient();
+                if (wil.op.getFactor() != factor) {
+                    coefs[k] *= wil.op.getFactor() / factor;
+                }
+            }
+            wilsons[i].coef.setCoefficient(csl::sum_s(coefs));
+            wilsons.erase(wilsons.begin() + i+1, wilsons.begin() + j);
+            index += j - i - 1;
+        }
+        ++index;
+    }
 }
 
 ///////////////////////////////////////////////////
@@ -324,14 +356,15 @@ std::vector<Wilson> sglSimplifyForWilson(
     //std::cout << "HERE" << std::endl;
     //std::cout << op << std::endl;
     csl::Expr newOp = csl::Copy(op);
-    if (!recursive){
-        newOp = sgl::sgl_to_csl(sgl::Simplified(
-                    sgl::csl_to_sgl(newOp, tset), !recursive
-                    ), tset);
-        auto d = dirac4.getDelta();
-        auto g = dirac4.gamma_chir;
-        auto a = dirac4.generateIndex();
-        auto b = dirac4.generateIndex();
+    if (!recursive) {
+        newOp = cachedWilson.calculate(
+                newOp, [&](csl::Expr const &expr) {
+                    return sgl::sgl_to_csl(sgl::Simplified(
+                        sgl::csl_to_sgl(expr, tset), !recursive
+                        ), tset);
+                });
+        //newOp = sgl::sgl_to_csl(sgl::Simplified(sgl::csl_to_sgl(newOp, tset),
+        //            !recursive), tset);
         csl::DeepRefresh(newOp);
         if (standardBasis) {
             Model::projectOnBasis(newOp, OperatorBasis::Standard);
@@ -381,12 +414,6 @@ std::vector<Wilson> cachedWilsonCalculation(
         return sglSimplifyForWilson(
                 op, operatorFactor,
                 res, standardBasis, recursive);
-        // return cachedWilson.calculate(op,
-        //         [&](csl::Expr const &op_i) {
-        //             return sglSimplifyForWilson(
-        //                     op_i, operatorFactor,
-        //                     res, standardBasis, recursive);
-        //         });
     }
     else {
         res.op = WilsonOperator(op, operatorFactor);
@@ -456,7 +483,39 @@ void addWilson(
     }
     wilsons.push_back({WilsonCoefficient(C), wil.op});
 }
-std::vector<Wilson> match(
+
+void addSortedWilson(
+        Wilson        const &wil,
+        std::vector<Wilson> &wilsons
+        )
+{
+    csl::Expr C = wil.coef.getCoefficient();
+    auto iter = csl::dichotomyFindIf(wilsons.begin(), wilsons.end(),
+            [&](Wilson const &wil2) {
+                if (wil.op < wil2.op)
+                    return +1;
+                else if (wil2.op < wil.op)
+                    return -1;
+                return 0;
+            });
+    wilsons.insert(iter, wil);
+    // for (auto& w : wilsons) {
+    //     if (w.op == wil.op) {
+    //         HEPAssert(w.op.getFactor() != CSL_0,
+    //                 mty::error::ValueError,
+    //                 "Zero encountered in operator factor !")
+    //         csl::Expr newCoef = 
+    //                 w.coef.getCoefficient()
+    //                 + (wil.op.getFactor() / w.op.getFactor()) * C;
+    //         csl::Factor(newCoef, true);
+    //         w.coef.setCoefficient(newCoef);
+    //         return;
+    //     }
+    // }
+    // wilsons.push_back({WilsonCoefficient(C), wil.op});
+}
+
+WilsonSet match(
         std::vector<csl::Expr> &fullAmplitudes,
         csl::Expr        const &operatorFactor,
         bool                    standardBasis,
@@ -485,21 +544,32 @@ std::vector<Wilson> match(
     csl::Abbrev::disableGenericEvaluation("Fc");
     csl::Abbrev::disableGenericEvaluation("EXT");
 
-    std::vector<Wilson> fullWilson;
+    WilsonSet fullWilson;
+    bool longCalc = (fullAmplitudes.size() > 100);
+    if (longCalc) {
+        std::cout << "Matching amplitude on operator basis ..." << '\n';
+    }
+    csl::ProgressBar bar(fullAmplitudes.size());
     for (size_t i = 0; i != fullAmplitudes.size(); ++i) {
+        if (longCalc) {
+            bar.progress(i);
+        }
         std::vector<Wilson> newWilsons = parseExpression(
                 DeepCopy(fullAmplitudes[i]),
                 operatorFactor,
                 standardBasis,
                 squaredAfter
                 );
+        WilsonSet::sort(newWilsons);
+        WilsonSet::mergeSorted(newWilsons);
         for (auto &w : newWilsons) {
             w.coef.setCoefficient(
                     csl::Factored(w.coef.getCoefficient())
                     );
-            addWilson(w, fullWilson);
+            addSortedWilson(w, fullWilson);
         }
     }
+    fullWilson.merge(true);
 
     return fullWilson;
 }

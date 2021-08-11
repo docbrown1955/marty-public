@@ -1033,7 +1033,6 @@ namespace mty::simpli {
             Mode                                  mode
             )
     {
-        // std::cout << "HERE FOR " << expr << '\n';
         csl::ScopedProperty commut(&csl::option::checkCommutations, false);
         csl::Refresh(expr);
         if (mode != WilsonCoefficient && mode != FeynmanRule) {
@@ -1042,13 +1041,15 @@ namespace mty::simpli {
         }
         std::vector<csl::Expr> factors;
         if (csl::IsProd(expr)) {
-            for (size_t i = 0; i != expr->size(); ++i)
+            for (size_t i = 0; i != expr->size(); ++i) {
                 if (!mayBeSimplified(expr[i])) {
                     factors.push_back(expr[i]);
                     expr[i] = CSL_1;
                 }
-            if (!factors.empty())
+            }
+            if (!factors.empty()) {
                 csl::Refresh(expr);
+            }
         }
         csl::ScopedProperty prop(&mty::option::applyFermionChain, false);
 

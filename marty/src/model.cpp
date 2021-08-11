@@ -431,18 +431,38 @@ WilsonSet Model::getWilsonCoefficients(
     auto const &insertions = ampl.getKinematics().getInsertions();
     auto const &momenta    = ampl.getKinematics().getMomenta();
     const int degeneracy = operatorDegeneracy(insertions);
+    if (!feynOptions.getFeynRuleCalculation()) {
+        std::cout << "Simplifying wilsons ..." << std::endl;
+    }
+    csl::ProgressBar bar(wilsons.size());
+    size_t index = 0;
+    std::vector<csl::Expr> coefs;
+    coefs.reserve(wilsons.size());
     for (auto &w : wilsons) {
+        if (!feynOptions.getFeynRuleCalculation()) {
+            bar.progress(index++);
+        }
         csl::Expr a = w.coef.getCoefficient();
         if (!squaredAfter)
             csl::Replace(a, csl::DMinko, csl::int_s(4));
-        simpli::simplify(
-                a, 
-                recoverQuantumInsertions(GetExpression(insertions)),
-                momenta,
-                ampl.getOptions(),
-                (squaredAfter) ? 
-                    simpli::SquaredAmplitude : simpli::WilsonCoefficient
-                );
+        if (amplitudesfull.size() < 2000) {
+            // Only if less than 2000 amplitudes
+            simpli::simplify(
+                    a, 
+                    recoverQuantumInsertions(GetExpression(insertions)),
+                    momenta,
+                    ampl.getOptions(),
+                    (squaredAfter) ? 
+                        simpli::SquaredAmplitude : simpli::WilsonCoefficient
+                    );
+            csl::DeepHardFactor(a);
+        }
+        coefs.push_back(a);
+        csl::matcher::compress(a, 2);
+    }
+    for (size_t i = 0; i != wilsons.size(); ++i) {
+        csl::Expr &a = coefs[i];
+        Wilson    &w = wilsons[i];
         csl::matcher::compress(a, 2);
         if (squaredAfter) {
             a = csl::Abbrev::makeAbbreviation("Cw", a);
@@ -454,16 +474,13 @@ WilsonSet Model::getWilsonCoefficients(
         }
         w.coef.setCoefficient(a);
     }
-    if (!squaredAfter 
-            && basis == OperatorBasis::Standard
-            && requiresPenguinPatch(ampl))
-        applyPenguinPatch(wilsons, ampl.getKinematics());
-    WilsonSet res(wilsons.begin(), wilsons.end());
-    res.sort();
-    res.options    = ampl.getOptions();
-    res.kinematics = ampl.getKinematics();
+    //WilsonSet res(wilsons.begin(), wilsons.end());
+    //res.sort();
+    //res.mergeSorted();
+    wilsons.options    = ampl.getOptions();
+    wilsons.kinematics = ampl.getKinematics();
 
-    return res;
+    return wilsons;
 }
 
 WilsonSet Model::computeWilsonCoefficients(
@@ -527,8 +544,8 @@ WilsonSet Model::computeWilsonBoxes_4Fermions(
         FeynOptions       feynOptions
         )
 {
-    csl::ScopedProperty verbose(&mty::option::verboseAmplitude, false);
     csl::ScopedProperty prop(&mty::option::keepOnlyFirstMassInLoop, true);
+    // feynOptions.verboseAmplitude = false;
     feynOptions.setTopology(feynOptions.getTopology() & Topology::Box);
     auto ampl = computeAmplitude(
             OneLoop, kinematics.getInsertions(), feynOptions);
@@ -545,7 +562,7 @@ WilsonSet Model::computeSingleWilsonPenguin_4Fermions(
         FeynOptions                      feynOptions
         )
 {
-    csl::ScopedProperty verbose(&mty::option::verboseAmplitude, false);
+    // feynOptions.verboseAmplitude = false;
     auto const &insertions = kinematics.getInsertions();
     std::vector<Insertion> treeInsertions = {
         insertions[treeCoupling.first], 
@@ -559,6 +576,8 @@ WilsonSet Model::computeSingleWilsonPenguin_4Fermions(
             Mediator(Outgoing(mediator))
             : Mediator(Incoming(mediator))
     };
+    std::vector<int> fermionOrder = feynOptions.getFermionOrder();
+    feynOptions.setFermionOrder({});
     auto treeAmplitude = computePartialAmplitude(
             TreeLevel, treeInsertions, feynOptions);
     if (treeAmplitude.empty()) {
@@ -571,17 +590,25 @@ WilsonSet Model::computeSingleWilsonPenguin_4Fermions(
             );
     auto loopAmplitude = computePartialAmplitude(
             OneLoop, loopInsertions, feynOptions);
+    feynOptions.applyFilters(loopAmplitude.getDiagrams(), true);
     if (loopAmplitude.empty()) {
         return {};
     }
-    // if (massless) {
-    //     auto wil = getWilsonCoefficients(loopAmplitude);
-    //     Display(wil);
-    // }
+    if (massless) {
+        csl::ScopedProperty propWilson(
+                &mty::option::decomposeInLocalOperator, false);
+        auto wil = getWilsonCoefficients(loopAmplitude);
+        applyPenguinPatch(wil, loopAmplitude.getKinematics());
+        loopAmplitude.getDiagrams() = std::vector<FeynmanDiagram>(
+                wil.size(), loopAmplitude.getDiagrams()[0]);
+        for (size_t i = 0; i != wil.size(); ++i) 
+            loopAmplitude.getDiagrams()[i].getExpression() = 
+                -CSL_I * wil[i].getExpression();
+    }
     Amplitude connexion = connectAmplitudes(
             treeAmplitude, loopAmplitude, feynOptions);
-    feynOptions.applyFilters(connexion.getDiagrams(), true);
     connexion.setKinematics(kinematics.alignedWith(connexion.getKinematics()));
+    feynOptions.setFermionOrder(fermionOrder);
     return getWilsonCoefficients(connexion, feynOptions);
 }
 

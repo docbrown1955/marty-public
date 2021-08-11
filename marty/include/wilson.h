@@ -130,8 +130,10 @@ struct WilsonSet: public std::vector<Wilson> {
         return res;
     }
 
-    void merge();
+    void merge(bool sorted = false);
     void sort();
+    static void sort(std::vector<Wilson> &wilsons);
+    static void mergeSorted(std::vector<Wilson> &wilsons);
 
     Kinematics  kinematics {};
     FeynOptions options {};
@@ -140,14 +142,12 @@ struct WilsonSet: public std::vector<Wilson> {
 std::vector<Wilson> copyWilsons(std::vector<Wilson> const &wilsons);
 
 inline Cache<
-        csl::Expr,                      // Key type
-        std::vector<Wilson>            // Result type
+        csl::Expr, // Key type
+        csl::Expr  // Result type
         > cachedWilson(
                 [](csl::Expr const &A, csl::Expr const &B) {
-                    return (A == B) || mty::hardComparison(A, B);
-                },          // Comparator
-                copyWilsons // Releaser
-                );
+                    return (A == B) || csl::hardComparison(A, B);
+                });
 
 void parseStructures(
         csl::Expr              &arg,
@@ -196,7 +196,12 @@ void addWilson(
         bool                 merge = true
         );
 
-std::vector<Wilson> match(
+void addSortedWilson(
+        Wilson        const &wil,
+        std::vector<Wilson> &wilsons
+        );
+
+WilsonSet match(
         std::vector<csl::Expr> &amplitudes,
         csl::Expr        const &operatorFactor,
         bool                    standardBasis = false,

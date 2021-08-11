@@ -66,6 +66,7 @@ FeynmanRule::FeynmanRule(
     fieldProduct = hermitic->getContent();
 
     std::vector<QuantumFieldParent*> nonphysical;
+    std::vector<QuantumFieldParent*> disabled;
     bool fieldProjected = false;
     for (size_t i = 0; i != fieldProduct.size(); ++i) {
         auto const &pointed = *fieldProduct[i].getParent();
@@ -82,6 +83,10 @@ FeynmanRule::FeynmanRule(
         if (not fieldProduct[i].isPhysical()) {
             nonphysical.push_back(fieldProduct[i].getQuantumParent());
             fieldProduct[i].getQuantumParent()->setPhysical(true);
+        }
+        if (not fieldProduct[i].getQuantumParent()->isEnabledInDiagrams()) {
+            disabled.push_back(fieldProduct[i].getQuantumParent());
+            fieldProduct[i].getQuantumParent()->setEnabledInDiagrams(true);
         }
         fieldProduct[i].setParticle(fieldProduct[i].isComplexConjugate());
         fieldProduct[i].setIncoming(true);
@@ -107,7 +112,6 @@ FeynmanRule::FeynmanRule(
     csl::ScopedProperty p2(&mty::option::applyInsertionOrdering,    false);
     FeynOptions options;
     options.setFeynmanRuleMode();
-    options.setWilsonOperatorBasis(OperatorBasis::None);
     Kinematics kinematics(GetInsertion(insertions), momenta);
     auto res = model.computeAmplitude(
             Order::TreeLevel,
@@ -118,6 +122,10 @@ FeynmanRule::FeynmanRule(
     if (res.empty()) {
         expr = CSL_0;
         diagram = csl::make_shared<wick::Graph>();
+        for (auto fieldParent : nonphysical)
+            fieldParent->setPhysical(false);
+        for (auto fieldParent : disabled)
+            fieldParent->setEnabledInDiagrams(false);
         return;
     }
     auto wilsons = model.getWilsonCoefficients(res, options, true);
@@ -140,6 +148,8 @@ FeynmanRule::FeynmanRule(
         * csl::Factored(csl::sum_s(expressions));
     for (auto fieldParent : nonphysical)
         fieldParent->setPhysical(false);
+    for (auto fieldParent : disabled)
+        fieldParent->setEnabledInDiagrams(false);
 }
 
 std::vector<QuantumField>& FeynmanRule::getFieldProduct()
@@ -221,17 +231,19 @@ csl::Expr FeynmanRule::getExpr() const
 
 bool FeynmanRule::contains(QuantumFieldParent const *parent) const
 {
-    for (const auto& field : fieldProduct)
-        if (field.getParent_info() == parent)
-            return true;
-    return false;
+    return term->contains(parent);
+}
+
+bool FeynmanRule::containsWeakly(QuantumFieldParent const *parent) const
+{
+    return term->containsWeakly(parent);
 }
 
 size_t FeynmanRule::count(QuantumFieldParent const *parent) const
 {
     size_t c = 0;
     for (const auto& field : fieldProduct)
-        if (field.getParent_info() == parent)
+        if (field.getQuantumParent()->contains(parent))
             ++c;
     return c;
 }

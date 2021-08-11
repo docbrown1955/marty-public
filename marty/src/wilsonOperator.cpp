@@ -519,6 +519,11 @@ namespace OperatorParser {
     {
         HEPAssert(IsOfType<QuantumField>(qField),
                 mty::error::TypeError,
+
+
+
+
+
                 "This function expects a quantum field, " + toString(qField)
                 + " given.")
         QuantumField const *f = ConvertToPtr<QuantumField>(qField);

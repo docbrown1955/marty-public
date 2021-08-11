@@ -14,6 +14,7 @@
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include <sstream>
+#include "scopedProperty.h"
 #include "abstract.h"
 #include "interface.h"
 #include "abreviation.h"
@@ -86,7 +87,7 @@ bool Lock::doLock(
         std::vector<Expr> toAbbreviate;
         std::vector<Expr> other;
         toAbbreviate.reserve(init->size());
-        other       .reserve(init->size());
+        other       .reserve(1+init->size());
         for (auto &arg : init) {
             if (doLock(arg, id, f))  {
                 toAbbreviate.push_back(arg);
@@ -100,33 +101,35 @@ bool Lock::doLock(
         }
         if (other.empty())
             return true;
+        csl::ScopedProperty prop(&csl::Abbrev::avoidDuplicates, false);
+        auto abbreviated = maker(toAbbreviate, true);
         other.push_back(
                 csl::Abbrev::makeAbbreviation(
                     lockName[id],
-                    maker(toAbbreviate, true)
+                    abbreviated
                     ));
         init = maker(other, true);
         return false;
     }
     else {
         bool locked = true;
-	if (!init->isAnOperator()) {
+        if (!init->isAnOperator()) {
             for (size_t i = 0; i != csl::Size(init); ++i)
                 if (!doLock(init[i], id, f)) {
                     locked = false;
                     break;
                 }
-	}
-	else {
-	    auto newCondition = [&](Expr const &sub) {
-		return f(sub) or init->operatorAppliesOn(sub.get());
-	    };
+        }
+        else {
+            auto newCondition = [&](Expr const &sub) {
+                  return f(sub) or init->operatorAppliesOn(sub.get());
+            };
             for (size_t i = 0; i != csl::Size(init); ++i)
                 if (!doLock(init[i], id, newCondition)) {
                     locked = false;
                     break;
                 }
-	}
+        }
         return locked;
     }
 }

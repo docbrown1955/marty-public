@@ -108,7 +108,7 @@ class FeynmanIntegral: public csl::AbstractMultiFunc {
     public:
 
     inline static bool evaluateIntegrals = false;
-    inline static const csl::Expr eps = csl::constant_s("reg_int");
+    // inline static const csl::Expr eps = csl::constant_s("reg_int");
 
     static csl::Expr replaceIntegral(csl::Expr const& expr);
 

@@ -82,17 +82,14 @@ csl::Expr hc(csl::Expr const &init)
 void ModelData::checkHermiticity()
 {
     bool hermitianLagrangian = true;
-    std::vector<size_t> indicesLeft;
-    indicesLeft.reserve(L.interaction.size());
-    for (size_t i = 0; i != L.interaction.size(); ++i) {
-        indicesLeft.push_back(i);
-    }
     std::vector<csl::Expr> terms;
     terms.reserve(L.interaction.size());
     std::vector<csl::Expr> hermitic;
     hermitic.reserve(L.interaction.size());
     for (size_t i = 0; i != L.interaction.size(); ++i) {
-        csl::Expr expr = L.interaction[i]->getFullExpression();
+        csl::Expr expr = csl::Evaluated(
+                L.interaction[i]->getTerm(),
+                csl::eval::abbreviation);
         if (not csl::IsSum(expr)) {
             terms.push_back(expr);
             hermitic.push_back(hc(expr));
@@ -104,23 +101,21 @@ void ModelData::checkHermiticity()
             }
         }
     }
+    std::vector<size_t> indicesLeft(terms.size());
+    std::iota(indicesLeft.begin(), indicesLeft.end(), 0);
     std::vector<csl::Expr> termsNotFound;
-    while (!indicesLeft.empty()) {
-        size_t i = indicesLeft[0];
-        indicesLeft.erase(indicesLeft.begin());
-        if (!mty::hardComparison(terms[i], hermitic[i])) {
-            bool found = false;
-            for (size_t j = 0; j < indicesLeft.size(); ++j) {
-                if (!mty::hardComparison(terms[i], hermitic[indicesLeft[j]])) {
-                    indicesLeft.erase(indicesLeft.begin() + j);
-                    found = true;
-                    break;
-                }
+    for (size_t i = 0; i != terms.size(); ++i) {
+        bool found = false;
+        for (size_t j = 0; j < indicesLeft.size(); ++j) {
+            if (csl::hardComparison(terms[i], hermitic[indicesLeft[j]])) {
+                indicesLeft.erase(indicesLeft.begin() + j);
+                found = true;
+                break;
             }
-            if (not found) {
-                hermitianLagrangian = false;
-                termsNotFound.push_back(terms[i]);
-            }
+        }
+        if (not found) {
+            hermitianLagrangian = false;
+            termsNotFound.push_back(terms[i]);
         }
     }
     if (hermitianLagrangian) {

@@ -456,8 +456,7 @@ void AbstractDuoFunc::setArgument(const Expr& t_argument, int iArg)
 
 bool AbstractDuoFunc::isReal() const
 {
-    return (argument[0]->isReal() and argument[1]->isReal())
-     or (argument[0]->isPurelyImaginary() and argument[1]->isPurelyImaginary());
+    return (argument[0]->isReal() and argument[1]->isReal());
 }
 
 bool AbstractDuoFunc::isPurelyImaginary() const

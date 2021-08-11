@@ -215,7 +215,7 @@ void Exp::print(
         bool lib) const
 {
     if (lib and LibraryGenerator::isQuadruplePrecision())
-        out << "cexpq(";
+        out << (argument->isReal() ? "" : "c") << "expq(";
     else if (lib)
         out<<"std::exp(";
     else
@@ -475,7 +475,7 @@ void Cos::print(
         bool lib) const
 {
     if (lib and LibraryGenerator::isQuadruplePrecision())
-        out<<"ccosq(";
+        out<<(argument->isReal() ? "" : "c")<<"cosq(";
     else if (lib)
         out<<"std::cos(";
     else
@@ -608,7 +608,7 @@ void Sin::print(
         bool lib) const
 {
     if (lib and LibraryGenerator::isQuadruplePrecision())
-        out<<"csinq(";
+        out<<(argument->isReal() ? "" : "c")<<"sinq(";
     else if (lib)
         out<<"std::sin(";
     else
@@ -757,7 +757,7 @@ void Tan::print(
         bool lib) const
 {
     if (lib and LibraryGenerator::isQuadruplePrecision())
-        out<<"ctanq(";
+        out<<(argument->isReal() ? "" : "c")<<"tanq(";
     else if (lib)
         out<<"std::tan(";
     else
@@ -886,7 +886,7 @@ void ACos::print(
         bool lib) const
 {
     if (lib and LibraryGenerator::isQuadruplePrecision())
-        out<<"cacosq(";
+        out<<(argument->isReal() ? "" : "c")<<"acosq(";
     else if (lib)
         out<<"std::acos(";
     else
@@ -992,7 +992,7 @@ void ASin::print(
         bool lib) const
 {
     if (lib and LibraryGenerator::isQuadruplePrecision())
-        out<<"casinq(";
+        out<<(argument->isReal() ? "" : "c")<<"asinq(";
     else if (lib)
         out<<"std::asin(";
     else
@@ -1069,7 +1069,7 @@ void ATan::print(
         bool lib) const
 {
     if (lib and LibraryGenerator::isQuadruplePrecision())
-        out<<"catanq(";
+        out<<(argument->isReal() ? "" : "c")<<"atanq(";
     else if (lib)
         out<<"std::atan(";
     else

@@ -70,6 +70,10 @@ class FeynmanRule {
     bool contains(mty::Particle const &p) const { 
         return contains(p.get()); 
     }
+    bool containsWeakly(mty::QuantumFieldParent const *parent) const;
+    bool containsWeakly(mty::Particle const &p) const { 
+        return containsWeakly(p.get()); 
+    }
     size_t count(mty::Particle const &p) const { 
         return count(p.get()); 
     }

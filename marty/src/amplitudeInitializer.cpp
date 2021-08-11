@@ -332,7 +332,9 @@ namespace mty {
                 if (csl::IsProd(el)) {
                     for (const auto &arg : el)
                         if (csl::IsVectorIntegral(arg)) {
-                            el *= CSL_I * CSL_PI * CSL_PI;
+                            const static auto factor =
+                                CSL_I * csl::pow_s(CSL_PI, 2);
+                            el *= factor;
                             return true;
                         }
                 }

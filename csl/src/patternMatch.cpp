@@ -49,33 +49,75 @@ size_t dichoFinder(
     return first;
 }
 
-void compress(csl::Expr &expr, size_t nIter)
+void compress_impl(
+        std::vector<csl::Expr> &expressions, 
+        size_t                  nIter)
 {
     for (size_t iter = 0; iter != nIter; ++iter) {
         Tree sumTree(Node::ExprType::Sum);
         Tree prodTree(Node::ExprType::Prod);
         std::vector<Tree*> trees = { &sumTree, &prodTree };
-        csl::VisitEachNodeReversed(expr, [&](csl::Expr const &node) { 
-            if (csl::IsSum(node)) 
-                sumTree.parse(node->getVectorArgument());
-            else if (csl::IsProd(node)) 
-                prodTree.parse(node->getVectorArgument());
-        });
+        for (auto &expr : expressions) {
+            csl::VisitEachNodeReversed(expr, [&](csl::Expr const &node) { 
+                if (csl::IsSum(node)) 
+                    sumTree.parse(node->getVectorArgument());
+                else if (csl::IsProd(node)) 
+                    prodTree.parse(node->getVectorArgument());
+            });
+        }
         sumTree.removeSingle();
         prodTree.removeSingle();
         Tree::findAllAbbreviations(trees);
-        csl::ForEachNode(expr, [&](csl::Expr &node) { 
-            std::optional<csl::Expr> ab 
-                = Tree::getChainAbbreviationFor(node, trees);
-            if (ab) {
-                node = ab.value();
-            }
-        });
-        csl::DeepRefresh(expr);
-        csl::DeepHardFactor(expr);
+        for (auto &expr : expressions) {
+            csl::ForEachNode(expr, [&](csl::Expr &node) { 
+                std::optional<csl::Expr> ab 
+                    = Tree::getChainAbbreviationFor(node, trees);
+                if (ab) {
+                    node = ab.value();
+                }
+            });
+            csl::DeepRefresh(expr);
+            csl::DeepHardFactor(expr);
+        }
     }
     csl::Abbrev::removeAbbreviations("SubSum");
     csl::Abbrev::removeAbbreviations("SubProd");
+}
+
+void compress(
+        std::vector<csl::Expr> &expressions, 
+        size_t                  nIter
+        )
+{
+    std::map<csl::AbstractParent const*, csl::Expr> compressedAbbrevs;
+    for (auto &expr : expressions) {
+        csl::ForEachNode(expr, [&](csl::Expr &sub) {
+            if (csl::Abbrev::isAnAbbreviation(sub) && !csl::IsIndexed(sub)) {
+                auto parent = sub->getParent_info();
+                auto pos = compressedAbbrevs.find(parent);
+                if (pos != compressedAbbrevs.end()) {
+                    if (sub->isComplexConjugate())
+                        sub = csl::GetComplexConjugate(pos->second);
+                    else
+                        sub = pos->second;
+                }
+                else {
+                    std::string nameAbbrev = sub->getParent_info()->getBaseName();
+                    csl::Expr encaps = parent->getEncapsulated();
+                    compress(encaps, nIter);
+                    encaps = csl::Abbrev::makeAbbreviation(nameAbbrev, encaps);
+                    compressedAbbrevs[parent] = encaps;
+                    if (sub->isComplexConjugate())
+                        sub = csl::GetComplexConjugate(encaps);
+                    else
+                        sub = encaps;
+                }
+            }
+        });
+    }
+    for (auto &expr : expressions) {
+        compress_impl(expr, nIter);
+    }
 }
 
 ///////////////////////////////////////////////////

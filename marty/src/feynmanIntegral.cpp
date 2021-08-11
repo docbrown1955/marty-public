@@ -1760,10 +1760,6 @@ FeynmanIntegral::FeynmanIntegral(IntegralType             t_type,
             " for integral of type " + toString(type) + ", " 
             + toString(t_argument.size()) + " given.");
     argument = t_argument;
-    if (type == IntegralType::C) {
-        if (!argument[0]->dependsExplicitlyOn(eps.get()))
-            argument[0] += eps;
-    }
 }
 
 FeynmanIntegral::FeynmanIntegral(IntegralType               t_type,
@@ -1883,16 +1879,13 @@ void FeynmanIntegral::printLib(int mode,
             out << "\n";
         return;
     }
-    if (csl::LibraryGenerator::isQuadruplePrecision())
-        out << "mty::" << type << "0iCq(" << int(loopToolsId) << ", ";
-    else
-        out << type << "0iC("  << int(loopToolsId) << ", ";
+    out << "mty::lt::" << type << "0iC(" << int(loopToolsId) << ", ";
     // }
     for (size_t i = 0; i != argument.size(); ++i)  {
         argument[i]->print(mode, out, true);
-        if (i+1 != argument.size())
-            out << ", ";
+        out << ", ";
     }
+    out << "mty::lt::reg_int";
     out << ")";
     if (mode == 0)
         out << '\n';
@@ -1908,10 +1901,10 @@ csl::LibDependency FeynmanIntegral::getLibDependency() const
     // }
     // else {
     dependencies.addInclude("marty/looptools_init.h");
+    dependencies.addInclude("marty/looptools_interface.h");
     dependencies.addLib("-lgfortran");
     dependencies.addInclude("clooptools.h");
     if (csl::LibraryGenerator::isQuadruplePrecision()) {
-        dependencies.addInclude("marty/looptools_quad_extension.h");
         dependencies.addLib("-looptools-quad");
     }
     else {

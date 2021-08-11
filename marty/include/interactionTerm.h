@@ -257,10 +257,29 @@ class InteractionTerm {
      * @param p A const pointer to the parent of the field to search for.
      *
      * @return \b True  if the interaction term contains \b p or a particle of 
-     * the same specied.
+     * the same species included in **p**.
      * @return \b False else.
      */
     bool contains(const QuantumFieldParent* p) const;
+
+    /**
+     * @brief Tells if the interaction term contains a given field or only a 
+     * part of it.
+     *
+     * @details This function searches for a partial match between fields, and
+     * takes into account fields that contain others. For example, a Dirac 
+     * fermion contains its Weyl fermions and not the contrary. This weak 
+     * comparison will return true event if the interaction term does not 
+     * contain the entire field (a Weyl fermion in particular contains in this
+     * weak sense its Dirac parent).
+     *
+     * @param p A const pointer to the parent of the field to search for.
+     *
+     * @return \b True  if the interaction term contains \b p or a particle of 
+     * the same species.
+     * @return \b False else.
+     */
+    bool containsWeakly(const QuantumFieldParent* p) const;
 
     /**
      * @brief Tells if the interaction term contains a given field.
@@ -276,11 +295,32 @@ class InteractionTerm {
      * @param p The particle to search for.
      *
      * @return \b True  if the interaction term contains \b p or a particle of 
-     * the same specied.
+     * the same species included in **p**.
      * @return \b False else.
      */
     bool contains(mty::Particle const &p) const {
         return contains(p.get());
+    }
+
+    /**
+     * @brief Tells if the interaction term contains a given field or only a 
+     * part of it.
+     *
+     * @details This function searches for a partial match between fields, and
+     * takes into account fields that contain others. For example, a Dirac 
+     * fermion contains its Weyl fermions and not the contrary. This weak 
+     * comparison will return true event if the interaction term does not 
+     * contain the entire field (a Weyl fermion in particular contains in this
+     * weak sense its Dirac parent).
+     *
+     * @param p A const pointer to the parent of the field to search for.
+     *
+     * @return \b True  if the interaction term contains \b p or a particle of 
+     * the same species.
+     * @return \b False else.
+     */
+    bool containsWeakly(mty::Particle const &p) const {
+        return containsWeakly(p.get());
     }
 
     /**
@@ -407,10 +447,6 @@ class InteractionTerm {
 
     std::vector<permutation> permutations;
 };
-
-int matchBOnA(csl::Expr const& A, csl::Expr &B);
-bool hardComparison(csl::Expr const&, csl::Expr const&);
-bool hardOrdering(csl::Expr const&, csl::Expr const&);
 
 }
 

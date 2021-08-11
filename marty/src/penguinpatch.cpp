@@ -4,6 +4,7 @@
 #include "diracology.h"
 #include "amplitude.h"
 #include "mrtInterface.h"
+#include "propagator.h"
 
 namespace mty {
 
@@ -50,8 +51,8 @@ namespace mty {
                 mty::error::TypeError,
                 "Expected product as operator, got " + toString(op) + ".")
         for (const auto &arg : op) {
-            if (IsOfType<QuantumField>(arg)) {
-                mty::QuantumField const *field = ConvertToPtr<QuantumField>(arg);
+            if (auto field = dynamic_cast<QuantumField const*>(arg.get());
+                    field) {
                 if (field->isFermionic()) {
                     if (field->isComplexConjugate())
                         fermions.first = arg;
@@ -168,7 +169,7 @@ namespace mty {
         csl::Expr *momentum = nullptr;
         for (auto &arg : op) {
             if (csl::IsIndicialTensor(arg) && arg->getParent() == p) {
-                mu = arg->getIndex(0);
+                mu = arg->getIndexStructureView().back();
                 momentum = &arg;
                 break;
             }
@@ -177,8 +178,9 @@ namespace mty {
                 mty::error::RuntimeError,
                 "Momentum not found in " + toString(op) + ".")
         for (auto &arg : op) {
-            if (IsOfType<QuantumField>(arg) && arg->isComplexConjugate()) {
-                auto &alpha = arg->getIndexStructureView().back();
+            if (auto field = dynamic_cast<QuantumField*>(arg.get());
+                    field && field->isFermionic() && field->isComplexConjugate()) {
+                auto &alpha = field->getIndexStructureView().back();
                 csl::Index beta = alpha.rename();
                 *momentum = dirac4.gamma({mu, beta, alpha});
                 alpha = beta;
@@ -215,13 +217,13 @@ namespace mty {
         csl::Expr F1c = wilsons[1].coef.getCoefficient();
         csl::Expr F2 = wilsons[2].coef.getCoefficient();
         csl::Expr F2c = wilsons[3].coef.getCoefficient();
-        csl::Expr F = data.s1*F1 + data.s2*F2;
-        csl::Expr Fc = data.s1*F1c + data.s2*F2c;
+        csl::Expr F = (data.s1*F1 + data.s2*F2)/2;
+        csl::Expr Fc = (data.s1*F1c + data.s2*F2c)/2;
         csl::Expr Lambda1 = data.s1*csl::pow_s(data.m1, 2)
             + data.s2*data.s_12;
         csl::Expr Lambda2 = data.s2*csl::pow_s(data.m2, 2)
             + data.s1*data.s_12;
-        csl::Expr qSquared = data.s1*Lambda1 + data.s2*Lambda2;
+        csl::Expr qSquared = data.s1*Lambda1 + data.s2*Lambda2 + Propagator::Peps;
         csl::Expr m1_tilde = data.eta1*data.s1 * data.m1;
         csl::Expr m2_tilde = data.eta2*data.s2 * data.m2;
         Wilson &O3 = wilsons[4];
@@ -232,23 +234,23 @@ namespace mty {
         }
         if (eval_m1 == eval_m2) {
             if (data.eta1*data.s1 == data.eta2*data.s2) {
-                O3c.coef.setCoefficient(CSL_0);
                 O3 .coef.setCoefficient(
-                        -F / (2*m1_tilde)
+                        -F*qSquared / (2*m1_tilde)
                         );
+                O3c.coef.setCoefficient(CSL_0);
             }
             else {
                 O3 .coef.setCoefficient(CSL_0);
                 O3c.coef.setCoefficient(
-                        Fc / (2*m1_tilde)
+                        Fc*qSquared / (2*m1_tilde)
                         );
             }
         }
         else {
             O3 .coef.setCoefficient(
-                    -F/(m1_tilde + m2_tilde));
+                    -F*qSquared/(m1_tilde + m2_tilde));
             O3c.coef.setCoefficient(
-                    -Fc/(m1_tilde - m2_tilde));
+                    Fc*qSquared/(m1_tilde - m2_tilde));
         }
     }
 
@@ -269,8 +271,6 @@ namespace mty {
     {
         if (wilsons.empty())
             return;
-        // std::cout << "PENGUIN PATCH" << '\n';
-        // Display(WilsonSet{wilsons.begin(), wilsons.end()});
         auto const &insertions = kinematics.getInsertions();
         checkInsertionsForPatch(insertions, true);
         auto [iconj, ireg] = checkOperators(wilsons, kinematics.getMomenta());
@@ -284,6 +284,5 @@ namespace mty {
         orderOperators(wilsons, p1, p2);
         ensureOperators(wilsons, p1, p2);
         applyPenguinPatch_implementation(wilsons, data);
-        // Display(WilsonSet{wilsons.begin(), wilsons.end()});
     }
 }

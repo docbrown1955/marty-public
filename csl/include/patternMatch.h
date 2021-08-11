@@ -27,7 +27,34 @@ size_t dichoFinder(
         std::vector<Node*> const &v
         );
 
-void compress(csl::Expr &expr, size_t nIter = 1);
+void compress_impl(
+        std::vector<csl::Expr> &expr, 
+        size_t                  nIter = 1
+        );
+void compress(
+        std::vector<csl::Expr> &expr, 
+        size_t                  nIter = 1
+        );
+
+inline void compress(
+        csl::Expr &expr, 
+        size_t     nIter = 1
+        )
+{
+    std::vector<csl::Expr> vec { expr };
+    compress(vec, nIter);
+    expr = vec[0];
+}
+
+inline void compress_impl(
+        csl::Expr &expr, 
+        size_t     nIter = 1
+        )
+{
+    std::vector<csl::Expr> vec { expr };
+    compress_impl(vec, nIter);
+    expr = vec[0];
+}
 
 struct Node {
 

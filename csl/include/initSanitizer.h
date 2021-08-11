@@ -22,6 +22,11 @@ class InitSanitizer {
 
 public:
 
+    constexpr InitSanitizer() 
+    {
+
+    }
+
     constexpr InitSanitizer(char const t_name[])
         :m_name(t_name)
     {

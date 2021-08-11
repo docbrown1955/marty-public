@@ -14,6 +14,7 @@
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "librarydependency.h"
+#include "abreviation.h"
 #include "interface.h"
 #include "indicial.h"
 #include "tensorField.h"
@@ -91,8 +92,9 @@ void DeepExpandIf_lock(
             return f(node);
         });
     }, inplace);
-    if (refactor)
+    if (refactor) {
         csl::DeepFactor(expression);
+    }
     csl::Lock::unlock(expression, lockID);
 }
 
@@ -638,7 +640,13 @@ LibDependency GetLibraryDependencies(Expr const& expr)
     LibDependency dependencies;
     csl::VisitEachNode(expr, [&](Expr const& node)
     {
-        dependencies += node->getLibDependency();
+        if (csl::Abbrev::isAnAbbreviation(node)) {
+            dependencies += GetLibraryDependencies(
+                    node->getParent_info()->getEncapsulated());
+        }
+        else {
+            dependencies += node->getLibDependency();
+        }
     });
 
     return dependencies;

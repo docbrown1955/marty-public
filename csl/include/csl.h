@@ -54,6 +54,8 @@
 #include "hardFactor.h"
 #include "partialExpand.h"
 #include "patternMatch.h"
+#include "hardComparison.h"
+#include "dichotomy.h"
 #include "cast.h"
 #include "precision_float.h"
 #include "space.h"

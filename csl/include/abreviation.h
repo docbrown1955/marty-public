@@ -66,14 +66,20 @@ class Abbrev {
 
     static AbstractParent* find_opt(Expr const& abreviation);
 
+    static void compressAbbreviations(std::string const &name = "");
+
     private:
 
-    static void addAbreviation(
+    static void compressAbbreviations_impl(
+            std::vector<AbstractParent*> &abbreviations
+            );
+
+    static void addAbbreviation(
             AbstractParent* ptr,
             std::string const &t_name
             );
 
-    static void removeAbreviation(
+    static void removeAbbreviation(
             AbstractParent* ptr,
             std::string const &t_name
             );
@@ -180,12 +186,12 @@ class Abbreviation: public BaseParent {
         baseName(t_name),
         initialStructure(Abbrev::getFreeStructure(t_encapsulated))
     {
-        Abbrev::addAbreviation(this, t_name);
+        Abbrev::addAbbreviation(this, t_name);
     }
 
     ~Abbreviation()
     {
-        Abbrev::removeAbreviation(this, baseName);
+        Abbrev::removeAbbreviation(this, baseName);
     }
 
     bool isAnAbbreviation() const override { return true; }

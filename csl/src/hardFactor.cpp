@@ -294,6 +294,9 @@ bool HardFactorImplementation(
                 else
                     innerTerms.push_back((*first) / factor);
             }
+            else if (csl::IsProd(factor) || csl::IsPow(factor)) {
+                innerTerms.push_back(*first / factor);
+            }
             else {
                 innerTerms.push_back((**first).suppressTerm(factor.get()));
             }
@@ -327,7 +330,7 @@ void HardFactor(Expr &init)
 
 void DeepHardFactor(Expr &init)
 {
-    csl::ForEachNodeReversed(init, [](csl::Expr &expr) {
+    csl::ForEachNode(init, [](csl::Expr &expr) {
         if (csl::IsSum(expr)) {
             HardFactorImplementation(expr, true);
         }
