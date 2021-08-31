@@ -998,8 +998,18 @@ csl::Expr FeynmanIntegral::replaceIntegral(
     csl::Expr firstTerm;
     auto parse = [&](csl::Expr const& el)
     {
-        if (IsOfType<Propagator>(el)) {
-            csl::Expr mom = DeepCopy(el->getArgument(0));
+        csl::Expr term;
+        csl::Expr exponent = CSL_1;
+        if (csl::IsPow(el) && csl::IsInteger(el[1]) 
+                && IsOfType<Propagator>(el[0])) {
+            term = el[0];
+            exponent = el[1];
+        }
+        else {
+            term = el;
+        }
+        if (IsOfType<Propagator>(term)) {
+            csl::Expr mom = DeepCopy(term->getArgument(0));
             csl::Expr fact = CSL_1;
             csl::ForEachNode(mom, [&](csl::Expr& node)
             {
@@ -1012,17 +1022,21 @@ csl::Expr FeynmanIntegral::replaceIntegral(
                 }
                 return false;
             });
-            momentum.push_back(DeepRefreshed(Expanded(fact * mom, true)));
+            int exp = std::abs(static_cast<int>(
+                        std::round(exponent->evaluateScalar())));
+            for (int i = 0; i != exp; ++i) {
+                momentum.push_back(DeepRefreshed(Expanded(fact * mom, true)));
+                mass.push_back(DeepCopy(term->getArgument(1)));
+            }
             if (momentum.back() == CSL_0)
-                firstTerm = el;
-            mass.push_back(DeepCopy(el->getArgument(1)));
+                firstTerm = term;
         }
-        else if (el->getType() == csl::Type::TensorElement
-                and el->getParent_info() == variable.get()) {
-            indices.push_back(el->getIndexStructureView()[0]);
+        else if (term->getType() == csl::Type::TensorElement
+                and term->getParent_info() == variable.get()) {
+            indices.push_back(term->getIndexStructureView()[0]);
         }
         else
-            factor.push_back(DeepCopy(el));
+            factor.push_back(DeepCopy(term));
     };
     if (argument->getType() == csl::Type::Prod) {
         for (const auto& arg : *argument)
@@ -1054,7 +1068,8 @@ csl::Expr FeynmanIntegral::replaceIntegral(
         std::swap(momentum[firstZero], momentum[0]);
         std::swap(mass[firstZero], mass[0]);
     }
-    momentum.erase(momentum.begin());
+    if (!momentum.empty())
+        momentum.erase(momentum.begin());
 
     applyIndices(momentum);
     //for (size_t i = 0; i != indices.size(); ++i) 

@@ -26,7 +26,7 @@ using namespace csl;
 namespace mty {
 
 
-SM_Model::SM_Model()
+SM_Model::SM_Model(bool initialize)
     :mty::Model("models/files/SM.json")
 {
     getParticle("G")->setDrawType(drawer::ParticleType::Gluon);
@@ -37,9 +37,10 @@ SM_Model::SM_Model()
     csl::Index i = GaugeIndex(*this, "SU2L", H);
     csl::Index j = GaugeIndex(*this, "SU2L", H);
 
+    csl::Expr mh = sm_input::m_h;
     csl::Expr H2 = csl::GetComplexConjugate(H(i)) * H(i);
-    csl::Expr m2 = csl::constant_s("m2");
-    csl::Expr lam = csl::constant_s("lambda");
+    csl::Expr m2 = mh*mh / 2;
+    csl::Expr lam = mh*mh / (2*v*v);
 
     // Mexican hat potential
     addLagrangianTerm(m2*H2);
@@ -48,26 +49,43 @@ SM_Model::SM_Model()
     //           lam = mh^2 / (2*v^2)
     //           (With H0 -> (v + h0) / sqrt(2))
 
+    if (initialize) {
+        init();
+        refresh();
+    }
+}
+
+void SM_Model::init()
+{
+    gaugeSymmetryBreaking();
+    HiggsVEVExpansion();
+    diagonalizeSMMassMatrices();
+    replaceLeptonYukawa();
+    replaceUpYukawa();
+    replaceDownYukawa();
+    flavorSymmetryBreaking();
+    adjust();
+}
+
+void SM_Model::gaugeSymmetryBreaking()
+{
     ///////////////////////////////////////////////////
     // Breaking gauge SU(2)_L symmetry, renaming
     ///////////////////////////////////////////////////
 
     BreakGaugeSymmetry(*this, "U1Y");
-    BreakGaugeSymmetry(
-            *this,
-            "SU2L",
-            {"H", "W", "Q", "L"},
-            {{"H0", "H1"},
-            {"W1", "W2", "W3"},
-            {"U_L", "D_L"},
-            {"Nu_L", "E_L"}});
+    BreakGaugeSymmetry( *this, "SU2L");
+    renameParticle("Q_1", "U_L");
+    renameParticle("Q_2", "D_L");
+    renameParticle("L_1", "Nu_L");
+    renameParticle("L_2", "E_L");
 
     ///////////////////////////////////////////////////
     // Replacements to get SM particles W +-
     ///////////////////////////////////////////////////
 
-    Particle W1   = GetParticle(*this, "W1");
-    Particle W2   = GetParticle(*this, "W2");
+    Particle W1   = GetParticle(*this, "W_1");
+    Particle W2   = GetParticle(*this, "W_2");
     Particle W_SM = GenerateSimilarParticle("W", W1);
     W_SM->setSelfConjugate(false);
 
@@ -90,15 +108,18 @@ SM_Model::SM_Model()
     replace(
             GetFieldStrength(W2),
             CSL_I * (F_W_p - F_W_m) / csl::sqrt_s(2));
+}
 
+void SM_Model::HiggsVEVExpansion()
+{
     ///////////////////////////////////////////////////
     // Actual gauge (spontaneous) symmetry breaking
     ///////////////////////////////////////////////////
 
     csl::Expr v = sm_input::v;
 
-    Particle H0 = getParticle("H0");
-    Particle H1 = getParticle("H1");
+    Particle H1 = getParticle("H_1");
+    Particle H2 = getParticle("H_2");
 
     Particle h0 = scalarboson_s("h0 ; h^0", *this); // SM Higgs boson
     Particle Gp = scalarboson_s("Gp ; G^+", *this);
@@ -106,20 +127,19 @@ SM_Model::SM_Model()
     h0->setSelfConjugate(true);
     G0->setSelfConjugate(true);
 
-    replace(H0, Gp());
-    replace(H1, (h0() + CSL_I*G0() + v)/csl::sqrt_s(2));
+    replace(H1, Gp());
+    replace(H2, (h0() + CSL_I*G0() + v)/csl::sqrt_s(2));
+}
 
-    csl::Expr mh = sm_input::m_h;
-    replace(m2,  mh*mh / 2);
-    replace(lam, mh*mh / (2*v*v));
-
+void SM_Model::diagonalizeSMMassMatrices()
+{
     ///////////////////////////////////////////////////
     // Diagonalizing what can be
     ///////////////////////////////////////////////////
 
     DiagonalizeMassMatrices(*this);
     renameParticle("B", "A");
-    renameParticle("W3", "Z");
+    renameParticle("W_3", "Z");
 
     csl::Expr gY = getScalarCoupling("g_Y");
     csl::Expr gL = getScalarCoupling("g_L");
@@ -135,26 +155,24 @@ SM_Model::SM_Model()
     replace(
             gL, 
             e / csl::sin_s(theta_Weinberg));
+}
 
+void SM_Model::replaceLeptonYukawa()
+{
     ///////////////////////////////////////////////////
-    // Taking care of yukawa couplings
+    // Taking care of Yukawa couplings
     ///////////////////////////////////////////////////
 
     csl::Tensor Ye = GetYukawa(*this, "Ye");
-    csl::Tensor Yu = GetYukawa(*this, "Yu");
-    csl::Tensor Yd = GetYukawa(*this, "Yd");
 
     csl::Expr m_e   = sm_input::m_e;
     csl::Expr m_mu  = sm_input::m_mu;
     csl::Expr m_tau = sm_input::m_tau;
-    csl::Expr m_u   = sm_input::m_u;
-    csl::Expr m_c   = sm_input::m_c;
-    csl::Expr m_t   = sm_input::m_t;
-    csl::Expr m_d   = sm_input::m_d;
-    csl::Expr m_s   = sm_input::m_s;
-    csl::Expr m_b   = sm_input::m_b;
 
     const csl::Space* flavorSpace = GetSpace(Ye);
+    csl::Index f_i = GetIndex(flavorSpace);
+    csl::Index f_j = GetIndex(flavorSpace);
+    csl::Expr factor = csl::sqrt_s(2) / v;
     csl::Tensor M_e = csl::tensor_s(
             "M_e",
             {flavorSpace, flavorSpace},
@@ -162,6 +180,19 @@ SM_Model::SM_Model()
                       {CSL_0, m_mu, CSL_0},
                       {CSL_0, CSL_0, m_tau}}));
 
+    replace(Ye, factor*M_e({f_i, f_j}));
+}
+
+void SM_Model::replaceUpYukawa()
+{
+    csl::Tensor Yu = GetYukawa(*this, "Yu");
+    const csl::Space* flavorSpace = GetSpace(Yu);
+    csl::Index f_i = GetIndex(flavorSpace);
+    csl::Index f_j = GetIndex(flavorSpace);
+    csl::Expr factor = csl::sqrt_s(2) / v;
+    csl::Expr m_u   = sm_input::m_u;
+    csl::Expr m_c   = sm_input::m_c;
+    csl::Expr m_t   = sm_input::m_t;
     csl::Tensor M_u = csl::tensor_s(
             "M_u",
             {flavorSpace, flavorSpace},
@@ -169,6 +200,17 @@ SM_Model::SM_Model()
                       {CSL_0, m_c, CSL_0},
                       {CSL_0, CSL_0, m_t}}));
 
+    replace(Yu, factor*M_u({f_i, f_j}));
+}
+
+void SM_Model::replaceDownYukawa()
+{
+    csl::Tensor Yd = GetYukawa(*this, "Yd");
+    const csl::Space* flavorSpace = GetSpace(Yd);
+    csl::Expr factor = csl::sqrt_s(2) / v;
+    csl::Expr m_d   = sm_input::m_d;
+    csl::Expr m_s   = sm_input::m_s;
+    csl::Expr m_b   = sm_input::m_b;
     csl::Tensor M_d = csl::tensor_s(
             "M_d",
             {flavorSpace, flavorSpace},
@@ -181,18 +223,10 @@ SM_Model::SM_Model()
     csl::Index f_j = GetIndex(flavorSpace);
     csl::Index f_k = GetIndex(flavorSpace);
     csl::Index f_l = GetIndex(flavorSpace);
-    csl::Tensor delta_flav  = Delta(flavorSpace);
-
-    csl::Tensor U_uL = Unitary("U^u_L", flavorSpace);
-    csl::Tensor U_uR = Unitary("U^u_R", flavorSpace);
-    csl::Tensor U_dR = Unitary("U^d_R", flavorSpace);
 
     buildCKM(flavorSpace);
 
-    csl::Expr factor = csl::sqrt_s(2) / v;
-    replace(Ye, factor*M_e({f_i, f_j}));
-    replace(Yu, factor*M_u({f_i, f_j}));
-    replace(Yd,
+    replace(Yd({f_i, f_j}),
             csl::prod_s({factor,
                          V_CKM({f_i, f_k}), 
                          M_d({f_k, f_l}),
@@ -206,32 +240,41 @@ SM_Model::SM_Model()
     csl::Index A   = GaugeIndex(*this, "SU3c", D_L);
     replace(D_L({f_j, A, a1}), V_CKM({f_j, f_k}) * D_L({f_k, A, a1}));
     replace(D_R({f_i, A, a1}), V_CKM({f_i, f_j}) * D_R({f_j, A, a1}));
+}
 
+void SM_Model::flavorSymmetryBreaking()
+{
     ///////////////////////////////////////////////////
     // Finally breaking SM flavor symmetry 
     // to get the 3 fermion generations
     ///////////////////////////////////////////////////
 
-    BreakFlavorSymmetry(*this,
-            "SM_flavor",
-            {"U_L", "U_R", "D_L", "D_R", "E_L", "E_R", "Nu_L"},
-           {{"u_L", "c_L", "t_L"},
-            {"u_R", "c_R", "t_R"},
-            {"d_L", "s_L", "b_L"},
-            {"d_R", "s_R", "b_R"},
-            {"e_L", "mu_L;\\mu_L", "tau_L;\\tau_L"},
-            {"e_R", "mu_R;\\mu_R", "tau_R;\\tau_R"},
-            {"nu_e;\\nu_{eL}", "nu_mu;\\nu_{\\mu L}", "nu_tau;\\nu_{\\tau L}"}}
-            );
+    BreakFlavorSymmetry(*this, "SM_flavor");
+    static const std::vector<std::pair<std::string, std::string>> names = {
+        {"U_L_1", "u_L"}, {"U_L_2", "c_L"}, {"U_L_3", "t_L"},
+        {"D_L_1", "d_L"}, {"D_L_2", "s_L"}, {"D_L_3", "b_L"},
+        {"E_L_1", "e_L"}, {"E_L_2", "mu_L;\\mu_L"}, {"E_L_3", "tau_L;\\tau_L"},
+        {"Nu_L_1", "nu_e;\\nu_e"}, 
+            {"Nu_L_2", "nu_mu;\\nu_\\mu"}, 
+            {"Nu_L_3", "nu_tau;\\nu_\\tau"},
+        {"U_R_1", "u_R"}, {"U_R_2", "c_R"}, {"U_R_3", "t_R"},
+        {"D_R_1", "d_R"}, {"D_R_2", "s_R"}, {"D_R_3", "b_R"},
+        {"E_R_1", "e_R"}, {"E_R_2", "mu_R;\\mu_R"}, {"E_R_3", "tau_R;\\tau_R"},
+    };
+    for (const auto [previous, next] : names) 
+        renameParticle(previous, next);
+}
 
-    replace(v, (2 * sm_input::M_W * csl::sin_s(theta_Weinberg)) / e);
-    replace(getParticle("W")->getMass(), sm_input::M_W);
-    getParticle("W")->setMass(sm_input::M_W);
-    replace(getParticle("Z")->getMass(), sm_input::M_Z);
-    getParticle("Z")->setMass(sm_input::M_Z);
+void SM_Model::adjust()
+{
+    using namespace sm_input;
+    replace(v, (2 * M_W * csl::sin_s(theta_W)) / e_em);
+    replace(getParticle("W")->getMass(), M_W);
+    getParticle("W")->setMass(M_W);
+    replace(getParticle("Z")->getMass(), M_Z);
+    getParticle("Z")->setMass(M_Z);
     promoteToGoldstone("Gp", "W");
     promoteToGoldstone("G0", "Z");
-    refresh();
 }
 
 } // End of namespace mty

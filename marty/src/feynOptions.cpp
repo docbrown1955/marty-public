@@ -99,16 +99,17 @@ namespace mty {
             bool                         forceFilters
             ) const
     {
-        if (forceFilters || !partialCalculation)
-            applyFilters(
-                    diagrams,
-                    [=](FeynmanDiagram const &diagram) {
-                    return std::any_of(
-                            begin(dfilters), end(dfilters),
-                            [&](DiagramFilter const &d) {
-                                return !d(diagram);
-                            });
-                    });
+        const size_t lastFilter = (forceFilters || !partialCalculation) ?
+            dfilters.size() : nDefaultDiagramFilters;
+        applyFilters(
+                diagrams,
+                [=](FeynmanDiagram const &diagram) {
+                return std::any_of(
+                        begin(dfilters), begin(dfilters) + lastFilter,
+                        [&](DiagramFilter const &d) {
+                            return !d(diagram);
+                        });
+                });
     }
 
     void FeynOptions::resetFilters()
@@ -146,7 +147,9 @@ namespace mty {
         });
         addDiagramFilter([=](FeynmanDiagram const &diagram) {
             if (diagram.getNLoops() != *loopOrder) {
-                return !(discardLowerOrders || *loopOrder < diagram.getNLoops());
+                if (*loopOrder < diagram.getNLoops())
+                    return false;
+                return discardLowerOrders;
             }
             return true;
         });

@@ -298,9 +298,22 @@ class VectorBoson: public BaseVectorBoson {
     csl::Expr operator()(std::vector<csl::Index> indices,
                     const csl::Tensor&     t_point) override;
 
+    void breakParticle(
+            mty::Group                     *brokenGroup,
+            std::vector<std::string> const &newNames
+            ) override;
+    void breakParticle(
+            mty::FlavorGroup                     *brokenFlavor,
+            std::vector<mty::FlavorGroup*> const &subGroups,
+            std::vector<std::string>       const &names
+            ) override;
+
+
     protected:
 
     void initPropagator() override;
+
+    void updateBrokenFieldStrength(csl::Space const *space);
 };
 
 class GoldstoneBoson;

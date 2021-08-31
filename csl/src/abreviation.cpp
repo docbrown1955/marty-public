@@ -503,7 +503,8 @@ Expr Abbrev::makeAbbreviation(std::string name,
     if (encaps->size() == 0) // nothing to abbreviate
         return encaps;
     if (csl::IsProd(encaps) && csl::IsNumerical(encaps[0])
-            && csl::Size(encaps) > 2) {
+            && csl::Size(encaps) > 2
+            && getAbbreviationsForName(name).size() > 100) {
         auto prod = csl::prod_s(
                 std::vector<csl::Expr>(encaps->begin()+1, encaps->end()), true);
         auto prodAbbrev = makeAbbreviation(name, prod, split);

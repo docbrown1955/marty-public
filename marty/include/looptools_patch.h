@@ -115,30 +115,20 @@ namespace mty::lt {
         const bool p1Zero = (p1_2 == 0.);
         const bool p3Zero = (p3_2 == 0.);
         if (p1Zero && p3Zero && p2_2 == 0.) {
-            auto min_m = abs_min_ct(m1_2, m2_2, m3_2);
-            p1_2 = eps * (min_m == 0. ? 1. : min_m);
+            p1_2 = 1e-5;
             return;
         }
-        else if (p1_2 == p2_2) {
-            if (p1Zero) {
-                p2_2 = -eps * p3_2; // p3 is different from zero here
-            }
+        else if (p1_2 == p2_2 && !p1Zero) {
             p2_2 = (1 + eps) * p1_2;
             if (abs_re(m1_2/p1_2) > 1e5 || abs_re(m2_2/p1_2) > 1e5 || abs_re(m3_2/p1_2) > 1e5)
                 p1_2 *= -1;
         }
-        else if (p1_2 == p3_2) {
-            if (p1Zero) {
-                p3_2 = -eps * p2_2; // p2 is different from zero here
-            }
+        else if (p1_2 == p3_2 && !p1Zero) {
             p3_2 = (1 + eps) * p1_2;
             if (abs_re(m1_2/p2_2) > 1e5 || abs_re(m2_2/p2_2) > 1e5 || abs_re(m3_2/p2_2) > 1e5)
                 p2_2 *= -1;
         }
-        else if (p3_2 == p2_2) {
-            if (p3Zero) {
-                p3_2 = -eps * p1_2; // p1 is different from zero here
-            }
+        else if (p3_2 == p2_2 && !p3Zero) {
             p3_2 = (1 + eps) * p2_2;
             if (abs_re(m1_2/p3_2) > 1e5 || abs_re(m2_2/p3_2) > 1e5 || abs_re(m3_2/p3_2) > 1e5)
                 p3_2 *= -1;

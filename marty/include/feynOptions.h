@@ -542,6 +542,8 @@ namespace mty {
          * the standard one uses \f$ \1,\gamma^5 \f$.
          */
         OperatorBasis wilsonOperatorBasis = OperatorBasis::Chiral;
+
+        constexpr static size_t nDefaultDiagramFilters = 1;
     };
 
 } // namespace mty

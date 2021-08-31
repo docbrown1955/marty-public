@@ -273,6 +273,38 @@ csl::Expr VectorBoson::operator()(std::vector<csl::Index> indices,
     return QuantumFieldParent::operator()(indices, t_point);
 }
 
+void VectorBoson::breakParticle(
+        mty::Group                     *brokenGroup,
+        std::vector<std::string> const &newNames
+        )
+{
+    QuantumFieldParent::breakParticle(brokenGroup, newNames);
+    const auto vSpace = brokenGroup->getVectorSpace(getGroupIrrep(brokenGroup));
+    updateBrokenFieldStrength(vSpace);
+}
+void VectorBoson::breakParticle(
+        mty::FlavorGroup                     *brokenFlavor,
+        std::vector<mty::FlavorGroup*> const &subGroups,
+        std::vector<std::string>       const &names
+        )
+{
+    QuantumFieldParent::breakParticle(brokenFlavor, subGroups, names);
+    const auto vSpace = brokenFlavor->getFundamentalSpace();
+    updateBrokenFieldStrength(vSpace);
+}
+
+void VectorBoson::updateBrokenFieldStrength(csl::Space const *space)
+{
+    const auto &brokenParts = getBrokenParts(space);
+    const size_t sz = brokenParts.size();
+    std::vector<mty::Particle> brokenFS(sz);
+    for (size_t i = 0; i != sz; ++i) {
+        brokenFS[i] = ConvertToPtr<QuantumFieldParent>(brokenParts[i])
+            ->getFieldStrength();
+    }
+    getFieldStrength()->setBrokenParts(space, brokenFS);
+}
+
 ///////////////////////////////////////////////////
 /*************************************************/
 // Class GaugeBoson                              //

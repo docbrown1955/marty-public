@@ -35,7 +35,6 @@ NMFV_Model::NMFV_Model(
 
 void NMFV_Model::getToLowEnergyLagrangian()
 {
-    InteractionTerm::abbreviateFactors = true;
     std::cout << "Breaking SU(2)_L symmetry ...\n";
     breakSU2LGaugeSymmetry();
     replaceWBoson();

@@ -113,6 +113,18 @@ namespace csl {
                 int nIndent
                 ) const;
 
+        void printNameMapElement(
+                std::ostream       &out,
+                int                 nIndent,
+                LibParameter const &param,
+                std::string  const &type
+                ) const;
+
+        void printNameMap(
+                std::ostream &out,
+                int           nIndent
+                ) const;
+
         void printStructDefinition(
                 std::ostream &out,
                 int nIndent

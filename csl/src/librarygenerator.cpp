@@ -288,6 +288,7 @@ namespace csl {
             file paramFile(path + "/" + incDir + "/params.h");
             paramFile << "#ifndef CSL_LIB_PARAM_H_INCLUDED\n",
             paramFile << "#define CSL_LIB_PARAM_H_INCLUDED\n\n";
+            paramFile << "#include <map>\n";
             paramFile << "#include <array>\n";
             paramFile << "#include \"common.h\"\n";
             paramFile << "#include \"libcomplexop.h\"\n";

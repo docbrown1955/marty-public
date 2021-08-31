@@ -270,7 +270,53 @@ namespace csl {
         printResetDefinition(out, nIndent + 1);
         out << '\n';
         printPrintDefinition(out, nIndent + 1);
+        out << '\n';
+        printNameMap(out, nIndent + 1);
         out << LibraryGenerator::indent(nIndent) << "};\n";
+    }
+
+    void LibraryGroup::printNameMapElement(
+            std::ostream       &out,
+            int                 nIndent,
+            LibParameter const &param,
+            std::string  const &type
+            ) const
+    {
+        if (param.type == type) {
+            out << LibraryGenerator::indent(1+nIndent) 
+                << "{\"" << param.name << "\", &" << param.name << "},\n";
+        }
+    }
+
+    void LibraryGroup::printNameMap(
+            std::ostream &out,
+            int           nIndent
+            ) const
+    {
+        out << LibraryGenerator::indent(nIndent)
+            << "std::map<std::string, csl::InitSanitizer<"
+            << LibraryGenerator::realUsing << ">*> realParams {\n";
+        for (const auto &param : parameters) {
+            printNameMapElement(
+                    out, nIndent, param, LibraryGenerator::realUsing);
+        }
+        for (const auto &param : forcedParameters) {
+            printNameMapElement(
+                    out, nIndent, param, LibraryGenerator::realUsing);
+        }
+        out << "};\n\n";
+        out << LibraryGenerator::indent(nIndent)
+            << "std::map<std::string, csl::InitSanitizer<" 
+            << LibraryGenerator::complexUsing << ">*> complexParams {\n";
+        for (const auto &param : parameters) {
+            printNameMapElement(
+                    out, nIndent, param, LibraryGenerator::complexUsing);
+        }
+        for (const auto &param : forcedParameters) {
+            printNameMapElement(
+                    out, nIndent, param, LibraryGenerator::complexUsing);
+        }
+        out << LibraryGenerator::indent(nIndent) << "};\n\n";
     }
 
     void LibraryGroup::printFunctionStack(
@@ -286,6 +332,18 @@ namespace csl {
         for (const auto &f : functions) {
             out << LibraryGenerator::indent(nIndent + 1);
             out << "Callable{\"" << f.getName() << "\", " << f.getName() << "},\n";
+        }
+        out << LibraryGenerator::indent(nIndent) << "};\n\n";
+
+        out << LibraryGenerator::indent(nIndent)
+            << "inline std::map<std::string, Callable<" << (complexReturn ? 
+                    LibraryGenerator::complexUsing 
+                    :LibraryGenerator::realUsing) << ", " << getParamName();
+        out << ">> fmap_" << name << " {\n";
+        for (size_t i = 0; i != functions.size(); ++i) {
+            out << LibraryGenerator::indent(nIndent + 1);
+            out << "{\"" << functions[i].getName() 
+                << "\", f_" << name << "[" << i << "]},\n";
         }
         out << LibraryGenerator::indent(nIndent) << "};\n\n";
     }

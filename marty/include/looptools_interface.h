@@ -4,6 +4,7 @@
 
 namespace mty::lt {
 
+inline bool       rescaleIntegral = false;
 inline lti_real_t minScale = 1e-3;
 inline lti_real_t regScale = 1e+0;
 
@@ -48,17 +49,19 @@ inline lti_complex_t C0iC(
         lti_real_t const &eps = 0.
         )
 {
-    auto min = 10*minScale; // Ensure initial value higher than minscale
-    for (const auto &value: {p1, p2, p3, m1, m2, m3}) {
-        const auto re = abs_re(value);
-        if (re != 0 && re < min)
-            min = re;
-    }
-    if (min < minScale) {
-        const auto scale = regScale / min;
-        return rescaled(
-                scale, scaleFactorC(id, scale), lt::C0iC, 
-                id, eps, p1, p2, p3, m1, m2, m3);
+    if (rescaleIntegral) {
+       auto min = 10*minScale; // Ensure initial value higher than minscale
+       for (const auto &value: {p1, p2, p3, m1, m2, m3}) {
+           const auto re = abs_re(value);
+           if (re != 0 && re < min)
+               min = re;
+       }
+       if (min < minScale) {
+           const auto scale = regScale / min;
+           return rescaled(
+                   scale, scaleFactorC(id, scale), lt::C0iC, 
+                   id, eps, p1, p2, p3, m1, m2, m3);
+       }
     }
     regulateC(p1, p2, p3, m1, m2, m3, eps);
     const std::complex<lti_real_t> res = ::C0iC(

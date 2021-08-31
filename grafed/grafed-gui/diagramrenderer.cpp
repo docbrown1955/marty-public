@@ -32,6 +32,8 @@ DiagramRenderer::DiagramRenderer(QWidget *parent) :
     nColumns(4),
     minWidth(300),
     minHeight(300),
+    firstDiag(0),
+    lastDiag(0),
     edgeForm(nullptr),
     nodeForm(nullptr),
     zoomValue(1.),
@@ -51,7 +53,7 @@ DiagramRenderer::DiagramRenderer(
     if (!f)
         newDiagram();
     else {
-	f.close();
+        f.close();
         readFile(nameFile);
     }
     update();
@@ -303,6 +305,24 @@ void DiagramRenderer::resetSelection()
     emit nonEmptySelection(false);
 }
 
+// Function not ready to be used
+void DiagramRenderer::setDiagramSet(qint32 first, qint32 last)
+{
+    if (mode == SessionMode) {
+        firstDiag = first;
+        lastDiag  = last;
+        diagrams = QList<Diagram*>{};
+        table->clear();
+        for (qint32 i = first; i != last; ++i) {
+            auto res = newDiagram();
+            res.first->loadLinker(links[static_cast<size_t>(i)]);
+            res.first->showNodes(false);
+            diagrams.append(res.first);
+        }
+        init();
+    }
+}
+
 void DiagramRenderer::closeNodeForm()
 {
     if (nodeForm) {
@@ -408,6 +428,8 @@ std::pair<Diagram*, DiagramWidget*> DiagramRenderer::newDiagram()
     }
     auto [diagram, graph] = generateDiagram(i, j);
     diagrams.push_back(diagram);
+    allDiagrams.push_back(diagram);
+    ++lastDiag;
     table->setCellWidget(i, j, graph);
     table->cellWidget(i, j)->setToolTip(
                 QString("%1").arg(i*nColumns + j));
@@ -419,7 +441,11 @@ void DiagramRenderer::readFile(QString const &nameFile)
 {
     links = drawer::LatexLinker::loadMultiple(nameFile.toStdString());
     table->clear();
+    constexpr size_t maxDiagrams = 200;
+    size_t nDiagrams = 0;
     for (auto& link : links) {
+        if (++nDiagrams > maxDiagrams)
+            break;
         auto res = newDiagram();
         res.first->loadLinker(link);
         res.first->showNodes(false);

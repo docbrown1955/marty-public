@@ -202,20 +202,12 @@ void Display(std::vector<FeynmanRule> const& rules,
 {
     if (mty::option::searchAbreviations 
             and mty::option::displayAbbreviations)
-        DisplayAbbreviations();
+        DisplayAbbreviations(out);
     size_t i = 0;
     for (const auto& rule : rules) {
         out << "(" << i++ << ") : ";
         out << rule << std::endl;
     }
-}
-
-void Show(std::vector<FeynmanRule> const& rules)
-{
-    std::vector<std::shared_ptr<wick::Graph>> graphs(rules.size());
-    for (size_t i = 0; i != rules.size(); ++i)
-        graphs[i] = rules[i].getDiagram();
-    Show(graphs);
 }
 
 void Display(std::vector<csl::Expr> const& amplitudes,
@@ -224,7 +216,7 @@ void Display(std::vector<csl::Expr> const& amplitudes,
 {
     if (mty::option::searchAbreviations 
             and mty::option::displayAbbreviations)
-        DisplayAbbreviations();
+        DisplayAbbreviations(out);
     if (simplify) {
         csl::Comparator::setDummyVecIntComparisonActive(true);
         csl::Expr sum = csl::sum_s(amplitudes);
@@ -260,6 +252,14 @@ void Display(mty::Amplitude const& amplitudes,
     Display(amplitudes.obtainExpressions(), out, simplify);
 }
 
+void Show(std::vector<FeynmanRule> const& rules)
+{
+    std::vector<std::shared_ptr<wick::Graph>> graphs(rules.size());
+    for (size_t i = 0; i != rules.size(); ++i)
+        graphs[i] = rules[i].getDiagram();
+    Show(graphs);
+}
+
 void Show(std::vector<std::shared_ptr<wick::Graph>> const& graphs)
 {
     Drawer::launchViewer(graphs);
@@ -267,7 +267,48 @@ void Show(std::vector<std::shared_ptr<wick::Graph>> const& graphs)
 
 void Show(mty::Amplitude const& ampl)
 {
-    Drawer::launchViewer(ampl.obtainGraphs());
+    Show(ampl.obtainGraphs());
+}
+
+void Show(
+        std::vector<FeynmanRule> const& rules,
+        size_t first,
+        size_t last
+        )
+{
+    HEPAssert(first < last && first < rules.size() && last < rules.size(),
+            mty::error::IndexError,
+            "Bad indices " + std::to_string(first) + " and "
+            + std::to_string(last) + " for Feynman rule container of size "
+            + std::to_string(rules.size()))
+    Show(std::vector<FeynmanRule>{
+            rules.begin() + first,
+            rules.begin() + last
+            });
+}
+void Show(
+        std::vector<std::shared_ptr<wick::Graph>> const& diagrams,
+        size_t first,
+        size_t last
+        )
+{
+    HEPAssert(first < last && first < diagrams.size() && last < diagrams.size(),
+            mty::error::IndexError,
+            "Bad indices " + std::to_string(first) + " and "
+            + std::to_string(last) + " for graph container of size "
+            + std::to_string(diagrams.size()))
+    Show(std::vector<std::shared_ptr<wick::Graph>>{
+            diagrams.begin() + first,
+            diagrams.begin() + last
+            });
+}
+void Show(
+        mty::Amplitude const& diagrams,
+        size_t first,
+        size_t last
+        )
+{
+    Show(diagrams.obtainGraphs(), first, last);
 }
 
 void Display(WilsonSet const& wilsons,
@@ -275,7 +316,7 @@ void Display(WilsonSet const& wilsons,
 {
     if (mty::option::searchAbreviations 
             and mty::option::displayAbbreviations)
-        DisplayAbbreviations();
+        DisplayAbbreviations(out);
     out << wilsons.size() << " wilsons:" << std::endl;
     for (size_t i = 0; i != wilsons.size(); ++i)
         out << "(" << i << ") : " << wilsons[i] << std::endl;

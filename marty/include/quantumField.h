@@ -1290,11 +1290,11 @@ class QuantumFieldParent: public csl::TensorFieldParent {
 
     operator csl::Expr();
 
-    void breakParticle(
+    virtual void breakParticle(
             mty::Group                     *brokenGroup,
             std::vector<std::string> const &newNames
             );
-    void breakParticle(
+    virtual void breakParticle(
             mty::FlavorGroup                     *brokenFlavor,
             std::vector<mty::FlavorGroup*> const &subGroups,
             std::vector<std::string>       const &names

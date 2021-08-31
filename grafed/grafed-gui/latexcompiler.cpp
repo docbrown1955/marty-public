@@ -55,7 +55,10 @@ QPixmap latexcompiler::generateLabel(const std::string &texCode)
     std::ofstream f(grafed_dir + "/eq.tex");
     if (!f)
         return QPixmap();
-    f << "\\documentclass[preview]{standalone}";
+    f << "\\documentclass[preview]{standalone}\n";
+    f << "\\usepackage{amsmath}\n";
+    f << "\\usepackage{slashed}\n";
+    f << "\\usepackage{xcolor}\n";
     f << "\\begin{document}$" << texCode << "$\\end{document}";
     f.close();
     res = system(("cd " + grafed_dir + " && "

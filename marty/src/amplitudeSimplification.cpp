@@ -313,8 +313,6 @@ namespace mty::simpli {
         {
             if (!csl::IsIndicialTensor(sub))
                 return;
-            if (color != isColorStructure(sub))
-                return;
             for (const auto &i : sub->getIndexStructureView()) {
                 if (i.getSpace() != color)
                     continue;
@@ -1064,7 +1062,8 @@ namespace mty::simpli {
 
         ///////////////////////
 
-        reduceTensorIntegrals(expr);
+        if (mode == Amplitude)
+            reduceTensorIntegrals(expr);
         //if (mode != SquaredAmplitude && mode != FeynmanRule)
         //    simplifyImpulsions(expr, insertions, momenta);
         expandMomentaExperimental(expr, momenta);

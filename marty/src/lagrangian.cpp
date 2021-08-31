@@ -247,17 +247,17 @@ void Lagrangian::ensurePoint(mty::InteractionTerm &term)
 
 std::ostream& operator<<(std::ostream& fout, const Lagrangian& L)
 {
-    cout << L.kinetic.size() << " kinetic terms:\n";
+    fout << L.kinetic.size() << " kinetic terms:\n";
     size_t i = 0;
     for (const auto& term : L.kinetic)
         fout << i++ << " (" << term->size() << ") : " 
             << term->getTerm() << "\n\n";
-    cout << L.mass.size() << " mass terms:\n";
+    fout << L.mass.size() << " mass terms:\n";
     i = 0;
     for (const auto& term : L.mass)
         fout << i++ << " (" << term->size() 
             << ") : " << term->getTerm() << "\n\n";
-    cout << L.interaction.size() << " interaction terms:\n";
+    fout << L.interaction.size() << " interaction terms:\n";
     i = 0;
     for (const auto& term : L.interaction)
         fout << i++ << " (" << term->size() << ") : " 

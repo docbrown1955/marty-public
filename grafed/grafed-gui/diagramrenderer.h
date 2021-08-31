@@ -48,6 +48,10 @@ class DiagramRenderer : public QWidget
         SessionMode
     };
 
+public:
+
+    static inline qint32 maxNDiagrams = 100;
+
 private:
     explicit DiagramRenderer(QWidget *parent = nullptr);
 public:
@@ -79,6 +83,9 @@ public slots:
     bool setDiagram(qint32 i = -1);
     void cellPressed(int i, int j);
     void resetSelection();
+
+    // Function not ready to be used
+    void setDiagramSet(qint32 first, qint32 last);
 
     bool hasEdgeForm() {
         return edgeForm;
@@ -134,7 +141,10 @@ private:
     qint32          nColumns;
     qint32          minWidth;
     qint32          minHeight;
+    qint32          firstDiag;
+    qint32          lastDiag;
     std::vector<drawer::LatexLinker> links;
+    QList<Diagram*>       allDiagrams;
     QList<Diagram*>       diagrams;
     QList<std::pair<int, int>> selectedDiagrams;
     qint32                indexDiagram;

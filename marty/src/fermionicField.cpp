@@ -224,6 +224,26 @@ void WeylFermion::initPropagator()
         propagator[this] = &IntegratedFermionPropagator;
 }
 
+void WeylFermion::breakParticle(
+        mty::Group                     *brokenGroup,
+        std::vector<std::string> const &newNames
+        ) 
+{
+    if (getDiracParent())
+        return;
+    QuantumFieldParent::breakParticle(brokenGroup, newNames);
+}
+void WeylFermion::breakParticle(
+        mty::FlavorGroup                     *brokenFlavor,
+        std::vector<mty::FlavorGroup*> const &subGroups,
+        std::vector<std::string>       const &names
+        ) 
+{
+    if (getDiracParent())
+        return;
+    QuantumFieldParent::breakParticle(brokenFlavor, subGroups, names);
+}
+
 ///////////////////////////////////////////////////
 /*************************************************/
 // Class DiracFermion                            //
@@ -495,6 +515,42 @@ Particle DiracFermion::getWeylFermion(Chirality chirality) const
             "Particle " + std::string(getName()) + " has no " 
             + " weyl fermion.");
     return res;
+}
+
+void DiracFermion::breakParticle(
+        mty::Group                     *brokenGroup,
+        std::vector<std::string> const &newNames
+        ) 
+{
+    QuantumFieldParent::breakParticle(brokenGroup, newNames);
+    const auto vSpace = brokenGroup->getVectorSpace(getGroupIrrep(brokenGroup));
+    updateChiralBrokenParts(vSpace);
+}
+
+void DiracFermion::breakParticle(
+        mty::FlavorGroup                     *brokenFlavor,
+        std::vector<mty::FlavorGroup*> const &subGroups,
+        std::vector<std::string>       const &names
+        ) 
+{
+    QuantumFieldParent::breakParticle(brokenFlavor, subGroups, names);
+    const auto vSpace = brokenFlavor->getFundamentalSpace();
+    updateChiralBrokenParts(vSpace);
+}
+
+void DiracFermion::updateChiralBrokenParts(csl::Space const *space)
+{
+    const auto &brokenParts = getBrokenParts(space);
+    const size_t sz = brokenParts.size();
+    std::vector<mty::Particle> leftBroken(sz);
+    std::vector<mty::Particle> rightBroken(sz);
+    for (size_t i = 0; i != sz; ++i) {
+        auto const &parent = ConvertToPtr<QuantumFieldParent>(brokenParts[i]);
+        leftBroken[i]  = parent->getWeylFermion(Chirality::Left);
+        rightBroken[i] = parent->getWeylFermion(Chirality::Right);
+    }
+    getWeylFermion(Chirality::Left)->setBrokenParts(space, leftBroken);
+    getWeylFermion(Chirality::Right)->setBrokenParts(space, rightBroken);
 }
 
 }

@@ -134,7 +134,8 @@ static bool hardComparison_impl(
     const int match = matchBOnA(A, B);
     if (match != -1)
         return false;
-    return A->compareWithDummy(B.get());
+    auto res = A->compareWithDummy(B.get());
+    return res;
 }
 
 bool hardComparison(

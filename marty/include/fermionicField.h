@@ -129,6 +129,16 @@ class WeylFermion: public QuantumFieldParent {
 
     void setDiracParent(Particle const &parent) override;
 
+    void breakParticle(
+            mty::Group                     *brokenGroup,
+            std::vector<std::string> const &newNames
+            ) override;
+    void breakParticle(
+            mty::FlavorGroup                     *brokenFlavor,
+            std::vector<mty::FlavorGroup*> const &subGroups,
+            std::vector<std::string>       const &names
+            ) override;
+
     protected:
 
     void initPropagator() override;
@@ -235,9 +245,21 @@ class DiracFermion: public QuantumFieldParent {
 
     Particle getWeylFermion(Chirality chirality) const override;
 
+    void breakParticle(
+            mty::Group                     *brokenGroup,
+            std::vector<std::string> const &newNames
+            ) override;
+    void breakParticle(
+            mty::FlavorGroup                     *brokenFlavor,
+            std::vector<mty::FlavorGroup*> const &subGroups,
+            std::vector<std::string>       const &names
+            ) override;
+
     private:
 
     void initPropagator() override;
+
+    void updateChiralBrokenParts(csl::Space const *space);
 };
 
 /**

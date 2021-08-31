@@ -126,7 +126,12 @@ testDependencies_Linux()
 testDependency_MACOS()
 {
     echo "Searching for $1 ..."
-    brew list --$2 $1 &>/dev/null || brew $2 install $1
+    if [ $# -ge 2 ]
+    then
+        brew list --$2 $1 &>/dev/null || brew install --$2 $1
+    else
+        brew list $1 &>/dev/null || brew install $1
+    fi
     brew cleanup
 }
 

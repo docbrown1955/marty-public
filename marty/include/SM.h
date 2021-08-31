@@ -36,7 +36,18 @@ namespace mty {
     class SM_Model: public mty::Model {
 
     public:
-        SM_Model();
+        SM_Model(bool init = true);
+
+        void init();
+
+        void HiggsVEVExpansion();
+        void diagonalizeSMMassMatrices();
+        void gaugeSymmetryBreaking();
+        void replaceLeptonYukawa();
+        void replaceUpYukawa();
+        void replaceDownYukawa();
+        void flavorSymmetryBreaking();
+        void adjust();
     };
 
 } // End of namespace mty

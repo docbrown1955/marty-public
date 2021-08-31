@@ -515,7 +515,6 @@ void ContractIndices(std::vector<csl::Expr> &init);
 void Display(std::vector<FeynmanRule> const& rules,
              std::ostream                  & out = std::cout);
 
-void Show(std::vector<FeynmanRule> const& rules);
 
 void Display(std::vector<csl::Expr> const& amplitudes,
              std::ostream           & out = std::cout,
@@ -527,8 +526,25 @@ void Display(mty::Amplitude const& amplitudes,
 void Display(WilsonSet const& wilsons,
              std::ostream             & out = std::cout);
 
+void Show(std::vector<FeynmanRule> const& rules);
 void Show(std::vector<std::shared_ptr<wick::Graph>> const& diagrams);
 void Show(mty::Amplitude const& diagrams);
+
+void Show(
+        std::vector<FeynmanRule> const& rules,
+        size_t first,
+        size_t last
+        );
+void Show(
+        std::vector<std::shared_ptr<wick::Graph>> const& diagrams,
+        size_t first,
+        size_t last
+        );
+void Show(
+        mty::Amplitude const& diagrams,
+        size_t first,
+        size_t last
+        );
 
 template<class T>
 void Display(T const& printable,

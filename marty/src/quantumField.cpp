@@ -1095,9 +1095,6 @@ void QuantumFieldParent::breakParticle(
         std::vector<std::string> const &newNames
         )
 {
-    applyToRelatives([&](Particle p) { 
-        p->breakParticle(brokenGroup, newNames); 
-    });
     if (!brokenParts.empty())
         return;
     std::vector<mty::Particle> newParticles;

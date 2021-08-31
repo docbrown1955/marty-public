@@ -1368,9 +1368,7 @@ void ModelBuilder::gatherMasses()
                     std::swap(massTerms[0], massTerms[i]);
                 }
             csl::Expr mass = L.mass[massTerms[0]]->getMass();
-            if (mass->isBuildingBlock())
-                part->setMass(mass);
-            else {
+            if (!mass->isBuildingBlock()) {
                 std::string name = "m_" + std::string(part->getName());
                 csl::Expr abbreviatedMass = csl::Abbrev::makeAbbreviation(
                         name,
@@ -1378,6 +1376,7 @@ void ModelBuilder::gatherMasses()
                 mass = csl::constant_s(name);
                 abbreviatedMassExpressions.push_back(abbreviatedMass);
             }
+            part->setMass(mass);
             std::vector<mty::QuantumField> content 
                 = L.mass[massTerms[0]]->getContent();
             HEPAssert(content.size() == 2,
@@ -1409,6 +1408,22 @@ void ModelBuilder::gatherMasses()
             }
             else if (auto const &pointed = *content[0].getParent();
                     typeid(WeylFermion) == typeid(pointed)){
+                bool massTerm = (massTerms.size() == 2);
+                for (size_t i = 0; i != L.mass.size(); ++i) {
+                    auto pos = std::find(massTerms.begin(), massTerms.end(), i);
+                    if (pos == massTerms.end()) {
+                        if (L.mass[i]->containsWeakly(content[0].getQuantumParent())
+                                || L.mass[i]->containsWeakly(content[1].getQuantumParent())) {
+                            massTerm = false;
+                            break;
+                        }
+                    }
+                }
+                if (!massTerm) {
+                    std::cerr << "Warning: mixings in mass terms for "
+                        << part->getName() << " not taken into account.\n";
+                    continue;
+                }
                 for (auto& c : content)
                     c.getQuantumParent()->setMass(mass);
                 if (content[1].isComplexConjugate())
@@ -1416,7 +1431,7 @@ void ModelBuilder::gatherMasses()
                 content[0] = *std::dynamic_pointer_cast<mty::QuantumField>(
                         csl::GetComplexConjugate(content[0].copy()));
                 std::cout << "Dirac fermion embedding for " << content[0] 
-                    << std::endl;
+                    << " and " << content[1] << std::endl;
                 diracFermionEmbedding(
                     std::dynamic_pointer_cast<mty::WeylFermion>(
                         content[0].getParent()),
@@ -1558,13 +1573,11 @@ void ModelBuilder::breakGaugeSymmetry(
         csl::Space const* vectorSpace = brokenGroup->getVectorSpace(
                 brokenFields[i]->getGroupIrrep(brokenGroup)
                 );
+        breakLagrangian(brokenFields[i], vectorSpace);
         if (brokenFields[i]->getFieldStrength()) {
             auto ff = brokenFields[i]->getFieldStrength();
+            breakLagrangian(ff, vectorSpace);
         }
-        breakLagrangian(brokenFields[i], vectorSpace);
-        if (brokenFields[i]->hasFieldStrength())
-            breakLagrangian(brokenFields[i]->getFieldStrength(), vectorSpace);
-        if (brokenFields[i]->hasFieldStrength())
         removeParticle(brokenFields[i]);
     }
     for (size_t i = 0; i != gauge->size(); ++i)
@@ -1948,8 +1961,10 @@ bool ModelBuilder::diagonalizeExplicitely(
 {
     auto& [pos, content, terms] = block;
     csl::Expr massMatrix = getMassMatrixOf(block);
-    if (massMatrix->size() != 2)
+    csl::Evaluate(massMatrix, csl::eval::abbreviation);
+    if (massMatrix->size() != 2) {
         return false;
+    }
     if (!forceDetZero) {
         csl::Expr det = massMatrix[0][0] * massMatrix[1][1]
                  - massMatrix[0][1] * massMatrix[1][0];
