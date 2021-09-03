@@ -38,8 +38,7 @@ namespace mty {
         lagrangian(t_lagrangian),
         feynmanRules(defaultFR)
     {
-
-    }
+           }
 
     AmplitudeInitializer::AmplitudeInitializer(
             mty::Model                       const *t_model,
@@ -435,6 +434,7 @@ namespace mty {
     {
         std::vector<size_t> indices(kinematics.size());
         std::iota(begin(indices), end(indices), 0);
+        std::vector<int> fermionOrder = options.getFermionOrder();
         for (size_t i = 0; i != insertions.size(); ++i)  {
             size_t mini = i;
             for (size_t j = i+1; j < insertions.size(); ++j)  {
@@ -444,11 +444,15 @@ namespace mty {
             if (mini != i) {
                 std::swap(insertions[i], insertions[mini]);
                 std::swap(indices[i], indices[mini]);
+                for (int &pos : fermionOrder) {
+                    if (pos == static_cast<int>(mini))   pos = i;
+                    else if (pos == static_cast<int>(i)) pos = mini;
+                }
             }
         }
         kinematics.applyPermutation(indices);
+        options.setFermionOrder(fermionOrder);
     }
-
 
     void AmplitudeInitializer::initMomentumVertices(
             std::vector<FeynmanRule>       &localRules,

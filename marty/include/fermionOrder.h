@@ -36,16 +36,20 @@ namespace mty {
             mty::Insertion const &right
             );
 
+    std::vector<mty::Insertion const*> fermionsOf(
+            std::vector<mty::Insertion> const &fields
+            );
+
     std::vector<mty::Insertion*> fermionsOf(
             std::vector<mty::Insertion> &fields
             );
 
     std::vector<int> defaultFermionOrder(
-            std::vector<mty::Insertion*> const &fields
+            std::vector<mty::Insertion const*> const &fields
             );
 
     inline std::vector<int> defaultFermionOrder(
-            std::vector<mty::Insertion> &fields
+            std::vector<mty::Insertion> const &fields
             )
     {
         return defaultFermionOrder(fermionsOf(fields));

@@ -122,6 +122,11 @@ struct WilsonSet: public std::vector<Wilson> {
 
     using std::vector<Wilson>::vector;
 
+    WilsonSet(WilsonSet const &) = default;
+    WilsonSet(WilsonSet &&) = default;
+    WilsonSet &operator=(WilsonSet const &) = default;
+    WilsonSet &operator=(WilsonSet &&) = default;
+
     std::vector<csl::Expr> obtainExpressions() const {
         std::vector<csl::Expr> res(size());
         for (size_t i = 0; i != size(); ++i) {

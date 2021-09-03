@@ -125,7 +125,7 @@ namespace mty {
          * @param kinematics Kinematics that will follow the same order as the
          * insertions.
          */
-        static void orderInsertions(
+        void orderInsertions(
                 std::vector<mty::QuantumField> &insertions,
                 Kinematics                     &kinematics
                 );
@@ -152,7 +152,7 @@ namespace mty {
         inline static std::vector<mty::FeynmanRule const*>   defaultFR{};
 
         mty::Model                  const *model;
-        mty::FeynOptions            const &options;
+        mty::FeynOptions                   options;
         std::vector<mty::QuantumField>     insertions;
         Kinematics                         kinematics;
 

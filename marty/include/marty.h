@@ -67,6 +67,7 @@
 #include "NMFV.h"
 #include "wilson.h"
 #include "wilsonOperator.h"
+#include "builtinOperators.h"
 #include "propagator.h"
 #include "mrtUtils.h"
 #include "wick.h"

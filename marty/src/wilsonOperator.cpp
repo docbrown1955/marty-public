@@ -19,6 +19,40 @@
 
 namespace mty {
 
+    csl::Expr getWilsonCoefficient(
+            WilsonSet           const &wilsons,
+            std::vector<Wilson> const &contributions
+            )
+    {
+        std::vector<csl::Expr> terms;
+        terms.reserve(wilsons.size());
+        for (const auto &wil : wilsons) {
+            for (const auto &contrib : contributions) {
+                if (wil.op == contrib.op) 
+                    terms.push_back(contrib.coef.getCoefficient() 
+                                  * wil    .coef.getCoefficient());
+            }
+        }
+        return csl::sum_s(terms);
+    }
+
+    csl::Expr getWilsonCoefficient(
+            Model     const &model,
+            WilsonSet const &wilsons,
+            DiracCoupling coupling
+            )
+    {
+        return getWilsonCoefficient(
+                wilsons,
+                chromoMagneticOperator(model, wilsons, coupling)
+                );
+    }
+
+} // End of namespace mty
+
+// Old way
+namespace mty {
+
 std::ostream &operator<<(
         std::ostream &out,
         OperatorType  type
@@ -519,11 +553,6 @@ namespace OperatorParser {
     {
         HEPAssert(IsOfType<QuantumField>(qField),
                 mty::error::TypeError,
-
-
-
-
-
                 "This function expects a quantum field, " + toString(qField)
                 + " given.")
         QuantumField const *f = ConvertToPtr<QuantumField>(qField);
@@ -592,6 +621,5 @@ namespace OperatorParser {
                 }
             }
     }
-
-} // End of namespace mty::OperatorParser
 } // End of namespace mty
+} // End of namespace OperatorParser

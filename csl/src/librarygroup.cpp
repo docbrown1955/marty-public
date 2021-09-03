@@ -304,7 +304,7 @@ namespace csl {
             printNameMapElement(
                     out, nIndent, param, LibraryGenerator::realUsing);
         }
-        out << "};\n\n";
+        out << LibraryGenerator::indent(nIndent) << "};\n\n";
         out << LibraryGenerator::indent(nIndent)
             << "std::map<std::string, csl::InitSanitizer<" 
             << LibraryGenerator::complexUsing << ">*> complexParams {\n";

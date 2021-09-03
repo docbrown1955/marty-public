@@ -446,13 +446,7 @@ Expr LibEvalSession::addEval(Expr init)
     }
     auto pos = std::find(eval.begin(), eval.end(), term);
     if (pos != eval.end()) {
-        //Expr factor = init->getNumericalFactor()
-        //            / pos->init->getNumericalFactor();
-        //return factor * DeepCopy(pos->getExpr());
         return Copy(pos->getExpr());
-            // init->getNumericalFactor() 
-            // / pos->init->getNumericalFactor()
-            // * Copy(pos->getExpr());
     }
     csl::DeepRefresh(term);
     LibEval newEval(term, maxID++);

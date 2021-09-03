@@ -88,19 +88,40 @@ std::vector<mty::QuantumField> Model::recoverQuantumInsertions(
 
 mty::Amplitude Model::computeAmplitude(
         int                         order,
-        std::vector<mty::Insertion> insertions,
-        FeynOptions                 options
+        std::vector<mty::Insertion> insertions
         )
 {
-    Kinematics kinematics { insertions };
+    FeynOptions options;
+    return computeAmplitude(order, insertions, options);
+}
+
+mty::Amplitude Model::computeAmplitude(
+        int                         order,
+        std::vector<mty::Insertion> insertions,
+        Kinematics           const &kinematics
+        )
+{
+    FeynOptions options;
     return computeAmplitude(order, insertions, kinematics, options);
 }
 
 mty::Amplitude Model::computeAmplitude(
         int                         order,
         std::vector<mty::Insertion> insertions,
+        FeynOptions                &options
+        )
+{
+    Kinematics kinematics { insertions };
+    auto res = computeAmplitude(order, insertions, kinematics, options);
+    options = res.getOptions();
+    return res;
+}
+
+mty::Amplitude Model::computeAmplitude(
+        int                         order,
+        std::vector<mty::Insertion> insertions,
         Kinematics           const &kinematics,
-        FeynOptions                 options
+        FeynOptions                &options
         )
 {
     if (!options.getFeynRuleCalculation())
@@ -108,16 +129,20 @@ mty::Amplitude Model::computeAmplitude(
     if (options.getFeynRuleCalculation()) {
         std::vector<Lagrangian::TermType> lagrangian = L.interaction;
         options.applyFilters(lagrangian);
-        return computeAmplitude(
+        auto res = computeAmplitude(
                 lagrangian, insertions, kinematics, options
                 );
+        options = res.getOptions();
+        return res;
     }
     else {
         std::vector<FeynmanRule> const &rules = getFeynmanRules();
         auto filteredRules = options.applyFilters(rules);
-        return computeAmplitude(
+        auto res = computeAmplitude(
                 filteredRules, insertions, kinematics, options
                 );
+        options = res.getOptions();
+        return res;
     }
 }
 
@@ -477,7 +502,7 @@ WilsonSet Model::getWilsonCoefficients(
     //WilsonSet res(wilsons.begin(), wilsons.end());
     //res.sort();
     //res.mergeSorted();
-    wilsons.options    = ampl.getOptions();
+    wilsons.options    = feynOptions;
     wilsons.kinematics = ampl.getKinematics();
 
     return wilsons;
@@ -525,8 +550,9 @@ WilsonSet Model::computeWilsonCoefficients_default(
         FeynOptions            const &feynOptions
         )
 {
-    auto ampl = computeAmplitude(order, insertions, feynOptions);
-    auto wilsons = getWilsonCoefficients(ampl, feynOptions);
+    auto option_cpy = feynOptions;
+    auto ampl = computeAmplitude(order, insertions, option_cpy);
+    auto wilsons = getWilsonCoefficients(ampl, option_cpy);
     return wilsons;
 }
 
@@ -673,8 +699,10 @@ WilsonSet Model::computeWilsonCoefficients_4Fermions(
 {
     if (mty::option::verboseAmplitude)
         std::cout << "Using special 4-fermion calculation" << std::endl;
-    WilsonSet res;
     Kinematics kinematics { insertions };
+    WilsonSet res;
+    res.kinematics = kinematics;
+    res.options = feynOptions;
     WilsonSet contrib;
     if (feynOptions.getTopology() & Topology::Box) {
         if (mty::option::verboseAmplitude)

@@ -26,7 +26,24 @@
 #include "wilson.h"
 #include "diracology.h"
 #include "polarization.h"
+#include "builtinOperators.h"
 
+namespace mty {
+
+    csl::Expr getWilsonCoefficient(
+            WilsonSet           const &wilsons,
+            std::vector<Wilson> const &contributions
+            );
+
+    csl::Expr getWilsonCoefficient(
+            Model     const &model,
+            WilsonSet const &wilsons,
+            DiracCoupling coupling
+            );
+
+} // End of namespace mty
+
+// Old way
 namespace mty {
 
 enum class OperatorType {
@@ -136,6 +153,6 @@ namespace OperatorParser {
 
 } // End of namespace OperatorParser
 
-} // End of namespace mty
+}
 
 #endif /* ifndef MTY_WILSONOPERATOR_H_INCLUDED */

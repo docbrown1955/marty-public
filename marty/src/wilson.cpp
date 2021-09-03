@@ -166,6 +166,8 @@ void WilsonSet::merge(bool sorted)
         return;
     }
     WilsonSet other;
+    other.kinematics = kinematics;
+    other.options    = options;
     for (const auto &wil : *this)
         addWilson(wil, other);
     *this = std::move(other);

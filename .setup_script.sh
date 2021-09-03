@@ -139,11 +139,11 @@ testDependencies_MACOS()
 {
     echo "Testing MACOS dependencies"
     vmac=${v:1:${#v}-1}
+    testDependency_MACOS coreutils
     testDependency_MACOS gcc@$vmac
+    testDependency_MACOS gsl
     testDependency_MACOS qt5
     testDependency_MACOS qt-creator cask
-    testDependency_MACOS coreutils
-    testDependency_MACOS gsl
     message "${GREEN}${BOLD}[1 / 5] All dependencies are ready for compilation${NC}${NORMAL}"
 }
 

@@ -43,6 +43,20 @@ namespace mty {
         return false;
     }
 
+    std::vector<mty::Insertion const*> fermionsOf(
+            std::vector<mty::Insertion> const &fields
+            )
+    {
+        std::vector<mty::Insertion const*> qfields;
+        qfields.reserve(fields.size());
+        for (auto &f : fields) {
+            if (f.getField()->isFermionic())
+                qfields.push_back(&f);
+        }
+
+        return qfields;
+    }
+
     std::vector<mty::Insertion*> fermionsOf(
             std::vector<mty::Insertion> &fields
             )
@@ -60,7 +74,7 @@ namespace mty {
     void applyGoodAdjacentOrder(
             std::vector<int>    &numbers,
             std::vector<size_t> &indicesLeft,
-            std::vector<mty::Insertion*> const &fermions
+            std::vector<mty::Insertion const*> const &fermions
             )
     {
         for (size_t i = 0; i != indicesLeft.size(); i += 2) {
@@ -83,7 +97,7 @@ namespace mty {
     void applyGoodNonAdjacentOrder(
             std::vector<int>    &numbers,
             std::vector<size_t> &indicesLeft,
-            std::vector<mty::Insertion*> const &fermions
+            std::vector<mty::Insertion const*> const &fermions
             )
     {
         for (size_t i = 0; i != indicesLeft.size(); i += 2) {
@@ -113,7 +127,7 @@ namespace mty {
     }
 
     std::vector<int> defaultFermionOrder(
-           std::vector<mty::Insertion*> const &fields
+           std::vector<mty::Insertion const*> const &fields
            )
     {
         std::vector<int> numbers(fields.size());
@@ -158,7 +172,7 @@ namespace mty {
     {
         applyFermionOrder(
                 insertions,
-                defaultFermionOrder(fermionsOf(insertions))
+                defaultFermionOrder(insertions)
                 );
     }
 }

@@ -111,14 +111,25 @@ public:
     mty::Amplitude computeAmplitude(
             int                         order,
             std::vector<mty::Insertion> insertions,
-            FeynOptions                 options = {}
+            FeynOptions                &options
             );
 
     mty::Amplitude computeAmplitude(
             int                         order,
             std::vector<mty::Insertion> insertions,
             Kinematics           const &kinematics,
-            FeynOptions                 options = {}
+            FeynOptions                &options
+            );
+
+    mty::Amplitude computeAmplitude(
+            int                         order,
+            std::vector<mty::Insertion> insertions
+            );
+
+    mty::Amplitude computeAmplitude(
+            int                         order,
+            std::vector<mty::Insertion> insertions,
+            Kinematics           const &kinematics
             );
 
     mty::Amplitude computePartialAmplitude(
