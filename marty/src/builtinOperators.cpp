@@ -332,7 +332,11 @@ namespace mty {
                 && wilsons.options.getFermionOrder().size() == 4) {
             fermionOrder = wilsons.options.getFermionOrder();
         }
-        else if (fermionOrder.size() != 4) {
+        else if (fermionOrder.empty()) {
+            fermionOrder = defaultFermionOrder(
+                    wilsons.kinematics.getInsertions());
+        }
+        else if (!fermionOrder.empty() && fermionOrder.size() != 4) {
             CallHEPError(mty::error::TypeError,
                     "Expecting a fermion order for 4 fermions, vector of size "
                     + std::to_string(fermionOrder.size()) + " given.")
@@ -627,10 +631,8 @@ namespace mty {
             std::vector<int> fermionOrder
             )
     {
-        std::cout << "1" << '\n';
         std::vector<OpInsertion> insertions = getOpInsertions(
                 wilsons.kinematics);
-        std::cout << "2" << '\n';
         std::vector<InsertionRequirement> requirements = {
             {2, 1}, // conjugate fermion
             {2, 0}, // non-conjugate fermion
@@ -639,27 +641,20 @@ namespace mty {
         };
         if (!requirementsSatisfied(insertions, requirements))
             return {};
-        std::cout << "3" << '\n';
         setUpDim6FermionOrder(wilsons, fermionOrder);
-        std::cout << "4" << '\n';
         auto [psi1, psi2, psi3, psi4] = getExternalDim6Fermions(
                 insertions, fermionOrder);
-        std::cout << "5" << '\n';
         std::vector<Wilson> diracCouplings = getDiracCurrent(
                 leftCurrent, rightCurrent, psi1, psi2, psi3, psi4
                 );
-        std::cout << "6" << '\n';
         csl::Expr colorCurrent = getColorCurrent(
                 model, colorCouplings, psi1, psi2, psi3, psi4
                 );
-        std::cout << "7" << '\n';
         csl::Expr remnant = csl::prod_s({psi1, psi2, psi3, psi4, colorCurrent});
-        std::cout << "8" << '\n';
         for (auto &coef : diracCouplings)
             coef.op.setExpression(
                     coef.op.getExpression() * csl::DeepCopy(remnant));
 
-        std::cout << "9" << '\n';
         return diracCouplings;
     }
 
