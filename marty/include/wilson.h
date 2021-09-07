@@ -142,6 +142,7 @@ struct WilsonSet: public std::vector<Wilson> {
 
     Kinematics  kinematics {};
     FeynOptions options {};
+    std::vector<std::shared_ptr<wick::Graph>> graphs;
 };
 
 std::vector<Wilson> copyWilsons(std::vector<Wilson> const &wilsons);

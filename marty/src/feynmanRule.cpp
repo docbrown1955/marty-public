@@ -128,7 +128,8 @@ FeynmanRule::FeynmanRule(
             fieldParent->setEnabledInDiagrams(false);
         return;
     }
-    auto wilsons = model.getWilsonCoefficients(res, options, true);
+    auto wilsons = model.getWilsonCoefficients(
+            res, options, DecompositionMode::Minimal);
     diagram = res.getDiagrams()[0].getDiagram();
     std::vector<csl::Expr> expressions = wilsons.obtainExpressions();
     for (auto& ampl : expressions) {

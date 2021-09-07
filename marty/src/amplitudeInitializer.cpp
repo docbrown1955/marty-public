@@ -94,7 +94,7 @@ namespace mty {
                 true
                 );
         if (options.orderInsertions)
-            orderInsertions(insertions, kinematics);
+            orderInsertions(insertions, kinematics, options);
             
         csl::PseudoIntegral integral;
         integral.addTerm(LSZInsertion);
@@ -160,7 +160,7 @@ namespace mty {
                 false);
         // std::cout << "LSZ = " << LSZInsertion << '\n';
         if (options.orderInsertions)
-            orderInsertions(insertions, kinematics);
+            orderInsertions(insertions, kinematics, options);
 
         csl::PseudoIntegral integral;
         integral.addTerm(LSZInsertion);
@@ -429,7 +429,8 @@ namespace mty {
 
     void AmplitudeInitializer::orderInsertions(
             std::vector<mty::QuantumField> &insertions,
-            Kinematics                     &kinematics
+            Kinematics                     &kinematics,
+            FeynOptions                    &options
             )
     {
         std::vector<size_t> indices(kinematics.size());

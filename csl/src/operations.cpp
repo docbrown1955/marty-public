@@ -1794,6 +1794,10 @@ bool Prod::mergeTerms()
             matched = false;
             continue;
         }
+        if (csl::IsNumerical(argument[i]) || csl::IsNumerical(argument[i+1])) {
+            matched = false;
+            continue;
+        }
         if (not matched) {
             factor = CSL_1;
             if (argument[i]->getType() == csl::Type::Pow) { //Pow 
@@ -1828,9 +1832,9 @@ bool Prod::mergeTerms()
         if (*term==term2) {
             matched = true;
             factor = factor->addition_own(factor2); //factor->addition_own(factor2);
-            if (term->isInteger() 
-                    and factor->getType() == csl::Type::IntFraction)
-                continue;
+            //if (term->isInteger() 
+            //        and factor->getType() == csl::Type::IntFraction)
+            //    continue;
             argument.erase(argument.begin()+i+1);
             argument[i] = pow_s(term, factor);
             if (*argument[i] == CSL_1) {

@@ -270,6 +270,11 @@ void Show(mty::Amplitude const& ampl)
     Show(ampl.obtainGraphs());
 }
 
+void Show(WilsonSet const &wilsons)
+{
+    Show(wilsons.graphs);
+}
+
 void Show(
         std::vector<FeynmanRule> const& rules,
         size_t first,
@@ -309,6 +314,14 @@ void Show(
         )
 {
     Show(diagrams.obtainGraphs(), first, last);
+}
+void Show(
+        WilsonSet const &wilsons,
+        size_t first,
+        size_t last
+        )
+{
+    Show(wilsons.graphs, first, last);
 }
 
 void Display(WilsonSet const& wilsons,

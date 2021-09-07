@@ -50,6 +50,12 @@ class FeynOptions;
 class Kinematics;
 class Amplitude;
 
+enum class DecompositionMode {
+    Minimal,
+    BasisProjection,
+    Matching
+};
+
 /*!
  * \brief Contains all objects in the theory.
  * In particular QuantumField objects, Gauge, Flavor, Particle...
@@ -166,7 +172,7 @@ public:
             std::vector<Lagrangian::TermType> &lagrangian,
             std::vector<Insertion>             insertions,
             Kinematics                  const &kinematics,
-            FeynOptions                 const &options,
+            FeynOptions                        options,
             std::vector<FeynmanRule const*>    rules = {}
             );
 
@@ -202,18 +208,18 @@ public:
     WilsonSet getWilsonCoefficients(
             Amplitude   const &ampl,
             FeynOptions const &feynOptions,
-            bool               squaredAfter = false
+            DecompositionMode  mode = DecompositionMode::Matching
             );
 
     WilsonSet getWilsonCoefficients(
             Amplitude   const &ampl,
-            bool               squaredAfter = false
+            DecompositionMode  mode = DecompositionMode::Matching
             );
 
     WilsonSet computeWilsonCoefficients(
             int                           order,
             std::vector<Insertion> const &insertions,
-            FeynOptions            const &feynOptions = {}
+            FeynOptions                   feynOptions = {}
             );
 
     WilsonSet computeWilsonCoefficients_default(
@@ -246,8 +252,8 @@ public:
             );
 
     WilsonSet computeWilsonCoefficients_4Fermions(
-            std::vector<Insertion> const &insertions,
-            FeynOptions            const &feynOptions = {}
+            std::vector<Insertion> insertions,
+            FeynOptions            feynOptions = {}
             );
 
     Amplitude connectAmplitudes(
@@ -320,6 +326,13 @@ protected:
 };
 
 int operatorDegeneracy(std::vector<mty::Insertion> const &insertions);
+
+int matchingFermionSign(std::vector<int> fermionOrder);
+
+int fermionSign(
+        std::vector<Insertion> const &model,
+        std::vector<Insertion>        order
+        );
 
 } // End of namespace mty
 

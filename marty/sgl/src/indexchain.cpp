@@ -860,7 +860,7 @@ namespace sgl {
                 };
             case 4:
                 return {
-                    cslexpr_s(CSL_HALF),
+                    cslexpr_s(-CSL_HALF),
                     IndexChain(gammaindex_s({mu, nu}), e[0], e[1]),
                     IndexChain(gammaindex_s({+mu, +nu}), e[2], e[3])
                 };
@@ -903,7 +903,7 @@ namespace sgl {
                 };
             case 4:
                 return {
-                    cslexpr_s(1),
+                    cslexpr_s(-1),
                     IndexChain(gammaindex_s({mu, nu}), e[0], e[1]),
                     IndexChain(gammaindex_s({+mu, +nu}), e[2], e[3])
                 };

@@ -540,9 +540,11 @@ namespace mty {
             std::string            const &group
             )
     {
-        for (const auto &coupling : colorCouplings)
-            if (coupling.groupName == group)
+        for (const auto &coupling : colorCouplings) {
+            if (coupling.groupName == group) {
                 return coupling.coupling;
+            }
+        }
         return ColorCoupling::Id;
     }
 
@@ -641,6 +643,8 @@ namespace mty {
         };
         if (!requirementsSatisfied(insertions, requirements))
             return {};
+        for (const auto &color : colorCouplings)
+            model.getGroup(color.groupName); // Checking that the color exists
         setUpDim6FermionOrder(wilsons, fermionOrder);
         auto [psi1, psi2, psi3, psi4] = getExternalDim6Fermions(
                 insertions, fermionOrder);

@@ -168,12 +168,13 @@ namespace sgl {
                 csl::Index a = expr->getIndexStructureView()[nI-2];
                 csl::Index b = expr->getIndexStructureView()[nI-1];
                 minkoIndices.erase(minkoIndices.end() - 2, minkoIndices.end());
-                LOG(indexchain_s(
+                csl::Expr factor = (minkoIndices.size() == 2) ? CSL_I : CSL_1;
+                LOG(factor*indexchain_s(
                         gammaindex_s(minkoIndices),
                         a,
                         b
                         ))
-                return indexchain_s(
+                return factor*indexchain_s(
                         gammaindex_s(minkoIndices),
                         a,
                         b

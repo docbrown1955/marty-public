@@ -964,8 +964,8 @@ csl::Expr FeynmanIntegral::replaceIntegral(csl::Expr const& expr)
             + " given.");
 
     csl::Parent variable = integral->getParent();
-    csl::Expr res = csl::DeepExpandedIf(integral->getOperand(),
-    [&](csl::Expr const& el)
+    csl::Expr res = integral->getOperand();
+    csl::DeepExpandIf(res, [&](csl::Expr const& el)
     {
         return el->dependsExplicitlyOn(variable.get());
     });
@@ -1049,6 +1049,14 @@ csl::Expr FeynmanIntegral::replaceIntegral(
             && static_cast<int>(indices.size()) < Ncrit) {
         // Also check that non divergent integral
         std::fill(momentum.begin(), momentum.end(), CSL_0);
+        // Removing external momenta in the numerator also
+        for (auto &f : factor) {
+            removeExternalMomenta(f, variable);
+            csl::DeepRefresh(f);
+            if (f == CSL_0) {
+                return CSL_0;
+            }
+        }
     }
 
     size_t firstZero = size_t(-1);
@@ -1194,6 +1202,24 @@ csl::Expr FeynmanIntegral::applyQSquared(
                 newIndices
                 );
     return term1 + term2;
+}
+
+void FeynmanIntegral::removeExternalMomenta(
+        csl::Expr         &expr,
+        csl::Parent const &Q
+        )
+{
+    if (csl::IsSum(expr) || csl::IsProd(expr) || csl::IsPow(expr)) {
+        for (size_t i = 0; i != expr->size(); ++i)
+            removeExternalMomenta(expr[i], Q);
+    }
+    else if (csl::IsIndicialTensor(expr)) {
+        auto const &parent = expr->getParent();
+        auto const &spaces = parent->getSpace();
+        if (spaces.size() == 1 && spaces[0] == &csl::Minkowski && parent != Q) {
+            expr = CSL_0;
+        }
+    }
 }
 
 void testError(IntegralType type,

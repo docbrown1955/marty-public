@@ -168,6 +168,7 @@ void WilsonSet::merge(bool sorted)
     WilsonSet other;
     other.kinematics = kinematics;
     other.options    = options;
+    other.graphs     = graphs;
     for (const auto &wil : *this)
         addWilson(wil, other);
     *this = std::move(other);
@@ -365,8 +366,8 @@ std::vector<Wilson> sglSimplifyForWilson(
                         sgl::csl_to_sgl(expr, tset), !recursive
                         ), tset);
                 });
-        //newOp = sgl::sgl_to_csl(sgl::Simplified(sgl::csl_to_sgl(newOp, tset),
-        //            !recursive), tset);
+        // newOp = sgl::sgl_to_csl(sgl::Simplified(sgl::csl_to_sgl(newOp, tset),
+        //             !recursive), tset);
         csl::DeepRefresh(newOp);
         if (standardBasis) {
             Model::projectOnBasis(newOp, OperatorBasis::Standard);

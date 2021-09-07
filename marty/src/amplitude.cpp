@@ -153,10 +153,12 @@ namespace mty {
         return Amplitude { options, diagramCopy, kinematics };
     }
 
-    void Amplitude::setKinematics(Kinematics const &t_kinematics)
+    void Amplitude::setKinematics(Kinematics const &t_kinematics, bool replace)
     {
-        for (auto &diag : diagrams) {
-            Kinematics::replace(diag.getExpression(), kinematics, t_kinematics);
+        if (replace) {
+            for (auto &diag : diagrams) {
+                Kinematics::replace(diag.getExpression(), kinematics, t_kinematics);
+            }
         }
         kinematics = t_kinematics;
     }

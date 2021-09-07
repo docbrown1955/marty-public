@@ -310,7 +310,9 @@ namespace mty {
          *
          * @param t_kinematics New kinematic context for the process.
          */
-        void setKinematics(Kinematics const &t_kinematics);
+        void setKinematics(
+                Kinematics const &t_kinematics,
+                bool              replace = true);
 
     private:
 

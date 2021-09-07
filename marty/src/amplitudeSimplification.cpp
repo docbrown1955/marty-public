@@ -704,7 +704,8 @@ namespace mty::simpli {
         };
 
         csl::DeepPartialExpand(expr, isEmitter, isReceiver);
-        csl::DeepFactor(expr);
+        // Do not add factorization here as the epsilon is not simplified
+        // right away and it could simply refactor what has been expanded
 
         return (init != expr);
     }
@@ -1033,10 +1034,10 @@ namespace mty::simpli {
     {
         csl::ScopedProperty commut(&csl::option::checkCommutations, false);
         csl::Refresh(expr);
-        if (mode != WilsonCoefficient && mode != FeynmanRule) {
-            //MomentumConservater cons(insertions, momenta);
-            //cons.apply(expr);
-        }
+        //if (mode != WilsonCoefficient && mode != FeynmanRule) {
+        //    MomentumConservater cons(insertions, momenta);
+        //    cons.apply(expr);
+        //}
         std::vector<csl::Expr> factors;
         if (csl::IsProd(expr)) {
             for (size_t i = 0; i != expr->size(); ++i) {
@@ -1064,8 +1065,6 @@ namespace mty::simpli {
 
         if (mode == Amplitude)
             reduceTensorIntegrals(expr);
-        //if (mode != SquaredAmplitude && mode != FeynmanRule)
-        //    simplifyImpulsions(expr, insertions, momenta);
         expandMomentaExperimental(expr, momenta);
         size_t maxLoop = 10;
         bool simplified;
@@ -1110,8 +1109,6 @@ namespace mty::simpli {
             addLocalTerms(expr);
             csl::DeepFactor(expr);
         }
-        // std::cout << "Before Abbrevs" << '\n';
-        // std::cout << expr << '\n';
 
         //////////////////////
         
@@ -1139,7 +1136,6 @@ namespace mty::simpli {
                 expr *= factor;
         }
         csl::DeepRefresh(expr);
-        // std::cout << "Factors = " << prod_s(factors) << '\n';
 
         if (mode == Amplitude) {
             abbreviateIntegral(expr);
@@ -1147,8 +1143,6 @@ namespace mty::simpli {
                 abbreviateAll(expr);
             csl::DeepRefresh(expr);
         }
-        // std::cout << "RES = " << '\n';
-        // std::cout << expr << '\n';
     }
 
 } // namespace mty

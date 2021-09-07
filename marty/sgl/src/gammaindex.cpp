@@ -152,9 +152,10 @@ namespace sgl {
         }
         csl::Tensor gamma = pos->second;
         std::vector<csl::Index> indices(m_indices);
+        csl::Expr factor = (indices.size() == 2) ? -CSL_I : CSL_1;
         indices.push_back(a);
         indices.push_back(b);
-        return gamma(indices);
+        return factor*gamma(indices);
     }
 
     csl::Expr GammaIndex::toCSL(TensorSet const &) const

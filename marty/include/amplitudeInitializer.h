@@ -125,9 +125,10 @@ namespace mty {
          * @param kinematics Kinematics that will follow the same order as the
          * insertions.
          */
-        void orderInsertions(
+        static void orderInsertions(
                 std::vector<mty::QuantumField> &insertions,
-                Kinematics                     &kinematics
+                Kinematics                     &kinematics,
+                FeynOptions                    &options
                 );
 
         static void applyMomentumVertices(

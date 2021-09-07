@@ -529,6 +529,7 @@ void Display(WilsonSet const& wilsons,
 void Show(std::vector<FeynmanRule> const& rules);
 void Show(std::vector<std::shared_ptr<wick::Graph>> const& diagrams);
 void Show(mty::Amplitude const& diagrams);
+void Show(WilsonSet const &wilsons);
 
 void Show(
         std::vector<FeynmanRule> const& rules,
@@ -542,6 +543,11 @@ void Show(
         );
 void Show(
         mty::Amplitude const& diagrams,
+        size_t first,
+        size_t last
+        );
+void Show(
+        WilsonSet const &wilsons,
         size_t first,
         size_t last
         );

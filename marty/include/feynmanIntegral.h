@@ -176,6 +176,11 @@ class FeynmanIntegral: public csl::AbstractMultiFunc {
             std::vector<csl::Expr> const& masses,
             std::vector<csl::Index> const& indices);
 
+    static void removeExternalMomenta(
+            csl::Expr &expr,
+            csl::Parent const &Q
+            );
+
     FeynmanIntegral(IntegralType             t_type,
                     int                      t_looptoolsId,
                     std::vector<csl::Expr> const& t_argument);
