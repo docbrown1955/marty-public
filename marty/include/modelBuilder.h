@@ -200,34 +200,98 @@ public:
             );
 
     void rotateFields(
-            std::initializer_list<std::string>   fields,
-            std::initializer_list<std::string>   newFields,
+            std::vector<std::string>            const &fields,
+            std::vector<std::string>            const &newFields,
             std::vector<std::vector<csl::Expr>> const &rotation,
             bool                                  diagonalizeMasses = false,
             int                                   nMassLessFields = 0
             );
 
     void rotateFields(
-            std::initializer_list<std::string>   fields1,
-            std::initializer_list<std::string>   newFields1,
+            std::vector<std::string>            const &fields1,
+            std::vector<std::string>            const &newFields1,
             std::vector<std::vector<csl::Expr>> const &rotation1,
-            std::initializer_list<std::string>   fields2,
-            std::initializer_list<std::string>   newFields2,
+            std::vector<std::string>            const &fields2,
+            std::vector<std::string>            const &newFields2,
             std::vector<std::vector<csl::Expr>> const &rotation2,
             int                                        nMassLessFields = 0
             );
 
     void rotateFields(
-            std::initializer_list<std::string> fields,
-            bool                               diagonalizeMasses = false,
-            int                                nMassLessFields = 0
+            std::initializer_list<std::string>  const &fields,
+            std::initializer_list<std::string>  const &newFields,
+            std::vector<std::vector<csl::Expr>> const &rotation,
+            bool                                  diagonalizeMasses = false,
+            int                                   nMassLessFields = 0
+            )
+    {
+        return rotateFields(
+                std::vector<std::string>(fields),
+                std::vector<std::string>(newFields),
+                rotation,
+                diagonalizeMasses,
+                nMassLessFields
+                );
+    }
+
+    void rotateFields(
+            std::initializer_list<std::string>  const &fields1,
+            std::initializer_list<std::string>  const &newFields1,
+            std::vector<std::vector<csl::Expr>> const &rotation1,
+            std::initializer_list<std::string>  const &fields2,
+            std::initializer_list<std::string>  const &newFields2,
+            std::vector<std::vector<csl::Expr>> const &rotation2,
+            int                                        nMassLessFields = 0
+            )
+    {
+        return rotateFields(
+                std::vector<std::string>(fields1),
+                std::vector<std::string>(newFields1),
+                rotation1,
+                std::vector<std::string>(fields2),
+                std::vector<std::string>(newFields2),
+                rotation2,
+                nMassLessFields
+                );
+    }
+
+    void rotateFields(
+            std::vector<std::string> const &fields,
+            bool                            diagonalizeMasses = false,
+            int                             nMassLessFields = 0
             );
 
     void birotateFields(
-            std::initializer_list<std::string> fields1,
-            std::initializer_list<std::string> fields2,
-            int                                nMassLessFields = 0
+            std::vector<std::string> const &fields1,
+            std::vector<std::string> const &fields2,
+            int                             nMassLessFields = 0
             );
+
+    void rotateFields(
+            std::initializer_list<std::string> const &fields,
+            bool                            diagonalizeMasses = false,
+            int                             nMassLessFields = 0
+            )
+    {
+        return rotateFields(
+                std::vector<std::string>(fields),
+                diagonalizeMasses,
+                nMassLessFields
+                );
+    }
+
+    void birotateFields(
+            std::initializer_list<std::string> const &fields1,
+            std::initializer_list<std::string> const &fields2,
+            int                             nMassLessFields = 0
+            )
+    {
+        return birotateFields(
+                std::vector<std::string>(fields1),
+                std::vector<std::string>(fields2),
+                nMassLessFields
+                );
+    }
 
     void applyUnitaryCondition(
             std::vector<std::vector<csl::Expr>> const& unitary

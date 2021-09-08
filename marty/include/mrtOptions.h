@@ -39,7 +39,7 @@ namespace mty::option {
     ///////////////////////////////////////////////////
 
     inline bool simplifyAmplitudes        = true;
-    inline bool orderExternalFermions     = true;
+    inline bool orderExternalFermions     = false;
     inline bool discardLowerOrders        = true;
     inline bool evaluateFermionTraces     = true;
     inline bool excludeTadpoles           = true;

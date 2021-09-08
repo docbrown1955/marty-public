@@ -537,6 +537,7 @@ WilsonSet Model::computeWilsonCoefficients(
         FeynOptions                   feynOptions
         )
 {
+    feynOptions.orderExternalFermions = true;
     if (order == TreeLevel) {
         return computeWilsonCoefficients_default(
                 order, insertions, feynOptions

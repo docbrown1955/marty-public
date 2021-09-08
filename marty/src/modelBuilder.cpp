@@ -735,8 +735,8 @@ void ModelBuilder::birotateFields(
 }
 
 void ModelBuilder::rotateFields(
-        std::initializer_list<std::string>   fields,
-        std::initializer_list<std::string>   newFields,
+        std::vector<std::string>            const &fields,
+        std::vector<std::string>            const &newFields,
         std::vector<std::vector<csl::Expr>> const &rotation,
         bool                                  diagonalizeMasses,
         int                                   nMassLessFields
@@ -763,11 +763,11 @@ void ModelBuilder::rotateFields(
 }
 
 void ModelBuilder::rotateFields(
-        std::initializer_list<std::string>    fields1,
-        std::initializer_list<std::string>    newFields1,
+        std::vector<std::string>            const &fields1,
+        std::vector<std::string>            const &newFields1,
         std::vector<std::vector<csl::Expr>> const &rotation1,
-        std::initializer_list<std::string>    fields2,
-        std::initializer_list<std::string>    newFields2,
+        std::vector<std::string>            const &fields2,
+        std::vector<std::string>            const &newFields2,
         std::vector<std::vector<csl::Expr>> const &rotation2,
         int                                        nMassLessFields
         )
@@ -798,9 +798,9 @@ void ModelBuilder::rotateFields(
 }
 
 void ModelBuilder::rotateFields(
-        std::initializer_list<std::string>  fields,
-        bool                                diagonalizeMasses,
-        int                                 nMassLessFields
+        std::vector<std::string> const &fields,
+        bool                            diagonalizeMasses,
+        int                             nMassLessFields
         )
 {
     std::vector<mty::Particle> fields_p;
@@ -812,9 +812,9 @@ void ModelBuilder::rotateFields(
 }
 
 void ModelBuilder::birotateFields(
-        std::initializer_list<std::string> fields1,
-        std::initializer_list<std::string> fields2,
-        int                                nMassLessFields
+        std::vector<std::string> const &fields1,
+        std::vector<std::string> const &fields2,
+        int                             nMassLessFields
         )
 {
     std::vector<mty::Particle> fields1_p;
