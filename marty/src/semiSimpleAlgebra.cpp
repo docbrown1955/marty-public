@@ -633,6 +633,7 @@ mty::Irrep SemiSimpleAlgebra::highestWeightRep(
     for (const auto& [highest, rep] : irreps)
         if (highest == highestWeight)
             return rep;
+    Irrep res_rep;
     if constexpr (useExperimental) {
         std::vector<AlgebraState> state;
         std::vector<std::vector<bool>> dep;
@@ -640,17 +641,19 @@ mty::Irrep SemiSimpleAlgebra::highestWeightRep(
         dep.reserve(1000);
         getRootChainExperimental(highestWeight, state, dep);
         if (computeMul)
-            return mty::Irrep(this,state, multiplicities(state));
+            res_rep = mty::Irrep(this,state, multiplicities(state));
         else
-            return mty::Irrep(this, state, std::vector<int>(state.size(), 1));
+            res_rep = mty::Irrep(this, state, std::vector<int>(state.size(), 1));
     }
     else  {
         vector<AlgebraState> rep = getRootChain(highestWeight);
         if (computeMul)
-            return mty::Irrep(this,rep, multiplicities(rep));
+            res_rep = mty::Irrep(this, rep, multiplicities(rep));
         else
-            return mty::Irrep(this, rep, std::vector<int>(rep.size(), 1));
+            res_rep = mty::Irrep(this, rep, std::vector<int>(rep.size(), 1));
     }
+    irreps.push_back({highestWeight, res_rep});
+    return res_rep;
 }
 mty::Irrep SemiSimpleAlgebra::highestWeightRep(
         const std::vector<int>& weight,

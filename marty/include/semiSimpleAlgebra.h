@@ -602,6 +602,7 @@ class SemiSimpleAlgebra{
      */
     csl::vector_expr symbolicSquaredNorms;
 
+    mutable
     std::vector<std::pair<AlgebraState, Irrep>> irreps;
 
     mutable std::vector<IndexData> indices;

@@ -98,8 +98,7 @@ bool Gauge::containsTrivialRep(
         for (size_t j = 1; j != fields.size(); ++j) {
             decompo = groups[i]->getAlgebra()->tensorProduct(
                     decompo,
-                    fields[j].getGroupIrrep(groups[i].get()),
-                    false
+                    fields[j].getGroupIrrep(groups[i].get())
                     );
         }
         bool hasTrivial = false;
