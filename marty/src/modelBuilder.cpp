@@ -834,14 +834,49 @@ void ModelBuilder::applyUnitaryCondition(
         std::vector<std::vector<csl::Expr>> const &unitary
         )
 {
-    for (size_t i = 0; i != unitary.size(); ++i)
-        for (size_t j = 0; j != unitary.size(); ++j) {
-            csl::Expr expr = CSL_0;
-            for (size_t k = 0; k != unitary.size(); ++k)
-                expr += csl::GetComplexConjugate(unitary[k][i])*unitary[k][j];
-            replace(expr, (i == j) ? CSL_1 : CSL_0);
-            // replace(csl::GetComplexConjugate(expr), (i == j) ? CSL_1 : CSL_0);
+    auto dependsOnMixing = [&](csl::Expr const &expr) {
+        for (const auto &row : unitary)
+            for (const auto el : row)
+                if (expr->dependsExplicitlyOn(el.get()))
+                    return true;
+        return false;
+    };
+    std::vector<csl::Expr> terms = clearDependencies(
+            L.interaction, 
+            [&](Lagrangian::TermType const &term) {
+                return dependsOnMixing(term->getTerm());
+            });
+    for (auto &term : terms) {
+        bool applied = false;
+        for (size_t i = 0; i != unitary.size(); ++i) {
+            for (size_t j = 0; j != unitary.size(); ++j) {
+                csl::Expr lhs = GetComplexConjugate(unitary[0][i]);
+                csl::Expr rhs = CSL_0;
+                for (size_t k = 1; k != unitary.size(); ++k)
+                    rhs += csl::GetComplexConjugate(unitary[k][i])*unitary[k][j];
+                csl::Expr remnant = (i == j) ? 1 : 0;
+                rhs = (remnant - rhs) / unitary[0][j];
+                csl::Expr replaced = csl::Replaced(term, lhs, rhs);
+                csl::DeepExpand(replaced);
+                csl::DeepHardFactor(replaced);
+                if (!dependsOnMixing(replaced)) {
+                    applied = true;
+                    term = replaced;
+                    break;
+                }
+            }
+            if (applied) break;
         }
+        L.push_back(term);
+    }
+    // for (size_t i = 0; i != unitary.size(); ++i)
+    //     for (size_t j = 0; j != unitary.size(); ++j) {
+    //         csl::Expr expr = CSL_0;
+    //         for (size_t k = 0; k != unitary.size(); ++k)
+    //             expr += csl::GetComplexConjugate(unitary[k][i])*unitary[k][j];
+    //         replace(expr, (i == j) ? CSL_1 : CSL_0);
+    //         // replace(csl::GetComplexConjugate(expr), (i == j) ? CSL_1 : CSL_0);
+    //     }
 }
 
 void ModelBuilder::addParticleFamily(std::vector<mty::Particle> const &family)
@@ -1336,109 +1371,119 @@ void ModelBuilder::applyDiracFermionEmbedding(
     }
 }
 
+void ModelBuilder::gatherMass(std::string const &name)
+{
+    Particle part = getParticle(name);
+    gatherMass(part);
+}
+
+void ModelBuilder::gatherMass(Particle const &part)
+{
+    std::vector<size_t> massTerms;
+    bool sameContent = true;
+    for (size_t i = 0; i != L.mass.size(); ++i)
+        if (L.mass[i]->containsExactly(part.get())
+                and isValidMassTerm(*L.mass[i])) {
+            for (size_t pos : massTerms)
+                if (sameContent 
+                        and !L.mass[pos]->hasSameContent(*L.mass[i]))
+                    sameContent = false;
+            massTerms.push_back(i);
+        }
+    if (massTerms.empty() or massTerms.size() > 2) {
+        if (part->getParticleType() != ParticleType::WeylFermion
+                or !part->getDiracParent()) {
+            part->setMass(CSL_0);
+            if (massTerms.size() > 2)
+                std::cerr << "Warning: mixings in mass terms for "
+                    << part->getName() << " not taken into account.\n";
+        }
+    }
+    else {
+        for (size_t i = 1; i != massTerms.size(); ++i)
+            if (L.mass[massTerms[0]]->getContent().size()
+                    < L.mass[massTerms[i]]->getContent().size()) {
+                std::swap(massTerms[0], massTerms[i]);
+            }
+        csl::Expr mass = L.mass[massTerms[0]]->getMass();
+        if (!mass->isBuildingBlock()) {
+            std::string name = "m_" + std::string(part->getName());
+            csl::Expr abbreviatedMass = csl::Abbrev::makeAbbreviation(
+                    name,
+                    mass);
+            mass = csl::constant_s(name);
+            abbreviatedMassExpressions.push_back(abbreviatedMass);
+        }
+        part->setMass(mass);
+        std::vector<mty::QuantumField> content 
+            = L.mass[massTerms[0]]->getContent();
+        HEPAssert(content.size() == 2,
+                mty::error::TypeError,
+                "Mass term with more or less than two fields encountered: "
+                + toString(L.mass[massTerms[0]]->getTerm()));
+        if (content[0].getParent() == content[1].getParent())
+            content.erase(content.begin() + 1);
+        if (content.size() == 1) {
+            if (!sameContent)
+                return;
+            part->setMass(mass);
+            auto newMassTerms = mty::InteractionTerm::createAndDispatch(
+                    MassTerm(mass, part.get()));
+            HEPAssert(massTerms.size() >= newMassTerms.size(),
+                    mty::error::RuntimeError,
+                    "Invalid mass term encountered for " + 
+                    std::string(part->getName()) + ".")
+            for (size_t i = 0; i != massTerms.size(); ++i) {
+                if (i < newMassTerms.size())
+                    L.mass[massTerms[i]] = std::move(newMassTerms[i]);
+                else
+                    L.mass.erase(
+                            L.mass.begin()
+                            + massTerms[i] 
+                            - (i - newMassTerms.size())
+                            );
+            }
+        }
+        else if (auto const &pointed = *content[0].getParent();
+                typeid(WeylFermion) == typeid(pointed)){
+            bool massTerm = (massTerms.size() == 2);
+            for (size_t i = 0; i != L.mass.size(); ++i) {
+                auto pos = std::find(massTerms.begin(), massTerms.end(), i);
+                if (pos == massTerms.end()) {
+                    if (L.mass[i]->containsWeakly(content[0].getQuantumParent())
+                            || L.mass[i]->containsWeakly(content[1].getQuantumParent())) {
+                        massTerm = false;
+                        break;
+                    }
+                }
+            }
+            if (!massTerm) {
+                std::cerr << "Warning: mixings in mass terms for "
+                    << part->getName() << " not taken into account.\n";
+                return;
+            }
+            for (auto& c : content)
+                c.getQuantumParent()->setMass(mass);
+            if (content[1].isComplexConjugate())
+                std::swap(content[0], content[1]);
+            content[0] = *std::dynamic_pointer_cast<mty::QuantumField>(
+                    csl::GetComplexConjugate(content[0].copy()));
+            std::cout << "Dirac fermion embedding for " << content[0] 
+                << " and " << content[1] << std::endl;
+            diracFermionEmbedding(
+                std::dynamic_pointer_cast<mty::WeylFermion>(
+                    content[0].getParent()),
+                std::dynamic_pointer_cast<mty::WeylFermion>(
+                    content[1].getParent()));
+        }
+    }
+}
+
 void ModelBuilder::gatherMasses() 
 {
     const size_t size = particles.size();
     for (size_t i = 0; i != size; ++i) {
-        auto& part = particles[i];
-        std::vector<size_t> massTerms;
-        bool sameContent = true;
-        for (size_t i = 0; i != L.mass.size(); ++i)
-            if (L.mass[i]->containsExactly(part.get())
-                    and isValidMassTerm(*L.mass[i])) {
-                for (size_t pos : massTerms)
-                    if (sameContent 
-                            and !L.mass[pos]->hasSameContent(*L.mass[i]))
-                        sameContent = false;
-                massTerms.push_back(i);
-            }
-        if (massTerms.empty() or massTerms.size() > 2) {
-            if (part->getParticleType() != ParticleType::WeylFermion
-                    or !part->getDiracParent()) {
-                part->setMass(CSL_0);
-                if (massTerms.size() > 2)
-                    std::cerr << "Warning: mixings in mass terms for "
-                        << part->getName() << " not taken into account.\n";
-            }
-        }
-        else {
-            for (size_t i = 1; i != massTerms.size(); ++i)
-                if (L.mass[massTerms[0]]->getContent().size()
-                        < L.mass[massTerms[i]]->getContent().size()) {
-                    std::swap(massTerms[0], massTerms[i]);
-                }
-            csl::Expr mass = L.mass[massTerms[0]]->getMass();
-            if (!mass->isBuildingBlock()) {
-                std::string name = "m_" + std::string(part->getName());
-                csl::Expr abbreviatedMass = csl::Abbrev::makeAbbreviation(
-                        name,
-                        mass);
-                mass = csl::constant_s(name);
-                abbreviatedMassExpressions.push_back(abbreviatedMass);
-            }
-            part->setMass(mass);
-            std::vector<mty::QuantumField> content 
-                = L.mass[massTerms[0]]->getContent();
-            HEPAssert(content.size() == 2,
-                    mty::error::TypeError,
-                    "Mass term with more or less than two fields encountered: "
-                    + toString(L.mass[massTerms[0]]->getTerm()));
-            if (content[0].getParent() == content[1].getParent())
-                content.erase(content.begin() + 1);
-            if (content.size() == 1) {
-                if (!sameContent)
-                    continue;
-                part->setMass(mass);
-                auto newMassTerms = mty::InteractionTerm::createAndDispatch(
-                        MassTerm(mass, part.get()));
-                HEPAssert(massTerms.size() >= newMassTerms.size(),
-                        mty::error::RuntimeError,
-                        "Invalid mass term encountered for " + 
-                        std::string(part->getName()) + ".")
-                for (size_t i = 0; i != massTerms.size(); ++i) {
-                    if (i < newMassTerms.size())
-                        L.mass[massTerms[i]] = std::move(newMassTerms[i]);
-                    else
-                        L.mass.erase(
-                                L.mass.begin()
-                                + massTerms[i] 
-                                - (i - newMassTerms.size())
-                                );
-                }
-            }
-            else if (auto const &pointed = *content[0].getParent();
-                    typeid(WeylFermion) == typeid(pointed)){
-                bool massTerm = (massTerms.size() == 2);
-                for (size_t i = 0; i != L.mass.size(); ++i) {
-                    auto pos = std::find(massTerms.begin(), massTerms.end(), i);
-                    if (pos == massTerms.end()) {
-                        if (L.mass[i]->containsWeakly(content[0].getQuantumParent())
-                                || L.mass[i]->containsWeakly(content[1].getQuantumParent())) {
-                            massTerm = false;
-                            break;
-                        }
-                    }
-                }
-                if (!massTerm) {
-                    std::cerr << "Warning: mixings in mass terms for "
-                        << part->getName() << " not taken into account.\n";
-                    continue;
-                }
-                for (auto& c : content)
-                    c.getQuantumParent()->setMass(mass);
-                if (content[1].isComplexConjugate())
-                    std::swap(content[0], content[1]);
-                content[0] = *std::dynamic_pointer_cast<mty::QuantumField>(
-                        csl::GetComplexConjugate(content[0].copy()));
-                std::cout << "Dirac fermion embedding for " << content[0] 
-                    << " and " << content[1] << std::endl;
-                diracFermionEmbedding(
-                    std::dynamic_pointer_cast<mty::WeylFermion>(
-                        content[0].getParent()),
-                    std::dynamic_pointer_cast<mty::WeylFermion>(
-                        content[1].getParent()));
-            }
-        }
+        gatherMass(particles[i]);
     }
 }
 

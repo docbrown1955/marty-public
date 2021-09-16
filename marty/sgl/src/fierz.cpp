@@ -75,8 +75,7 @@ namespace sgl {
                     // If double application, we continue only if the two
                     // chains are composed of the fermions they want AND are
                     // canonical 
-                    if (twice 
-                            && areCanonical(c1, c2)
+                    if (areCanonical(c1, c2)
                             && c1.isHappy() 
                             && c2.isHappy())
                         continue;
@@ -88,8 +87,10 @@ namespace sgl {
                     GExpr res;
                     if (twice)
                         res = c1.applyGeneralFierzTwice(c2);
-                    else
+                    else if (!c1.isHappy() || !c2.isHappy())
                         res = c1.applyGeneralFierz(c2);
+                    else
+                        continue;
                     sub[i] = res;
                     sub[j] = cslexpr_s(1);
                     return true;

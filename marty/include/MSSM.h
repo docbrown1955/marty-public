@@ -114,7 +114,7 @@ namespace mty::mssm_input {
     /**
      * @brief Tau trilinear coupling.
      */
-    inline csl::Expr Atau = csl::constant_s("A_\\tau");
+    inline csl::Expr Atau = csl::constant_s("A_tau ; A_{\\tau}");
 
     /**
      * @brief Down-type Higgs mass squared.

@@ -886,8 +886,8 @@ namespace csl {
             vec.erase(last, vec.end());
         };
         for (auto &diag : diagData) {
-            cutSimilar(diag.mixings);
-            cutSimilar(diag.masses);
+            // cutSimilar(diag.mixings);
+            // cutSimilar(diag.masses);
             cutSimilar(diag.dependencies);
         }
         // for (auto &f : functions) {
@@ -1173,9 +1173,9 @@ namespace csl {
                     diag.masses.begin(),
                     diag.masses.end()
                     );
-        std::sort(res.begin(), res.end());
-        auto last = std::unique(res.begin(), res.end());
-        res.erase(last, res.end());
+        // std::sort(res.begin(), res.end());
+        // auto last = std::unique(res.begin(), res.end());
+        // res.erase(last, res.end());
 
         return res;
     }

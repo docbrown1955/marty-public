@@ -219,7 +219,8 @@ public:
     WilsonSet computeWilsonCoefficients(
             int                           order,
             std::vector<Insertion> const &insertions,
-            FeynOptions                   feynOptions = {}
+            FeynOptions                   feynOptions = {},
+            bool                          disableFermionOrdering = false
             );
 
     WilsonSet computeWilsonCoefficients_default(

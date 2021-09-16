@@ -354,6 +354,9 @@ public:
         std::vector<mty::Lagrangian::TermType>   &interaction
         );
     
+    void gatherMass(mty::Particle const &part);
+    void gatherMass(std::string const &name);
+
     void gatherMasses();
 
     void refresh();

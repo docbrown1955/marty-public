@@ -138,7 +138,7 @@ void PMSSM_Model::approximateInputMatrices()
 
     Au->setTensor(A1);
     Ad->setTensor(A2);
-    Ae->setTensor(A2);
+    Ae->setTensor(A3);
 }
 
 void PMSSM_Model::approximateQuarkMasses()

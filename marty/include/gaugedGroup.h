@@ -279,7 +279,7 @@ class GaugedGroup {
 
     bool                           broken;
 
-    csl::Expr                           coupling;
+    csl::Expr                      coupling;
 
     std::string                    nameGenerator = "T";
 

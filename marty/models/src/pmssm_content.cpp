@@ -660,6 +660,7 @@ void PMSSM_LEM::initContent()
     
     A_t = mssm_input::At;
     A_b = mssm_input::Ab;
+    A_tau = mssm_input::Atau;
     e_em = sm_input::e_em;
     mu_h = mssm_input::mu;
     V_ub_mod = sm_input::V_ub_mod;
@@ -921,12 +922,6 @@ void PMSSM_LEM::initInteractions()
     initInteractions162();
     initInteractions163();
     initInteractions164();
-    initInteractions165();
-    initInteractions166();
-    initInteractions167();
-    initInteractions168();
-    initInteractions169();
-    initInteractions170();
 }
 
 void PMSSM_LEM::initSpectrum()
@@ -1014,7 +1009,7 @@ void PMSSM_LEM::initSpectrum()
 , csl::pow_s(csl::sin_s(beta), 2)})})}) , csl::prod_s({csl::intfraction_s(1, 2), csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(beta), 2), csl::pow_s(csl::sin_s(theta_W), 2)}) , csl::prod_s({csl::intfraction_s(-1, 2), csl::pow_s(M_Z, 2), csl::sum_s({1 , csl::prod_s({-1
 , csl::pow_s(csl::sin_s(beta), 2)})}), csl::pow_s(csl::sin_s(theta_W), 2)})}), csl::sum_s({csl::prod_s({-2
 , mu_h, m_tau, csl::pow_s(csl::cos_s(beta), (-1)), csl::sin_s(beta)}) , csl::prod_s({2
-, csl::pow_s(2, csl::intfraction_s(1, 2)), A_b, M_W, csl::pow_s(e_em, (-1)), csl::cos_s(beta), csl::sin_s(theta_W)})})},
+, csl::pow_s(2, csl::intfraction_s(1, 2)), A_tau, M_W, csl::pow_s(e_em, (-1)), csl::cos_s(beta), csl::sin_s(theta_W)})})},
         {0, csl::sum_s({csl::pow_s(M_tauR, 2) , csl::prod_s({csl::pow_s(m_tau, 2), csl::pow_s(csl::cos_s(beta), (-2)), csl::sum_s({1 , csl::prod_s({-1
 , csl::pow_s(csl::sin_s(beta), 2)})})}) , csl::prod_s({csl::pow_s(M_Z, 2), csl::pow_s(csl::sin_s(beta), 2), csl::pow_s(csl::sin_s(theta_W), 2)}) , csl::prod_s({-1
 , csl::pow_s(M_Z, 2), csl::sum_s({1 , csl::prod_s({-1

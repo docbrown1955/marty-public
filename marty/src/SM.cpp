@@ -30,7 +30,8 @@ SM_Model::SM_Model(bool initialize)
     :mty::Model("models/files/SM.json")
 {
     getParticle("G")->setDrawType(drawer::ParticleType::Gluon);
-    replace(getScalarCoupling("g_s"), sm_input::g_s);
+    replace(getScalarCoupling("g_s"), g_s);
+    getGaugedGroup("SU3c")->setCouplingConstant(g_s);
 
     Particle H = GetParticle(*this, "H");
 
@@ -137,9 +138,11 @@ void SM_Model::diagonalizeSMMassMatrices()
     // Diagonalizing what can be
     ///////////////////////////////////////////////////
 
-    DiagonalizeMassMatrices(*this);
+    diagonalizeMassMatrices();
     renameParticle("B", "A");
     renameParticle("W_3", "Z");
+    gatherMass("W");
+    gatherMass("Z");
 
     csl::Expr gY = getScalarCoupling("g_Y");
     csl::Expr gL = getScalarCoupling("g_L");

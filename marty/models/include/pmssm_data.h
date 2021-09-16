@@ -241,6 +241,7 @@ protected:
     csl::Expr V_us;
     csl::Expr A_b;
     csl::Expr A_t;
+    csl::Expr A_tau;
     csl::Expr U_sb_00;
     csl::Expr N_u4;
     csl::Expr V_ts;

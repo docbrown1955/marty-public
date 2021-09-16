@@ -534,10 +534,13 @@ WilsonSet Model::getWilsonCoefficients(
 WilsonSet Model::computeWilsonCoefficients(
         int                           order,
         std::vector<Insertion> const &insertions,
-        FeynOptions                   feynOptions
+        FeynOptions                   feynOptions,
+        bool                          disableFermionOrdering
         )
 {
-    feynOptions.orderExternalFermions = true;
+    if (!disableFermionOrdering) {
+        feynOptions.orderExternalFermions = true;
+    }
     if (order == TreeLevel) {
         return computeWilsonCoefficients_default(
                 order, insertions, feynOptions
