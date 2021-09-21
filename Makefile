@@ -29,9 +29,9 @@ marty:
 install:
 	cd marty&&        $(MAKE) install 
 	cd csl&&          $(MAKE) install
-	cd grafed&&       $(MAKE) install
 	cd jsonparser&&   $(MAKE) install
 	cd dependencies&& $(MAKE) install
+	cd grafed&&       $(MAKE) install
 	@echo "$(GREEN)$(BOLD)The installation is finished, you may now watch the trilogy 'Back to the future' "
 	@echo "to honor the McFly family !"
 	@echo "(or start using the code, as you want)$(NC)$(NORMAL)"
@@ -39,6 +39,6 @@ install:
 clean:
 	cd marty&&        $(MAKE) clean;
 	cd csl&&          $(MAKE) clean;
-	cd grafed&&       $(MAKE) clean;
 	cd jsonparser&&   $(MAKE) clean;
 	cd dependencies&& $(MAKE) clean;
+	cd grafed&&       $(MAKE) clean;

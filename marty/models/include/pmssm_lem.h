@@ -209,8 +209,6 @@ protected:
         void initInteractions160();
         void initInteractions161();
         void initInteractions162();
-        void initInteractions163();
-        void initInteractions164();
     void initSpectrum();
 
 protected:

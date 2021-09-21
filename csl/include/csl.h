@@ -74,6 +74,7 @@
 #include "timeMonitor.h"
 #include "linear_map.h"
 #include "initSanitizer.h"
+#include "multipermutation.h"
 
 #include "librarygenerator.h"
 #include "libraryfunction.h"

@@ -322,47 +322,6 @@ csl::Expr FermionPropagator(
     return res;
 }
 
-// These functions are not used anymore, see fermionFlow.h
-// csl::Expr MajoranaPropagator(
-//         QuantumField const& A,
-//         QuantumField const& B,
-//         csl::Tensor      & P,
-//         bool                external)
-// {
-//     if (A.isComplexConjugate())
-//         return MajoranaConjugatedPropagator(A, B, P, external);
-//     csl::IndexStructure const& structA = A.getIndexStructureView();
-//     csl::IndexStructure const& structB = B.getIndexStructureView();
-//     csl::Index alpha = structA[structA.size()-1];
-//     csl::Index beta  = structB[structB.size()-1];
-//     const DiracSpace* diracSpace 
-//         = dynamic_cast<const DiracSpace*>(alpha.getSpace());
-//     csl::Index gam = diracSpace->generateIndex();
-// 
-//     csl::Expr prop = FermionPropagator(A, B.getConjugatedField(), P, external);
-//     csl::Replace(prop, beta, gam);
-//     return prop * diracSpace->C_matrix({gam, beta});
-// }
-// 
-// csl::Expr MajoranaConjugatedPropagator(
-//         QuantumField const& A,
-//         QuantumField const& B,
-//         csl::Tensor      & P,
-//         bool                external)
-// {
-//     csl::IndexStructure const& structA = A.getIndexStructureView();
-//     csl::IndexStructure const& structB = B.getIndexStructureView();
-//     csl::Index alpha = structA[structA.size()-1];
-//     csl::Index beta  = structB[structB.size()-1];
-//     const DiracSpace* diracSpace 
-//         = dynamic_cast<const DiracSpace*>(alpha.getSpace());
-//     csl::Index gam = diracSpace->generateIndex();
-// 
-//     csl::Expr prop = FermionPropagator(A.getConjugatedField(), B, P, external);
-//     csl::Replace(prop, alpha, gam);
-//     return diracSpace->C_matrix({alpha, gam}) * prop;
-// }
-
 csl::Expr VectorPropagator(
         QuantumField const& A,
         QuantumField const& B,

@@ -80,7 +80,7 @@ namespace mty::mssm_input {
     /**
      * @brief mu parameter.
      */
-    inline csl::Expr mu = csl::constant_s("mu");
+    inline csl::Expr mu = csl::constant_s("mu_h");
     /**
      * @brief Sign of the bilinear Higgs term in the superpotential.
      */
@@ -212,57 +212,57 @@ namespace mty::mssm_input {
      */
     inline csl::Expr MqbR = csl::constant_s("M_qbR");
 
-#define CST(arg) csl::constant_s(arg)
-#define MAT(name) \
+#define MTY_CST(arg) csl::constant_s(arg)
+#define MTY_MAT(name) \
     csl::matrix_s({\
-        {CST(#name"_11"), CST(#name"_12"), CST(#name"_13")},\
-        {CST(#name"_21"), CST(#name"_22"), CST(#name"_23")},\
-        {CST(#name"_31"), CST(#name"_32"), CST(#name"_33")}\
+        {MTY_CST(#name"_11"), MTY_CST(#name"_12"), MTY_CST(#name"_13")},\
+        {MTY_CST(#name"_21"), MTY_CST(#name"_22"), MTY_CST(#name"_23")},\
+        {MTY_CST(#name"_31"), MTY_CST(#name"_32"), MTY_CST(#name"_33")}\
     })
-#define MAT_SPEC(name, u, c, t) \
+#define MTY_MAT_SPEC(name, u, c, t) \
     csl::matrix_s({\
-        {CST(#name"_"#u#u), CST(#name"_"#u#c), CST(#name"_"#u#t)},\
-        {CST(#name"_"#c#u), CST(#name"_"#c#c), CST(#name"_"#c#t)},\
-        {CST(#name"_"#t#u), CST(#name"_"#t#c), CST(#name"_"#t#t)}\
+        {MTY_CST(#name"_"#u#u), MTY_CST(#name"_"#u#c), MTY_CST(#name"_"#u#t)},\
+        {MTY_CST(#name"_"#c#u), MTY_CST(#name"_"#c#c), MTY_CST(#name"_"#c#t)},\
+        {MTY_CST(#name"_"#t#u), MTY_CST(#name"_"#t#c), MTY_CST(#name"_"#t#t)}\
     })
 
     /**
      * @brief Left squark soft SUSY-brekaing mass matrix.
      */
-    inline csl::Expr MSQ2 = MAT(MSQ2);
+    inline csl::Expr MSQ2 = MTY_MAT(MSQ2);
     /**
      * @brief Left slepton soft SUSY-brekaing mass matrix.
      */
-    inline csl::Expr MSL2 = MAT(MSL2);
+    inline csl::Expr MSL2 = MTY_MAT(MSL2);
     /**
      * @brief Right up-type squark soft SUSY-brekaing mass matrix.
      */
-    inline csl::Expr MSu2 = MAT_SPEC(MSu2, u, c, t);
+    inline csl::Expr MSu2 = MTY_MAT_SPEC(MSu2, u, c, t);
     /**
      * @brief Right down-type squark soft SUSY-brekaing mass matrix.
      */
-    inline csl::Expr MSd2 = MAT_SPEC(MSd2, d, s, b);
+    inline csl::Expr MSd2 = MTY_MAT_SPEC(MSd2, d, s, b);
     /**
      * @brief Right selectron soft SUSY-brekaing mass matrix.
      */
-    inline csl::Expr MSe2 = MAT_SPEC(MSe2, e, mu, tau);
+    inline csl::Expr MSe2 = MTY_MAT_SPEC(MSe2, e, mu, tau);
 
     /**
      * @brief Up-type squark soft SUSY-breaking trilinear couplings
      */
-    inline csl::Expr Tu = MAT_SPEC(T_u, u, c, t);
+    inline csl::Expr Tu = MTY_MAT_SPEC(T_u, u, c, t);
     /**
      * @brief Down-type squark soft SUSY-breaking trilinear couplings
      */
-    inline csl::Expr Td = MAT_SPEC(T_d, d, s, b);
+    inline csl::Expr Td = MTY_MAT_SPEC(T_d, d, s, b);
     /**
      * @brief Slepton soft SUSY-breaking trilinear couplings
      */
-    inline csl::Expr Te = MAT_SPEC(T_e, e, mu, tau);
+    inline csl::Expr Te = MTY_MAT_SPEC(T_e, e, mu, tau);
 
-#undef CST
-#undef MAT
-#undef MAT_SPEC
+#undef MTY_CST
+#undef MTY_MAT
+#undef MTY_MAT_SPEC
 }
 
 namespace mty {

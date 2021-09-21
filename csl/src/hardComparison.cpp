@@ -1,7 +1,36 @@
+#include <numeric>
 #include "interface.h"
 #include "abreviation.h"
+#include "multipermutation.h"
 
 namespace csl {
+
+static MultiPermutation getAllPossiblePermutations(
+        std::vector<csl::Expr> const &tensors
+        )
+{
+    std::vector<std::vector<size_t>> permutations;
+    permutations.reserve(tensors.size());
+    std::vector<size_t> indicesLeft(tensors.size());
+    std::iota(indicesLeft.begin(), indicesLeft.end(), 0);
+    while (!indicesLeft.empty()) {
+        auto const &tensor1 = tensors[indicesLeft[0]];
+        permutations.push_back({indicesLeft[0]});
+        indicesLeft.erase(indicesLeft.begin());
+        if (!tensor1->getCommutable())
+            continue;
+        for (size_t i = 0; i != indicesLeft.size(); ++i) {
+            auto const &tensor2 = tensors[indicesLeft[i]];
+            if (tensor1->getParent_info() == tensor2->getParent_info()
+                    && tensor1->isComplexConjugate() == tensor2->isComplexConjugate()) {
+                permutations.back().push_back(i);
+                indicesLeft.erase(indicesLeft.begin() + i);
+                --i;
+            }
+        }
+    }
+    return MultiPermutation { permutations };
+}
 
 static void sortTensors(std::vector<csl::Expr> &tensors)
 {
@@ -42,25 +71,41 @@ static void sortTensors(std::vector<csl::Expr> &tensors)
     tensors = std::move(sorted);
 }
 
-int matchBOnA(csl::Expr const& A, csl::Expr &B)
+static std::pair<std::vector<csl::Expr>, std::vector<csl::Expr>>
+    getSortedTensors(csl::Expr const &A, csl::Expr const &B)
 {
     std::vector<csl::Expr> tensorsInA;
     std::vector<csl::Expr> tensorsInB;
-    csl::VisitEachLeaf(A, [&](csl::Expr const& el)
+    csl::VisitEachNodeCut(A, [&](csl::Expr const& el)
     {
-        if (el->isIndexed())
+        if (csl::IsIndicialTensor(el))
             tensorsInA.push_back(el);
+        return csl::IsSum(el);
     });
-    csl::VisitEachLeaf(B, [&](csl::Expr const& el)
+    csl::VisitEachNodeCut(B, [&](csl::Expr const& el)
     {
-        if (el->isIndexed())
+        if (csl::IsIndicialTensor(el))
             tensorsInB.push_back(el);
+        return csl::IsSum(el);
     });
+    // if (tensorsInA.size() != tensorsInB.size()) {
+    //     return tensorsInA.size() < tensorsInB.size();
+    // }
+    sortTensors(tensorsInA);
+    sortTensors(tensorsInB);
+
+    return {tensorsInA, tensorsInB};
+}
+
+int matchBOnA(
+        csl::Expr       &B,
+        std::vector<csl::Expr> const &tensorsInA,
+        std::vector<csl::Expr> const &tensorsInB
+        )
+{
     if (tensorsInA.size() != tensorsInB.size()) {
         return tensorsInA.size() < tensorsInB.size();
     }
-    sortTensors(tensorsInA);
-    sortTensors(tensorsInB);
     std::vector<std::pair<csl::Index, csl::Index>> mapping;
     for (size_t i = 0; i != tensorsInA.size(); ++i) {
         if (tensorsInA[i]->getParent_info() 
@@ -127,15 +172,35 @@ int matchBOnA(csl::Expr const& A, csl::Expr &B)
     return -1;
 }
 
+int matchBOnA(csl::Expr const& A, csl::Expr &B)
+{
+    auto [tensorsInA, tensorsInB] = getSortedTensors(A, B);
+    if (tensorsInA.size() != tensorsInB.size()) {
+        return tensorsInA.size() < tensorsInB.size();
+    }
+    return matchBOnA(B, tensorsInA, tensorsInB);
+}
+
+
 static bool hardComparison_impl(
         csl::Expr const &A,
-        csl::Expr       &B)
+        csl::Expr const &B)
 {
-    const int match = matchBOnA(A, B);
-    if (match != -1)
-        return false;
-    auto res = A->compareWithDummy(B.get());
-    return res;
+    auto [tensorsInA, tensorsInB] = getSortedTensors(A, B);
+    MultiPermutation permutation = getAllPossiblePermutations(tensorsInB);
+    size_t i = 0;
+    do {
+        csl::Expr B_cpy = csl::DeepCopy(B);
+        auto tensorsInB_perm = permutation.applyPermutation(tensorsInB);
+        const int match = matchBOnA(B_cpy, tensorsInA, tensorsInB_perm);
+        if (match != -1)
+            return false;
+        if (A->compareWithDummy(B_cpy.get()))
+            return true;
+        ++i;
+    } while (permutation.nextPermutation()); 
+
+    return false;
 }
 
 bool hardComparison(

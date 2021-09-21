@@ -1062,8 +1062,11 @@ auto replaceMajorana(
     const size_t sz = expr->size();
     bool left = false;
     auto d   = dirac4.getDelta();
-    auto P_L = dirac4.P_L;
-    auto P_R = dirac4.P_R;
+    auto P_1 = dirac4.P_L;
+    auto P_2 = dirac4.P_R;
+    if (xi->getChirality() == Chirality::Right) {
+        std::swap(P_1, P_2);
+    }
     auto cc = csl::GetComplexConjugate;
     auto C = dirac4.C_matrix;
     bool leftMajorana = false;
@@ -1085,26 +1088,26 @@ auto replaceMajorana(
                 const csl::Expr f = (leftMajorana) ? CSL_HALF : CSL_1;
                 if (left && conjug) {
                     const auto P = (alreadyProjected) ? 
-                        f*d({b, a}) : P_R({b, a});
+                        f*d({b, a}) : P_2({b, a});
                     arg = cc(Lambda(indices)) * P;
                 }
                 else if (left && !conjug) {
                     auto c = b.rename();
                     indices.back() = c;
                     const auto P = (alreadyProjected) ? 
-                        f*d({c, b}) : P_L({c, b});
+                        f*d({c, b}) : P_1({c, b});
                     arg = -cc(Lambda(indices)) * P * C({b, a});
                 }
                 else if (conjug) {
                     auto c = b.rename();
                     indices.back() = c;
                     const auto P = (alreadyProjected) ? 
-                        f*d({b, c}) : P_R({b, c});
+                        f*d({b, c}) : P_2({b, c});
                     arg = -C({a, b}) * P * Lambda(indices);
                 }
                 else {
                     const auto P = (alreadyProjected) ? 
-                        f*d({a, b}) : P_L({a, b});
+                        f*d({a, b}) : P_1({a, b});
                     arg = P * Lambda(indices);
                 }
             }

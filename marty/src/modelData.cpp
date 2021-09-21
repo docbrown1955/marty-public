@@ -104,7 +104,10 @@ void ModelData::checkHermiticity()
     std::vector<size_t> indicesLeft(terms.size());
     std::iota(indicesLeft.begin(), indicesLeft.end(), 0);
     std::vector<csl::Expr> termsNotFound;
+    csl::ProgressBar bar(terms.size());
     for (size_t i = 0; i != terms.size(); ++i) {
+        if (terms.size() > 500)
+            bar.progress(i);
         bool found = false;
         for (size_t j = 0; j < indicesLeft.size(); ++j) {
             if (csl::hardComparison(terms[i], hermitic[indicesLeft[j]])) {
@@ -1421,7 +1424,6 @@ void ModelData::doRenameParticle(
         case ParticleType::ScalarBoson:
         case ParticleType::GhostBoson:
         case ParticleType::GoldstoneBoson:
-        case ParticleType::VectorBoson:
         case ParticleType::WeylFermion:
             part->setName(std::string(newName));
             break;
@@ -1433,6 +1435,13 @@ void ModelData::doRenameParticle(
             if (auto rightWeyl = part->getWeylFermion(Chirality::Right);
                     rightWeyl)
                 rightWeyl->setName(std::string(newName) + "_R");
+            break;
+        case ParticleType::VectorBoson:
+            part->setName(std::string(newName));
+            if (auto fs = part->getFieldStrength(); fs) {
+                fs->setName("F_" + part->getName());
+                fs->setLatexName("F_{" + part->getLatexName() + "}");
+            }
             break;
         default:
             CallHEPError(mty::error::TypeError,

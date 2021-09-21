@@ -404,7 +404,7 @@ void MSSM_Model::initGauginoInteractions(
         csl::Expr scal = (isLeft) ? cc(scalar(s_index)) : scalar(s_index);
         csl::Expr ferm = (isLeft) ? fermion(f_index) : cc(fermion(f_index));
         csl::Expr connexion = (isLeft) ? 
-            dirac4.C_matrix({a, b}) : -dirac4.getDelta()({a, b});
+            dirac4.C_matrix({a, b}) : dirac4.getDelta()({a, b});
         addLagrangianTerm(
                 csl::DeepRefreshed(csl::prod_s({
                     -csl::sqrt_s(2), coupling, T({A, i, j}),
@@ -441,6 +441,8 @@ void MSSM_Model::initU1GauginoInteractions(
         bool isLeft = (fermion->getChirality() == Chirality::Left);
         csl::Expr scal = (isLeft) ? cc(scalar(s_index)) : scalar(s_index);
         csl::Expr ferm = (isLeft) ? fermion(f_index) : cc(fermion(f_index));
+        // Minus sign here if right-handed because the charge changes sign,
+        // this sign is not present for non-abelian couplings T^A
         csl::Expr connexion = (isLeft) ? 
             dirac4.C_matrix({a, b}) : -dirac4.getDelta()({a, b});
         addLagrangianTerm(
@@ -640,29 +642,29 @@ void MSSM_Model::initTrilinears()
     
     // Up-type tri-linear from the super potential
     addLagrangianTerm(
-            mu_h
-            * cc(s_Qi({I, A, i})) 
-            * cc(Yu({J, I})) 
-            * s_Ui({J, A})
-            * Hd(i),
+            cc(mu_h)
+            * cc(s_Ui({J, A}))
+            * Yu({J, I}) 
+            * s_Qi({I, A, i})
+            * cc(Hd(i)),
             true // Add also the complex conjugate of this term
             );
     // Down-type tri-linear from the super potential
     addLagrangianTerm(
-            mu_h
-            * cc(s_Qi({I, A, i})) 
-            * cc(Yd({J, I})) 
-            * s_Di({J, A})
-            * Hu(i),
+            cc(mu_h)
+            * cc(s_Di({J, A}))
+            * Yd({J, I})
+            * s_Qi({I, A, i})
+            * cc(Hu(i)),
             true // Add also the complex conjugate of this term
             );
     // Lepton tri-linear from the super potential
     addLagrangianTerm(
-            mu_h
-            * cc(s_Li({I, i})) 
-            * cc(Ye({J, I})) 
-            * s_Ei({J})
-            * Hu(i),
+            cc(mu_h)
+            * cc(s_Ei({J}))
+            * Ye({J, I}) 
+            * s_Li({I, i}) 
+            * cc(Hu(i)),
             true // Add also the complex conjugate of this term
             );
 }
@@ -681,6 +683,8 @@ void MSSM_Model::initQuarticDTerms()
                     == mty::ParticleType::GhostBoson)
                 continue;
             auto rep1 = particles[p1]->getGroupIrrep((*gauge)[i]);
+            bool sign1 = SUSY[particles[p1]]->isFermionic()
+                && SUSY[particles[p1]]->getChirality() == Chirality::Right;
             for (size_t p2 = 0; p2 < particles.size(); ++p2) {
                 if (particles[p2]->getSpinDimension() != 1
                     or particles[p2]->getParticleType() 
@@ -690,6 +694,8 @@ void MSSM_Model::initQuarticDTerms()
                 if (rep1 != rep2 
                         and (*gauge)[i]->getType() != mty::group::Type::U1)
                     continue;
+                bool sign2 = SUSY[particles[p2]]->isFermionic()
+                    && SUSY[particles[p2]]->getChirality() == Chirality::Right;
 
                 csl::Index mu = mty::MinkowskiIndex();
                 csl::Expr field1 = particles[p1]->getInstance();
@@ -729,8 +735,9 @@ void MSSM_Model::initQuarticDTerms()
                         }
                 });
                 csl::Replace(quadratic2, B, A);
+                csl::Expr sign = (sign1 ^ sign2) ? CSL_M_1 : CSL_1;
                 addLagrangianTerm(
-                        csl::Refreshed(CSL_HALF 
+                        csl::Refreshed(sign * CSL_HALF 
                             * quadratic1 * quadratic2
                         ));
             }
@@ -1097,10 +1104,11 @@ void MSSM_Model::diagonalize2By2Matrices()
 
     csl::Expr mu_2 = cc(mu_h) * mu_h;
     csl::Expr MZ2 = csl::pow_s(sm_input::M_Z, 2);
-    Replaced(*this,
-            g_L*g_L + g_Y*g_Y,
-            4 * MZ2 / (v_h*v_h));
-    csl::Expr c2beta = 1 - 2 * csl::pow_s(csl::sin_s(beta_h), 2);
+    // Replaced(*this,
+    //         g_L*g_L + g_Y*g_Y,
+    //         csl::pow_s(sm_input::e_em / csl::sin_s(sm_input::theta_W), 2)
+    //             * (1 + csl::pow_s(csl::tan_s(sm_input::theta_W), 2)));
+    csl::Expr c2beta = csl::cos_s(2*beta_h); 
     Replaced(*this,
             m_sHu,
             csl::sqrt_s(M_A0*M_A0 - m_sHd*m_sHd - 2*mu_2));
@@ -1110,10 +1118,10 @@ void MSSM_Model::diagonalize2By2Matrices()
             csl::Expanded(-MZ2 * c2beta / 2)
             + csl::Expanded(M_A0*M_A0 * (1 - c2beta) / 2)
             - mu_2));
-    Replaced(*this,
-            csl::pow_s(csl::cos_s(beta_h), 2),
-            1 - csl::pow_s(csl::sin_s(beta_h), 2)
-            );
+    // Replaced(*this,
+    //         csl::pow_s(csl::cos_s(beta_h), 2),
+    //         1 - csl::pow_s(csl::sin_s(beta_h), 2)
+    //         );
     mty::Particle eta_u = getParticle("eta_u");
     mty::Particle eta_d = getParticle("eta_d");
     mty::Particle G0 = scalarboson_s("G0; G^0", *this);
@@ -1263,9 +1271,9 @@ void MSSM_Model::diagonalizeYukawas()
 }
 void MSSM_Model::adjustCouplingConstants()
 {
-    csl::Expr c2 = csl::pow_s(csl::cos_s(beta_h), 2);
-    csl::Expr s2 = csl::pow_s(csl::sin_s(beta_h), 2);
-    replace(c2, 1 - s2);
+    //csl::Expr c2 = csl::pow_s(csl::cos_s(beta_h), 2);
+    //csl::Expr s2 = csl::pow_s(csl::sin_s(beta_h), 2);
+    //replace(c2, 1 - s2);
 
     csl::Expr e = sm_input::e_em;
     csl::Expr thetaW = sm_input::theta_W;
@@ -1278,9 +1286,9 @@ void MSSM_Model::adjustCouplingConstants()
     replace(
             g_L, 
             e / csl::sin_s(thetaW));
-    replace(
-            csl::cos_s(thetaW),
-            sm_input::M_W / sm_input::M_Z);
+    // replace(
+    //         csl::cos_s(thetaW),
+    //         sm_input::M_W / sm_input::M_Z);
 }
 void MSSM_Model::breakSMFlavorSymmetry()
 {
@@ -1541,8 +1549,8 @@ MSSM_HEM::MSSM_HEM(
     promoteToMajorana("sG");
     std::cout << "Gathering MSSM inputs ..." << std::endl;
     gatherMSSMInputs();
-    std::cout << "Checking Hermiticity ..." << std::endl;
-    checkHermiticity();
+    // std::cout << "Checking Hermiticity ..." << std::endl;
+    // checkHermiticity();
 
     computeFeynmanRules();
     if (save) {

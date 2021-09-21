@@ -401,17 +401,20 @@ std::optional<Expr> Abbrev::findExisting(
             if (pos < abbreviations.size() 
                     && abbreviations[pos]->getEncapsulated()->compareWithDummy(
                         encapsulated.get())) {
-                return dynamic_cast<LiteralParent*>(abbreviations[pos])->generateInstance();
+                return dynamic_cast<LiteralParent*>(abbreviations[pos])
+                    ->generateInstance();
             }
             if (pos-1 < abbreviations.size() 
                     && abbreviations[pos-1]->getEncapsulated()->compareWithDummy(
                         encapsulated.get())) {
-                return dynamic_cast<LiteralParent*>(abbreviations[pos-1])->generateInstance();
+                return dynamic_cast<LiteralParent*>(abbreviations[pos-1])
+                    ->generateInstance();
             }
             if (pos+1 < abbreviations.size() 
                     && abbreviations[pos+1]->getEncapsulated()->compareWithDummy(
                         encapsulated.get())) {
-                return dynamic_cast<LiteralParent*>(abbreviations[pos+1])->generateInstance();
+                return dynamic_cast<LiteralParent*>(abbreviations[pos+1])
+                    ->generateInstance();
             }
         }
         else {
@@ -460,6 +463,8 @@ std::optional<Expr> Abbrev::findExisting(
             //            false);
             std::map<csl::Index, csl::Index> mapping;
             if (encapsulated->compareWithDummy(comparison.get(), mapping))
+                return (*ab)(structure.getIndex());
+            if (csl::hardComparison(encapsulated, comparison))
                 return (*ab)(structure.getIndex());
         }
     }

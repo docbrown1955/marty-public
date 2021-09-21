@@ -262,7 +262,7 @@ void VisitEachNodeCut(
         return;
     if (depth != 0) {
         for (size_t i = 0; i != init->size(); ++i)
-            VisitEachNode((*init)[i], f, depth-1);
+            VisitEachNodeCut((*init)[i], f, depth-1);
     }
 }
 
@@ -276,7 +276,7 @@ void VisitEachNodeCut(
         return;
     if (depth != 0) {
         for (size_t i = 0; i != init->size(); ++i)
-            VisitEachNode((*init)[i].get(), f, depth-1);
+            VisitEachNodeCut((*init)[i].get(), f, depth-1);
     }
 }
 
