@@ -404,7 +404,7 @@ void MSSM_Model::initGauginoInteractions(
         csl::Expr scal = (isLeft) ? cc(scalar(s_index)) : scalar(s_index);
         csl::Expr ferm = (isLeft) ? fermion(f_index) : cc(fermion(f_index));
         csl::Expr connexion = (isLeft) ? 
-            dirac4.C_matrix({a, b}) : dirac4.getDelta()({a, b});
+            dirac4.C_matrix({a, b}) : -dirac4.getDelta()({a, b});
         addLagrangianTerm(
                 csl::DeepRefreshed(csl::prod_s({
                     -csl::sqrt_s(2), coupling, T({A, i, j}),
@@ -441,8 +441,6 @@ void MSSM_Model::initU1GauginoInteractions(
         bool isLeft = (fermion->getChirality() == Chirality::Left);
         csl::Expr scal = (isLeft) ? cc(scalar(s_index)) : scalar(s_index);
         csl::Expr ferm = (isLeft) ? fermion(f_index) : cc(fermion(f_index));
-        // Minus sign here if right-handed because the charge changes sign,
-        // this sign is not present for non-abelian couplings T^A
         csl::Expr connexion = (isLeft) ? 
             dirac4.C_matrix({a, b}) : -dirac4.getDelta()({a, b});
         addLagrangianTerm(
@@ -1414,6 +1412,28 @@ void MSSM_Model::promoteMajoranas()
     promoteToMajorana("N_4");
 }
 
+void MSSM_Model::sortSfermions(std::vector<mty::Particle> &parts)
+{
+    const static std::string order = "uct dsb emt";
+    auto comp = [&](Particle const &A, Particle const &B) {
+        auto nameA = A->getName();
+        auto nameB = B->getName();
+        if (nameA.size() < 2) return true;
+        if (nameB.size() < 2) return true;
+        bool A_left = nameA.find('L') != std::string::npos;
+        bool B_left = nameB.find('L') != std::string::npos;
+        if (A_left & !B_left) return true;
+        if (!A_left & B_left) return false;
+        size_t A_order = order.find(nameA[1]);
+        size_t B_order = order.find(nameB[1]);
+        if (A_order != std::string::npos && B_order != std::string::npos) {
+            return A_order < B_order;
+        }
+        return nameA < nameB;
+    };
+    std::sort(parts.begin(), parts.end(), comp);
+}
+
 void MSSM_Model::diagonalizeSFermions()
 {
     bool diagonalizedSymbolically;
@@ -1427,12 +1447,13 @@ void MSSM_Model::diagonalizeSFermions()
                 {
                     return A.particles.size() > B.particles.size();
                 });
-        for (const auto &block : massBlocks) {
+        for (auto &block : massBlocks) {
             mty::QuantumField firstField(
                     L.mass[block.positions[0]]->getContent()[0]);
             if (firstField.getSpinDimension() != 1)
                 continue;
             if (block.particles.size() >= 2) {
+                sortSfermions(block.particles);
                 std::cout << "Diagonalizing block of size " 
                     << block.particles.size() << " : " << std::endl;
                 for (const auto &part : block.particles)

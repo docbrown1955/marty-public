@@ -919,7 +919,6 @@ void PMSSM_LEM::initInteractions()
     initInteractions159();
     initInteractions160();
     initInteractions161();
-    initInteractions162();
 }
 
 void PMSSM_LEM::initSpectrum()

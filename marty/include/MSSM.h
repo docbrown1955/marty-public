@@ -341,6 +341,7 @@ protected:
         void diagonalizeNeutralinos();
         void diagonalizeCharginos();
         void promoteMajoranas();
+        static void sortSfermions(std::vector<mty::Particle> &parts);
         void diagonalizeSFermions();
         void renameSFermions();
         void generateDiracFermions();

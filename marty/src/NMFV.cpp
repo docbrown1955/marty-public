@@ -29,8 +29,8 @@ NMFV_Model::NMFV_Model(
 
     std::cout << "Getting to low energy Lagrangian ..." << std::endl;
     getToLowEnergyLagrangian();
-    std::cout << "Checking Hermiticity ..." << std::endl;
-    checkHermiticity();
+    // std::cout << "Checking Hermiticity ..." << std::endl;
+    // checkHermiticity();
 }
 
 void NMFV_Model::getToLowEnergyLagrangian()

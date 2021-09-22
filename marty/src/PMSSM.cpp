@@ -53,8 +53,8 @@ PMSSM_Model::PMSSM_Model(
         approximateInputMatrices();
         std::cout << "Getting to low energy Lagrangian ..." << std::endl;
         getToLowEnergyLagrangian();
-        std::cout << "Checking Hermiticity ..." << std::endl;
-        checkHermiticity();
+        // std::cout << "Checking Hermiticity ..." << std::endl;
+        // checkHermiticity();
     }
 }
 

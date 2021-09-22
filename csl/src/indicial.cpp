@@ -478,7 +478,9 @@ vector<vector<int>> ContractionChain::getPermutations(
             if (IsIndicialTensor(contractedTensors[i])
                     and IsIndicialTensor(other.contractedTensors[j])
                     and contractedTensors[i]->getParent()
-                        == other.contractedTensors[j]->getParent()) {
+                        == other.contractedTensors[j]->getParent()
+                    and contractedTensors[i]->isComplexConjugate()
+                        == other.contractedTensors[j]->isComplexConjugate()) {
                 for (const auto& perm : permutations) {
                     auto pos = find(perm.begin(),
                                     perm.end(),

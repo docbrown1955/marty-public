@@ -208,7 +208,6 @@ protected:
         void initInteractions159();
         void initInteractions160();
         void initInteractions161();
-        void initInteractions162();
     void initSpectrum();
 
 protected:
