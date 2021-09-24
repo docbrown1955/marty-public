@@ -33,8 +33,8 @@ namespace csl {
 
 Index::Index()
     :space(nullptr),
-    nameOrValue(0), 
     id(0),
+    nameOrValue(0), 
     type(cslIndex::Free)
 {
     setSign(false);
@@ -57,8 +57,8 @@ Index::Index(const std::string& t_name,
              const Space*       t_space,
              unsigned short     t_id)
      :space(t_space),
-     nameOrValue(-1),
      id(t_id),
+     nameOrValue(-1),
      type(cslIndex::Free)
 {
     setName(t_name);

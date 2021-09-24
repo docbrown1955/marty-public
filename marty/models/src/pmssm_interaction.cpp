@@ -445,13 +445,13 @@ void PMSSM_LEM::initInteractions4()
 , G({+i_C_1_1[ 0 ], i_Minko[ 0 ]}, X), csl::GetComplexConjugate(u({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), u({+i_C_1_0[ 1 ], +i_dirac[ 1 ]}, X)}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(-1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_c, e_em, csl::cos_s(beta), csl::pow_s(csl::sin_s(beta), (-1)), csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(c({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), c({+i_C_1_0[ 0 ], +i_dirac[ 1 ]}, X), A0(X)}),
+        csl::prod_s({csl::intfraction_s(1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_c, e_em, csl::cos_s(beta), csl::pow_s(csl::sin_s(beta), (-1)), csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(c({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), c({+i_C_1_0[ 0 ], +i_dirac[ 1 ]}, X), A0(X)}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(-1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_t, e_em, csl::cos_s(beta), csl::pow_s(csl::sin_s(beta), (-1)), csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(t({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), t({+i_C_1_0[ 0 ], +i_dirac[ 1 ]}, X), A0(X)}),
+        csl::prod_s({csl::intfraction_s(1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_t, e_em, csl::cos_s(beta), csl::pow_s(csl::sin_s(beta), (-1)), csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(t({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), t({+i_C_1_0[ 0 ], +i_dirac[ 1 ]}, X), A0(X)}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(-1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_u, e_em, csl::cos_s(beta), csl::pow_s(csl::sin_s(beta), (-1)), csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(u({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), u({+i_C_1_0[ 0 ], +i_dirac[ 1 ]}, X), A0(X)}),
+        csl::prod_s({csl::intfraction_s(1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_u, e_em, csl::cos_s(beta), csl::pow_s(csl::sin_s(beta), (-1)), csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(u({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), u({+i_C_1_0[ 0 ], +i_dirac[ 1 ]}, X), A0(X)}),
         false);
     addLagrangianTerm(
         csl::prod_s({csl::intfraction_s(-1, 2), csl::pow_s(M_W, (-1)), m_c, e_em, csl::pow_s(csl::sin_s(beta), (-1)), csl::sin_s(alpha), csl::pow_s(csl::sin_s(theta_W), (-1)), csl::GetComplexConjugate(c({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), c({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X), H0(X)}),
@@ -687,13 +687,13 @@ void PMSSM_LEM::initInteractions6()
 , G({+i_C_1_1[ 0 ], i_Minko[ 0 ]}, X), csl::GetComplexConjugate(s({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), s({+i_C_1_0[ 1 ], +i_dirac[ 1 ]}, X)}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(-1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_b, e_em, csl::pow_s(csl::cos_s(beta), (-1)), csl::sin_s(beta), csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(b({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), b({+i_C_1_0[ 0 ], +i_dirac[ 1 ]}, X), A0(X)}),
+        csl::prod_s({csl::intfraction_s(1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_b, e_em, csl::pow_s(csl::cos_s(beta), (-1)), csl::sin_s(beta), csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(b({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), b({+i_C_1_0[ 0 ], +i_dirac[ 1 ]}, X), A0(X)}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(-1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_d, e_em, csl::pow_s(csl::cos_s(beta), (-1)), csl::sin_s(beta), csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(d({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), d({+i_C_1_0[ 0 ], +i_dirac[ 1 ]}, X), A0(X)}),
+        csl::prod_s({csl::intfraction_s(1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_d, e_em, csl::pow_s(csl::cos_s(beta), (-1)), csl::sin_s(beta), csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(d({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), d({+i_C_1_0[ 0 ], +i_dirac[ 1 ]}, X), A0(X)}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(-1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_s, e_em, csl::pow_s(csl::cos_s(beta), (-1)), csl::sin_s(beta), csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(s({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), s({+i_C_1_0[ 0 ], +i_dirac[ 1 ]}, X), A0(X)}),
+        csl::prod_s({csl::intfraction_s(1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_s, e_em, csl::pow_s(csl::cos_s(beta), (-1)), csl::sin_s(beta), csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(s({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), s({+i_C_1_0[ 0 ], +i_dirac[ 1 ]}, X), A0(X)}),
         false);
     addLagrangianTerm(
         csl::prod_s({csl::intfraction_s(-1, 2), csl::pow_s(M_W, (-1)), m_b, e_em, csl::pow_s(csl::cos_s(beta), (-1)), csl::cos_s(alpha), csl::pow_s(csl::sin_s(theta_W), (-1)), csl::GetComplexConjugate(b({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), b({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X), H0(X)}),
@@ -748,13 +748,13 @@ void PMSSM_LEM::initInteractions6()
 void PMSSM_LEM::initInteractions7()
 {
     addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(-1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_e, e_em, csl::pow_s(csl::cos_s(beta), (-1)), csl::sin_s(beta), csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(e({+i_dirac[ 0 ]}, X)), e({+i_dirac[ 1 ]}, X), A0(X)}),
+        csl::prod_s({csl::intfraction_s(1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_e, e_em, csl::pow_s(csl::cos_s(beta), (-1)), csl::sin_s(beta), csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(e({+i_dirac[ 0 ]}, X)), e({+i_dirac[ 1 ]}, X), A0(X)}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(-1, 2), CSL_I, csl::pow_s(M_W, (-1)), e_em, m_mu, csl::pow_s(csl::cos_s(beta), (-1)), csl::sin_s(beta), csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), A0(X), csl::GetComplexConjugate(mu({+i_dirac[ 0 ]}, X)), mu({+i_dirac[ 1 ]}, X)}),
+        csl::prod_s({csl::intfraction_s(1, 2), CSL_I, csl::pow_s(M_W, (-1)), e_em, m_mu, csl::pow_s(csl::cos_s(beta), (-1)), csl::sin_s(beta), csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), A0(X), csl::GetComplexConjugate(mu({+i_dirac[ 0 ]}, X)), mu({+i_dirac[ 1 ]}, X)}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(-1, 2), CSL_I, csl::pow_s(M_W, (-1)), e_em, m_tau, csl::pow_s(csl::cos_s(beta), (-1)), csl::sin_s(beta), csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), A0(X), csl::GetComplexConjugate(tau({+i_dirac[ 0 ]}, X)), tau({+i_dirac[ 1 ]}, X)}),
+        csl::prod_s({csl::intfraction_s(1, 2), CSL_I, csl::pow_s(M_W, (-1)), e_em, m_tau, csl::pow_s(csl::cos_s(beta), (-1)), csl::sin_s(beta), csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), A0(X), csl::GetComplexConjugate(tau({+i_dirac[ 0 ]}, X)), tau({+i_dirac[ 1 ]}, X)}),
         false);
     addLagrangianTerm(
         csl::prod_s({csl::intfraction_s(-1, 2), csl::pow_s(M_W, (-1)), m_e, e_em, csl::pow_s(csl::cos_s(beta), (-1)), csl::cos_s(alpha), csl::pow_s(csl::sin_s(theta_W), (-1)), csl::GetComplexConjugate(e({+i_dirac[ 0 ]}, X)), e({+i_dirac[ 0 ]}, X), H0(X)}),
@@ -15877,31 +15877,31 @@ void PMSSM_LEM::initInteractions151()
 , csl::pow_s(csl::cos_s(theta_W), (-2)), csl::pow_s(csl::sin_s(beta), 2), csl::pow_s(csl::sin_s(theta_W), (-2))})}), csl::pow_s(csl::sum_s({csl::prod_s({csl::pow_s(e_em, 2), csl::pow_s(csl::sin_s(theta_W), (-2))}) , csl::prod_s({csl::pow_s(e_em, 2), csl::pow_s(csl::sin_s(theta_W), (-2)), csl::pow_s(csl::tan_s(theta_W), 2)})}), (-1)), Z({+i_Minko[ 0 ]}, X), Z({i_Minko[ 0 ]}, X), csl::pow_s(G0(X), 2)}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(-1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_c, e_em, csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(c({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), c({+i_C_1_0[ 0 ], +i_dirac[ 1 ]}, X), G0(X)}),
+        csl::prod_s({csl::intfraction_s(1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_c, e_em, csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(c({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), c({+i_C_1_0[ 0 ], +i_dirac[ 1 ]}, X), G0(X)}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(-1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_t, e_em, csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(t({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), t({+i_C_1_0[ 0 ], +i_dirac[ 1 ]}, X), G0(X)}),
+        csl::prod_s({csl::intfraction_s(1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_t, e_em, csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(t({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), t({+i_C_1_0[ 0 ], +i_dirac[ 1 ]}, X), G0(X)}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(-1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_u, e_em, csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(u({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), u({+i_C_1_0[ 0 ], +i_dirac[ 1 ]}, X), G0(X)}),
+        csl::prod_s({csl::intfraction_s(1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_u, e_em, csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(u({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), u({+i_C_1_0[ 0 ], +i_dirac[ 1 ]}, X), G0(X)}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_b, e_em, csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(b({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), b({+i_C_1_0[ 0 ], +i_dirac[ 1 ]}, X), G0(X)}),
+        csl::prod_s({csl::intfraction_s(-1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_b, e_em, csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(b({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), b({+i_C_1_0[ 0 ], +i_dirac[ 1 ]}, X), G0(X)}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_d, e_em, csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(d({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), d({+i_C_1_0[ 0 ], +i_dirac[ 1 ]}, X), G0(X)}),
+        csl::prod_s({csl::intfraction_s(-1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_d, e_em, csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(d({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), d({+i_C_1_0[ 0 ], +i_dirac[ 1 ]}, X), G0(X)}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_s, e_em, csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(s({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), s({+i_C_1_0[ 0 ], +i_dirac[ 1 ]}, X), G0(X)}),
+        csl::prod_s({csl::intfraction_s(-1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_s, e_em, csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(s({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), s({+i_C_1_0[ 0 ], +i_dirac[ 1 ]}, X), G0(X)}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_e, e_em, csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(e({+i_dirac[ 0 ]}, X)), e({+i_dirac[ 1 ]}, X), G0(X)}),
+        csl::prod_s({csl::intfraction_s(-1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_e, e_em, csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(e({+i_dirac[ 0 ]}, X)), e({+i_dirac[ 1 ]}, X), G0(X)}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(1, 2), CSL_I, csl::pow_s(M_W, (-1)), e_em, m_mu, csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), G0(X), csl::GetComplexConjugate(mu({+i_dirac[ 0 ]}, X)), mu({+i_dirac[ 1 ]}, X)}),
+        csl::prod_s({csl::intfraction_s(-1, 2), CSL_I, csl::pow_s(M_W, (-1)), e_em, m_mu, csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), G0(X), csl::GetComplexConjugate(mu({+i_dirac[ 0 ]}, X)), mu({+i_dirac[ 1 ]}, X)}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(1, 2), CSL_I, csl::pow_s(M_W, (-1)), e_em, m_tau, csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), G0(X), csl::GetComplexConjugate(tau({+i_dirac[ 0 ]}, X)), tau({+i_dirac[ 1 ]}, X)}),
+        csl::prod_s({csl::intfraction_s(-1, 2), CSL_I, csl::pow_s(M_W, (-1)), e_em, m_tau, csl::pow_s(csl::sin_s(theta_W), (-1)), gamma5({+i_dirac[ 0 ], +i_dirac[ 1 ]}), G0(X), csl::GetComplexConjugate(tau({+i_dirac[ 0 ]}, X)), tau({+i_dirac[ 1 ]}, X)}),
         false);
     addLagrangianTerm(
         csl::prod_s({csl::intfraction_s(1, 2), CSL_I, csl::pow_s(M_W, (-1)), m_c, e_em, mu_h, csl::cos_s(beta), csl::pow_s(csl::sin_s(beta), (-1)), csl::pow_s(csl::sin_s(theta_W), (-1)), G0(X), sc_L({+i_C_1_0[ 0 ]}, X), csl::GetComplexConjugate(sc_R({+i_C_1_0[ 0 ]}, X))}),

@@ -56,6 +56,9 @@ PMSSM_Model::PMSSM_Model(
         // std::cout << "Checking Hermiticity ..." << std::endl;
         // checkHermiticity();
     }
+    printSubPart({"H0", "u"});
+    printSubPart({"A0", "u"});
+    std::cin.get();
 }
 
 void PMSSM_Model::approximateYukawa()

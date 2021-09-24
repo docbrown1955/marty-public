@@ -1343,14 +1343,18 @@ void ModelBuilder::applyDiracFermionEmbedding(
                         if (field->getParent_info() != leftWeyl.get()
                                 and field->getParent_info() != rightWeyl.get())
                             return false;
+                        // Chiralities have been flipped, so Right-handed
+                        // is indeed to one that has a minus sign.
+                        // gamma5 = PR - PL, with flipped chiralities L<->R
+                        csl::Expr factor 
+                            = (field->getChirality() == Chirality::Right)
+                                ? CSL_M_1 : CSL_1;
                         field->setChirality(Chirality::None);
                         if (not expr->isComplexConjugate()) {
                             auto& structure = field->getIndexStructureView();
                             csl::Index alpha = structure[structure.size()-1];
                             csl::Index beta  = dirac4.generateIndex();
                             structure[structure.size()-1] = beta;
-                            csl::Expr factor = (field->getChirality() == Chirality::Left)
-                                ? CSL_M_1 : CSL_1;
                             expr = factor*dirac4.gamma_chir({alpha, beta})*expr;
                         }
                         return true;

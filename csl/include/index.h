@@ -85,12 +85,12 @@ class Index{
      */
     const Space* space = nullptr;
 
+    ID_type id;
+
     /*!
      * \brief Name of the index.
      */
     char nameOrValue;
-    
-    ID_type id;
 
     /*!
      * \brief Type of the index.

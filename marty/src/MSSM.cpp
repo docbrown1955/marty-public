@@ -285,7 +285,6 @@ void MSSM_Model::initHiggs()
     Hd->setGroupRep("Y", {-1, 2});
     m_sHd = csl::constant_s("m_sHd");
     Hd->setMass(m_sHd);
-
     addParticles({Hu, Hd});
 }
 void MSSM_Model::initHiggsinos()
@@ -1161,7 +1160,6 @@ void MSSM_Model::diagonalize2By2Matrices()
             true // diagonalize, no massless state
            ); 
 
-
     Replaced(*this, 
             getParticle("W")->getMass(),
             sm_input::M_W);
@@ -1414,7 +1412,7 @@ void MSSM_Model::promoteMajoranas()
 
 void MSSM_Model::sortSfermions(std::vector<mty::Particle> &parts)
 {
-    const static std::string order = "uct dsb emt";
+    const static std::string order = "em uct dsb"; // t is for top and tau
     auto comp = [&](Particle const &A, Particle const &B) {
         auto nameA = A->getName();
         auto nameB = B->getName();
