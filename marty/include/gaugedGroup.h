@@ -220,6 +220,14 @@ class GaugedGroup {
 
     mty::gauge::Choice getGaugeChoice() const;
 
+    csl::Expr getEffectiveQuadraticCasimir(
+            mty::Irrep const &irrep
+            ) const;
+
+    csl::Expr getCA() const;
+
+    csl::Expr getCF() const;
+
     mty::Generator getF() const;
 
     csl::Tensor getD(size_t p) const;

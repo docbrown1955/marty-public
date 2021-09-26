@@ -445,6 +445,11 @@ vector<Index>::const_iterator IndexStructure::find(const Index& t_index) const
     return std::find(begin(), end(), t_index);
 }
 
+vector<Index>::iterator IndexStructure::find(const Index& t_index)
+{
+    return std::find(begin(), end(), t_index);
+}
+
 IndexStructure IndexStructure::getFreeStructure() const
 {
     // We create an empty structure and append only free indices to it

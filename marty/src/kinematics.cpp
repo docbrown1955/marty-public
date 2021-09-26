@@ -14,6 +14,7 @@
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "quantumField.h"
+#include "ghostField.h"
 #include "kinematics.h"
 #include "insertion.h"
 #include "mrtError.h"
@@ -81,7 +82,8 @@ namespace mty {
         return A.getField() == B.getField()
             && A.isIncoming() == B.isIncoming()
             && (A.isParticle() == B.isParticle()
-                    || A.getField()->isSelfConjugate());
+                    || A.getField()->isSelfConjugate()
+                    || IsOfType<GhostBoson>(A.getField()));
     }
 
     csl::Expr Kinematics::getDegreesOfFreedomFactor() const

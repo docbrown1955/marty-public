@@ -17,6 +17,7 @@
 #include "polarization.h"
 #include "mrtInterface.h"
 #include "colorSpace.h"
+#include "colorSimplification.h"
 #include "diracology.h"
 #include "fermionChain.h"
 #include "feynmanIntegral.h"

@@ -184,13 +184,6 @@ class ColorSpace: public csl::Space {
     const mty::SemiSimpleAlgebra* algebra;
 };
 
-csl::Expr CalculateTrace(const mty::SemiSimpleGroup* colorGroup,
-                    const csl::Expr&                 expr);
-
-} // End of namespace color
-
-namespace mty {
-csl::Expr CalculateColorTrace(csl::Expr const &init);
 }
 
 #endif

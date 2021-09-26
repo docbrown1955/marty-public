@@ -143,7 +143,16 @@ csl::Tensor GaugedGroup::getD(size_t p) const
     std::vector<csl::Space const*> spaces(p, adjointSpace);
     csl::Tensor d_p("d", spaces);
     d_p->setFullySymmetric();
+    if (p == 3)
+        d_p->addTraceLessNess(spaces[0]); // d_AAB = 0 (~ Tr(T_B))
     d[p] = d_p;
+    std::vector<csl::Index> indices(spaces.size());
+    for (auto &i : indices)
+        i = spaces[0]->generateIndex();
+    d_p->addSelfContraction(
+            d_p(indices), d_p(indices),
+            csl::constant_s("d_" + getName() + "_" + std::to_string(10*p + p))
+            );
     return d_p;
 }
 
@@ -244,6 +253,28 @@ Particle GaugedGroup::buildGhost()
 AlgebraState GaugedGroup::getHighestWeight(const csl::Space* space) const
 {
     return group->getHighestWeight(space);
+}
+
+csl::Expr GaugedGroup::getEffectiveQuadraticCasimir(mty::Irrep const &rep) const
+{
+    auto defining = group->getAlgebra()->getDefiningRep();
+    csl::Expr res = normalization(getType())
+        * group->getAlgebra()->getQuadraticCasimir(rep.getHighestWeight())
+        / group->getAlgebra()->getQuadraticCasimir(defining.getHighestWeight())
+        * rep.getDim() / defining.getDim();
+    return res;
+}
+
+csl::Expr GaugedGroup::getCA() const
+{
+    Irrep adjoint = group->getAdjointRep();
+    return getEffectiveQuadraticCasimir(adjoint);
+}
+
+csl::Expr GaugedGroup::getCF() const
+{
+    auto defining = group->getAlgebra()->getDefiningRep();
+    return getEffectiveQuadraticCasimir(defining);
 }
 
 csl::Expr GaugedGroup::covariantDerivative(const csl::Expr& field,
@@ -460,11 +491,7 @@ void NonAbelianGauged::setGeneratorProperties(
     csl::Tensor delta_adj = adjointSpace->getDelta();
     csl::Tensor delta     = space->getDelta();
     // Quadratic Casimir
-    auto defining = group->getAlgebra()->getDefiningRep();
-    csl::Expr res = normalization(getType())
-        * group->getAlgebra()->getQuadraticCasimir(rep.getHighestWeight())
-        / group->getAlgebra()->getQuadraticCasimir(defining.getHighestWeight())
-        * rep.getDim() / defining.getDim();
+    csl::Expr res = getEffectiveQuadraticCasimir(rep);
     if (space == adjointSpace)
         res *= -1;
     T->addSelfContraction(
@@ -539,11 +566,8 @@ mty::gauge::GroupType SUGauged::getType() const
 
 void SUGauged::init_f_d_ABC()
 {
-    csl::Tensor d_ABC = csl::tensor_s("d_"+group->getName(),
-                                     {adjointSpace,
-                                      adjointSpace,
-                                      adjointSpace});
-    d_ABC->setFullySymmetric();
+    csl::Tensor d_ABC = getD(3);
+    d_ABC->addTraceLessNess(adjointSpace);
 
     const size_t N = group->getAlgebra()->getOrderL() + 1;
     if (N == 2) {
@@ -569,7 +593,6 @@ void SUGauged::init_f_d_ABC()
         f->setTensor(gell_mann::f);
         d_ABC->setTensor(gell_mann::d3);
     }
-    d[3] = d_ABC;
 }
 
 void SUGauged::setGeneratorProperties(

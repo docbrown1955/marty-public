@@ -46,6 +46,7 @@
 #include "diracology.h"
 #include "CKM.h"
 #include "colorSpace.h"
+#include "colorSimplification.h"
 #include "insertion.h"
 #include "expander.h"
 #include "gauge.h"

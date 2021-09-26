@@ -494,6 +494,10 @@ namespace csl {
             source << indent(2) << ");\n";
             if (diag.squaredMass) {
                 for (const auto &mass : diag.masses) {
+                    source << indent(1) << "if (0 > outputs." << mass << ") {\n";
+                    source << indent(2) << "std::cerr << \"Warning: negative squared mass for \" << ";
+                    source << '\"' << mass << '\"' << " << \".\\n\";\n";
+                    source << indent(1) << "}\n";
                     source << indent(1) << "outputs." << mass << " = ";
                     source << ((quadruple) ? "sqrtq(" : "std::sqrt(");
                     source << "outputs." << mass << ");\n";

@@ -551,6 +551,8 @@ class IndexStructure{
      */
     std::vector<Index>::const_iterator find(const Index& t_index) const;
 
+    std::vector<Index>::iterator find(const Index& t_index);
+
     /*!
      * \return The part of the vector \b index that contains free indices.
      */

@@ -1558,8 +1558,25 @@ bool TensorParent::hasContractionProperty(
         const Abstract* self,
         Expr_info B) const
 {
-    if (IsIndicialTensor(B) 
-            and B->getParent_info() == this
+    bool isBTensor = IsIndicialTensor(B);
+    csl::Parent_info BParent;
+    if (isBTensor)
+        BParent = B->getParent_info();
+    if (isBTensor) {
+        if ((BParent->getFullySymmetric() && getFullyAntiSymmetric())
+                || (BParent->getFullyAntiSymmetric() && getFullySymmetric())) 
+        {
+            size_t match = 0;
+            for (const auto &i : self->getIndexStructureView())
+                for (const auto &j : B->getIndexStructureView())
+                    if (i == j)
+                        ++match;
+            if (match > 1)
+                return true;
+        }
+    }
+    if (isBTensor 
+            and BParent == this
             and not selfContraction.empty()) {
         // We determine which contraction takes place between self and B
         // and see if it appears in the list of contractions that have special
@@ -1571,8 +1588,8 @@ bool TensorParent::hasContractionProperty(
                 return true;
         }
     }
-    else if (IsIndicialTensor(B)
-            and B->getParent_info() != this
+    else if (isBTensor
+            and BParent != this
             and not extContraction.empty()) {
         SelfContraction c(self, B);
         for (size_t i = 0; i != extContraction.size(); ++i) 
@@ -1586,6 +1603,23 @@ bool TensorParent::hasContractionProperty(
 
 Expr TensorParent::contraction(const Abstract* self, Expr_info B) const
 {
+    bool isBTensor = IsIndicialTensor(B);
+    csl::Parent_info BParent;
+    if (isBTensor)
+        BParent = B->getParent_info();
+    if (isBTensor) {
+        if ((BParent->getFullySymmetric() && getFullyAntiSymmetric())
+                || (BParent->getFullyAntiSymmetric() && getFullySymmetric())) 
+        {
+            size_t match = 0;
+            for (const auto &i : self->getIndexStructureView())
+                for (const auto &j : B->getIndexStructureView())
+                    if (i == j)
+                        ++match;
+            if (match > 1)
+                return CSL_0;
+        }
+    }
     // This function should be called only if the contraction property has
     // been verified with TensorParent::hasContractionProperty()
 
