@@ -128,14 +128,16 @@ qreal Edge::getCurvature() const
 
 void Edge::setCurvature(double t_curvature)
 {
-    double max = 1.99;
-    double step = 1/50.;
+    double max = 2;
+    bool less = std::fabs(2*t_curvature) < std::fabs(curvature);
     curvature = 2*t_curvature;
     if (curvature > max)
         curvature = max;
     else if (curvature < -max)
         curvature = -max;
-    if (std::abs(curvature) < 0.33*step*max)
+    if (less && std::fabs(curvature) < 0.1)
+        curvature = 0;
+    else if (std::fabs(curvature) < 0.01)
         curvature = 0;
     graph->renderer->modificationDone();
     update();
@@ -689,9 +691,8 @@ void Edge::mouseDoubleClickEvent(QGraphicsSceneMouseEvent */*event*/)
 void Edge::wheelEventCustom(int delta)
 {
     if (hasFocusInGraph()) {
-        double max = 1.99;
-        double step = 0.05;
-        setCurvature((curvature + delta / std::abs(delta) * step*max)/2);
+        double step = 0.002 * 1 / (1 + std::pow(std::fabs(curvature), 2));
+        setCurvature((curvature + delta * step)/2);
         if (label and label->data != "")
             setName(label->data);
         scene()->update();
