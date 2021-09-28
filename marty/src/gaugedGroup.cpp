@@ -246,6 +246,7 @@ Particle GaugedGroup::buildGhost()
     // Spin = 2 -> spin 1 particle
     Particle unique_ghost = ghostboson_s(mty::Particle(boson));
     ghost = std::dynamic_pointer_cast<GhostBoson>(unique_ghost);
+    boson->setGhostBoson(ghost);
 
     return unique_ghost;
 }
@@ -371,8 +372,9 @@ void GaugedGroup::initF()
 
 U1Gauged::U1Gauged(SemiSimpleGroup* t_group,
                    Gauge* gauge,
-                   std::string const& t_nameBoson)
-    :GaugedGroup(t_group, gauge, t_nameBoson, false)
+                   std::string const& t_nameBoson,
+                   bool addGhost)
+    :GaugedGroup(t_group, gauge, t_nameBoson, addGhost)
 {
 
 }
@@ -380,8 +382,9 @@ U1Gauged::U1Gauged(SemiSimpleGroup* t_group,
 U1Gauged::U1Gauged(SemiSimpleGroup* t_group,
                    Gauge* gauge,
                    std::string const& t_nameBoson,
+                   bool addGhost,
                    const csl::Expr& t_coupling)
-    :GaugedGroup(t_group, gauge, t_nameBoson, false, t_coupling)
+    :GaugedGroup(t_group, gauge, t_nameBoson, addGhost, t_coupling)
 {
 
 }
@@ -1268,10 +1271,10 @@ unique_ptr<GaugedGroup> createGaugedGroup(
         case group::Type::U1:
             if (coupling != CSL_UNDEF) 
                 gauged = make_unique<U1Gauged>(
-                        group, gauge, nameBoson, coupling);
+                        group, gauge, nameBoson, addGhost, coupling);
             else
                 gauged = make_unique<U1Gauged>(
-                        group, gauge, nameBoson);
+                        group, gauge, nameBoson, addGhost);
         break;
 
         case group::Type::SU:

@@ -25,7 +25,7 @@
             "name":"SU2L",
             "type":"SU",
             "dim":2,
-            "boson": { "name": "W" },
+            "boson": { "name": "W", "ghost": false },
             "coupling": { "name": "g_L" }
          },
          {

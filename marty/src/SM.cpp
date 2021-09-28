@@ -19,6 +19,7 @@
 #include "diracology.h"
 #include "mrtInterface.h"
 #include "fermionicField.h"
+#include "ghostField.h"
 
 using namespace mty::sm_input;
 using namespace csl;
@@ -87,8 +88,15 @@ void SM_Model::gaugeSymmetryBreaking()
 
     Particle W1   = GetParticle(*this, "W_1");
     Particle W2   = GetParticle(*this, "W_2");
-    Particle W_SM = GenerateSimilarParticle("W", W1);
+    Particle W_SM = W1->generateSimilar("W");
     W_SM->setSelfConjugate(false);
+
+    Particle cW1 = getParticle("c_W_1");
+    Particle cW2 = getParticle("c_W_2");
+    Particle cWp = W_SM->getGhostBoson();
+    cWp->setName("c_Wp ; c_{+}");
+    Particle cWm = ghostboson_s("c_Wm; c_{-}", W_SM, true);
+    W_SM->setConjugatedGhostBoson(cWm);
 
     csl::Index mu = MinkowskiIndex();
     csl::Index nu = MinkowskiIndex();
@@ -97,18 +105,18 @@ void SM_Model::gaugeSymmetryBreaking()
     csl::Expr F_W_p = W_SM({+mu,+nu});
     csl::Expr F_W_m = csl::GetComplexConjugate(W_SM({+mu, +nu}));
 
-    replace(
-            W1,
-            (W_p + W_m) / csl::sqrt_s(2));
-    replace(
-            W2,
-            CSL_I * (W_p - W_m) / csl::sqrt_s(2));
-    replace(
-            GetFieldStrength(W1),
-            (F_W_p + F_W_m) / csl::sqrt_s(2));
-    replace(
-            GetFieldStrength(W2),
-            CSL_I * (F_W_p - F_W_m) / csl::sqrt_s(2));
+    auto W1_expr = [](csl::Expr const &Wp, csl::Expr const &Wm) {
+        return (Wp + Wm) / csl::sqrt_s(2);
+    };
+    auto W2_expr = [](csl::Expr const &Wp, csl::Expr const &Wm) {
+        return CSL_I * (Wp - Wm) / csl::sqrt_s(2);
+    };
+    replace(W1, W1_expr(W_p, W_m));
+    replace(W2, W2_expr(W_p, W_m));
+    replace(W1->getFieldStrength(), W1_expr(F_W_p, F_W_m));
+    replace(W2->getFieldStrength(), W2_expr(F_W_p, F_W_m));
+    replace(cW1, W1_expr(cWp, cWm));
+    replace(cW2, W2_expr(cWp, cWm));
 }
 
 void SM_Model::HiggsVEVExpansion()
@@ -225,24 +233,19 @@ void SM_Model::replaceDownYukawa()
     csl::Index f_i = GetIndex(flavorSpace);
     csl::Index f_j = GetIndex(flavorSpace);
     csl::Index f_k = GetIndex(flavorSpace);
-    csl::Index f_l = GetIndex(flavorSpace);
 
     buildCKM(flavorSpace);
 
     replace(Yd({f_i, f_j}),
             csl::prod_s({factor,
                          V_CKM({f_i, f_k}), 
-                         M_d({f_k, f_l}),
-                         GetHermitianConjugate(V_CKM({f_l, f_j}),
-                                               flavorSpace)}, 
+                         M_d({f_k, f_j})}, 
                          true));
 
     mty::Particle D_L = getParticle("D_L");
-    mty::Particle D_R = getParticle("D_R");
     csl::Index a1  = DiracIndex();
     csl::Index A   = GaugeIndex(*this, "SU3c", D_L);
     replace(D_L({f_j, A, a1}), V_CKM({f_j, f_k}) * D_L({f_k, A, a1}));
-    replace(D_R({f_i, A, a1}), V_CKM({f_i, f_j}) * D_R({f_j, A, a1}));
 }
 
 void SM_Model::flavorSymmetryBreaking()
@@ -278,6 +281,63 @@ void SM_Model::adjust()
     getParticle("Z")->setMass(M_Z);
     promoteToGoldstone("Gp", "W");
     promoteToGoldstone("G0", "Z");
+    addGaugeFixingTerms();
+}
+
+void SM_Model::addGaugeFixingTerms()
+{
+    using namespace sm_input;
+
+    auto cc = [](csl::Expr const &expr) { return GetComplexConjugate(expr); };
+
+    csl::Expr cosW = csl::cos_s(theta_W);
+    csl::Expr g = e_em / csl::sin_s(theta_W);
+    Particle h0 = getParticle("h0");
+    Particle G0 = getParticle("G0");
+    Particle Gp = getParticle("Gp");
+    csl::Expr ap = csl::constant_s("ap");
+    csl::Expr am = csl::constant_s("am");
+    csl::Expr az = csl::constant_s("az");
+    csl::Expr aa = csl::constant_s("aa");
+    csl::Expr delta_G0 = -g/2 * (am*Gp + ap*cc(Gp))
+        + g/(2*cosW) * az * (v + h0);
+    csl::Expr delta_Gp = -CSL_I*g/2 * (v + h0 + CSL_I*G0)*ap
+        - CSL_I*g*csl::cos_s(2*theta_W)/(2*cosW) * Gp*az
+        + CSL_I*e_em*Gp*aa;
+    csl::Expr delta_Gm = cc(Replaced(delta_Gp, ap, am));
+    Particle W = getParticle("W");
+    Particle Z = getParticle("Z");
+    Particle A = getParticle("A");
+    csl::Expr xi_W = W->getGaugeChoice().getXi();
+    csl::Expr xi_Z = Z->getGaugeChoice().getXi();
+
+    csl::Expr dF_Wp = -CSL_I*M_W*xi_W * delta_Gp;
+    csl::Expr dF_Wm =  CSL_I*M_W*xi_W * delta_Gm;
+    csl::Expr dF_Z  = -M_Z*xi_Z * delta_G0;
+
+    csl::Expr c_A  = getParticle("c_A");
+    csl::Expr c_Wp = getParticle("c_Wp");
+    csl::Expr c_Wm = getParticle("c_Wm");
+    csl::Expr c_Z  = getParticle("c_Z");
+    for (const auto &[c1, delta] : std::array {
+            std::pair {c_Z,  dF_Z},
+            std::pair {c_Wp, dF_Wp},
+            std::pair {c_Wm, dF_Wm}
+            }) 
+    {
+        for (const auto &[a, c2] : std::array {
+                std::pair {aa, c_A},
+                std::pair {az, c_Z},
+                std::pair {ap, c_Wp},
+                std::pair {am, c_Wm}
+                })
+        {
+            csl::Expr term = delta->derive(a.get()).value();
+            if (term != CSL_0) {
+                addLagrangianTerm(cc(c1) * term * c2);
+            }
+        }
+    }
 }
 
 } // End of namespace mty

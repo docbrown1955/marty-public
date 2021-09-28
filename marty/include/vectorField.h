@@ -182,6 +182,11 @@ class VectorBoson: public BaseVectorBoson {
      */
     std::shared_ptr<GhostBoson>   ghost;
     /**
+     * @brief Pointer to the conjugated GhostBoson associated to the vector, if there 
+     * is one (for example for the W boson that has two ghosts).
+     */
+    std::shared_ptr<GhostBoson>   ghost_c;
+    /**
      * @brief Pointer to the FieldStrength associated to the vector.     
      */    
     std::shared_ptr<FieldStrength> fieldStrength;
@@ -197,6 +202,8 @@ class VectorBoson: public BaseVectorBoson {
      */
     template<class ...Args>
     inline VectorBoson(Args&& ...args);
+
+    void setName(std::string t_name) override;
 
     bool isSameSpecies(QuantumFieldParent const *other) const override;
 
@@ -242,7 +249,9 @@ class VectorBoson: public BaseVectorBoson {
      * @return The ghost associated with the vector if there is one.
      * @return nullptr else.
      */
-    Particle getGhost() const override;
+    Particle getGhostBoson() const override;
+
+    Particle getConjugatedGhostBoson() const override;
 
     /**
      * @brief For a vector boson in a non abelian gauged group, returns the 
@@ -272,6 +281,8 @@ class VectorBoson: public BaseVectorBoson {
      * @param goldstone Golstone boson to associate.
      */
     void setGhostBoson(Particle const& ghost) override;
+
+    void setConjugatedGhostBoson(Particle const& ghost) override;
 
     void setGaugeChoice(gauge::Type type) override;
 
@@ -314,6 +325,11 @@ class VectorBoson: public BaseVectorBoson {
     void initPropagator() override;
 
     void updateBrokenFieldStrength(csl::Space const *space);
+    void updateBrokenGhost(
+            csl::Space const *space, 
+            std::shared_ptr<GhostBoson> const &local_ghost
+            );
+    void updateBrokenGoldstone(csl::Space const *space);
 };
 
 class GoldstoneBoson;
@@ -420,6 +436,7 @@ template<class ...Args>
 inline VectorBoson::VectorBoson(Args&& ...args)
     :BaseVectorBoson(std::forward<Args>(args)...)
 {
+    choice.setName("xi_" + getName());
     fieldStrength = csl::make_shared<FieldStrength>(this);
     addRelative(fieldStrength);
     initPropagator();

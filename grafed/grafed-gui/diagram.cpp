@@ -222,9 +222,9 @@ QPointF Diagram::getEdgeLabelPos(
     }
     QPointF mean = (posI + posJ) / 2;
     QPointF perpdir{-dir.y(), +dir.x()};
-    if (lEdge.curve != 0) {
+    if (std::fabs(lEdge.curve) > 0.005) {
         double L = edge->length();
-        double c = edge->getCurvature() * edge->length();
+        double c = edge->getCurve();// * edge->length();
         double offset = -L*(1-std::sqrt(1-c*c/4))/c;
         mean += offset * perpdir;
     }
@@ -1041,7 +1041,7 @@ void Diagram::refreshLinker()
                     edges[k]->getParticleType()),
                 name,
                 edges[k]->getSign(),
-                edges[k]->getCurve(),
+                edges[k]->getCurve()/2,
                 edges[k]->isFlipped(),
                 fromQColor(edges[k]->getColor()),
                 edges[k]->getLineWidth()

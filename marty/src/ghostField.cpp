@@ -32,9 +32,17 @@ GhostBoson::GhostBoson(
     :ScalarBoson(t_name, t_vectorBoson->getGaugeIrrep()),
     vectorBoson(t_vectorBoson)
 {
-    setLatexName("c_" + t_vectorBoson->getLatexName());
     setMass(t_vectorBoson->getMass() 
           * csl::sqrt_s(t_vectorBoson->getXiGauge()));
+    setDrawType(drawer::ParticleType::Ghost);
+}
+
+GhostBoson::GhostBoson(
+        std::string const &t_name,
+        GaugeIrrep  const &rep
+        )
+    :ScalarBoson(t_name, rep)
+{
     setDrawType(drawer::ParticleType::Ghost);
 }
 
@@ -66,7 +74,7 @@ Particle GhostBoson::getVectorBoson() const
 
 Particle GhostBoson::generateSimilar(std::string const& t_name) const
 {
-    return csl::make_shared<GhostBoson>(t_name, vectorBoson.lock());
+    return csl::make_shared<GhostBoson>(t_name, getGaugeIrrep());
 }
 
 csl::Expr GhostBoson::getKineticTerm(csl::Tensor & X)
@@ -86,26 +94,38 @@ int GhostBoson::getNDegreesOfFreedom() const
 
 Particle ghostboson_s(
         std::string                 const& name,
-        std::shared_ptr<VectorBoson> const& t_vectorBoson)
+        std::shared_ptr<VectorBoson> const& t_vectorBoson,
+        bool                                conjugated
+        )
 {
     std::shared_ptr<GhostBoson> goldstone = 
         csl::make_shared<GhostBoson>(name, t_vectorBoson);
-    t_vectorBoson->setGhostBoson(goldstone);
+    if (conjugated)
+        t_vectorBoson->setConjugatedGhostBoson(goldstone);
+    else
+        t_vectorBoson->setGhostBoson(goldstone);
     return goldstone;
 }
 
 Particle ghostboson_s(
-        std::shared_ptr<VectorBoson> const& t_vectorBoson)
+        std::shared_ptr<VectorBoson> const& t_vectorBoson,
+        bool                                conjugated
+        )
 {
     std::shared_ptr<GhostBoson> goldstone = 
         csl::make_shared<GhostBoson>(t_vectorBoson);
-    t_vectorBoson->setGhostBoson(goldstone);
+    if (conjugated)
+        t_vectorBoson->setConjugatedGhostBoson(goldstone);
+    else
+        t_vectorBoson->setGhostBoson(goldstone);
     return goldstone;
 }
 
 Particle ghostboson_s(
         std::string const& name,
-        Particle    const& t_vectorBoson)
+        Particle    const& t_vectorBoson,
+        bool               conjugated
+        )
 {
     HEPAssert(IsOfType<VectorBoson>(t_vectorBoson)
             or IsOfType<GaugeBoson>(t_vectorBoson),
@@ -113,18 +133,23 @@ Particle ghostboson_s(
             "Goldstone boson must be created from a vector boson, "
             + toString(t_vectorBoson->getName()) + " given instead.");
     return ghostboson_s(name,
-                            ConvertToShared<VectorBoson>(t_vectorBoson));
+                        ConvertToShared<VectorBoson>(t_vectorBoson),
+                        conjugated);
 }
 
 Particle ghostboson_s(
-        Particle const& t_vectorBoson)
+        Particle const& t_vectorBoson,
+        bool            conjugated
+        )
 {
     HEPAssert(IsOfType<VectorBoson>(t_vectorBoson)
             or IsOfType<GaugeBoson>(t_vectorBoson),
             mty::error::TypeError,
             "Goldstone boson must be created from a vector boson, "
             + toString(t_vectorBoson->getName()) + " given instead.");
-    return ghostboson_s(ConvertToShared<VectorBoson>(t_vectorBoson));
+    return ghostboson_s(
+            ConvertToShared<VectorBoson>(t_vectorBoson),
+            conjugated);
 }
 
 

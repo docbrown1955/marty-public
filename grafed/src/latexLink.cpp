@@ -82,7 +82,7 @@ void LatexLinker::setParticlesType(size_t       i,
                                    ParticleType type,
                                    std::string const& t_name,
                                    bool               sign,
-                                   int                curve,
+                                   double             curve,
                                    bool               flipped,
                                    Color              color,
                                    int                lineWidth)
@@ -291,17 +291,17 @@ void LatexLinker::getFlippedEdgeLabels() const
     std::vector<Point> labelPositions;
     labelPositions.reserve(edges.size());
 
-    auto getPosLabel = [&](size_t i, size_t j, int curve, bool flipped)
+    auto getPosLabel = [&](size_t i, size_t j, double curve, bool flipped)
     {
         Point A = graph.nodes[i];
         Point B = graph.nodes[j];
         Point diff = B - A;
         Point dirLeft(-diff.y, diff.x);
-        if (curve == 1 or curve == 3) {
+        if (curve > 0.45) {
             // Left curve
             diff += dirLeft;
         }
-        else if (curve == 2 or curve == 4) {
+        else if (curve < -0.45) {
             diff -= dirLeft;
         }
         int sign = (!flipped) ? 1 : -1;
@@ -340,6 +340,9 @@ void LatexLinker::getFlippedEdgeLabels() const
             // if (e.curve == 2)
             //     e.curve = 0;
         }
+    const static std::array<double, 5> curvatureDef = {
+        0, 1, -1, 0.5, -0.5
+    };
     for (const auto &[pos, m] : multiplicity) {
         if (m < 2)
             continue;
@@ -359,10 +362,10 @@ void LatexLinker::getFlippedEdgeLabels() const
             int start = (m == 3 or m == 5) ? 0 : 1;
             for (auto &e : edges) {
                 if ((e.i == i and e.j == j)) {
-                    e.curve = start++;
+                    e.curve = curvatureDef[start++];
                 }
                 else if ((e.i == j and e.j == i)) {
-                    e.curve = start++;
+                    e.curve = curvatureDef[start++];
                 }
             }
         }
@@ -552,7 +555,7 @@ void LatexLinker::saveToNode(JSON::Node *node) const
         }
         auto nameLeaf  = JSON::Leaf<std::string>::make("name", correct_name);
         auto flipLeaf  = JSON::Leaf<int>::make("flip", e.flipped);
-        auto curveLeaf = JSON::Leaf<int>::make("curve", e.curve);
+        auto curveLeaf = JSON::Leaf<double>::make("curve", e.curve);
         auto signLeaf  = JSON::Leaf<int>::make("sign", e.sign xor sign);
         auto colorLeaf = JSON::Leaf<std::string>::make(
                 "color", e.color.toStr());
@@ -638,12 +641,12 @@ void LatexLinker::loadFromNode(JSON::Node *node)
     JSON::Node* edgesNode = JSON::Parser::parseNode(node, "edges");
     for (const auto& e : *edgesNode) {
         
-        int i    = *JSON::Parser::parseArgument<int>(e, "i", true);
-        int j    = *JSON::Parser::parseArgument<int>(e, "j", true);
-        int type = *JSON::Parser::parseArgument<int>(e, "type", true);
+        int i       = *JSON::Parser::parseArgument<int>(e, "i", true);
+        int j       = *JSON::Parser::parseArgument<int>(e, "j", true);
+        int type    = *JSON::Parser::parseArgument<int>(e, "type", true);
         int flipped = *JSON::Parser::parseArgument<int>(e, "flip", true);
-        int curve = *JSON::Parser::parseArgument<int>(e, "curve", true);
-        int sign = *JSON::Parser::parseArgument<int>(e, "sign", true);
+        double curve = *JSON::Parser::parseArgument<double>(e, "curve", true);
+        int sign    = *JSON::Parser::parseArgument<int>(e, "sign", true);
         std::string name 
             = *JSON::Parser::parseArgument<std::string>(e, "name", true);
         std::optional<std::string> color

@@ -985,14 +985,14 @@ void MSSM_Model::breakSU2LGaugeSymmetry()
     breakGaugeSymmetry(
             "L",
 
-            {"Hu", "Hd", "W", "c_A_L", 
+            {"Hu", "Hd", "W", "c_W", 
             "Q_L", "L_L", 
             "sHu", "sHd", "sW", 
             "sQ_L", "sL_L"},
 
             {{"Hup", "Hu0"},
             {"Hd0", "Hdm"},
-            {"W1", "W2", "W3"},
+            {"W_1", "W_2", "W_3"},
             {"c_W_1", "c_W_2", "c_W_3"},
             {"U_L", "D_L"},
             {"Nu_L  ; \\Nu_L", "E_L"},
@@ -1009,10 +1009,14 @@ void MSSM_Model::breakSU2LGaugeSymmetry()
 }
 void MSSM_Model::replaceWBoson()
 {
-    Particle W1   = GetParticle(*this, "W1");
-    Particle W2   = GetParticle(*this, "W2");
-    Particle W_SM = GenerateSimilarParticle("W; W^+", W1);
-    SetSelfConjugate(W_SM, false);
+    Particle W1   = GetParticle(*this, "W_1");
+    Particle W2   = GetParticle(*this, "W_2");
+    Particle W_SM = W1->generateSimilar("W");
+    W_SM->setSelfConjugate(false);
+
+    Particle cW1 = getParticle("c_W_1");
+    Particle cW2 = getParticle("c_W_2");
+    Particle cWp = W_SM->getGhostBoson();
 
     csl::Index mu = MinkowskiIndex();
     csl::Index nu = MinkowskiIndex();
@@ -1021,18 +1025,18 @@ void MSSM_Model::replaceWBoson()
     csl::Expr F_W_p = W_SM({+mu,+nu});
     csl::Expr F_W_m = csl::GetComplexConjugate(W_SM({+mu, +nu}));
 
-    Replaced(*this,
-            W1,
-            (W_p + W_m) / csl::sqrt_s(2));
-    Replaced(*this,
-            W2,
-            CSL_I * (W_p - W_m) / csl::sqrt_s(2));
-    Replaced(*this,
-            GetFieldStrength(W1),
-            (F_W_p + F_W_m) / csl::sqrt_s(2));
-    Replaced(*this,
-            GetFieldStrength(W2),
-            CSL_I * (F_W_p - F_W_m) / csl::sqrt_s(2));
+    auto W1_expr = [](csl::Expr const &Wp, csl::Expr const &Wm) {
+        return (Wp + Wm) / csl::sqrt_s(2);
+    };
+    auto W2_expr = [](csl::Expr const &Wp, csl::Expr const &Wm) {
+        return CSL_I * (Wp - Wm) / csl::sqrt_s(2);
+    };
+    replace(W1, W1_expr(W_p, W_m));
+    replace(W2, W2_expr(W_p, W_m));
+    replace(W1->getFieldStrength(), W1_expr(F_W_p, F_W_m));
+    replace(W2->getFieldStrength(), W2_expr(F_W_p, F_W_m));
+    replace(cW1, W1_expr(cWp, csl::GetComplexConjugate(cWp)));
+    replace(cW2, W2_expr(cWp, csl::GetComplexConjugate(cWp)));       
 
     Particle s_W1   = GetParticle(*this, "sW1");
     Particle s_W2   = GetParticle(*this, "sW2");
@@ -1044,13 +1048,10 @@ void MSSM_Model::replaceWBoson()
     W_p = s_W(alpha);
     W_m = s_Wc(alpha);
 
-    Replaced(*this,
-            s_W1,
-            (W_p + W_m) / csl::sqrt_s(2));
-    Replaced(*this,
-            s_W2,
-            CSL_I * (W_p - W_m) / csl::sqrt_s(2));
+    replace(s_W1, W1_expr(W_p, W_m));
+    replace(s_W2, W2_expr(W_p, W_m));
 }
+
 void MSSM_Model::expandAroundVEVs()
 {
     v_h = sm_input::v;
@@ -1096,7 +1097,7 @@ void MSSM_Model::expandAroundVEVs()
 void MSSM_Model::diagonalize2By2Matrices()
 {
     diagonalizeSymbolically("B");
-    renameParticle("W3", "Z");
+    renameParticle("W_3", "Z");
     renameParticle("B", "A");
 
     csl::Expr mu_2 = cc(mu_h) * mu_h;

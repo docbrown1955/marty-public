@@ -72,8 +72,8 @@ public:
     QColor getColor() const;
     QColor getPaintColor() const;
     qreal length() const;
-    int getCurve() const;
-    void setCurve(int t_curve);
+    double getCurve() const;
+    void setCurve(double t_curve);
     qreal getCurvature() const;
     void setCurvature(double curvature);
 

@@ -123,7 +123,7 @@ unique_ptr<Gauge> JSONToHEP::readGauge(JSON::Node* tree)
             JSON::Parser::parseArgument<bool>(bosonNode, "ghost");
 
         std::string nameBoson = nameBoson_opt.value_or("");
-        bool        addGhost  = addGhost_opt.value_or(type != group::Type::U1);
+        bool        addGhost  = addGhost_opt.value_or(true);
         int dim = (optDim) ? optDim.value() : -1;
         unique_ptr<SemiSimpleGroup> g = createGroup(type, name, dim);
         if (couplingNode)

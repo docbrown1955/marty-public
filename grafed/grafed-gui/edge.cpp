@@ -65,36 +65,14 @@ QString Edge::getName() const
     return (label) ? label->data : "";
 }
 
-qint32 Edge::getCurve() const
+double Edge::getCurve() const
 {
-    if (curvature == 0.)
-        return 0;
-
-    double max = 1.99;
-    if (std::abs(curvature) > 0.95 * max)
-        return (curvature > 0) ? 1 : 2;
-    return (curvature > 0) ? 3 : 4;
+    return curvature;
 }
 
-void Edge::setCurve(int t_curve)
+void Edge::setCurve(double t_curve)
 {
-    switch(t_curve) {
-    case 1:
-        setCurvature(1);
-        break;
-    case 2:
-        setCurvature(-1);
-        break;
-    case 3:
-        setCurvature(0.5);
-        break;
-    case 4:
-        setCurvature(-0.5);
-        break;
-    default:
-        setCurvature(0);
-        break;
-    }
+    setCurvature(t_curve);
 }
 
 const Node* Edge::getFirst() const
@@ -213,7 +191,7 @@ void Edge::setName(QString const&name)
     lEdge.i = graph->getPosNode(first);
     lEdge.j = graph->getPosNode(second);
     lEdge.flipped = flippedLabel;
-    lEdge.curve = getCurve();
+    lEdge.curve = getCurve() / 2;
     graph->addEdgeLabel(this, lEdge, name);
     graph->renderer->modificationDone();
 }

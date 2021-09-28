@@ -61,6 +61,10 @@ class GhostBoson: public ScalarBoson {
     GhostBoson(std::string                  const& t_name,
                std::shared_ptr<VectorBoson> const& t_vectorBoson);
 
+    GhostBoson(
+            std::string const& t_name,
+            mty::GaugeIrrep const &rep);
+
     /**
      * @brief Prints the MARTY (C++) code defining the Ghost boson. 
      *
@@ -134,12 +138,15 @@ class GhostBoson: public ScalarBoson {
  *
  * @param name          Name of the Ghost.
  * @param t_vectorBoson Associated vector boson.
+ * \param conjugated    True if the ghost is a conjugated ghost (i.e. a ghost
+ * is already defined, such as c+ and c- for W in the SM)
  *
  * @return The newly created Ghost boson.
  */
 Particle ghostboson_s(
         std::string                  const& name,
-        std::shared_ptr<VectorBoson> const& t_vectorBoson);
+        std::shared_ptr<VectorBoson> const& t_vectorBoson,
+        bool                                conjugated = false);
 
 /**
  * @brief Creates a ghost boson.
@@ -148,23 +155,29 @@ Particle ghostboson_s(
  * GhostBoson::GhostBoson().
  *
  * @param t_vectorBoson Associated vector boson.
+ * \param conjugated    True if the ghost is a conjugated ghost (i.e. a ghost
+ * is already defined, such as c+ and c- for W in the SM)
  *
  * @return The newly created Ghost boson.
  */
 Particle ghostboson_s(
-        std::shared_ptr<VectorBoson> const& t_vectorBoson);
+        std::shared_ptr<VectorBoson> const& t_vectorBoson,
+        bool                                conjugated = false);
 
 /**
  * @brief Creates a ghost boson.
  *
  * @param name          Name of the Ghost.
  * @param t_vectorBoson Associated vector boson, **must be of type VectorBoson**.
+ * \param conjugated    True if the ghost is a conjugated ghost (i.e. a ghost
+ * is already defined, such as c+ and c- for W in the SM)
  *
  * @return The newly created Ghost boson.
  */
 Particle ghostboson_s(
         std::string const& name,
-        Particle    const& t_vectorBoson);
+        Particle    const& t_vectorBoson,
+        bool               conjugated = false);
 
 /**
  * @brief Creates a ghost boson.
@@ -173,11 +186,14 @@ Particle ghostboson_s(
  * GhostBoson::GhostBoson().
  *
  * @param t_vectorBoson Associated vector boson, **must be of type VectorBoson**.
+ * \param conjugated    True if the ghost is a conjugated ghost (i.e. a ghost
+ * is already defined, such as c+ and c- for W in the SM)
  *
  * @return The newly created Ghost boson.
  */
 Particle ghostboson_s(
-        Particle const& t_vectorBoson);
+        Particle const& t_vectorBoson,
+        bool            conjugated = false);
 
 
 }

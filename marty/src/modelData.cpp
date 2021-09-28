@@ -774,7 +774,7 @@ void ModelData::removeParticle(mty::Particle const &part)
         if (particles[i] == part) {
             auto left  = particles[i]->getWeylFermion(Chirality::Left);
             auto right = particles[i]->getWeylFermion(Chirality::Right);
-            auto ghost = particles[i]->getGhost();
+            auto ghost = particles[i]->getGhostBoson();
             auto fieldStrength = particles[i]->getFieldStrength();
             particles.erase(particles.begin() + i);
             if (left)
@@ -1529,7 +1529,32 @@ std::ostream &operator<<(
         out << "  -> " << part->getName();
         if (not part->isSelfConjugate())
             out << "(*)";
-        out << ": \n";
+        out << "  [ ";
+        if (part->getFieldStrength()) {
+            out << part->getFieldStrength()->getName() << " ";
+        }
+        if (part->getGhostBoson()) {
+            out << part->getGhostBoson()->getName() << " ";
+        }
+        if (part->getConjugatedGhostBoson()) {
+            out << part->getConjugatedGhostBoson()->getName() << " ";
+        }
+        if (part->getGoldstoneBoson()) {
+            out << part->getGoldstoneBoson()->getName() << " ";
+        }
+        if (part->getVectorBoson()) {
+            out << part->getVectorBoson()->getName() << " ";
+        }
+        if (part->getWeylFermion(Chirality::Left)) {
+            out << part->getWeylFermion(Chirality::Left)->getName() << " ";
+        }
+        if (part->getWeylFermion(Chirality::Right)) {
+            out << part->getWeylFermion(Chirality::Right)->getName() << " ";
+        }
+        if (part->getDiracParent()) {
+            out << part->getDiracParent()->getName() << " ";
+        }
+        out << "] : \n";
         out << "    mass: " << part->getMass() << "\n";
         out << "    spin: " << (csl::int_s(part->getSpinDimension()-1)/2);
         out << "\n    irrep: " << part->getGaugeIrrep() << '\n';

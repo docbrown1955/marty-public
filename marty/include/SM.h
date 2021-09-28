@@ -48,6 +48,7 @@ namespace mty {
         void replaceDownYukawa();
         void flavorSymmetryBreaking();
         void adjust();
+        void addGaugeFixingTerms();
     };
 
 } // End of namespace mty

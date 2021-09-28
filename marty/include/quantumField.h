@@ -502,15 +502,6 @@ class QuantumFieldParent: public csl::TensorFieldParent {
 
     /**
      * @brief For a vector boson in a non abelian gauged group, returns the 
-     * associated ghost boson.
-     *
-     * @return The ghost associated with the vector if there is one.
-     * @return nullptr else.
-     */
-    virtual Particle getGhost() const;
-
-    /**
-     * @brief For a vector boson in a non abelian gauged group, returns the 
      * associated Goldstone boson.
      *
      * @return The Goldstone associated with the vector if there is one.
@@ -613,6 +604,8 @@ class QuantumFieldParent: public csl::TensorFieldParent {
      */
     virtual Particle getGhostBoson() const;
 
+    virtual Particle getConjugatedGhostBoson() const;
+
     /*!
      * \brief For a GaugeBoson, sets the associated GoldstoneBoson.
      * \details After the call of this function, the link os created and the 
@@ -641,6 +634,8 @@ class QuantumFieldParent: public csl::TensorFieldParent {
      * the curent gauge boson.
      */
     virtual void setGhostBoson(Particle const& ghost);
+
+    virtual void setConjugatedGhostBoson(Particle const& ghost);
 
     /*!
      * \brief Tells if the particle has a FieldStrength.

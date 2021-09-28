@@ -156,24 +156,36 @@ csl::Expr ExponentialFactor(csl::Tensor    & X,
     return csl::exp_s(CSL_I * P(+mu) * (Y(mu) - X(mu)));
 }
 
-csl::Expr ReplaceXiGauge(csl::Expr const &initialMass)
+static bool ReplaceXiGauge_impl(csl::Expr &expr)
 {
-    bool simplified = false;
-    csl::Expr newMass = csl::DeepCopy(initialMass);
-    csl::ForEachLeaf(newMass, [&](csl::Expr &sub) {
-        if (sub->getName() == "xi") {
+    bool found = false;
+    csl::ForEachLeaf(expr, [&](csl::Expr &sub) {
+        if (sub->getName()[0] == 'x' && sub->getName()[1] == 'i') {
             csl::Expr value = csl::Evaluated(sub, csl::eval::literal);
             if (value != CSL_UNDEF) {
                 sub = value;
-                simplified = true;
+                found = true;
+            }
+        }
+        else if (csl::Abbrev::isAnAbbreviation(sub)) {
+            csl::Expr encaps = csl::DeepCopy(sub->getParent()->getEncapsulated());
+            if (ReplaceXiGauge_impl(encaps)) {
+                sub = csl::Abbrev::makeAbbreviation(encaps);
+                found = true;
             }
         }
     });
+    return found;
+}
 
-    if (simplified) {
-        return csl::DeepRefreshed(newMass);
+csl::Expr ReplaceXiGauge(csl::Expr const &init)
+{
+    csl::Expr res = csl::DeepCopy(init);
+    bool found = ReplaceXiGauge_impl(res);
+    if (found) {
+        return csl::DeepRefreshed(res);
     }
-    return newMass;
+    return res;
 }
 
 csl::Expr StandardDenominator(csl::Tensor    & P,

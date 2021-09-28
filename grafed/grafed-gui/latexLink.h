@@ -119,7 +119,7 @@ class LatexLinker {
         ParticleType type = ParticleType::Scalar;
         std::string  name = "";
         int          sign = true;
-        int          curve = 0;
+        double       curve = 0;
         bool         flipped = false;
         Color        color = Black;
         int          lineWidth = 3;
@@ -156,7 +156,7 @@ class LatexLinker {
                           ParticleType type = ParticleType::Scalar,
                           std::string const& t_name = "",
                           bool               sign = true,
-                          int                curve = 0,
+                          double             curve = 0,
                           bool               flipped = false,
                           Color              color = Black,
                           int                lineWidth = 3);

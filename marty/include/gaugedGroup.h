@@ -117,6 +117,10 @@ class Choice {
         return choice;
     }
 
+    void setName(std::string const &t_name) {
+        xi->setName(t_name);
+    }
+
     void setGauge(Type t_choice)
     {
         choice = t_choice;
@@ -324,11 +328,13 @@ class U1Gauged: public GaugedGroup {
 
     U1Gauged(SemiSimpleGroup* t_group,
              Gauge* gauge,
-             std::string const& nameBoson);
+             std::string const& nameBoson,
+             bool addGhost);
 
     U1Gauged(SemiSimpleGroup* t_group,
              Gauge* gauge,
              std::string const& nameBoson,
+             bool addGhost,
              const csl::Expr& t_coupling);
 
     ~U1Gauged(){};

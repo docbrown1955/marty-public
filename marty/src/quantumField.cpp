@@ -291,11 +291,6 @@ Particle QuantumFieldParent::getDiracParent() const
     return nullptr;
 }
 
-Particle QuantumFieldParent::getGhost() const 
-{
-    return nullptr;
-}
-
 Particle QuantumFieldParent::getGoldstone() const 
 {
     return nullptr;
@@ -435,6 +430,11 @@ Particle QuantumFieldParent::getGhostBoson() const
     return nullptr;
 }
 
+Particle QuantumFieldParent::getConjugatedGhostBoson() const
+{
+    return nullptr;
+}
+
 void QuantumFieldParent::setGoldstoneBoson(Particle const& /*goldstone*/)
 {
     CallHEPError(mty::error::NotImplementedError,
@@ -442,6 +442,12 @@ void QuantumFieldParent::setGoldstoneBoson(Particle const& /*goldstone*/)
 }
 
 void QuantumFieldParent::setGhostBoson(Particle const& /*goldstone*/)
+{
+    CallHEPError(mty::error::NotImplementedError,
+            "Setting ghost fermion not defined for " + std::string(getName()));
+}
+
+void QuantumFieldParent::setConjugatedGhostBoson(Particle const& /*goldstone*/)
 {
     CallHEPError(mty::error::NotImplementedError,
             "Setting ghost fermion not defined for " + std::string(getName()));
@@ -1039,7 +1045,7 @@ csl::Expr QuantumFieldParent::operator()(Index           polarization,
 
 QuantumFieldParent::operator csl::Expr()
 {
-    HEPAssert(getParticleType() == ParticleType::ScalarBoson,
+    HEPAssert(dynamic_cast<ScalarBoson const*>(this),
             mty::error::TypeError,
             "You may not convert a " + toString(getParticleType())
             + " (" + toString(name) + ") into an expression without giving "
@@ -1048,7 +1054,8 @@ QuantumFieldParent::operator csl::Expr()
             mty::error::TypeError,
             "You may not convert a non trivial representation "
             " (" + toString(name) + ") into an expression without giving "
-            "indices. Please use operator().");
+            "indices. Please use operator(). Representation is "
+            + toString(getGaugeIrrep()) + ".");
     return operator()();
 }
 
@@ -1095,6 +1102,9 @@ void QuantumFieldParent::breakParticle(
         std::vector<std::string> const &newNames
         )
 {
+    applyToRelatives([&](Particle p) { 
+        p->breakParticle(brokenGroup, newNames); 
+    });
     if (!brokenParts.empty())
         return;
     std::vector<mty::Particle> newParticles;

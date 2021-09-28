@@ -2065,6 +2065,18 @@ bool ModelBuilder::diagonalizeExplicitely(
             replace(content[i]->getFieldStrength(), replacement[i]);
         }
     }
+    if (newFields[0]->getGhostBoson()) {
+        csl::Expr newParts = csl::vector_s(newFields.size());
+        std::vector<csl::Index> indices 
+            = newFields[0]->getGhostBoson()->getFullSetOfIndices();
+        for (size_t i = 0; i != newFields.size(); ++i)
+            newParts[i] = newFields[i]->getGhostBoson()(indices);
+
+        csl::Expr replacement = transfer->dot(newParts);
+        for (size_t i = 0; i != replacement->size(); ++i) {
+            replace(content[i]->getGhostBoson(), replacement[i]);
+        }
+    }
     clearDependencies(L.mass, 
     [&](Lagrangian::TermType const &term) {
         for (const auto &f : newFields)
