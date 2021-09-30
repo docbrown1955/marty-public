@@ -53,16 +53,17 @@ protected:
 
     mty::Particle G;
     mty::Particle F_G;
+    mty::Particle c_G;
     mty::Particle W;
     mty::Particle F_W;
+    mty::Particle c_Wp;
+    mty::Particle c_Wm;
     mty::Particle A;
     mty::Particle F_A;
+    mty::Particle c_A;
     mty::Particle Z;
     mty::Particle F_Z;
-    mty::Particle c_A_C;
-    mty::Particle c_W_1;
-    mty::Particle c_W_2;
-    mty::Particle c_W_3;
+    mty::Particle c_Z;
     mty::Particle A0;
     mty::Particle Hp;
     mty::Particle h0;
@@ -184,7 +185,7 @@ protected:
     csl::Expr M_W;
     csl::Expr beta;
     csl::Expr M_A;
-    csl::Expr M_Z;
+    csl::Expr m_Z;
     csl::Expr m_A0;
     csl::Expr m_Hp;
     csl::Expr m_Gp;

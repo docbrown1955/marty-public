@@ -19,8 +19,9 @@
 #include "vectorField.h"
 #include "scalarField.h"
 #include "mrtInterface.h"
+#include "SM.h"
 #include "CKM.h"
-#include "flhaReader.h"
+#include "ghostField.h"
 
 namespace mty {
 
@@ -35,12 +36,10 @@ namespace mty {
 ///////////////////////////////////////////////////
 
 MSSM_Model::MSSM_Model(
-        std::string const &t_flhafile,
         std::string const &t_saveFile,
         bool               init)
     :mty::Model(),
     mty::MSSM_Data(),
-    flhaFile(t_flhafile),
     saveFile(t_saveFile)
 {
     if (init) {
@@ -404,9 +403,10 @@ void MSSM_Model::initGauginoInteractions(
         csl::Expr ferm = (isLeft) ? fermion(f_index) : cc(fermion(f_index));
         csl::Expr connexion = (isLeft) ? 
             dirac4.C_matrix({a, b}) : -dirac4.getDelta()({a, b});
+        csl::Expr generator = isLeft ? T({A, i, j}) : T({A, j, i});
         addLagrangianTerm(
                 csl::DeepRefreshed(csl::prod_s({
-                    -csl::sqrt_s(2), coupling, T({A, i, j}),
+                    -csl::sqrt_s(2), coupling, generator,
                     scal, ferm, connexion, gaugino({A, b})})),
                 true
                 );
@@ -903,21 +903,8 @@ void MSSM_Model::gatherMSSMInputs()
     Au->setTensor(mty::mssm_input::Tu);
     Ad->setTensor(mty::mssm_input::Td);
     Ae->setTensor(mty::mssm_input::Te);
+}
 
-    if (!flhaFile.empty()) {
-        std::ifstream flha(flhaFile);
-        HEPAssert(flha,
-                mty::error::NameError,
-                "FLHA input file \"" + flhaFile + "\" not found !")
-        readFLHA(flha);
-        flha.close();
-        applyValues();
-    }
-}
-void MSSM_Model::readFLHA(std::ifstream &flha)
-{
-    mty::flha::Reader::readFLHA(flha);
-}
 void MSSM_Model::applyValues()
 {
     M2_s_Q->setTensor(applyValues(M2_s_Q->getTensor()));
@@ -1017,6 +1004,9 @@ void MSSM_Model::replaceWBoson()
     Particle cW1 = getParticle("c_W_1");
     Particle cW2 = getParticle("c_W_2");
     Particle cWp = W_SM->getGhostBoson();
+    cWp->setName("c_Wp ; c_{+}");
+    Particle cWm = ghostboson_s("c_Wm; c_{-}", W_SM, true);
+    W_SM->setConjugatedGhostBoson(cWm);
 
     csl::Index mu = MinkowskiIndex();
     csl::Index nu = MinkowskiIndex();
@@ -1035,8 +1025,8 @@ void MSSM_Model::replaceWBoson()
     replace(W2, W2_expr(W_p, W_m));
     replace(W1->getFieldStrength(), W1_expr(F_W_p, F_W_m));
     replace(W2->getFieldStrength(), W2_expr(F_W_p, F_W_m));
-    replace(cW1, W1_expr(cWp, csl::GetComplexConjugate(cWp)));
-    replace(cW2, W2_expr(cWp, csl::GetComplexConjugate(cWp)));       
+    replace(cW1, W1_expr(cWp, cWm));
+    replace(cW2, W2_expr(cWp, cWm));
 
     Particle s_W1   = GetParticle(*this, "sW1");
     Particle s_W2   = GetParticle(*this, "sW2");
@@ -1545,10 +1535,9 @@ std::ostream &operator<<(
 }
 
 MSSM_HEM::MSSM_HEM(
-        std::string const &slhaFile,
         std::string const &saveFile
         )
-    :MSSM_Model(slhaFile, saveFile, false)
+    :MSSM_Model(saveFile, false)
 {
     std::ofstream save;
     if (!saveFile.empty())

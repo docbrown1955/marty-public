@@ -19,18 +19,15 @@ namespace mty {
 
         NMFV_Model(
                 std::vector<MixingInfo> const &mixings,
-                std::string const &slhaFile = "",
                 std::string const &saveFile = ""
                 );
 
         NMFV_Model(
                 std::initializer_list<MixingInfo> mixings,
-                std::string const &slhaFile = "",
                 std::string const &saveFile = ""
                 )
             :NMFV_Model(
                     std::vector<MixingInfo>(mixings),
-                    slhaFile,
                     saveFile
                     )
         {

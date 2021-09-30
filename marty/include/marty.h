@@ -52,8 +52,6 @@
 #include "gauge.h"
 #include "group.h"
 #include "jsonToPhysics.h"
-#include "flha.h"
-#include "flhaReader.h"
 #include "mtylibrary.h"
 #include "lhaData.h"
 #include "lha.h"

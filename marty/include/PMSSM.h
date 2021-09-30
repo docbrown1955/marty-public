@@ -32,7 +32,6 @@ class PMSSM_Model: public MSSM_Model {
 public:
 
     PMSSM_Model(
-            std::string const &slhaFile = "",
             std::string const &saveFile = "",
             bool               init     = true
             );

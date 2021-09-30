@@ -27,11 +27,10 @@ namespace mty {
 ///////////////////////////////////////////////////
 
 PMSSM_Model::PMSSM_Model(
-        std::string const &t_slhafile,
         std::string const &t_saveFile,
         bool               init
         )
-    :mty::MSSM_Model(t_slhafile, t_saveFile, false)
+    :mty::MSSM_Model(t_saveFile, false)
 {
     addAllowedMixing({"st_L", "st_R"});
     addAllowedMixing({"sb_L", "sb_R"});

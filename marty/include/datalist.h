@@ -44,7 +44,7 @@ struct DefaultComparator
 
 template<class Comparable>
 struct DefaultHardComparator {
-    bool operator()(Comparable const &A, Comparable const &B) const {
+    bool operator()(Comparable const &, Comparable const &) const {
         return false;
     }
 };

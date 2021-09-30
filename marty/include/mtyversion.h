@@ -23,5 +23,5 @@
  */
 #pragma once
 
-#define MARTY_VERSION 1.3
-#define MARTY_VERSION_STR "_v1_3"
+#define MARTY_VERSION 1.5
+#define MARTY_VERSION_STR "_v1_5"

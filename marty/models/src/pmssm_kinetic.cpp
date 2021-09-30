@@ -24,19 +24,22 @@ void PMSSM_LEM::initKinetic0()
         csl::prod_s({csl::intfraction_s(-1, 4), F_G({+i_C_1_1[ 0 ], +i_Minko[ 0 ], +i_Minko[ 1 ]}, X), F_G({+i_C_1_1[ 0 ], i_Minko[ 0 ], i_Minko[ 1 ]}, X)}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::tderivativeelement_s(X, d_der, {i_Minko[ 0 ]}, csl::GetComplexConjugate(c_A_C({+i_C_1_1[ 0 ]}, X)), 0), csl::tderivativeelement_s(X, d_der, {+i_Minko[ 0 ]}, c_A_C({+i_C_1_1[ 0 ]}, X), 0)}),
-        false);
-    addLagrangianTerm(
-        csl::prod_s({csl::tderivativeelement_s(X, d_der, {i_Minko[ 0 ]}, csl::GetComplexConjugate(c_W_1(X)), 0), csl::tderivativeelement_s(X, d_der, {+i_Minko[ 0 ]}, c_W_1(X), 0)}),
-        false);
-    addLagrangianTerm(
-        csl::prod_s({csl::tderivativeelement_s(X, d_der, {i_Minko[ 0 ]}, csl::GetComplexConjugate(c_W_2(X)), 0), csl::tderivativeelement_s(X, d_der, {+i_Minko[ 0 ]}, c_W_2(X), 0)}),
-        false);
-    addLagrangianTerm(
-        csl::prod_s({csl::tderivativeelement_s(X, d_der, {i_Minko[ 0 ]}, csl::GetComplexConjugate(c_W_3(X)), 0), csl::tderivativeelement_s(X, d_der, {+i_Minko[ 0 ]}, c_W_3(X), 0)}),
+        csl::prod_s({csl::tderivativeelement_s(X, d_der, {i_Minko[ 0 ]}, csl::GetComplexConjugate(c_G({+i_C_1_1[ 0 ]}, X)), 0), csl::tderivativeelement_s(X, d_der, {+i_Minko[ 0 ]}, c_G({+i_C_1_1[ 0 ]}, X), 0)}),
         false);
     addLagrangianTerm(
         csl::prod_s({csl::intfraction_s(-1, 2), F_W({i_Minko[ 0 ], i_Minko[ 1 ]}, X), csl::GetComplexConjugate(F_W({+i_Minko[ 0 ], +i_Minko[ 1 ]}, X))}),
+        false);
+    addLagrangianTerm(
+        csl::prod_s({csl::tderivativeelement_s(X, d_der, {i_Minko[ 0 ]}, csl::GetComplexConjugate(c_Wm(X)), 0), csl::tderivativeelement_s(X, d_der, {+i_Minko[ 0 ]}, c_Wm(X), 0)}),
+        false);
+    addLagrangianTerm(
+        csl::prod_s({csl::tderivativeelement_s(X, d_der, {i_Minko[ 0 ]}, csl::GetComplexConjugate(c_Wp(X)), 0), csl::tderivativeelement_s(X, d_der, {+i_Minko[ 0 ]}, c_Wp(X), 0)}),
+        false);
+    addLagrangianTerm(
+        csl::prod_s({csl::intfraction_s(-1, 4), F_A({i_Minko[ 0 ], i_Minko[ 1 ]}, X), F_A({+i_Minko[ 0 ], +i_Minko[ 1 ]}, X)}),
+        false);
+    addLagrangianTerm(
+        csl::prod_s({csl::intfraction_s(-1, 4), F_Z({i_Minko[ 0 ], i_Minko[ 1 ]}, X), F_Z({+i_Minko[ 0 ], +i_Minko[ 1 ]}, X)}),
         false);
     addLagrangianTerm(
         csl::prod_s({csl::intfraction_s(1, 2), csl::tderivativeelement_s(X, d_der, {+i_Minko[ 0 ]}, A0(X), 0), csl::tderivativeelement_s(X, d_der, {i_Minko[ 0 ]}, A0(X), 0)}),
@@ -58,14 +61,14 @@ void PMSSM_LEM::initKinetic0()
 , CSL_I, M_W, csl::cos_s(beta), csl::GetComplexConjugate(W({+i_Minko[ 0 ]}, X)), csl::tderivativeelement_s(X, d_der, {i_Minko[ 0 ]}, Hp(X), 0)}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(-1, 4), F_A({+i_Minko[ 0 ], +i_Minko[ 1 ]}, X), F_A({i_Minko[ 0 ], i_Minko[ 1 ]}, X)}),
-        false);
-    addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(-1, 4), F_Z({+i_Minko[ 0 ], +i_Minko[ 1 ]}, X), F_Z({i_Minko[ 0 ], i_Minko[ 1 ]}, X)}),
-        false);
-    addLagrangianTerm(
         csl::prod_s({-1
-, M_Z, csl::cos_s(beta), Z({i_Minko[ 0 ]}, X), csl::tderivativeelement_s(X, d_der, {+i_Minko[ 0 ]}, A0(X), 0)}),
+, M_W, csl::cos_s(beta), csl::pow_s(csl::sum_s({1 , csl::pow_s(csl::tan_s(theta_W), 2)}), csl::intfraction_s(1, 2)), Z({i_Minko[ 0 ]}, X), csl::tderivativeelement_s(X, d_der, {+i_Minko[ 0 ]}, A0(X), 0)}),
+        false);
+    addLagrangianTerm(
+        csl::sum_s({csl::prod_s({csl::pow_s(csl::cos_s(theta_W), (-2)), csl::pow_s(csl::sin_s(theta_W), 2), csl::pow_s(csl::sum_s({1 , csl::pow_s(csl::tan_s(theta_W), 2)}), (-1)), csl::tderivativeelement_s(X, d_der, {i_Minko[ 0 ]}, csl::GetComplexConjugate(c_A(X)), 0), csl::tderivativeelement_s(X, d_der, {+i_Minko[ 0 ]}, c_A(X), 0)}) , csl::prod_s({csl::pow_s(csl::sum_s({1 , csl::pow_s(csl::tan_s(theta_W), 2)}), (-1)), csl::tderivativeelement_s(X, d_der, {i_Minko[ 1 ]}, csl::GetComplexConjugate(c_A(X)), 0), csl::tderivativeelement_s(X, d_der, {+i_Minko[ 1 ]}, c_A(X), 0)})}),
+        false);
+    addLagrangianTerm(
+        csl::sum_s({csl::prod_s({csl::pow_s(csl::sum_s({1 , csl::pow_s(csl::tan_s(theta_W), 2)}), (-1)), csl::tderivativeelement_s(X, d_der, {i_Minko[ 0 ]}, csl::GetComplexConjugate(c_Z(X)), 0), csl::tderivativeelement_s(X, d_der, {+i_Minko[ 0 ]}, c_Z(X), 0)}) , csl::prod_s({csl::pow_s(csl::cos_s(theta_W), (-2)), csl::pow_s(csl::sin_s(theta_W), 2), csl::pow_s(csl::sum_s({1 , csl::pow_s(csl::tan_s(theta_W), 2)}), (-1)), csl::tderivativeelement_s(X, d_der, {i_Minko[ 1 ]}, csl::GetComplexConjugate(c_Z(X)), 0), csl::tderivativeelement_s(X, d_der, {+i_Minko[ 1 ]}, c_Z(X), 0)})}),
         false);
     addLagrangianTerm(
         csl::prod_s({CSL_I, gamma({+i_Minko[ 0 ], +i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(c({+i_C_1_0[ 0 ], +i_dirac[ 0 ]}, X)), csl::tderivativeelement_s(X, d_der, {i_Minko[ 0 ]}, c({+i_C_1_0[ 0 ], +i_dirac[ 1 ]}, X), 0)}),
@@ -165,24 +168,19 @@ void PMSSM_LEM::initKinetic1()
         csl::prod_s({CSL_I, gamma({+i_Minko[ 0 ], +i_dirac[ 0 ], +i_dirac[ 1 ]}), csl::GetComplexConjugate(C_2_L({+i_dirac[ 0 ]}, X)), csl::tderivativeelement_s(X, d_der, {i_Minko[ 0 ]}, C_2_L({+i_dirac[ 1 ]}, X), 0)}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(1, 2), csl::sum_s({csl::prod_s({CSL_I, gamma({+i_Minko[ 0 ], +i_dirac[ 0 ], +i_dirac[ 1 ]})}) , csl::prod_s({-1
-, CSL_I, gamma({+i_Minko[ 0 ], +i_dirac[ 0 ], +i_dirac[ 2 ]}), gamma5({+i_dirac[ 2 ], +i_dirac[ 1 ]})})}), csl::GetComplexConjugate(sG({+i_C_1_1[ 0 ], +i_dirac[ 0 ]}, X)), csl::tderivativeelement_s(X, d_der, {i_Minko[ 0 ]}, sG({+i_C_1_1[ 0 ], +i_dirac[ 1 ]}, X), 0)}),
+        csl::prod_s({CSL_I, P_L({+i_dirac[ 0 ], +i_dirac[ 1 ]}), gamma({+i_Minko[ 0 ], +i_dirac[ 2 ], +i_dirac[ 0 ]}), csl::GetComplexConjugate(sG({+i_C_1_1[ 0 ], +i_dirac[ 2 ]}, X)), csl::tderivativeelement_s(X, d_der, {i_Minko[ 0 ]}, sG({+i_C_1_1[ 0 ], +i_dirac[ 1 ]}, X), 0)}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(1, 2), csl::sum_s({csl::prod_s({CSL_I, gamma({+i_Minko[ 0 ], +i_dirac[ 0 ], +i_dirac[ 1 ]})}) , csl::prod_s({-1
-, CSL_I, gamma({+i_Minko[ 0 ], +i_dirac[ 0 ], +i_dirac[ 2 ]}), gamma5({+i_dirac[ 2 ], +i_dirac[ 1 ]})})}), csl::GetComplexConjugate(N_1({+i_dirac[ 0 ]}, X)), csl::tderivativeelement_s(X, d_der, {i_Minko[ 0 ]}, N_1({+i_dirac[ 1 ]}, X), 0)}),
+        csl::prod_s({CSL_I, P_L({+i_dirac[ 0 ], +i_dirac[ 1 ]}), gamma({+i_Minko[ 0 ], +i_dirac[ 2 ], +i_dirac[ 0 ]}), csl::GetComplexConjugate(N_1({+i_dirac[ 2 ]}, X)), csl::tderivativeelement_s(X, d_der, {i_Minko[ 0 ]}, N_1({+i_dirac[ 1 ]}, X), 0)}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(1, 2), csl::sum_s({csl::prod_s({CSL_I, gamma({+i_Minko[ 0 ], +i_dirac[ 0 ], +i_dirac[ 1 ]})}) , csl::prod_s({-1
-, CSL_I, gamma({+i_Minko[ 0 ], +i_dirac[ 0 ], +i_dirac[ 2 ]}), gamma5({+i_dirac[ 2 ], +i_dirac[ 1 ]})})}), csl::GetComplexConjugate(N_2({+i_dirac[ 0 ]}, X)), csl::tderivativeelement_s(X, d_der, {i_Minko[ 0 ]}, N_2({+i_dirac[ 1 ]}, X), 0)}),
+        csl::prod_s({CSL_I, P_L({+i_dirac[ 0 ], +i_dirac[ 1 ]}), gamma({+i_Minko[ 0 ], +i_dirac[ 2 ], +i_dirac[ 0 ]}), csl::GetComplexConjugate(N_2({+i_dirac[ 2 ]}, X)), csl::tderivativeelement_s(X, d_der, {i_Minko[ 0 ]}, N_2({+i_dirac[ 1 ]}, X), 0)}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(1, 2), csl::sum_s({csl::prod_s({CSL_I, gamma({+i_Minko[ 0 ], +i_dirac[ 0 ], +i_dirac[ 1 ]})}) , csl::prod_s({-1
-, CSL_I, gamma({+i_Minko[ 0 ], +i_dirac[ 0 ], +i_dirac[ 2 ]}), gamma5({+i_dirac[ 2 ], +i_dirac[ 1 ]})})}), csl::GetComplexConjugate(N_3({+i_dirac[ 0 ]}, X)), csl::tderivativeelement_s(X, d_der, {i_Minko[ 0 ]}, N_3({+i_dirac[ 1 ]}, X), 0)}),
+        csl::prod_s({CSL_I, P_L({+i_dirac[ 0 ], +i_dirac[ 1 ]}), gamma({+i_Minko[ 0 ], +i_dirac[ 2 ], +i_dirac[ 0 ]}), csl::GetComplexConjugate(N_3({+i_dirac[ 2 ]}, X)), csl::tderivativeelement_s(X, d_der, {i_Minko[ 0 ]}, N_3({+i_dirac[ 1 ]}, X), 0)}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(1, 2), csl::sum_s({csl::prod_s({CSL_I, gamma({+i_Minko[ 0 ], +i_dirac[ 0 ], +i_dirac[ 1 ]})}) , csl::prod_s({-1
-, CSL_I, gamma({+i_Minko[ 0 ], +i_dirac[ 0 ], +i_dirac[ 2 ]}), gamma5({+i_dirac[ 2 ], +i_dirac[ 1 ]})})}), csl::GetComplexConjugate(N_4({+i_dirac[ 0 ]}, X)), csl::tderivativeelement_s(X, d_der, {i_Minko[ 0 ]}, N_4({+i_dirac[ 1 ]}, X), 0)}),
+        csl::prod_s({CSL_I, P_L({+i_dirac[ 0 ], +i_dirac[ 1 ]}), gamma({+i_Minko[ 0 ], +i_dirac[ 2 ], +i_dirac[ 0 ]}), csl::GetComplexConjugate(N_4({+i_dirac[ 2 ]}, X)), csl::tderivativeelement_s(X, d_der, {i_Minko[ 0 ]}, N_4({+i_dirac[ 1 ]}, X), 0)}),
         false);
     addLagrangianTerm(
         csl::prod_s({csl::tderivativeelement_s(X, d_der, {+i_Minko[ 0 ]}, st_1({+i_C_1_0[ 0 ]}, X), 0), csl::tderivativeelement_s(X, d_der, {i_Minko[ 0 ]}, csl::GetComplexConjugate(st_1({+i_C_1_0[ 0 ]}, X)), 0)}),
@@ -212,16 +210,11 @@ void PMSSM_LEM::initKinetic1()
         csl::prod_s({M_W, csl::sum_s({1 , csl::prod_s({-1
 , CSL_I, csl::sin_s(beta)})}), W({i_Minko[ 0 ]}, X), csl::tderivativeelement_s(X, d_der, {+i_Minko[ 0 ]}, csl::GetComplexConjugate(Gp(X)), 0)}),
         false);
-}
-
-void PMSSM_LEM::initKinetic2()
-{
     addLagrangianTerm(
         csl::prod_s({csl::intfraction_s(1, 2), csl::tderivativeelement_s(X, d_der, {+i_Minko[ 0 ]}, G0(X), 0), csl::tderivativeelement_s(X, d_der, {i_Minko[ 0 ]}, G0(X), 0)}),
         false);
     addLagrangianTerm(
-        csl::prod_s({csl::intfraction_s(1, 2), M_Z, csl::sum_s({1 , csl::prod_s({2
-, csl::sin_s(beta)})}), Z({i_Minko[ 0 ]}, X), csl::tderivativeelement_s(X, d_der, {+i_Minko[ 0 ]}, G0(X), 0)}),
+        csl::prod_s({csl::sum_s({m_Z , csl::prod_s({M_W, csl::sin_s(beta), csl::pow_s(csl::sum_s({1 , csl::pow_s(csl::tan_s(theta_W), 2)}), csl::intfraction_s(1, 2))})}), Z({i_Minko[ 0 ]}, X), csl::tderivativeelement_s(X, d_der, {+i_Minko[ 0 ]}, G0(X), 0)}),
         false);
 }
 

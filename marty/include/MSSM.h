@@ -275,7 +275,6 @@ class MSSM_Model: public mty::Model, protected MSSM_Data {
 
 public:
     MSSM_Model(
-            std::string const &flhaFile = "",
             std::string const &saveFile = "",
             bool               init = true
             );
@@ -326,7 +325,6 @@ protected:
                 void initQuarticSQuarkSLeptons();
 
     void gatherMSSMInputs();
-        void readFLHA(std::ifstream &flha);
         void applyValues();
         csl::Expr applyValues(csl::Expr tensor);
 
@@ -354,7 +352,6 @@ protected:
 
 private:
 
-    std::string flhaFile;
     std::string saveFile;
 };
 
@@ -362,7 +359,6 @@ class MSSM_HEM: public MSSM_Model {
 
 public:
     MSSM_HEM(
-            std::string const &flhaFile = "",
             std::string const &saveFile = ""
             );
 };

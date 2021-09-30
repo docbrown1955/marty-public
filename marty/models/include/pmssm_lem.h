@@ -41,7 +41,6 @@ protected:
     void initKinetic();
         void initKinetic0();
         void initKinetic1();
-        void initKinetic2();
     void initMass();
         void initMass0();
         void initMass1();
@@ -208,6 +207,7 @@ protected:
         void initInteractions159();
         void initInteractions160();
         void initInteractions161();
+        void initInteractions162();
     void initSpectrum();
 
 protected:
