@@ -10,7 +10,7 @@ source ./setup.sh
 make
 sudo make install
 
-Parallel compilation enable:
+For compilation on multiple cores:
 make -j N
 with N number of CPUs
 
