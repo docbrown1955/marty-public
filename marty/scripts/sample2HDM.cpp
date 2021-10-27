@@ -38,15 +38,14 @@ int main() {
     mty::option::keepOnlyFirstMassInLoop = true;
     auto ampl = THDM.computeAmplitude(
             OneLoop,
-            {Incoming("d"), Incoming(AntiPart("s")), Outgoing(AntiPart("d")), Outgoing("s")},
+            {Incoming("d"), Incoming(AntiPart("s")), 
+            Outgoing(AntiPart("d")), Outgoing("s")},
             options
             );
     Display(ampl);
     Show(ampl);
 
     auto wilsons = THDM.getWilsonCoefficients(ampl);
-    for (auto &coef : wilsons)
-        coef.coef.setCoefficient(csl::Evaluated(coef.coef.getCoefficient(), csl::eval::abbreviation));
     Display(wilsons);
     
     return 0;

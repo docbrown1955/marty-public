@@ -36,6 +36,21 @@ namespace mty {
             );
 
     csl::Expr getWilsonCoefficient(
+            WilsonSet              const &wilsons,
+            std::vector<csl::Expr> const &contributions
+            );
+
+    csl::Expr getWilsonCoefficient(
+            WilsonSet const &wilsons,
+            Wilson    const &contributions
+            );
+
+    csl::Expr getWilsonCoefficient(
+            WilsonSet const &wilsons,
+            csl::Expr const &contributions
+            );
+
+    csl::Expr getWilsonCoefficient(
             Model     const &model,
             WilsonSet const &wilsons,
             DiracCoupling coupling

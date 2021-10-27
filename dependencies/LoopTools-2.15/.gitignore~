@@ -1,0 +1,9 @@
+x86_64-Linux/bin/*
+x86_64-Linux/lib64/*
+bin/*
+build/*
+build/*
+build/*
+build-quad/*
+build-quad/*
+build-quad/*

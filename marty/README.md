@@ -14,7 +14,7 @@ of information you may get here, in particular on important topics about
 *MARTY*.
 
 If you have any question that this documentation and the manual do not answer, 
-please feel free to ask the author: <g.uhlrich@ipnl.in2p3.fr>.
+please feel free to ask the author: <marty.uhlrich@gmail.com>.
 
 If you want to come back on *MARTY* main page, you can 
 [click here](https://marty.in2p3.fr) or click on the logo at the top of the page

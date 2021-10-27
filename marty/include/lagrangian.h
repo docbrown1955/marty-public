@@ -49,14 +49,6 @@ mty::interaction::Type determineTermType(const InteractionTerm& term);
  */
 class Lagrangian {
 
-    friend class Model;
-    friend class ModelData;
-    friend class ModelBuilder;
-    friend class MSSM_Model;
-    friend class PMSSM_Model;
-    friend class NMFV_Model;
-    friend class Expander;
-
     public:
 
     using TermType = InteractionTerm::TermType;
@@ -66,6 +58,8 @@ class Lagrangian {
     mutable bool expressionComputed = false;
 
     mutable csl::Expr expression;
+
+    public:
 
     std::vector<TermType> kinetic;
     

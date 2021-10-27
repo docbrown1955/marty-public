@@ -7,8 +7,8 @@ VERSION        = 1.0
 STATICLIBRARY  = libcsl.a
 DYNAMICLIBRARY = libcsl.so
 
-CXXDEBUG         = $(CXX) -g 
-CFLAGS           = -Wall -Wextra -Wpedantic -std=c++17 -O3 -fPIC
+CXXDEBUG         = $(CXX) -g # -D DEBUG
+CFLAGS           = -Wall -Wextra -Wpedantic -Wfatal-errors -std=c++17 -O3 -fPIC
 
 SRCDIR           = src
 HEADDIR          = include

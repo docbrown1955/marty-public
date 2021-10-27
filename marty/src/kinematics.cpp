@@ -62,6 +62,15 @@ namespace mty {
         initMomentaSquared(indices);
     }
 
+    std::vector<csl::Tensor> Kinematics::getOrderedMomenta() const
+    {
+        std::vector<csl::Tensor> res(momenta.size());
+        for (size_t i = 0; i != momenta.size(); ++i) {
+            res[indices[i]-1] = momenta[i];
+        }
+        return res;
+    }
+
     template<class Type>
     static void removeIndices(
             std::vector<Type>  &data,

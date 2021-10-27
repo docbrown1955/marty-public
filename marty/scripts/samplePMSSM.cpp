@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
- #include <marty.h>
+#include <marty.h>
 #include "pmssm_lem.h"
 
 using namespace std;
@@ -24,14 +24,9 @@ using namespace mty;
 int main() {
 
     PMSSM_Model pmssm_model;
+    // Or (directly the full Lagrangian without model building) 
+    // PMSSM_LEM pmssm_model;
     std::cout << pmssm_model << std::endl;
-
-    Display(pmssm_model.getFeynmanRules());
-
-    auto res = pmssm_model.computeAmplitude(
-            Order::TreeLevel,
-            {Incoming("C_1"), Outgoing("C_1"), Outgoing("A")}
-            );
             
-    Display(res);
+    Display(pmssm_model.getFeynmanRules());
 }

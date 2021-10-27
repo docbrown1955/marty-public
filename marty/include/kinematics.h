@@ -141,6 +141,11 @@ namespace mty {
         }
 
         /**
+         * @return Returns the momenta in order (p_1, p_2, p_3, ...)
+         */
+        std::vector<csl::Tensor> getOrderedMomenta() const;
+
+        /**
          * @return A const reference to the range of squared momenta.
          */
         std::vector<csl::Expr> const &getSquaredMomenta() const {

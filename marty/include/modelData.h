@@ -64,7 +64,6 @@ public:
     /*!
      * \brief Number of momenta instantiated for the model (10). With 5 maximum 
      * external legs, this is fairly safe.
-     * \sa getMomentum(), getMomenta()
      */
     inline static size_t            nMomentums           = 10;
     /*!
