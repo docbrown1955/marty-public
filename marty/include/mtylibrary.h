@@ -64,6 +64,22 @@ namespace mty {
                     addFunction(m->getName(), m, "G");
                 }
             }
+            for (const auto &particle : model.getParticles()) {
+                csl::Expr mass  = particle->getMass();
+                csl::Expr width = particle->getWidth();
+                if (csl::IsLiteral(mass)) {
+                    addDefaultParameter(
+                            mass->getName(), 
+                            mass->getComplexProperty() == csl::ComplexProperty::Complex
+                            );
+                }
+                if (csl::IsLiteral(width)) {
+                    addDefaultParameter(
+                            width->getName(), 
+                            width->getComplexProperty() == csl::ComplexProperty::Complex
+                            );
+                }
+            }
         }
 
         void importLHAModule(

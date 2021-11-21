@@ -243,6 +243,16 @@ Spectrum::MatrixEl Spectrum::getMassFromTerm(
         csl::Expr const &term
         ) const
 {
+    if (csl::IsSum(term)) {
+        HEPAssert(term->size() > 0,
+                mty::error::RuntimeError,
+                "Got unexpected empty mass term " + toString(term))
+        MatrixEl element = getMassFromTerm(term[0]);
+        for (size_t i = 1; i != term->size(); ++i) {
+            element.term += getMassFromTerm(term[i]).term;
+        }
+        return element;
+    }
     csl::Expr expression = csl::DeepCopy(term);
     std::vector<QuantumField> massFields;
     massFields.reserve(2);
@@ -268,6 +278,22 @@ Spectrum::MatrixEl Spectrum::getMassFromTerm(
     HEPAssert(massFields.size() >= 1,
             mty::error::RuntimeError,
             "Term " + toString(term) + " contains less than two fields !")
+    HEPAssert(massFields.size() <= 2,
+            mty::error::RuntimeError,
+            "Term " + toString(term) + " contains more than two fields !")
+    bool fermionSign = massFields[0].isFermionic()
+            && !massFields[0].isComplexConjugate()
+            && massFields[1].isComplexConjugate();
+    if (fermionSign) {
+        bool indexContraction = 
+            massFields[0].getIndexStructureView().back()
+            == massFields[1].getIndexStructureView().back();
+        HEPAssert(indexContraction,
+                mty::error::TypeError,
+                "Mass term " + toString(term) + " is not supported. "
+                "Fermions should be re-ordered with psi^* psi.")
+        expression *= CSL_M_1;
+    }
     if (massFields.size() == 1)
         // Assuming phi(X)^2 here.
         massFields.push_back(massFields[0]);

@@ -150,6 +150,10 @@ namespace csl {
                 std::string const &groupName,
                 bool               complexReturn = true
                 );
+        void addDefaultParameter(
+                std::string const &name,
+                bool               isComplex
+                );
         LibFunction &addFunction(
                 std::string const &nameFunction,
                 Expr               expression,
@@ -216,6 +220,15 @@ namespace csl {
         // std::string getHeaders() const;
         // std::string getSources() const;
 
+        std::vector<LibParameter> inputParams(
+                std::vector<LibraryGenerator::DiagonalizationData> const &diagData
+                ) const;
+
+        std::vector<LibParameter> outputParams(
+                std::vector<LibraryGenerator::DiagonalizationData> const &diagData,
+                std::vector<std::string> const &massExpressions
+                ) const;
+
         protected:
 
         std::string name;
@@ -229,6 +242,8 @@ namespace csl {
         std::set<std::string> LPath;
 
         LibDependency dependencies;
+
+        std::vector<LibParameter> defaultParameters;
 
         mutable
         std::vector<csl::Tensor> tensors;
@@ -244,15 +259,6 @@ namespace csl {
 
         bool uniqueParamStruct;
     };
-
-    std::vector<LibParameter> inputParams(
-            std::vector<LibraryGenerator::DiagonalizationData> const &diagData
-            );
-
-    std::vector<LibParameter> outputParams(
-            std::vector<LibraryGenerator::DiagonalizationData> const &diagData,
-            std::vector<std::string> const &massExpressions
-            );
 
 } // End of namespace csl
 

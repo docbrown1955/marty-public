@@ -61,6 +61,7 @@
 #include "QED.h"
 #include "SM.h"
 #include "2HDM.h"
+#include "GTHDM.h"
 #include "MSSM.h"
 #include "PMSSM.h"
 #include "NMFV.h"

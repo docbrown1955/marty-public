@@ -1,8 +1,8 @@
 INSTALLDIR=/home/uhlrich/.local
 
-CC = gcc-7
+CC  = gcc-7
 CXX = g++-7
-FC = gfortran-7
+FC  = gfortran-7
 VERSION        = 1.0
 STATICLIBRARY  = libmarty.a
 DYNAMICLIBRARY = libmarty.so

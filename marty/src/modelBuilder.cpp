@@ -1049,6 +1049,24 @@ bool isProjected(
     return false;
 }
 
+bool isMassTerm(
+        csl::Expr const &prod, 
+        csl::Expr const &field
+        )
+{
+    csl::Index a = field->getIndexStructureView().back();
+    for (const auto &arg : prod) {
+        if (csl::IsIndicialTensor(arg)) {
+            auto const &tensor = csl::IsTensorialDerivative(arg) ? arg[0] : arg;
+            if (tensor->getParent() == field->getParent()) {
+                return tensor->getIndexStructureView().back()
+                    == field->getIndexStructureView().back();
+            }
+        }
+    }
+    return false;
+}
+
 auto replaceMajorana(
         csl::Expr           &expr,
         mty::Particle const &xi,
@@ -1083,30 +1101,33 @@ auto replaceMajorana(
                 auto a = indices.back();
                 auto b = a.rename();
                 indices.back() = b;
-                const bool conjug = arg->isComplexConjugate();
-                const bool alreadyProjected = isProjected(expr, arg);
-                const csl::Expr f = (leftMajorana) ? CSL_HALF : CSL_1;
+                bool conjug = arg->isComplexConjugate();
+                bool alreadyProjected = isProjected(expr, arg);
+                bool massTerm         = isMassTerm(expr, arg);
+                bool disableProjector = alreadyProjected || massTerm;
+                bool half = leftMajorana || (massTerm && !alreadyProjected);
+                csl::Expr f = (half) ? CSL_HALF : CSL_1;
                 if (left && conjug) {
-                    const auto P = (alreadyProjected) ? 
+                    const auto P = (disableProjector) ? 
                         f*d({b, a}) : P_2({b, a});
                     arg = cc(Lambda(indices)) * P;
                 }
                 else if (left && !conjug) {
                     auto c = b.rename();
                     indices.back() = c;
-                    const auto P = (alreadyProjected) ? 
+                    const auto P = (disableProjector) ? 
                         f*d({c, b}) : P_1({c, b});
                     arg = -cc(Lambda(indices)) * P * C({b, a});
                 }
                 else if (conjug) {
                     auto c = b.rename();
                     indices.back() = c;
-                    const auto P = (alreadyProjected) ? 
+                    const auto P = (disableProjector) ? 
                         f*d({b, c}) : P_2({b, c});
                     arg = -C({a, b}) * P * Lambda(indices);
                 }
                 else {
-                    const auto P = (alreadyProjected) ? 
+                    const auto P = (disableProjector) ? 
                         f*d({a, b}) : P_1({a, b});
                     arg = P * Lambda(indices);
                 }

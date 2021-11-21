@@ -259,6 +259,10 @@ namespace csl {
         out << LibraryGenerator::indent(nIndent + 1)
             << "// in global.h or set them by hand  \n";
         out << LibraryGenerator::indent(nIndent + 1)
+            << "// \n";
+        out << LibraryGenerator::indent(nIndent + 1)
+            << "// And other default parameters  \n";
+        out << LibraryGenerator::indent(nIndent + 1)
             << "///////////////////////////////////////\n\n";
         for (const auto &par : forcedParameters) {
             out << LibraryGenerator::indent(nIndent + 1);

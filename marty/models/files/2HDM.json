@@ -25,14 +25,14 @@
             "name":"SU2L",
             "type":"SU",
             "dim":2,
-            "boson": { "name": "W", "ghost": false },
+            "boson": { "name": "W" },
             "coupling": { "name": "gL" }
          },
          {
             "name":"SU3c",
             "type":"SU",
             "dim":3,
-            "boson": { "name": "g" },
+            "boson": { "name": "G" },
             "coupling": { "name": "g_s" }
          }
       ]

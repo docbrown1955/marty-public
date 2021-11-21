@@ -27,6 +27,7 @@
 #include "mrtInterface.h"
 #include "CKM.h"
 #include "SM.h"
+#include "ghostField.h"
 
 namespace mty {
 
@@ -69,29 +70,69 @@ template<int type>
 class TwoHDM_Model: public mty::Model {
 
 public:
-    TwoHDM_Model();
+    TwoHDM_Model(bool initialize = true);
     ~TwoHDM_Model() override;
+
+    void init();
+        void initContent();
+        void gaugeSymmetryBreaking();
+        void replaceWboson();
+        void replaceHiggs();
+        void diagonalize2By2Matrices();
+        void replaceYukawas();
+        void flavorSymmetryBreaking();
+        void adjust();
+
 
     template<int t_type>
     friend std::ostream &operator<<(
             std::ostream &out,
             TwoHDM_Model const &model
             );
+
+protected:
+
+    // Higgs potential parameters
+    csl::Expr m11, m12, m22, lambda1, lambda2, lambda3, lambda4, lambda5;
+
+    csl::Expr v, v1, v2; // VEV parameters
+    csl::Expr alpha, beta, tan_beta; // Higgs rotatioin parameters
+    csl::Expr e, gY, gL, theta_Weinberg; // Electroweak parameters
 };
 
 template<int type>
-TwoHDM_Model<type>::TwoHDM_Model()
+TwoHDM_Model<type>::TwoHDM_Model(bool initialize)
     :mty::Model("models/files/2HDM.json")
 {
-    getParticle("g")->setDrawType(drawer::ParticleType::Gluon);
-    csl::Expr m11 = csl::constant_s("m_{11}");
-    csl::Expr m12 = csl::constant_s("m_{12}");
-    csl::Expr m22 = csl::constant_s("m_{22}");
-    csl::Expr lambda1 = csl::constant_s("\\lambda _1");
-    csl::Expr lambda2 = csl::constant_s("\\lambda _2");
-    csl::Expr lambda3 = csl::constant_s("\\lambda _3");
-    csl::Expr lambda4 = csl::constant_s("\\lambda _4");
-    csl::Expr lambda5 = csl::constant_s("\\lambda _5");
+    if (initialize)
+        init();
+}
+
+template<int type>
+void TwoHDM_Model<type>::init()
+{
+    initContent();
+    gaugeSymmetryBreaking();
+    replaceWboson();
+    replaceHiggs();
+    diagonalize2By2Matrices();
+    replaceYukawas();
+    flavorSymmetryBreaking();
+    adjust();
+}
+
+template<int type>
+void TwoHDM_Model<type>::initContent()
+{
+    getParticle("G")->setDrawType(drawer::ParticleType::Gluon);
+    m11 = csl::constant_s("m_11");
+    m12 = csl::constant_s("m_12");
+    m22 = csl::constant_s("m_22");
+    lambda1 = csl::constant_s("lambda_1");
+    lambda2 = csl::constant_s("lambda_2");
+    lambda3 = csl::constant_s("lambda_3");
+    lambda4 = csl::constant_s("lambda_4");
+    lambda5 = csl::constant_s("lambda_5");
 
     Particle Phi1 = GetParticle(*this, "\\Phi _1");
     Particle Phi2 = GetParticle(*this, "\\Phi _2");
@@ -116,7 +157,11 @@ TwoHDM_Model<type>::TwoHDM_Model()
 
     AddTerm(*this, {term_m11, term_m12, term_m22,
                     term_l1, term_l2, term_l3, term_l4, term_l5});
+}
 
+template<int type>
+void TwoHDM_Model<type>::gaugeSymmetryBreaking()
+{
     ///////////////////////////////////////////////////
     // Breaking gauge SU(2)_L symmetry, renaming
     ///////////////////////////////////////////////////
@@ -128,18 +173,29 @@ TwoHDM_Model<type>::TwoHDM_Model()
             {"\\Phi _1", "\\Phi _2", "W", "Q", "L"},
             {{"\\Phi _{10}", "\\Phi _{11}"},
             {"\\Phi _{20}", "\\Phi _{21}"},
-            {"W^1", "W^2", "W^3"},
+            {"W^1", "W^2", "W_3"},
             {"U_L", "D_L"},
             {"\\Nu _L", "E_L"}});
+}
 
+template<int type>
+void TwoHDM_Model<type>::replaceWboson()
+{
     ///////////////////////////////////////////////////
     // Replacements to get SM particles W +-
     ///////////////////////////////////////////////////
 
     Particle W1   = GetParticle(*this, "W^1");
     Particle W2   = GetParticle(*this, "W^2");
-    Particle W_SM = GenerateSimilarParticle("W", W1);
-    SetSelfConjugate(W_SM, false);
+    Particle W_SM = W1->generateSimilar("W");
+    W_SM->setSelfConjugate(false);
+
+    Particle cW1 = getParticle("c_W^1");
+    Particle cW2 = getParticle("c_W^2");
+    Particle cWp = W_SM->getGhostBoson();
+    cWp->setName("c_Wp ; c_{+}");
+    Particle cWm = ghostboson_s("c_Wm; c_{-}", W_SM, true);
+    W_SM->setConjugatedGhostBoson(cWm);
 
     csl::Index mu = MinkowskiIndex();
     csl::Index nu = MinkowskiIndex();
@@ -148,40 +204,44 @@ TwoHDM_Model<type>::TwoHDM_Model()
     csl::Expr F_W_p = W_SM({+mu,+nu});
     csl::Expr F_W_m = csl::GetComplexConjugate(W_SM({+mu, +nu}));
 
-    Replaced(*this,
-            W1,
-            (W_p + W_m) / csl::sqrt_s(2));
-    Replaced(*this,
-            W2,
-            CSL_I * (W_p - W_m) / csl::sqrt_s(2));
-    Replaced(*this,
-            GetFieldStrength(W1),
-            (F_W_p + F_W_m) / csl::sqrt_s(2));
-    Replaced(*this,
-            GetFieldStrength(W2),
-            CSL_I * (F_W_p - F_W_m) / csl::sqrt_s(2));
+    auto W1_expr = [](csl::Expr const &Wp, csl::Expr const &Wm) {
+        return (Wp + Wm) / csl::sqrt_s(2);
+    };
+    auto W2_expr = [](csl::Expr const &Wp, csl::Expr const &Wm) {
+        return CSL_I * (Wp - Wm) / csl::sqrt_s(2);
+    };
+    replace(W1, W1_expr(W_p, W_m));
+    replace(W2, W2_expr(W_p, W_m));
+    replace(W1->getFieldStrength(), W1_expr(F_W_p, F_W_m));
+    replace(W2->getFieldStrength(), W2_expr(F_W_p, F_W_m));
+    replace(cW1, W1_expr(cWp, cWm));
+    replace(cW2, W2_expr(cWp, cWm));
+}
 
+template<int type>
+void TwoHDM_Model<type>::replaceHiggs()
+{
     ///////////////////////////////////////////////////
     // Actual gauge (spontaneous) symmetry breaking
     ///////////////////////////////////////////////////
 
-    csl::Expr v1 = csl::constant_s("v1");
-    csl::Expr beta = csl::constant_s("\\beta");
-    csl::Expr tan_beta = csl::tan_s(beta);
-    csl::Expr v = csl::constant_s("v");
-    csl::Expr v2 = v1 * tan_beta;
+    v1 = csl::constant_s("v1");
+    beta = csl::constant_s("beta");
+    tan_beta = csl::tan_s(beta);
+    v = csl::constant_s("v");
+    v2 = v1 * tan_beta;
 
     Particle Phi_10 = GetParticle(*this, "\\Phi _{10}");
     Particle Phi_11 = GetParticle(*this, "\\Phi _{11}");
     Particle Phi_20 = GetParticle(*this, "\\Phi _{20}");
     Particle Phi_21 = GetParticle(*this, "\\Phi _{21}");
 
-    Particle phi1_c = scalarboson_s("\\phi _1^+", *this);
-    Particle phi2_c = scalarboson_s("\\phi _2^+", *this);
-    Particle rho_1  = scalarboson_s("\\rho _1", *this);
-    Particle rho_2  = scalarboson_s("\\rho _2", *this);
-    Particle eta_1  = scalarboson_s("\\eta _1", *this);
-    Particle eta_2  = scalarboson_s("\\eta _2", *this);
+    Particle phi1_c = scalarboson_s("phi_1", *this);
+    Particle phi2_c = scalarboson_s("phi_2", *this);
+    Particle rho_1  = scalarboson_s("rho_1", *this);
+    Particle rho_2  = scalarboson_s("rho_2", *this);
+    Particle eta_1  = scalarboson_s("eta_1", *this);
+    Particle eta_2  = scalarboson_s("eta_2", *this);
     SetSelfConjugate(rho_1, true);
     SetSelfConjugate(rho_2, true);
     SetSelfConjugate(eta_1, true);
@@ -210,35 +270,65 @@ TwoHDM_Model<type>::TwoHDM_Model()
             csl::pow_s(m22, 2),
             - CSL_HALF*lambda2*v2*v2 + v1/v2*m12*m12 
             - v1*v1/2*lambda3 - v1*v1/2*lambda4 - v1*v1/2*lambda5);
+}
 
+template<int type>
+void TwoHDM_Model<type>::diagonalize2By2Matrices()
+{
     ///////////////////////////////////////////////////
     // Diagonalizing what can be
     ///////////////////////////////////////////////////
 
-    Particle h = scalarboson_s("h^0", *this);
-    Particle H = scalarboson_s("H^0", *this);
-    SetSelfConjugate(h, true);
-    SetSelfConjugate(H, true);
-    csl::Expr alpha = csl::constant_s("\\alpha");
-    Rotate(*this, 
-           {rho_1, rho_2}, 
+    alpha = csl::constant_s("alpha");
+
+    mty::Particle eta_u = getParticle("eta_1");
+    mty::Particle eta_d = getParticle("eta_2");
+    mty::Particle G0 = scalarboson_s("G0; G^0", *this);
+    mty::Particle A0 = scalarboson_s("A0; A^0", *this);
+    mty::SetSelfConjugate(G0, true);
+    mty::SetSelfConjugate(A0, true);
+    rotateFields(
+           {eta_u, eta_d}, 
+           {G0, A0},
+           {{csl::cos_s(beta), -csl::sin_s(beta)},
+            {csl::sin_s(beta), csl::cos_s(beta)}},
+            true, 1 // diagonalize, one massless state
+           ); 
+
+    mty::Particle phi_u = getParticle("phi_1");
+    mty::Particle phi_d = getParticle("phi_2");
+    mty::Particle Gp = scalarboson_s("Gp; G^+", *this);
+    mty::Particle Hp = scalarboson_s("Hp; H^+", *this);
+    rotateFields(
+           {phi_u, phi_d}, 
+           {Gp, Hp},
+           {{csl::cos_s(beta), -csl::sin_s(beta)},
+            {csl::sin_s(beta), csl::cos_s(beta)}},
+            true, 1 // diagonalize, one massless state
+           ); 
+
+    mty::Particle rho_u = getParticle("rho_1");
+    mty::Particle rho_d = getParticle("rho_2");
+    mty::Particle h = scalarboson_s("h0; h^0", *this);
+    mty::Particle H = scalarboson_s("H0; H^0", *this);
+    mty::SetSelfConjugate(h, true);
+    mty::SetSelfConjugate(H, true);
+    rotateFields(
+           {rho_u, rho_d}, 
            {h, H},
            {{-csl::sin_s(alpha), csl::cos_s(alpha)},
             {csl::cos_s(alpha), csl::sin_s(alpha)}},
-           true);
+            true // diagonalize, no massless state
+           ); 
 
     DiagonalizeMassMatrices(*this);
     Rename(*this, "B", "A");
-    Rename(*this, "W^3", "Z");
-    Rename(*this, "\\phi _1^+", "G^+");
-    Rename(*this, "\\phi _2^+", "H^+");
-    Rename(*this, "\\eta _1", "G^0");
-    Rename(*this, "\\eta _2", "A^0");
+    Rename(*this, "W_3", "Z");
 
-    csl::Expr gY = GetCoupling(*this, "gY");
-    csl::Expr gL = GetCoupling(*this, "gL");
-    csl::Expr theta_Weinberg = csl::constant_s("theta_W");
-    csl::Expr e  = csl::constant_s("e_em");
+    gY = GetCoupling(*this, "gY");
+    gL = GetCoupling(*this, "gL");
+    theta_Weinberg = csl::constant_s("theta_W");
+    e  = csl::constant_s("e_em");
 
     Replaced(*this,
             gL*gL + gY*gY,
@@ -249,7 +339,11 @@ TwoHDM_Model<type>::TwoHDM_Model()
     Replaced(*this,
             gL, 
             e / csl::sin_s(theta_Weinberg));
+}
 
+template<int type>
+void TwoHDM_Model<type>::replaceYukawas()
+{
     ///////////////////////////////////////////////////
     // Taking care of yukawa couplings
     ///////////////////////////////////////////////////
@@ -262,15 +356,9 @@ TwoHDM_Model<type>::TwoHDM_Model()
     csl::Tensor Yu2 = GetYukawa(*this, "Y2u");
     csl::Tensor Yd2 = GetYukawa(*this, "Y2d");
 
-    csl::Expr Ye2_tensor = Ye2->getTensor();
-    for (int i = 0; i != 3; ++i)
-        for (int j= 0; j != 3; ++j)
-            if (i != j)
-                Ye2_tensor->setArgument(CSL_0, {i, j});
-
     csl::Expr m_e   = csl::constant_s("m_e");
-    csl::Expr m_mu  = csl::constant_s("m_\\mu");
-    csl::Expr m_tau = csl::constant_s("m_\\tau");
+    csl::Expr m_mu  = csl::constant_s("m_mu");
+    csl::Expr m_tau = csl::constant_s("m_tau");
     csl::Expr m_u   = csl::constant_s("m_u");
     csl::Expr m_c   = csl::constant_s("m_c");
     csl::Expr m_t   = csl::constant_s("m_t");
@@ -306,10 +394,6 @@ TwoHDM_Model<type>::TwoHDM_Model()
     csl::Index f_k = GetIndex(flavorSpace);
     csl::Index f_l = GetIndex(flavorSpace);
     csl::Tensor delta_flav  = Delta(flavorSpace);
-
-    csl::Tensor U_uL = Unitary("U^u_L", flavorSpace);
-    csl::Tensor U_uR = Unitary("U^u_R", flavorSpace);
-    csl::Tensor U_dR = Unitary("U^d_R", flavorSpace);
 
     buildCKM(flavorSpace);
 
@@ -365,7 +449,11 @@ TwoHDM_Model<type>::TwoHDM_Model()
     Replaced(*this,
             1 + csl::pow_s(tan_beta, -2),
             v*v/(v2*v2));
+}
 
+template<int type>
+void TwoHDM_Model<type>::flavorSymmetryBreaking()
+{
     ///////////////////////////////////////////////////
     // Finally breaking SM flavor symmetry 
     // to get the 3 fermion generations
@@ -380,8 +468,12 @@ TwoHDM_Model<type>::TwoHDM_Model()
                         {"d_R", "s_R", "b_R"},
                         {"e_L", "mu_L;\\mu_L", "tau_L;\\tau_L"},
                         {"e_R", "mu_R;\\mu_R", "tau_R;\\tau_R"},
-                        {"nue;\\nu_{eL}", "num;\\nu_{\\mu L}", "nut;\\nu_{\\tau L}"}});
+                        {"nu_e;\\nu_{eL}", "nu_mu;\\nu_{\\mu L}", "nu_tau;\\nu_{\\tau L}"}});
+}
 
+template<int type>
+void TwoHDM_Model<type>::adjust()
+{
     Replaced(*this, 
             getParticle("W")->getMass(),
             sm_input::M_W);
@@ -390,8 +482,8 @@ TwoHDM_Model<type>::TwoHDM_Model()
             getParticle("Z")->getMass(),
             sm_input::M_Z);
     getParticle("Z")->setMass(sm_input::M_Z);
-    PromoteGoldstone(*this, "G^+", "W");
-    PromoteGoldstone(*this, "G^0", "Z");
+    PromoteGoldstone(*this, "Gp", "W");
+    PromoteGoldstone(*this, "G0", "Z");
     // Replaced(*this,
     //         1 + tan_beta*tan_beta,
     //         csl::pow_s(2 * getParticle("W")->getMass() 
@@ -412,6 +504,15 @@ TwoHDM_Model<type>::TwoHDM_Model()
             1 / (1 + tan_beta*tan_beta) + tan_beta*tan_beta / (1 + tan_beta*tan_beta),
             CSL_1
             );
+    Replaced(*this,
+            1 + csl::pow_s(tan_beta, -2),
+            1 / csl::pow_s(csl::sin_s(beta), 2));
+    Replaced(*this,
+            1 + csl::pow_s(tan_beta, 2),
+            1 / csl::pow_s(csl::cos_s(beta), 2));
+    Replaced(*this,
+            csl::tan_s(beta),
+            csl::sin_s(beta) / csl::cos_s(beta));
     refresh();
     L.mergeTerms();
 }
