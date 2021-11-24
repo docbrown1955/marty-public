@@ -106,7 +106,7 @@ Expr DeepExpandedIf_lock(
         bool refactor
         )
 {
-    Expr other(expression);
+    Expr other = DeepCopy(expression);
     csl::DeepExpandIf_lock(other, f, lockID, inplace, refactor);
     return other;
 }

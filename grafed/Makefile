@@ -1,4 +1,4 @@
-INSTALLDIR=/home/uhlrich/.local
+INSTALLDIR=/home/laptopgva/.local
 
 CC  = gcc-7
 CXX = g++-7
