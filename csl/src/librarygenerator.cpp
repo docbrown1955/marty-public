@@ -1016,11 +1016,6 @@ namespace csl {
         source << "#include \"common.h\"\n\n";
         if (uniqueParamStruct)
             source << "#include \"params.h\"\n";
-        source << "#include \"" << "group_" << getGroupFileName(f.getGroup())
-            << ".h\"\n\n";
-        if (hasGlobalFile()) {
-            source << "#include \"global.h\"\n";
-        }
         source << "#include \"libcomplexop.h\"\n\n";
         source << "namespace " << regLibName() << " {\n\n";
         f.print(source, false, initInstruction);
