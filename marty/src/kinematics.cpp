@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
+#include "polarization.h"
 #include "quantumField.h"
 #include "ghostField.h"
 #include "kinematics.h"
@@ -126,6 +127,28 @@ namespace mty {
         return factor;
     }
 
+    void Kinematics::setExternalSpinTensors(
+        std::vector<csl::Expr> const &terms
+        )
+    {
+        HEPAssert(terms.size() == size(),
+            mty::error::IndexError,
+            "Invalid number of spin tensors (" + std::to_string(terms.size())
+            + ") for a Kinematics object of size " + std::to_string(size()) 
+            + ".")
+        auto isSpinTensor = [](csl::Expr const &tensor) {
+            return IsOfType<PolarizationField>(tensor);
+        };
+        externalSpinTensors = std::vector<csl::Expr>(terms.size());
+        for (size_t i = 0; i != terms.size(); ++i) {
+            csl::Expr spinTensor = csl::FindIfLeaf(terms[i], isSpinTensor);
+            if (!spinTensor) {
+                spinTensor = CSL_UNDEF;
+            }
+            externalSpinTensors[i] = csl::Copy(spinTensor);
+        }
+    }
+
     void Kinematics::initMomentaSquared(std::vector<size_t> const &indices)
     {
         for (size_t i = 0; i != insertions.size(); ++i)  {
@@ -184,6 +207,7 @@ namespace mty {
 
         Kinematics res;
         res.insertions.reserve(sz);
+        res.externalSpinTensors.reserve(sz);
         res.momenta.reserve(sz);
         res.indices.reserve(sz);
         res.squaredMomenta.reserve(sz * sz);
@@ -192,6 +216,7 @@ namespace mty {
             res.insertions.push_back(insertions[i]);
             res.momenta.push_back(momenta[i]);
             res.indices.push_back(indices[i]);
+            res.externalSpinTensors.push_back(externalSpinTensors[i]);
             for (const size_t j : pos) {
                 res.squaredMomenta.push_back(
                         squaredMomenta[squaredMomentumIndex(i, j)]
@@ -242,6 +267,8 @@ namespace mty {
                 + toString(*this) + '\n' + toString(other))
         std::vector<mty::Insertion> alignedInsertions = insertions;
         std::vector<csl::Tensor>    alignedMomenta    = momenta;
+        std::vector<csl::Expr>      alignedSpins      = externalSpinTensors;
+        bool hasSpins = !alignedSpins.empty();
         for (size_t i = 0; i != size(); ++i) {
             bool match = false;
             for (size_t j = i; j != size(); ++j) {
@@ -249,6 +276,8 @@ namespace mty {
                     if (i != j) {
                         std::swap(alignedInsertions[i], alignedInsertions[j]);
                         std::swap(alignedMomenta[i],    alignedMomenta[j]);
+                        if (hasSpins)
+                          std::swap(alignedSpins[i], alignedSpins[j]);
                     }
                     match = true;
                     break;
@@ -259,14 +288,19 @@ namespace mty {
                     "Cannot align the following kinematics " 
                     + toString(*this) + '\n' + toString(other))
         }
-        return Kinematics { alignedInsertions, alignedMomenta };
+        auto kin = Kinematics { alignedInsertions, alignedMomenta };
+        if (hasSpins)
+          kin.setExternalSpinTensors(alignedSpins);
+        return kin;
     }
 
     Kinematics Kinematics::applyIndices(
             std::vector<size_t> const &t_indices
             ) const
     {
-        return Kinematics{insertions, t_indices};
+        auto kin = Kinematics{insertions, t_indices};
+        kin.setExternalSpinTensors(externalSpinTensors);
+        return kin;
     }
 
     void Kinematics::replace(
@@ -280,6 +314,23 @@ namespace mty {
                 "Kinematics should have the same size for replacement, got " +
                 std::to_string(k1.size()) + " and " + std::to_string(k2.size())
                 + ".")
+        if (k1.externalSpinTensors.size() == k2.externalSpinTensors.size()) {
+            for (size_t i = 0 ; i != k1.externalSpinTensors.size(); ++i) {
+                csl::Expr spin1 = k1.getExternalSpinTensors()[i];
+                csl::Expr spin2 = k2.getExternalSpinTensors()[i];
+                bool isSpin1Def = (spin1 != CSL_UNDEF);
+                bool isSpin2Def = (spin2 != CSL_UNDEF);
+                HEPAssert(isSpin1Def == isSpin2Def,
+                    mty::error::RuntimeError,
+                    "Encountered different external spin tensors in "
+                    "kinematics replacement.")
+                if (isSpin1Def) {
+                    csl::Index polarIndex1 = spin1->getIndexStructureView()[0];
+                    csl::Index polarIndex2 = spin2->getIndexStructureView()[0];
+                    csl::Replace(expr, polarIndex1, polarIndex2);
+                }
+            }
+        }
         csl::Replace(expr, k1.getMomenta(),        k2.getMomenta());
         csl::Replace(expr, k1.getSquaredMomenta(), k2.getSquaredMomenta());
     }
@@ -296,15 +347,18 @@ namespace mty {
         res.insertions.reserve(sT);
         res.indices.reserve(sT);
         res.momenta.reserve(sT);
+        res.externalSpinTensors.reserve(sT);
         for (size_t i1 = 0; i1 != s1; ++i1) {
             res.insertions.push_back(k1.insertions[i1]);
             res.momenta.push_back(k1.momenta[i1]);
             res.indices.push_back(k1.indices[i1]);
+            res.externalSpinTensors.push_back(k1.externalSpinTensors[i1]);
         }
         for (size_t i2 = 0; i2 != s2; ++i2) {
             res.insertions.push_back(k2.insertions[i2]);
             res.momenta.push_back(k2.momenta[i2]);
             res.indices.push_back(k2.indices[i2]);
+            res.externalSpinTensors.push_back(k2.externalSpinTensors[i2]);
         }
         res.squaredMomenta.resize(sT*sT);
         res.initMomentaSquared(res.indices);

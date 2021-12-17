@@ -134,6 +134,13 @@ namespace mty {
         }
 
         /**
+         * @return A const reference to the external spin tensors.
+         */
+        std::vector<csl::Expr> const &getExternalSpinTensors() const {
+            return externalSpinTensors;
+        }
+
+        /**
          * @return A const reference to the range of momenta.
          */
         std::vector<csl::Tensor> const &getMomenta() const {
@@ -188,6 +195,19 @@ namespace mty {
          * for the corresponding squared amplitude.
          */
         csl::Expr getDegreesOfFreedomFactor() const;
+
+        /**
+         * @brief Sets the external spin tensors from a collection of 
+         * exprssions.
+         *
+         * @details Each term is parsed and the first mty::PolarisationField
+         * object is detected and stored as external spin tensor. If no spin
+         * tensor is found, CSL_UNDEF is used as default value for the tensor.
+         *
+         * @param terms Set of expressions, typically results of 
+         * mty::QuantumField::getLSZInsertion().
+         */
+        void setExternalSpinTensors(std::vector<csl::Expr> const &terms);
 
         /**
          * @brief Returns a subset of the Kinematics object taking only some 
@@ -345,6 +365,13 @@ namespace mty {
          * @details There are exactly \f$N\f$ momenta for \f$N\f$ insertions.
          */
         std::vector<csl::Tensor>    momenta;
+
+        /**
+         * @brief Set of external spin tensors (mty::PolarisationField).
+         *
+         * @details Each element can also be CSL_UNDEF if there is no spin tensor.
+         */
+        std::vector<csl::Expr>      externalSpinTensors;
 
         /**
          * @brief Indices of momenta.

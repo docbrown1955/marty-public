@@ -90,7 +90,7 @@ namespace mty {
     {
         csl::Expr LSZInsertion = getLSZInsertions(
                 insertions,
-                kinematics.getMomenta(),
+                kinematics,
                 true
                 );
         if (options.orderInsertions)
@@ -156,7 +156,7 @@ namespace mty {
     {
         csl::Expr LSZInsertion = getLSZInsertions(
                 insertions, 
-                kinematics.getMomenta(),
+                kinematics,
                 false);
         // std::cout << "LSZ = " << LSZInsertion << '\n';
         if (options.orderInsertions)
@@ -373,10 +373,11 @@ namespace mty {
 
     csl::Expr AmplitudeInitializer::getLSZInsertions(
             std::vector<mty::QuantumField> const &insertions,
-            std::vector<csl::Tensor>       const &momenta,
+            Kinematics                           &kinematics,
             bool                                  feynRuleCalculation
             )
     {
+        auto const &momenta = kinematics.getMomenta();
         HEPAssert(insertions.size() == momenta.size(),
                 mty::error::ValueError,
                 "Expecting the same number of fields and momenta, " + 
@@ -397,6 +398,7 @@ namespace mty {
                         momenta[i], feynRuleCalculation);
             }
         }
+        kinematics.setExternalSpinTensors(terms);
         csl::Expr res = csl::prod_s(terms);
         if (!feynRuleCalculation)
             mty::simpli::findExternalAbbreviation(res);

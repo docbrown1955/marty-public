@@ -259,10 +259,12 @@ csl::Expr Model::computeSquaredAmplitude(
                 applyDegreesOfFreedomFactor
                 );
     }
-    FeynOptions optionsR = amplR.getOptions();
+    Amplitude amplR_copy = amplR;
+    amplR_copy.setKinematics(amplL.getKinematics());
+    FeynOptions optionsR = amplR_copy.getOptions();
     // optionsR.setWilsonOperatorBasis(OperatorBasis::None);
     auto wilsonsR = getWilsonCoefficients(
-            amplR, optionsR, DecompositionMode::Minimal);
+            amplR_copy, optionsR, DecompositionMode::Minimal);
 
     return computeSquaredAmplitude(
             wilsonsL,
@@ -326,9 +328,9 @@ csl::Expr Model::computeSquaredAmplitude(
     size_t index = 0;
     std::cout << "Squaring amplitude ..." << std::endl;
     csl::ProgressBar bar(amplL.size()*(amplR.size() + 1)/2);
-    for (size_t i = 0; i != amplL.size(); ++i) {
+    for (size_t i = 0; i != amplR.size(); ++i) {
         // If same start at i and add complex conjugate
-        for (size_t j = areSame*i; j != amplR.size(); ++j) {
+        for (size_t j = areSame*i; j != amplL.size(); ++j) {
             if (mty::option::verboseAmplitude)
                 bar.progress(index++);
             csl::Expr renamed = csl::Factored(csl::DeepCopy(evalL[j]));
@@ -690,8 +692,13 @@ WilsonSet Model::computeSingleWilsonPenguin_4Fermions(
     }
     Amplitude connexion = connectAmplitudes(
             treeAmplitude, loopAmplitude, feynOptions);
+    std::cout << "HERE" << std::endl;
+    std::cout << kinematics.getExternalSpinTensors().size() << std::endl;
+    std::cout << connexion.getKinematics().getExternalSpinTensors().size() << std::endl;
     connexion.setKinematics(kinematics.alignedWith(connexion.getKinematics()));
+    std::cout << connexion.getKinematics().getExternalSpinTensors().size() << std::endl;
     connexion.setKinematics(kinematics, false); // Do not apply any replacement
+    std::cout << connexion.getKinematics().getExternalSpinTensors().size() << std::endl;
     feynOptions.setFermionOrder(fermionOrder);
     std::vector<Insertion> order = {
         insertions[treeCoupling.first], insertions[treeCoupling.second],

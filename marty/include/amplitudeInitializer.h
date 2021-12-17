@@ -111,7 +111,7 @@ namespace mty {
 
         static csl::Expr getLSZInsertions(
                 std::vector<mty::QuantumField> const &fields,
-                std::vector<csl::Tensor>       const &momenta,
+                Kinematics                           &kinematics,
                 bool                                  feynRuleCalculation
                 );
 
