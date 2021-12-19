@@ -692,13 +692,8 @@ WilsonSet Model::computeSingleWilsonPenguin_4Fermions(
     }
     Amplitude connexion = connectAmplitudes(
             treeAmplitude, loopAmplitude, feynOptions);
-    std::cout << "HERE" << std::endl;
-    std::cout << kinematics.getExternalSpinTensors().size() << std::endl;
-    std::cout << connexion.getKinematics().getExternalSpinTensors().size() << std::endl;
     connexion.setKinematics(kinematics.alignedWith(connexion.getKinematics()));
-    std::cout << connexion.getKinematics().getExternalSpinTensors().size() << std::endl;
     connexion.setKinematics(kinematics, false); // Do not apply any replacement
-    std::cout << connexion.getKinematics().getExternalSpinTensors().size() << std::endl;
     feynOptions.setFermionOrder(fermionOrder);
     std::vector<Insertion> order = {
         insertions[treeCoupling.first], insertions[treeCoupling.second],
