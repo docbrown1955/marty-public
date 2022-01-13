@@ -18,7 +18,7 @@ namespace mty {
         replaceWboson();
         replaceHiggs();
         diagonalize2By2Matrices();
-        GTHDM_Model::replaceYukawas(); // replace this function from 2HDM
+        GTHDM_Model::replaceYukawas(); // replaces the same function from 2HDM
         flavorSymmetryBreaking();     
         adjust();
     }
@@ -104,7 +104,7 @@ namespace mty {
                 );
         Replaced(*this,
                 Yu1({f_i, f_j}),
-                sqrt_s(2)/(v*cos_s(beta)) * M_d({f_i, f_j})
+                sqrt_s(2)/(v*cos_s(beta)) * M_u({f_i, f_j})
                 - tan_s(beta) * Yu2({f_i, f_j})
                 );
 

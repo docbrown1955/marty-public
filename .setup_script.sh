@@ -183,6 +183,18 @@ ensure_path()
     fi
 }
 
+ask_compiler_replacement()
+{
+    echo "Compiler $cc already defined. Replace it ? [y/n, default: y]"
+    read c
+    if [ "$c" == "" ] || [ "$c" == "Y" ] || [ "$c" == "y" ] || [ "$c" == "yes" ] || [ "$c" == "Yes" ]
+    then
+        fres=1
+    else
+        fres=0
+    fi
+}
+
 message "${GREEN}${BOLD}MARTY installation script${NC}${NORMAL}"
 
 testDependencies
@@ -222,17 +234,38 @@ message "${GREEN}${BOLD}[2 / 5] Installation path checked${NORMAL}${NC}"
 
 martyEnvFile=marty_env.sh
 echo "#!/bin/bash" > $martyEnvFile
-if [ "$CC" == "" ]
+replace_cc=1
+replace_cxx=1
+replace_fc=1
+if [ "$CC" != "" ] && [ "$CC" != "gcc$v" ]
+then
+    cc="CC=$CC"
+    ask_compiler_replacement
+    replace_cc=$((fres&&replace_cc))
+fi
+if [ "$CXX" != "" ] && [ "$CXX" != "g++$v" ]
+then
+    cc="CXX=$CXX"
+    ask_compiler_replacement
+    replace_cxx=$((fres&&replace_cxx))
+fi
+if [ "$FC" != "" ] && [ "$FC" != "gfortran$v" ]
+then
+    cc="FC=$FC"
+    ask_compiler_replacement
+    replace_fc=$((fres&&replace_fc))
+fi
+if [ $replace_cc == 1 ]
 then
     export CC=gcc$v
     echo "export CC=gcc$v" >> $martyEnvFile
 fi
-if [ "$CXX" == "" ]
+if [ $replace_cxx == 1 ]
 then
     export CXX=g++$v
     echo "export CXX=g++$v" >> $martyEnvFile
 fi
-if [ "$FC" == "" ]
+if [ $replace_fc == 1 ]
 then
     export FC=gfortran$v
     echo "export FC=gfortran$v" >> $martyEnvFile
