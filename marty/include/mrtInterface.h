@@ -552,6 +552,16 @@ void Show(
         size_t last
         );
 
+void SaveDiagrams(
+    std::string                               const &fileName,
+    std::vector<std::shared_ptr<wick::Graph>> const &diagams);
+void SaveDiagrams(
+    std::string    const &fileName,
+    mty::Amplitude const &amplitude);
+void SaveDiagrams(
+    std::string              const &fileName,
+    std::vector<FeynmanRule> const& rules);
+
 template<class T>
 void Display(T const& printable,
              std::ostream& out = std::cout)

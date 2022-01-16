@@ -6,8 +6,8 @@
 
 
 QT             += core gui widgets
-# QMAKE_CXX = g++-7
-# QMAKE_LINK = g++-7
+#QMAKE_CXX = g++-7
+#QMAKE_LINK = g++-7
 QMAKE_CXXFLAGS += -std=c++17
 
 TARGET = grafed-gui

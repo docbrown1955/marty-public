@@ -324,6 +324,30 @@ void Show(
     Show(wilsons.graphs, first, last);
 }
 
+void SaveDiagrams(
+    std::string              const& fileName,
+    std::vector<FeynmanRule> const& rules)
+{
+    std::vector<std::shared_ptr<wick::Graph>> graphs(rules.size());
+    for (size_t i = 0; i != rules.size(); ++i)
+        graphs[i] = rules[i].getDiagram();
+    SaveDiagrams(fileName, graphs);
+}
+
+void SaveDiagrams(
+    std::string                               const &fileName,
+    std::vector<std::shared_ptr<wick::Graph>> const& graphs)
+{
+    Drawer::saveToJSON(fileName, graphs);
+}
+
+void SaveDiagrams(
+    std::string    const& fileName,
+    mty::Amplitude const& ampl)
+{
+    SaveDiagrams(fileName, ampl.obtainGraphs());
+}
+
 void Display(WilsonSet const& wilsons,
              std::ostream   & out)
 {

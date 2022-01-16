@@ -231,6 +231,20 @@ void Drawer::launchViewer(
     launchViewer(buildDiagrams(graphs));
 }
 
+void Drawer::saveToJSON(
+        std::string                      const& fileName,
+        std::vector<drawer::LatexLinker> const& links)
+{
+    drawer::LatexLinker::saveMultiple(fileName, links);
+}
+
+void Drawer::saveToJSON(
+        std::string                      const& fileName,
+        std::vector<std::shared_ptr<wick::Graph>> const& graphs)
+{
+    saveToJSON(fileName, buildDiagrams(graphs));
+}
+
 std::string Drawer::buildLatex(
         std::shared_ptr<wick::Graph> const& graph)
 {

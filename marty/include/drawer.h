@@ -56,6 +56,14 @@ class Drawer {
     static void launchViewer(
             std::vector<std::shared_ptr<wick::Graph>> const& links);
 
+    static void saveToJSON(
+            std::string                      const& fileName,
+            std::vector<drawer::LatexLinker> const& links);
+
+    static void saveToJSON(
+            std::string                      const& fileName,
+            std::vector<std::shared_ptr<wick::Graph>> const& links);
+
     static std::string buildLatex(
             std::shared_ptr<wick::Graph> const& graph);
 
