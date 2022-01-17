@@ -59,6 +59,7 @@
       <addaction name="actionSessionSource"/>
       <addaction name="actionSessionSource_to_clipboard"/>
      </widget>
+     <addaction name="actionSessionPDF"/>
      <addaction name="actionSessionPNG"/>
      <addaction name="menuLatex_2"/>
     </widget>
@@ -219,6 +220,11 @@
   <action name="actionSingle_diagram_mode">
    <property name="text">
     <string>Single diagram mode</string>
+   </property>
+  </action>
+  <action name="actionSessionPDF">
+   <property name="text">
+    <string>PDF</string>
    </property>
   </action>
  </widget>
@@ -513,6 +519,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionSessionPDF</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>exportPDF()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>627</x>
+     <y>340</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>latexSource()</slot>
@@ -527,5 +549,6 @@
   <slot>exportPNG()</slot>
   <slot>setDiagramMode()</slot>
   <slot>setSessionMode()</slot>
+  <slot>exportPDF()</slot>
  </slots>
 </ui>

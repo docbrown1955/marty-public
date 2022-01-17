@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 
-QT             += core gui widgets
+QT             += core gui widgets printsupport
 #QMAKE_CXX = g++-7
 #QMAKE_LINK = g++-7
 QMAKE_CXXFLAGS += -std=c++17
@@ -41,6 +41,7 @@ SOURCES += \
     curvature.cpp \
     htmlconverter.cpp \
     dialoglatex.cpp \
+    pdfsetupdialog.cpp \
     toolbar.cpp \
     grid.cpp \
     diagram.cpp \
@@ -61,6 +62,8 @@ HEADERS += \
     curvature.h \
     htmlconverter.h \
     dialoglatex.h \
+    pdfoption.h \
+    pdfsetupdialog.h \
     toolbar.h \
     grid.h \
     diagram.h \
@@ -80,6 +83,7 @@ FORMS += \
     mainwidget.ui \
     diagramrenderer.ui \
     dialoglatex.ui \
+    pdfsetupdialog.ui \
     toolbar.ui \
     edgeform.ui \
     nodeform.ui

@@ -26,6 +26,7 @@
 #include <QWidget>
 #include "diagramrenderer.h"
 #include "toolbar.h"
+#include "pdfoption.h"
 
 namespace Ui {
 class MainWidget;
@@ -70,6 +71,7 @@ public slots:
     bool saveFile(QString const &fileName);
 
     void exportPNG();
+    void exportPDF();
 
     void latexSource();
     void latexSourceToClipboard();
@@ -88,6 +90,9 @@ public slots:
 
     void setSaved(bool);
 
+    void prevPage();
+    void nextPage();
+
 signals:
 
     void sessionMode();
@@ -99,6 +104,13 @@ signals:
 
     void isChanged();
     void isSaved();
+
+public:
+
+    void renderPDF(
+            QPainter &painter,
+            PDFOption &options
+            );
 
 private:
     Ui::MainWidget  *ui;

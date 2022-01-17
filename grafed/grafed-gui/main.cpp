@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
         nameFile = argv[1];
     }
     else {
-        nameFile = "graphs.json";
+        nameFile = "/home/laptopgva/Desktop/MARTY/marty-dev/marty/diagrams.json";
     }
     MainWindow w(nameFile.toStdString().c_str());
     w.show();

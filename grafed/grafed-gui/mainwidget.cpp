@@ -17,9 +17,14 @@
 #include "ui_mainwidget.h"
 #include "ui_toolbar.h"
 #include "dialoglatex.h"
+#include "pdfsetupdialog.h"
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QClipboard>
+#include <QPrinter>
+#include <QPrintDialog>
+#include <QPdfWriter>
+#include <QPagedPaintDevice>
 
 MainWidget::MainWidget(
         QString const &nameFile,
@@ -85,6 +90,8 @@ void MainWidget::setSessionMode()
     toolBar->ui->gridLabel->setEnabled(false);
     toolBar->ui->gridSlider->setEnabled(false);
     toolBar->ui->gridButton->setEnabled(false);
+    toolBar->ui->prec_page->setEnabled(true);
+    toolBar->ui->next_page->setEnabled(true);
     toolBar->ui->gridValueLabel->setEnabled(false);
     toolBar->ui->zoomLabel->setEnabled(false);
     toolBar->ui->zoomSlider->setEnabled(false);
@@ -137,6 +144,8 @@ void MainWidget::setDiagramMode()
     toolBar->ui->gridLabel->setEnabled(true);
     toolBar->ui->gridSlider->setEnabled(true);
     toolBar->ui->gridButton->setEnabled(true);
+    toolBar->ui->prec_page->setEnabled(false);
+    toolBar->ui->next_page->setEnabled(false);
     toolBar->ui->gridValueLabel->setEnabled(true);
     toolBar->ui->zoomLabel->setEnabled(true);
     toolBar->ui->zoomSlider->setEnabled(true);
@@ -184,6 +193,9 @@ void MainWidget::setupUi()
     toolBar->ui->removeButton->setEnabled(false);
     toolBar->ui->labelDiagName->hide();
     toolBar->ui->lineDiagName->hide();
+    auto [first, last] = renderer->page();
+    std::string text = std::to_string(first) + " - " + std::to_string(last);
+    toolBar->ui->page->setText(QString::fromStdString(text));
 }
 
 void MainWidget::setupConnections()
@@ -233,6 +245,11 @@ void MainWidget::setupConnections()
             this,                         SLOT(resetZoom()));
     connect(toolBar->ui->rotationResetButton, SIGNAL(pressed()),
             this,                             SLOT(resetRotation()));
+
+    connect(toolBar->ui->prec_page, SIGNAL(pressed()),
+            this, SLOT(prevPage()));
+    connect(toolBar->ui->next_page, SIGNAL(pressed()),
+            this, SLOT(nextPage()));
 }
 
 void MainWidget::newDiagram()
@@ -279,6 +296,22 @@ void MainWidget::loadFile(QString const &fileName)
     renderer->clear();
     renderer->readFile(fileName);
     setSaved(true);
+}
+
+void MainWidget::prevPage()
+{
+    auto [first, last] = renderer->prevPage();
+    std::string text = std::to_string(first) + " - " + std::to_string(last);
+    toolBar->ui->page->setText(QString::fromStdString(text));
+    toolBar->update();
+}
+
+void MainWidget::nextPage()
+{
+    auto [first, last] = renderer->nextPage();
+    std::string text = std::to_string(first) + " - " + std::to_string(last);
+    toolBar->ui->page->setText(QString::fromStdString(text));
+    toolBar->update();
 }
 
 bool MainWidget::save()
@@ -363,18 +396,101 @@ void MainWidget::exportPNG()
                     );
         if (path.isEmpty())
             return;
-
-        for (qint32 i = 0; i != renderer->diagrams.size(); ++i) {
+        size_t iDiagram = 0;
+        renderer->setPage(0);
+        for (qint32 i = 0; i != renderer->links.size(); ++i) {
             QString fileName = path + "/" + name + "_"
                     + QString::number(i)
                     + ".png";
-            if (renderer->diagrams[i]->getName() != "")
+            if (renderer->diagrams[iDiagram]->getName() != "")
                 fileName = path + "/"
-                        + renderer->diagrams[i]->getName()
+                        + renderer->diagrams[iDiagram]->getName()
                         + ".png";
-            renderer->diagrams[i]->exportSelfPNG(fileName);
-            renderer->diagrams[i]->showNodes(false);
+            renderer->diagrams[iDiagram]->exportSelfPNG(fileName);
+            renderer->diagrams[iDiagram]->showNodes(false);
+            if (++iDiagram == DiagramRenderer::pageSize) {
+                renderer->nextPage();
+                iDiagram = 0;
+            }
         }
+    }
+    renderer->setPage(0);
+    update();
+}
+
+void MainWidget::renderPDF(
+        QPainter &painter,
+        PDFOption &option)
+{
+    auto printer = option.getPDFWriter();
+    int rowSize = option.rowSize;
+    float ratio = option.imageRatio;
+    float hMarginRatio = option.horizontalMarginRatio;
+    float hSpaceRatio  = option.horizontalSpacingRatio;
+    float vMarginRatio = option.verticalMarginRatio;
+    float vSpaceRatio  = option.verticalSpacingRatio;
+    int pageWidth  = option.width;
+    int pageHeight = option.height;
+
+    int boxWidth = pageWidth*(1 - 2*hMarginRatio - (rowSize-1)*hSpaceRatio) *1. / rowSize;
+    int boxHeight = ratio * boxWidth;
+    int columnSize = pageHeight*(1 - 2*vMarginRatio + vSpaceRatio)
+            * 1. / (boxHeight + pageHeight*vSpaceRatio);
+    int hMargin = hMarginRatio*pageWidth;
+    int vMargin = vMarginRatio*pageHeight;
+    int hSpace  = hSpaceRatio*pageWidth;
+    int vSpace  = vSpaceRatio*pageHeight;
+
+    int iRow = 0;
+    int iCol = 0;
+    size_t iDiagram = 0;
+    size_t iCell = 0;
+    renderer->setPage(0);
+    for (size_t i = 0; i != renderer->links.size(); ++i) {
+        QRectF bounds = renderer->diagrams[iDiagram]->getBounds();
+        int x = hMargin + iCol*(boxWidth + hSpace);
+        int y = vMargin + iRow*(boxHeight + vSpace);
+        QRectF target(x, y, boxWidth, boxHeight);
+        if (option.showNumbers) {
+            painter.drawText(x, y, QString::fromStdString(std::to_string(iCell++)));
+        }
+        renderer->scene->render(&painter, target, bounds, Qt::KeepAspectRatio);
+        ++iCol;
+        if (iCol == rowSize) {
+            iCol = 0;
+            ++iRow;
+        }
+        if (iRow == columnSize) {
+            iRow = 0;
+            if (!printer) {
+                renderer->setPage(0);
+                update();
+                return;
+            }
+            printer->newPage();
+        }
+        if (++iDiagram == DiagramRenderer::pageSize) {
+            iDiagram = 0;
+            renderer->nextPage();
+        }
+    }
+    painter.end();
+    renderer->setPage(0);
+    update();
+}
+
+void MainWidget::exportPDF()
+{
+    PDFSetupDialog pdfDialog(this);
+    int code = pdfDialog.exec();
+    if (code == QDialog::Accepted) {
+        QPdfWriter printer(pdfDialog.getSaveFile());
+        printer.setPageSize(QPrinter::A4);
+        printer.setPageOrientation(QPageLayout::Portrait);
+        QPainter painter(&printer);
+        auto option = pdfDialog.getOptions();
+        option.setPDFWriter(&printer);
+        renderPDF(painter, option);
     }
 }
 

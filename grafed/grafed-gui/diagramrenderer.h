@@ -62,6 +62,7 @@ public:
 
 public slots:
 
+    void clearScene();
     void clear();
     void init();
 
@@ -101,7 +102,10 @@ public slots:
 
     void keyPressEvent(QKeyEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
-    void readFile(QString const &nameFile);
+    void readFile(
+            QString const &nameFile);
+    void refreshLinks();
+    void loadDiagrams(size_t first);
     void addDiagram();
 
     void diagramDoubleClicked(qint32, qint32);
@@ -116,6 +120,11 @@ public slots:
     void refresh(qint32 pos);
 
     void modificationDone();
+
+    std::pair<size_t, size_t> page();
+    std::pair<size_t, size_t> prevPage();
+    std::pair<size_t, size_t> nextPage();
+    std::pair<size_t, size_t> setPage(size_t t_page);
 
 signals:
 
@@ -133,16 +142,22 @@ protected:
         generateDiagram(qint32 iRow, qint32 iCol);
     std::pair<Diagram*, DiagramWidget*> newDiagram();
 
+    size_t maxDiagramNumber(size_t first);
+
 private:
 
     Ui::DiagramRenderer *m_ui;
     QHBoxLayout *hlayout;
     Mode mode;
     qint32          nColumns;
+    qint32          cellSize;
     qint32          minWidth;
     qint32          minHeight;
     qint32          firstDiag;
     qint32          lastDiag;
+
+    constexpr static size_t pageSize = 100;
+    size_t                  pageNumber;
     std::vector<drawer::LatexLinker> links;
     QList<Diagram*>       allDiagrams;
     QList<Diagram*>       diagrams;

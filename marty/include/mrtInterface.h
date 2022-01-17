@@ -527,7 +527,9 @@ void Display(WilsonSet const& wilsons,
              std::ostream             & out = std::cout);
 
 void Show(std::vector<FeynmanRule> const& rules);
-void Show(std::vector<std::shared_ptr<wick::Graph>> const& diagrams);
+void Show(
+    std::vector<std::shared_ptr<wick::Graph>> const& diagrams,
+    bool showMomenta = true);
 void Show(mty::Amplitude const& diagrams);
 void Show(WilsonSet const &wilsons);
 
@@ -554,7 +556,8 @@ void Show(
 
 void SaveDiagrams(
     std::string                               const &fileName,
-    std::vector<std::shared_ptr<wick::Graph>> const &diagams);
+    std::vector<std::shared_ptr<wick::Graph>> const &diagams,
+    bool                                             showMomenta=true);
 void SaveDiagrams(
     std::string    const &fileName,
     mty::Amplitude const &amplitude);

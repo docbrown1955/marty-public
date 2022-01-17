@@ -50,6 +50,7 @@ public slots:
     void save();
     void saveAs();
     void exportPNG();
+    void exportPDF();
 
     void latexSource();
     void latexSourceToClipboard();

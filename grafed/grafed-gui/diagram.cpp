@@ -353,10 +353,8 @@ void Diagram::save(std::string const&fileName) const
     getScaledGraph().write(outputPath + "/" + fileName);
 }
 
-void Diagram::exportSelfPNG(const QString &fileName)
+QRectF Diagram::getBounds() const
 {
-    resetFocus();
-    showNodes(false);
     Border border;
     for (const auto &node : nodes) {
         border.update(node->sceneBoundingRect());
@@ -369,6 +367,14 @@ void Diagram::exportSelfPNG(const QString &fileName)
             border.update(edge->label->sceneBoundingRect());
     }
     QRectF bounds = border.getBorder();
+    return bounds;
+}
+
+void Diagram::exportSelfPNG(const QString &fileName)
+{
+    resetFocus();
+    showNodes(false);
+    QRectF bounds = getBounds();
     QRectF oldRect = scene->sceneRect();
     scene->setSceneRect(bounds);
     QImage image(scene->sceneRect().size().toSize(), QImage::Format_ARGB32);
@@ -587,16 +593,16 @@ void Diagram::labelReady(std::string const &label)
 Proxy *Diagram::generateLabel(QString const &text) const
 {
     if (1) { // !text.isEmpty()) {
-#ifndef NO_LATEX_LABEL
-        QLabel *label = new QLabel;
-        QPixmap pixmap = latexComp->getLabel(text);
-        label->setPixmap(pixmap);
-#else
+#ifdef NO_LATEX_LABEL
         QString html = HTMLConverter::fromLatex(text);
         QLabel *label = new QLabel;
         label->setFont(font);
         label->setTextFormat(Qt::RichText);
         label->setText(html);
+#else
+        QLabel *label = new QLabel;
+        QPixmap pixmap = latexComp->getLabel(text);
+        label->setPixmap(pixmap);
 #endif
         QPalette sample_palette;
         sample_palette.setColor(QPalette::Window, Qt::transparent);

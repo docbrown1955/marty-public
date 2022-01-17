@@ -257,12 +257,14 @@ void Show(std::vector<FeynmanRule> const& rules)
     std::vector<std::shared_ptr<wick::Graph>> graphs(rules.size());
     for (size_t i = 0; i != rules.size(); ++i)
         graphs[i] = rules[i].getDiagram();
-    Show(graphs);
+    Show(graphs, false);
 }
 
-void Show(std::vector<std::shared_ptr<wick::Graph>> const& graphs)
+void Show(
+    std::vector<std::shared_ptr<wick::Graph>> const& graphs,
+    bool showMomenta)
 {
-    Drawer::launchViewer(graphs);
+    Drawer::launchViewer(graphs, showMomenta);
 }
 
 void Show(mty::Amplitude const& ampl)
@@ -331,14 +333,15 @@ void SaveDiagrams(
     std::vector<std::shared_ptr<wick::Graph>> graphs(rules.size());
     for (size_t i = 0; i != rules.size(); ++i)
         graphs[i] = rules[i].getDiagram();
-    SaveDiagrams(fileName, graphs);
+    SaveDiagrams(fileName, graphs, false);
 }
 
 void SaveDiagrams(
     std::string                               const &fileName,
-    std::vector<std::shared_ptr<wick::Graph>> const& graphs)
+    std::vector<std::shared_ptr<wick::Graph>> const& graphs,
+    bool                                             showMomenta)
 {
-    Drawer::saveToJSON(fileName, graphs);
+    Drawer::saveToJSON(fileName, graphs, showMomenta);
 }
 
 void SaveDiagrams(

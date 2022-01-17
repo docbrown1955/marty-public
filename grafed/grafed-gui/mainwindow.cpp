@@ -172,6 +172,11 @@ void MainWindow::exportPNG()
     mainWidget->exportPNG();
 }
 
+void MainWindow::exportPDF()
+{
+    mainWidget->exportPDF();
+}
+
 void MainWindow::latexSource()
 {
     mainWidget->latexSource();

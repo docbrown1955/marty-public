@@ -111,6 +111,7 @@ public:
             qreal& x,
             qreal& y
             );
+    QRectF getBounds() const;
 
     void insertionMode();
     void normalMode();

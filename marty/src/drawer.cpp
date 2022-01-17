@@ -20,7 +20,9 @@ namespace mty {
 
 drawer::LatexLinker Drawer::buildDiagram(
         std::shared_ptr<wick::Graph> const& graph,
-        bool                                   external)
+        bool                                external,
+        bool                                showMomenta
+        )
 {
     csl::ScopedProperty idIndices(&csl::option::printIndexIds, false);
     auto diagram = convertGraph(graph, true, external);
@@ -34,8 +36,10 @@ drawer::LatexLinker Drawer::buildDiagram(
             for (char &c : name)
                 if (c == 'X')
                     c = 'p';
-            link.setVertexName(i, std::string(vertices[i][0]->field->getLatexName())
-                    + "(" + name + ")");
+            link.setVertexName(
+                i, 
+                std::string(vertices[i][0]->field->getLatexName())
+                    + (showMomenta ? ("(" + name + ")") : std::string()));
         }
         for (size_t j = 0; j != vertices[i].size(); ++j)
             for (size_t k = j+1; k < vertices[i].size(); ++k) 
@@ -182,7 +186,8 @@ drawer::LatexLinker Drawer::buildDiagram(
 // }
 
 std::vector<drawer::LatexLinker> Drawer::buildDiagrams(
-        std::vector<std::shared_ptr<wick::Graph>> const& graphs)
+        std::vector<std::shared_ptr<wick::Graph>> const& graphs,
+        bool showMomenta)
 {
     for (const auto &g : graphs)
         HEPAssert(g,
@@ -203,7 +208,7 @@ std::vector<drawer::LatexLinker> Drawer::buildDiagrams(
             }
         }
         if (not found) {
-            auto link = buildDiagram(graphs[i], false);
+            auto link = buildDiagram(graphs[i], false, showMomenta);
             // links[i] = link;
             graphsD.push_back(link.getGraph());
             --i;
@@ -226,9 +231,10 @@ void Drawer::launchViewer(
 }
 
 void Drawer::launchViewer(
-        std::vector<std::shared_ptr<wick::Graph>> const& graphs)
+        std::vector<std::shared_ptr<wick::Graph>> const& graphs,
+        bool showMomenta)
 {
-    launchViewer(buildDiagrams(graphs));
+    launchViewer(buildDiagrams(graphs, showMomenta));
 }
 
 void Drawer::saveToJSON(
@@ -240,9 +246,10 @@ void Drawer::saveToJSON(
 
 void Drawer::saveToJSON(
         std::string                      const& fileName,
-        std::vector<std::shared_ptr<wick::Graph>> const& graphs)
+        std::vector<std::shared_ptr<wick::Graph>> const& graphs,
+        bool showMomenta)
 {
-    saveToJSON(fileName, buildDiagrams(graphs));
+    saveToJSON(fileName, buildDiagrams(graphs, showMomenta));
 }
 
 std::string Drawer::buildLatex(
