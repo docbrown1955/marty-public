@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>883</width>
-    <height>331</height>
+    <height>451</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -162,6 +162,9 @@
           <widget class="QSpinBox" name="rowSizeBox">
            <property name="minimum">
             <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>12</number>
            </property>
           </widget>
          </item>

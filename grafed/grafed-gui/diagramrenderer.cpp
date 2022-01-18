@@ -99,6 +99,7 @@ void DiagramRenderer::init()
 
 DiagramRenderer::~DiagramRenderer()
 {
+    clear();
     delete m_ui;
 }
 

@@ -31,7 +31,7 @@ void Grid::clear()
     if (!scene)
         return;
     for (auto &l: lines)
-        scene->removeItem(l);
+        delete l;
     lines.clear();
 }
 

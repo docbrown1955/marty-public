@@ -463,16 +463,16 @@ void Diagram::deleteNode(Node *&node)
     disconnect(node, SIGNAL(xChanged()), this, SLOT(nodeMoved()));
     disconnect(node, SIGNAL(yChanged()), this, SLOT(nodeMoved()));
     if (node->label)
-        scene->removeItem(node->label);
-    scene->removeItem(node);
+        delete node->label;
+    delete node;
     node = nullptr;
 }
 
 void Diagram::deleteEdge(Edge *&edge)
 {
     if (edge->label)
-        scene->removeItem(edge->label);
-    scene->removeItem(edge);
+        delete edge->label;
+    delete edge;
     edge = nullptr;
 }
 
@@ -644,7 +644,7 @@ void Diagram::addNodeLabel(
     if (node->label and text != node->label->data) {
         disconnect(node->label, SIGNAL(doubleClicked(Proxy *)),
                    this     ,   SLOT(proxyDoubleClicked(Proxy*)));
-        scene->removeItem(node->label);
+        delete node->label;
         label = generateLabel(text);
         if (!label)
             return;
@@ -676,7 +676,7 @@ void Diagram::addEdgeLabel(
     if (edge->label and edge->label->data != text) {
         disconnect(edge->label, SIGNAL(doubleClicked(Proxy *)),
                    this     ,   SLOT(proxyDoubleClicked(Proxy*)));
-        edge->scene()->removeItem(edge->label);
+        delete edge->label;
         edge->label = nullptr;
         label = generateLabel(text);
         if (!label)

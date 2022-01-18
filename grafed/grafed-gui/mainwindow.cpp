@@ -102,6 +102,7 @@ void MainWindow::isSaved()
 
 MainWindow::~MainWindow()
 {
+    delete mainWidget;
     delete m_ui;
 }
 
