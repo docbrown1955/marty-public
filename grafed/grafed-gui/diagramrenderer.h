@@ -156,8 +156,9 @@ private:
     qint32          firstDiag;
     qint32          lastDiag;
 
-    constexpr static size_t pageSize = 32;
+    constexpr static size_t pageSize = 34;
     size_t                  pageNumber;
+    size_t                  nextDiagram;
     std::vector<drawer::LatexLinker> links;
     QList<Diagram*>       allDiagrams;
     QList<Diagram*>       diagrams;

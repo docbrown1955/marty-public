@@ -36,6 +36,7 @@ DiagramRenderer::DiagramRenderer(QWidget *parent) :
     firstDiag(0),
     lastDiag(0),
     pageNumber(0),
+    nextDiagram(0),
     edgeForm(nullptr),
     nodeForm(nullptr),
     zoomValue(1.),
@@ -475,7 +476,14 @@ std::pair<size_t, size_t> DiagramRenderer::page()
 void DiagramRenderer::refreshLinks()
 {
     size_t offset = pageNumber*pageSize;
-    for (size_t i = 0; i != static_cast<size_t>(diagrams.size()); ++i) {
+    size_t nDiags = diagrams.size();
+    if (offset + nDiags > nextDiagram) {
+        links.insert(links.begin() + offset, offset + nDiags - nextDiagram, drawer::LatexLinker());
+    }
+    else if (offset + nDiags < nextDiagram) {
+        links.erase(links.begin() + offset, links.begin() + nextDiagram - nDiags);
+    }
+    for (size_t i = 0; i != nDiags; ++i) {
         diagrams[int(i)]->refreshLinker();
         links[i+offset] = diagrams[int(i)]->link;
     }
@@ -530,6 +538,7 @@ void DiagramRenderer::loadDiagrams(size_t first)
 {
     clearScene();
     size_t last = maxDiagramNumber(first);
+    nextDiagram = last;
     for (size_t i = first; i != last; ++i) {
         auto res = newDiagram();
         res.first->loadLinker(links[i]);
@@ -673,12 +682,7 @@ void DiagramRenderer::erase()
 
 void DiagramRenderer::save(QString const &fileName)
 {
-    links.clear();
-    links.resize(size_t(diagrams.size()));
-    for (size_t i = 0; i != links.size(); ++i) {
-        diagrams[int(i)]->refreshLinker();
-        links[i] = diagrams[int(i)]->link;
-    }
+    refreshLinks();
     drawer::LatexLinker::saveMultiple(fileName.toStdString(), links);
 }
 

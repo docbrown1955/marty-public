@@ -532,7 +532,6 @@ void MainWidget::latexSourceToClipboard()
         QApplication::clipboard()->setText(latex);
     }
     else {
-
         QString latex;
         for (const auto &diag : renderer->diagrams) {
             diag->refreshLinker();
