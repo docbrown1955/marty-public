@@ -36,7 +36,7 @@ class AbstractBuildingBlock: public Abstract {
 
     AbstractBuildingBlock();
 
-    bool isBuildingBlock() const override { return true;}
+    bool isBuildingBlock() const override { return true; }
 
     virtual bool commutesWith(Expr_info expr, int sign=-1) const override;
 

@@ -265,17 +265,17 @@ void PMSSM_Model::approximateSFermionMixings()
 }
 void PMSSM_Model::renameSFermions()
 {
-    std::vector<std::string> names = 
-        {"st", "sb", "stau"};
-    std::string susyName;
-    std::string newName;
-    for (const auto &name : names) {
-        susyName = name + "_L";
-        newName  = name + "_1; \\tilde{" + name + "_1}";
-        renameParticle(susyName, newName);
-        susyName = name + "_R";
-        newName  = name + "_2; \\tilde{" + std::string(name.begin()+1, name.end()) + "_2}";
-        renameParticle(susyName, newName);
+    renameParticle("st_L", "st_1");
+    std::vector<std::string> oldNames = 
+        {"st_L", "st_R", "sb_L", "sb_R", "stau_L", "stau_R"};
+    std::vector<std::string> newNames = 
+        {"st_1", "st_2", "sb_1", "sb_2", "stau_1", "stau_2"};
+    std::vector<std::string> newLatexNames = 
+        {"\\tilde{t}_L", "\\tilde{t}_R", 
+          "\\tilde{b}_L", "\\tilde{b}_R", 
+          "\\tilde{\\tau}_L", "\\tilde{\\tau}_R"};
+    for (size_t i = 0; i != oldNames.size(); ++i) {
+        renameParticle(oldNames[i], newNames[i] + ";" + newLatexNames[i]);
     }
 }
 

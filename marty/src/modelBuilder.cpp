@@ -65,6 +65,24 @@ void ModelBuilder::replace(
     csl::Abbrev::replace(oldExpression, newExpression);
     if (init)
         removeParticle(init);
+
+    // Abbreviated mass expressions check
+    if (!oldExpression->isBuildingBlock())
+        return;
+    auto pos = std::find_if(
+        abbreviatedMassExpressions.begin(),
+        abbreviatedMassExpressions.end(),
+        [&](csl::Expr const &expr) {
+            return expr->getName() == oldExpression->getName();
+        });
+    if (pos != abbreviatedMassExpressions.end()) {
+        if (csl::Abbrev::isAnAbbreviation(newExpression)) {
+            *pos = newExpression;
+        }
+        else {
+            abbreviatedMassExpressions.erase(pos);
+        }
+    }
 }
 
 void ModelBuilder::replace(

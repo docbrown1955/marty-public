@@ -1492,12 +1492,19 @@ void MSSM_Model::renameSFermions()
         {"su", "sc", "st", "sd", "ss", "sb", "se", "smu", "stau"};
     std::string susyName;
     std::string newName;
-    for (const auto &name : names) {
-        susyName = name + "_L";
-        newName  = name + "_1; \\tilde{" + name + "_1}";
+    for (auto const &init_name : names) {
+        auto name = init_name;
+        if (name == "smu") {
+            name = "s\\mu";
+        }
+        if (name == "stau") {
+            name = "s\\tau";
+        }
+        susyName = init_name + "_L";
+        newName  = init_name + "_1; \\tilde{" + std::string(name.begin()+1, name.end()) + "_1}";
         renameParticle(susyName, newName);
-        susyName = name + "_R";
-        newName  = name + "_2; \\tilde{" + std::string(name.begin()+1, name.end()) + "_2}";
+        susyName = init_name + "_R";
+        newName  = init_name + "_2; \\tilde{" + std::string(name.begin()+1, name.end()) + "_2}";
         renameParticle(susyName, newName);
     }
 }

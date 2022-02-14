@@ -232,7 +232,7 @@ namespace mty {
          * for which one of the filters returns false (filter out).
          *
          * @param diagrams     Set of diagrams to filter.
-         * @param forceFilters Boolean that ensures (is true) that the filters
+         * @param forceFilters Boolean that ensures (if true) that the filters
          * are applied whatever are the other options (#partialCalculation in
          * particular).
          *
