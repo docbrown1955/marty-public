@@ -485,19 +485,19 @@ csl::Expr Model::computeWidth(
                 else {
                     squared = computeSquaredAmplitude(amplL);
                 }
-                std::cout << squared << std::endl;
                 if (squared != 0) {
                     std::cout << "Found decay ";
-                    std::cout << ins[0].getExpression() << " -> ";
-                    std::cout << ins[1].getExpression() << " + ";
-                    std::cout << ins[2].getExpression() << std::endl;
+                    std::cout << ins[0].getField()->getName() << " -> ";
+                    std::cout << ins[1].getField()->getName() << " + ";
+                    std::cout << ins[2].getField()->getName() << std::endl;
                     contributions.push_back(
                         squaredAmplitudeToPartialWidth(squared, ins, amplL));
                 }
             }
         }
     }
-    std::cout << contributions.size() << " independent decays found.\n";
+    std::cout << contributions.size() << " independent " << 
+        particle.getField()->getName() << " decays found.\n";
     return csl::sum_s(contributions);
 }
 csl::Expr Model::computeWidth(
