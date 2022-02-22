@@ -28,6 +28,7 @@
 #include "numericalEval.h"
 #include "evaluation.h"
 #include "mathFunctions.h"
+#include "booleanOperators.h"
 #include "operations.h"
 #include "vector.h"
 #include "diagonalization.h"

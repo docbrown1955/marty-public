@@ -358,8 +358,8 @@ optional<Expr> Log::getComplexModulus() const
 
 optional<Expr> Log::getComplexArgument() const
 {
-    return csl::make_shared<Angle>(GetImaginaryPart(copy()),
-                              GetRealPart(copy()));
+    return csl::make_shared<Angle>(GetRealPart(copy()),
+                              GetImaginaryPart(copy()));
 }
 
 void Log::print(
@@ -466,7 +466,7 @@ optional<Expr> Cos::getComplexModulus() const
 
 optional<Expr> Cos::getComplexArgument() const
 {
-    return csl::make_shared<Angle>(getImaginaryPart(), GetRealPart(copy()));
+    return csl::make_shared<Angle>(GetRealPart(copy()), GetImaginaryPart(copy()));
 }
 
 void Cos::print(
@@ -598,8 +598,7 @@ optional<Expr> Sin::getComplexModulus() const
 
 optional<Expr> Sin::getComplexArgument() const
 {
-    return csl::make_shared<Angle>(GetImaginaryPart(copy()),
-                              GetRealPart(copy()));
+    return csl::make_shared<Angle>(GetRealPart(copy()), GetImaginaryPart(copy()));
 }
 
 void Sin::print(
@@ -747,8 +746,9 @@ optional<Expr> Tan::getComplexArgument() const
 {
     Expr re = GetRealPart(argument);
     Expr im = GetImaginaryPart(argument);
-    return csl::make_shared<Angle>(prod_s(cosh_s(im), sinh_s(im)),
-                              prod_s(cos_s(re),sin_s(re)));
+    return csl::make_shared<Angle>(
+                              prod_s(cos_s(re),sin_s(re)),
+                              prod_s(cosh_s(im), sinh_s(im)));
 }
 
 void Tan::print(
@@ -876,8 +876,7 @@ optional<Expr> ACos::getComplexModulus() const
 
 optional<Expr> ACos::getComplexArgument() const
 {
-    return csl::make_shared<Angle>(getImaginaryPart(),
-                              GetRealPart(copy()));
+    return csl::make_shared<Angle>(GetRealPart(copy()), GetImaginaryPart(copy()));
 }
 
 void ACos::print(
@@ -982,8 +981,7 @@ optional<Expr> ASin::getComplexModulus() const
 
 optional<Expr> ASin::getComplexArgument() const
 {
-    return csl::make_shared<Angle>(getImaginaryPart(),
-                              GetRealPart(copy()));
+    return csl::make_shared<Angle>(GetRealPart(copy()), GetImaginaryPart(copy()));
 }
 
 void ASin::print(
@@ -1165,8 +1163,7 @@ optional<Expr> Cosh::getComplexModulus() const
 
 optional<Expr> Cosh::getComplexArgument() const
 {
-    return csl::make_shared<Angle>(getImaginaryPart(),
-                              GetRealPart(copy()));
+    return csl::make_shared<Angle>(GetRealPart(copy()), GetImaginaryPart(copy()));
 }
 
 void Cosh::print(
@@ -1268,8 +1265,7 @@ optional<Expr> Sinh::getComplexModulus() const
 
 optional<Expr> Sinh::getComplexArgument() const
 {
-    return csl::make_shared<Angle>(getImaginaryPart(),
-                              GetRealPart(copy()));
+    return csl::make_shared<Angle>(GetRealPart(copy()), GetImaginaryPart(copy()));
 }
 
 void Sinh::print(
@@ -1392,8 +1388,9 @@ optional<Expr> Tanh::getComplexArgument() const
     Expr re = GetRealPart(argument);
     Expr im = GetImaginaryPart(argument);
 
-    return csl::make_shared<Angle>(prod_s(cos_s(im), sin_s(im)),
-                              prod_s(cosh_s(re),sinh_s(re)));
+    return csl::make_shared<Angle>(
+                              prod_s(cosh_s(re),sinh_s(re)),
+                              prod_s(cos_s(im), sin_s(im)));
 }
 
 void Tanh::print(
@@ -1712,9 +1709,16 @@ void Angle::print(
         out << "std::atan2(";
     else
         out << "angle(";
-    argument[0]->print(1, out, lib);
-    out<<", ";
-    argument[1]->print(1, out, lib);
+    if (lib) {
+        argument[1]->print(1, out, lib);
+        out<<", ";
+        argument[0]->print(1, out, lib);
+    }
+    else {
+        argument[0]->print(1, out, lib);
+        out<<", ";
+        argument[1]->print(1, out, lib);
+    }
     out<<")";
     printProp(out);
     if (mode == 0)
@@ -1749,8 +1753,8 @@ LibDependency Angle::getLibDependency() const
 
 long double Angle::evaluateScalar() const
 {
-    long double a = argument[1]->evaluateScalar();
-    long double b = argument[0]->evaluateScalar();
+    long double a = argument[0]->evaluateScalar();
+    long double b = argument[1]->evaluateScalar();
 
     return std::atan2(b, a);
 }

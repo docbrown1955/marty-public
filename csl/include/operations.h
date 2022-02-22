@@ -80,6 +80,10 @@ class Sum: public AbstractMultiFunc{
      */
     csl::vector_expr getFactors() const override;
 
+    bool isReal() const override;
+
+    bool isPurelyImaginary() const override;
+
     std::optional<Expr> getRealPart() const override;
 
     Expr getImaginaryPart() const override;
@@ -329,6 +333,10 @@ class Prod: public AbstractMultiFunc{
 
     //virtual void selfCheckIndexStructure();
 
+    bool isReal() const override;
+
+    bool isPurelyImaginary() const override;
+
     std::optional<Expr> getRealPart() const override;
 
     Expr getImaginaryPart() const override;
@@ -527,6 +535,10 @@ class Pow: public AbstractDuoFunc{
      * \return The concatenation of all possible factors for the arguments.
      */
     csl::vector_expr getFactors() const override;
+
+    bool isReal() const override;
+
+    bool isPurelyImaginary() const override;
 
     void getExponents(
             std::vector<Expr> const &factors,

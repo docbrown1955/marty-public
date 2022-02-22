@@ -28,6 +28,7 @@
 #include "jsonToPhysics.h"
 #include "mrtInterface.h"
 #include "goldstoneField.h"
+#include "ghostField.h"
 #include "polarization.h"
 #include "fermionOrder.h"
 #include "wilson.h"
@@ -370,6 +371,200 @@ csl::Expr Model::computeSquaredAmplitude(
     csl::matcher::compress(squared, 2);
     return squared;
 }
+
+static
+std::vector<std::vector<mty::Insertion>> getIndependentDecays(
+          std::vector<mty::Insertion> const &insertions
+          )
+{
+    HEPAssert(insertions.size() == 3,
+        mty::error::TypeError,
+        "This function should only be used for 1->2 processes, "
+        + std::to_string(insertions.size()) + " insertions given.")
+    std::vector<std::vector<mty::Insertion>> res;
+    res.reserve(4);
+    res.push_back(insertions);
+    if (!insertions[1].getField()->isSelfConjugate())  {
+        res.push_back(
+            {insertions[0], AntiPart(insertions[1]), insertions[2]});
+        if (!insertions[2].getField()->isSelfConjugate()) {
+          if (insertions[1].getField() != insertions[2].getField())
+              res.push_back(
+                  {insertions[0], insertions[1], AntiPart(insertions[2])});
+          res.push_back(
+              {insertions[0], AntiPart(insertions[1]), AntiPart(insertions[2])});
+        }
+    }
+    else if (!insertions[2].getField()->isSelfConjugate()) {
+        res.push_back(
+            {insertions[0], insertions[1], AntiPart(insertions[2])});
+    }
+    return res;
+}
+
+csl::Expr Model::squaredAmplitudeToPartialWidth(
+        csl::Expr              const &squaredAmplitude,
+        std::vector<Insertion> const &insertions,
+        mty::Amplitude         const &initialAmplitude,
+        bool                          applyMassCondition
+        )
+{
+    csl::Expr squared = csl::DeepCopy(squaredAmplitude);
+    auto pi = initialAmplitude.getKinematics().getOrderedMomenta();
+    csl::Index mu = MinkowskiIndex();
+    csl::Expr s12_init = pi[0](mu)*pi[1](+mu);
+    csl::Expr s13_init = pi[0](mu)*pi[2](+mu);
+    csl::Expr s23_init = pi[1](mu)*pi[2](+mu);
+    csl::Expr M = insertions[0].getField()->getMass();
+    csl::Expr m1 = insertions[1].getField()->getMass();
+    csl::Expr m2 = insertions[2].getField()->getMass();
+    csl::Expr E1 = (M*M + m1*m1 - m2*m2)/(2*M);
+    csl::Expr E2 = (M*M + m2*m2 - m1*m1)/(2*M);
+    csl::Expr p2 = E1*E1 - m1*m1;
+    csl::Expr s12 = csl::Abbrev::makeAbbreviation(
+        M*E1);
+    csl::Expr s13 = csl::Abbrev::makeAbbreviation(
+        M*E2);
+    csl::Expr s23 = csl::Abbrev::makeAbbreviation(
+        E1*E2 + p2);
+    csl::Replace(squared, s12_init, s12);
+    csl::Replace(squared, s13_init, s13);
+    csl::Replace(squared, s23_init, s23);
+    squared *= csl::sqrt_s(csl::abs_s(p2)) / (8*CSL_PI * M*M);
+    if (applyMassCondition) {
+        csl::Expr final = csl::booleanOperator_s(
+            csl::BooleanOperator::GreaterThanOrEqualTo,
+            M, 
+            m1 + m2,
+            squared,
+            CSL_0);
+        return final;
+    }
+
+    return squared;
+}
+
+csl::Expr Model::computeWidth(
+          int                   orderLeft,
+          int                   orderRight,
+          mty::Insertion const &particle,
+          mty::FeynOptions      options
+          )
+{
+    if (orderRight < orderLeft)
+        return computeWidth(orderRight, orderLeft, particle, options);
+    options.verboseAmplitude = false;
+    if (particle.getField()->getMass() == CSL_0) {
+        // No width for massless particles
+        return CSL_0;
+    }
+    csl::ScopedProperty silent(&mty::option::verboseAmplitude, false);
+    std::vector<csl::Expr> contributions;
+    contributions.reserve(100);
+    const auto &physicalParticles = getPhysicalParticles(
+        [](Particle const &p) {
+            return !IsOfType<GoldstoneBoson>(p)
+                && !IsOfType<GhostBoson>(p);
+        });
+    for (size_t i = 0; i != physicalParticles.size(); ++i) {
+        const auto &p1 = physicalParticles[i];
+        for (size_t j = i; j != physicalParticles.size(); ++j) {
+            const auto &p2 = physicalParticles[j];
+            auto insertions = getIndependentDecays({
+                Incoming(particle), Outgoing(p1), Outgoing(p2)});
+            for (const auto &ins : insertions) {
+                mty::Amplitude amplL = computeAmplitude(orderLeft, ins, options);
+                if (amplL.empty())
+                    continue;
+                csl::Expr squared;
+                if (orderRight != orderLeft) {
+                    auto amplR = computeAmplitude(orderRight, ins, options);
+                    squared = computeSquaredAmplitude(
+                        amplL, amplR);
+                }
+                else {
+                    squared = computeSquaredAmplitude(amplL);
+                }
+                std::cout << squared << std::endl;
+                if (squared != 0) {
+                    std::cout << "Found decay ";
+                    std::cout << ins[0].getExpression() << " -> ";
+                    std::cout << ins[1].getExpression() << " + ";
+                    std::cout << ins[2].getExpression() << std::endl;
+                    contributions.push_back(
+                        squaredAmplitudeToPartialWidth(squared, ins, amplL));
+                }
+            }
+        }
+    }
+    std::cout << contributions.size() << " independent decays found.\n";
+    return csl::sum_s(contributions);
+}
+csl::Expr Model::computeWidth(
+          int                   order,
+          mty::Insertion const &particle,
+          mty::FeynOptions      options
+          )
+{
+    return computeWidth(order, order, particle, options);
+}
+
+void Model::computeModelWidths(
+        int                                orderLeft,
+        int                                orderRight,
+        std::vector<mty::Insertion> const &insertions,
+        mty::FeynOptions                   options
+        )
+{
+    options.discardLowerOrders = false;
+    for (const auto p : insertions) {
+        auto width = computeWidth(orderLeft, orderRight, p, options);
+        if (width != CSL_0) {
+            std::string name = "Gamma_" + p.getField()->getName();
+            csl::Expr abbreviated = csl::Abbrev::makeAbbreviation(
+                name,
+                width);
+            addAbbreviatedMassExpression(abbreviated);
+            p.getField()->setWidth(csl::constant_s(name));
+        }
+    }
+}
+
+void Model::computeModelWidths(
+        int                                orderLeft,
+        int                                orderRight,
+        mty::FeynOptions                   options
+        )
+{
+    auto particles = getPhysicalParticles(
+        [&](Particle p) {
+            return !IsOfType<GhostBoson>(p) && !IsOfType<GoldstoneBoson>(p);
+        });
+    std::vector<Insertion> insertions;
+    insertions.reserve(particles.size());
+    for (size_t i = 0; i != particles.size(); ++i) {
+        insertions.push_back(particles[i]);
+    }
+    computeModelWidths(orderLeft, orderRight, insertions, options);
+}
+
+void Model::computeModelWidths(
+        int                                order,
+        std::vector<mty::Insertion> const &particles,
+        mty::FeynOptions                   options
+        )
+{
+    computeModelWidths(order, order, particles, options);
+}
+
+void Model::computeModelWidths(
+        int              order,
+        mty::FeynOptions options
+        )
+{
+    computeModelWidths(order, order, options);
+}
+
 
 void Model::projectOnBasis(
         csl::Expr    &expr,

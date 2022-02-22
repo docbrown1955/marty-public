@@ -245,6 +245,7 @@ void VectorBoson::setGoldstoneBoson(Particle const& t_goldstone)
             "Expected a goldstone, " + std::string(typeid(pointed).name()) 
             + " given.");
     goldstone = std::dynamic_pointer_cast<GoldstoneBoson>(t_goldstone);
+    setGaugeChoice(choice.getChoice());
 }
 
 void VectorBoson::setGhostBoson(Particle const& t_ghost) 
@@ -255,6 +256,7 @@ void VectorBoson::setGhostBoson(Particle const& t_ghost)
             "Expected a ghost, " + std::string(typeid(pointed).name()) 
             + " given.");
     ghost = std::dynamic_pointer_cast<GhostBoson>(t_ghost);
+    setGaugeChoice(choice.getChoice());
 }
 
 void VectorBoson::setConjugatedGhostBoson(Particle const& t_ghost) 
@@ -265,6 +267,7 @@ void VectorBoson::setConjugatedGhostBoson(Particle const& t_ghost)
             "Expected a ghost, " + std::string(typeid(pointed).name()) 
             + " given.");
     ghost_c = std::dynamic_pointer_cast<GhostBoson>(t_ghost);
+    setGaugeChoice(choice.getChoice());
 }
 
 mty::gauge::Choice VectorBoson::getGaugeChoice() const

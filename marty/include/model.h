@@ -205,6 +205,50 @@ public:
             bool            applyDegreesOfFreedomFactor = true
             );
 
+    csl::Expr squaredAmplitudeToPartialWidth(
+            csl::Expr              const &squaredAmplitude,
+            std::vector<Insertion> const &insertions,
+            mty::Amplitude         const &initialAmplitude,
+            bool                          applyMassCondition = true
+            );
+
+    csl::Expr computeWidth(
+            int                   orderLeft,
+            int                   orderRight,
+            mty::Insertion const &particle,
+            mty::FeynOptions      options = {}
+            );
+
+    csl::Expr computeWidth(
+            int                   order,
+            mty::Insertion const &particle,
+            mty::FeynOptions      options = {}
+            );
+
+    void computeModelWidths(
+            int                                orderLeft,
+            int                                orderRight,
+            std::vector<mty::Insertion> const &particles,
+            mty::FeynOptions                   options = {}
+            );
+
+    void computeModelWidths(
+            int                                orderLeft,
+            int                                orderRight,
+            mty::FeynOptions                   options = {}
+            );
+
+    void computeModelWidths(
+            int                                order,
+            std::vector<mty::Insertion> const &particles,
+            mty::FeynOptions                   options = {}
+            );
+
+    void computeModelWidths(
+            int                                order,
+            mty::FeynOptions                   options = {}
+            );
+
     WilsonSet getWilsonCoefficients(
             Amplitude   const &ampl,
             FeynOptions const &feynOptions,

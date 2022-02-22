@@ -77,6 +77,7 @@ namespace csl {
         Scalar, /*!<Abstract specialized in Scalar. */
         RealPart, /*!<Abstract specialized in real part. */
         ImaginaryPart, /*!<Abstract specialized in imaginary part.*/
+        BooleanOperator, /*!< Abstract specialized in Boolean operator. */
 
         TensorElement, /*!< Abstract specialized in TensorElement */
         
