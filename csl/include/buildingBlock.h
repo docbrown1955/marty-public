@@ -84,6 +84,10 @@ class Complexified: public AbstractBuildingBlock {
 
     std::optional<Expr> getComplexConjugate() const override;
 
+    std::optional<Expr> getComplexModulus() const override;
+    
+    std::optional<Expr> getComplexArgument() const override;
+
     void setConjugated(bool t_conjugated) override;
 
     void printProp(std::ostream& fout = std::cout) const override;

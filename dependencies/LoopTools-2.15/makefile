@@ -30,7 +30,7 @@ MCC = mcc
 MCFLAGS = -fPIC -st -b64
 MCLIBS = -lpthread -lrt
 
-LDFLAGS = -L/usr/lib/gcc/x86_64-linux-gnu/7/liblto_plugin.so -L/home/laptopgva/.local/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/7 -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L. -L/home/laptopgva/.local/lib -L/usr/lib/gcc/x86_64-linux-gnu/7/../../.. -lgfortran -lm -lgcc_s -lgcc -lquadmath -lm -lgcc_s -lgcc -lgcc_s -lgcc
+LDFLAGS = -L/usr/lib/gcc/x86_64-linux-gnu/7/liblto_plugin.so -L/home/laptopgva/.local/lib/../lib -L/home/laptopgva/.local/lib/../lib -L/home/laptopgva/.local/lib/../lib -L/home/laptopgva/.local/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/7 -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L. -L/home/laptopgva/.local/lib -L/home/laptopgva/.local/lib -L/home/laptopgva/.local/lib -L/home/laptopgva/.local/lib -L/usr/lib/gcc/x86_64-linux-gnu/7/../../.. -lgfortran -lm -lgcc_s -lgcc -lquadmath -lm -lgcc_s -lgcc -lgcc_s -lgcc
 
 PARALLEL = -j 4
 
