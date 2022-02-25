@@ -51,6 +51,12 @@ namespace mty {
             DiracCoupling   coupling
             );
 
+    std::vector<Wilson> dimension5Operator(
+            Model     const &model,
+            WilsonSet const &wilsons,
+            DiracCoupling    current
+            );
+
     std::vector<Wilson> dimension6Operator(
             Model     const &model,
             WilsonSet const &wilsons,

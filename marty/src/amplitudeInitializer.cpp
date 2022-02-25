@@ -438,6 +438,16 @@ namespace mty {
         std::vector<size_t> indices(kinematics.size());
         std::iota(begin(indices), end(indices), 0);
         std::vector<int> fermionOrder = options.getFermionOrder();
+        std::vector<int> fermions(kinematics.size());
+        int iF = 0;
+        for (size_t i = 0; i != insertions.size(); ++i)  {
+            if (insertions[i].isFermionic()) {
+                fermions[i] = iF++;
+            }
+            else {
+                fermions[i] = -1;
+            }
+        }
         for (size_t i = 0; i != insertions.size(); ++i)  {
             size_t mini = i;
             for (size_t j = i+1; j < insertions.size(); ++j)  {
@@ -447,14 +457,18 @@ namespace mty {
             if (mini != i) {
                 std::swap(insertions[i], insertions[mini]);
                 std::swap(indices[i], indices[mini]);
-                for (int &pos : fermionOrder) {
-                    if (pos == static_cast<int>(mini))   pos = i;
-                    else if (pos == static_cast<int>(i)) pos = mini;
-                }
+                std::swap(fermions[i], fermions[mini]);
+            }
+        }
+        std::vector<int> newFermionOrder(fermionOrder.size());
+        iF = 0;
+        for (size_t i = 0; i != fermions.size(); ++i) {
+            if (fermions[i] != -1) {
+                newFermionOrder[iF++] = fermionOrder[fermions[i]];
             }
         }
         kinematics.applyPermutation(indices);
-        options.setFermionOrder(fermionOrder);
+        options.setFermionOrder(newFermionOrder);
     }
 
     void AmplitudeInitializer::initMomentumVertices(

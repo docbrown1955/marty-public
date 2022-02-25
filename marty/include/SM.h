@@ -323,7 +323,14 @@ namespace mty::sm_input {
     csl::Expr c_23_wolf = csl::sqrt_s(1 - s_23_wolf*s_23_wolf);
 
     inline
-    csl::Expr delta_wolf = csl::angle_s(rho_bar_wolf, eta_bar_wolf);
+    csl::Expr delta_wolf = 
+        csl::constant_s(
+                "delta_wolf",
+                csl::Evaluated(
+                    csl::angle_s(rho_bar_wolf, eta_bar_wolf),
+                    csl::eval::all
+                    )
+                );
 
     inline 
     csl::Expr V_ud_wolf = c_12_wolf*c_13_wolf;
