@@ -1,4 +1,4 @@
-INSTALLDIR=/home/laptopgva/.local
+INSTALLDIR=/usr/local
 
 CC  = gcc-7
 CXX = g++-7

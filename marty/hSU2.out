@@ -1,0 +1,691 @@
+Dirac fermion embedding for u_R_{G_82,alpha_106}(X) and u_L_{G_83,alpha_107}(X)
+Dirac fermion embedding for c_R_{G_84,alpha_108}(X) and c_L_{G_85,alpha_109}(X)
+Dirac fermion embedding for t_R_{G_86,alpha_110}(X) and t_L_{G_87,alpha_111}(X)
+Dirac fermion embedding for d_R_{A_286,gam_283}(X) and d_L_{A_287,gam_284}(X)
+Dirac fermion embedding for s_R_{A_288,gam_285}(X) and s_L_{A_289,gam_286}(X)
+Dirac fermion embedding for b_R_{A_290,gam_287}(X) and b_L_{A_291,gam_288}(X)
+Dirac fermion embedding for e_R_eps_144(X) and e_L_eps_145(X)
+Dirac fermion embedding for mu_R_eps_146(X) and mu_L_eps_147(X)
+Dirac fermion embedding for tau_R_eps_148(X) and tau_L_eps_149(X)
+Gauge = U1(1) x SU(2) x SU(3)
+Particle list, 42 particles:
+  -> G  [ F_G c_G ] : 
+    mass: 0
+    spin: 1
+    irrep: ( 0 , 1 , 8 )
+  -> c_G(*)  [ G ] : 
+    mass: 0
+    spin: 0
+    irrep: ( 0 , 1 , 8 )
+  -> W(*)  [ F_W c_Wp c_Wm ] : 
+    mass: M_W
+    spin: 1
+    irrep: ( 0 , 1 , 1 )
+  -> c_Wm(*)  [ W ] : 
+    mass: m_c_Wm
+    spin: 0
+    irrep: ( 0 , 1 , 1 )
+  -> c_Wp(*)  [ W ] : 
+    mass: m_c_Wp
+    spin: 0
+    irrep: ( 0 , 1 , 1 )
+  -> h0  [ ] : 
+    mass: m_h
+    spin: 0
+    irrep: ( 0 , 1 , 1 )
+  -> A  [ F_A c_A ] : 
+    mass: 0
+    spin: 1
+    irrep: ( 0 , 1 , 1 )
+  -> Z  [ F_Z c_Z ] : 
+    mass: M_Z
+    spin: 1
+    irrep: ( 0 , 1 , 1 )
+  -> c_A(*)  [ A ] : 
+    mass: 0
+    spin: 0
+    irrep: ( 0 , 1 , 1 )
+  -> c_Z(*)  [ Z ] : 
+    mass: m_c_Z
+    spin: 0
+    irrep: ( 0 , 1 , 1 )
+  -> u_R(*)  [ u ] : 
+    mass: m_u
+    spin: 1/2
+    irrep: ( 2/3 , 1 , 3 )
+  -> c_R(*)  [ c ] : 
+    mass: m_c
+    spin: 1/2
+    irrep: ( 2/3 , 1 , 3 )
+  -> t_R(*)  [ t ] : 
+    mass: m_t
+    spin: 1/2
+    irrep: ( 2/3 , 1 , 3 )
+  -> u_L(*)  [ u ] : 
+    mass: m_u
+    spin: 1/2
+    irrep: ( 1/6 , 1 , 3 )
+  -> c_L(*)  [ c ] : 
+    mass: m_c
+    spin: 1/2
+    irrep: ( 1/6 , 1 , 3 )
+  -> t_L(*)  [ t ] : 
+    mass: m_t
+    spin: 1/2
+    irrep: ( 1/6 , 1 , 3 )
+  -> d_L(*)  [ d ] : 
+    mass: m_d
+    spin: 1/2
+    irrep: ( 1/6 , 1 , 3 )
+  -> s_L(*)  [ s ] : 
+    mass: m_s
+    spin: 1/2
+    irrep: ( 1/6 , 1 , 3 )
+  -> b_L(*)  [ b ] : 
+    mass: m_b
+    spin: 1/2
+    irrep: ( 1/6 , 1 , 3 )
+  -> d_R(*)  [ d ] : 
+    mass: m_d
+    spin: 1/2
+    irrep: ( -1/3 , 1 , 3 )
+  -> s_R(*)  [ s ] : 
+    mass: m_s
+    spin: 1/2
+    irrep: ( -1/3 , 1 , 3 )
+  -> b_R(*)  [ b ] : 
+    mass: m_b
+    spin: 1/2
+    irrep: ( -1/3 , 1 , 3 )
+  -> e_R(*)  [ e ] : 
+    mass: m_e
+    spin: 1/2
+    irrep: ( -1 , 1 , 1 )
+  -> mu_R(*)  [ mu ] : 
+    mass: m_mu
+    spin: 1/2
+    irrep: ( -1 , 1 , 1 )
+  -> tau_R(*)  [ tau ] : 
+    mass: m_tau
+    spin: 1/2
+    irrep: ( -1 , 1 , 1 )
+  -> e_L(*)  [ e ] : 
+    mass: m_e
+    spin: 1/2
+    irrep: ( -1/2 , 1 , 1 )
+  -> mu_L(*)  [ mu ] : 
+    mass: m_mu
+    spin: 1/2
+    irrep: ( -1/2 , 1 , 1 )
+  -> tau_L(*)  [ tau ] : 
+    mass: m_tau
+    spin: 1/2
+    irrep: ( -1/2 , 1 , 1 )
+  -> nu_e(*)  [ ] : 
+    mass: 0
+    spin: 1/2
+    irrep: ( -1/2 , 1 , 1 )
+  -> nu_mu(*)  [ ] : 
+    mass: 0
+    spin: 1/2
+    irrep: ( -1/2 , 1 , 1 )
+  -> nu_tau(*)  [ ] : 
+    mass: 0
+    spin: 1/2
+    irrep: ( -1/2 , 1 , 1 )
+  -> Gp(*)  [ W ] : 
+    mass: m_Gp
+    spin: 0
+    irrep: ( 0 , 1 , 1 )
+  -> G0  [ Z ] : 
+    mass: m_G0
+    spin: 0
+    irrep: ( 0 , 1 , 1 )
+  -> u(*)  [ u_R u_L ] : 
+    mass: m_u
+    spin: 1/2
+    irrep: ( 2/3 , 1 , 3 )
+  -> c(*)  [ c_R c_L ] : 
+    mass: m_c
+    spin: 1/2
+    irrep: ( 2/3 , 1 , 3 )
+  -> t(*)  [ t_R t_L ] : 
+    mass: m_t
+    spin: 1/2
+    irrep: ( 2/3 , 1 , 3 )
+  -> d(*)  [ d_R d_L ] : 
+    mass: m_d
+    spin: 1/2
+    irrep: ( -1/3 , 1 , 3 )
+  -> s(*)  [ s_R s_L ] : 
+    mass: m_s
+    spin: 1/2
+    irrep: ( -1/3 , 1 , 3 )
+  -> b(*)  [ b_R b_L ] : 
+    mass: m_b
+    spin: 1/2
+    irrep: ( -1/3 , 1 , 3 )
+  -> e(*)  [ e_R e_L ] : 
+    mass: m_e
+    spin: 1/2
+    irrep: ( -1 , 1 , 1 )
+  -> mu(*)  [ mu_R mu_L ] : 
+    mass: m_mu
+    spin: 1/2
+    irrep: ( -1 , 1 , 1 )
+  -> tau(*)  [ tau_R tau_L ] : 
+    mass: m_tau
+    spin: 1/2
+    irrep: ( -1 , 1 , 1 )
+253-terms lagrangian: 
+29 kinetic terms:
+0 (2) : -1/4*F_G_{%c_3,+%\lambda_5,+%\tau_5}(X)*F_G_{%c_3,%\lambda_5,%\tau_5}(X)
+
+1 (2) : d_%\rho_27(X)(c_G_%h_3(X)^(*))*d_+%\rho_27(X)(c_G_%h_3(X))
+
+2 (2) : -1/2*F_W_{%\rho_5,%\sigma_5}(X)*F_W_{+%\rho_5,+%\sigma_5}(X)^(*)
+
+3 (2) : d_%\nu_11(X)(c_Wm(X)^(*))*d_+%\nu_11(X)(c_Wm(X))
+
+4 (2) : d_%\nu_11(X)(c_Wp(X)^(*))*d_+%\nu_11(X)(c_Wp(X))
+
+5 (2) : 1/2*d_+%\rho_37(X)(h0(X))*d_%\rho_37(X)(h0(X))
+
+6 (2) : -1/4*F_A_{+%\mu_5,+%\nu_7}(X)*F_A_{%\mu_5,%\nu_7}(X)
+
+7 (2) : -1/4*F_Z_{+%\mu_5,+%\nu_7}(X)*F_Z_{%\mu_5,%\nu_7}(X)
+
+8 (2) : cos(theta_W)^2*d_%\mu_9(X)(c_A(X)^(*))*d_+%\mu_9(X)(c_A(X)) + sin(theta_W)^2*d_%\nu_11(X)(c_A(X)^(*))*d_+%\nu_11(X)(c_A(X))
+
+9 (2) : sin(theta_W)^2*d_%\mu_9(X)(c_Z(X)^(*))*d_+%\mu_9(X)(c_Z(X)) + cos(theta_W)^2*d_%\nu_11(X)(c_Z(X)^(*))*d_+%\nu_11(X)(c_Z(X))
+
+10 (2) : i*gamma_{+%\lambda_82,%eps_308,%eta_84}*u_{%C_79,%eps_308}(X)^(*)*d_%\lambda_82(X)(u_{%C_79,%eta_84}(X))
+
+11 (2) : i*gamma_{+%\lambda_153,%eps_495,%eta_175}*c_{%C_136,%eps_495}(X)^(*)*d_%\lambda_153(X)(c_{%C_136,%eta_175}(X))
+
+12 (2) : i*gamma_{+%\lambda_224,%eps_682,%eta_266}*t_{%C_193,%eps_682}(X)^(*)*d_%\lambda_224(X)(t_{%C_193,%eta_266}(X))
+
+13 (2) : i*gamma_{+%\tau_280,%alpha_933,%beta_207}*d_{%E_221,%alpha_933}(X)^(*)*d_%\tau_280(X)(d_{%E_221,%beta_207}(X))
+
+14 (2) : i*gamma_{+%\tau_351,%alpha_1096,%beta_266}*s_{%E_278,%alpha_1096}(X)^(*)*d_%\tau_351(X)(s_{%E_278,%beta_266}(X))
+
+15 (2) : i*gamma_{+%\tau_422,%alpha_1259,%beta_325}*b_{%E_335,%alpha_1259}(X)^(*)*d_%\tau_422(X)(b_{%E_335,%beta_325}(X))
+
+16 (2) : i*gamma_{+%\nu_1207,%eps_1420,%eta_616}*e_%eps_1420(X)^(*)*d_%\nu_1207(X)(e_%eta_616(X))
+
+17 (2) : i*gamma_{+%\nu_1329,%eps_1615,%eta_710}*mu_%eps_1615(X)^(*)*d_%\nu_1329(X)(mu_%eta_710(X))
+
+18 (2) : i*gamma_{+%\nu_1451,%eps_1798,%eta_804}*tau_%eps_1798(X)^(*)*d_%\nu_1451(X)(tau_%eta_804(X))
+
+19 (2) : i*gamma_{+%\mu_13,%gam_15,%del_15}*nu_e_%gam_15(X)^(*)*d_%\mu_13(X)(nu_e_%del_15(X))
+
+20 (2) : i*gamma_{+%\mu_13,%gam_15,%del_15}*nu_mu_%gam_15(X)^(*)*d_%\mu_13(X)(nu_mu_%del_15(X))
+
+21 (2) : i*gamma_{+%\mu_13,%gam_15,%del_15}*nu_tau_%gam_15(X)^(*)*d_%\mu_13(X)(nu_tau_%del_15(X))
+
+22 (2) : d_+%\rho_37(X)(Gp(X))*d_%\rho_37(X)(Gp(X)^(*))
+
+23 (2) : (1 + i)*M_W*W_%\rho_37(X)^(*)*d_+%\rho_37(X)(Gp(X))
+
+24 (2) : (1 + -i)*M_W*W_+%\rho_37(X)*d_%\rho_37(X)(Gp(X)^(*))
+
+25 (2) : -d_+%\mu_237(X)(W_%\mu_237(X))*d_+%\tau_67(X)(W_%\tau_67(X)^(*))/xi_W
+
+26 (2) : 1/2*d_+%\rho_37(X)(G0(X))*d_%\rho_37(X)(G0(X))
+
+27 (2) : (M_Z + M_W*cos(theta_W) + M_W*sin(theta_W)^2/cos(theta_W))*Z_%\nu_442(X)*d_+%\nu_442(X)(G0(X))
+
+28 (2) : -1/2*d_+%\nu_442(X)(Z_%\nu_442(X))*d_+%\rho_3269(X)(Z_%\rho_3269(X))/xi_Z
+
+17 mass terms:
+0 (2) : -1/2*m_h^2*h0(X)^2
+
+1 (2) : -m_u*u_{%G_330,%alpha_390}(X)^(*)*u_{%G_330,%alpha_390}(X)
+
+2 (2) : -m_c*c_{%G_484,%alpha_591}(X)^(*)*c_{%G_484,%alpha_591}(X)
+
+3 (2) : -m_t*t_{%G_626,%alpha_780}(X)^(*)*t_{%G_626,%alpha_780}(X)
+
+4 (2) : -m_d*d_{%A_1698,%gam_1987}(X)^(*)*d_{%A_1698,%gam_1987}(X)
+
+5 (2) : -m_s*s_{%A_1980,%gam_2368}(X)^(*)*s_{%A_1980,%gam_2368}(X)
+
+6 (2) : -m_b*b_{%A_2238,%gam_2725}(X)^(*)*b_{%A_2238,%gam_2725}(X)
+
+7 (2) : -m_e*e_%eps_1433(X)^(*)*e_%eps_1433(X)
+
+8 (2) : -m_mu*mu_%eps_1628(X)^(*)*mu_%eps_1628(X)
+
+9 (2) : -m_tau*tau_%eps_1811(X)^(*)*tau_%eps_1811(X)
+
+10 (2) : M_W^2*W_+%\sigma_1490(X)*W_%\sigma_1490(X)^(*)
+
+11 (2) : 1/2*M_Z^2*Z_%\lambda_73(X)*Z_+%\lambda_73(X)
+
+12 (2) : -m_Gp^2*Gp(X)*Gp(X)^(*)
+
+13 (2) : -1/2*m_G0^2*G0(X)^2
+
+14 (2) : -m_c_Z^2*c_Z(X)^(*)*c_Z(X)
+
+15 (2) : -m_c_Wp^2*c_Wp(X)^(*)*c_Wp(X)
+
+16 (2) : -m_c_Wm^2*c_Wm(X)^(*)*c_Wm(X)
+
+207 interaction terms:
+0 (4) : -1/4*g_s^2*f_{%c_3,%d_3,%e_3}*f_{%c_3,%f_3,%g_3}*G_{%d_3,+%\lambda_5}(X)*G_{%e_3,+%\tau_5}(X)*G_{%f_3,%\lambda_5}(X)*G_{%g_3,%\tau_5}(X)
+
+1 (3) : -1/2*g_s*f_{%c_3,%f_3,%g_3}*G_{%f_3,%\lambda_5}(X)*G_{%g_3,%\tau_5}(X)*F_G_{%c_3,+%\lambda_5,+%\tau_5}(X)
+
+2 (3) : g_s*f_{%a_5,%b_5,%h_3}*G_{%a_5,+%\rho_27}(X)*d_%\rho_27(X)(c_G_%h_3(X)^(*))*c_G_%b_5(X)
+
+3 (4) : e_em^2*A_+%\rho_5(X)*W_+%\sigma_5(X)*(A_%\sigma_5(X)*W_%\rho_5(X)^(*) + -A_%\rho_5(X)*W_%\sigma_5(X)^(*))
+
+4 (3) : 1/2*i*e_em*A_%\rho_5(X)*W_%\sigma_5(X)*(F_W_{+%\rho_5,+%\sigma_5}(X)^(*) + -F_W_{+%\sigma_5,+%\rho_5}(X)^(*))
+
+5 (3) : -1/2*i*e_em*A_%\rho_5(X)*W_%\sigma_5(X)^(*)*(F_W_{+%\rho_5,+%\sigma_5}(X) + -F_W_{+%\sigma_5,+%\rho_5}(X))
+
+6 (3) : i*e_em*A_+%\nu_11(X)*d_%\nu_11(X)(c_Wm(X)^(*))*c_Wm(X)
+
+7 (3) : -i*e_em*A_+%\nu_11(X)*d_%\nu_11(X)(c_Wp(X)^(*))*c_Wp(X)
+
+8 (4) : 1/4*e_em^2*(1 + 1/2*cos(theta_W)^(-2)*sin(theta_W)^2 + 1/2*cos(theta_W)^2*sin(theta_W)^(-2))*Z_+%\rho_37(X)*Z_%\rho_37(X)*h0(X)^2
+
+9 (3) : 1/4*i*e_em*W_%\rho_5(X)*W_%\sigma_5(X)*(F_A_{+%\rho_5,+%\sigma_5}(X) + -F_A_{+%\sigma_5,+%\rho_5}(X))
+
+10 (3) : 1/2*i*e_em*W_%\rho_5(X)*W_%\sigma_5(X)^(*)*(F_A_{+%\rho_5,+%\sigma_5}(X) + -F_A_{+%\sigma_5,+%\rho_5}(X))
+
+11 (3) : -1/4*i*e_em*W_%\rho_5(X)^(*)*W_%\sigma_5(X)^(*)*(F_A_{+%\rho_5,+%\sigma_5}(X) + -F_A_{+%\sigma_5,+%\rho_5}(X))
+
+12 (3) : -i*e_em*W_+%\nu_11(X)*d_%\nu_11(X)(c_A(X)^(*))*c_Wm(X)
+
+13 (3) : i*e_em*W_+%\nu_11(X)^(*)*d_%\nu_11(X)(c_A(X)^(*))*c_Wp(X)
+
+14 (3) : i*e_em*W_+%\nu_11(X)*d_%\nu_11(X)(c_Wp(X)^(*))*c_A(X)
+
+15 (3) : -i*e_em*W_+%\nu_11(X)^(*)*d_%\nu_11(X)(c_Wm(X)^(*))*c_A(X)
+
+16 (4) : -3/8*e_em^2*sin(theta_W)^(-2)*W_+%\rho_5(X)*(W_%\rho_5(X)^(*)*W_%\sigma_5(X)*W_+%\sigma_5(X) + -W_%\rho_5(X)*W_+%\sigma_5(X)*W_%\sigma_5(X)^(*))
+
+17 (4) : -1/2*e_em^2*sin(theta_W)^(-2)*W_%\rho_5(X)*(W_+%\rho_5(X)^(*)*W_+%\sigma_5(X)*W_%\sigma_5(X)^(*) + -W_+%\rho_5(X)*W_+%\sigma_5(X)^(*)*W_%\sigma_5(X)^(*))
+
+18 (4) : 1/8*e_em^2*sin(theta_W)^(-2)*W_%\rho_5(X)^(*)*(W_+%\rho_5(X)^(*)*W_+%\sigma_5(X)*W_%\sigma_5(X)^(*) + -W_+%\rho_5(X)*W_+%\sigma_5(X)^(*)*W_%\sigma_5(X)^(*))
+
+19 (4) : 1/4*e_em^2*sin(theta_W)^(-2)*W_%\rho_37(X)*W_+%\rho_37(X)^(*)*h0(X)^2
+
+20 (4) : -e_em^2*cos(theta_W)^2*sin(theta_W)^(-2)*W_+%\sigma_5(X)*Z_+%\rho_5(X)*(W_%\sigma_5(X)^(*)*Z_%\rho_5(X) + -W_%\rho_5(X)^(*)*Z_%\sigma_5(X))
+
+21 (3) : 1/2*i*e_em*cos(theta_W)*W_%\sigma_5(X)*Z_%\rho_5(X)*(F_W_{+%\rho_5,+%\sigma_5}(X)^(*) + -F_W_{+%\sigma_5,+%\rho_5}(X)^(*))/sin(theta_W)
+
+22 (3) : -1/2*i*e_em*cos(theta_W)*W_%\sigma_5(X)^(*)*Z_%\rho_5(X)*(F_W_{+%\rho_5,+%\sigma_5}(X) + -F_W_{+%\sigma_5,+%\rho_5}(X))/sin(theta_W)
+
+23 (3) : i*e_em*cos(theta_W)*d_%\nu_11(X)(c_Wm(X)^(*))*Z_+%\nu_11(X)*c_Wm(X)/sin(theta_W)
+
+24 (3) : -i*e_em*cos(theta_W)*d_%\nu_11(X)(c_Wp(X)^(*))*Z_+%\nu_11(X)*c_Wp(X)/sin(theta_W)
+
+25 (3) : 1/4*i*e_em*cos(theta_W)*W_%\rho_5(X)*W_%\sigma_5(X)*(F_Z_{+%\rho_5,+%\sigma_5}(X) + -F_Z_{+%\sigma_5,+%\rho_5}(X))/sin(theta_W)
+
+26 (3) : 1/2*i*e_em*cos(theta_W)*W_%\rho_5(X)*W_%\sigma_5(X)^(*)*(F_Z_{+%\rho_5,+%\sigma_5}(X) + -F_Z_{+%\sigma_5,+%\rho_5}(X))/sin(theta_W)
+
+27 (3) : -1/4*i*e_em*cos(theta_W)*W_%\rho_5(X)^(*)*W_%\sigma_5(X)^(*)*(F_Z_{+%\rho_5,+%\sigma_5}(X) + -F_Z_{+%\sigma_5,+%\rho_5}(X))/sin(theta_W)
+
+28 (3) : -i*e_em*cos(theta_W)*d_%\nu_11(X)(c_Z(X)^(*))*W_+%\nu_11(X)*c_Wm(X)/sin(theta_W)
+
+29 (3) : i*e_em*cos(theta_W)*d_%\nu_11(X)(c_Z(X)^(*))*W_+%\nu_11(X)^(*)*c_Wp(X)/sin(theta_W)
+
+30 (3) : i*e_em*cos(theta_W)*d_%\nu_11(X)(c_Wp(X)^(*))*W_+%\nu_11(X)*c_Z(X)/sin(theta_W)
+
+31 (3) : -i*e_em*cos(theta_W)*d_%\nu_11(X)(c_Wm(X)^(*))*W_+%\nu_11(X)^(*)*c_Z(X)/sin(theta_W)
+
+32 (4) : e_em^2*cos(theta_W)*A_%\sigma_5(X)*(W_%\rho_5(X)^(*)*W_+%\sigma_5(X)*Z_+%\rho_5(X) + W_%\rho_5(X)*W_+%\sigma_5(X)^(*)*Z_+%\rho_5(X) + (-2)*W_%\rho_5(X)*W_+%\rho_5(X)^(*)*Z_+%\sigma_5(X))/sin(theta_W)
+
+33 (3) : g_s*gamma_{+%\lambda_107,%eps_357,%eta_109}*T_SU3c_10_{%b_26,%C_93,%D_15}*G_{%b_26,%\lambda_107}(X)*u_{%C_93,%eps_357}(X)^(*)*u_{%D_15,%eta_109}(X)
+
+34 (3) : g_s*gamma_{+%\lambda_178,%eps_544,%eta_200}*T_SU3c_10_{%b_47,%C_150,%D_32}*G_{%b_47,%\lambda_178}(X)*c_{%C_150,%eps_544}(X)^(*)*c_{%D_32,%eta_200}(X)
+
+35 (3) : g_s*gamma_{+%\lambda_249,%eps_731,%eta_291}*T_SU3c_10_{%b_68,%C_207,%D_49}*G_{%b_68,%\lambda_249}(X)*t_{%C_207,%eps_731}(X)^(*)*t_{%D_49,%eta_291}(X)
+
+36 (3) : 2/3*e_em*gamma_{+%\lambda_119,%eps_369,%eta_121}*A_%\lambda_119(X)*u_{%C_105,%eps_369}(X)^(*)*u_{%C_105,%eta_121}(X)
+
+37 (3) : 2/3*e_em*gamma_{+%\lambda_190,%eps_556,%eta_212}*A_%\lambda_190(X)*c_{%C_162,%eps_556}(X)^(*)*c_{%C_162,%eta_212}(X)
+
+38 (3) : 2/3*e_em*gamma_{+%\lambda_261,%eps_743,%eta_303}*A_%\lambda_261(X)*t_{%C_219,%eps_743}(X)^(*)*t_{%C_219,%eta_303}(X)
+
+39 (3) : -2/3*e_em*sin(theta_W)*gamma_{+%\lambda_19,%eps_6,%eta_6}*u_R_{%C_3,%eps_6}(X)^(*)*Z_%\lambda_19(X)*u_R_{%C_3,%eta_6}(X)/cos(theta_W)
+
+40 (3) : -2/3*e_em*sin(theta_W)*gamma_{+%\lambda_19,%eps_6,%eta_6}*c_R_{%C_3,%eps_6}(X)^(*)*Z_%\lambda_19(X)*c_R_{%C_3,%eta_6}(X)/cos(theta_W)
+
+41 (3) : -2/3*e_em*sin(theta_W)*gamma_{+%\lambda_19,%eps_6,%eta_6}*t_R_{%C_3,%eps_6}(X)^(*)*Z_%\lambda_19(X)*t_R_{%C_3,%eta_6}(X)/cos(theta_W)
+
+42 (3) : g_s*gamma_{+%\tau_305,%alpha_958,%beta_220}*T_SU3c_10_{%c_106,%E_235,%F_51}*G_{%c_106,%\tau_305}(X)*d_{%E_235,%alpha_958}(X)^(*)*d_{%F_51,%beta_220}(X)
+
+43 (3) : g_s*gamma_{+%\tau_376,%alpha_1121,%beta_279}*T_SU3c_10_{%c_134,%E_292,%F_68}*G_{%c_134,%\tau_376}(X)*s_{%E_292,%alpha_1121}(X)^(*)*s_{%F_68,%beta_279}(X)
+
+44 (3) : g_s*gamma_{+%\tau_447,%alpha_1284,%beta_338}*T_SU3c_10_{%c_162,%E_349,%F_85}*G_{%c_162,%\tau_447}(X)*b_{%E_349,%alpha_1284}(X)^(*)*b_{%F_85,%beta_338}(X)
+
+45 (3) : -1/3*e_em*gamma_{+%\tau_317,%alpha_970,%beta_232}*A_%\tau_317(X)*d_{%E_247,%alpha_970}(X)^(*)*d_{%E_247,%beta_232}(X)
+
+46 (3) : -1/3*e_em*gamma_{+%\tau_388,%alpha_1133,%beta_291}*A_%\tau_388(X)*s_{%E_304,%alpha_1133}(X)^(*)*s_{%E_304,%beta_291}(X)
+
+47 (3) : -1/3*e_em*gamma_{+%\tau_459,%alpha_1296,%beta_350}*A_%\tau_459(X)*b_{%E_361,%alpha_1296}(X)^(*)*b_{%E_361,%beta_350}(X)
+
+48 (3) : 1/3*e_em*sin(theta_W)*gamma_{+%\tau_19,%alpha_7,%beta_7}*d_R_{%E_3,%alpha_7}(X)^(*)*Z_%\tau_19(X)*d_R_{%E_3,%beta_7}(X)/cos(theta_W)
+
+49 (3) : 1/3*e_em*sin(theta_W)*gamma_{+%\tau_19,%alpha_7,%beta_7}*s_R_{%E_3,%alpha_7}(X)^(*)*Z_%\tau_19(X)*s_R_{%E_3,%beta_7}(X)/cos(theta_W)
+
+50 (3) : 1/3*e_em*sin(theta_W)*gamma_{+%\tau_19,%alpha_7,%beta_7}*b_R_{%E_3,%alpha_7}(X)^(*)*Z_%\tau_19(X)*b_R_{%E_3,%beta_7}(X)/cos(theta_W)
+
+51 (3) : -e_em*gamma_{+%\nu_1276,%eps_1495,%eta_665}*A_%\nu_1276(X)*e_%eps_1495(X)^(*)*e_%eta_665(X)
+
+52 (3) : -e_em*gamma_{+%\nu_1398,%eps_1686,%eta_759}*A_%\nu_1398(X)*mu_%eps_1686(X)^(*)*mu_%eta_759(X)
+
+53 (3) : -e_em*gamma_{+%\nu_1520,%eps_1865,%eta_853}*A_%\nu_1520(X)*tau_%eps_1865(X)^(*)*tau_%eta_853(X)
+
+54 (3) : e_em*sin(theta_W)*gamma_{+%\nu_21,%eps_14,%eta_14}*e_R_%eps_14(X)^(*)*Z_%\nu_21(X)*e_R_%eta_14(X)/cos(theta_W)
+
+55 (3) : e_em*sin(theta_W)*gamma_{+%\nu_21,%eps_14,%eta_14}*mu_R_%eps_14(X)^(*)*Z_%\nu_21(X)*mu_R_%eta_14(X)/cos(theta_W)
+
+56 (3) : e_em*sin(theta_W)*gamma_{+%\nu_21,%eps_14,%eta_14}*tau_R_%eps_14(X)^(*)*Z_%\nu_21(X)*tau_R_%eta_14(X)/cos(theta_W)
+
+57 (3) : -1/6*e_em*sin(theta_W)*gamma_{+%\sigma_24,%gam_5,%del_5}*u_L_{%A_1,%gam_5}(X)^(*)*Z_%\sigma_24(X)*u_L_{%A_1,%del_5}(X)/cos(theta_W) + 1/2*e_em*cos(theta_W)*gamma_{+%\sigma_24,%gam_5,%del_5}*u_L_{%A_1,%gam_5}(X)^(*)*Z_%\sigma_24(X)*u_L_{%A_1,%del_5}(X)/sin(theta_W)
+
+58 (3) : -1/6*e_em*sin(theta_W)*gamma_{+%\sigma_24,%gam_5,%del_5}*c_L_{%A_1,%gam_5}(X)^(*)*Z_%\sigma_24(X)*c_L_{%A_1,%del_5}(X)/cos(theta_W) + 1/2*e_em*cos(theta_W)*gamma_{+%\sigma_24,%gam_5,%del_5}*c_L_{%A_1,%gam_5}(X)^(*)*Z_%\sigma_24(X)*c_L_{%A_1,%del_5}(X)/sin(theta_W)
+
+59 (3) : -1/6*e_em*sin(theta_W)*gamma_{+%\sigma_24,%gam_5,%del_5}*t_L_{%A_1,%gam_5}(X)^(*)*Z_%\sigma_24(X)*t_L_{%A_1,%del_5}(X)/cos(theta_W) + 1/2*e_em*cos(theta_W)*gamma_{+%\sigma_24,%gam_5,%del_5}*t_L_{%A_1,%gam_5}(X)^(*)*Z_%\sigma_24(X)*t_L_{%A_1,%del_5}(X)/sin(theta_W)
+
+60 (3) : 1/2*2^(1/2)*V_ud*e_em*gamma_{+%\sigma_24,%gam_5,%del_5}*d_L_{%A_1,%gam_5}(X)^(*)*W_%\sigma_24(X)^(*)*u_L_{%A_1,%del_5}(X)/sin(theta_W)
+
+61 (3) : 1/2*2^(1/2)*V_us*e_em*gamma_{+%\sigma_24,%gam_5,%del_5}*s_L_{%A_1,%gam_5}(X)^(*)*W_%\sigma_24(X)^(*)*u_L_{%A_1,%del_5}(X)/sin(theta_W)
+
+62 (3) : 1/2*2^(1/2)*e_em*V_ub_mod*exp(i*delta_wolf)*gamma_{+%\sigma_24,%gam_5,%del_5}*b_L_{%A_1,%gam_5}(X)^(*)*W_%\sigma_24(X)^(*)*u_L_{%A_1,%del_5}(X)/sin(theta_W)
+
+63 (3) : 1/2*2^(1/2)*V_cd^(*)*e_em*gamma_{+%\sigma_24,%gam_5,%del_5}*d_L_{%A_1,%gam_5}(X)^(*)*W_%\sigma_24(X)^(*)*c_L_{%A_1,%del_5}(X)/sin(theta_W)
+
+64 (3) : 1/2*2^(1/2)*V_cs^(*)*e_em*gamma_{+%\sigma_24,%gam_5,%del_5}*s_L_{%A_1,%gam_5}(X)^(*)*W_%\sigma_24(X)^(*)*c_L_{%A_1,%del_5}(X)/sin(theta_W)
+
+65 (3) : 1/2*2^(1/2)*V_cb*e_em*gamma_{+%\sigma_24,%gam_5,%del_5}*b_L_{%A_1,%gam_5}(X)^(*)*W_%\sigma_24(X)^(*)*c_L_{%A_1,%del_5}(X)/sin(theta_W)
+
+66 (3) : 1/2*2^(1/2)*V_td^(*)*e_em*gamma_{+%\sigma_24,%gam_5,%del_5}*d_L_{%A_1,%gam_5}(X)^(*)*W_%\sigma_24(X)^(*)*t_L_{%A_1,%del_5}(X)/sin(theta_W)
+
+67 (3) : 1/2*2^(1/2)*V_ts^(*)*e_em*gamma_{+%\sigma_24,%gam_5,%del_5}*s_L_{%A_1,%gam_5}(X)^(*)*W_%\sigma_24(X)^(*)*t_L_{%A_1,%del_5}(X)/sin(theta_W)
+
+68 (3) : 1/2*2^(1/2)*V_tb*e_em*gamma_{+%\sigma_24,%gam_5,%del_5}*b_L_{%A_1,%gam_5}(X)^(*)*W_%\sigma_24(X)^(*)*t_L_{%A_1,%del_5}(X)/sin(theta_W)
+
+69 (3) : 1/2*2^(1/2)*V_ud*e_em*gamma_{+%\sigma_24,%gam_5,%del_5}*u_L_{%A_1,%gam_5}(X)^(*)*W_%\sigma_24(X)*d_L_{%A_1,%del_5}(X)/sin(theta_W)
+
+70 (3) : 1/2*2^(1/2)*V_cd*e_em*gamma_{+%\sigma_24,%gam_5,%del_5}*c_L_{%A_1,%gam_5}(X)^(*)*W_%\sigma_24(X)*d_L_{%A_1,%del_5}(X)/sin(theta_W)
+
+71 (3) : 1/2*2^(1/2)*V_td*e_em*gamma_{+%\sigma_24,%gam_5,%del_5}*t_L_{%A_1,%gam_5}(X)^(*)*W_%\sigma_24(X)*d_L_{%A_1,%del_5}(X)/sin(theta_W)
+
+72 (3) : 1/2*2^(1/2)*V_us*e_em*gamma_{+%\sigma_24,%gam_5,%del_5}*u_L_{%A_1,%gam_5}(X)^(*)*W_%\sigma_24(X)*s_L_{%A_1,%del_5}(X)/sin(theta_W)
+
+73 (3) : 1/2*2^(1/2)*V_cs*e_em*gamma_{+%\sigma_24,%gam_5,%del_5}*c_L_{%A_1,%gam_5}(X)^(*)*W_%\sigma_24(X)*s_L_{%A_1,%del_5}(X)/sin(theta_W)
+
+74 (3) : 1/2*2^(1/2)*V_ts*e_em*gamma_{+%\sigma_24,%gam_5,%del_5}*t_L_{%A_1,%gam_5}(X)^(*)*W_%\sigma_24(X)*s_L_{%A_1,%del_5}(X)/sin(theta_W)
+
+75 (3) : 1/2*2^(1/2)*e_em*V_ub_mod*exp(-i*delta_wolf)*gamma_{+%\sigma_24,%gam_5,%del_5}*u_L_{%A_1,%gam_5}(X)^(*)*W_%\sigma_24(X)*b_L_{%A_1,%del_5}(X)/sin(theta_W)
+
+76 (3) : 1/2*2^(1/2)*V_cb*e_em*gamma_{+%\sigma_24,%gam_5,%del_5}*c_L_{%A_1,%gam_5}(X)^(*)*W_%\sigma_24(X)*b_L_{%A_1,%del_5}(X)/sin(theta_W)
+
+77 (3) : 1/2*2^(1/2)*V_tb*e_em*gamma_{+%\sigma_24,%gam_5,%del_5}*t_L_{%A_1,%gam_5}(X)^(*)*W_%\sigma_24(X)*b_L_{%A_1,%del_5}(X)/sin(theta_W)
+
+78 (3) : -1/6*e_em*sin(theta_W)*gamma_{+%\sigma_24,%gam_5,%del_5}*d_L_{%A_1,%gam_5}(X)^(*)*Z_%\sigma_24(X)*d_L_{%A_1,%del_5}(X)/cos(theta_W) + -1/2*e_em*cos(theta_W)*gamma_{+%\sigma_24,%gam_5,%del_5}*d_L_{%A_1,%gam_5}(X)^(*)*Z_%\sigma_24(X)*d_L_{%A_1,%del_5}(X)/sin(theta_W)
+
+79 (3) : -1/6*e_em*sin(theta_W)*gamma_{+%\sigma_24,%gam_5,%del_5}*s_L_{%A_1,%gam_5}(X)^(*)*Z_%\sigma_24(X)*s_L_{%A_1,%del_5}(X)/cos(theta_W) + -1/2*e_em*cos(theta_W)*gamma_{+%\sigma_24,%gam_5,%del_5}*s_L_{%A_1,%gam_5}(X)^(*)*Z_%\sigma_24(X)*s_L_{%A_1,%del_5}(X)/sin(theta_W)
+
+80 (3) : -1/6*e_em*sin(theta_W)*gamma_{+%\sigma_24,%gam_5,%del_5}*b_L_{%A_1,%gam_5}(X)^(*)*Z_%\sigma_24(X)*b_L_{%A_1,%del_5}(X)/cos(theta_W) + -1/2*e_em*cos(theta_W)*gamma_{+%\sigma_24,%gam_5,%del_5}*b_L_{%A_1,%gam_5}(X)^(*)*Z_%\sigma_24(X)*b_L_{%A_1,%del_5}(X)/sin(theta_W)
+
+81 (3) : 1/2*2^(1/2)*e_em*gamma_{+%\mu_13,%gam_15,%del_15}*e_L_%gam_15(X)^(*)*W_%\mu_13(X)^(*)*nu_e_%del_15(X)/sin(theta_W)
+
+82 (3) : 1/2*2^(1/2)*e_em*gamma_{+%\mu_13,%gam_15,%del_15}*mu_L_%gam_15(X)^(*)*W_%\mu_13(X)^(*)*nu_mu_%del_15(X)/sin(theta_W)
+
+83 (3) : 1/2*2^(1/2)*e_em*gamma_{+%\mu_13,%gam_15,%del_15}*tau_L_%gam_15(X)^(*)*W_%\mu_13(X)^(*)*nu_tau_%del_15(X)/sin(theta_W)
+
+84 (3) : 1/2*2^(1/2)*e_em*gamma_{+%\mu_13,%gam_15,%del_15}*nu_e_%gam_15(X)^(*)*W_%\mu_13(X)*e_L_%del_15(X)/sin(theta_W)
+
+85 (3) : 1/2*2^(1/2)*e_em*gamma_{+%\mu_13,%gam_15,%del_15}*nu_mu_%gam_15(X)^(*)*W_%\mu_13(X)*mu_L_%del_15(X)/sin(theta_W)
+
+86 (3) : 1/2*2^(1/2)*e_em*gamma_{+%\mu_13,%gam_15,%del_15}*nu_tau_%gam_15(X)^(*)*W_%\mu_13(X)*tau_L_%del_15(X)/sin(theta_W)
+
+87 (3) : 1/2*e_em*sin(theta_W)*gamma_{+%\mu_13,%gam_15,%del_15}*nu_e_%gam_15(X)^(*)*Z_%\mu_13(X)*nu_e_%del_15(X)/cos(theta_W) + 1/2*e_em*cos(theta_W)*gamma_{+%\mu_13,%gam_15,%del_15}*nu_e_%gam_15(X)^(*)*Z_%\mu_13(X)*nu_e_%del_15(X)/sin(theta_W)
+
+88 (3) : 1/2*e_em*sin(theta_W)*gamma_{+%\mu_13,%gam_15,%del_15}*nu_mu_%gam_15(X)^(*)*Z_%\mu_13(X)*nu_mu_%del_15(X)/cos(theta_W) + 1/2*e_em*cos(theta_W)*gamma_{+%\mu_13,%gam_15,%del_15}*nu_mu_%gam_15(X)^(*)*Z_%\mu_13(X)*nu_mu_%del_15(X)/sin(theta_W)
+
+89 (3) : 1/2*e_em*sin(theta_W)*gamma_{+%\mu_13,%gam_15,%del_15}*nu_tau_%gam_15(X)^(*)*Z_%\mu_13(X)*nu_tau_%del_15(X)/cos(theta_W) + 1/2*e_em*cos(theta_W)*gamma_{+%\mu_13,%gam_15,%del_15}*nu_tau_%gam_15(X)^(*)*Z_%\mu_13(X)*nu_tau_%del_15(X)/sin(theta_W)
+
+90 (3) : 1/2*e_em*sin(theta_W)*gamma_{+%\mu_13,%gam_15,%del_15}*e_L_%gam_15(X)^(*)*Z_%\mu_13(X)*e_L_%del_15(X)/cos(theta_W) + -1/2*e_em*cos(theta_W)*gamma_{+%\mu_13,%gam_15,%del_15}*e_L_%gam_15(X)^(*)*Z_%\mu_13(X)*e_L_%del_15(X)/sin(theta_W)
+
+91 (3) : 1/2*e_em*sin(theta_W)*gamma_{+%\mu_13,%gam_15,%del_15}*mu_L_%gam_15(X)^(*)*Z_%\mu_13(X)*mu_L_%del_15(X)/cos(theta_W) + -1/2*e_em*cos(theta_W)*gamma_{+%\mu_13,%gam_15,%del_15}*mu_L_%gam_15(X)^(*)*Z_%\mu_13(X)*mu_L_%del_15(X)/sin(theta_W)
+
+92 (3) : 1/2*e_em*sin(theta_W)*gamma_{+%\mu_13,%gam_15,%del_15}*tau_L_%gam_15(X)^(*)*Z_%\mu_13(X)*tau_L_%del_15(X)/cos(theta_W) + -1/2*e_em*cos(theta_W)*gamma_{+%\mu_13,%gam_15,%del_15}*tau_L_%gam_15(X)^(*)*Z_%\mu_13(X)*tau_L_%del_15(X)/sin(theta_W)
+
+93 (3) : -1/4*m_h^2*e_em*h0(X)^3/(M_W*sin(theta_W))
+
+94 (4) : -1/32*M_W^(-2)*m_h^2*e_em^2*sin(theta_W)^(-2)*h0(X)^4
+
+95 (3) : M_W*e_em*(sin(theta_W) + 1/2*cos(theta_W)^(-2)*sin(theta_W)^3 + 1/2*cos(theta_W)^2/sin(theta_W))*Z_%\rho_37(X)*Z_+%\rho_37(X)*h0(X)
+
+96 (3) : M_W*e_em*W_%\rho_37(X)*W_+%\rho_37(X)^(*)*h0(X)/sin(theta_W)
+
+97 (3) : -1/2*m_u*u_{%G_356,%alpha_452}(X)^(*)*e_em*u_{%G_356,%alpha_452}(X)*h0(X)/(M_W*sin(theta_W))
+
+98 (3) : -1/2*m_c*c_{%G_506,%alpha_649}(X)^(*)*e_em*c_{%G_506,%alpha_649}(X)*h0(X)/(M_W*sin(theta_W))
+
+99 (3) : -1/2*m_t*t_{%G_644,%alpha_834}(X)^(*)*e_em*t_{%G_644,%alpha_834}(X)*h0(X)/(M_W*sin(theta_W))
+
+100 (3) : -1/2*m_d*d_{%A_1844,%gam_2205}(X)^(*)*e_em*d_{%A_1844,%gam_2205}(X)*h0(X)/(M_W*sin(theta_W))
+
+101 (3) : -1/2*m_s*s_{%A_2114,%gam_2574}(X)^(*)*e_em*s_{%A_2114,%gam_2574}(X)*h0(X)/(M_W*sin(theta_W))
+
+102 (3) : -1/2*m_b*b_{%A_2360,%gam_2919}(X)^(*)*e_em*b_{%A_2360,%gam_2919}(X)*h0(X)/(M_W*sin(theta_W))
+
+103 (3) : -1/2*m_e*e_%eps_1519(X)^(*)*e_em*e_%eps_1519(X)*h0(X)/(M_W*sin(theta_W))
+
+104 (3) : -1/2*e_em*m_mu*mu_%eps_1710(X)^(*)*h0(X)*mu_%eps_1710(X)/(M_W*sin(theta_W))
+
+105 (3) : -1/2*e_em*m_tau*tau_%eps_1889(X)^(*)*h0(X)*tau_%eps_1889(X)/(M_W*sin(theta_W))
+
+106 (4) : e_em^2*A_%\rho_37(X)*A_+%\rho_37(X)*Gp(X)*Gp(X)^(*)
+
+107 (3) : i*e_em*A_%\rho_37(X)*Gp(X)^(*)*d_+%\rho_37(X)(Gp(X))
+
+108 (3) : -i*e_em*A_+%\rho_37(X)*Gp(X)*d_%\rho_37(X)(Gp(X)^(*))
+
+109 (4) : -1/2*e_em^2*W_+%\rho_37(X)*Z_%\rho_37(X)*Gp(X)^(*)*h0(X)/cos(theta_W)
+
+110 (4) : -1/2*e_em^2*W_+%\rho_37(X)^(*)*Z_%\rho_37(X)*Gp(X)*h0(X)/cos(theta_W)
+
+111 (4) : -1/2*e_em^2*(1 + -1/2*cos(theta_W)^(-2)*sin(theta_W)^2 + -1/2*cos(theta_W)^2*sin(theta_W)^(-2))*Z_%\rho_37(X)*Z_+%\rho_37(X)*Gp(X)*Gp(X)^(*)
+
+112 (4) : 1/2*e_em^2*sin(theta_W)^(-2)*W_%\rho_37(X)*W_+%\rho_37(X)^(*)*Gp(X)*Gp(X)^(*)
+
+113 (3) : 1/2*i*e_em*W_%\rho_37(X)^(*)*h0(X)*d_+%\rho_37(X)(Gp(X))/sin(theta_W)
+
+114 (3) : 1/2*i*e_em*W_%\rho_37(X)*Gp(X)^(*)*d_+%\rho_37(X)(h0(X))/sin(theta_W)
+
+115 (3) : -1/2*i*e_em*W_+%\rho_37(X)*h0(X)*d_%\rho_37(X)(Gp(X)^(*))/sin(theta_W)
+
+116 (3) : -1/2*i*e_em*W_+%\rho_37(X)^(*)*Gp(X)*d_%\rho_37(X)(h0(X))/sin(theta_W)
+
+117 (3) : -1/2*i*e_em*(sin(theta_W)/cos(theta_W) + -cos(theta_W)/sin(theta_W))*Z_%\rho_37(X)*Gp(X)^(*)*d_+%\rho_37(X)(Gp(X))
+
+118 (3) : 1/2*i*e_em*(sin(theta_W)/cos(theta_W) + -cos(theta_W)/sin(theta_W))*Z_+%\rho_37(X)*Gp(X)*d_%\rho_37(X)(Gp(X)^(*))
+
+119 (4) : -e_em^2*(sin(theta_W)/cos(theta_W) + -cos(theta_W)/sin(theta_W))*A_+%\rho_37(X)*Z_%\rho_37(X)*Gp(X)*Gp(X)^(*)
+
+120 (4) : 1/2*e_em^2*A_%\rho_37(X)*W_+%\rho_37(X)*Gp(X)^(*)*h0(X)/sin(theta_W)
+
+121 (4) : 1/2*e_em^2*A_%\rho_37(X)*W_+%\rho_37(X)^(*)*Gp(X)*h0(X)/sin(theta_W)
+
+122 (4) : -1/8*M_W^(-2)*m_h^2*e_em^2*sin(theta_W)^(-2)*Gp(X)^2*Gp(X)^(*)^2
+
+123 (3) : -1/2*m_h^2*e_em*Gp(X)*Gp(X)^(*)*h0(X)/(M_W*sin(theta_W))
+
+124 (4) : -1/8*M_W^(-2)*m_h^2*e_em^2*sin(theta_W)^(-2)*Gp(X)*Gp(X)^(*)*h0(X)^2
+
+125 (3) : -M_W*e_em*sin(theta_W)*W_+%\rho_37(X)*Z_%\rho_37(X)*Gp(X)^(*)/cos(theta_W)
+
+126 (3) : -M_W*e_em*sin(theta_W)*W_+%\rho_37(X)^(*)*Z_%\rho_37(X)*Gp(X)/cos(theta_W)
+
+127 (3) : M_W*e_em*A_%\rho_37(X)*W_+%\rho_37(X)*Gp(X)^(*)
+
+128 (3) : M_W*e_em*A_%\rho_37(X)*W_+%\rho_37(X)^(*)*Gp(X)
+
+129 (3) : 1/2*2^(1/2)*m_u*V_ud*e_em*u_R_{%G_3,%alpha_15}(X)^(*)*Gp(X)*d_L_{%G_3,%alpha_15}(X)/(M_W*sin(theta_W))
+
+130 (3) : 1/2*2^(1/2)*m_c*V_cd*e_em*c_R_{%G_3,%alpha_15}(X)^(*)*Gp(X)*d_L_{%G_3,%alpha_15}(X)/(M_W*sin(theta_W))
+
+131 (3) : 1/2*2^(1/2)*m_t*V_td*e_em*t_R_{%G_3,%alpha_15}(X)^(*)*Gp(X)*d_L_{%G_3,%alpha_15}(X)/(M_W*sin(theta_W))
+
+132 (3) : 1/2*2^(1/2)*m_u*V_us*e_em*u_R_{%G_3,%alpha_15}(X)^(*)*Gp(X)*s_L_{%G_3,%alpha_15}(X)/(M_W*sin(theta_W))
+
+133 (3) : 1/2*2^(1/2)*m_c*V_cs*e_em*c_R_{%G_3,%alpha_15}(X)^(*)*Gp(X)*s_L_{%G_3,%alpha_15}(X)/(M_W*sin(theta_W))
+
+134 (3) : 1/2*2^(1/2)*m_t*V_ts*e_em*t_R_{%G_3,%alpha_15}(X)^(*)*Gp(X)*s_L_{%G_3,%alpha_15}(X)/(M_W*sin(theta_W))
+
+135 (3) : 1/2*2^(1/2)*m_u*e_em*V_ub_mod*exp(-i*delta_wolf)*u_R_{%G_3,%alpha_15}(X)^(*)*Gp(X)*b_L_{%G_3,%alpha_15}(X)/(M_W*sin(theta_W))
+
+136 (3) : 1/2*2^(1/2)*m_c*V_cb*e_em*c_R_{%G_3,%alpha_15}(X)^(*)*Gp(X)*b_L_{%G_3,%alpha_15}(X)/(M_W*sin(theta_W))
+
+137 (3) : 1/2*2^(1/2)*m_t*V_tb*e_em*t_R_{%G_3,%alpha_15}(X)^(*)*Gp(X)*b_L_{%G_3,%alpha_15}(X)/(M_W*sin(theta_W))
+
+138 (3) : 1/2*2^(1/2)*m_u*V_ud*e_em*d_L_{%G_3,%alpha_15}(X)^(*)*Gp(X)^(*)*u_R_{%G_3,%alpha_15}(X)/(M_W*sin(theta_W))
+
+139 (3) : 1/2*2^(1/2)*m_u*V_us*e_em*s_L_{%G_3,%alpha_15}(X)^(*)*Gp(X)^(*)*u_R_{%G_3,%alpha_15}(X)/(M_W*sin(theta_W))
+
+140 (3) : 1/2*2^(1/2)*m_u*e_em*V_ub_mod*exp(i*delta_wolf)*b_L_{%G_3,%alpha_15}(X)^(*)*Gp(X)^(*)*u_R_{%G_3,%alpha_15}(X)/(M_W*sin(theta_W))
+
+141 (3) : 1/2*2^(1/2)*m_c*V_cd^(*)*e_em*d_L_{%G_3,%alpha_15}(X)^(*)*Gp(X)^(*)*c_R_{%G_3,%alpha_15}(X)/(M_W*sin(theta_W))
+
+142 (3) : 1/2*2^(1/2)*m_c*V_cs^(*)*e_em*s_L_{%G_3,%alpha_15}(X)^(*)*Gp(X)^(*)*c_R_{%G_3,%alpha_15}(X)/(M_W*sin(theta_W))
+
+143 (3) : 1/2*2^(1/2)*m_c*V_cb*e_em*b_L_{%G_3,%alpha_15}(X)^(*)*Gp(X)^(*)*c_R_{%G_3,%alpha_15}(X)/(M_W*sin(theta_W))
+
+144 (3) : 1/2*2^(1/2)*m_t*V_td^(*)*e_em*d_L_{%G_3,%alpha_15}(X)^(*)*Gp(X)^(*)*t_R_{%G_3,%alpha_15}(X)/(M_W*sin(theta_W))
+
+145 (3) : 1/2*2^(1/2)*m_t*V_ts^(*)*e_em*s_L_{%G_3,%alpha_15}(X)^(*)*Gp(X)^(*)*t_R_{%G_3,%alpha_15}(X)/(M_W*sin(theta_W))
+
+146 (3) : 1/2*2^(1/2)*m_t*V_tb*e_em*b_L_{%G_3,%alpha_15}(X)^(*)*Gp(X)^(*)*t_R_{%G_3,%alpha_15}(X)/(M_W*sin(theta_W))
+
+147 (3) : -1/2*2^(1/2)*m_d*V_ud*e_em*d_R_{%A_19,%gam_23}(X)^(*)*Gp(X)^(*)*u_L_{%A_19,%gam_23}(X)/(M_W*sin(theta_W))
+
+148 (3) : -1/2*2^(1/2)*m_s*V_us*e_em*s_R_{%A_19,%gam_23}(X)^(*)*Gp(X)^(*)*u_L_{%A_19,%gam_23}(X)/(M_W*sin(theta_W))
+
+149 (3) : -1/2*2^(1/2)*m_b*e_em*V_ub_mod*exp(i*delta_wolf)*b_R_{%A_19,%gam_23}(X)^(*)*Gp(X)^(*)*u_L_{%A_19,%gam_23}(X)/(M_W*sin(theta_W))
+
+150 (3) : -1/2*2^(1/2)*m_d*V_cd^(*)*e_em*d_R_{%A_19,%gam_23}(X)^(*)*Gp(X)^(*)*c_L_{%A_19,%gam_23}(X)/(M_W*sin(theta_W))
+
+151 (3) : -1/2*2^(1/2)*m_s*V_cs^(*)*e_em*s_R_{%A_19,%gam_23}(X)^(*)*Gp(X)^(*)*c_L_{%A_19,%gam_23}(X)/(M_W*sin(theta_W))
+
+152 (3) : -1/2*2^(1/2)*m_b*V_cb*e_em*b_R_{%A_19,%gam_23}(X)^(*)*Gp(X)^(*)*c_L_{%A_19,%gam_23}(X)/(M_W*sin(theta_W))
+
+153 (3) : -1/2*2^(1/2)*m_d*V_td^(*)*e_em*d_R_{%A_19,%gam_23}(X)^(*)*Gp(X)^(*)*t_L_{%A_19,%gam_23}(X)/(M_W*sin(theta_W))
+
+154 (3) : -1/2*2^(1/2)*m_s*V_ts^(*)*e_em*s_R_{%A_19,%gam_23}(X)^(*)*Gp(X)^(*)*t_L_{%A_19,%gam_23}(X)/(M_W*sin(theta_W))
+
+155 (3) : -1/2*2^(1/2)*m_b*V_tb*e_em*b_R_{%A_19,%gam_23}(X)^(*)*Gp(X)^(*)*t_L_{%A_19,%gam_23}(X)/(M_W*sin(theta_W))
+
+156 (3) : -1/2*2^(1/2)*m_d*V_ud*e_em*u_L_{%A_19,%gam_23}(X)^(*)*Gp(X)*d_R_{%A_19,%gam_23}(X)/(M_W*sin(theta_W))
+
+157 (3) : -1/2*2^(1/2)*m_d*V_cd*e_em*c_L_{%A_19,%gam_23}(X)^(*)*Gp(X)*d_R_{%A_19,%gam_23}(X)/(M_W*sin(theta_W))
+
+158 (3) : -1/2*2^(1/2)*m_d*V_td*e_em*t_L_{%A_19,%gam_23}(X)^(*)*Gp(X)*d_R_{%A_19,%gam_23}(X)/(M_W*sin(theta_W))
+
+159 (3) : -1/2*2^(1/2)*m_s*V_us*e_em*u_L_{%A_19,%gam_23}(X)^(*)*Gp(X)*s_R_{%A_19,%gam_23}(X)/(M_W*sin(theta_W))
+
+160 (3) : -1/2*2^(1/2)*m_s*V_cs*e_em*c_L_{%A_19,%gam_23}(X)^(*)*Gp(X)*s_R_{%A_19,%gam_23}(X)/(M_W*sin(theta_W))
+
+161 (3) : -1/2*2^(1/2)*m_s*V_ts*e_em*t_L_{%A_19,%gam_23}(X)^(*)*Gp(X)*s_R_{%A_19,%gam_23}(X)/(M_W*sin(theta_W))
+
+162 (3) : -1/2*2^(1/2)*m_b*e_em*V_ub_mod*exp(-i*delta_wolf)*u_L_{%A_19,%gam_23}(X)^(*)*Gp(X)*b_R_{%A_19,%gam_23}(X)/(M_W*sin(theta_W))
+
+163 (3) : -1/2*2^(1/2)*m_b*V_cb*e_em*c_L_{%A_19,%gam_23}(X)^(*)*Gp(X)*b_R_{%A_19,%gam_23}(X)/(M_W*sin(theta_W))
+
+164 (3) : -1/2*2^(1/2)*m_b*V_tb*e_em*t_L_{%A_19,%gam_23}(X)^(*)*Gp(X)*b_R_{%A_19,%gam_23}(X)/(M_W*sin(theta_W))
+
+165 (3) : -1/2*2^(1/2)*m_e*e_em*e_R_%eps_20(X)^(*)*Gp(X)^(*)*nu_e_%eps_20(X)/(M_W*sin(theta_W))
+
+166 (3) : -1/2*2^(1/2)*e_em*m_mu*mu_R_%eps_20(X)^(*)*Gp(X)^(*)*nu_mu_%eps_20(X)/(M_W*sin(theta_W))
+
+167 (3) : -1/2*2^(1/2)*e_em*m_tau*tau_R_%eps_20(X)^(*)*Gp(X)^(*)*nu_tau_%eps_20(X)/(M_W*sin(theta_W))
+
+168 (3) : -1/2*2^(1/2)*m_e*e_em*nu_e_%eps_20(X)^(*)*Gp(X)*e_R_%eps_20(X)/(M_W*sin(theta_W))
+
+169 (3) : -1/2*2^(1/2)*e_em*m_mu*nu_mu_%eps_20(X)^(*)*Gp(X)*mu_R_%eps_20(X)/(M_W*sin(theta_W))
+
+170 (3) : -1/2*2^(1/2)*e_em*m_tau*nu_tau_%eps_20(X)^(*)*Gp(X)*tau_R_%eps_20(X)/(M_W*sin(theta_W))
+
+171 (4) : 1/4*e_em^2*(1 + 1/2*cos(theta_W)^(-2)*sin(theta_W)^2 + 1/2*cos(theta_W)^2*sin(theta_W)^(-2))*Z_%\rho_37(X)*Z_+%\rho_37(X)*G0(X)^2
+
+172 (4) : 1/4*e_em^2*sin(theta_W)^(-2)*W_%\rho_37(X)*W_+%\rho_37(X)^(*)*G0(X)^2
+
+173 (3) : 1/2*e_em*(sin(theta_W)/cos(theta_W) + cos(theta_W)/sin(theta_W))*Z_%\rho_37(X)*h0(X)*d_+%\rho_37(X)(G0(X))
+
+174 (3) : -1/2*e_em*(sin(theta_W)/cos(theta_W) + cos(theta_W)/sin(theta_W))*Z_%\rho_37(X)*G0(X)*d_+%\rho_37(X)(h0(X))
+
+175 (4) : -1/32*M_W^(-2)*m_h^2*e_em^2*sin(theta_W)^(-2)*G0(X)^4
+
+176 (3) : -1/4*m_h^2*e_em*G0(X)^2*h0(X)/(M_W*sin(theta_W))
+
+177 (4) : -1/16*M_W^(-2)*m_h^2*e_em^2*sin(theta_W)^(-2)*G0(X)^2*h0(X)^2
+
+178 (3) : 1/2*i*m_u*e_em*u_{%G_452,%alpha_548}(X)^(*)*gamma5_{%alpha_548,%beta_99}*u_{%G_452,%beta_99}(X)*G0(X)/(M_W*sin(theta_W))
+
+179 (3) : 1/2*i*m_c*e_em*c_{%G_598,%alpha_741}(X)^(*)*gamma5_{%alpha_741,%gam_1559}*c_{%G_598,%gam_1559}(X)*G0(X)/(M_W*sin(theta_W))
+
+180 (3) : 1/2*i*m_t*e_em*t_{%G_732,%alpha_922}(X)^(*)*gamma5_{%alpha_922,%del_1179}*t_{%G_732,%del_1179}(X)*G0(X)/(M_W*sin(theta_W))
+
+181 (3) : -1/2*i*m_d*e_em*d_{%A_1940,%gam_2305}(X)^(*)*gamma5_{%gam_2305,%eps_1036}*d_{%A_1940,%eps_1036}(X)*G0(X)/(M_W*sin(theta_W))
+
+182 (3) : -1/2*i*m_s*e_em*s_{%A_2206,%gam_2670}(X)^(*)*gamma5_{%gam_2670,%eta_512}*s_{%A_2206,%eta_512}(X)*G0(X)/(M_W*sin(theta_W))
+
+183 (3) : -1/2*i*m_b*e_em*b_{%A_2448,%gam_3011}(X)^(*)*gamma5_{%gam_3011,%alpha_1409}*b_{%A_2448,%alpha_1409}(X)*G0(X)/(M_W*sin(theta_W))
+
+184 (3) : -1/2*i*m_e*e_em*e_%eps_1571(X)^(*)*gamma5_{%eps_1571,%beta_423}*e_%beta_423(X)*G0(X)/(M_W*sin(theta_W))
+
+185 (3) : -1/2*i*e_em*m_mu*mu_%eps_1758(X)^(*)*gamma5_{%eps_1758,%gam_3621}*G0(X)*mu_%gam_3621(X)/(M_W*sin(theta_W))
+
+186 (3) : -1/2*i*e_em*m_tau*tau_%eps_1933(X)^(*)*gamma5_{%eps_1933,%del_2406}*G0(X)*tau_%del_2406(X)/(M_W*sin(theta_W))
+
+187 (4) : -1/2*i*e_em^2*W_+%\rho_37(X)*Z_%\rho_37(X)*G0(X)*Gp(X)^(*)/cos(theta_W)
+
+188 (4) : 1/2*i*e_em^2*W_+%\rho_37(X)^(*)*Z_%\rho_37(X)*G0(X)*Gp(X)/cos(theta_W)
+
+189 (3) : 1/2*e_em*W_%\rho_37(X)^(*)*G0(X)*d_+%\rho_37(X)(Gp(X))/sin(theta_W)
+
+190 (3) : -1/2*e_em*W_%\rho_37(X)*Gp(X)^(*)*d_+%\rho_37(X)(G0(X))/sin(theta_W)
+
+191 (3) : 1/2*e_em*W_+%\rho_37(X)*G0(X)*d_%\rho_37(X)(Gp(X)^(*))/sin(theta_W)
+
+192 (3) : -1/2*e_em*W_+%\rho_37(X)^(*)*Gp(X)*d_%\rho_37(X)(G0(X))/sin(theta_W)
+
+193 (4) : 1/2*i*e_em^2*A_%\rho_37(X)*W_+%\rho_37(X)*G0(X)*Gp(X)^(*)/sin(theta_W)
+
+194 (4) : -1/2*i*e_em^2*A_%\rho_37(X)*W_+%\rho_37(X)^(*)*G0(X)*Gp(X)/sin(theta_W)
+
+195 (4) : -1/8*M_W^(-2)*m_h^2*e_em^2*sin(theta_W)^(-2)*G0(X)^2*Gp(X)*Gp(X)^(*)
+
+196 (3) : -1/2*M_Z*e_em*xi_Z*c_Z(X)^(*)*h0(X)*c_Z(X)/(cos(theta_W)*sin(theta_W))
+
+197 (3) : 1/2*M_Z*e_em*xi_Z*c_Z(X)^(*)*Gp(X)^(*)*c_Wp(X)/sin(theta_W)
+
+198 (3) : 1/2*M_Z*e_em*xi_Z*c_Z(X)^(*)*Gp(X)*c_Wm(X)/sin(theta_W)
+
+199 (3) : M_W*e_em*xi_W*Gp(X)*c_Wp(X)^(*)*c_A(X)
+
+200 (3) : -1/2*M_W*e_em*xi_W*cos(2*theta_W)*c_Wp(X)^(*)*Gp(X)*c_Z(X)/(cos(theta_W)*sin(theta_W))
+
+201 (3) : -1/2*i*M_W*e_em*xi_W*c_Wp(X)^(*)*G0(X)*c_Wp(X)/sin(theta_W)
+
+202 (3) : -1/2*M_W*e_em*xi_W*c_Wp(X)^(*)*h0(X)*c_Wp(X)/sin(theta_W)
+
+203 (3) : M_W*e_em*xi_W*Gp(X)^(*)*c_Wm(X)^(*)*c_A(X)
+
+204 (3) : -1/2*M_W*e_em*xi_W*cos(2*theta_W)*c_Wm(X)^(*)*Gp(X)^(*)*c_Z(X)/(cos(theta_W)*sin(theta_W))
+
+205 (3) : 1/2*i*M_W*e_em*xi_W*c_Wm(X)^(*)*G0(X)*c_Wm(X)/sin(theta_W)
+
+206 (3) : -1/2*M_W*e_em*xi_W*c_Wm(X)^(*)*h0(X)*c_Wm(X)/sin(theta_W)
+
+
+

@@ -1,0 +1,4 @@
+{
+  "src/*.cpp": {"alternate": "include/{}.h"}, 
+  "include/*.h": {"alternate": "src/{}.cpp"}
+}
