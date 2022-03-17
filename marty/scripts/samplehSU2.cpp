@@ -6,7 +6,7 @@ using namespace csl;
 
 int main(){
 
-  mty::hSU2_Model horizSU2;
+  mty::hSU2_Model horizSU2(1);
  
   cout << horizSU2 << endl;
 

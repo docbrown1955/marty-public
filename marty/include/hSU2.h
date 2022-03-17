@@ -27,11 +27,11 @@ namespace mty{
         void  initGauge();
         void  initLeptons();
         void  initQuarks();
-        void  initHiggs();
 
       void initInteractions();
         void gatherhSU2Inputs();
         void horizontalSymmetryBreaking();
+        void  initHiggs();
         void getToLowEnergyLagrangian();
         void checkHermiticity();
         void computeFeynmanRules();
