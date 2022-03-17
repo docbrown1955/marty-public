@@ -107,6 +107,9 @@ optional<Expr> RealPart::evaluate(
         return newArg.value();
     if (newArg.value()->isPurelyImaginary())
         return CSL_0;
+    if (newArg.value()->getType() == csl::Type::Complex) {
+        return newArg.value()->getRealPart().value();
+    }
 
     return real_s(newArg.value());
 }
@@ -265,6 +268,9 @@ optional<Expr> ImaginaryPart::evaluate(
         return newArg.value();
     if (newArg.value()->isReal())
         return CSL_0;
+    if (newArg.value()->getType() == csl::Type::Complex) {
+        return newArg.value()->getImaginaryPart();
+    }
 
     return imaginary_s(newArg.value());
 }

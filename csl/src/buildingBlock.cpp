@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
+#include "mathFunctions.h"
 #include "buildingBlock.h"
 #include "cslcomplex.h"
 #include "literal.h"
@@ -54,6 +55,7 @@ optional<Expr> AbstractBuildingBlock::getComplexModulus() const
 {
     return nullopt; 
 }
+
 optional<Expr> AbstractBuildingBlock::getPolynomialTerm(Expr_info expr, int order) const
 {
     if (order == 1 and operator==(expr))
@@ -133,6 +135,27 @@ optional<Expr> Complexified::getComplexConjugate() const
     res->setConjugated(not isComplexConjugate());
     return res;
 }
+
+std::optional<Expr> Complexified::getComplexModulus() const
+{
+    if (isReal()) {
+        return std::nullopt;
+    }
+    Expr real = getRealPart().value();
+    Expr imag = getImaginaryPart();
+    return csl::sqrt_s(real*real + imag*imag);
+}
+
+std::optional<Expr> Complexified::getComplexArgument() const 
+{
+    if (isReal()) {
+        return CSL_0;
+    }
+    Expr real = getRealPart().value();
+    Expr imag = getImaginaryPart();
+    return csl::angle_s(real, imag);
+}
+
 
 void Complexified::printProp(std::ostream& fout) const
 {

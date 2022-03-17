@@ -220,6 +220,10 @@ namespace mty::sm_input {
     //  CKM Matrix PDG 2020
     ///////////////////////////////////////////////////
 
+    // Set this option to false to use bare measurements
+    // The Wolfenstein parametrization yields a unitary CKM, quite handy
+    inline constexpr bool useWolfensteinCKM = true;
+
     inline
     csl::Expr V_ud_mod = csl::constant_s(
             "V_ud_mod",
@@ -274,63 +278,121 @@ namespace mty::sm_input {
             csl::float_s(1.013)
             );
 
+    // Wolfenstein parametrization from PDG 2021
     inline
     csl::Expr A_wolf = csl::constant_s(
             "A_wolf",
-            csl::float_s(0.836)
+            csl::float_s(0.790)
             );
 
     inline
     csl::Expr lambda_wolf = csl::constant_s(
             "lambda_wolf",
-            csl::float_s(0.22453)
+            csl::float_s(0.22650)
             );
 
     inline
     csl::Expr rho_bar_wolf = csl::constant_s(
             "rho_bar_wolf",
-            csl::float_s(0.122)
+            csl::float_s(0.141)
             );
 
     inline
     csl::Expr eta_bar_wolf = csl::constant_s(
             "eta_bar_wolf",
-            csl::float_s(0.355)
+            csl::float_s(0.357)
             );
 
+    inline
+    csl::Expr s_12_wolf = lambda_wolf;
+
     inline 
-    csl::Expr delta_wolf = csl::constant_s(
-            "delta_wolf",
-            csl::Angle(csl::Evaluated(eta_bar_wolf, csl::eval::literal),
-                       csl::Evaluated(rho_bar_wolf, csl::eval::literal))
-                .evaluate(csl::eval::numerical).value()
-            );
+    csl::Expr s_23_wolf = A_wolf*lambda_wolf*lambda_wolf;
+
+    inline
+    csl::Expr s_13_wolf = A_wolf*csl::pow_s(lambda_wolf, 3)
+        * csl::sqrt_s(rho_bar_wolf*rho_bar_wolf 
+                    + eta_bar_wolf*eta_bar_wolf);
+
+    inline 
+    csl::Expr c_12_wolf = csl::sqrt_s(1 - s_12_wolf*s_12_wolf);
+
+    inline 
+    csl::Expr c_13_wolf = csl::sqrt_s(1 - s_13_wolf*s_13_wolf);
+
+    inline 
+    csl::Expr c_23_wolf = csl::sqrt_s(1 - s_23_wolf*s_23_wolf);
+
+    inline
+    csl::Expr delta_wolf = 
+        csl::constant_s(
+                "delta_wolf",
+                csl::Evaluated(
+                    csl::angle_s(rho_bar_wolf, eta_bar_wolf),
+                    csl::eval::all
+                    )
+                );
+
+    inline 
+    csl::Expr V_ud_wolf = c_12_wolf*c_13_wolf;
+
+    inline 
+    csl::Expr V_us_wolf = s_12_wolf*c_13_wolf;
+
+    inline
+    csl::Expr V_ub_wolf = s_13_wolf*csl::exp_s(-CSL_I*delta_wolf);
+
+    inline 
+    csl::Expr V_cd_wolf = -s_12_wolf*c_23_wolf 
+        - c_12_wolf*s_23_wolf*s_13_wolf*csl::exp_s(CSL_I*delta_wolf);
+
+    inline
+    csl::Expr V_cs_wolf = c_12_wolf*c_23_wolf
+        - s_12_wolf*s_23_wolf*s_13_wolf*csl::exp_s(CSL_I*delta_wolf);
+
+    inline 
+    csl::Expr V_cb_wolf = s_23_wolf*c_13_wolf;
+
+    inline
+    csl::Expr V_td_wolf = s_12_wolf*s_23_wolf
+        - c_12_wolf*c_23_wolf*s_13_wolf*csl::exp_s(CSL_I*delta_wolf);
+
+    inline 
+    csl::Expr V_ts_wolf = -c_12_wolf*s_23_wolf
+        - s_12_wolf*c_23_wolf*s_13_wolf*csl::exp_s(CSL_I*delta_wolf);
+
+    inline
+    csl::Expr V_tb_wolf = c_23_wolf*c_13_wolf;
 
     inline
         csl::Expr V_ud = csl::constant_s(
                 "V_ud",
-                V_ud_mod->getValue(),
+                (useWolfensteinCKM) ? csl::Evaluated(V_ud_wolf, csl::eval::all)
+                : V_ud_mod->getValue(),
                 csl::ComplexProperty::Real
                 );
 
     inline
         csl::Expr V_us = csl::constant_s(
                 "V_us",
-                V_us_mod->getValue(),
+                (useWolfensteinCKM) ? csl::Evaluated(V_us_wolf, csl::eval::all)
+                : V_us_mod->getValue(),
                 csl::ComplexProperty::Real
                 );
 
     inline
         csl::Expr V_cb = csl::constant_s(
                 "V_cb",
-                V_cb_mod->getValue(),
+                (useWolfensteinCKM) ? csl::Evaluated(V_cb_wolf, csl::eval::all)
+                : V_cb_mod->getValue(),
                 csl::ComplexProperty::Real
                 );
 
     inline
         csl::Expr V_tb = csl::constant_s(
                 "V_tb",
-                V_tb_mod->getValue(),
+                (useWolfensteinCKM) ? csl::Evaluated(V_tb_wolf, csl::eval::all)
+                : V_tb_mod->getValue(),
                 csl::ComplexProperty::Real
                 );
 
@@ -375,12 +437,10 @@ namespace mty::sm_input {
                 );
 
     inline
-    csl::Expr V_ub = V_ub_mod * csl::exp_s(-CSL_I * delta_wolf);
-
-    inline
     csl::Expr V_cd = csl::constant_s(
             "V_cd",
-            csl::Evaluated(
+            (useWolfensteinCKM) ? csl::Evaluated(V_cd_wolf, csl::eval::all)
+            : csl::Evaluated(
                 - sin_CKM_12*cos_CKM_23 
                 - cos_CKM_12*sin_CKM_23*sin_CKM_13*csl::exp_s(CSL_I*delta_wolf),
                 csl::eval::literal | csl::eval::numerical
@@ -391,7 +451,8 @@ namespace mty::sm_input {
     inline
     csl::Expr V_cs = csl::constant_s(
             "V_cs",
-            csl::Evaluated(
+            (useWolfensteinCKM) ? csl::Evaluated(V_cs_wolf, csl::eval::all)
+            : csl::Evaluated(
                 cos_CKM_12*cos_CKM_23 
                 - sin_CKM_12*sin_CKM_23*sin_CKM_13*csl::exp_s(CSL_I*delta_wolf),
                 csl::eval::literal | csl::eval::numerical
@@ -402,7 +463,8 @@ namespace mty::sm_input {
     inline
     csl::Expr V_td = csl::constant_s(
             "V_td",
-            csl::Evaluated(
+            (useWolfensteinCKM) ? csl::Evaluated(V_td_wolf, csl::eval::all)
+            :csl::Evaluated(
                 sin_CKM_12*sin_CKM_23 
                 - cos_CKM_12*cos_CKM_23*sin_CKM_13*csl::exp_s(CSL_I*delta_wolf),
                 csl::eval::literal | csl::eval::numerical
@@ -413,7 +475,8 @@ namespace mty::sm_input {
     inline
     csl::Expr V_ts = csl::constant_s(
             "V_ts",
-            csl::Evaluated(
+            (useWolfensteinCKM) ? csl::Evaluated(V_ts_wolf, csl::eval::all)
+            :csl::Evaluated(
                 - cos_CKM_12*sin_CKM_23 
                 - sin_CKM_12*cos_CKM_23*sin_CKM_13*csl::exp_s(CSL_I*delta_wolf),
             csl::eval::literal | csl::eval::numerical
@@ -421,34 +484,19 @@ namespace mty::sm_input {
             csl::ComplexProperty::Complex
             );
 
-    // Wolfenstein parametrization
-
     inline
-    csl::Expr V_ud_wolf = 1 - lambda_wolf*lambda_wolf / 2;
+    csl::Expr V_ub = csl::constant_s(
+            "V_ub",
+            (useWolfensteinCKM) ? csl::Evaluated(V_ub_wolf, csl::eval::all)
+            :csl::Evaluated( // Unitary triangle condition
+                -(csl::GetComplexConjugate(V_cd)*V_cb
+                + csl::GetComplexConjugate(V_td)*V_tb)
+                   / csl::GetComplexConjugate(V_ud),
+                csl::eval::literal | csl::eval::numerical
+            ),
+            csl::ComplexProperty::Complex
+            ); 
 
-    inline
-    csl::Expr V_cd_wolf = - lambda_wolf;
-
-    inline
-    csl::Expr V_td_wolf = rho_bar_wolf - CSL_I * eta_bar_wolf;
-
-    inline
-    csl::Expr V_us_wolf = lambda_wolf;
-
-    inline
-    csl::Expr V_cs_wolf = 1 - lambda_wolf*lambda_wolf / 2;
-
-    inline
-    csl::Expr V_ts_wolf = -A_wolf * lambda_wolf * lambda_wolf;
-
-    inline
-    csl::Expr V_ub_wolf = rho_bar_wolf + CSL_I * eta_bar_wolf;
-
-    inline
-    csl::Expr V_cb_wolf = A_wolf * lambda_wolf*lambda_wolf;
-
-    inline
-    csl::Expr V_tb_wolf = CSL_1;
 
 } // End of namespace mty::sm_input
 

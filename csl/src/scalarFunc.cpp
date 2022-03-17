@@ -115,7 +115,7 @@ std::optional<Expr> AbstractFunc::getComplexModulus() const
 
 std::optional<Expr> AbstractFunc::getComplexArgument() const
 {
-    return angle_s(getImaginaryPart(), GetRealPart(copy()));
+    return angle_s(GetRealPart(copy()), GetImaginaryPart(copy()));
 }
 
 
@@ -482,7 +482,7 @@ std::optional<Expr> AbstractDuoFunc::getComplexModulus() const
 
 std::optional<Expr> AbstractDuoFunc::getComplexArgument() const
 {
-    return angle_s(getImaginaryPart(), GetRealPart(copy()));
+    return angle_s(GetRealPart(copy()), GetImaginaryPart(copy()));
 }
 
 optional<Expr> AbstractDuoFunc::getComplexConjugate() const
@@ -831,7 +831,7 @@ std::optional<Expr> AbstractMultiFunc::getComplexModulus() const
 
 std::optional<Expr> AbstractMultiFunc::getComplexArgument() const
 {
-    return angle_s(getImaginaryPart(), GetRealPart(copy()));
+    return angle_s(GetRealPart(copy()), GetImaginaryPart(copy()));
 }
 
 

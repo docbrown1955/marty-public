@@ -952,7 +952,7 @@ std::optional<Expr> Complex::getComplexArgument() const
         return CSL_0;
     if (real == CSL_0)
         return imag->evaluateScalar() < 0 ? -CSL_PI /2 : CSL_PI / 2;
-    return csl::make_shared<Angle>(imag, real);
+    return csl::make_shared<Angle>(real, imag);
 }
 
 std::optional<Expr> Complex::getComplexModulus() const
@@ -1028,7 +1028,28 @@ Expr Complex::division_own(const Expr& expr) const
 
 Expr Complex::exponentiation_own(const Expr& expr) const
 {
-    return csl::make_shared<Pow, alloc_pow>(copy(), expr);
+    if (expr->getType() == csl::Type::Complex)
+        return csl::make_shared<Pow, alloc_pow>(copy(), expr);
+    csl::Expr arg = getComplexArgument().value();
+    csl::Expr mod = getComplexModulus().value();
+    arg *= expr;
+    csl::Expr new_real, new_imag;
+    if (mod->getPrimaryType() == csl::PrimaryType::Numerical) {
+        new_real = mod->exponentiation_own(expr)*csl::cos_s(arg);
+        new_imag = mod->exponentiation_own(expr)*csl::sin_s(arg);
+    }
+    else {
+        new_real = csl::pow_s(mod, expr)*csl::cos_s(arg); 
+        new_imag = csl::pow_s(mod, expr)*csl::sin_s(arg);
+    }
+    if (csl::IsNumerical(new_real) && csl::IsNumerical(new_imag)) {
+        auto res = complex_s(new_real, new_imag);
+        return res;
+    }
+    else {
+        auto res =  new_real + CSL_I*new_imag;
+        return res;
+    }
 }
 
 std::optional<Expr> Complex::derive(Expr_info) const

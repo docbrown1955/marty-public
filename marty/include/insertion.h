@@ -48,6 +48,7 @@ class Insertion {
     Insertion(QuantumFieldParent * t_field);
     Insertion(Particle             t_field);
     Insertion(csl::Expr     const& t_field);
+    Insertion(std::string const &name);
     Insertion(std::string_view name);
     Insertion(const char name[]);
     Insertion(Insertion const& other) = default;

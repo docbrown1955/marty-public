@@ -47,6 +47,12 @@ Insertion::Insertion(csl::Expr const& t_field)
     validExpression = true;
 }
 
+Insertion::Insertion(std::string const &name)
+    :Insertion(name.c_str())
+{
+
+}
+
 Insertion::Insertion(std::string_view name)
     :Insertion(GetParticle(&name[0]).get())
 {

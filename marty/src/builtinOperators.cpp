@@ -74,7 +74,7 @@ namespace mty {
             for (size_t j = 0; j != indicesLeft.size(); ++j) {
                 auto const &req = requirements[indicesLeft[j]];
                 if (!(field.getSpinDimension() == req.spin))
-                    break;
+                    continue;
                 if (req.conjugation == -1 // no requirement
                         || field.isComplexConjugate() == req.conjugation) {
                     indicesLeft.erase(indicesLeft.begin() + j);
@@ -147,6 +147,10 @@ namespace mty {
             HEPAssert(group,
                     mty::error::TypeError,
                     "Invalid amplitude for magnetic operator.")
+            HEPAssert(qf(psi)->getGroupIrrep(group).getDim() > 1,
+                    mty::error::PhysicsError,
+                    "Particle " + psi->getName() + " has no representation to "
+                    "couple to " + A->getName() + " in operator.")
             auto T = model.getGenerator(group, psi);
             auto I = T->getSpace()[0]->generateIndex();
             auto space = T->getSpace()[1];
@@ -188,6 +192,10 @@ namespace mty {
         csl::Expr A = vectorBoson.field
             .getQuantumParent()->getInstance();
         A->setPoint(vectorBoson.momentum);
+        if (!vectorBoson.field.isSelfConjugate()
+                && !vectorBoson.field.isComplexConjugate()) {
+            A = csl::GetComplexConjugate(A);
+        }
         csl::Index mu = A->getIndexStructureView().back();
         mu = mu.getFlipped();
 
@@ -230,10 +238,12 @@ namespace mty {
         bool leftFound = false;
         for (size_t i = 0; i != insertions.size(); ++i) {
             if (insertions[i].field.isFermionic()) {
-                if (leftFound) rightFermion = insertions[i];
-                else {
+                if (!leftFound) {
                     leftFermion = insertions[i];
                     leftFound = true;
+                }
+                else {
+                    rightFermion = insertions[i];
                 }
             }
             else {
@@ -368,7 +378,7 @@ namespace mty {
             csl::Index const &a,
             csl::Index const &b,
             csl::Index const &mu,
-            csl::Index const &nu
+            csl::Index const &nu = csl::Index()
             )
     {
         csl::Index c = a.rename();
@@ -661,5 +671,65 @@ namespace mty {
 
         return diracCouplings;
     }
+
+
+    std::vector<Wilson> dimension5Operator(
+            Model     const &model,
+            WilsonSet const &wilsons,
+            DiracCoupling    current
+            )
+    {
+        auto fermionOrder = wilsons.options.getFermionOrder();
+        if (fermionOrder.empty())
+            fermionOrder = defaultFermionOrder(
+                    wilsons.kinematics.getInsertions());
+        bool swapped = areSwapped(fermionOrder);
+        std::vector<OpInsertion> insertions = getOpInsertions(
+                wilsons.kinematics);
+        std::vector<InsertionRequirement> requirements = {
+            {2, 1}, // conjugate fermion
+            {2, 0}, // non-conjugate fermion
+            {3, -1}   // vector boson, no conjugation requirement
+        };
+        if (!requirementsSatisfied(insertions, requirements))
+            return {};
+
+        auto [leftFermion, rightFermion, vectorBoson] = 
+            getMagneticInsertions(insertions, swapped);
+        csl::Expr psi_star = fermionExpr(leftFermion, true);
+        csl::Expr psi      = fermionExpr(rightFermion, false);
+
+        // Coupling by the identity by default 
+        for (size_t i = 0; i != psi->getIndexStructureView().size(); ++i)
+            csl::Replace(
+                    psi_star, 
+                    psi_star->getIndexStructureView()[i],
+                    psi->getIndexStructureView()[i]);
+        csl::Index alpha = psi_star->getIndexStructureView().back();
+        csl::Index beta  = alpha.rename();
+        csl::Replace(psi, alpha, beta);
+        csl::Expr A = vectorBoson.field
+            .getQuantumParent()->getInstance();
+        A->setPoint(vectorBoson.momentum);
+        if (!vectorBoson.field.isSelfConjugate()
+                && !vectorBoson.field.isComplexConjugate()) {
+            A = csl::GetComplexConjugate(A);
+        }
+        csl::Index mu = A->getIndexStructureView().back();
+        mu = mu.getFlipped();
+
+        std::vector<Wilson> diracCouplings = getDiracCurrent(
+                current, alpha, beta, mu
+                );
+        csl::Expr generator = getMagneticGenerator(model, psi_star, psi, A);
+        std::vector<Wilson> res;
+        res.reserve(diracCouplings.size());
+        for (const auto &coup : diracCouplings)
+            res.push_back({coup.coef.getCoefficient(),
+                    coup.op.getExpression() * psi_star * generator * psi
+                     * A});
+        return res;
+    }
+
 
 }

@@ -354,6 +354,8 @@ class AbstractMultiFunc: public Abstract{
      */
     AbstractMultiFunc();
 
+    AbstractMultiFunc(std::vector<csl::Expr> const &t_argument);
+
     csl::Type getType() const override {
         return csl::Type::StandardMult;
     }
@@ -527,6 +529,13 @@ inline AbstractDuoFunc::AbstractDuoFunc(
 
 inline AbstractMultiFunc::AbstractMultiFunc()
     :Abstract(), argument(csl::vector_expr(alloc_expr))
+{
+
+}
+
+inline AbstractMultiFunc::AbstractMultiFunc(
+    std::vector<csl::Expr> const &t_argument)
+    :Abstract(), argument(t_argument)
 {
 
 }

@@ -31,6 +31,7 @@
 #include "comparison.h"
 #include "options.h"
 #include "interface.h"
+#include <algorithm>
 using namespace std;
 
 namespace csl {
@@ -82,13 +83,38 @@ Sum::Sum(const Expr& leftOperand,
     }
 }
 
+bool Sum::isReal() const 
+{
+    bool real = std::all_of(
+        argument.begin(), 
+        argument.end(), [](csl::Expr const &arg) {
+            return arg->isReal();
+        });
+    if (real)
+        return true;
+    auto conj = getComplexConjugate();
+    if (!conj || operator==(conj.value().get()))
+        return true;
+    return false;
+}
+
+bool Sum::isPurelyImaginary() const 
+{
+    bool imag = std::all_of(
+        argument.begin(), 
+        argument.end(), [](csl::Expr const &arg) {
+            return arg->isPurelyImaginary();
+        });
+    if (imag)
+        return true;
+    auto conj = getComplexConjugate();
+    if (!conj || operator==((-conj.value()).get()))
+        return true;
+    return false;
+}
+
 optional<Expr> Sum::getRealPart() const
 {
-    // Real part sum of real parts of arguments
-    if (isReal())
-        return nullopt;
-    if (isPurelyImaginary())
-        return CSL_0;
     csl::vector_expr newArg(argument.size());
     for (size_t i = 0; i < argument.size(); i++)
         newArg[i] = GetRealPart(argument[i]);
@@ -98,9 +124,6 @@ optional<Expr> Sum::getRealPart() const
 
 Expr Sum::getImaginaryPart() const
 {
-    // Imaginary part sum of imaginary parts of arguments
-    if (isReal())
-        return CSL_0;
     csl::vector_expr newArg(argument.size());
     for (size_t i = 0; i < argument.size(); i++)
         newArg[i] = GetImaginaryPart(argument[i]);
@@ -123,7 +146,7 @@ optional<Expr> Sum::getComplexArgument() const
     Expr real = GetRealPart(copy());
     Expr im = GetImaginaryPart(copy());
 
-    return csl::make_shared<Angle>(im,real);
+    return csl::make_shared<Angle>(real, im);
 }
 
 void Sum::insert(const Expr& expr, bool explicitSum)
@@ -1253,6 +1276,44 @@ int Prod::getOrderOf(Expr_info expr) const
     return order;
 }
 
+bool Prod::isReal() const 
+{
+    size_t nReal = 0;
+    size_t nImag = 0;
+    for (const auto &arg : argument) {
+        if (arg->isReal())
+            ++nReal;
+        else if (arg->isPurelyImaginary())
+            ++nImag;
+    }
+    if (nReal + nImag == argument.size()) {
+        return nImag %2 == 0;
+    }
+    auto conj = getComplexConjugate();
+    if (!conj || operator==(conj.value().get()))
+        return true;
+    return false;
+}
+
+bool Prod::isPurelyImaginary() const
+{
+    size_t nReal = 0;
+    size_t nImag = 0;
+    for (const auto &arg : argument) {
+        if (arg->isReal())
+            ++nReal;
+        else if (arg->isPurelyImaginary())
+            ++nImag;
+    }
+    if (nReal + nImag == argument.size()) {
+        return nImag % 2 == 1;
+    }
+    auto conj = getComplexConjugate();
+    if (!conj || operator==((-conj.value()).get()))
+        return true;
+    return false;
+}
+
 optional<Expr> Prod::getRealPart() const
 {
     Expr realPart = GetRealPart(argument[0]);
@@ -1303,7 +1364,7 @@ optional<Expr> Prod::getComplexArgument() const
 {
     Expr real = GetRealPart(copy());
     Expr im = getImaginaryPart();
-    return csl::make_shared<Angle>(im,real);
+    return csl::make_shared<Angle>(real, im);
 }
 
 optional<Expr> Prod::getHermitianConjugate(
@@ -2529,6 +2590,16 @@ csl::vector_expr Pow::getFactors() const
     return foo;
 }
 
+bool Pow::isReal() const 
+{
+    return argument[0]->isReal() && argument[1]->isReal();
+}
+
+bool Pow::isPurelyImaginary() const 
+{
+    return false;
+}
+
 void Pow::getExponents(
         std::vector<Expr> const &factors,
         std::vector<Expr>       &exponents
@@ -2692,7 +2763,10 @@ optional<Expr> Pow::evaluate(
     Expr foo2 = Evaluated(argument[1], user_mode);
     if (foo1->getPrimaryType() == csl::PrimaryType::Numerical
             and foo2->getPrimaryType() == csl::PrimaryType::Numerical) {
-        return foo1->exponentiation_own(foo2);
+        auto res = foo1->exponentiation_own(foo2);
+        if (!operator==(res.get()))
+            csl::Evaluate(res, user_mode);
+        return res;
     }
 
     return pow_s(foo1,foo2);

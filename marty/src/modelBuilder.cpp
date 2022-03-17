@@ -30,6 +30,22 @@ namespace mty {
 // Replacement functions
 ///////////////////////////////////////////////////
 
+void ModelBuilder::addAbbreviatedMassExpression(csl::Expr const &abbreviation)
+{
+    auto pos = std::find_if(
+        abbreviatedMassExpressions.begin(),
+        abbreviatedMassExpressions.end(),
+        [&](csl::Expr const &expr) {
+            return expr->getName() == abbreviation->getName();
+        });
+    if (pos != abbreviatedMassExpressions.end()) {
+        *pos == abbreviation;
+    }
+    else {
+        abbreviatedMassExpressions.push_back(abbreviation);
+    }
+}
+
 void ModelBuilder::replace(
         csl::Expr const &oldExpression,
         csl::Expr const &newExpression
@@ -1458,7 +1474,7 @@ void ModelBuilder::gatherMass(Particle const &part)
                     name,
                     mass);
             mass = csl::constant_s(name);
-            abbreviatedMassExpressions.push_back(abbreviatedMass);
+            addAbbreviatedMassExpression(abbreviatedMass);
         }
         part->setMass(mass);
         std::vector<mty::QuantumField> content 

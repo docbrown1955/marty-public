@@ -121,6 +121,8 @@ public:
         return abbreviatedMassExpressions;
     }
 
+    void addAbbreviatedMassExpression(csl::Expr const &abbreviation);
+
     ///////////////////////////////////////////////////
     // Replacements
     ///////////////////////////////////////////////////
