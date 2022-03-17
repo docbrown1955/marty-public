@@ -7,6 +7,7 @@
 
 #include <csl.h>
 #include "SM.h"
+#include "model.h"
 
 namespace mty{
 /* hSU2 master class */
@@ -14,13 +15,32 @@ namespace mty{
   class hSU2_Model: public mty::SM_Model{
    
     public:
-      hSU2_Model(bool init = true);
+      hSU2_Model(
+          int init = 1,
+          std::string const &saveFile = "saveFile.out"
+          );
 
-      void init();
-      void horizontalSymmetryBreaking();
-      void adjust_fermions(); // ?
-      
+      //~hSU2_Model();
+
+    protected: 
+      void initContent(); // → Encapsulates the following methods
+        void  initGauge();
+        void  initLeptons();
+        void  initQuarks();
+        void  initHiggs();
+
+      void initInteractions();
+        void gatherhSU2Inputs();
+        void horizontalSymmetryBreaking();
+        void getToLowEnergyLagrangian();
+        void checkHermiticity();
+        void computeFeynmanRules();
+        void adjust_fermions(); // ?
+     
+
+    private:
+      std::string saveFile;
   };
-} // End of namespace mty
+} 
 
 #endif /* class hSU2_Model */
