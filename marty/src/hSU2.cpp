@@ -172,8 +172,10 @@ void hSU2_Model::initQuarks(){
   phi_2->setGroupRep("Y",0);
   phi_2->setGroupRep("H",1);
 
-  addParticle(Psi_U);
-  addParticle(Psi_D);
+  addParticle(Psi_uL);
+  addParticle(Psi_uR);
+  addParticle(Psi_dL);
+  addParticle(Psi_dR);
   addParticle(phi_1);
   addParticle(phi_2);
 
