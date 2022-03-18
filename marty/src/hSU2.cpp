@@ -82,7 +82,7 @@ void hSU2_Model::initGauge(){
 
     renameParticle("A_C", "G");
     renameParticle("A_L", "W");
-    renameParticle("A_X", "A");
+    renameParticle("A_X", "V");
     renameParticle("A_Y", "B");
     renameCoupling("g_L", "g");
     renameCoupling("g_Y", "g'");
@@ -103,13 +103,13 @@ void hSU2_Model::initLeptons(){
 
   Particle E_R = weylfermion_s("E_R",*this,Chirality::Right);
   Particle e_R = weylfermion_s("E_R",*this,Chirality::Right);
-
+ // Charge leptons. 
 }
 void hSU2_Model::initQuarks(){
 
   Particle Q_L = weylfermion_s("Q_L",*this,Chirality::Left);
-  Particle u_R = weylfermion_s("u_R",*this,Chirality::Right);
-  Particle d_R = weylfermion_s("d_R",*this,Chirality::Right);
+  Particle U_R = weylfermion_s("U_R",*this,Chirality::Right);
+  Particle D_R = weylfermion_s("D_R",*this,Chirality::Right);
 
   Particle q_L_0 = weylfermion_s("q_L_0",*this, Chirality::Left);
   Particle u_R_0 = weylfermion_s("u_R_0",*this, Chirality::Right);
@@ -123,36 +123,46 @@ void hSU2_Model::initQuarks(){
   q_L_0->setGroupRep("Y",{1,6});
   q_L_0->setGroupRep("H",0); // SM quark SU(2)_L doublet
 
-  u_R->setGroupRep("Y", {2, 3});
-  d_R->setGroupRep("Y", {-1, 3});
-  u_R->setGroupRep("H",1);
-  d_R->setGroupRep("H",1);
+  U_R->setGroupRep("Y", {2, 3});
+  D_R->setGroupRep("Y", {-1, 3});
+  U_R->setGroupRep("H",1);
+  D_R->setGroupRep("H",1);
   u_R_0->setGroupRep("Y", {2, 3});
   d_R_0->setGroupRep("Y", {-1, 3});
   u_R_0->setGroupRep("H",0);
   d_R_0->setGroupRep("H",0);
 
   addParticle(Q_L);
-  addParticle(u_R);
-  addParticle(d_R);
+  addParticle(U_R);
+  addParticle(D_R);
 
   addParticle(q_L_0);
   addParticle(u_R_0);
   addParticle(d_R_0);
 
-  // Breaking muultiplets 
-  Particle Psi_U = vectorboson_s("Psi_U",*this);
-  Particle Psi_D = vectorboson_s("Psi_D",*this);
-  Particle phi_1 = scalarboson_s("phi_1",*this);
-  Particle phi_2 = scalarboson_s("phi_2",*this);
+  // Breaking muultiplets Needs edit./  
+  Particle Psi_uL = weylfermion_s("\\Psi_uL",*this, Chirality::Left);
+  Particle Psi_uR = weylfermion_s("\\Psi_uR",*this, Chirality::Right);
+  Particle Psi_dL = weylfermion_s("\\Psi_dL",*this, Chirality::Left);
+  Particle Psi_dR = weylfermion_s("\\Psi_dR",*this, Chirality::Right);
+  Particle phi_1 = scalarboson_s("\\phi_1",*this);
+  Particle phi_2 = scalarboson_s("\\phi_2",*this);
 
-  Psi_U->setGroupRep("L",0);
-  Psi_U->setGroupRep("Y",{2,3});
-  Psi_U->setGroupRep("H",1);
+  Psi_uL->setGroupRep("L",0);
+  Psi_uL->setGroupRep("L",0);
+  Psi_uL->setGroupRep("Y",{2,3});
+  
+  Psi_uR->setGroupRep("H",1);
+  Psi_uR->setGroupRep("Y",{2,3});
+  Psi_uR->setGroupRep("H",1);
 
-  Psi_D->setGroupRep("L",0);
-  Psi_D->setGroupRep("Y",{-1,3});
-  Psi_D->setGroupRep("H",1);
+  Psi_dL->setGroupRep("L",0);
+  Psi_dL->setGroupRep("Y",{-1,3});
+  Psi_dL->setGroupRep("H",1);
+
+  Psi_dR->setGroupRep("L",0);
+  Psi_dR->setGroupRep("Y",{-1,3});
+  Psi_dR->setGroupRep("H",1);
 
   phi_1->setGroupRep("L",0);
   phi_1->setGroupRep("Y",0);
