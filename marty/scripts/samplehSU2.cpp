@@ -6,9 +6,13 @@ using namespace csl;
 
 int main(){
 
-  mty::hSU2_Model horizSU2(1);
- 
-  cout << horizSU2 << endl;
+  int init = 1;
+  cout << "Testing without anything declared" << endl; 
 
+  cout << "Declaring class" << endl;
+
+  mty::hSU2_Model horizSU2(init);
+
+  cout << horizSU2 << endl;
   return 0;
 }
