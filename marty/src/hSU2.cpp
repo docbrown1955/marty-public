@@ -49,8 +49,8 @@ namespace mty{
       }
       std::cout << "Checking Hermiticity ..." << std::endl;
       checkHermiticity();
-
-      computeFeynmanRules();
+      refresh();
+      getFeynmanRules();
       if (save) {
           std::ostream &out = save;
           mty::Display(ComputeFeynmanRules(*this), out);
@@ -68,7 +68,7 @@ void hSU2_Model::initContent(){
   hSU2_Model::initHiggs();
 }
 void hSU2_Model::initGauge(){
-// Init all Gauge and flavoured fields
+//  Init all Gauge and flavoured fields
     addGaugedGroup(mty::group::Type::SU, "C", 3, sm_input::g_s);
     addGaugedGroup(mty::group::Type::SU, "L", 2);
     addGaugedGroup(mty::group::Type::SU, "X", 2);
@@ -89,7 +89,7 @@ void hSU2_Model::initGauge(){
     auto B  = getParticle("B");
     auto Wi = getParticle("W");
     auto G  = getParticle("G");
-    auto A  = getParticle("A");
+    auto A  = getParticle("V");
     auto g_s = getScalarCoupling("g_s");
     auto g_L = getScalarCoupling("g");
     auto g_Y = getScalarCoupling("g'");
@@ -103,6 +103,8 @@ void hSU2_Model::initLeptons(){
 
   Particle E_R = weylfermion_s("E_R",*this,Chirality::Right);
   Particle e_R = weylfermion_s("E_R",*this,Chirality::Right);
+
+  addParticles({L_L, l_L, E_R, e_R});
  // Charge leptons. 
 }
 void hSU2_Model::initQuarks(){
@@ -117,20 +119,20 @@ void hSU2_Model::initQuarks(){
 
   Q_L->setGroupRep("L", 1); 
   Q_L->setGroupRep("Y", {1, 6});
-  Q_L->setGroupRep("H", 1);
+  Q_L->setGroupRep("X", 1);
 
   q_L_0->setGroupRep("L",1);
   q_L_0->setGroupRep("Y",{1,6});
-  q_L_0->setGroupRep("H",0); // SM quark SU(2)_L doublet
+  q_L_0->setGroupRep("X",0); // SM quark SU(2)_L doublet
 
   U_R->setGroupRep("Y", {2, 3});
   D_R->setGroupRep("Y", {-1, 3});
-  U_R->setGroupRep("H",1);
-  D_R->setGroupRep("H",1);
+  U_R->setGroupRep("X",1);
+  D_R->setGroupRep("X",1);
   u_R_0->setGroupRep("Y", {2, 3});
   d_R_0->setGroupRep("Y", {-1, 3});
-  u_R_0->setGroupRep("H",0);
-  d_R_0->setGroupRep("H",0);
+  u_R_0->setGroupRep("X",0);
+  d_R_0->setGroupRep("X",0);
 
   addParticle(Q_L);
   addParticle(U_R);
@@ -152,25 +154,25 @@ void hSU2_Model::initQuarks(){
   Psi_uL->setGroupRep("L",0);
   Psi_uL->setGroupRep("Y",{2,3});
   
-  Psi_uR->setGroupRep("H",1);
+  Psi_uR->setGroupRep("X",1);
   Psi_uR->setGroupRep("Y",{2,3});
-  Psi_uR->setGroupRep("H",1);
+  Psi_uR->setGroupRep("X",1);
 
   Psi_dL->setGroupRep("L",0);
   Psi_dL->setGroupRep("Y",{-1,3});
-  Psi_dL->setGroupRep("H",1);
+  Psi_dL->setGroupRep("X",1);
 
   Psi_dR->setGroupRep("L",0);
   Psi_dR->setGroupRep("Y",{-1,3});
-  Psi_dR->setGroupRep("H",1);
+  Psi_dR->setGroupRep("X",1);
 
   phi_1->setGroupRep("L",0);
   phi_1->setGroupRep("Y",0);
-  phi_1->setGroupRep("H",1);
+  phi_1->setGroupRep("X",1);
 
   phi_2->setGroupRep("L",0);
   phi_2->setGroupRep("Y",0);
-  phi_2->setGroupRep("H",1);
+  phi_2->setGroupRep("X",1);
 
   addParticle(Psi_uL);
   addParticle(Psi_uR);
@@ -180,34 +182,30 @@ void hSU2_Model::initQuarks(){
   addParticle(phi_2);
 
 }
+
 void hSU2_Model::initHiggs(){
-  std::cout << "Define ref to vtable" << std::endl;
+  Particle H = mty::scalarboson_s("H",*this);
+  H->setGroupRep("L",1);
+  H->setGroupRep("Y",{1,2});
+  csl::Expr m_H = csl::constant_s("m_H"); // higgs mass. Should be left as input. 
+  H->setMass(m_H);
+  addParticle(H);
 }
 void hSU2_Model::initInteractions(){
-  std::cout << "Define ref to vtable" << std::endl;
 }
 void hSU2_Model::gatherhSU2Inputs(){
-  std::cout << "Define ref to vtable" << std::endl;
 
 }
 void hSU2_Model::horizontalSymmetryBreaking(){
-  std::cout << "Define ref to vtable" << std::endl;
 
 }
 void hSU2_Model::getToLowEnergyLagrangian(){
-  std::cout << "Define ref to vtable" << std::endl;
 
 }
 void hSU2_Model::checkHermiticity(){
-  std::cout << "Define ref to vtable" << std::endl;
-
-}
-void hSU2_Model::computeFeynmanRules(){
-  std::cout << "Define ref to vtable" << std::endl;
 
 }
 void hSU2_Model::adjust_fermions(){
-  std::cout << "Define ref to vtable" << std::endl;
 
 }
 } // End of namespace mty
