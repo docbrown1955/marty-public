@@ -71,12 +71,12 @@ void hSU2_Model::initGauge(){
 //  Init all Gauge and flavoured fields
     addGaugedGroup(mty::group::Type::SU, "C", 3, sm_input::g_s);
     addGaugedGroup(mty::group::Type::SU, "L", 2);
-    addGaugedGroup(mty::group::Type::SU, "X", 2);
     addGaugedGroup(mty::group::Type::U1, "Y");
+    addGaugedGroup(mty::group::Type::SU, "X", 2);
     auto SU3_c = gauge->getGaugedGroup(0);
     auto SU2_L = gauge->getGaugedGroup(1);
-    auto SU2_X = gauge->getGaugedGroup(2);
-    auto U1_Y  = gauge->getGaugedGroup(3);
+    auto U1_Y  = gauge->getGaugedGroup(2);
+    auto SU2_X = gauge->getGaugedGroup(3);
 //    addFlavorGroup("SM_flavor", 3);
     Model::init();
 
@@ -89,7 +89,7 @@ void hSU2_Model::initGauge(){
     auto B  = getParticle("B");
     auto Wi = getParticle("W");
     auto G  = getParticle("G");
-    auto A  = getParticle("V");
+    auto V  = getParticle("V");
     auto g_s = getScalarCoupling("g_s");
     auto g_L = getScalarCoupling("g");
     auto g_Y = getScalarCoupling("g'");
@@ -104,7 +104,27 @@ void hSU2_Model::initLeptons(){
   Particle E_R = weylfermion_s("E_R",*this,Chirality::Right);
   Particle e_R = weylfermion_s("E_R",*this,Chirality::Right);
 
-  addParticles({L_L, l_L, E_R, e_R});
+  Particle Psi_lL = weylfermion_s("\\Psi_lL", *this, Chirality::Left);
+  Particle Psi_lR = weylfermion_s("\\Psi_lR", *this, Chirality::Right);
+
+  L_L->setGroupRep("L",1);
+  L_L->setGroupRep("Y",{-1,2});
+  L_L->setGroupRep("X",1);
+
+  l_L->setGroupRep("L",1);
+  l_L->setGroupRep("Y",{-1,2});
+
+  E_R->setGroupRep("Y",-1);
+  E_R->setGroupRep("X",1);
+
+  e_R->setGroupRep("Y",-1);
+
+  Psi_lL->setGroupRep("Y",{-1,2});
+  Psi_lL->setGroupRep("X",1);
+
+  Psi_lR->setGroupRep("Y", -1);
+  Psi_lR->setGroupRep("X",1);
+  addParticles({L_L, l_L, E_R, e_R,Psi_lL, Psi_lR});
  // Charge leptons. 
 }
 void hSU2_Model::initQuarks(){
@@ -117,20 +137,30 @@ void hSU2_Model::initQuarks(){
   Particle u_R_0 = weylfermion_s("u_R_0",*this, Chirality::Right);
   Particle d_R_0 = weylfermion_s("d_R_0",*this, Chirality::Right);
 
+  Q_L->setGroupRep("C",{1,0});
   Q_L->setGroupRep("L", 1); 
   Q_L->setGroupRep("Y", {1, 6});
   Q_L->setGroupRep("X", 1);
 
+  q_L_0->setGroupRep("C", {1, 0});
   q_L_0->setGroupRep("L",1);
   q_L_0->setGroupRep("Y",{1,6});
   q_L_0->setGroupRep("X",0); // SM quark SU(2)_L doublet
 
+  U_R->setGroupRep("C", {1, 0});
   U_R->setGroupRep("Y", {2, 3});
-  D_R->setGroupRep("Y", {-1, 3});
   U_R->setGroupRep("X",1);
+  
+  D_R->setGroupRep("C",{1,0});
+  D_R->setGroupRep("Y", {-1, 3});
   D_R->setGroupRep("X",1);
+ 
+  u_R_0->setGroupRep("C",{1,0});
+  d_R_0->setGroupRep("C",{1,0});
+
   u_R_0->setGroupRep("Y", {2, 3});
   d_R_0->setGroupRep("Y", {-1, 3});
+ 
   u_R_0->setGroupRep("X",0);
   d_R_0->setGroupRep("X",0);
 
@@ -142,7 +172,6 @@ void hSU2_Model::initQuarks(){
   addParticle(u_R_0);
   addParticle(d_R_0);
 
-  // Breaking muultiplets Needs edit./  
   Particle Psi_uL = weylfermion_s("\\Psi_uL",*this, Chirality::Left);
   Particle Psi_uR = weylfermion_s("\\Psi_uR",*this, Chirality::Right);
   Particle Psi_dL = weylfermion_s("\\Psi_dL",*this, Chirality::Left);
@@ -168,11 +197,11 @@ void hSU2_Model::initQuarks(){
 
   phi_1->setGroupRep("L",0);
   phi_1->setGroupRep("Y",0);
-  phi_1->setGroupRep("X",1);
+  phi_1->setGroupRep("X",1); // Should be X_i
 
   phi_2->setGroupRep("L",0);
   phi_2->setGroupRep("Y",0);
-  phi_2->setGroupRep("X",1);
+  phi_2->setGroupRep("X",2); // Y_ij Should be in the adjoint representation. 
 
   addParticle(Psi_uL);
   addParticle(Psi_uR);
@@ -189,14 +218,18 @@ void hSU2_Model::initHiggs(){
   H->setGroupRep("Y",{1,2});
   csl::Expr m_H = csl::constant_s("m_H"); // higgs mass. Should be left as input. 
   H->setMass(m_H);
-  addParticle(H);
+  addParticle(H); // 
 }
 void hSU2_Model::initInteractions(){
+
 }
 void hSU2_Model::gatherhSU2Inputs(){
 
 }
 void hSU2_Model::horizontalSymmetryBreaking(){
+    ////////////////////////////////////////////////
+    // Horizontal symmetry breaking 
+    ///////////////////////////////////////////////
 
 }
 void hSU2_Model::getToLowEnergyLagrangian(){
