@@ -94,6 +94,19 @@ namespace mty {
                 });
     }
 
+    bool FeynOptions::passFilters(
+            FeynmanDiagram const &diagram
+            ) const
+    {
+        const size_t lastFilter = (!partialCalculation) ?
+            dfilters.size() : nDefaultDiagramFilters;
+        return std::all_of(
+                begin(dfilters), begin(dfilters) + lastFilter,
+                [&](DiagramFilter const &d) {
+                    return d(diagram);
+                });
+    }
+
     void FeynOptions::applyFilters(
             std::vector<FeynmanDiagram> &diagrams,
             bool                         forceFilters

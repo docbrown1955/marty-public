@@ -217,7 +217,6 @@ namespace mty {
                     momentumMapping,
                     true,
                     false);
-            options.applyFilters(amplitude);
             // if (!amplitude.empty())
             //     std::cout << "Field prod = " << fieldProd << '\n';
 
@@ -226,12 +225,21 @@ namespace mty {
             csl::option::applySelfContractions = selfContractionEnabled;
             ////////////////////////////////////////
             for (size_t i = 0; i != amplitude.size(); ++i) {
-                simplifyRuledCalculation(
-                        amplitude[i],
-                        integral_cpy,
-                        witnessVertices,
-                        momentumMapping[i]
-                        );
+                if (options.passFilters(amplitude[i]))
+                {
+                    simplifyRuledCalculation(
+                            amplitude[i],
+                            integral_cpy,
+                            witnessVertices,
+                            momentumMapping[i]
+                            );
+                }
+                else 
+                {
+                    amplitude.erase(amplitude.begin() + i);
+                    momentumMapping.erase(momentumMapping.begin() + i);
+                    --i;
+                }
             }
             options.applyFilters(amplitude);
             removeZeroDiagrams(amplitude);

@@ -11,7 +11,7 @@ NOUNDERSCORE = 0
 QUAD = 0
 QUADSIZE = 16
 
-FC = gfortran-7
+FC = gfortran
 FFLAGS = -fPIC -O3 -ffixed-line-length-none -fno-range-check \
   $(DEF)QUAD=$(QUAD) $(DEF)QUADSIZE=$(QUADSIZE) \
   $(DEF)U77EXT=0
@@ -30,7 +30,7 @@ MCC = mcc
 MCFLAGS = -fPIC -st -b64
 MCLIBS = -lpthread -lrt
 
-LDFLAGS = -L/usr/lib/gcc/x86_64-linux-gnu/7/liblto_plugin.so -L/home/laptopgva/.local/lib/../lib -L/home/laptopgva/.local/lib/../lib -L/home/laptopgva/.local/lib/../lib -L/home/laptopgva/.local/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/7 -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/7/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L. -L/home/laptopgva/.local/lib -L/home/laptopgva/.local/lib -L/home/laptopgva/.local/lib -L/home/laptopgva/.local/lib -L/usr/lib/gcc/x86_64-linux-gnu/7/../../.. -lgfortran -lm -lgcc_s -lgcc -lquadmath -lm -lgcc_s -lgcc -lgcc_s -lgcc
+LDFLAGS = -L/usr/lib/gcc/x86_64-linux-gnu/9/liblto_plugin.so -L/home/laptopgva/.local/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/9 -L/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/9/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L. -L/home/laptopgva/.local/lib -L/usr/lib/gcc/x86_64-linux-gnu/9/../../.. -lgfortran -lm -lgcc_s -lgcc -lquadmath -lm -lgcc_s -lgcc -lgcc_s -lgcc
 
 PARALLEL = -j 4
 
