@@ -107,7 +107,7 @@ void LatexLinker::setParticlesType(size_t       i,
                 }
                 else {
                     setParticlesType(
-                            i, k, type, "", false, 2, false, color, lineWidth);
+                            i, k, type, "", true, -1, false, color, lineWidth);
 
                 }
                 return;
