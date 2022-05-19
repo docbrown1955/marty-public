@@ -105,7 +105,7 @@ bool Vertex::isFree() const
 bool Vertex::hasFreeNode() const
 {
     for (const auto& node : *this)
-        if (not node->partner.lock()) // No partner, free node
+        if (node->partner.expired()) // No partner, free node
             return true;
     return false;
 }
@@ -113,7 +113,7 @@ bool Vertex::hasFreeNode() const
 bool Vertex::hasFreeNode(const QuantumField* field) const
 {
     for (const auto& node : *this)
-        if (not node->partner.lock()
+        if (node->partner.expired()
                 and node->field->isExactlyContractiblewith(*field))
             // No partner, free node
             return true;
@@ -147,8 +147,8 @@ bool Vertex::isDegenerateWith(const Vertex& other) const
             if (fA->getQuantumParent() == fB->getQuantumParent()) {
                 if (fA->isSelfConjugate() 
                         or (fA->getConjugated() == fB->getConjugated())) 
-                    if ((not (*iter)->partner.lock()
-                     and not other[index]->partner.lock())
+                    if (((*iter)->partner.expired()
+                     and other[index]->partner.expired())
                          or (areDegenerate(*(*iter)->partner.lock()->field,
                                            *other[index]->partner.lock()->field)
                                 and (*iter)->partner.lock()->field->getPoint() == 
@@ -203,7 +203,7 @@ vector<shared_ptr<Node>> Vertex::getContractibleNodes() const
 {
     vector<shared_ptr<Node>> nodes(0);
     for (const auto& node : *this)
-        if (not node->partner.lock()) // No partner, free node
+        if (node->partner.expired()) // No partner, free node
             nodes.push_back(node);
     return nodes;
 }
@@ -213,7 +213,7 @@ vector<shared_ptr<Node>> Vertex::getContractibleNodes(
 {
     vector<shared_ptr<Node>> nodes(0);
     for (const auto& node : *this)
-        if (not node->partner.lock()
+        if (node->partner.expired()
                 and node->field->isExactlyContractiblewith(*field))
             nodes.push_back(node); // No partner, free node
     return nodes;
@@ -229,7 +229,7 @@ int Vertex::getDegeneracy(const QuantumField* t_field) const
 {
     int degeneracy = 0;
     for (const auto& node : *this)
-        if (not node->partner.lock())
+        if (node->partner.expired())
             if (areExactlyContractible(*node->field, *t_field)) {
                 ++degeneracy;
             }
@@ -261,7 +261,7 @@ Vertex& Vertex::operator=(const Vertex& other)
     id = other.id;
     auto first = begin();
     for (size_t i = 0; i != size(); ++i) 
-        if (other[i]->partner.lock())
+        if (not other[i]->partner.expired())
             // Already contracted node: no new allocation, keep the shared_ptr
             *first++ = other[i];
         else
@@ -446,7 +446,7 @@ ostream& operator<<(ostream& fout, const ConnectedComponent& c)
         indicesLeft[i] = i;
     for (size_t indexA = 0; indexA != indicesLeft.size(); ++indexA) {
         shared_ptr<Node> nodeA = nodes[indicesLeft[indexA]];
-        if (not nodeA->partner.lock()) {
+        if (nodeA->partner.expired()) {
             fout << "free -->  ";
             nodeA->field->print();
             indicesLeft.erase(indicesLeft.begin()+indexA);
@@ -455,7 +455,7 @@ ostream& operator<<(ostream& fout, const ConnectedComponent& c)
         }
         for (size_t indexB = 1+indexA; indexB != indicesLeft.size(); ++indexB) {
             shared_ptr<Node> nodeB = nodes[indicesLeft[indexB]];
-            if (not nodeB->partner.lock())
+            if (nodeB->partner.expired())
                 continue;
             if (nodeA->partner.lock() == nodeB
                     and nodeB->partner.lock() == nodeA) {
@@ -1259,15 +1259,15 @@ bool Graph::compareNodesWithConstraints(
     if (not fieldBlind) {
         // Fields must have same parent and same externality to be compared,
         // we test first and try to swap. If nothing corresponds, it's false
-        if (not (fieldA1->getParent().get() == fieldB1->getParent().get()
-             and fieldA2->getParent().get() == fieldB2->getParent().get())
+        if (not (fieldA1->getParent_info() == fieldB1->getParent_info()
+             and fieldA2->getParent_info() == fieldB2->getParent_info())
          or not (fieldA1->isExternal() == fieldB1->isExternal()
              and fieldA2->isExternal() == fieldB2->isExternal())) {
 
             swap(fieldB1, fieldB2);
             swapped = true;
-            if (not (fieldA1->getParent().get() == fieldB1->getParent().get()
-                 and fieldA2->getParent().get() == fieldB2->getParent().get())){
+            if (not (fieldA1->getParent_info() == fieldB1->getParent_info()
+                 and fieldA2->getParent_info() == fieldB2->getParent_info())){
                     return false;
             }
             if (not (fieldA1->isExternal() == fieldB1->isExternal()

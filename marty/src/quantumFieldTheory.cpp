@@ -153,7 +153,7 @@ csl::Expr ExponentialFactor(csl::Tensor    & X,
                        csl::Tensor    & P)
 {
     csl::Index mu = P->getSpace()[0]->generateIndex();
-    return csl::exp_s(CSL_I * P(+mu) * (Y(mu) - X(mu)));
+    return csl::exp_s(csl::prod_s({CSL_I, P(+mu), (Y(mu) - X(mu))}));
 }
 
 static bool ReplaceXiGauge_impl(csl::Expr &expr)
@@ -239,11 +239,12 @@ csl::Expr ScalarPropagator(
         mass = ReplaceXiGauge(mass);
     }
 
-    return 
-        CSL_I 
-        * csl::prod_s(deltaFactor, true)
-        * ExponentialFactor(pointA, pointB, P)
-        * StandardDenominator(P, mass, A.getWidth(), external);
+    return csl::prod_s({
+        CSL_I, 
+        csl::prod_s(deltaFactor, true),
+        ExponentialFactor(pointA, pointB, P),
+        StandardDenominator(P, mass, A.getWidth(), external)
+    });
 }
 
 csl::Expr FermionPropagator(
@@ -324,14 +325,14 @@ csl::Expr FermionPropagator(
         CSL_0 : slashed_s(P, alpha, beta, diracSpace);
     csl::Expr diracStructure = (external) ?  delta({alpha, beta}) : (p + m);
 
-    const csl::Expr res = 
-        CSL_I
-        * projectors
-        * csl::prod_s(deltaFactor)
-        * diracStructure
-        * ExponentialFactor(pointA, pointB, P)
-        * StandardDenominator(P, A.getMass(), A.getWidth(), external);
-    return res;
+    return csl::prod_s({
+        CSL_I, 
+        projectors,
+        csl::prod_s(deltaFactor),
+        diracStructure,
+        ExponentialFactor(pointA, pointB, P),
+        StandardDenominator(P, A.getMass(), A.getWidth(), external)
+    });
 }
 
 csl::Expr VectorPropagator(
@@ -367,13 +368,13 @@ csl::Expr VectorPropagator(
                  * propagator_s(P(mu), m * sqrt_s(xi));
         prop_mu_nu = prop_mu_nu - side;
     }
-    auto res = 
-        - CSL_I 
-        * csl::prod_s(deltaFactor)
-        * prop_mu_nu
-        * ExponentialFactor(pointA, pointB, P)
-        * StandardDenominator(P, A.getMass(), A.getWidth(), external);
-    return res;
+    return csl::prod_s({
+        -CSL_I, 
+        csl::prod_s(deltaFactor),
+        prop_mu_nu,
+        ExponentialFactor(pointA, pointB, P),
+        StandardDenominator(P, A.getMass(), A.getWidth(), external)
+    });
 }
 
 csl::Expr FieldStrengthPropagator(
@@ -409,11 +410,12 @@ csl::Expr FieldStrengthPropagator(
     csl::Expr prop_mu_nu = g({mu, rho})*P(nu) - g({mu, nu})*P(rho);
     csl::Expr m = A.getMass();
 
-    return sign 
-        * csl::prod_s(deltaFactor, true)
-        * prop_mu_nu
-        * ExponentialFactor(pointA, pointB, P)
-        * StandardDenominator(P, A.getMass(), A.getWidth(), external);
+    return csl::prod_s({sign, 
+        csl::prod_s(deltaFactor, true),
+        prop_mu_nu,
+        ExponentialFactor(pointA, pointB, P),
+        StandardDenominator(P, A.getMass(), A.getWidth(), external)
+        });
 }
 
 csl::Expr FieldStrengthSquaredPropagator(
@@ -446,12 +448,13 @@ csl::Expr FieldStrengthSquaredPropagator(
                     - g({nu, sigma})*P(mu)*P(rho);
     csl::Expr m = A.getMass();
 
-    return 
-          CSL_I 
-        * csl::prod_s(deltaFactor, true)
-        * prop_mu_nu
-        * ExponentialFactor(pointA, pointB, P)
-        * StandardDenominator(P, A.getMass(), A.getWidth(), external);
+    return csl::prod_s({
+        CSL_I, 
+        csl::prod_s(deltaFactor, true),
+        prop_mu_nu,
+        ExponentialFactor(pointA, pointB, P),
+        StandardDenominator(P, A.getMass(), A.getWidth(), external)
+        });
 }
 
 csl::Expr IntegratedScalarPropagator(
