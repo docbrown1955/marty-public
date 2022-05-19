@@ -26,6 +26,7 @@
 
 #include "quantumField.h"
 #include "fermionFlow.h"
+#include "feynOptions.h"
 
 namespace mty {
 class FeynruleMomentum;
@@ -724,8 +725,8 @@ class Graph {
             bool fieldBlind = false);
 
     static bool compareNodesWithConstraints(
-            const std::shared_ptr<Node>&                        nodeA,
-            const std::shared_ptr<Node>&                        nodeB,
+            const Node* nodeA,
+            const Node* nodeB,
             std::map<csl::Tensor, csl::Tensor>& constraints,
             bool fieldBlind = false);
 
@@ -742,6 +743,9 @@ class Graph {
     csl::Expr          exprFactor = CSL_1;
 
     bool symmetrizeExternalLegs = false;
+
+    mutable
+    bool fullyConnected = false;
 
     bool ruleMode;
 
@@ -805,6 +809,7 @@ class WickCalculator {
 
     static std::vector<mty::FeynmanDiagram> getDiagrams(
             mty::Model const *model,
+            FeynOptions const &options,
             const csl::Expr& initialExpr,
             std::map<csl::Tensor, size_t>& vertexIds,
             std::vector<mty::FeynruleMomentum>& witnessMapping,
@@ -813,6 +818,7 @@ class WickCalculator {
 
     static std::vector<mty::FeynmanDiagram> getDiagrams(
             mty::Model const *model,
+            FeynOptions const &options,
             const csl::Expr& initialExpr,
             std::map<csl::Tensor, size_t>& vertexIds,
             bool symmetriseExternalLegs = false,
@@ -891,7 +897,9 @@ class WickCalculator {
      * recompute them.
      * \return The set of possible Graph once contractions have been done.
      */
-    std::vector<std::shared_ptr<Graph>> getDiagrams();
+    std::vector<std::shared_ptr<Graph>> getDiagrams(
+            Model const *model,
+            FeynOptions const &options);
 
     /*!
      * \brief See Graph::isPhysical(). Eliminate Graph that do not fill this 
@@ -907,7 +915,7 @@ class WickCalculator {
      * method Graph::contractionStep(), and stores it in the member 
      * \b feynmanDiagram.
      */
-    void calculateDiagrams();
+    void calculateDiagrams(Model const *model, FeynOptions const &options);
 
     private:
 

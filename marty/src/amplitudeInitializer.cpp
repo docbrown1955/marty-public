@@ -132,6 +132,7 @@ namespace mty {
             std::vector<FeynmanDiagram> amplitude 
                 = wick::WickCalculator::getDiagrams(
                     model,
+                    options,
                     fieldProd,
                     vertexIds
                     );
@@ -212,6 +213,7 @@ namespace mty {
             std::vector<mty::FeynmanDiagram> amplitude 
                 = wick::WickCalculator::getDiagrams(
                     model,
+                    options,
                     fieldProd,
                     vertexIds,
                     momentumMapping,
@@ -225,21 +227,12 @@ namespace mty {
             csl::option::applySelfContractions = selfContractionEnabled;
             ////////////////////////////////////////
             for (size_t i = 0; i != amplitude.size(); ++i) {
-                if (options.passFilters(amplitude[i]))
-                {
-                    simplifyRuledCalculation(
-                            amplitude[i],
-                            integral_cpy,
-                            witnessVertices,
-                            momentumMapping[i]
-                            );
-                }
-                else 
-                {
-                    amplitude.erase(amplitude.begin() + i);
-                    momentumMapping.erase(momentumMapping.begin() + i);
-                    --i;
-                }
+                simplifyRuledCalculation(
+                        amplitude[i],
+                        integral_cpy,
+                        witnessVertices,
+                        momentumMapping[i]
+                        );
             }
             options.applyFilters(amplitude);
             removeZeroDiagrams(amplitude);

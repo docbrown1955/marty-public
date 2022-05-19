@@ -670,10 +670,13 @@ void Graph::initConnectedComponent()
 
 bool Graph::isFullyConnected() const
 {
-    return (connectedCompo.size() == init->size() // all vertices are in
-                                                 // the connected component
+    if (fullyConnected)
+        return true;
+    fullyConnected = (connectedCompo.size() == init->size() // all vertices are in
+                                                            // the connected component
             and not connectedCompo.hasValenceLeft()); // And it has no free
                                                       // free node left.
+    return fullyConnected;
 }
 
 bool Graph::isPhysical() const
@@ -1242,8 +1245,8 @@ bool Graph::compareFieldsDummyPoint(
 }
 
 bool Graph::compareNodesWithConstraints(
-        const shared_ptr<Node>&        nodeA,
-        const shared_ptr<Node>&        nodeB,
+        const Node* nodeA,
+        const Node* nodeB,
         map<csl::Tensor, csl::Tensor>& constraints,
         bool                           fieldBlind)
 {
@@ -1356,26 +1359,26 @@ bool Graph::compare(const Graph& other,
     if (connectedCompo.size() != other.connectedCompo.size())
         return false;
 
-    vector<shared_ptr<Node>> selfNodes  = getNodes();
-    vector<shared_ptr<Node>> otherNodes = other.getNodes();
+    vector<shared_ptr<Node>> const &selfNodes  = getNodes();
+    vector<shared_ptr<Node>> const &otherNodes = other.getNodes();
     // sortNodes(selfNodes);
     // sortNodes(otherNodes);
     vector<size_t> indicesLeft(otherNodes.size());
     for (size_t i = 0; i != indicesLeft.size(); ++i)
         indicesLeft[i] = i;
-    vector<shared_ptr<Node>> partnersMatched;
+    vector<Node const*> partnersMatched;
     for (size_t i = 0; i != selfNodes.size(); ++i) {
-        shared_ptr<Node> node = selfNodes[i];
+        Node const *node = selfNodes[i].get();
         if (find(partnersMatched.begin(), partnersMatched.end(), node)
                 != partnersMatched.end())
             continue;
         bool matched = false;
         for (size_t j = 0; j != indicesLeft.size(); ++j) {
-            shared_ptr<Node> nodeB = otherNodes[indicesLeft[j]];
+            Node const *nodeB = otherNodes[indicesLeft[j]].get();
             if (compareNodesWithConstraints(
                         node, nodeB, constraints, fieldBlind)) {
                 indicesLeft.erase(indicesLeft.begin()+j);
-                partnersMatched.push_back(node->partner.lock());
+                partnersMatched.push_back(node->partner.lock().get());
                 matched = true;
                 break;
             }
@@ -1490,10 +1493,13 @@ Graph WickCalculator::getInitialDiagram() const
     return initialDiagram;
 }
 
-std::vector<std::shared_ptr<Graph>> WickCalculator::getDiagrams()
+std::vector<std::shared_ptr<Graph>> WickCalculator::getDiagrams(
+        Model const *model,
+        FeynOptions const &options
+        )
 {
     if (not diagramsCalculated) {
-        calculateDiagrams();
+        calculateDiagrams(model, options);
         diagramsCalculated = true;
     }
 
@@ -1510,7 +1516,9 @@ void WickCalculator::eliminateNonPhysicalDiagrams(
         }
 }
 
-void WickCalculator::calculateDiagrams()
+void WickCalculator::calculateDiagrams(
+        Model const *model, 
+        FeynOptions const &options)
 {
     int dim = initialDiagram.getFieldDimension();
     if (dim % 2 != 0 or dim == 0)
@@ -1537,6 +1545,13 @@ void WickCalculator::calculateDiagrams()
     // Checking all resulting diagrams
     for (size_t i = 0; i != feynmanDiagram.size(); ++i) {
         if (!feynmanDiagram[i]->isValid()) {
+            feynmanDiagram.erase(feynmanDiagram.begin()+i);
+            --i;
+            continue;
+        }
+        mty::FeynmanDiagram diag(*model);
+        diag.setDiagram(feynmanDiagram[i]);
+        if (!options.passFilters(diag)) {
             feynmanDiagram.erase(feynmanDiagram.begin()+i);
             --i;
         }
@@ -1589,6 +1604,7 @@ csl::vector_expr WickCalculator::applyWickTheoremOnDiagrams(
 
 std::vector<mty::FeynmanDiagram> WickCalculator::getDiagrams(
         mty::Model const *model,
+        FeynOptions const &options,
         const csl::Expr& initial,
         std::map<csl::Tensor, size_t>& vertexIds,
         bool symmetrizeExternalLegs,
@@ -1597,6 +1613,7 @@ std::vector<mty::FeynmanDiagram> WickCalculator::getDiagrams(
     std::vector<mty::FeynruleMomentum> emptyMap;
     return getDiagrams(
             model, 
+            options,
             initial, 
             vertexIds, 
             emptyMap, 
@@ -1607,6 +1624,7 @@ std::vector<mty::FeynmanDiagram> WickCalculator::getDiagrams(
 
 std::vector<mty::FeynmanDiagram> WickCalculator::getDiagrams(
         mty::Model const *model,
+        FeynOptions const &options,
         const csl::Expr& initial,
         std::map<csl::Tensor, size_t>& vertexIds,
         std::vector<mty::FeynruleMomentum>& witnessMapping,
@@ -1630,7 +1648,7 @@ std::vector<mty::FeynmanDiagram> WickCalculator::getDiagrams(
     WickCalculator calculator = WickCalculator(
             Graph(fields, vertexIds, ruleMode));
     calculator.setSymmetrizeExternalLegs(symmetrizeExternalLegs);
-    auto diagrams = calculator.getDiagrams();
+    auto diagrams = calculator.getDiagrams(model, options);
     for (const auto &d : diagrams)
         d->multiply(factor);
 

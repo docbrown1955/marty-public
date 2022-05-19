@@ -115,6 +115,11 @@ namespace mty {
          */
         csl::Expr       &getExpression()       { return expression; }
 
+        void setExpression(csl::Expr const &expr)
+        {
+            expression = csl::DeepCopy(expr);
+        }
+
         /**
          * @brief Returns the diagram's graph as a reference.
          *
@@ -128,6 +133,13 @@ namespace mty {
          * @return #diagram
          */
         diagram_t const &getDiagram() const { return diagram; }
+
+        void setDiagram(diagram_t const &diag)
+        {
+            diagram = diag;
+            updateParticleData();
+            nLoops = diagram->getNLoops();
+        }
 
         /**
          * @brief Returns the set of particles corresponding to a given type.
