@@ -46,7 +46,7 @@ namespace csl {
         out << "    }\n";
         out << "\n";
         out << "    std::string name;\n";
-        out << "    std::function<ReturnType(ParamType)> f;\n";
+        out << "    std::function<ReturnType(ParamType const&)> f;\n";
         out << "};\n";
     }
 }
