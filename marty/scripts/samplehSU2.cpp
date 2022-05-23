@@ -16,6 +16,6 @@ int main(){
   cout << horizSU2 << endl;
       auto hSU2_rules = horizSU2.getFeynmanRules(); // Rules in terminal
   Display(hSU2_rules);
-//  Show(hSU2_rules);
+  Show(hSU2_rules);
   return 0;
 }

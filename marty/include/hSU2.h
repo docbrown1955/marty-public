@@ -20,7 +20,7 @@ namespace mty{
           std::string const &saveFile = "saveFile.out"
           );
 
-      //~hSU2_Model();
+      ~hSU2_Model();
 
     protected: 
       void initContent(); // → Encapsulates the following methods

@@ -37,9 +37,10 @@ namespace mty{
           save << "****************************" << std::endl;
           save << *this << "\n\n";
       }
-  //    std::cout << "Gathering Model inputs ..." << std::endl;
+      std::cout << "Gathering Model inputs ..." << std::endl;
 //      gatherhSU2Inputs();
       std::cout << "Getting to low energy Lagrangian ..." << std::endl;
+      horizontalSymmetryBreaking();
       getToLowEnergyLagrangian();
       if (save) {
           save << "****************************" << std::endl;
@@ -69,6 +70,7 @@ void hSU2_Model::initContent(){
 }
 void hSU2_Model::initGauge(){
 //  Init all Gauge and flavoured fields
+    std::cout << "Initializing gauge content" << std::endl;
     addGaugedGroup(mty::group::Type::SU, "C", 3, sm_input::g_s);
     addGaugedGroup(mty::group::Type::SU, "L", 2);
     addGaugedGroup(mty::group::Type::U1, "Y");
@@ -97,131 +99,169 @@ void hSU2_Model::initGauge(){
 
     getParticle("G")->setDrawType(drawer::ParticleType::Gluon);
 }
+
+hSU2_Model::~hSU2_Model(){
+
+}
+
 void hSU2_Model::initLeptons(){
-  Particle L_L = weylfermion_s("L_L",*this,Chirality::Left);
-  Particle l_L = weylfermion_s("l_L",*this,Chirality::Left);
+    std::cout << "Initializing Leptons" << std::endl;
+    Particle L_L = weylfermion_s("L_L",*this,Chirality::Left);
+    Particle l_L = weylfermion_s("l_L",*this,Chirality::Left);
 
-  Particle E_R = weylfermion_s("E_R",*this,Chirality::Right);
-  Particle e_R = weylfermion_s("E_R",*this,Chirality::Right);
+    Particle E_R = weylfermion_s("E_R",*this,Chirality::Right);
+    Particle e_R = weylfermion_s("E_R",*this,Chirality::Right);
 
-  Particle Psi_lL = weylfermion_s("\\Psi_lL", *this, Chirality::Left);
-  Particle Psi_lR = weylfermion_s("\\Psi_lR", *this, Chirality::Right);
+    Particle Psi_lL = weylfermion_s("\\Psi_{lL}", *this, Chirality::Left);
+    Particle Psi_lR = weylfermion_s("\\Psi_{lR}", *this, Chirality::Right);
 
-  L_L->setGroupRep("L",1);
-  L_L->setGroupRep("Y",{-1,2});
-  L_L->setGroupRep("X",1);
+    L_L->setGroupRep("L",1);
+    L_L->setGroupRep("Y",{-1,2});
+    L_L->setGroupRep("X",1);
 
-  l_L->setGroupRep("L",1);
-  l_L->setGroupRep("Y",{-1,2});
+    l_L->setGroupRep("L",1);
+    l_L->setGroupRep("Y",{-1,2});
 
-  E_R->setGroupRep("Y",-1);
-  E_R->setGroupRep("X",1);
+    E_R->setGroupRep("Y",-1);
+    E_R->setGroupRep("X",1);
 
-  e_R->setGroupRep("Y",-1);
+    e_R->setGroupRep("Y",-1);
 
-  Psi_lL->setGroupRep("Y",{-1,2});
-  Psi_lL->setGroupRep("X",1);
+    Psi_lL->setGroupRep("Y",{-1,2});
+    Psi_lL->setGroupRep("X",1);
 
-  Psi_lR->setGroupRep("Y", -1);
-  Psi_lR->setGroupRep("X",1);
-  addParticles({L_L, l_L, E_R, e_R,Psi_lL, Psi_lR});
- // Charge leptons. 
+    Psi_lR->setGroupRep("Y", {-1,2});
+    Psi_lR->setGroupRep("X",1);
+    addParticles({L_L, l_L, E_R, e_R,Psi_lL, Psi_lR});
 }
 void hSU2_Model::initQuarks(){
+    std::cout << "Initializing quarks" << std::endl;
+    Particle Q_L = weylfermion_s("Q_L",*this,Chirality::Left);
+    Particle U_R = weylfermion_s("U_R",*this,Chirality::Right);
+    Particle D_R = weylfermion_s("D_R",*this,Chirality::Right);
 
-  Particle Q_L = weylfermion_s("Q_L",*this,Chirality::Left);
-  Particle U_R = weylfermion_s("U_R",*this,Chirality::Right);
-  Particle D_R = weylfermion_s("D_R",*this,Chirality::Right);
+    Particle q_L_0 = weylfermion_s("q_{L0}",*this, Chirality::Left);
+    Particle u_R_0 = weylfermion_s("u_{R0}",*this, Chirality::Right);
+    Particle d_R_0 = weylfermion_s("d_{R0}",*this, Chirality::Right);
 
-  Particle q_L_0 = weylfermion_s("q_L_0",*this, Chirality::Left);
-  Particle u_R_0 = weylfermion_s("u_R_0",*this, Chirality::Right);
-  Particle d_R_0 = weylfermion_s("d_R_0",*this, Chirality::Right);
+    Q_L->setGroupRep("C",{1,0});
+    Q_L->setGroupRep("L", 1); 
+    Q_L->setGroupRep("Y", {1, 6});
+    Q_L->setGroupRep("X", 1);
 
-  Q_L->setGroupRep("C",{1,0});
-  Q_L->setGroupRep("L", 1); 
-  Q_L->setGroupRep("Y", {1, 6});
-  Q_L->setGroupRep("X", 1);
+    q_L_0->setGroupRep("C", {1, 0});
+    q_L_0->setGroupRep("L",1);
+    q_L_0->setGroupRep("Y",{1,6});
+    q_L_0->setGroupRep("X",0); // SM quark SU(2)_L doublet
 
-  q_L_0->setGroupRep("C", {1, 0});
-  q_L_0->setGroupRep("L",1);
-  q_L_0->setGroupRep("Y",{1,6});
-  q_L_0->setGroupRep("X",0); // SM quark SU(2)_L doublet
+    U_R->setGroupRep("C", {1, 0});
+    U_R->setGroupRep("Y", {2, 3});
+    U_R->setGroupRep("X",1);
+    
+    D_R->setGroupRep("C",{1,0});
+    D_R->setGroupRep("Y", {-1, 3});
+    D_R->setGroupRep("X",1);
+   
+    u_R_0->setGroupRep("C",{1,0});
+    d_R_0->setGroupRep("C",{1,0});
 
-  U_R->setGroupRep("C", {1, 0});
-  U_R->setGroupRep("Y", {2, 3});
-  U_R->setGroupRep("X",1);
-  
-  D_R->setGroupRep("C",{1,0});
-  D_R->setGroupRep("Y", {-1, 3});
-  D_R->setGroupRep("X",1);
- 
-  u_R_0->setGroupRep("C",{1,0});
-  d_R_0->setGroupRep("C",{1,0});
+    u_R_0->setGroupRep("Y", {2, 3});
+    d_R_0->setGroupRep("Y", {-1, 3});
+   
+    u_R_0->setGroupRep("X",0);
+    d_R_0->setGroupRep("X",0);
 
-  u_R_0->setGroupRep("Y", {2, 3});
-  d_R_0->setGroupRep("Y", {-1, 3});
- 
-  u_R_0->setGroupRep("X",0);
-  d_R_0->setGroupRep("X",0);
+    addParticle(Q_L);
+    addParticle(U_R);
+    addParticle(D_R);
 
-  addParticle(Q_L);
-  addParticle(U_R);
-  addParticle(D_R);
+    addParticle(q_L_0);
+    addParticle(u_R_0);
+    addParticle(d_R_0);
 
-  addParticle(q_L_0);
-  addParticle(u_R_0);
-  addParticle(d_R_0);
+    Particle Psi_uL = weylfermion_s("\\Psi_{uL}",*this, Chirality::Left);
+    Particle Psi_uR = weylfermion_s("\\Psi_{uR}",*this, Chirality::Right);
+    Particle Psi_dL = weylfermion_s("\\Psi_{dL}",*this, Chirality::Left);
+    Particle Psi_dR = weylfermion_s("\\Psi_{dR}",*this, Chirality::Right);
+    Particle phi_1 = scalarboson_s("\\phi_1",*this);
+    Particle phi_2 = scalarboson_s("\\phi_2",*this);
 
-  Particle Psi_uL = weylfermion_s("\\Psi_uL",*this, Chirality::Left);
-  Particle Psi_uR = weylfermion_s("\\Psi_uR",*this, Chirality::Right);
-  Particle Psi_dL = weylfermion_s("\\Psi_dL",*this, Chirality::Left);
-  Particle Psi_dR = weylfermion_s("\\Psi_dR",*this, Chirality::Right);
-  Particle phi_1 = scalarboson_s("\\phi_1",*this);
-  Particle phi_2 = scalarboson_s("\\phi_2",*this);
+    Psi_uL->setGroupRep("C",{1,0});
+    Psi_uL->setGroupRep("L",0);
+    Psi_uL->setGroupRep("X",1);
+    Psi_uL->setGroupRep("Y",{2,3});
+    
+    Psi_uR->setGroupRep("C",{1,0});
+    Psi_uR->setGroupRep("X",1);
+    Psi_uR->setGroupRep("Y",{2,3});
+    Psi_uR->setGroupRep("X",1);
 
-  Psi_uL->setGroupRep("L",0);
-  Psi_uL->setGroupRep("L",0);
-  Psi_uL->setGroupRep("Y",{2,3});
-  
-  Psi_uR->setGroupRep("X",1);
-  Psi_uR->setGroupRep("Y",{2,3});
-  Psi_uR->setGroupRep("X",1);
+    Psi_dL->setGroupRep("C",{1,0});
+    Psi_dL->setGroupRep("L",0);
+    Psi_dL->setGroupRep("Y",{-1,3});
+    Psi_dL->setGroupRep("X",1);
 
-  Psi_dL->setGroupRep("L",0);
-  Psi_dL->setGroupRep("Y",{-1,3});
-  Psi_dL->setGroupRep("X",1);
+    Psi_dR->setGroupRep("C",{1,0});
+    Psi_dR->setGroupRep("L",0);
+    Psi_dR->setGroupRep("Y",{-1,3});
+    Psi_dR->setGroupRep("X",1);
 
-  Psi_dR->setGroupRep("L",0);
-  Psi_dR->setGroupRep("Y",{-1,3});
-  Psi_dR->setGroupRep("X",1);
+    phi_1->setGroupRep("L",0);
+    phi_1->setGroupRep("Y",0);
+    phi_1->setGroupRep("X",1); // Should be X_i
 
-  phi_1->setGroupRep("L",0);
-  phi_1->setGroupRep("Y",0);
-  phi_1->setGroupRep("X",1); // Should be X_i
+    phi_2->setGroupRep("L",0);
+    phi_2->setGroupRep("Y",0);
+    phi_2->setGroupRep("X",2); // Y_ij in the adjoint representation. 
 
-  phi_2->setGroupRep("L",0);
-  phi_2->setGroupRep("Y",0);
-  phi_2->setGroupRep("X",2); // Y_ij Should be in the adjoint representation. 
-
-  addParticle(Psi_uL);
-  addParticle(Psi_uR);
-  addParticle(Psi_dL);
-  addParticle(Psi_dR);
-  addParticle(phi_1);
-  addParticle(phi_2);
+    addParticle(Psi_uL);
+    addParticle(Psi_uR);
+    addParticle(Psi_dL);
+    addParticle(Psi_dR);
+    addParticle(phi_1);
+    addParticle(phi_2);
 
 }
 
 void hSU2_Model::initHiggs(){
+  std::cout << "Initializing SM Higgs Field" << std::endl;
   Particle H = mty::scalarboson_s("H",*this);
   H->setGroupRep("L",1);
   H->setGroupRep("Y",{1,2});
-  csl::Expr m_H = csl::constant_s("m_H"); // higgs mass. Should be left as input. 
-  H->setMass(m_H);
+//  csl::Expr m_H = csl::constant_s("m_H"); // higgs mass. Should be left as input. 
+//  H->setMass(m_H);
   addParticle(H); // 
 }
 void hSU2_Model::initInteractions(){
+  //Complete the Lagrangian with Yukawa interactions.   
+    std::cout << "Building Yukawa interactions" << std::endl;
+    // Yukawa interaction Q_L * H * Psi_uR
+    //get particles → need to add them as attributes.
+    Particle H = GetParticle(*this, "H");
+    Particle Q_L = GetParticle(*this, "Q_L");
+    Particle Psi_uR = GetParticle(*this, "\\Psi_{uR}");
+    // Indices 
+    csl::Index a = generateIndex("C",Q_L);
+    csl::Index I  = generateIndex("X",Q_L);
+    std::vector< csl::Index > i = generateIndices(2,"L",Q_L);
+    auto al = DiracIndices(2);
+    Tensor X = MinkowskiVector("X"); 
 
+    csl::Tensor half_sigma = getGenerator("L",H);
+    Tensor gamma = DiracGamma();
+    Expr y_u = constant_s("y_u");
+
+    // Interaction term : 
+    addLagrangianTerm(
+        y_u 
+        * GetComplexConjugate(Q_L({I, i[0], a,al[0]},X))
+        * CSL_I 
+        * 2
+        * half_sigma({i[0],i[1]})
+        * H({i[1]},X)
+        * gamma({al[0],al[1]})
+        * Psi_uR({I,a,al[1]},X),
+        true); // Add also the complex conjugate of this term
 }
 void hSU2_Model::gatherhSU2Inputs(){
 
@@ -230,8 +270,10 @@ void hSU2_Model::horizontalSymmetryBreaking(){
     ////////////////////////////////////////////////
     // Horizontal symmetry breaking 
     ///////////////////////////////////////////////
-
+//    BreakGaugeSymmetry(*this, "X");
+//    renameParticle("")
 }
+
 void hSU2_Model::getToLowEnergyLagrangian(){
 
 }
