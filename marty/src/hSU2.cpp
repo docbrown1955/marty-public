@@ -192,7 +192,7 @@ void hSU2_Model::initQuarks(){
     Psi_uL->setGroupRep("Y",{2,3});
     
     Psi_uR->setGroupRep("C",{1,0});
-    Psi_uR->setGroupRep("X",1);
+    Psi_uR->setGroupRep("L",0);
     Psi_uR->setGroupRep("Y",{2,3});
     Psi_uR->setGroupRep("X",1);
 
@@ -240,28 +240,44 @@ void hSU2_Model::initInteractions(){
     Particle H = GetParticle(*this, "H");
     Particle Q_L = GetParticle(*this, "Q_L");
     Particle Psi_uR = GetParticle(*this, "\\Psi_{uR}");
-    // Indices 
-    csl::Index a = generateIndex("C",Q_L);
-    csl::Index I  = generateIndex("X",Q_L);
-    std::vector< csl::Index > i = generateIndices(2,"L",Q_L);
-    auto al = DiracIndices(2);
-    Tensor X = MinkowskiVector("X"); 
+    Particle Psi_uL = GetParticle(*this, "\\Psi_{uL}");
+    Particle phi_2 = GetParticle(*this, "\\phi_2");
 
-    csl::Tensor half_sigma = getGenerator("L",H);
-    Tensor gamma = DiracGamma();
+    // Indices 
+    csl::Index a = generateIndex("C",Q_L); // SU(3)_c index
+    csl::Index I  = generateIndex("X",Q_L); // SU(2)_h index
+    std::vector< csl::Index > i = generateIndices(2,"L",Q_L);
+    auto al = DiracIndex();
+    // auto mu = MinkowskiIndices(1);
+    // Tensor X = MinkowskiVector("X");
+
+    // csl::Tensor half_sigma = getGenerator("L",H);
+    csl::Tensor eps = getVectorSpace("L", "Q_L")->getEpsilon(); // = i * sigma^2
+    // int which_sigma = 2;
+    // Tensor gamma = DiracGamma();
     Expr y_u = constant_s("y_u");
+    Expr lambda_u = constant_s("\\lambda_u");
+    Expr tilde_lambda_u = constant_s("\\tilde{\\lambda}_u");
 
     // Interaction term : 
     addLagrangianTerm(
         y_u 
-        * GetComplexConjugate(Q_L({I, i[0], a,al[0]},X))
-        * CSL_I 
-        * 2
-        * half_sigma({i[0],i[1]})
-        * H({i[1]},X)
-        * gamma({al[0],al[1]})
-        * Psi_uR({I,a,al[1]},X),
+        * GetComplexConjugate(Q_L({a,i[0],I, al}))
+        // * 2
+        // * half_sigma({which_sigma,i[0],i[1]})
+        * eps({i[0],i[1]})
+        * GetComplexConjugate(H(i[1]))
+        // * gamma({mu[0], al[0], al[1]})
+        * Psi_uR({a,I,al}),
         true); // Add also the complex conjugate of this term
+
+    std::vector<csl::Index> ii = generateIndices(2, "X", Psi_uL);
+    csl::Index A = generateIndex("X", phi_2); 
+    csl::Tensor half_sigma = getGenerator("X", Psi_uL); // SU(2)_X generators
+    csl::Expr term = lambda_u * GetComplexConjugate(Psi_uL({a,ii[0],al})) * phi_2(A)*half_sigma({A, ii[0], ii[1]}) * Psi_uR({a,ii[1],al});
+    addLagrangianTerm(term, true);
+
+
 }
 void hSU2_Model::gatherhSU2Inputs(){
 
