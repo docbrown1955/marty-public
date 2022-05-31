@@ -1,5 +1,7 @@
 #include <csl>
 
+using csl::Expr;
+
 struct Condition {
 
     Expr expr;
@@ -15,7 +17,7 @@ void applyInverse(
         std::vector<Condition> &conditions // Conditions to fill
         )
 {
-    csl::Type type = GetType(init);
+    csl::Type type = csl::GetType(init);
     switch(type) {
 
         case csl::Type::Cos: 
@@ -30,9 +32,9 @@ void applyInverse(
         case csl::Type::Prod:
             {
             bool dependencyFound = false;
-            for (size_t i = 0; i != GetSize(init); ++i) {
-                Expr argument = GetArgument(init, i);
-                if (DependsExplicitelyOn(argument, variable)) {
+            for (size_t i = 0; i != init->size(); ++i) {
+                Expr argument = csl::GetArgument(init, i);
+                if (csl::DependsExplicitlyOn(argument, variable)) {
                     if (dependencyFound) {
                         std::cerr << "Error: Double dependency not possible.\n";
                         return;
@@ -65,7 +67,7 @@ std::vector<Condition> invert(
     csl::VisitEachNodeCut(expr, 
     [&](Expr const &node)
     {
-        if (not DependsExplicitelyOn(node, variable))
+        if (not csl::DependsExplicitlyOn(node, variable))
             // Stop digging
             return true;
 

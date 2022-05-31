@@ -1,5 +1,7 @@
 #include <csl>
 
+using csl::Expr;
+
 ///////////////////////////////////////////////////
 /*************************************************/
 // Indicial expressions                          //
@@ -8,9 +10,9 @@
 
 void printTensors(const csl::Space* space)
 {
-    csl::IParent delta = GetDelta(space);
-    csl::IParent g     = GetMetric(space);
-    csl::IParent eps   = GetEpsilon(space);
+    csl::Tensor delta = GetDelta(space);
+    csl::Tensor g     = GetMetric(space);
+    csl::Tensor eps   = GetEpsilon(space);
 
     csl::Index i = GenerateIndex(space, "i");
     csl::Index j = GenerateIndex(space, "j");
@@ -23,9 +25,9 @@ void printTensors(const csl::Space* space)
 
 void printProperties(const csl::Space *space)
 {
-    csl::IParent delta = GetDelta(space);
-    csl::IParent g     = GetMetric(space);
-    csl::IParent eps   = GetEpsilon(space);
+    csl::Tensor delta = GetDelta(space);
+    csl::Tensor g     = GetMetric(space);
+    csl::Tensor eps   = GetEpsilon(space);
 
     csl::Index i = GenerateIndex(space, "i");
     csl::Index j = GenerateIndex(space, "j");
@@ -34,8 +36,8 @@ void printProperties(const csl::Space *space)
     csl::Index m = GenerateIndex(space, "m");
     csl::Index n = GenerateIndex(space, "n");
 
-    csl::IParent X = csl::iparent_s("X", {space});
-    csl::IParent Y = csl::iparent_s("Y", {space});
+    csl::Tensor X = csl::tensor_s("X", {space});
+    csl::Tensor Y = csl::tensor_s("Y", {space});
 
     std::cout << g({i, j}) * X(+i) << std::endl;
     std::cout << delta({+i, j}) * X(i) << std::endl;
@@ -56,7 +58,7 @@ int main() {
             );
     csl::Space signedSpace3D("R_1_2", 3, "g", metricTensor);
 
-    csl::Index::printIds = false;
+    csl::option::printIndexIds = false;
 
     printTensors(&space3D);
     printTensors(&signedSpace3D);
