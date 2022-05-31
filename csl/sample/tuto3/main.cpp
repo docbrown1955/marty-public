@@ -57,7 +57,7 @@ int main() {
             gamma,
             &dirac2D,
             gamma({mu, a1, a2}),
-            gamma({0, a2, a3})*gamma({mu, a3, a4})*gamma({0, a4, a1})
+            gamma({0, a1, a3})*gamma({mu, a3, a4})*gamma({0, a4, a2})
             );
 
     toSimplify = gamma({+mu, a1, a2}) * csl::GetHermitianConjugate(
