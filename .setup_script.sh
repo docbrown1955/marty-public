@@ -278,8 +278,6 @@ cd dependencies/&& source setup.sh $path
 cd $MARTY_LOC
 cd marty&&        echo -e "$Makefile_setup" > Makefile&& cat Makefile.in >> Makefile
 cd $MARTY_LOC
-cd marty/models&& echo -e "$Makefile_setup" > Makefile&& cat Makefile.in >> Makefile
-cd $MARTY_LOC
 cd csl&&          echo -e "$Makefile_setup" > Makefile&& cat Makefile.in >> Makefile
 cd $MARTY_LOC
 cd grafed&&       echo -e "$Makefile_setup" > Makefile&& cat Makefile.in >> Makefile
