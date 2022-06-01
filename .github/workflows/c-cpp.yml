@@ -12,7 +12,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: download-tests
-      run: git clone git@github.com:docbrown1955/test-suite.git
+      run: git clone https://github.com/docbrown1955/test-suite.git
     - name: run-tests
       run: cd test-suite; ./launch_tests.sh
     - name: dependencies
