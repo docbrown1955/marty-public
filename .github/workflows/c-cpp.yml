@@ -14,6 +14,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: configure
-      run: ./source setup.sh .install
+      run: source setup.sh .install
     - name: make
       run: make
