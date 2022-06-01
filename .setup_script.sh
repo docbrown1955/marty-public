@@ -56,7 +56,7 @@ testDependencies_Linux()
     echo "Testing Linux dependencies ..."
     dep_ok=1
     cutils=`dpkg -l | grep coreutils`
-    if [ "$cutils" == "" ] 
+    if [ "$cutils" == "" ]
     then
             missingdep
 	    echo "linux coreutils is needed for this installation script"
@@ -154,32 +154,33 @@ testDependencies()
     case "${unameOut}" in
         Linux*)     testDependencies_Linux;;
         Darwin*)    testDependencies_MACOS;;
-        CYGWIN*)    exitInstaller $@;; 
+        CYGWIN*)    exitInstaller $@;;
         MINGW*)     exitInstaller $@;;
         *)          exitInstaller $@
     esac
 }
 
-ensure_path() 
+ensure_path()
 {
     if [ ! -e $1 ]
     then
-        echo "Directory $1 does not exist and will be created. Confirm ? [y/n, default: y]"
-        read c
-        if [ "$c" == "" ] || [ "$c" == "Y" ] || [ "$c" == "y" ] || [ "$c" == "yes" ] || [ "$c" == "Yes" ]
-        then
-            mkdir -p $1
-            if [ ! -e $1 ]
-            then
-                echo -e "${RED}${BOLD}Path $1 is invalid, please provide a valid path.${NORMAL}${NC}"
-                exitInstaller $@
-                return
-            fi
-        else
-            echo -e "${RED}${BOLD}Path $1 is invalid, please provide a valid path.${NORMAL}${NC}"
-            exitInstaller $@
-            return
-        fi
+        mkdir -p $1
+        # echo "Directory $1 does not exist and will be created. Confirm ? [y/n, default: y]"
+        # read c
+        # if [ "$c" == "" ] || [ "$c" == "Y" ] || [ "$c" == "y" ] || [ "$c" == "yes" ] || [ "$c" == "Yes" ]
+        # then
+        #     mkdir -p $1
+        #     if [ ! -e $1 ]
+        #     then
+        #         echo -e "${RED}${BOLD}Path $1 is invalid, please provide a valid path.${NORMAL}${NC}"
+        #         exitInstaller $@
+        #         return
+        #     fi
+        # else
+        #     echo -e "${RED}${BOLD}Path $1 is invalid, please provide a valid path.${NORMAL}${NC}"
+        #     exitInstaller $@
+        #     return
+        # fi
     fi
 }
 
@@ -292,7 +293,7 @@ grafed_debug=grafed/build-grafed-gui-Desktop_Qt_5_12_1_GCC_64bit-Debug
 grafed_release=grafed/build-grafed-gui-Desktop_Qt_5_12_1_GCC_64bit-Release
 unameOut="$(uname -s)"
 case "${unameOut}" in
-    Darwin*)    
+    Darwin*)
         mkdir -p $grafed_debug
         mkdir -p $grafed_release
         cd $grafed_debug && qmake -makefile -o Makefile "CONFIG+=debug" \
@@ -319,10 +320,10 @@ echo "export CPATH=\$CPATH:$inc_path" >> $martyEnvFile
 echo "export C_INCLUDE_PATH=\$C_INCLUDE_PATH:$inc_path" >> $martyEnvFile
 unameOut="$(uname -s)"
 case "${unameOut}" in
-    Linux*)     
+    Linux*)
         echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:$lib_path" >> $martyEnvFile;
         echo "export LIBRARY_PATH=\$LIBRARY_PATH:$lib_path" >> $martyEnvFile;;
-    Darwin*)    
+    Darwin*)
         echo "export DYLD_LIBRARY_PATH=\$DYLD_LIBRARY_PATH:$lib_path" >> $martyEnvFile;
         echo "export LIBRARY_PATH=\$LIBRARY_PATH:$lib_path" >> $martyEnvFile;;
 esac
