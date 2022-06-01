@@ -22,7 +22,7 @@ jobs:
     - name: download-tests
       run: git clone https://github.com/docbrown1955/test-suite.git
     - name: run-tests
-      run: 
+      run: |
         source marty_env.sh
         cd test-suite
         ./launch_tests.sh
