@@ -7,15 +7,21 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
-
+  build-and-test-ubuntu:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
+    - name: download-tests
+      run: git clone git@github.com:docbrown1955/test-suite.git
+    - name: run-tests
+      run: cd test-suite; ./launch_tests.sh
     - name: dependencies
       run: sudo apt-get install coreutils build-essential gcc-7 g++-7 gfortran-7 libgsl-dev libgslcblas0 qt5-default qtcreator dvipng -y
     - name: configure
       run: source setup.sh .install
     - name: make
       run: make
+    - name: install
+      run: make install
+    - name: setup-path
+      run: source marty_env.sh
