@@ -7,10 +7,8 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
-
+  build-and-test-ubuntu:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - name: dependencies
@@ -19,3 +17,12 @@ jobs:
       run: source setup.sh .install
     - name: make
       run: make
+    - name: install
+      run: make install
+    - name: download-tests
+      run: git clone https://github.com/docbrown1955/test-suite.git
+    - name: run-tests
+      run: |
+        source marty_env.sh
+        cd test-suite
+        ./launch_tests.sh
