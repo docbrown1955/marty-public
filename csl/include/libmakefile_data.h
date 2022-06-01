@@ -50,7 +50,7 @@ void print_libmakefile_data(std::ostream &out, bool quad, bool clang) {
 #endif
     }
     out << "DEFAULTFLAGS = -std=c++17 -Wall -Wextra -Wpedantic -Wno-deprecated-declarations -fPIC\n";
-    out << "OPTIFLAGS = -O2 # $(MATH_OPTI)\n";
+    out << "OPTIFLAGS = -O2 $(MATH_OPTI)\n";
     if (!quad) {
       out << "CXXFLAGS  = $(DEFAULTFLAGS) $(OPTIFLAGS)\n";
       out << "LINKFLAGS = $(DEFAULTFLAGS)\n";
