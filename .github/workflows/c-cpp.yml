@@ -1,0 +1,21 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: dependencies
+      run: sudo apt-get install coreutils build-essential gcc-7 g++-7 gfortran-7 libgsl-dev libgslcblas0 qt5-default qtcreator dvipng -y
+    - name: configure
+      run: source setup.sh .install
+    - name: make
+      run: make
