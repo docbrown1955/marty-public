@@ -224,7 +224,6 @@ void LatexLinker::exportPDF(std::string const& fileName,
     tex << *this;
     tex << "\\end{document}\n";
     tex.close();
-    return;
     std::string command = "lualatex -interaction=nonstopmode " 
         + fileName + ".tex > /dev/null 2>&1";
     system(command.c_str());
