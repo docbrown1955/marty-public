@@ -70,7 +70,7 @@ ScalarFieldParent::ScalarFieldParent(const string &t_name)
 }
 
 ScalarFieldParent::ScalarFieldParent(const string &t_name,
-                                     const Space * t_spaceField)
+                                     const Space  *t_spaceField)
     : FieldParent(t_name, t_spaceField)
 {
 }
@@ -167,7 +167,7 @@ csl::Type ScalarField::getType() const
     return csl::Type::ScalarField;
 }
 
-void ScalarField::print(int mode, std::ostream &, bool) const
+void ScalarField::print(int mode, std::ostream &, LibraryMode) const
 {
     cout << getName();
     cout << "(" << point->getName() << ")";

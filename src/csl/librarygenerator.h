@@ -17,7 +17,7 @@
  * @file librarygenerator.h
  * @brief
  * @author Grégoire Uhlrich
- * @version 2.0
+ * @version 1.3
  * @date 2020-11-05
  */
 #ifndef CSL_LIBRARY_GENERATOR
@@ -54,14 +54,18 @@ class LibraryGenerator {
     };
 
     inline static int nDigits = std::numeric_limits<double>::max_digits10 - 2;
-    inline static std::string realType     = "double";
-    inline static std::string complexType  = "std::complex<double>";
-    inline static std::string realUsing    = "real_t";
-    inline static std::string complexUsing = "complex_t";
-    inline static std::string tensorUsing  = "csl::LibraryTensor";
-    inline static std::string indexType    = "int";
-    inline static short       nSpaceIndent = 4;
-    inline static const Expr  imaginary    = csl::constant_s("_i_");
+    inline static std::string realType      = "double";
+    inline static std::string crealType     = "double";
+    inline static std::string complexType   = "std::complex<double>";
+    inline static std::string ccomplexType  = "double _Complex";
+    inline static std::string realUsing     = "real_t";
+    inline static std::string complexUsing  = "complex_t";
+    inline static std::string crealUsing    = "creal_t";
+    inline static std::string ccomplexUsing = "ccomplex_t";
+    inline static std::string tensorUsing   = "csl::LibraryTensor";
+    inline static std::string indexType     = "int";
+    inline static short       nSpaceIndent  = 4;
+    inline static const Expr  imaginary     = csl::constant_s("_i_");
     // inline static std::string boostPath    = "../../Boost";
 
     inline static std::string incDir       = "include";
@@ -69,6 +73,7 @@ class LibraryGenerator {
     inline static std::string objDir       = "obj";
     inline static std::string binDir       = "bin";
     inline static std::string libDir       = "lib";
+    inline static std::string clibDir      = "clib";
     inline static std::string scriptDir    = "script";
     inline static std::string scriptObjDir = "script/obj";
 
@@ -111,10 +116,10 @@ class LibraryGenerator {
 
     std::string                   getName() const;
     std::string                   getPath() const;
-    std::set<std::string> const & getIPath() const;
-    std::set<std::string> &       getIPath();
-    std::set<std::string> const & getLPath() const;
-    std::set<std::string> &       getLPath();
+    std::set<std::string> const  &getIPath() const;
+    std::set<std::string>        &getIPath();
+    std::set<std::string> const  &getLPath() const;
+    std::set<std::string>        &getLPath();
     LibDependency                 getDependencies() const;
     std::shared_ptr<LibraryGroup> getGroup(std::string_view name) const;
     bool                          hasGlobalFile() const
@@ -159,7 +164,7 @@ class LibraryGenerator {
     void addDefaultParameter(std::string const &name, bool isComplex);
     LibFunction &addFunction(std::string const &nameFunction,
                              Expr               expression,
-                             std::string const &nameGroup = "G");
+                             bool               force_cpp_function = false);
     void         addMassExpression(std::string const &mass);
     void         addDiagonalization(std::vector<std::string> const &mixing,
                                     std::vector<std::string> const &masses,
@@ -197,6 +202,8 @@ class LibraryGenerator {
 
     bool needLibraryTensor() const;
 
+    void printCppFunctions(LibraryGroup const &g) const;
+    void printCFunction(LibFunction const &f) const;
     void printFunction(LibFunction const &f) const;
     void printGroup(LibraryGroup const &g) const;
 

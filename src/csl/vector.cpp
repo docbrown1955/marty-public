@@ -46,7 +46,7 @@ std::string const &AbstractVectorial::getName() const
     return argument[0]->getName();
 }
 
-void AbstractVectorial::print(int mode, std::ostream &out, bool) const
+void AbstractVectorial::print(int mode, std::ostream &out, LibraryMode) const
 {
     if (mode == 0) {
         if (dim == 1)
@@ -461,7 +461,7 @@ void AbstractVectorial::setVectorArgument(const csl::vector_expr &t_argument)
     }
 }
 
-void AbstractVectorial::setArgument(const Expr &       expr,
+void AbstractVectorial::setArgument(const Expr        &expr,
                                     const vector<int> &indices)
 {
     const int size = indices.size();

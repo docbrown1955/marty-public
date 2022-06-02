@@ -133,9 +133,9 @@ class Constant : public AbstractLiteral {
      * prints the Constant considering it in a larger expr.
      * \param mode Type of printing.
      */
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -259,9 +259,9 @@ class Variable : public AbstractLiteral {
      * prints the Variable considering it in a larger expr.
      * \param mode Type of printing.
      */
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -362,9 +362,9 @@ class IntFactorial : public AbstractLiteral {
      */
     void setValue(long double t_value) override;
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -452,9 +452,9 @@ class Imaginary : public AbstractLiteral {
         return csl::ComplexProperty::Imaginary;
     }
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 

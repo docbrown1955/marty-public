@@ -46,7 +46,7 @@ PseudoIntegral::PseudoIntegral(const csl::vector_expr &terms)
 }
 
 PseudoIntegral::PseudoIntegral(const csl::vector_expr &t_integrals,
-                               const Expr &            t_argument)
+                               const Expr             &t_argument)
     : vectorIntegrals(t_integrals), argument(CSL_1)
 {
     addTerm(t_argument);
@@ -148,7 +148,7 @@ void suppressTerm(Expr &init, Expr const &term)
 }
 
 bool PseudoIntegral::evaluateDelta(int                  index,
-                                   Expr &               res,
+                                   Expr                &res,
                                    std::vector<Expr *> &dependencies) const
 {
     Expr            integ = vectorIntegrals[index];
@@ -557,7 +557,7 @@ void ScalarIntegral::setVariable(Expr const &t_variable)
     variable = t_variable;
 }
 
-void ScalarIntegral::print(int mode, std::ostream &out, bool) const
+void ScalarIntegral::print(int mode, std::ostream &out, LibraryMode) const
 {
     out << "int{";
     out << variable->getName();
@@ -674,33 +674,33 @@ VectorIntegral::VectorIntegral(const Expr &operand, const Tensor &t_variables)
 {
 }
 
-VectorIntegral::VectorIntegral(const Expr &  operand,
+VectorIntegral::VectorIntegral(const Expr   &operand,
                                const Tensor &t_variables,
                                bool          t_empty)
     : AbstractIntegral(operand, t_empty), variables(t_variables)
 {
 }
 
-VectorIntegral::VectorIntegral(const Expr &  operand,
+VectorIntegral::VectorIntegral(const Expr   &operand,
                                const Tensor &t_variables,
-                               const Expr &  t_inf,
-                               const Expr &  t_sup)
+                               const Expr   &t_inf,
+                               const Expr   &t_sup)
     : AbstractIntegral(operand, t_inf, t_sup), variables(t_variables)
 {
 }
 
 VectorIntegral::VectorIntegral(const Tensor &t_variables,
-                               const Expr &  t_inf,
-                               const Expr &  t_sup)
+                               const Expr   &t_inf,
+                               const Expr   &t_sup)
     : VectorIntegral(CSL_1, t_variables, t_inf, t_sup)
 {
 }
 
-VectorIntegral::VectorIntegral(const Expr &  operand,
+VectorIntegral::VectorIntegral(const Expr   &operand,
                                const Tensor &t_variables,
                                bool          t_empty,
-                               const Expr &  t_inf,
-                               const Expr &  t_sup)
+                               const Expr   &t_inf,
+                               const Expr   &t_sup)
     : AbstractIntegral(operand, t_empty, t_inf, t_sup), variables(t_variables)
 {
 }
@@ -730,7 +730,7 @@ void VectorIntegral::setParent(const Parent &t_variable)
     DeepRefresh(argument);
 }
 
-void VectorIntegral::print(int mode, std::ostream &out, bool) const
+void VectorIntegral::print(int mode, std::ostream &out, LibraryMode) const
 {
     out << "int{";
     out << variables->getName() << "-" << variables->getSpace()[0]->getDim()

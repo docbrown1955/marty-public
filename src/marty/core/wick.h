@@ -56,9 +56,10 @@ class Wick : public csl::Operator<csl::AbstractFunc> {
 
     csl::Type getType() const override;
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int              mode = 0,
+               std::ostream    &out  = std::cout,
+               csl::LibraryMode libMode
+               = csl::LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 

@@ -4,7 +4,7 @@ using namespace csl;
 
 namespace mty {
 
-GTHDM_Model::GTHDM_Model(bool initialize) : TwoHDM_Model<2>(false)
+GTHDM_Model::GTHDM_Model(bool initialize) : THDM_Model<2>(false)
 {
     if (initialize)
         init();
@@ -50,8 +50,8 @@ void GTHDM_Model::replaceYukawas()
     csl::Tensor       M_e         = csl::tensor_s("M_e",
                                     {flavorSpace, flavorSpace},
                                     csl::matrix_s({{m_e, CSL_0, CSL_0},
-                                                   {CSL_0, m_mu, CSL_0},
-                                                   {CSL_0, CSL_0, m_tau}}));
+                                                                 {CSL_0, m_mu, CSL_0},
+                                                                 {CSL_0, CSL_0, m_tau}}));
 
     csl::Tensor M_u = csl::tensor_s(
         "M_u",

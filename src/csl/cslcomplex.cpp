@@ -58,12 +58,20 @@ void RealPart::setOperand(const Expr &arg)
     argument = arg;
 }
 
-void RealPart::print(int mode, std::ostream &out, bool lib) const
+void RealPart::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (lib) {
+    if (libMode == LibraryMode::CppLib) {
         out << "std::complex<long double>(";
-        argument->print(1, out, lib);
+        argument->print(1, out, libMode);
         out << ").real()";
+        if (mode == 0)
+            out << endl;
+        return;
+    }
+    else if (libMode == LibraryMode::CLib) {
+        out << "creal(";
+        argument->print(1, out, libMode);
+        out << ")";
         if (mode == 0)
             out << endl;
         return;
@@ -212,12 +220,22 @@ void ImaginaryPart::setOperand(const Expr &arg)
     argument = arg;
 }
 
-void ImaginaryPart::print(int mode, std::ostream &out, bool lib) const
+void ImaginaryPart::print(int           mode,
+                          std::ostream &out,
+                          LibraryMode   libMode) const
 {
-    if (lib) {
+    if (libMode == LibraryMode::CppLib) {
         out << "std::complex<long double>(";
-        argument->print(1, out, lib);
+        argument->print(1, out, libMode);
         out << ").imag()";
+        if (mode == 0)
+            out << endl;
+        return;
+    }
+    else if (libMode == LibraryMode::CLib) {
+        out << "cimag(";
+        argument->print(1, out, libMode);
+        out << ")";
         if (mode == 0)
             out << endl;
         return;

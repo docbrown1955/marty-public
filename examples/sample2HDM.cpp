@@ -29,7 +29,7 @@ int main()
 
     constexpr int type = 2;
 
-    mty::TwoHDM_Model<type> THDM;
+    mty::THDM_Model<type> THDM;
     std::cout << THDM << std::endl;
 
     FeynOptions options;

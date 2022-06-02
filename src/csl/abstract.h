@@ -106,9 +106,9 @@ class Abstract {
      * \param mode Tells if the Abstract is printed alone (default) or in
      * another expr.
      */
-    virtual void print(int           mode = 0,
-                       std::ostream &out  = std::cout,
-                       bool          lib  = false) const = 0;
+    virtual void print(int           mode    = 0,
+                       std::ostream &out     = std::cout,
+                       LibraryMode   libMode = LibraryMode::NoLib) const = 0;
 
     virtual void printCode(int mode = 0, std::ostream &out = std::cout) const;
 
@@ -531,7 +531,7 @@ class Abstract {
      * \param indices An std::vector containing the series of indices
      * corresponding to the argument to replace.
      */
-    virtual void setArgument(const Expr &            expr,
+    virtual void setArgument(const Expr             &expr,
                              const std::vector<int> &indices);
 
     virtual void setEmpty(bool t_empty);
@@ -600,13 +600,13 @@ class Abstract {
     std::optional<Expr> contractIndex(const Index &index) const;
 
     csl::vector_expr
-    breakSpace(const Space *                     brokenSpace,
+    breakSpace(const Space                      *brokenSpace,
                const std::vector<const Space *> &newSpace) const;
 
     virtual csl::vector_expr
-    breakSpace(const Space *                     brokenSpace,
+    breakSpace(const Space                      *brokenSpace,
                const std::vector<const Space *> &newSpace,
-               const std::vector<std::string> &  indexNames) const;
+               const std::vector<std::string>   &indexNames) const;
 
     /*! \brief Replaces the index structure of the object, that must be an
      * \b Indicial expression.
@@ -708,7 +708,7 @@ class Abstract {
      * @param exponents Exponents (out variable, modified during the run).
      */
     virtual void getExponents(std::vector<Expr> const &factors,
-                              std::vector<Expr> &      exponents) const;
+                              std::vector<Expr>       &exponents) const;
 
     ///////////////////////////////////////////////////
     // Checking matching of different indicial

@@ -101,9 +101,9 @@ class Sum : public AbstractMultiFunc {
 
     void insert(const Expr &expr, bool explicitSum = false) override;
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -232,9 +232,9 @@ class Polynomial : public AbstractMultiFunc {
 
     IndexStructure getIndexStructure() const override;
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -378,7 +378,7 @@ class Prod : public AbstractMultiFunc {
     csl::vector_expr getFactors() const override;
 
     void getExponents(std::vector<Expr> const &factors,
-                      std::vector<Expr> &      exponents) const override;
+                      std::vector<Expr>       &exponents) const override;
 
     /*! \brief Tells if the factor \a expr appear in the product.
      * \param expr Factor to test.
@@ -402,9 +402,9 @@ class Prod : public AbstractMultiFunc {
     virtual void leftInsert(const Expr &expr);
     virtual void rightInsert(const Expr &expr);
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -538,7 +538,7 @@ class Pow : public AbstractDuoFunc {
     bool isPurelyImaginary() const override;
 
     void getExponents(std::vector<Expr> const &factors,
-                      std::vector<Expr> &      exponents) const override;
+                      std::vector<Expr>       &exponents) const override;
 
     /*! \brief Tells if the factor \a expr appear in the exponentiation.
      * \param expr Factor to test.
@@ -558,9 +558,9 @@ class Pow : public AbstractDuoFunc {
     std::optional<Expr> suppressExponent(Expr const &factor,
                                          Expr const &exponent) const override;
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -695,9 +695,9 @@ class Derivative : public Operator<AbstractDuoFunc> {
 
     void setOperand(const Expr &t_operand) override;
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -787,11 +787,11 @@ class Integral : public Operator<AbstractDuoFunc> {
 
     void setOperand(const Expr &t_operand) override;
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
-
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
+
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     std::string printLaTeX(int mode = 0) const override;
 

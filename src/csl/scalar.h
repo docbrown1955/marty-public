@@ -35,9 +35,9 @@ class Scalar : public AbstractDuoFunc {
 
     csl::Type getType() const override;
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     std::string printLaTeX(int mode = 0) const override;
 

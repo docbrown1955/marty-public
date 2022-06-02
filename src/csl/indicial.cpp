@@ -157,8 +157,8 @@ bool SelfContraction::comparePairs(const vector<pair<int, Index>> &A,
 }
 
 SelfContraction::SelfContraction(
-    const Expr &                                   A,
-    const Expr &                                   B,
+    const Expr                                    &A,
+    const Expr                                    &B,
     optional<function<bool(Expr_info, Expr_info)>> t_condition)
     : SelfContraction(A.get(), B.get(), t_condition)
 {
@@ -245,10 +245,10 @@ IndexStructure SelfContraction::getFreeContractionIndex(const Expr &expr,
     return structure;
 }
 
-Expr SelfContraction::applyIndices(const Expr &           A,
-                                   const Expr &           B,
+Expr SelfContraction::applyIndices(const Expr            &A,
+                                   const Expr            &B,
                                    const SelfContraction &targetContraction,
-                                   const Expr &           res) const
+                                   const Expr            &res) const
 {
     // Should be called IIF (*this == targetContraction)
     if (swappable and not compare(targetContraction))
@@ -383,9 +383,9 @@ ContractionChain::ContractionChain()
 {
 }
 
-ContractionChain::ContractionChain(csl::vector_expr &      t_contractedTensors,
+ContractionChain::ContractionChain(csl::vector_expr       &t_contractedTensors,
                                    vector<IndexStructure> &t_structures,
-                                   vector<array<int, 4>> & t_contraction)
+                                   vector<array<int, 4>>  &t_contraction)
     : contractedTensors(std::move(t_contractedTensors)),
       structures(std::move(t_structures)),
       contraction(std::move(t_contraction))
@@ -393,7 +393,7 @@ ContractionChain::ContractionChain(csl::vector_expr &      t_contractedTensors,
 }
 
 ContractionChain::ContractionChain(const csl::vector_expr &args,
-                                   const Expr &            res)
+                                   const Expr             &res)
     : resultOfContraction(res)
 {
     if (res != CSL_UNDEF)
@@ -594,7 +594,7 @@ bool ContractionChain::compareContractions(const array<int, 4> &c1,
 
 optional<vector<int>>
 ContractionChain::comparison(const ContractionChain &other,
-                             Expr &                  remnant) const
+                             Expr                   &remnant) const
 {
     remnant = CSL_UNDEF;
     if (contractedTensors.size() > other.contractedTensors.size()
@@ -688,7 +688,7 @@ bool ContractionChain::detectSpecialContraction()
             for (const auto &cont : properties) {
                 if (auto perm = cont.comparison(*this, resultOfContraction);
                     perm) {
-                    auto &            otherTensors = cont.contractedTensors;
+                    auto             &otherTensors = cont.contractedTensors;
                     map<Index, Index> replacement;
                     for (size_t i = 0; i != otherTensors.size(); ++i) {
                         IndexStructure a
@@ -922,7 +922,7 @@ TensorParent::TensorParent(const string &t_name, const Space *t_space)
     tensor = generateTensor(name, space);
 }
 
-TensorParent::TensorParent(const string &                    t_name,
+TensorParent::TensorParent(const string                     &t_name,
                            const std::vector<const Space *> &t_space)
     : AbstractParent(t_name),
       space(t_space),
@@ -940,9 +940,9 @@ TensorParent::TensorParent(const string &                    t_name,
         tensor = generateTensor(name, space);
 }
 
-TensorParent::TensorParent(const string &                    t_name,
+TensorParent::TensorParent(const string                     &t_name,
                            const std::vector<const Space *> &t_space,
-                           const Expr &                      t_tensor)
+                           const Expr                       &t_tensor)
     : AbstractParent(t_name),
       space(t_space),
       covariant(vector<bool>(t_space.size(), false)),
@@ -957,8 +957,8 @@ TensorParent::TensorParent(const string &                    t_name,
 }
 
 TensorParent::TensorParent(const string &t_name,
-                           const Space * t_space,
-                           const Expr &  t_tensor)
+                           const Space  *t_space,
+                           const Expr   &t_tensor)
     : TensorParent(t_name, vector<const Space *>(1, t_space), t_tensor)
 {
 }
@@ -1158,9 +1158,9 @@ const vector<Equation *> &TensorParent::getProperties() const
 }
 
 void TensorParent::addSelfContraction(
-    const Expr &                                   A,
-    const Expr &                                   B,
-    const Expr &                                   res,
+    const Expr                                    &A,
+    const Expr                                    &B,
+    const Expr                                    &res,
     optional<function<bool(Expr_info, Expr_info)>> condition)
 {
     if (A->getNumericalFactor() != CSL_1) {
@@ -1278,7 +1278,7 @@ void TensorParent::removeContractionProperty(
 
 void TensorParent::applyProperty(Expr_info             self,
                                  IndexStructure const &structure,
-                                 Expr &                res) const
+                                 Expr                 &res) const
 {
     res = DeepCopy(res);
     RenameIndices(res);
@@ -1354,8 +1354,8 @@ void TensorParent::addComplexProperty(const Expr &init, const Expr &res)
 }
 
 void TensorParent::addHermitianProperty(const Space *t_space,
-                                        const Expr & init,
-                                        const Expr & res)
+                                        const Expr  &init,
+                                        const Expr  &res)
 {
     if (getDim(t_space) > 2)
         callError(cslError::InvalidITensor,
@@ -1383,8 +1383,8 @@ void TensorParent::addHermitianProperty(const Space *t_space,
 }
 
 void TensorParent::addTransposedProperty(const Space *t_space,
-                                         const Expr & init,
-                                         const Expr & res)
+                                         const Expr  &init,
+                                         const Expr  &res)
 {
     if (getDim(t_space) != 2)
         callError(cslError::InvalidITensor,
@@ -1634,15 +1634,15 @@ void TensorParent::createFixedIndices(vector<Index> &indices) const
             indices[i].setSpace(space[i]);
 }
 
-void fillKeptIndices(vector<vector<vector<int>>> &  keptIndices,
+void fillKeptIndices(vector<vector<vector<int>>>   &keptIndices,
                      vector<size_t>::const_iterator posBroken,
                      vector<size_t>::const_iterator endPosBroken,
-                     vector<vector<int>> const &    toInsert);
+                     vector<vector<int>> const     &toInsert);
 
-void fillKeptIndices(vector<vector<vector<int>>> &  keptIndices,
+void fillKeptIndices(vector<vector<vector<int>>>   &keptIndices,
                      vector<size_t>::const_iterator posBroken,
                      vector<size_t>::const_iterator endPosBroken,
-                     vector<size_t> const &         pieces)
+                     vector<size_t> const          &pieces)
 {
     vector<vector<int>> toInsert(pieces.size());
     size_t              pos = 0;
@@ -1679,10 +1679,10 @@ void fillKeptIndices(vector<vector<vector<int>>> &  keptIndices,
     //               return false;
     //           });
 }
-void fillKeptIndices(vector<vector<vector<int>>> &  keptIndices,
+void fillKeptIndices(vector<vector<vector<int>>>   &keptIndices,
                      vector<size_t>::const_iterator posBroken,
                      vector<size_t>::const_iterator endPosBroken,
-                     vector<vector<int>> const &    toInsert)
+                     vector<vector<int>> const     &toInsert)
 {
     if (posBroken == endPosBroken)
         return;
@@ -1702,13 +1702,13 @@ void fillKeptIndices(vector<vector<vector<int>>> &  keptIndices,
 void fillNewSpaces(vector<vector<const Space *>> &newSpace,
                    vector<size_t>::const_iterator posBroken,
                    vector<size_t>::const_iterator endPosBroken,
-                   vector<const Space *> const &  fillingSpace);
+                   vector<const Space *> const   &fillingSpace);
 
 vector<vector<const Space *>>
-fillNewSpaces(vector<const Space *> const &  init,
+fillNewSpaces(vector<const Space *> const   &init,
               vector<size_t>::const_iterator posBroken,
               vector<size_t>::const_iterator endPosBroken,
-              vector<const Space *> const &  fillingSpace)
+              vector<const Space *> const   &fillingSpace)
 {
     vector<vector<const Space *>> newSpace(1, init);
     fillNewSpaces(newSpace, posBroken, endPosBroken, fillingSpace);
@@ -1725,7 +1725,7 @@ fillNewSpaces(vector<const Space *> const &  init,
 void fillNewSpaces(vector<vector<const Space *>> &newSpace,
                    vector<size_t>::const_iterator posBroken,
                    vector<size_t>::const_iterator endPosBroken,
-                   vector<const Space *> const &  fillingSpace)
+                   vector<const Space *> const   &fillingSpace)
 {
     if (posBroken == endPosBroken)
         return;
@@ -1747,7 +1747,7 @@ std::vector<Parent> TensorParent::getBrokenParts(const Space *broken) const
     return brokenParts[broken];
 }
 
-std::string getBrokenName(std::string const &                  initName,
+std::string getBrokenName(std::string const                   &initName,
                           std::vector<std::vector<int>> const &indices)
 {
     std::string name = initName;
@@ -1768,7 +1768,7 @@ std::string getBrokenName(std::string const &                  initName,
     return name;
 }
 
-vector<Parent> TensorParent::breakSpace(const Space *                broken,
+vector<Parent> TensorParent::breakSpace(const Space                 *broken,
                                         const vector<const Space *> &newSpaces,
                                         const vector<size_t> &pieces) const
 {
@@ -1923,8 +1923,8 @@ MetricParent::MetricParent(const Space *t_space, const string &t_name)
 
 // Constructor for a metric,
 // By default 2 indices, symmetric, in the same space t_space.
-MetricParent::MetricParent(const Space * t_space,
-                           const Expr &  t_tensor,
+MetricParent::MetricParent(const Space  *t_space,
+                           const Expr   &t_tensor,
                            const string &t_name)
     : TensorParent(t_name, {t_space, t_space}, t_tensor)
 {
@@ -2227,14 +2227,14 @@ TensorElement::TensorElement(const Index &t_index, const Parent &t_parent)
 }
 
 TensorElement::TensorElement(const vector<Index> &indices,
-                             const Parent &       t_parent)
+                             const Parent        &t_parent)
     : AbstractElement(t_parent), index(indices)
 {
     selfCheckIndexStructure();
 }
 
 TensorElement::TensorElement(const IndexStructure &indices,
-                             const Parent &        t_parent)
+                             const Parent         &t_parent)
     : AbstractElement(t_parent), index(indices)
 {
     selfCheckIndexStructure();
@@ -2564,8 +2564,8 @@ TensorElement::replaceIndices(std::vector<csl::Index> const &oldIndices,
     return nullopt;
 }
 
-void fillStructures(vector<IndexStructure> &       toFill,
-                    const vector<Index> &          indices,
+void fillStructures(vector<IndexStructure>        &toFill,
+                    const vector<Index>           &indices,
                     vector<size_t>::const_iterator pos,
                     vector<size_t>::const_iterator end,
                     size_t                         iter = 0)
@@ -2593,10 +2593,10 @@ void clearNullIndices(vector<IndexStructure> &toClear)
 }
 
 csl::vector_expr
-TensorElement::applyBrokenIndices(vector<Parent> &             brokenParents,
-                                  const Space *                broken,
+TensorElement::applyBrokenIndices(vector<Parent>              &brokenParents,
+                                  const Space                 *broken,
                                   const vector<const Space *> &newSpaces,
-                                  const vector<Index> &        indices) const
+                                  const vector<Index>         &indices) const
 {
     vector<size_t> posBrokenIndices;
     posBrokenIndices.reserve(index.size());
@@ -2647,9 +2647,9 @@ TensorElement::applyBrokenIndices(vector<Parent> &             brokenParents,
 }
 
 csl::vector_expr
-TensorElement::breakSpace(const Space *                brokenSpace,
+TensorElement::breakSpace(const Space                 *brokenSpace,
                           const vector<const Space *> &newSpaces,
-                          const vector<string> &       indexNames) const
+                          const vector<string>        &indexNames) const
 {
     if (parent->getDim(brokenSpace) == 0)
         return csl::vector_expr();
@@ -2836,7 +2836,7 @@ Expr TensorElement::getCanonicalPermutation() const
     return permutations[mini];
 }
 
-void TensorElement::print(int mode, std::ostream &out, bool) const
+void TensorElement::print(int mode, std::ostream &out, LibraryMode) const
 {
     const int nIndices = index.size();
     out << getName();
@@ -3187,9 +3187,9 @@ void uniformizeIndices(csl::vector_expr &terms)
 }
 
 csl::vector_expr
-ISum::breakSpace(const Space *                     brokenSpace,
+ISum::breakSpace(const Space                      *brokenSpace,
                  const std::vector<const Space *> &newSpaces,
-                 const std::vector<std::string> &  indexNames) const
+                 const std::vector<std::string>   &indexNames) const
 {
     if (argument.empty())
         return csl::vector_expr();
@@ -3670,8 +3670,8 @@ optional<Expr> IProd::evaluate(csl::eval::mode user_mode) const
         return Prod::evaluate(user_mode);
 }
 
-void contract(Expr &            arg1,
-              Expr &            arg2,
+void contract(Expr             &arg1,
+              Expr             &arg2,
               csl::Index const &index1,
               csl::Index const &index2)
 {
@@ -3949,11 +3949,11 @@ void fillPosition(vector<vector<size_t>> &positions, size_t Nspaces)
     }
 }
 
-Expr getBrokenExpr(const Expr &            init,
+Expr getBrokenExpr(const Expr             &init,
                    const csl::vector_expr &brokenExpr,
-                   const vector<Index> &   brokenIndices,
-                   const vector<Index> &   replacement,
-                   const vector<size_t> &  positions,
+                   const vector<Index>    &brokenIndices,
+                   const vector<Index>    &replacement,
+                   const vector<size_t>   &positions,
                    const size_t            Nspaces)
 {
     if (brokenExpr.empty())
@@ -4028,9 +4028,9 @@ Expr getBrokenExpr(const Expr &            init,
 }
 
 std::vector<Expr>
-sumDummyIndices(std::vector<Expr> const &               init,
+sumDummyIndices(std::vector<Expr> const                &init,
                 std::vector<std::vector<size_t>> const &posIndices,
-                std::vector<size_t> const &             dummyIndices)
+                std::vector<size_t> const              &dummyIndices)
 {
     auto areEquivalent = [&](std::vector<size_t> const &setA,
                              std::vector<size_t> const &setB) {
@@ -4068,7 +4068,7 @@ sumDummyIndices(std::vector<Expr> const &               init,
 }
 
 void sortIndices(std::vector<csl::Index> &indices,
-                 std::vector<size_t> &    positions)
+                 std::vector<size_t>     &positions)
 {
     for (size_t i = 0; i != indices.size(); ++i) {
         size_t posMini = i;
@@ -4088,7 +4088,7 @@ void sortIndices(std::vector<csl::Index> &indices,
     }
 }
 
-csl::vector_expr IProd::breakSpace(const Space *                brokenSpace,
+csl::vector_expr IProd::breakSpace(const Space                 *brokenSpace,
                                    const vector<const Space *> &newSpaces,
                                    const vector<string> &indexNames) const
 {

@@ -154,17 +154,20 @@ void Constant::setCommutable(bool commutable)
     parent->setCommutable(commutable);
 }
 
-void Constant::print(int mode, std::ostream &out, bool lib) const
+void Constant::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    const bool conj = isComplexConjugate() and lib;
+    const bool conj = isComplexConjugate() && libMode != LibraryMode::NoLib;
     if (conj and LibraryGenerator::isQuadruplePrecision()) {
         out << "conjq(";
     }
-    else if (conj) {
+    else if (conj && libMode == LibraryMode::CppLib) {
         out << "std::conj(";
     }
+    else if (conj && libMode == LibraryMode::CLib) {
+        out << "conj(";
+    }
     std::string name(parent->getName());
-    if (lib)
+    if (libMode != LibraryMode::NoLib)
         for (char &c : name)
             if (c == '\\')
                 c = '_';
@@ -395,14 +398,20 @@ void Variable::setValue(Expr const &t_value)
     parent->setValue(t_value);
 }
 
-void Variable::print(int mode, std::ostream &out, bool lib) const
+void Variable::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    const bool conj = isComplexConjugate() and lib;
-    if (conj) {
+    const bool conj = isComplexConjugate() && libMode != LibraryMode::NoLib;
+    if (conj and LibraryGenerator::isQuadruplePrecision()) {
+        out << "conjq(";
+    }
+    else if (conj && libMode == LibraryMode::CppLib) {
         out << "std::conj(";
     }
+    else if (conj && libMode == LibraryMode::CLib) {
+        out << "conj(";
+    }
     std::string name(parent->getName());
-    if (lib)
+    if (libMode != LibraryMode::NoLib)
         for (char &c : name)
             if (c == '\\')
                 c = '_';
@@ -570,12 +579,14 @@ optional<Expr> Imaginary::getComplexArgument() const
     return CSL_PI / CSL_2;
 }
 
-void Imaginary::print(int mode, std::ostream &out, bool) const
+void Imaginary::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (mode == 0)
-        out << "i" << endl;
+    if (libMode == LibraryMode::CLib)
+        out << "_Complex_I";
     else
         out << "i";
+    if (mode == 0)
+        out << endl;
     printProp(out);
 }
 
@@ -638,7 +649,7 @@ void IntFactorial::setValue(long double t_value)
                           "floating value in IntFactorial.");
 }
 
-void IntFactorial::print(int mode, std::ostream &out, bool) const
+void IntFactorial::print(int mode, std::ostream &out, LibraryMode) const
 {
     if (mode == 0)
         out << "IntFactorial: " << value << "!" << endl;
@@ -725,7 +736,7 @@ Expr constant_s(string const &name, csl::ComplexProperty prop)
     return csl::make_shared<Constant, alloc_constant>(parent);
 }
 
-Expr constant_s(string const &       name,
+Expr constant_s(string const        &name,
                 long double          value,
                 csl::ComplexProperty prop)
 {
@@ -736,8 +747,8 @@ Expr constant_s(string const &       name,
     return csl::make_shared<Constant, alloc_constant>(parent);
 }
 
-Expr constant_s(string const &       name,
-                Expr const &         value,
+Expr constant_s(string const        &name,
+                Expr const          &value,
                 csl::ComplexProperty prop)
 {
     shared_ptr<ConstantParent> parent
@@ -755,7 +766,7 @@ Expr variable_s(string const &name, csl::ComplexProperty prop)
     return csl::make_shared<Variable, alloc_variable>(parent);
 }
 
-Expr variable_s(string const &       name,
+Expr variable_s(string const        &name,
                 long double          value,
                 csl::ComplexProperty prop)
 {
@@ -766,8 +777,8 @@ Expr variable_s(string const &       name,
     return csl::make_shared<Variable, alloc_variable>(parent);
 }
 
-Expr variable_s(string const &       name,
-                Expr const &         value,
+Expr variable_s(string const        &name,
+                Expr const          &value,
                 csl::ComplexProperty prop)
 {
     shared_ptr<VariableParent> parent

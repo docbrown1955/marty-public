@@ -44,16 +44,18 @@ Propagator::Propagator(csl::Expr const &impulsion,
         argument[0] = m_impulsion;
 }
 
-void Propagator::print(int mode, std::ostream &out, bool lib) const
+void Propagator::print(int              mode,
+                       std::ostream    &out,
+                       csl::LibraryMode libMode) const
 {
-    if (lib) {
+    if (libMode != csl::LibraryMode::NoLib) {
         csl::Expr counter = DeepCopy(argument[0]);
         for (auto &index : counter->getIndexStructure())
             Replace(counter, index, index.getFlipped());
         (1
          / (argument[0] * counter - argument[1] * argument[1]
             + CSL_I * argument[1] * argument[2]))
-            ->print(mode, out, lib);
+            ->print(mode, out, libMode);
         return;
     }
     out << "Prop(";
@@ -195,15 +197,17 @@ csl::Expr propagator_s(csl::Expr const &impulsion,
 /*************************************************/
 ///////////////////////////////////////////////////
 
-FermionPropStruct::FermionPropStruct(csl::Expr const & impulsion,
-                                     csl::Expr const & mass,
+FermionPropStruct::FermionPropStruct(csl::Expr const  &impulsion,
+                                     csl::Expr const  &mass,
                                      csl::Index const &alpha,
                                      csl::Index const &beta)
     : AbstractDuoFunc(impulsion, mass), structure({alpha, beta})
 {
 }
 
-void FermionPropStruct::print(int mode, std::ostream &out, bool) const
+void FermionPropStruct::print(int           mode,
+                              std::ostream &out,
+                              csl::LibraryMode) const
 {
     out << "Fermi(";
     argument[0]->print(1, out);
@@ -319,8 +323,8 @@ FermionPropStruct::replaceIndex(const csl::Index &indexToReplace,
     return std::nullopt;
 }
 
-csl::Expr fermionPropStruct_s(csl::Expr const & impulsion,
-                              csl::Expr const & mass,
+csl::Expr fermionPropStruct_s(csl::Expr const  &impulsion,
+                              csl::Expr const  &mass,
                               csl::Index const &alpha,
                               csl::Index const &beta)
 {

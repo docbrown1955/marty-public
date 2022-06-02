@@ -193,12 +193,12 @@ void Sum::insert(const Expr &expr, bool explicitSum)
     argument.push_back(expr);
 }
 
-void Sum::print(int mode, std::ostream &out, bool lib) const
+void Sum::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
     if (mode > 1) // Priority lesser than the previous operation: brackets
         out << "(";
     for (size_t i = 0; i < argument.size(); i++) {
-        argument[i]->print(1, out, lib);
+        argument[i]->print(1, out, libMode);
         if (i + 1 < size()) {
             if (argument[i + 1] == -CSL_1)
                 out << " ";
@@ -927,7 +927,7 @@ bool Sum::operator==(Expr_info expr) const
         bool matched = false;
         for (size_t j = 0; j != indicesLeft.size(); ++j) {
             map<Index, Index> constraints;
-            Expr const &      foo = expr->getArgument(indicesLeft[j]);
+            Expr const       &foo = expr->getArgument(indicesLeft[j]);
             if (*argument[i] == foo.get()) {
                 indicesLeft.erase(indicesLeft.begin() + j);
                 matched = true;
@@ -1148,7 +1148,7 @@ csl::vector_expr Prod::getFactors() const
 }
 
 void Prod::getExponents(std::vector<Expr> const &factors,
-                        std::vector<Expr> &      exponents) const
+                        std::vector<Expr>       &exponents) const
 {
     for (const auto &arg : argument)
         arg->getExponents(factors, exponents);
@@ -1378,7 +1378,7 @@ optional<Expr> Prod::findSubExpression(Expr_info   subExpression,
     return AbstractMultiFunc::findSubExpression(subExpression, newExpression);
 }
 
-void Prod::print(int mode, std::ostream &out, bool lib) const
+void Prod::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
     if (mode > 2) // Priority lesser than the previous operation: brackets
         out << "(";
@@ -1396,13 +1396,13 @@ void Prod::print(int mode, std::ostream &out, bool lib) const
         if (argument[numeratorIndices[0]] == -CSL_1)
             out << "-";
         else {
-            argument[numeratorIndices[0]]->print(2, out, lib);
+            argument[numeratorIndices[0]]->print(2, out, libMode);
             if (numeratorIndices.size() > 1)
                 out << "*";
         }
     }
     for (size_t i = 1; i < numeratorIndices.size(); i++) {
-        argument[numeratorIndices[i]]->print(2, out, lib);
+        argument[numeratorIndices[i]]->print(2, out, libMode);
         if (i < numeratorIndices.size() - 1)
             out << "*";
     }
@@ -1415,12 +1415,12 @@ void Prod::print(int mode, std::ostream &out, bool lib) const
         out << "/";
         if (denominatorIndices.size() == 1)
             argument[denominatorIndices[0]]->getArgument(0)->print(
-                3, out, lib);
+                3, out, libMode);
         else {
             out << "(";
             for (size_t i = 0; i < denominatorIndices.size(); i++) {
                 argument[denominatorIndices[i]]->getArgument(0)->print(
-                    2, out, lib);
+                    2, out, libMode);
                 if (i < denominatorIndices.size() - 1)
                     out << "*";
             }
@@ -2568,7 +2568,7 @@ bool Pow::isPurelyImaginary() const
 }
 
 void Pow::getExponents(std::vector<Expr> const &factors,
-                       std::vector<Expr> &      exponents) const
+                       std::vector<Expr>       &exponents) const
 {
     for (size_t i = 0; i != factors.size(); ++i)
         if (factors[i] == argument[0]) {
@@ -2638,26 +2638,32 @@ std::optional<Expr> Pow::suppressExponent(Expr const &factor,
                : std::nullopt;
 }
 
-void Pow::print(int mode, std::ostream &out, bool lib) const
+void Pow::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (lib and LibraryGenerator::isQuadruplePrecision()) {
-        if (argument[0]->isReal() && argument[1]->isReal())
+    if (libMode != LibraryMode::NoLib
+        and LibraryGenerator::isQuadruplePrecision()) {
+        if (isReal())
             out << "powq(";
         else
             out << "cpowq(";
-        argument[0]->print(1, out, lib);
+        argument[0]->print(1, out, libMode);
         out << ", ";
-        argument[1]->print(1, out, lib);
+        argument[1]->print(1, out, libMode);
         out << ")";
         if (mode == 0)
             out << endl;
         return;
     }
-    else if (lib) {
-        out << "std::pow(";
-        argument[0]->print(1, out, lib);
+    else if (libMode != LibraryMode::NoLib) {
+        if (libMode == LibraryMode::CppLib)
+            out << "std::pow(";
+        else if (isReal())
+            out << "pow(";
+        else
+            out << "cpow(";
+        argument[0]->print(1, out, libMode);
         out << ", ";
-        argument[1]->print(1, out, lib);
+        argument[1]->print(1, out, libMode);
         out << ")";
         if (mode == 0)
             out << endl;
@@ -2847,8 +2853,8 @@ bool Pow::mergeTerms()
     }
     else if (argument[0]->getType() == csl::Type::Prod) {
         // (a*b*...)^c = a^c*b^c*....
-        const auto &           arg      = argument[0];
-        const auto &           exponent = argument[1];
+        const auto            &arg      = argument[0];
+        const auto            &exponent = argument[1];
         std::vector<csl::Expr> out;
         std::vector<csl::Expr> in;
         out.reserve(arg->size());
@@ -3210,18 +3216,18 @@ IndexStructure Polynomial::getIndexStructure() const
     return IndexStructure();
 }
 
-void Polynomial::print(int mode, std::ostream &out, bool lib) const
+void Polynomial::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
     if (mode > 1) // Priority lesser than the previous operation: brackets
         out << "(";
     for (size_t i = 0; i < argument.size(); i++) {
         if (*argument[i] != CSL_0) {
             if (i == 0 or *argument[i] != CSL_1)
-                argument[i]->print(2, out, lib);
+                argument[i]->print(2, out, libMode);
             if (i > 0) {
                 if (*argument[i] != CSL_1)
                     out << "*";
-                variable->print(4, out, lib);
+                variable->print(4, out, libMode);
                 if (i > 1)
                     out << "^" << i;
             }
@@ -3625,7 +3631,7 @@ void Derivative::setOperand(const Expr &t_operand)
     argument[0] = t_operand;
 }
 
-void Derivative::print(int mode, std::ostream &out, bool) const
+void Derivative::print(int mode, std::ostream &out, LibraryMode) const
 {
     out << "d";
     if (order > 1)
@@ -3876,7 +3882,7 @@ void Integral::setOperand(const Expr &t_operand)
     argument[0] = t_operand;
 }
 
-void Integral::print(int mode, std::ostream &out, bool) const
+void Integral::print(int mode, std::ostream &out, LibraryMode) const
 {
     out << "int_s{";
     if (argument[1]->getDim() > 0)

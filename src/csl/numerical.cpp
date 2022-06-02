@@ -92,7 +92,7 @@ void Float::setValue(long double t_value)
     value = t_value;
 }
 
-void Float::print(int mode, std::ostream &out, bool) const
+void Float::print(int mode, std::ostream &out, LibraryMode) const
 {
     if (mode == 0)
         out << value << endl;
@@ -319,7 +319,7 @@ void Integer::setValue(long double t_value)
     value = round(t_value);
 }
 
-void Integer::print(int mode, std::ostream &out, bool) const
+void Integer::print(int mode, std::ostream &out, LibraryMode) const
 {
     if (mode == 0)
         out << value << endl;
@@ -559,21 +559,21 @@ long long int IntFraction::getDenom() const
     return denom;
 }
 
-void IntFraction::print(int mode, std::ostream &out, bool lib) const
+void IntFraction::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
     if (mode == 0) {
-        if (lib)
-            out << "Fraction: " << num << "./" << denom << endl;
+        if (libMode != LibraryMode::NoLib)
+            out << num << "./" << denom << endl;
         else
             out << "Fraction: " << num << "/" << denom << endl;
     }
     else if (mode > 3) {
-        if (lib)
+        if (libMode != LibraryMode::NoLib)
             out << "(" << num << "./" << denom << ")";
         else
             out << "(" << num << "/" << denom << ")";
     }
-    else if (lib)
+    else if (libMode != LibraryMode::NoLib)
         out << num << "./" << denom;
     else
         out << num << "/" << denom;
@@ -851,19 +851,26 @@ csl::Type Complex::getType() const
     return csl::Type::Complex;
 }
 
-void Complex::print(int mode, std::ostream &out, bool lib) const
+void Complex::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
     if (mode > 1 and imag != CSL_0)
         out << "(";
-    if (imag == CSL_0) {
-        real->print(1, out, lib);
+    if (libMode == LibraryMode::CLib) {
+        real->print(1, out, libMode);
+        out << " + _Complex_I*";
+        imag->print(1, out, libMode);
     }
     else {
-        out << LibraryGenerator::complexUsing << "{";
-        real->print(1, out, lib);
-        out << ", ";
-        imag->print(1, out, lib);
-        out << "}";
+        if (imag == CSL_0) {
+            real->print(1, out, libMode);
+        }
+        else {
+            out << LibraryGenerator::complexUsing << "{";
+            real->print(1, out, libMode);
+            out << ", ";
+            imag->print(1, out, libMode);
+            out << "}";
+        }
     }
     if (mode > 1 and imag != CSL_0)
         out << ")";

@@ -54,9 +54,9 @@ class Abs : public AbstractFunc {
         return csl::Type::Abs;
     }
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -141,9 +141,9 @@ class Exp : public AbstractFunc {
 
     std::optional<Expr> getComplexArgument() const override;
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -231,9 +231,9 @@ class Log : public AbstractFunc {
 
     std::optional<Expr> getComplexArgument() const override;
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -314,9 +314,9 @@ class Cos : public AbstractFunc {
 
     std::optional<Expr> getComplexArgument() const override;
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -399,9 +399,9 @@ class Sin : public AbstractFunc {
 
     std::optional<Expr> getComplexArgument() const override;
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -484,9 +484,9 @@ class Tan : public AbstractFunc {
 
     std::optional<Expr> getComplexArgument() const override;
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -569,9 +569,9 @@ class ACos : public AbstractFunc {
 
     std::optional<Expr> getComplexArgument() const override;
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -652,9 +652,9 @@ class ASin : public AbstractFunc {
 
     std::optional<Expr> getComplexArgument() const override;
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -727,9 +727,9 @@ class ATan : public AbstractFunc {
         return csl::Type::ATan;
     }
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -805,9 +805,9 @@ class Angle : public AbstractDuoFunc {
         return csl::Type::Angle;
     }
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -887,9 +887,9 @@ class Cosh : public AbstractFunc {
 
     std::optional<Expr> getComplexArgument() const override;
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -972,9 +972,9 @@ class Sinh : public AbstractFunc {
 
     std::optional<Expr> getComplexArgument() const override;
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -1057,9 +1057,9 @@ class Tanh : public AbstractFunc {
 
     std::optional<Expr> getComplexArgument() const override;
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -1134,9 +1134,9 @@ class ACosh : public AbstractFunc {
         return csl::Type::ACosh;
     }
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -1209,9 +1209,9 @@ class ASinh : public AbstractFunc {
         return csl::Type::ASinh;
     }
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -1284,9 +1284,9 @@ class ATanh : public AbstractFunc {
         return csl::Type::ATanh;
     }
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -1359,9 +1359,9 @@ class Factorial : public AbstractFunc {
         return csl::Type::Factorial;
     }
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -1445,9 +1445,9 @@ class DiracDelta : public AbstractFunc {
 
     std::optional<Expr> getComplexArgument() const override;
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 

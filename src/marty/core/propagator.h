@@ -38,9 +38,10 @@ class Propagator : public csl::AbstractMultiFunc {
                csl::Expr const &mass,
                csl::Expr const &width = CSL_0);
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int              mode = 0,
+               std::ostream    &out  = std::cout,
+               csl::LibraryMode libMode
+               = csl::LibraryMode::NoLib) const override;
 
     std::string printLaTeX(int mode = 0) const override;
 
@@ -77,14 +78,15 @@ class FermionPropStruct : public csl::AbstractDuoFunc {
   public:
     FermionPropStruct() = default;
 
-    FermionPropStruct(csl::Expr const & impulsion,
-                      csl::Expr const & mass,
+    FermionPropStruct(csl::Expr const  &impulsion,
+                      csl::Expr const  &mass,
                       csl::Index const &alpha,
                       csl::Index const &beta);
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int              mode = 0,
+               std::ostream    &out  = std::cout,
+               csl::LibraryMode libMode
+               = csl::LibraryMode::NoLib) const override;
 
     std::string printLaTeX(int mode = 0) const override;
 
@@ -121,8 +123,8 @@ class FermionPropStruct : public csl::AbstractDuoFunc {
 
 inline csl::allocator<FermionPropStruct> alloc_fermionprop;
 
-csl::Expr fermionPropStruct_s(csl::Expr const & impulsion,
-                              csl::Expr const & mass,
+csl::Expr fermionPropStruct_s(csl::Expr const  &impulsion,
+                              csl::Expr const  &mass,
                               csl::Index const &alpha,
                               csl::Index const &beta);
 

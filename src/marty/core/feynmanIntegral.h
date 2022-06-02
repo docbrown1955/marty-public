@@ -90,35 +90,35 @@ class FeynmanIntegral : public csl::AbstractMultiFunc {
 
     static csl::Expr replaceIntegral(csl::Expr const &expr);
 
-    static csl::Expr replaceIntegral(csl::Expr const &  argument,
+    static csl::Expr replaceIntegral(csl::Expr const   &argument,
                                      csl::Parent const &variable);
 
-    static csl::Expr applyQSquared(csl::Index const &             squaredIndex,
-                                   csl::Expr const &              argument,
-                                   csl::Parent const &            variable,
-                                   std::vector<csl::Expr> const & factor,
-                                   std::vector<csl::Expr> const & momentum,
-                                   std::vector<csl::Expr> const & mass,
+    static csl::Expr applyQSquared(csl::Index const              &squaredIndex,
+                                   csl::Expr const               &argument,
+                                   csl::Parent const             &variable,
+                                   std::vector<csl::Expr> const  &factor,
+                                   std::vector<csl::Expr> const  &momentum,
+                                   std::vector<csl::Expr> const  &mass,
                                    std::vector<csl::Index> const &indices,
-                                   csl::Expr const &              firstTerm);
+                                   csl::Expr const               &firstTerm);
 
     static void applyIndices(std::vector<csl::Expr> &momentum);
 
     static csl::Expr
-    applyIndicesToTensors(csl::Space const *             space,
-                          std::vector<csl::Expr> const & momentum,
+    applyIndicesToTensors(csl::Space const              *space,
+                          std::vector<csl::Expr> const  &momentum,
                           std::vector<csl::Index> const &indices,
                           std::vector<size_t>            tensorPos);
 
     static csl::Expr
     computeFinalIntegralDecomposition(IntegralType                   type,
-                                      std::vector<csl::Expr> const & momentum,
+                                      std::vector<csl::Expr> const  &momentum,
                                       std::vector<csl::Index> const &indices,
                                       std::vector<csl::Expr> const &arguments);
 
-    static csl::Expr replaceIntegral(std::vector<csl::Expr> const & factors,
-                                     std::vector<csl::Expr> const & momentums,
-                                     std::vector<csl::Expr> const & masses,
+    static csl::Expr replaceIntegral(std::vector<csl::Expr> const  &factors,
+                                     std::vector<csl::Expr> const  &momentums,
+                                     std::vector<csl::Expr> const  &masses,
                                      std::vector<csl::Index> const &indices);
 
     static csl::Expr replaceIntegral_A(std::vector<csl::Expr> const &factors,
@@ -155,7 +155,7 @@ class FeynmanIntegral : public csl::AbstractMultiFunc {
     FeynmanIntegral(IntegralType                  t_type,
                     int                           t_looptoolsId,
                     std::vector<csl::Expr> const &t_argument,
-                    std::vector<size_t> const &   t_indices);
+                    std::vector<size_t> const    &t_indices);
 
     ~FeynmanIntegral() override
     {
@@ -181,13 +181,14 @@ class FeynmanIntegral : public csl::AbstractMultiFunc {
         return false;
     }
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int              mode = 0,
+               std::ostream    &out  = std::cout,
+               csl::LibraryMode libMode
+               = csl::LibraryMode::NoLib) const override;
 
     std::string printLaTeX(int mode = 0) const override;
 
-    void printLib(int mode, std::ostream &out) const;
+    void printLib(int mode, csl::LibraryMode libMode, std::ostream &out) const;
 
     csl::LibDependency getLibDependency() const override;
 
@@ -217,7 +218,7 @@ class FeynmanIntegral : public csl::AbstractMultiFunc {
 
     void sortArgument();
 
-    static csl::Expr metricTerm(csl::Space const *             space,
+    static csl::Expr metricTerm(csl::Space const              *space,
                                 std::vector<csl::Index> const &indices);
 
     std::complex<double> evaluateIntegral() const;
@@ -237,7 +238,7 @@ csl::Expr feynmanintegral_s(IntegralType                  t_type,
 csl::Expr feynmanintegral_s(IntegralType                  t_type,
                             int                           t_looptoolsId,
                             std::vector<csl::Expr> const &t_argument,
-                            std::vector<size_t> const &   indices);
+                            std::vector<size_t> const    &indices);
 
 template <class IntegralID>
 csl::Expr feynmanintegral_s(IntegralType                  t_type,

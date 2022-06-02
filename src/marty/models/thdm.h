@@ -64,11 +64,11 @@ std::pair<csl::Expr, csl::Expr> Z2_coef(int charge);
 csl::Expr Z2_mass_coef(csl::Expr const &v1, csl::Expr const &v2, int charge);
 
 template <int type>
-class TwoHDM_Model : public mty::Model {
+class THDM_Model : public mty::Model {
 
   public:
-    TwoHDM_Model(bool initialize = true);
-    ~TwoHDM_Model() override;
+    THDM_Model(bool initialize = true);
+    ~THDM_Model() override;
 
     void init();
     void initContent();
@@ -81,8 +81,8 @@ class TwoHDM_Model : public mty::Model {
     void adjust();
 
     template <int t_type>
-    friend std::ostream &operator<<(std::ostream       &out,
-                                    TwoHDM_Model const &model);
+    friend std::ostream &operator<<(std::ostream     &out,
+                                    THDM_Model const &model);
 
   protected:
     // Higgs potential parameters
@@ -94,7 +94,7 @@ class TwoHDM_Model : public mty::Model {
 };
 
 template <int type>
-TwoHDM_Model<type>::TwoHDM_Model(bool initialize)
+THDM_Model<type>::THDM_Model(bool initialize)
     : mty::Model("models/files/2HDM.json")
 {
     if (initialize)
@@ -102,7 +102,7 @@ TwoHDM_Model<type>::TwoHDM_Model(bool initialize)
 }
 
 template <int type>
-void TwoHDM_Model<type>::init()
+void THDM_Model<type>::init()
 {
     initContent();
     gaugeSymmetryBreaking();
@@ -115,7 +115,7 @@ void TwoHDM_Model<type>::init()
 }
 
 template <int type>
-void TwoHDM_Model<type>::initContent()
+void THDM_Model<type>::initContent()
 {
     getParticle("G")->setDrawType(drawer::ParticleType::Gluon);
     m11     = csl::constant_s("m_11");
@@ -161,7 +161,7 @@ void TwoHDM_Model<type>::initContent()
 }
 
 template <int type>
-void TwoHDM_Model<type>::gaugeSymmetryBreaking()
+void THDM_Model<type>::gaugeSymmetryBreaking()
 {
     ///////////////////////////////////////////////////
     // Breaking gauge SU(2)_L symmetry, renaming
@@ -179,7 +179,7 @@ void TwoHDM_Model<type>::gaugeSymmetryBreaking()
 }
 
 template <int type>
-void TwoHDM_Model<type>::replaceWboson()
+void THDM_Model<type>::replaceWboson()
 {
     ///////////////////////////////////////////////////
     // Replacements to get SM particles W +-
@@ -219,7 +219,7 @@ void TwoHDM_Model<type>::replaceWboson()
 }
 
 template <int type>
-void TwoHDM_Model<type>::replaceHiggs()
+void THDM_Model<type>::replaceHiggs()
 {
     ///////////////////////////////////////////////////
     // Actual gauge (spontaneous) symmetry breaking
@@ -267,7 +267,7 @@ void TwoHDM_Model<type>::replaceHiggs()
 }
 
 template <int type>
-void TwoHDM_Model<type>::diagonalize2By2Matrices()
+void THDM_Model<type>::diagonalize2By2Matrices()
 {
     ///////////////////////////////////////////////////
     // Diagonalizing what can be
@@ -331,7 +331,7 @@ void TwoHDM_Model<type>::diagonalize2By2Matrices()
 }
 
 template <int type>
-void TwoHDM_Model<type>::replaceYukawas()
+void THDM_Model<type>::replaceYukawas()
 {
     ///////////////////////////////////////////////////
     // Taking care of yukawa couplings
@@ -416,7 +416,7 @@ void TwoHDM_Model<type>::replaceYukawas()
 }
 
 template <int type>
-void TwoHDM_Model<type>::flavorSymmetryBreaking()
+void THDM_Model<type>::flavorSymmetryBreaking()
 {
     ///////////////////////////////////////////////////
     // Finally breaking SM flavor symmetry
@@ -437,7 +437,7 @@ void TwoHDM_Model<type>::flavorSymmetryBreaking()
 }
 
 template <int type>
-void TwoHDM_Model<type>::adjust()
+void THDM_Model<type>::adjust()
 {
     Replaced(*this, getParticle("W")->getMass(), sm_input::M_W);
     getParticle("W")->setMass(sm_input::M_W);
@@ -469,12 +469,12 @@ void TwoHDM_Model<type>::adjust()
 }
 
 template <int type>
-TwoHDM_Model<type>::~TwoHDM_Model()
+THDM_Model<type>::~THDM_Model()
 {
 }
 
 template <int t_type>
-std::ostream &operator<<(std::ostream &out, TwoHDM_Model<t_type> const &model)
+std::ostream &operator<<(std::ostream &out, THDM_Model<t_type> const &model)
 {
     return out << *static_cast<Model const *>(&model);
 }
