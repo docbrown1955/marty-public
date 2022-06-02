@@ -38,10 +38,17 @@ class Propagator : public csl::AbstractMultiFunc {
                csl::Expr const &mass,
                csl::Expr const &width = CSL_0);
 
+<<<<<<< HEAD:src/marty/core/propagator.h
     void print(int              mode = 0,
                std::ostream    &out  = std::cout,
                csl::LibraryMode libMode
                = csl::LibraryMode::NoLib) const override;
+=======
+    void print(int              mode = 0,
+               std::ostream    &out  = std::cout,
+               csl::LibraryMode libMode
+               = csl::LibraryMode::NoLib) const override;
+>>>>>>> Extended MARTY objects for C code generation:marty/include/propagator.h
 
     std::string printLaTeX(int mode = 0) const override;
 
