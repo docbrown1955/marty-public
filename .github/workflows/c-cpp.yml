@@ -38,10 +38,6 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v3
-    - name: dependencies
-      run: |
-        brew install coreutils gcc@7 gsl qt5
-        brew install --cask qt-creator
     - name: configure
       run: source setup.sh .install
     - name: make
