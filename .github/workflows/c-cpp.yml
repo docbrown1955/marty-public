@@ -47,6 +47,11 @@ jobs:
     - name: make
       run: |
         source marty_env.sh
+        export PATH=$PATH:/usr/local/bin
+        export CPATH=$CPATH:/usr/local/include
+        export C_INCLUDE_PATH=$C_INCLUDE_PATH:/usr/local/include
+        export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:/usr/local/lib
+        export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/lib
         make
     - name: install
       run: make install
@@ -55,5 +60,10 @@ jobs:
     - name: run-tests
       run: |
         source marty_env.sh
+        export PATH=$PATH:/usr/local/bin
+        export CPATH=$CPATH:/usr/local/include
+        export C_INCLUDE_PATH=$C_INCLUDE_PATH:/usr/local/include
+        export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:/usr/local/lib
+        export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/lib
         cd test-suite
         ./launch_tests.sh
