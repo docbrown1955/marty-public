@@ -16,7 +16,9 @@ jobs:
     - name: configure
       run: source setup.sh .install
     - name: make
-      run: make
+      run: |
+        source marty_env.sh
+        make
     - name: install
       run: make install
     - name: download-tests
