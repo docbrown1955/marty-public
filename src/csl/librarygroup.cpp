@@ -387,7 +387,11 @@ namespace csl {
         else {
             out << getParamName() << " const &";
         }
+<<<<<<< HEAD:src/csl/librarygroup.cpp
         if (isCSource || !unusedParam)
+=======
+        if (!unusedParam)
+>>>>>>> Generation of C functions:csl/src/librarygroup.cpp
             out << "param";
     }
 

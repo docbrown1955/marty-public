@@ -198,7 +198,11 @@ namespace csl {
         }
         printCName(out);
         out << LibraryGenerator::indent(2);
+<<<<<<< HEAD:src/csl/libraryfunction.cpp
         group->printParameterDefinition(out, isTrivial(), true);
+=======
+        group->printParameterDefinition(out, csl::IsNumerical(expression), true);
+>>>>>>> Generation of C functions:csl/src/libraryfunction.cpp
         out << '\n' << LibraryGenerator::indent(2) << ")";
         if (header)
             out << ";\n";
@@ -305,8 +309,13 @@ namespace csl {
     void LibFunction::printCName(std::ostream& out) const
     {
         out << (group->hasComplexReturn() ?
+<<<<<<< HEAD:src/csl/libraryfunction.cpp
                 std::string("ccomplex_return_t")
                 :LibraryGenerator::crealUsing) << " c_" << name << "(\n";
+=======
+                LibraryGenerator::complexUsing 
+                :LibraryGenerator::realUsing) << " c_" << name << "(\n";
+>>>>>>> Generation of C functions:csl/src/libraryfunction.cpp
     }
 
     void LibFunction::printBody(std::ostream& out,
