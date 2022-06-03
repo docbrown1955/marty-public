@@ -310,12 +310,17 @@ namespace csl {
     {
         out << (group->hasComplexReturn() ?
 <<<<<<< HEAD:src/csl/libraryfunction.cpp
+<<<<<<< HEAD:src/csl/libraryfunction.cpp
                 std::string("ccomplex_return_t")
                 :LibraryGenerator::crealUsing) << " c_" << name << "(\n";
 =======
                 LibraryGenerator::complexUsing 
                 :LibraryGenerator::realUsing) << " c_" << name << "(\n";
 >>>>>>> Generation of C functions:csl/src/libraryfunction.cpp
+=======
+                LibraryGenerator::ccomplexUsing 
+                :LibraryGenerator::crealUsing) << " c_" << name << "(\n";
+>>>>>>> Resolved conflicts in looptools files:csl/src/libraryfunction.cpp
     }
 
     void LibFunction::printBody(std::ostream& out,
