@@ -361,12 +361,23 @@ bool isTensorName(std::string_view name)
     return false;
 }
 
+<<<<<<< HEAD:src/csl/libraryevaluator.cpp
 void LibEval::printExpression(std::ostream      &out,
                               Expr              &expression,
                               LibraryMode        libMode,
                               int                indent,
                               std::string const &beginning,
                               std::string const &end)
+=======
+void LibEval::printExpression(
+        std::ostream      &out,
+        Expr              &expression,
+        LibraryMode        libMode,
+        int                indent,
+        std::string const &beginning,
+        std::string const &end
+        )
+>>>>>>> Full C/C++ library generation:csl/src/libraryevaluator.cpp
 {
     csl::Transform(expression, [&](Expr &sub) {
         const auto name    = sub->getName();
@@ -383,10 +394,18 @@ void LibEval::printExpression(std::ostream      &out,
     std::array<char, 7> delimiters = {'+', '*', '-', '/', '(', ')', ' '};
     std::ostringstream  sout;
     sout.precision(LibraryGenerator::nDigits);
+<<<<<<< HEAD:src/csl/libraryevaluator.cpp
     Expr symb_i = (libMode == LibraryMode::CppLib) ? csl::constant_s("_i_")
                                                    : csl::constant_s("_Complex"
                                                                      "_I");
     csl::ForEachLeaf(expression, [&](Expr &el) {
+=======
+    Expr symb_i = (libMode == LibraryMode::CppLib) ?
+        csl::constant_s("_i_")
+        : csl::constant_s("_Complex_I");
+    csl::ForEachLeaf(expression, [&](Expr &el)
+    {
+>>>>>>> Full C/C++ library generation:csl/src/libraryevaluator.cpp
         if (el == CSL_I)
             el = symb_i;
     });
@@ -414,9 +433,15 @@ void LibEval::printExpression(std::ostream      &out,
     if (base < str.size())
         lines.push_back(std::string(str.begin() + base, str.end()));
     for (size_t i = 0; i != lines.size(); ++i) {
+<<<<<<< HEAD:src/csl/libraryevaluator.cpp
         out << LibraryGenerator::indent(indent)
             << ((i == 0) ? beginning : "  ") << lines[i]
             << ((i == lines.size() - 1) ? (end + ";") : std::string{}) << "\n";
+=======
+        out << LibraryGenerator::indent(indent) << ((i == 0) ? beginning : "  ") 
+            << lines[i] << ((i == lines.size()-1) ? (end + ";") : std::string{}) 
+            << "\n";
+>>>>>>> Full C/C++ library generation:csl/src/libraryevaluator.cpp
     }
 }
 
@@ -1047,12 +1072,18 @@ void LibEvalSession::printCLib(Expr         &init,
         eval.printLib(out, LibraryMode::CLib);
     }
     if (not onlyDep)
+<<<<<<< HEAD:src/csl/libraryevaluator.cpp
         LibEval::printExpression(out,
                                  init,
                                  LibraryMode::CLib,
                                  1,
                                  "return create_ccomplex_return(",
                                  ")");
+=======
+        LibEval::printExpression(out, init, LibraryMode::CLib, 1, 
+                "return create_ccomplex_return(",
+                ")");
+>>>>>>> Full C/C++ library generation:csl/src/libraryevaluator.cpp
 }
 
 void LibEvalSession::printLib(Expr         &init,
