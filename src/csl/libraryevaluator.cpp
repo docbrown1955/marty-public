@@ -291,6 +291,7 @@ void LibEval::printLib(std::ostream &out,
 {
     std::string type;
     if (libMode == LibraryMode::CppLib)
+<<<<<<< HEAD:src/csl/libraryevaluator.cpp
         type = (expr->isReal()) ? LibraryGenerator::realUsing
                                 : LibraryGenerator::complexUsing;
     else
@@ -302,6 +303,18 @@ void LibEval::printLib(std::ostream &out,
                         libMode,
                         indent,
                         "const " + type + " " + toString(expr) + " = ");
+=======
+        type = (expr->isReal()) ?  LibraryGenerator::realUsing : LibraryGenerator::complexUsing;
+    else
+        type = (expr->isReal()) ?  LibraryGenerator::crealUsing : LibraryGenerator::ccomplexUsing;
+    if (indices.size() == 0 and not init->isIndexed()) {
+        printExpression(
+                out,
+                init,
+                libMode,
+                indent,
+                "const " + type + " " + toString(expr) + " = ");
+>>>>>>> Full C libraries working:csl/src/libraryevaluator.cpp
         return;
     }
 
@@ -311,8 +324,12 @@ void LibEval::printLib(std::ostream &out,
                         + " not recognized in "
                           "library printing of indicial expression.");
 
+<<<<<<< HEAD:src/csl/libraryevaluator.cpp
     out << LibraryGenerator::indent(indent) << type << ' ' << expr
         << " = 0;\n";
+=======
+    out << LibraryGenerator::indent(indent) << type << ' ' << expr << " = 0;\n";
+>>>>>>> Full C libraries working:csl/src/libraryevaluator.cpp
     replaceTensors();
     std::vector<std::string> indexNames(indices.size());
     for (size_t i = 0; i != indexNames.size(); ++i) {
