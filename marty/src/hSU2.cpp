@@ -183,8 +183,8 @@ void hSU2_Model::initQuarks(){
     Particle Psi_uR = weylfermion_s("\\Psi_{uR}",*this, Chirality::Right);
     Particle Psi_dL = weylfermion_s("\\Psi_{dL}",*this, Chirality::Left);
     Particle Psi_dR = weylfermion_s("\\Psi_{dR}",*this, Chirality::Right);
-    Particle phi_1 = scalarboson_s("\\phi_1",*this);
-    Particle phi_2 = scalarboson_s("\\phi_2",*this);
+    Particle X = scalarboson_s("X",*this);
+    Particle Y = scalarboson_s("Y",*this);
 
     Psi_uL->setGroupRep("C",{1,0});
     Psi_uL->setGroupRep("L",0);
@@ -206,20 +206,20 @@ void hSU2_Model::initQuarks(){
     Psi_dR->setGroupRep("Y",{-1,3});
     Psi_dR->setGroupRep("X",1);
 
-    phi_1->setGroupRep("L",0);
-    phi_1->setGroupRep("Y",0);
-    phi_1->setGroupRep("X",1); // Should be X_i
+    X->setGroupRep("L",0);
+    X->setGroupRep("Y",0);
+    X->setGroupRep("X",1); // Should be X_i
 
-    phi_2->setGroupRep("L",0);
-    phi_2->setGroupRep("Y",0);
-    phi_2->setGroupRep("X",2); // Y_ij in the adjoint representation. 
+    Y->setGroupRep("L",0);
+    Y->setGroupRep("Y",0);
+    Y->setGroupRep("X",2); // Y_ij in the adjoint representation. 
 
     addParticle(Psi_uL);
     addParticle(Psi_uR);
     addParticle(Psi_dL);
     addParticle(Psi_dR);
-    addParticle(phi_1);
-    addParticle(phi_2);
+    addParticle(X);
+    addParticle(Y);
 
 }
 
@@ -241,7 +241,7 @@ void hSU2_Model::initInteractions(){
     Particle Q_L = GetParticle(*this, "Q_L");
     Particle Psi_uR = GetParticle(*this, "\\Psi_{uR}");
     Particle Psi_uL = GetParticle(*this, "\\Psi_{uL}");
-    Particle phi_2 = GetParticle(*this, "\\phi_2");
+    Particle Y = GetParticle(*this, "Y");
     Particle q_L_0 = GetParticle(*this, "q_{L0}");
     Particle u_R_0 = GetParticle(*this, "u_{R0}");
     // Indices 
@@ -273,12 +273,12 @@ void hSU2_Model::initInteractions(){
         true); // Add also the complex conjugate of this term
 
     std::vector<csl::Index> ii = generateIndices(2, "X", Psi_uL);
-    csl::Index A = generateIndex("X", phi_2);  
+    csl::Index A = generateIndex("X", Y);  
     csl::Tensor half_sigma = getGenerator("X", Psi_uL); // SU(2)_X generators
     csl::Expr term = 
       lambda_u 
       * GetComplexConjugate(Psi_uL({a,ii[0],al})) 
-      * phi_2(A)
+      * Y(A)
       * half_sigma({A, ii[0], ii[1]}) 
       * Psi_uR({a,ii[1],al});
     addLagrangianTerm(term, true);
@@ -287,8 +287,8 @@ void hSU2_Model::initInteractions(){
        tilde_lambda_u
        * GetComplexConjugate(Psi_uL({a,ii[0],al})) 
        * eps({i[0],i[1]})
-       * phi_2(A)
-       * eps({i[0],i[1]})
+       * Y(A)
+       * eps({i[0],i[1]}) // = CSL_I * Sigma(2)
        * half_sigma({A,ii[0],ii[1]})
        * Psi_uR({a,ii[1],al})
        ,true );
@@ -301,6 +301,7 @@ void hSU2_Model::initInteractions(){
       * GetComplexConjugate(H(i[1]))
       * u_R_0({a,al})
       ,true);
+
 
 }
 void hSU2_Model::gatherhSU2Inputs(){
