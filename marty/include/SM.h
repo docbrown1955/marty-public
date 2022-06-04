@@ -36,8 +36,8 @@ namespace mty {
     class SM_Model: public mty::Model {
 
     public:
-        SM_Model(int null = 1);
-        SM_Model(bool init = true);
+        SM_Model();
+        SM_Model(bool init);
 
         void init();
 

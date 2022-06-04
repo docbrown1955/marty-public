@@ -26,7 +26,7 @@ using namespace csl;
 
 namespace mty {
 
-  SM_Model::SM_Model(int null)
+  SM_Model::SM_Model()
     :mty::Model()
   { /* Amine special*/
     //:mty::Model("models/files/hSU2.json")

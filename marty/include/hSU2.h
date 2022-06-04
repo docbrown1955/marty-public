@@ -15,9 +15,9 @@ namespace mty{
   class hSU2_Model: public mty::SM_Model{
    
     public:
+       hSU2_Model(); // default constructor
       hSU2_Model(
-          int init = 1,
-          std::string const &saveFile = "saveFile.out"
+          std::string const &saveFile 
           );
 
       ~hSU2_Model();

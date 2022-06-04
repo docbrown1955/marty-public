@@ -13,53 +13,52 @@ using namespace mty;
 using namespace csl;
 
 namespace mty{
-  
+ 
+   hSU2_Model::hSU2_Model(): mty::SM_Model() {}
   hSU2_Model::hSU2_Model
     (
-      int init,
-      std::string const &t_saveFile
-     )
-    :mty::SM_Model(init), // inherits all SM methods for EWSSB
-    saveFile(t_saveFile)
-    {
-     if (init) {
-      std::ofstream save;
-      if (!saveFile.empty())
-          save.open(saveFile);
-      std::cout << "Initializing gauge and particle content ..." 
-          << std::endl;
-      initContent();
-      std::cout << "Initializing interactions ..." << std::endl;
-      initInteractions();
-      if (save) {
-          save << "****************************" << std::endl;
-          save << "**   Initial Lagrangian   **" << std::endl;
-          save << "****************************" << std::endl;
-          save << *this << "\n\n";
-      }
-      std::cout << "Gathering Model inputs ..." << std::endl;
-//      gatherhSU2Inputs();
-      std::cout << "Getting to low energy Lagrangian ..." << std::endl;
-      horizontalSymmetryBreaking();
-      getToLowEnergyLagrangian();
-      if (save) {
-          save << "****************************" << std::endl;
-          save << "**    Final Lagrangian    **" << std::endl;
-          save << "****************************" << std::endl;
-          save << *this << "\n\n";
-      }
-      std::cout << "Checking Hermiticity ..." << std::endl;
-      checkHermiticity();
-      refresh();
-      getFeynmanRules();
-      if (save) {
-          std::ostream &out = save;
-          mty::Display(ComputeFeynmanRules(*this), out);
-          mty::DisplayAbbreviations(out);
-      }
-      if (save)
-          save.close();
+       std::string const &t_saveFile
+     ):
+      mty::SM_Model(), // inherits all SM methods for EWSSB
+      saveFile(t_saveFile)
+  {
+    std::ofstream save;
+    if (!saveFile.empty())
+      save.open(saveFile);
+    std::cout << "Initializing gauge and particle content ..." 
+      << std::endl;
+    initContent();
+    std::cout << "Initializing interactions ..." << std::endl;
+    initInteractions();
+    if (save) {
+      save << "****************************" << std::endl;
+      save << "**   Initial Lagrangian   **" << std::endl;
+      save << "****************************" << std::endl;
+      save << *this << "\n\n";
     }
+    std::cout << "Gathering Model inputs ..." << std::endl;
+    //      gatherhSU2Inputs();
+    std::cout << "Getting to low energy Lagrangian ..." << std::endl;
+    horizontalSymmetryBreaking();
+    getToLowEnergyLagrangian();
+    if (save) {
+      save << "****************************" << std::endl;
+      save << "**    Final Lagrangian    **" << std::endl;
+      save << "****************************" << std::endl;
+      save << *this << "\n\n";
+    }
+    std::cout << "Checking Hermiticity ..." << std::endl;
+    checkHermiticity();
+    refresh();
+    getFeynmanRules();
+    if (save) {
+      std::ostream &out = save;
+      mty::Display(ComputeFeynmanRules(*this), out);
+      mty::DisplayAbbreviations(out);
+    }
+    if (save)
+      save.close();
+
   } // End of base constructor for hSU2 class 
 
 void hSU2_Model::initContent(){
@@ -114,7 +113,6 @@ void hSU2_Model::initLeptons(){
 
     Particle Psi_lL = weylfermion_s("\\Psi_{lL}", *this, Chirality::Left);
     Particle Psi_lR = weylfermion_s("\\Psi_{lR}", *this, Chirality::Right);
-
     L_L->setGroupRep("L",1);
     L_L->setGroupRep("Y",{-1,2});
     L_L->setGroupRep("X",1);
@@ -234,6 +232,8 @@ void hSU2_Model::initHiggs(){
 }
 void hSU2_Model::initInteractions(){
   //Complete the Lagrangian with Yukawa interactions.   
+  std::cout << "Building Yukawa interactions" << std::endl;
+  // Yukawa interaction Q_L * H * Psi_uR
     std::cout << "Building Yukawa interactions" << std::endl;
     // Yukawa interaction Q_L * H * Psi_uR
     //get particles → need to add them as attributes.
