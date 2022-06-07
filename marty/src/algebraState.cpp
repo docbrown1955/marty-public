@@ -48,7 +48,7 @@ int AlgebraState::eigenValue(const vector<int>&      root,
             +" AlgebraState::eigenValue()");
 
     int eigenValue = 0;
-    for (size_t i=0; i!=size(); ++i)
+    for (std::size_t i=0; i!=size(); ++i)
         eigenValue += root[i]*(*this)[i]*normRoots[i];
 
     return eigenValue/normLambda;

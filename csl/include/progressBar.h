@@ -38,12 +38,12 @@ class ProgressBar {
     static inline char offCharacter    = '.';
     static inline char leftSide        = '[';
     static inline char rightSide       = ']';
-    static inline const size_t      defaultSizeBar  = 30;
+    static inline const std::size_t      defaultSizeBar  = 30;
     static inline const std::string defaultMessage  = "Progress : ";
 
-    ProgressBar(size_t             t_max,
+    ProgressBar(std::size_t             t_max,
                 std::string const& t_message = defaultMessage,
-                size_t             t_sizeBar = defaultSizeBar,
+                std::size_t             t_sizeBar = defaultSizeBar,
                 std::ostream     & t_out     = std::cout)
         :message(t_message),
         out(t_out),
@@ -65,26 +65,26 @@ class ProgressBar {
         monitor.reset();
     }
 
-    void reset(size_t t_max)
+    void reset(std::size_t t_max)
     {
         max = t_max;
         monitor.reset();
     }
 
-    void reset(size_t t_max, std::string const &t_message)
+    void reset(std::size_t t_max, std::string const &t_message)
     {
         max = t_max;
         message = t_message;
         monitor.reset();
     }
 
-    void progress(size_t pos) const 
+    void progress(std::size_t pos) const 
     {
         enableCursor(false);
-        size_t n = nChar(pos);
+        std::size_t n = nChar(pos);
         out << message << " ";
         out << leftSide;
-        for (size_t i = 0; i != sizeBar; ++i)
+        for (std::size_t i = 0; i != sizeBar; ++i)
             if (i < n) 
                 out << ((i+1 == n) ? lastOnCharacter : onCharacter);
             else
@@ -107,12 +107,12 @@ class ProgressBar {
 
     protected:
 
-    size_t nChar(size_t pos) const 
+    std::size_t nChar(std::size_t pos) const 
     {
         return (pos+1) * sizeBar / max;
     }
 
-    size_t percentage(size_t pos) const 
+    std::size_t percentage(std::size_t pos) const 
     {
         return (pos+1) * 100 / max;
     }
@@ -127,8 +127,8 @@ class ProgressBar {
 
     std::string   message;
     std::ostream &out;
-    size_t        max;
-    size_t        sizeBar;
+    std::size_t        max;
+    std::size_t        sizeBar;
     bool          timeMonitoring;
     mutable TimeMonitor monitor;
 };

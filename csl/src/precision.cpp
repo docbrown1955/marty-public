@@ -28,7 +28,7 @@ namespace csl {
 /*************************************************/
 ///////////////////////////////////////////////////
 
-size_t PRECISION      = 100;
+std::size_t PRECISION      = 100;
 
 bool WARN_OVERFLOW = false;
 

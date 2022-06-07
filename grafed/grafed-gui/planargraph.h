@@ -209,9 +209,9 @@ class Graph {
     Graph();
 
     explicit
-    Graph(size_t N);
+    Graph(std::size_t N);
 
-    Graph(size_t N,
+    Graph(std::size_t N,
           std::vector<std::pair<int, int>> const& init);
 
     Graph(Graph const& other) = default;
@@ -225,11 +225,11 @@ class Graph {
 
     void clear();
 
-    size_t size() const {
+    std::size_t size() const {
         return nodes.size();
     }
 
-    double& getPosition(size_t pos) {
+    double& getPosition(std::size_t pos) {
         if (pos / 2 > nodes.size()) {
             std::cerr << nodes.size() << ", " << pos << std::endl;
             std::cerr << "IndexError.\n";
@@ -238,7 +238,7 @@ class Graph {
         return (pos % 2 == 0) ? nodes[pos / 2].x : nodes[pos / 2].y;
     }
 
-    double getPosition(size_t pos) const {
+    double getPosition(std::size_t pos) const {
         if (pos / 2 > nodes.size()) {
             std::cerr << nodes.size() << ", " << pos << std::endl;
             std::cerr << "IndexError.\n";
@@ -258,7 +258,7 @@ class Graph {
     bool isSame(drawer::Graph const& other) const;
 
     bool isSame(drawer::Graph const& other,
-                std::map<size_t, size_t>& mapping) const;
+                std::map<std::size_t, std::size_t>& mapping) const;
 
     void addEdge(int left, int right);
 
@@ -307,7 +307,7 @@ class Graph {
 
     void addNode(double x, double y);
 
-    void deleteNode(size_t i);
+    void deleteNode(std::size_t i);
 
     friend 
     std::ostream& operator<<(std::ostream& out,
@@ -317,7 +317,7 @@ class Graph {
 
     gsl_vector* allocGslVector();
 
-    size_t getNVar();
+    std::size_t getNVar();
 
     void fillGslVector(gsl_vector* x);
 
@@ -325,7 +325,7 @@ class Graph {
 
     void initExternalDistance();
 
-    static void initPoint(Point& p, size_t N);
+    static void initPoint(Point& p, std::size_t N);
 
     void gatherExternalNodes();
 
@@ -335,7 +335,7 @@ class Graph {
 
     private:
 
-    size_t nInsertions;
+    std::size_t nInsertions;
 
     std::vector<Point> nodes;
 

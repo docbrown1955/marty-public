@@ -231,7 +231,7 @@ class Space{
     Tensor getEpsilon() const;
 
     Expr applyMetricOnTensor(Expr const&  tensor,
-                             size_t       axis,
+                             std::size_t       axis,
                              bool         covariant) const;
 
     /*!
@@ -254,9 +254,9 @@ class Space{
      */
     inline Index generateIndex() const;
 
-    inline std::vector<Index> generateIndices(size_t N) const;
+    inline std::vector<Index> generateIndices(std::size_t N) const;
     inline std::vector<Index> generateIndices(
-            size_t             N,
+            std::size_t             N,
             const std::string& name
             ) const;
 
@@ -351,7 +351,7 @@ void Space::refreshIndexName(Index& index) const
 
 Index::ID_type Space::getID(std::string_view t_name) const 
 {
-    for (size_t i = 0; i != availableIndices.size(); ++i)
+    for (std::size_t i = 0; i != availableIndices.size(); ++i)
         if (availableIndices[i].first == t_name) {
             return ++availableIndices[i].second;
         }
@@ -382,22 +382,22 @@ Index Space::generateIndex() const {
     return generateIndex(getNextIndexName());
 }
 
-std::vector<Index> Space::generateIndices(size_t N) const
+std::vector<Index> Space::generateIndices(std::size_t N) const
 {
     std::vector<Index> indices(N);
-    for (size_t i = 0; i != N; ++i) 
+    for (std::size_t i = 0; i != N; ++i) 
         indices[i] = generateIndex();
 
     return indices;
 }
 
 std::vector<Index> Space::generateIndices(
-        size_t N,
+        std::size_t N,
         const std::string& name
         ) const
 {
     std::vector<Index> indices(N);
-    for (size_t i = 0; i != N; ++i) 
+    for (std::size_t i = 0; i != N; ++i) 
         indices[i] = generateIndex(name);
 
     return indices;

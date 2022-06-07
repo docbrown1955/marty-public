@@ -75,7 +75,7 @@ class Functional {
     template<class ...Arg1>
     struct Replacer {
 
-    template<size_t i, class ...Arg2>
+    template<std::size_t i, class ...Arg2>
     Expr replace(
             Expr                & init,
             std::tuple<Arg1...> & oldArg,

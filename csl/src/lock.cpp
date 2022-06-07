@@ -114,7 +114,7 @@ bool Lock::doLock(
     else {
         bool locked = true;
         if (!init->isAnOperator()) {
-            for (size_t i = 0; i != csl::Size(init); ++i)
+            for (std::size_t i = 0; i != csl::Size(init); ++i)
                 if (!doLock(init[i], id, f)) {
                     locked = false;
                     break;
@@ -124,7 +124,7 @@ bool Lock::doLock(
             auto newCondition = [&](Expr const &sub) {
                   return f(sub) or init->operatorAppliesOn(sub.get());
             };
-            for (size_t i = 0; i != csl::Size(init); ++i)
+            for (std::size_t i = 0; i != csl::Size(init); ++i)
                 if (!doLock(init[i], id, newCondition)) {
                     locked = false;
                     break;

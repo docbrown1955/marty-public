@@ -17,21 +17,21 @@
 
 namespace mty {
 
-TraceIdentity::TraceIdentity(std::vector<size_t> const &t_tensorSize)
+TraceIdentity::TraceIdentity(std::vector<std::size_t> const &t_tensorSize)
     :tensorSize(t_tensorSize)
 {
     n = 0;
-    for (size_t ni : tensorSize)
+    for (std::size_t ni : tensorSize)
         n += ni;
 
-    std::vector<size_t> indices(n);
-    for (size_t i = 0; i != n; ++i)
+    std::vector<std::size_t> indices(n);
+    for (std::size_t i = 0; i != n; ++i)
         indices[i] = i;
 
     auto oldTerms = terms;
     oldTerms.push_back({});
     oldTerms[0].reserve(tensorSize.size());
-    for (size_t size : tensorSize)
+    for (std::size_t size : tensorSize)
         oldTerms[0].push_back(Tensor(size));
     while (!oldTerms.empty()) {
         std::vector<std::vector<Tensor>> newTerms;
@@ -58,13 +58,13 @@ std::vector<std::vector<TraceIdentity::Tensor>> TraceIdentity::step(
 {
     if (isFull(term))
         return {};
-    std::vector<size_t> explored;
-    size_t nVacant = 0;
-    size_t iLast = totalIndices(term);
+    std::vector<std::size_t> explored;
+    std::size_t nVacant = 0;
+    std::size_t iLast = totalIndices(term);
     std::vector<std::vector<TraceIdentity::Tensor>> res;
     res.reserve(term.size());
     explored.reserve(term.size());
-    for (size_t i = 0; i != term.size(); ++i) {
+    for (std::size_t i = 0; i != term.size(); ++i) {
         Tensor const &tensor = term[i];
         if (isFull(tensor))
             continue;
@@ -94,10 +94,10 @@ std::vector<std::vector<TraceIdentity::Tensor>> TraceIdentity::step(
     return res;
 }
 
-size_t TraceIdentity::totalIndices(
+std::size_t TraceIdentity::totalIndices(
         std::vector<Tensor> const &term) const
 {
-    size_t ni = 0;
+    std::size_t ni = 0;
     for (const auto &tensor : term)
         ni += tensor.size();
     return ni;
@@ -156,11 +156,11 @@ std::ostream &operator<<(
     out << "Trace identity of " << identity.n << " indices.\n";
     out << "Factor = " << identity.factor << "\n";
     out << identity.terms.size() << " different terms: \n";
-    size_t n = 0;
+    std::size_t n = 0;
     for (const auto &term : identity.terms) {
         out << "(" << n++ << ")" << " : ";
-        for (size_t i = 0; i != term.size(); ++i) {
-            for (size_t j = 0; j != term[i].size(); ++j) {
+        for (std::size_t i = 0; i != term.size(); ++i) {
+            for (std::size_t j = 0; j != term[i].size(); ++j) {
                 out << term[i][j];
                 if (j != term[i].size() - 1)
                     out << "'";
@@ -179,7 +179,7 @@ std::ostream &operator<<(
         std::vector<PartitionPair> const &partition
         )
 {
-    size_t n = 0;
+    std::size_t n = 0;
     for (const auto &p : partition)
         n += p.ni * p.mi;
     out << "Partition of " << n << " : ";
@@ -188,7 +188,7 @@ std::ostream &operator<<(
     return out;
 }
 
-std::vector<std::vector<PartitionPair>> evenPartition(size_t n)
+std::vector<std::vector<PartitionPair>> evenPartition(std::size_t n)
 {
     HEPAssert(n % 2 == 0,
             mty::error::ValueError,
@@ -201,8 +201,8 @@ std::vector<std::vector<PartitionPair>> evenPartition(size_t n)
         return {{{2, 2}}, {{4, 1}}};
 
     std::vector<std::vector<PartitionPair>> partition;
-    for (size_t ni = 2; ni <= n; ni += 2)
-        for (size_t mi = 1; ni*mi <= n; ++mi) {
+    for (std::size_t ni = 2; ni <= n; ni += 2)
+        for (std::size_t mi = 1; ni*mi <= n; ++mi) {
             if (ni*mi == n) {
                 partition.push_back({{ni, mi}});
                 break;
@@ -226,7 +226,7 @@ std::vector<std::vector<PartitionPair>> evenPartition(size_t n)
 
 std::vector<TraceIdentity> traceIdentity(
         algebra::Type type,
-        size_t n
+        std::size_t n
         )
 {
     switch(type) {
@@ -244,8 +244,8 @@ std::vector<TraceIdentity> traceIdentity(
 }
 std::vector<TraceIdentity> traceIdentity(
         algebra::Type type,
-        size_t l,
-        size_t n
+        std::size_t l,
+        std::size_t n
         )
 {
     switch(type) {
@@ -266,8 +266,8 @@ std::vector<TraceIdentity> traceIdentity(
 }
 
 std::vector<TraceIdentity> ATraceIdentity(
-        size_t l,
-        size_t n
+        std::size_t l,
+        std::size_t n
         )
 {
     if (n % 2 == 1)
@@ -282,13 +282,13 @@ std::vector<TraceIdentity> ATraceIdentity(
     std::vector<TraceIdentity> traces;
     traces.reserve(partitions.size());
     for (const auto &partition : partitions) {
-        std::vector<size_t> tensorSizes;
+        std::vector<std::size_t> tensorSizes;
         tensorSizes.reserve(n / 2); // Max number of tensors
         csl::Expr factor = n;
         for (const auto &[ni, mi] : partition) {
             factor *= std::pow(-1, mi) 
                 / (csl::pow_s(ni, mi) * csl::factorial(mi));
-            for (size_t i = 0; i != mi; ++i)
+            for (std::size_t i = 0; i != mi; ++i)
                 tensorSizes.push_back(ni);
         }
         traces.push_back(TraceIdentity(tensorSizes));
@@ -298,8 +298,8 @@ std::vector<TraceIdentity> ATraceIdentity(
     return traces;
 }
 std::vector<TraceIdentity> BTraceIdentity(
-        size_t l,
-        size_t n
+        std::size_t l,
+        std::size_t n
         )
 {
     HEPAssert(n > 2*l + 1,
@@ -310,8 +310,8 @@ std::vector<TraceIdentity> BTraceIdentity(
     return ATraceIdentity(l, n);
 }
 std::vector<TraceIdentity> CTraceIdentity(
-        size_t l,
-        size_t n
+        std::size_t l,
+        std::size_t n
         )
 {
     HEPAssert(n >= 2*l,
@@ -325,8 +325,8 @@ std::vector<TraceIdentity> CTraceIdentity(
     return ATraceIdentity(l, n);
 }
 std::vector<TraceIdentity> DTraceIdentity(
-        size_t l,
-        size_t n
+        std::size_t l,
+        std::size_t n
         )
 {
     HEPAssert(n > 2*l,
@@ -337,7 +337,7 @@ std::vector<TraceIdentity> DTraceIdentity(
     return ATraceIdentity(l, n);
 }
 
-std::vector<TraceIdentity> E6TraceIdentity(size_t n)
+std::vector<TraceIdentity> E6TraceIdentity(std::size_t n)
 {
     std::vector<TraceIdentity> T;
     switch(n) {
@@ -375,7 +375,7 @@ std::vector<TraceIdentity> E6TraceIdentity(size_t n)
             return {};
     }
 }
-std::vector<TraceIdentity> E7TraceIdentity(size_t n)
+std::vector<TraceIdentity> E7TraceIdentity(std::size_t n)
 {
     std::vector<TraceIdentity> T;
     switch(n) {
@@ -388,7 +388,7 @@ std::vector<TraceIdentity> E7TraceIdentity(size_t n)
             return {};
     }
 }
-std::vector<TraceIdentity> E8TraceIdentity(size_t n)
+std::vector<TraceIdentity> E8TraceIdentity(std::size_t n)
 {
     std::vector<TraceIdentity> T;
     switch(n) {
@@ -413,7 +413,7 @@ std::vector<TraceIdentity> E8TraceIdentity(size_t n)
             return {};
     }
 }
-std::vector<TraceIdentity> F4TraceIdentity(size_t n)
+std::vector<TraceIdentity> F4TraceIdentity(std::size_t n)
 {
     std::vector<TraceIdentity> T;
     switch(n) {
@@ -435,7 +435,7 @@ std::vector<TraceIdentity> F4TraceIdentity(size_t n)
             return {};
     }
 }
-std::vector<TraceIdentity> G2TraceIdentity(size_t n)
+std::vector<TraceIdentity> G2TraceIdentity(std::size_t n)
 {
     std::vector<TraceIdentity> T;
     if (n == 4) {

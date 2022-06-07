@@ -55,7 +55,7 @@ namespace mty {
 
         template<class ...Args>
         static Amplitude getAmplitude(
-                std::vector<std::vector<size_t>> const &terms,
+                std::vector<std::vector<std::size_t>> const &terms,
                 Args &&...args
                 )
         {
@@ -64,38 +64,38 @@ namespace mty {
         }
 
         Amplitude getAmplitude(
-                std::vector<std::vector<size_t>> const &terms
+                std::vector<std::vector<std::size_t>> const &terms
                 );
 
         void initMomentumVertices(
                 std::vector<FeynmanRule>       &localRules,
-                std::map<csl::Tensor, size_t>  &vertexIds,
+                std::map<csl::Tensor, std::size_t>  &vertexIds,
                 std::vector<csl::Tensor> const &vertices,
                 std::vector<csl::Tensor>       &witnessVertices,
                 csl::PseudoIntegral            &integral,
                 std::vector<csl::Expr>         &fieldVertices
                 );
 
-        std::vector<std::vector<size_t>> getExternalSymmetries(
+        std::vector<std::vector<std::size_t>> getExternalSymmetries(
             csl::Expr &fieldProd
             ) const;
 
         std::vector<csl::Expr> applyExternalSymmetries(
                 csl::Expr    const& res,
-                std::vector<size_t> perm
+                std::vector<std::size_t> perm
                 ) const;
 
         std::vector<csl::Expr> applyAllExternalSymmetries(
                 std::vector<csl::Expr>              const& init,
-                std::vector<std::vector<size_t>>::iterator first,
-                std::vector<std::vector<size_t>>::iterator last
+                std::vector<std::vector<std::size_t>>::iterator first,
+                std::vector<std::vector<std::size_t>>::iterator last
                 ) const;
 
         void simplifyFullQuantumCalculation(
                 mty::FeynmanDiagram            &diagram,
                 csl::PseudoIntegral      const &integral,
-                std::vector<size_t>      const &posTerms,
-                std::vector<std::vector<size_t>> &externalSym
+                std::vector<std::size_t>      const &posTerms,
+                std::vector<std::vector<std::size_t>> &externalSym
                 );
 
         void simplifyRuledCalculation(
@@ -115,7 +115,7 @@ namespace mty {
                 bool                                  feynRuleCalculation
                 );
 
-        static std::vector<csl::Tensor> getVertices(size_t N);
+        static std::vector<csl::Tensor> getVertices(std::size_t N);
 
         /**
          * @brief Order the field insertions (important for fermion ordering),
@@ -140,11 +140,11 @@ namespace mty {
     private:
 
         Amplitude fullQuantumCalculation(
-                std::vector<std::vector<size_t>> const &terms
+                std::vector<std::vector<std::size_t>> const &terms
                 );
 
         Amplitude ruledCalculation(
-                std::vector<std::vector<size_t>> const &terms
+                std::vector<std::vector<std::size_t>> const &terms
                 );
 
     private:

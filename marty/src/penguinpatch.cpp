@@ -25,11 +25,11 @@ namespace mty {
                 insertionError();
             return false;
         }
-        size_t nF = std::count_if(insertions.begin(), insertions.end(), 
+        std::size_t nF = std::count_if(insertions.begin(), insertions.end(), 
                 [&](mty::Insertion const &part) {
                     return part.getField()->isFermionic();
                 });
-        size_t nmB = std::count_if(insertions.begin(), insertions.end(), 
+        std::size_t nmB = std::count_if(insertions.begin(), insertions.end(), 
                 [&](mty::Insertion const &part) {
                     return part.getField()->isBosonic()
                         && part.getField()->getMass() == CSL_0; 
@@ -68,17 +68,17 @@ namespace mty {
         return fermions;
     }
 
-    static std::pair<size_t, size_t> checkOperators(
+    static std::pair<std::size_t, std::size_t> checkOperators(
             std::vector<Wilson>      const &wilsons,
             std::vector<csl::Tensor> const &momenta
             )
     {
-        constexpr size_t npos = -1;
-        std::pair<size_t, size_t> posFermions { npos, npos };
+        constexpr std::size_t npos = -1;
+        std::pair<std::size_t, std::size_t> posFermions { npos, npos };
         for (const auto& wil : wilsons) {
             auto [psic, psi] = getFermions(wil.op.getOp());
-            size_t ic = -1, i = -1;
-            for (size_t k = 0; k != momenta.size(); ++k) {
+            std::size_t ic = -1, i = -1;
+            for (std::size_t k = 0; k != momenta.size(); ++k) {
                 if (momenta[k] == psi->getPoint()) {
                     i = k;
                 }
@@ -108,8 +108,8 @@ namespace mty {
 
     static PenguinPatchData getPenguinData(
             std::vector<mty::Insertion> const &insertions,
-            size_t iConj,
-            size_t iReg
+            std::size_t iConj,
+            std::size_t iReg
             )
     {
         auto boolsign = [](bool b) { return b ? 1 : -1; };

@@ -66,7 +66,7 @@ class TensorFieldParent: public TensorParent{
     std::vector<Parent> breakSpace(
             const Space*                     broken,
             const std::vector<const Space*>& newSpace,
-            const std::vector<size_t>&       pieces
+            const std::vector<std::size_t>&       pieces
             ) const override;
 
     cslParent::PrimaryType getPrimaryType() const override;
@@ -285,7 +285,7 @@ class TDerivativeElement: public Operator<TensorFieldElement>{
 
     csl::Type getType() const override;
 
-    size_t size() const override;
+    std::size_t size() const override;
 
     void print(int mode = 0,
                std::ostream& out = std::cout,

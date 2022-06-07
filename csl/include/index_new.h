@@ -29,7 +29,7 @@
 
 namespace csl {
 
-template<size_t N>
+template<std::size_t N>
 class IndexStructure_new;
 
 class IndexStructureView {
@@ -39,7 +39,7 @@ class IndexStructureView {
 
     public:
 
-    template<size_t N>
+    template<std::size_t N>
     IndexStructureView(IndexStructure_new<N> const& structure)
         :first(structure.begin()),
         last(structure.end())
@@ -51,7 +51,7 @@ class IndexStructureView {
         return first == last;
     }
 
-    inline size_t size() const {
+    inline std::size_t size() const {
         return (last - first);
     }
 
@@ -73,7 +73,7 @@ class IndexStructureView {
 };
 
 
-template<size_t N>
+template<std::size_t N>
 class IndexStructure_new {
 
     public:
@@ -128,7 +128,7 @@ class IndexStructure_new {
         return N == 0;
     }
 
-    constexpr size_t size() const {
+    constexpr std::size_t size() const {
         return N;
     }
 
@@ -164,15 +164,15 @@ class IndexStructure_new {
         return indices.rend();
     }
 
-    csl::Index operator[](size_t pos) const {
+    csl::Index operator[](std::size_t pos) const {
         return indices[pos];
     }
 
-    csl::Index& operator[](size_t pos) {
+    csl::Index& operator[](std::size_t pos) {
         return indices[pos];
     }
 
-    template<size_t M>
+    template<std::size_t M>
     IndexStructure_new<M+N> operator+(IndexStructure_new<M> const& other) const
     {
         IndexStructure_new<M+N> newStruct;
@@ -321,7 +321,7 @@ class IndexStructure_new {
             // Comparing only free indices
             if (index.getFree()) {
                 bool match = false;
-                for (size_t j=0; j!=indicesLeft.size(); ++j) {
+                for (std::size_t j=0; j!=indicesLeft.size(); ++j) {
                     // The free structure needs exact match to be correct
                     if (index.exactMatch(structure[indicesLeft[j]])) {
                         match = true;

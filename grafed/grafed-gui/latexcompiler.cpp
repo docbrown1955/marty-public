@@ -34,7 +34,7 @@ std::string toString(T const &t)
 std::string latexcompiler::getGrafedDir()
 {
     AutoMutex M;
-    static size_t n = 0;
+    static std::size_t n = 0;
     std::string folder = GRAFED_DIR "_" + toString(n++);
     std::ifstream f;
     f.open(folder + "/eq.tex");

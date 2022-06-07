@@ -303,9 +303,9 @@ inline void Replace(
 {
     std::vector<Parent> from(t_from.size());
     std::vector<Parent> to(t_to.size());
-    for (size_t i = 0; i != from.size(); ++i)
+    for (std::size_t i = 0; i != from.size(); ++i)
         from[i] = t_from[i];
-    for (size_t i = 0; i != to.size(); ++i)
+    for (std::size_t i = 0; i != to.size(); ++i)
         to[i] = t_to[i];
     Replace(expr, from, to);
 }
@@ -319,7 +319,7 @@ inline void Replace(
         std::vector<csl::Expr>  const& to)
 {
     std::vector<Parent> from(t_from.size());
-    for (size_t i = 0; i != from.size(); ++i)
+    for (std::size_t i = 0; i != from.size(); ++i)
         from[i] = t_from[i];
     Replace(expr, from, to);
 }

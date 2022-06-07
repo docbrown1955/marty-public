@@ -45,9 +45,9 @@ namespace sgl {
 
         virtual ~AbstractGammaSym() {};
 
-        virtual size_t size() const = 0;
-        virtual GExpr const &argument(size_t i) const = 0;
-        virtual GExpr &argument(size_t i) = 0;
+        virtual std::size_t size() const = 0;
+        virtual GExpr const &argument(std::size_t i) const = 0;
+        virtual GExpr &argument(std::size_t i) = 0;
         virtual iterator begin() = 0;
         virtual const_iterator begin() const = 0;
         virtual iterator end() = 0;
@@ -98,9 +98,9 @@ namespace sgl {
             :std::shared_ptr<AbstractGammaSym>(other)
         {}
 
-        size_t size() const { return (**this).size(); }
-        GExpr       &operator[](size_t i)       { return (**this).argument(i); } 
-        GExpr const &operator[](size_t i) const { return (**this).argument(i); }
+        std::size_t size() const { return (**this).size(); }
+        GExpr       &operator[](std::size_t i)       { return (**this).argument(i); } 
+        GExpr const &operator[](std::size_t i) const { return (**this).argument(i); }
         iterator       begin()       { return (**this).begin(); }
         const_iterator begin() const { return (**this).begin(); }
         iterator       end()       { return (**this).end(); }

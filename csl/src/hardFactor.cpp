@@ -53,12 +53,12 @@ int isSuperFactor(Expr const &fL, Expr const &fR)
 
 // Number of identical values in A and B, sorted uniquely
 // O(N)
-size_t nSimilar(
-        std::vector<size_t> const &sortedA,
-        std::vector<size_t> const &sortedB
+std::size_t nSimilar(
+        std::vector<std::size_t> const &sortedA,
+        std::vector<std::size_t> const &sortedB
         )
 {
-    size_t n = 0;
+    std::size_t n = 0;
     auto firstA = sortedA.begin();
     auto firstB = sortedB.begin();
     const auto endA = sortedA.end();
@@ -82,16 +82,16 @@ size_t nSimilar(
 
 // Max number of match between pos and an element of m
 // O(N*M)
-size_t maxSimilarity(
-        std::vector<size_t> const &pos,
-        csl::linear_map<csl::Expr, std::vector<size_t>> const &m
+std::size_t maxSimilarity(
+        std::vector<std::size_t> const &pos,
+        csl::linear_map<csl::Expr, std::vector<std::size_t>> const &m
         )
 {
-    size_t max = 0;
+    std::size_t max = 0;
     for (const auto &el : m) {
         auto const &pos2 = el.second;
         if (&pos2 != &pos) {
-            size_t n = nSimilar(pos, pos2);
+            std::size_t n = nSimilar(pos, pos2);
             if (n > max)
                 max = n;
         }
@@ -100,9 +100,9 @@ size_t maxSimilarity(
 }
 
 
-using FactorType = std::pair<csl::Expr, std::vector<size_t>>;
+using FactorType = std::pair<csl::Expr, std::vector<std::size_t>>;
 FactorType const *getBestFactor(
-        csl::linear_map<csl::Expr, std::vector<size_t>> const &m
+        csl::linear_map<csl::Expr, std::vector<std::size_t>> const &m
         )
 {
     std::vector<FactorType const*> candidates;
@@ -122,29 +122,29 @@ FactorType const *getBestFactor(
             isNumerical
             );
     if (!allNumeric) {
-        for (size_t i = 0; i != candidates.size(); ++i) 
+        for (std::size_t i = 0; i != candidates.size(); ++i) 
             if (isNumerical(candidates[i])) {
                 candidates.erase(candidates.begin() + i);
                 --i;
             }
     }
-    size_t maxSize = 0;
+    std::size_t maxSize = 0;
     for (const auto &el : candidates) {
-        const size_t sz = el->second.size();
+        const std::size_t sz = el->second.size();
         if (sz > maxSize)
             maxSize = sz;
     }
     if (maxSize < 2)
         return nullptr;
-    for (size_t i = 0; i != candidates.size(); ++i) 
+    for (std::size_t i = 0; i != candidates.size(); ++i) 
         if (candidates[i]->second.size() < maxSize) {
             candidates.erase(candidates.begin() + i);
             --i;
         }
-    size_t maxSim = 0;
+    std::size_t maxSim = 0;
     FactorType const *best = candidates[0];
     for (const auto &el : candidates) {
-        size_t maxSim_el = maxSimilarity(el->second, m);
+        std::size_t maxSim_el = maxSimilarity(el->second, m);
         if (maxSim_el > maxSim) {
             maxSim = maxSim_el;
             best = el;
@@ -155,7 +155,7 @@ FactorType const *getBestFactor(
 
 std::pair<bool, bool> hasRecursiveFactors(
         FactorType                                      const *best,
-        csl::linear_map<csl::Expr, std::vector<size_t>> const &m
+        csl::linear_map<csl::Expr, std::vector<std::size_t>> const &m
         )
 {
     if (m.size() == 1)
@@ -164,7 +164,7 @@ std::pair<bool, bool> hasRecursiveFactors(
     bool outerRecursion = false;
     for (const auto &el : m) {
         if (&el != best) {
-            const size_t nCommon = nSimilar(best->second, el.second);
+            const std::size_t nCommon = nSimilar(best->second, el.second);
             if ((el.second.size() - nCommon) > 1) {
                 outerRecursion = true;
             }
@@ -176,8 +176,8 @@ std::pair<bool, bool> hasRecursiveFactors(
     return {innerRecursion, outerRecursion};
 }
 
-csl::linear_map<csl::Expr, std::vector<size_t>>::iterator linear_find(
-        csl::linear_map<csl::Expr, std::vector<size_t>> &m,
+csl::linear_map<csl::Expr, std::vector<std::size_t>>::iterator linear_find(
+        csl::linear_map<csl::Expr, std::vector<std::size_t>> &m,
         csl::Expr const &expr
         )
 {
@@ -196,20 +196,20 @@ bool HardFactorImplementation(
         bool  applyRecursively
         )
 {
-    // static size_t nRecurs = 0;
+    // static std::size_t nRecurs = 0;
     // struct SS { SS() { ++nRecurs; } ~SS() { --nRecurs; } };
     // SS witness;
     if (!csl::IsSum(sum)) 
         return false;
-    const size_t sz = sum->size();
+    const std::size_t sz = sum->size();
     if (sz == 0) {
         sum = CSL_0;
         return false;
     }
-    csl::linear_map<csl::Expr, std::vector<size_t>> posFactors;
+    csl::linear_map<csl::Expr, std::vector<std::size_t>> posFactors;
     auto first     = sum->begin();
     const auto end = sum->end();
-    size_t index = 0;
+    std::size_t index = 0;
     while (first != end) {
         auto factors = (**first).getFactors();
         for (const auto &f : factors) {
@@ -269,7 +269,7 @@ bool HardFactorImplementation(
 
     auto const &positionsFactored = best->second;
     auto const &factor = best->first;
-    const size_t nFactored = positionsFactored.size();
+    const std::size_t nFactored = positionsFactored.size();
     if (csl::option::canonicalSumNumericalFactor
             && csl::IsNumerical(best->first) 
             && nFactored == sz)
@@ -282,7 +282,7 @@ bool HardFactorImplementation(
         outerTerms.reserve(sz - nFactored);
     first = sum->begin();
     index = 0;
-    size_t posInPosList = 0;
+    std::size_t posInPosList = 0;
     bool factored = false;
     while (first != end) {
         if (!factored 

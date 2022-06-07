@@ -39,24 +39,24 @@ class DiracSpace: public csl::Space {
 
     struct alignedCycle {
         csl::vector_expr tensors;
-        std::vector<size_t> cutsBtwCycles;
+        std::vector<std::size_t> cutsBtwCycles;
     };
 
     struct Chain {
         csl::Expr factor;
         std::vector<csl::Index> indices;
-        std::vector<size_t>     cuts;
-        std::vector<std::pair<size_t, size_t>> fiertzFlipping;
+        std::vector<std::size_t>     cuts;
+        std::vector<std::pair<std::size_t, std::size_t>> fiertzFlipping;
 
         IMPLEMENTS_STD_VECTOR(csl::Index, indices)
     };
 
     struct FiertzContraction {
 
-        size_t i;
-        size_t j;
-        size_t i_cut;
-        size_t j_cut;
+        std::size_t i;
+        std::size_t j;
+        std::size_t i_cut;
+        std::size_t j_cut;
         Chirality i_chir;
         Chirality j_chir;
 
@@ -123,27 +123,27 @@ class DiracSpace: public csl::Space {
 
     void insert(csl::Index       const & toInsert,
                 std::vector<csl::Index>& tensors,
-                std::vector<size_t>    & cuts,
-                size_t i) const;
+                std::vector<std::size_t>    & cuts,
+                std::size_t i) const;
 
     void contract(std::vector<csl::Index>& tensors,
-                  std::vector<size_t>    & cuts,
-                  size_t i) const;
+                  std::vector<std::size_t>    & cuts,
+                  std::size_t i) const;
 
     void contract(std::vector<csl::Index>& tensors,
-                  std::vector<size_t>    & cuts,
-                  size_t i,
-                  size_t j) const;
+                  std::vector<std::size_t>    & cuts,
+                  std::size_t i,
+                  std::size_t j) const;
 
     void contractTensor(
             std::vector<csl::Index>& tensors,
-            std::vector<size_t>    & cuts,
-            size_t i,
-            size_t j) const;
+            std::vector<std::size_t>    & cuts,
+            std::size_t i,
+            std::size_t j) const;
 
     std::vector<Chain> simplifyGammaProd(
             std::vector<csl::Index> const &indices,
-            std::vector<size_t>     const &cuts,
+            std::vector<std::size_t>     const &cuts,
             csl::Expr                    const &factor
             ) const;
 
@@ -152,8 +152,8 @@ class DiracSpace: public csl::Space {
             ) const;
 
     Chirality getChirality(
-            size_t pos,
-            size_t cut,
+            std::size_t pos,
+            std::size_t cut,
             csl::Index proj
             ) const;
 
@@ -167,7 +167,7 @@ class DiracSpace: public csl::Space {
     
     void applyUniqueChiralityStructure(
             std::vector<csl::Index>& tensors,
-            std::vector<size_t>& cuts,
+            std::vector<std::size_t>& cuts,
             csl::Expr& factor) const;
 
     std::pair<csl::Index, csl::Index>
@@ -176,12 +176,12 @@ class DiracSpace: public csl::Space {
 
     std::vector<std::pair<csl::Index, csl::Index>>
         getBorderOfChains(std::vector<csl::Expr>   const& tensors,
-                          std::vector<size_t>      & cuts) const;
+                          std::vector<std::size_t>      & cuts) const;
 
     csl::vector_expr applyChainIndices(
             std::vector<csl::Index> const& tensors,
-            std::vector<size_t>     const& cuts,
-            std::vector<std::pair<size_t, size_t>>         const& flipped,
+            std::vector<std::size_t>     const& cuts,
+            std::vector<std::pair<std::size_t, std::size_t>>         const& flipped,
             std::vector<std::pair<csl::Index, csl::Index>> const& indices)
         const;
 
@@ -214,15 +214,15 @@ class DiracSpace: public csl::Space {
     csl::Expr compute(csl::vector_expr const& tensors) const;
 
     static
-    size_t getSpinorDimension(size_t spaceTimeDim);
+    std::size_t getSpinorDimension(std::size_t spaceTimeDim);
 
-    size_t countGammaMult(csl::vector_expr const& tensors) const;
+    std::size_t countGammaMult(csl::vector_expr const& tensors) const;
 
-    size_t countGammaMult(std::vector<csl::Index> const& tensors) const;
+    std::size_t countGammaMult(std::vector<csl::Index> const& tensors) const;
 
     std::vector<csl::Index> exprToIndex(
             std::vector<csl::Expr> const& tensors,
-            std::vector<size_t>&     cuts) const;
+            std::vector<std::size_t>&     cuts) const;
 
     csl::Expr indexToExpr(csl::Index const& spaceTimeIndex,
                      csl::Index const& first,

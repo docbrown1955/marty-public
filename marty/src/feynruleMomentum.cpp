@@ -28,13 +28,13 @@ FeynruleMomentum::FeynruleMomentum(
             "There must be as many rules (" + toString(rules.size())
             + ") as vertices (" + toString(vertices.size()) + ").");
 
-    size_t nKeys = 0;
-    for (size_t i = 0; i != rules.size(); ++i) {
+    std::size_t nKeys = 0;
+    for (std::size_t i = 0; i != rules.size(); ++i) {
         nKeys += rules[i].getSize();
     }
     keys.reserve(nKeys);
     mapping.reserve(nKeys);
-    for (size_t i = 0; i != rules.size(); ++i) {
+    for (std::size_t i = 0; i != rules.size(); ++i) {
         std::vector<mty::QuantumField> const& content 
             = rules[i].getFieldProduct();
         for (const auto& field : content) {
@@ -51,7 +51,7 @@ bool FeynruleMomentum::isEmpty() const
     return keys.empty();
 }
 
-size_t FeynruleMomentum::getSize() const
+std::size_t FeynruleMomentum::getSize() const
 {
     return keys.size();
 }
@@ -104,7 +104,7 @@ bool compareKey(FeynruleKey       const& key,
         return false;
     auto structA = field.getIndexStructureView();
     auto structB = key.field.getIndexStructureView();
-    for (size_t i = 0; i != structA.size(); ++i) {
+    for (std::size_t i = 0; i != structA.size(); ++i) {
         if (structA[i] != structB[i])
             return false;
     }
@@ -144,7 +144,7 @@ std::vector<FeynruleTarget>::const_iterator FeynruleMomentum::find(
             break;
     } while (++iter != keys.end());
     if (iter != keys.end()) {
-        size_t pos = std::distance(keys.begin(), iter);
+        std::size_t pos = std::distance(keys.begin(), iter);
         if (mapping[pos] != -1)
             return targets.begin() + pos;
     }
@@ -160,7 +160,7 @@ std::vector<FeynruleTarget>::iterator FeynruleMomentum::find(
             break;
     } while (++iter != keys.end());
     if (iter != keys.end()) {
-        size_t pos = std::distance(keys.begin(), iter);
+        std::size_t pos = std::distance(keys.begin(), iter);
         if (mapping[pos] != -1)
             return targets.begin() + pos;
     }
@@ -176,7 +176,7 @@ std::vector<FeynruleTarget>::const_iterator FeynruleMomentum::find(
             break;
     } while (++iter != keys.end());
     if (iter != keys.end()) {
-        size_t pos = std::distance(keys.begin(), iter);
+        std::size_t pos = std::distance(keys.begin(), iter);
         if (mapping[pos] != -1)
             return targets.begin() + mapping[pos];
     }
@@ -192,7 +192,7 @@ std::vector<FeynruleTarget>::iterator FeynruleMomentum::find(
             break;
     } while (++iter != keys.end());
     if (iter != keys.end()) {
-        size_t pos = std::distance(keys.begin(), iter);
+        std::size_t pos = std::distance(keys.begin(), iter);
         if (mapping[pos] != -1)
             return targets.begin() + mapping[pos];
     }
@@ -238,7 +238,7 @@ std::ostream& operator<<(std::ostream& out,
                          FeynruleMomentum const& mom)
 {
     out << "Feynman rule mapping for:\n";
-    for (size_t i = 0; i != mom.keys.size(); ++i) {
+    for (std::size_t i = 0; i != mom.keys.size(); ++i) {
         out << "Key: ";
         out << mom.keys[i].field.printLaTeX(1);
         out << " , " << mom.keys[i].point->getName();

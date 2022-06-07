@@ -47,7 +47,7 @@ namespace mty {
 
     Kinematics::Kinematics(
             std::vector<mty::Insertion> const &t_insertions,
-            std::vector<size_t>         const &t_indices
+            std::vector<std::size_t>         const &t_indices
             )
         :insertions(t_insertions),
         indices(t_indices)
@@ -66,7 +66,7 @@ namespace mty {
     std::vector<csl::Tensor> Kinematics::getOrderedMomenta() const
     {
         std::vector<csl::Tensor> res(momenta.size());
-        for (size_t i = 0; i != momenta.size(); ++i) {
+        for (std::size_t i = 0; i != momenta.size(); ++i) {
             res[indices[i]-1] = momenta[i];
         }
         return res;
@@ -75,11 +75,11 @@ namespace mty {
     template<class Type>
     static void removeIndices(
             std::vector<Type>  &data,
-            std::vector<size_t> indices
+            std::vector<std::size_t> indices
             )
     {
-        std::sort(indices.begin(), indices.end(), std::greater<size_t>());
-        for (size_t index : indices) {
+        std::sort(indices.begin(), indices.end(), std::greater<std::size_t>());
+        for (std::size_t index : indices) {
             data.erase(data.begin() + index);
         }
     }
@@ -99,9 +99,9 @@ namespace mty {
     csl::Expr Kinematics::getDegreesOfFreedomFactor() const
     {
         csl::Expr factor = CSL_1;
-        std::vector<size_t> outgoingIndices;
+        std::vector<std::size_t> outgoingIndices;
         outgoingIndices.reserve(insertions.size());
-        for (size_t i = 0; i != insertions.size(); ++i) {
+        for (std::size_t i = 0; i != insertions.size(); ++i) {
             if (insertions[i].isIncoming())
                 factor *= insertions[i].getField()->getNDegreesOfFreedom();
             else
@@ -109,12 +109,12 @@ namespace mty {
         }
 
         while (!outgoingIndices.empty()) {
-            const size_t i = outgoingIndices[0];
-            std::vector<size_t> identicalFields;
+            const std::size_t i = outgoingIndices[0];
+            std::vector<std::size_t> identicalFields;
             identicalFields.reserve(insertions.size());
             identicalFields.push_back(0);
-            for (size_t index = 1; index != outgoingIndices.size(); ++index) {
-                const size_t j = outgoingIndices[index];
+            for (std::size_t index = 1; index != outgoingIndices.size(); ++index) {
+                const std::size_t j = outgoingIndices[index];
                 if (areIdenticalFields(insertions[i], insertions[j])) {
                     identicalFields.push_back(index);
                 }
@@ -140,7 +140,7 @@ namespace mty {
             return IsOfType<PolarizationField>(tensor);
         };
         externalSpinTensors = std::vector<csl::Expr>(terms.size());
-        for (size_t i = 0; i != terms.size(); ++i) {
+        for (std::size_t i = 0; i != terms.size(); ++i) {
             csl::Expr spinTensor = csl::FindIfLeaf(terms[i], isSpinTensor);
             if (!spinTensor) {
                 spinTensor = CSL_UNDEF;
@@ -149,9 +149,9 @@ namespace mty {
         }
     }
 
-    void Kinematics::initMomentaSquared(std::vector<size_t> const &indices)
+    void Kinematics::initMomentaSquared(std::vector<std::size_t> const &indices)
     {
-        for (size_t i = 0; i != insertions.size(); ++i)  {
+        for (std::size_t i = 0; i != insertions.size(); ++i)  {
             if (insertions[i].isOnShell()) {
                 auto &p = momenta[i];
                 addContraction(p, p, insertions[i].getField()->getSquaredMass());
@@ -159,10 +159,10 @@ namespace mty {
         }
         squaredMomenta.resize(momenta.size() * momenta.size());
         const csl::Index mu = csl::Minkowski.generateIndex();
-        for (size_t i = 0; i != momenta.size(); ++i) {
+        for (std::size_t i = 0; i != momenta.size(); ++i) {
             if (insertions[i].isMediator())
                 continue;
-            for (size_t j = i; j != momenta.size(); ++j) {
+            for (std::size_t j = i; j != momenta.size(); ++j) {
                 if (insertions[j].isMediator())
                     continue;
                 csl::Expr prod = momenta[i](mu) * momenta[j](+mu);
@@ -191,8 +191,8 @@ namespace mty {
     }
 
     void Kinematics::setSquaredMomentum(
-            size_t           i, 
-            size_t           j,
+            std::size_t           i, 
+            std::size_t           j,
             csl::Expr const &res)
     {
         squaredMomenta[squaredMomentumIndex(i, j)] = res;
@@ -201,9 +201,9 @@ namespace mty {
         }
     }
 
-    Kinematics Kinematics::subset(std::vector<size_t> pos) const
+    Kinematics Kinematics::subset(std::vector<std::size_t> pos) const
     {
-        const size_t sz = pos.size();
+        const std::size_t sz = pos.size();
 
         Kinematics res;
         res.insertions.reserve(sz);
@@ -212,12 +212,12 @@ namespace mty {
         res.indices.reserve(sz);
         res.squaredMomenta.reserve(sz * sz);
 
-        for (const size_t i : pos) {
+        for (const std::size_t i : pos) {
             res.insertions.push_back(insertions[i]);
             res.momenta.push_back(momenta[i]);
             res.indices.push_back(indices[i]);
             res.externalSpinTensors.push_back(externalSpinTensors[i]);
-            for (const size_t j : pos) {
+            for (const std::size_t j : pos) {
                 res.squaredMomenta.push_back(
                         squaredMomenta[squaredMomentumIndex(i, j)]
                         );
@@ -227,7 +227,7 @@ namespace mty {
         return res;
     }
 
-    void Kinematics::applyPermutation(std::vector<size_t> const &pos)
+    void Kinematics::applyPermutation(std::vector<std::size_t> const &pos)
     {
         HEPAssert(pos.size() == size(),
                 mty::error::ValueError,
@@ -241,15 +241,15 @@ namespace mty {
 
     void Kinematics::sortFromIndices()
     {
-        const size_t sz = size();
-        std::vector<size_t> minPos;
+        const std::size_t sz = size();
+        std::vector<std::size_t> minPos;
         minPos.reserve(sz);
-        std::vector<size_t> indicesLeft(sz);
+        std::vector<std::size_t> indicesLeft(sz);
         std::iota(indicesLeft.begin(), indicesLeft.end(), 0);
         while (!indicesLeft.empty()) {
-            size_t mini = 0;
-            for (size_t i = 1; i != indicesLeft.size(); ++i) {
-                const size_t index = indicesLeft[i];
+            std::size_t mini = 0;
+            for (std::size_t i = 1; i != indicesLeft.size(); ++i) {
+                const std::size_t index = indicesLeft[i];
                 if (indices[index] < indices[indicesLeft[mini]])
                     mini = i;
             }
@@ -269,9 +269,9 @@ namespace mty {
         std::vector<csl::Tensor>    alignedMomenta    = momenta;
         std::vector<csl::Expr>      alignedSpins      = externalSpinTensors;
         bool hasSpins = !alignedSpins.empty();
-        for (size_t i = 0; i != size(); ++i) {
+        for (std::size_t i = 0; i != size(); ++i) {
             bool match = false;
-            for (size_t j = i; j != size(); ++j) {
+            for (std::size_t j = i; j != size(); ++j) {
                 if (other.insertions[i] == alignedInsertions[j]) {
                     if (i != j) {
                         std::swap(alignedInsertions[i], alignedInsertions[j]);
@@ -295,7 +295,7 @@ namespace mty {
     }
 
     Kinematics Kinematics::applyIndices(
-            std::vector<size_t> const &t_indices
+            std::vector<std::size_t> const &t_indices
             ) const
     {
         auto kin = Kinematics{insertions, t_indices};
@@ -315,7 +315,7 @@ namespace mty {
                 std::to_string(k1.size()) + " and " + std::to_string(k2.size())
                 + ".")
         if (k1.externalSpinTensors.size() == k2.externalSpinTensors.size()) {
-            for (size_t i = 0 ; i != k1.externalSpinTensors.size(); ++i) {
+            for (std::size_t i = 0 ; i != k1.externalSpinTensors.size(); ++i) {
                 csl::Expr spin1 = k1.getExternalSpinTensors()[i];
                 csl::Expr spin2 = k2.getExternalSpinTensors()[i];
                 bool isSpin1Def = (spin1 != CSL_UNDEF);
@@ -341,20 +341,20 @@ namespace mty {
             )
     {
         Kinematics res;
-        const size_t s1 = k1.size();
-        const size_t s2 = k2.size();
-        const size_t sT = s1 + s2;
+        const std::size_t s1 = k1.size();
+        const std::size_t s2 = k2.size();
+        const std::size_t sT = s1 + s2;
         res.insertions.reserve(sT);
         res.indices.reserve(sT);
         res.momenta.reserve(sT);
         res.externalSpinTensors.reserve(sT);
-        for (size_t i1 = 0; i1 != s1; ++i1) {
+        for (std::size_t i1 = 0; i1 != s1; ++i1) {
             res.insertions.push_back(k1.insertions[i1]);
             res.momenta.push_back(k1.momenta[i1]);
             res.indices.push_back(k1.indices[i1]);
             res.externalSpinTensors.push_back(k1.externalSpinTensors[i1]);
         }
-        for (size_t i2 = 0; i2 != s2; ++i2) {
+        for (std::size_t i2 = 0; i2 != s2; ++i2) {
             res.insertions.push_back(k2.insertions[i2]);
             res.momenta.push_back(k2.momenta[i2]);
             res.indices.push_back(k2.indices[i2]);
@@ -363,9 +363,9 @@ namespace mty {
         res.squaredMomenta.resize(sT*sT);
         res.initMomentaSquared(res.indices);
 
-        std::vector<size_t> subset(res.size());
+        std::vector<std::size_t> subset(res.size());
         std::iota(subset.begin(), subset.end(), 0);
-        auto last = std::remove_if(subset.begin(), subset.end(), [&](size_t pos) {
+        auto last = std::remove_if(subset.begin(), subset.end(), [&](std::size_t pos) {
             return res.insertions[pos].isMediator();
         });
         subset.erase(last, subset.end());
@@ -379,12 +379,12 @@ namespace mty {
     {
         out << "Kinematics of " << kin.size() << " particles\n";
         out << "Insertions : \n";
-        for (size_t i = 0; i != kin.size(); ++i) {
+        for (std::size_t i = 0; i != kin.size(); ++i) {
             out << "  --> " << kin.insertions[i].getField()->getName();
             out << " , momentum : " << kin.momenta[i]->getName() << '\n';
         }
-        for (size_t i = 0; i != kin.size(); ++i) {
-            for (size_t j = 0; j != kin.size(); ++j) {
+        for (std::size_t i = 0; i != kin.size(); ++i) {
+            for (std::size_t j = 0; j != kin.size(); ++j) {
                 out << kin.squaredMomenta[kin.squaredMomentumIndex(i, j)] << ' ';
             }
             out << '\n';

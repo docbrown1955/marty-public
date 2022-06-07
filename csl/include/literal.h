@@ -47,7 +47,7 @@ class AbstractLiteral: public Complexified{
         return csl::PrimaryType::Literal;
     }
 
-    size_t memoryOverhead() const override;
+    std::size_t memoryOverhead() const override;
 
     std::vector<Parent> getSubSymbols() const override;
 

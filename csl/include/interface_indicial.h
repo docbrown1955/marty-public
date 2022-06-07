@@ -51,17 +51,17 @@ csl::Index GetIndex(csl::Tensor const& tensor,
 csl::Index GetIndex(csl::Space const* space);
 
 std::vector<csl::Index> GetIndices(
-        size_t            N,
+        std::size_t            N,
         csl::Space const* space);
 
 csl::Index GetIndex(csl::Space const& space);
 
 std::vector<csl::Index> GetIndices(
-        size_t            N,
+        std::size_t            N,
         csl::Space const& space);
 
 std::vector<csl::Index> GetIndices(
-        size_t             N,
+        std::size_t             N,
         csl::Tensor const &tensor,
         int                pos = 0
         );

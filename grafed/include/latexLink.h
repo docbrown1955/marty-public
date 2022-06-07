@@ -114,8 +114,8 @@ class LatexLinker {
         int         size = 0;
     };
     struct Edge {
-        size_t       i    = 0;
-        size_t       j    = 0;
+        std::size_t       i    = 0;
+        std::size_t       j    = 0;
         ParticleType type = ParticleType::Scalar;
         std::string  name = "";
         int          sign = true;
@@ -151,8 +151,8 @@ class LatexLinker {
 
     void setGraph(drawer::Graph const& t_graph);
 
-    void setParticlesType(size_t       i,
-                          size_t       j,
+    void setParticlesType(std::size_t       i,
+                          std::size_t       j,
                           ParticleType type = ParticleType::Scalar,
                           std::string const& t_name = "",
                           bool               sign = true,
@@ -161,24 +161,24 @@ class LatexLinker {
                           Color              color = Black,
                           int                lineWidth = 3);
 
-    void addOperator(size_t pos);
+    void addOperator(std::size_t pos);
 
-    void replaceParticlesType(size_t       i,
-                              size_t       j,
+    void replaceParticlesType(std::size_t       i,
+                              std::size_t       j,
                               ParticleType type = ParticleType::Scalar,
                               bool         sign = true);
 
-    void removeEdge(size_t i, size_t j);
+    void removeEdge(std::size_t i, std::size_t j);
 
-    void setVertexName(size_t             pos,
+    void setVertexName(std::size_t             pos,
                        std::string const& name);
 
-    void setEdgeName(size_t             i,
-                     size_t             j,
+    void setEdgeName(std::size_t             i,
+                     std::size_t             j,
                      std::string const& name);
 
-    void setEdgeSign(size_t i,
-                     size_t j,
+    void setEdgeSign(std::size_t i,
+                     std::size_t j,
                      bool   sign);
 
     void write(std::ostream& out);
@@ -220,16 +220,16 @@ class LatexLinker {
         return edges;
     }
 
-    void removeNode(size_t pos);
+    void removeNode(std::size_t pos);
 
     void addNode();
 
-    std::string getNameExternal(size_t i) const;
+    std::string getNameExternal(std::size_t i) const;
 
     private:
 
     static
-    std::string getNameVertex(size_t pos);
+    std::string getNameVertex(std::size_t pos);
 
     void getFlippedEdgeLabels() const;
 
@@ -237,7 +237,7 @@ class LatexLinker {
                         double value);
 
     void writeVertex(std::ostream     & out,
-                     size_t             i,
+                     std::size_t             i,
                      Point       const& vertex,
                      std::string const& nameVertex,
                      std::string const& nameParticle = "");
@@ -281,7 +281,7 @@ class LatexLinker {
     std::vector<Edge> edges;
 
     mutable
-    std::map<std::pair<size_t, size_t>, int> multiplicity;
+    std::map<std::pair<std::size_t, std::size_t>, int> multiplicity;
 
     std::vector<Node> nodes;
 };

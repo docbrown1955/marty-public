@@ -36,9 +36,9 @@ namespace sgl {
 
         bool contains(csl::Index const &index) const override;
 
-        size_t size() const override;
-        GExpr const &argument(size_t i) const override;
-        GExpr &argument(size_t i) override;
+        std::size_t size() const override;
+        GExpr const &argument(std::size_t i) const override;
+        GExpr &argument(std::size_t i) override;
         iterator begin() override;
         const_iterator begin() const override;
         iterator end() override;
@@ -55,9 +55,9 @@ namespace sgl {
 
     public:
 
-        size_t size() const override;
-        GExpr const &argument(size_t i) const override;
-        GExpr &argument(size_t i) override;
+        std::size_t size() const override;
+        GExpr const &argument(std::size_t i) const override;
+        GExpr &argument(std::size_t i) override;
         iterator begin() override;
         const_iterator begin() const override;
         iterator end() override;

@@ -48,10 +48,10 @@ namespace mty {
                 std::vector<mty::QuantumField>         const &t_insertions
                 );
 
-        std::vector<std::vector<size_t>> findNonZeroDiagrams();
+        std::vector<std::vector<std::size_t>> findNonZeroDiagrams();
 
         template<class ...Args>
-        static std::vector<std::vector<size_t>> getDiagrams(
+        static std::vector<std::vector<std::size_t>> getDiagrams(
                 Args &&...args
                 )
         {
@@ -62,23 +62,23 @@ namespace mty {
     private:
 
         bool contractionPossible(
-                std::vector<size_t>       const &fieldPos,
+                std::vector<std::size_t>       const &fieldPos,
                 std::vector<bool>         const &insertionsPaired,
                 std::vector<QuantumField> const &newFields,
                 std::vector<bool>               &newPairing,
                 int                              order,
                 int                              maxOrder,
-                size_t                           nLoops,
-                size_t                           maxInteractionLegs
+                std::size_t                           nLoops,
+                std::size_t                           maxInteractionLegs
                 );
 
         void addVertexCarefully(
-                size_t                               iTerm,
-                std::vector<size_t>           const &terms,
-                std::vector<std::vector<size_t>>    &numbers,
+                std::size_t                               iTerm,
+                std::vector<std::size_t>           const &terms,
+                std::vector<std::vector<std::size_t>>    &numbers,
                 std::vector<std::vector<bool>>      &newPairings,
                 std::vector<bool>             const &pairing,
-                std::map<std::vector<size_t>, bool> &vertexMap
+                std::map<std::vector<std::size_t>, bool> &vertexMap
                 );
 
     private:

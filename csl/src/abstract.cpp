@@ -49,7 +49,7 @@ bool Abstract::getCommutable() const
     return true;
 }
 
-size_t Abstract::memoryOverhead() const
+std::size_t Abstract::memoryOverhead() const
 {
     return 0;
 }
@@ -138,7 +138,7 @@ std::string Abstract::regularLiteral(std::string const &name)
 std::string Abstract::regularLiteral(std::string_view name)
 {
     std::string reg(name);
-    for (size_t i = 0; i != reg.size(); ++i)
+    for (std::size_t i = 0; i != reg.size(); ++i)
         if (reg[i] == '\\') {
             reg.insert(reg.begin()+i, '\\');
             ++i;
@@ -227,7 +227,7 @@ IndexStructure Abstract::getIndexStructure() const
 IndexStructure Abstract::getIndexStructure(csl::Space const * space) const
 {
     csl::IndexStructure structure = getIndexStructure();
-    for (size_t i = 0; i != structure.size(); ++i) 
+    for (std::size_t i = 0; i != structure.size(); ++i) 
         if (structure[i].getSpace() != space) {
             structure.erase(structure.begin() + i);
             --i;
@@ -313,7 +313,7 @@ csl::vector_expr Abstract::breakSpace(
         const vector<const Space*>& newSpace) const
 {
     vector<string> names(newSpace.size());
-    for (size_t i = 0; i != names.size(); ++i)
+    for (std::size_t i = 0; i != names.size(); ++i)
         if (newSpace[i])
             names[i] = "i";
     return breakSpace(brokenSpace, newSpace, names);
@@ -446,7 +446,7 @@ const csl::vector_expr& Abstract::getVectorArgument() const
     return empty;
 }
 
-size_t Abstract::size() const
+std::size_t Abstract::size() const
 {
     return 0;
 }
@@ -611,7 +611,7 @@ void Abstract::getExponents(
         std::vector<Expr>       &exponents
         ) const
 {
-    for (size_t i = 0; i != factors.size(); ++i) 
+    for (std::size_t i = 0; i != factors.size(); ++i) 
         if (*this == factors[i].get()) {
             exponents[i] = CSL_1;
             return;

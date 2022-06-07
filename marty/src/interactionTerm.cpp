@@ -92,16 +92,16 @@ void abbreviantLINT(csl::Expr &prod)
         });
     };
 
-    std::vector<size_t> abbreviate;
+    std::vector<std::size_t> abbreviate;
     abbreviate.reserve(prod->size());
-    for (size_t i = 0; i != prod->size(); ++i) 
+    for (std::size_t i = 0; i != prod->size(); ++i) 
         if (mayBeAbbreviate(prod[i]))
             abbreviate.push_back(i);
 
     if (abbreviate.size() > 1) {
         std::vector<csl::Expr> abbreviation;
         abbreviation.reserve(abbreviate.size());
-        for (size_t i : abbreviate) {
+        for (std::size_t i : abbreviate) {
             abbreviation.push_back(prod[i]);
             prod[i] = CSL_1;
         }
@@ -149,17 +149,17 @@ vector<InteractionTerm::TermType>
 
     std::vector<std::vector<mty::QuantumField>> contents(expanded->size());
     std::vector<csl::Expr> fieldProducts(contents.size());
-    for (size_t i = 0; i != contents.size(); ++i) {
+    for (std::size_t i = 0; i != contents.size(); ++i) {
         fillContent(expanded[i], contents[i]);
     }
-    std::vector<size_t> indicesLeft(contents.size());
-    for (size_t i = 0; i != indicesLeft.size(); ++i)
+    std::vector<std::size_t> indicesLeft(contents.size());
+    for (std::size_t i = 0; i != indicesLeft.size(); ++i)
         indicesLeft[i] = i;
     vector<TermType> interac;
     interac.reserve(expanded->size());
     while (!indicesLeft.empty()) {
         std::vector<csl::Expr> terms {expanded[indicesLeft[0]]};
-        for (size_t j = 1; j != indicesLeft.size(); ++j) {
+        for (std::size_t j = 1; j != indicesLeft.size(); ++j) {
             if (areSimilarContent(contents[indicesLeft[0]],
                                   contents[indicesLeft[j]])) {
                 terms.push_back(expanded[indicesLeft[j]]);
@@ -174,14 +174,14 @@ vector<InteractionTerm::TermType>
         indicesLeft.erase(indicesLeft.begin());
     }
     return interac;
-    std::vector<size_t> toRefresh;
+    std::vector<std::size_t> toRefresh;
     interac.reserve(expanded->size());
     for (auto& term : *expanded) {
         TermType foo = std::make_shared<InteractionTerm>(term);
         if (foo->content.empty())
             continue;
         bool found = false;
-        for (size_t i = 0; i != interac.size(); ++i) 
+        for (std::size_t i = 0; i != interac.size(); ++i) 
             if (foo->hasSameContent(*interac[i])) {
                 found = true;
                 interac[i]->term += term;
@@ -197,7 +197,7 @@ vector<InteractionTerm::TermType>
     //    i = std::make_shared<InteractionTerm>(
     //            csl::Evaluated(i->getTerm())
     //            );
-    for (size_t i : toRefresh)
+    for (std::size_t i : toRefresh)
         interac[i] = std::make_shared<InteractionTerm>(interac[i]->getTerm());
 
     return interac;
@@ -207,12 +207,12 @@ vector<InteractionTerm::TermType>
 // Public methods
 ///////////////////////////////////////////////////
 
-size_t InteractionTerm::size() const
+std::size_t InteractionTerm::size() const
 {
     return content.size();
 }
 
-size_t InteractionTerm::nTerms() const
+std::size_t InteractionTerm::nTerms() const
 {
     return permutations.size();
 }
@@ -304,9 +304,9 @@ vector<Particle> InteractionTerm::getParticles() const
     return particles;
 }
 
-size_t InteractionTerm::count(QuantumFieldParent* particle) const
+std::size_t InteractionTerm::count(QuantumFieldParent* particle) const
 {
-    size_t count = 0;
+    std::size_t count = 0;
     for (const auto& field : content)
         if (field.getParent_info() == particle)
             ++count;
@@ -314,9 +314,9 @@ size_t InteractionTerm::count(QuantumFieldParent* particle) const
     return count;
 }
 
-size_t InteractionTerm::getExponent(csl::Expr const& parameter) const 
+std::size_t InteractionTerm::getExponent(csl::Expr const& parameter) const 
 {
-    size_t count = 0;
+    std::size_t count = 0;
     csl::AnyOfLeafs(globalFactor, [&count, &parameter](csl::Expr const& el) 
     {
         if (el == parameter) {
@@ -361,7 +361,7 @@ csl::Expr InteractionTerm::applyFactorAndSymmetriesOn(csl::Expr const& init) con
     }
 
     csl::vector_expr terms(factors.size());
-    for (size_t i = 0; i != factors.size(); ++i) {
+    for (std::size_t i = 0; i != factors.size(); ++i) {
         terms[i] = prod_s(DeepCopy(factors[i]),
                          applyPermutation(permutations[i], global, constraints),
                          true);
@@ -479,7 +479,7 @@ void InteractionTerm::gatherFieldContent()
 
 bool InteractionTerm::gatherFieldContent(
         csl::Expr               const& expr,
-        size_t                    multiplicity,
+        std::size_t                    multiplicity,
         csl::IndexStructure const& structure)
 {
     switch(expr->getType()) {
@@ -523,7 +523,7 @@ bool InteractionTerm::gatherFieldContent(
                           copyStructure);
             QuantumField staticField = ConvertTo<QuantumField>(copyField);
             staticField.setDerivativeStructure(copyStructure);
-            for (size_t i = 0; i != multiplicity; ++i) {
+            for (std::size_t i = 0; i != multiplicity; ++i) {
                 content.push_back(staticField);
             }
             return true;
@@ -547,7 +547,7 @@ bool InteractionTerm::containsQuantumField(csl::Expr const& expr)
     if (IsOfType<QuantumField>(expr))
         return true;
     else if (expr->size() > 0){
-        for (size_t i = 0; i != expr->size(); ++i)
+        for (std::size_t i = 0; i != expr->size(); ++i)
             if (containsQuantumField(expr->getArgument(i)))
                 return true;
     }
@@ -604,7 +604,7 @@ void InteractionTerm::recallIndices(permutation             & perm,
             mty::error::ValueError,
             "Size of IndexStructure mismatch: " + toString(old.size())
             + " and " + toString(structure) + ".");
-    for (size_t i = 0; i != old.size(); ++i) {
+    for (std::size_t i = 0; i != old.size(); ++i) {
         perm.push_back(make_pair(structure[i], old[i]));
     }
 }
@@ -666,8 +666,8 @@ void InteractionTerm::gatherFactorsAndSymmetries()
                 }
             });
     }
-    for (size_t i = 0; i != factors.size(); ++i) {
-        for (size_t j = i+1; j < factors.size(); ++j)
+    for (std::size_t i = 0; i != factors.size(); ++i) {
+        for (std::size_t j = i+1; j < factors.size(); ++j)
             if (std::is_permutation(
                         permutations[i].begin(),
                         permutations[i].end(),
@@ -695,7 +695,7 @@ void InteractionTerm::gatherSymmetries(csl::Expr const& sum)
     factors.push_back(std::move(worker.globalFactor));
     permutations.push_back(std::move(worker.globalPermutation));
 
-    for (size_t i = 1; i != sum->size(); ++i) {
+    for (std::size_t i = 1; i != sum->size(); ++i) {
         csl::Expr arg = sum->getArgument(i);
         InteractionTerm worker(arg, newContent);
         factors.push_back(std::move(worker.globalFactor));
@@ -718,17 +718,17 @@ bool InteractionTerm::areSimilarContent(
         std::vector<QuantumField> const &B
         )
 {
-    const size_t szA = A.size();
+    const std::size_t szA = A.size();
     if (szA != B.size())
         return false;
-    std::vector<size_t> indicesLeft(szA);
-    for (size_t i = 0; i != indicesLeft.size(); ++i)
+    std::vector<std::size_t> indicesLeft(szA);
+    for (std::size_t i = 0; i != indicesLeft.size(); ++i)
         indicesLeft[i] = i;
 
-    for (size_t i = 0; i != szA; ++i) {
+    for (std::size_t i = 0; i != szA; ++i) {
         const auto &fieldA = A[i];
         bool match = false;
-        for (size_t k = 0; k != indicesLeft.size(); ++k) {
+        for (std::size_t k = 0; k != indicesLeft.size(); ++k) {
             const auto &fieldB = B[indicesLeft[k]];
             if (areSimilarField(fieldA, fieldB)) {
                 indicesLeft.erase(indicesLeft.begin() + k);
@@ -805,7 +805,7 @@ ostream& operator<<(ostream              & out,
     out << endl;
 
     out << term.factors.size() << " terms:"<< endl;
-    for (size_t i = 0; i != term.factors.size(); ++i) {
+    for (std::size_t i = 0; i != term.factors.size(); ++i) {
         out << "Term " << i << ": \n";
         term.factors[i]->print();
         for (const auto& pair : term.permutations[i])

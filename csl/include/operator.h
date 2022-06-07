@@ -121,9 +121,9 @@ void Operator<T>::setOperandPrivate(const Expr& expr, bool leaveEmpty)
     empty = empty and leaveEmpty;
 }
 
-bool pullLeft(csl::vector_expr& argument, size_t pos, size_t& begin);
-bool pullRight(csl::vector_expr& argument, size_t& pos, size_t& end);
-void getParts(const csl::vector_expr& argument, size_t begin, size_t end,
+bool pullLeft(csl::vector_expr& argument, std::size_t pos, std::size_t& begin);
+bool pullRight(csl::vector_expr& argument, std::size_t& pos, std::size_t& end);
+void getParts(const csl::vector_expr& argument, std::size_t begin, std::size_t end,
         Expr& left, Expr& mid, Expr& right);
 
 template<typename T>
@@ -136,8 +136,8 @@ Expr Operator<T>::applyOperator(const Expr& expr, bool leaveEmpty) const
     csl::vector_expr foo(0);
     Expr foo2;
     Expr res;
-    size_t posDerivative;
-    size_t endDerivative;
+    std::size_t posDerivative;
+    std::size_t endDerivative;
     switch(expr->getType()) {
         case csl::Type::Sum:
         foo = expr->getVectorArgument();
@@ -160,7 +160,7 @@ Expr Operator<T>::applyOperator(const Expr& expr, bool leaveEmpty) const
                              expr->end());
         posDerivative = 0;
         endDerivative = foo.size();
-        for (size_t i = 0; i != endDerivative; ++i) {
+        for (std::size_t i = 0; i != endDerivative; ++i) {
             if (not this->operatorAppliesOn(foo[i].get())) {
                 if (not pullLeft(foo,i,posDerivative))
                     pullRight(foo,i,endDerivative);

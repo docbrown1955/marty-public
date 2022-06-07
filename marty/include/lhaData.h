@@ -73,11 +73,11 @@ struct LHAElement {
      * @brief Id of the element in the block, or row position for a matrix
      * element.
      */
-    size_t    id;
+    std::size_t    id;
     /**
      * @brief Column position for a matrix element.
      */
-    size_t    id_sup;
+    std::size_t    id_sup;
     /**
      * @brief Value of the element.
      */
@@ -107,8 +107,8 @@ struct Comparator {
      * @return \b False else.
      */
     static bool compare(
-            std::vector<size_t> const &pos1,
-            std::vector<size_t> const &pos2
+            std::vector<std::size_t> const &pos1,
+            std::vector<std::size_t> const &pos2
             )
     {
         if (pos1.size() != pos2.size())
@@ -205,7 +205,7 @@ public:
      * found.
      * @return std::nullopt else.
      */
-    std::optional<LHAElement> getElement(size_t id) const;
+    std::optional<LHAElement> getElement(std::size_t id) const;
 
     /**
      * @brief Returns the first element (if found) with id \b id and position
@@ -219,8 +219,8 @@ public:
      * @return std::nullopt else.
      */
     std::optional<LHAElement> getElement(
-            size_t id,
-            size_t id_sup = -1
+            std::size_t id,
+            std::size_t id_sup = -1
             ) const;
 
     /**
@@ -236,7 +236,7 @@ public:
      * elements are sorted by row and by column ((0, 0) (0, 1) (1, 0) (1, 1)
      * etc).
      */
-    std::vector<LHAElement> getMultipleElements(size_t id) const;
+    std::vector<LHAElement> getMultipleElements(std::size_t id) const;
 
     /**
      * @brief Sorts the elements in the block using Comparator::compare().
@@ -251,8 +251,8 @@ public:
      * @param value  Value of the element.
      */
     void addElement(
-            size_t    id,
-            size_t    id_sup,
+            std::size_t    id,
+            std::size_t    id_sup,
             FloatType value
             );
     /**
@@ -262,7 +262,7 @@ public:
      * @param value Value of the element.
      */
     void addElement(
-            size_t    id,
+            std::size_t    id,
             FloatType value
             );
 
@@ -303,7 +303,7 @@ class LHAFileData {
 
 public:
 
-    static constexpr size_t npos = -1;
+    static constexpr std::size_t npos = -1;
 
     IMPLEMENTS_STD_VECTOR(LHABlock, blocks)
 
@@ -326,7 +326,7 @@ public:
      *
      * @sa BlockName, blockType()
      */
-    size_t findBlock(std::string_view nameBlock) const;
+    std::size_t findBlock(std::string_view nameBlock) const;
     /**
      * @brief Adds a block to the data if it does not already exist.
      *
@@ -381,7 +381,7 @@ public:
      */
     std::optional<FloatType> getValue(
             std::string_view nameBlock,
-            size_t           id
+            std::size_t           id
             ) const;
 
     /**
@@ -396,8 +396,8 @@ public:
      */
     std::optional<FloatType> getValue(
             std::string_view nameBlock,
-            size_t           i,
-            size_t           j
+            std::size_t           i,
+            std::size_t           j
             ) const;
 
 private:

@@ -37,7 +37,7 @@ csl::Expr ScalarKineticTerm(
     vector<Index> indices = field.getFlavorIndex();
     vector<Index> gaugeIndices = field.getGaugeIndex();
     vector<const Space*> gaugeSpaces(gaugeIndices.size());
-    for (size_t i = 0; i != gaugeSpaces.size(); ++i)
+    for (std::size_t i = 0; i != gaugeSpaces.size(); ++i)
         gaugeSpaces[i] = gaugeIndices[i].getSpace();
     indices.insert(indices.end(), gaugeIndices.begin(), gaugeIndices.end());
     
@@ -65,7 +65,7 @@ csl::Expr FermionKineticTerm(
     vector<Index> indices = field.getFlavorIndex();
     vector<Index> gaugeIndices = field.getGaugeIndex();
     vector<const Space*> gaugeSpaces(gaugeIndices.size());
-    for (size_t i = 0; i != gaugeSpaces.size(); ++i)
+    for (std::size_t i = 0; i != gaugeSpaces.size(); ++i)
         gaugeSpaces[i] = gaugeIndices[i].getSpace();
     indices.insert(indices.end(), gaugeIndices.begin(), gaugeIndices.end());
     
@@ -98,7 +98,7 @@ csl::Expr VectorKineticTerm(
     vector<Index> indices = field.getFlavorIndex();
     vector<Index> gaugeIndices = field.getGaugeIndex();
     vector<const Space*> gaugeSpaces(gaugeIndices.size());
-    for (size_t i = 0; i != gaugeSpaces.size(); ++i)
+    for (std::size_t i = 0; i != gaugeSpaces.size(); ++i)
         gaugeSpaces[i] = gaugeIndices[i].getSpace();
     indices.insert(indices.end(), gaugeIndices.begin(), gaugeIndices.end());
     
@@ -136,7 +136,7 @@ csl::Expr GhostKineticTerm(
     vector<Index> indices = field.getFlavorIndex();
     vector<Index> gaugeIndices = field.getGaugeIndex();
     vector<const Space*> gaugeSpaces(gaugeIndices.size());
-    for (size_t i = 0; i != gaugeSpaces.size(); ++i)
+    for (std::size_t i = 0; i != gaugeSpaces.size(); ++i)
         gaugeSpaces[i] = gaugeIndices[i].getSpace();
     indices.insert(indices.end(), gaugeIndices.begin(), gaugeIndices.end());
     
@@ -229,7 +229,7 @@ csl::Expr ScalarPropagator(
     csl::Tensor        pointB  = B.getPoint();
 
     csl::vector_expr deltaFactor(structA.size());
-    for (size_t i = 0; i != structA.size(); ++i) {
+    for (std::size_t i = 0; i != structA.size(); ++i) {
         csl::Space const* space = structA[i].getSpace();
         deltaFactor[i] = space->getDelta()({structA[i], structB[i]});
     }
@@ -261,7 +261,7 @@ csl::Expr FermionPropagator(
     csl::Tensor        pointB  = B.getPoint();
 
     csl::vector_expr deltaFactor(structA.size()-1);
-    for (size_t i = 0; i != structA.size()-1; ++i) {
+    for (std::size_t i = 0; i != structA.size()-1; ++i) {
         csl::Space const* space = structA[i].getSpace();
         deltaFactor[i] = space->getDelta()({structA[i], structB[i]});
     }
@@ -347,7 +347,7 @@ csl::Expr VectorPropagator(
     csl::Tensor        pointB  = B.getPoint();
 
     csl::vector_expr deltaFactor(structA.size()-1);
-    for (size_t i = 0; i != structA.size()-1; ++i) {
+    for (std::size_t i = 0; i != structA.size()-1; ++i) {
         csl::Space const* space = structA[i].getSpace();
         deltaFactor[i] = space->getDelta()({structA[i], structB[i]});
     }
@@ -396,7 +396,7 @@ csl::Expr FieldStrengthPropagator(
     }
 
     csl::vector_expr deltaFactor(structA.size()-1);
-    for (size_t i = 0; i != structA.size()-1; ++i) {
+    for (std::size_t i = 0; i != structA.size()-1; ++i) {
         csl::Space const* space = structA[i].getSpace();
         deltaFactor[i] = space->getDelta()({structA[i], structB[i]});
     }
@@ -430,7 +430,7 @@ csl::Expr FieldStrengthSquaredPropagator(
     csl::Tensor        pointB  = B.getPoint();
 
     csl::vector_expr deltaFactor(structA.size()-2);
-    for (size_t i = 0; i != structA.size()-2; ++i) {
+    for (std::size_t i = 0; i != structA.size()-2; ++i) {
         csl::Space const* space = structA[i].getSpace();
         deltaFactor[i] = space->getDelta()({structA[i], structB[i]});
     }
@@ -469,7 +469,7 @@ csl::Expr IntegratedScalarPropagator(
     csl::Tensor        pointB  = B.getPoint();
 
     csl::vector_expr deltaFactor(structA.size());
-    for (size_t i = 0; i != structA.size(); ++i) {
+    for (std::size_t i = 0; i != structA.size(); ++i) {
         csl::Space const* space = structA[i].getSpace();
         deltaFactor[i] = space->getDelta()({structA[i], structB[i]});
     }
@@ -500,7 +500,7 @@ csl::Expr IntegratedFermionPropagator(
     }
 
     csl::vector_expr deltaFactor(structA.size()-1);
-    for (size_t i = 0; i != structA.size()-1; ++i) {
+    for (std::size_t i = 0; i != structA.size()-1; ++i) {
         csl::Space const* space = structA[i].getSpace();
         deltaFactor[i] = space->getDelta()({structA[i], structB[i]});
     }
@@ -596,7 +596,7 @@ csl::Expr IntegratedVectorPropagator(
     csl::Tensor        pointB  = B.getPoint();
 
     csl::vector_expr deltaFactor(structA.size()-1);
-    for (size_t i = 0; i != structA.size()-1; ++i) {
+    for (std::size_t i = 0; i != structA.size()-1; ++i) {
         csl::Space const* space = structA[i].getSpace();
         deltaFactor[i] = space->getDelta()({structA[i], structB[i]});
     }
@@ -634,7 +634,7 @@ csl::Expr IntegratedFieldStrengthPropagator(
     }
 
     csl::vector_expr deltaFactor(structA.size()-1);
-    for (size_t i = 0; i != structA.size()-1; ++i) {
+    for (std::size_t i = 0; i != structA.size()-1; ++i) {
         csl::Space const* space = structA[i].getSpace();
         deltaFactor[i] = space->getDelta()({structA[i], structB[i]});
     }
@@ -666,7 +666,7 @@ csl::Expr IntegratedFieldStrengthSquaredPropagator(
     csl::Tensor        pointB  = B.getPoint();
 
     csl::vector_expr deltaFactor(structA.size()-2);
-    for (size_t i = 0; i != structA.size()-2; ++i) {
+    for (std::size_t i = 0; i != structA.size()-2; ++i) {
         csl::Space const* space = structA[i].getSpace();
         deltaFactor[i] = space->getDelta()({structA[i], structB[i]});
     }

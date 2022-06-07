@@ -89,14 +89,14 @@ namespace mty {
          */
         Kinematics(
                 std::vector<mty::Insertion> const &t_insertions,
-                std::vector<size_t>         const &indices
+                std::vector<std::size_t>         const &indices
                 );
 
         /**
          * @return the size of the kinematics objects i.e. the number of 
          * insertions / momenta.
          */
-        size_t size() const {
+        std::size_t size() const {
             return insertions.size();
         }
 
@@ -107,7 +107,7 @@ namespace mty {
          *
          * @return The insertion in position \b i.
          */
-        mty::Insertion const &insertion(size_t i) const {
+        mty::Insertion const &insertion(std::size_t i) const {
             return insertions[i];
         }
 
@@ -118,11 +118,11 @@ namespace mty {
          *
          * @return The momentum in position \b i.
          */
-        csl::Tensor const &momentum(size_t i) const {
+        csl::Tensor const &momentum(std::size_t i) const {
             return momenta[i];
         }
 
-        csl::Expr squaredMomentum(size_t i, size_t j) const {
+        csl::Expr squaredMomentum(std::size_t i, std::size_t j) const {
             return squaredMomenta[squaredMomentumIndex(i, j)];
         }
 
@@ -162,7 +162,7 @@ namespace mty {
         /**
          * @return #indices
          */
-        std::vector<size_t> const &getIndices() const {
+        std::vector<std::size_t> const &getIndices() const {
             return indices;
         }
 
@@ -219,7 +219,7 @@ namespace mty {
          * (squared-)momenta containing only objects at given positions given
          * by \b pos.
          */
-        Kinematics subset(std::vector<size_t> pos) const;
+        Kinematics subset(std::vector<std::size_t> pos) const;
 
         /**
          * @brief Permutes elements inside the Kinematics object, keeping 
@@ -228,7 +228,7 @@ namespace mty {
          * @param pos Permutation. Must be of the same size as the Kinematics
          * object and contain all indices in \f$ {1, 2, ..., N} \f$.
          */
-        void applyPermutation(std::vector<size_t> const &pos);
+        void applyPermutation(std::vector<std::size_t> const &pos);
 
         /**
          * @brief Creates a new kinemtics object with newly created momenta for
@@ -241,7 +241,7 @@ namespace mty {
          * corresponding to \b indices.
          */
         Kinematics applyIndices(
-                std::vector<size_t> const &indices
+                std::vector<std::size_t> const &indices
                 ) const;
 
         void sortFromIndices();
@@ -274,10 +274,10 @@ namespace mty {
          *
          * @param N Size of the container to return.
          *
-         * @return A std::vector<size_t> equal to \f$ {1, 2, ..., N} \f$.
+         * @return A std::vector<std::size_t> equal to \f$ {1, 2, ..., N} \f$.
          */
-        static std::vector<size_t> defaultIndices(size_t N) {
-            std::vector<size_t> indices(N);
+        static std::vector<std::size_t> defaultIndices(std::size_t N) {
+            std::vector<std::size_t> indices(N);
             std::iota(begin(indices), end(indices), 1);
             return indices;
         }
@@ -305,7 +305,7 @@ namespace mty {
          * @param indices Range of indices names for momenta to initialize 
          * corresponding names for \f$ s_{ij} \f$ objects.
          */
-        void initMomentaSquared(std::vector<size_t> const &indices);
+        void initMomentaSquared(std::vector<std::size_t> const &indices);
 
         /**
          * @brief Adds a CSL contraction for momenta.
@@ -335,8 +335,8 @@ namespace mty {
          * @param res Expression result of the contraction.
          */
         void setSquaredMomentum(
-                size_t           i, 
-                size_t           j,
+                std::size_t           i, 
+                std::size_t           j,
                 csl::Expr const &res);
 
         /**
@@ -348,7 +348,7 @@ namespace mty {
          * @return The index corresponding to \f$ s_{ij} \f$ in the linear range
          * containing squared momenta.
          */
-        size_t squaredMomentumIndex(size_t i, size_t j) const {
+        std::size_t squaredMomentumIndex(std::size_t i, std::size_t j) const {
             return i * momenta.size() + j;
         }
 
@@ -381,7 +381,7 @@ namespace mty {
          * considering for example that a set of momenta \f$ (p_2, p_3, p_1) \f$ 
          * will have indices \f$ (2, 3, 1) \f$.
          */
-        std::vector<size_t> indices;
+        std::vector<std::size_t> indices;
 
         /**
          * @brief Set of squared external momenta for the process.

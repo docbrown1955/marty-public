@@ -80,7 +80,7 @@ class FeynruleMomentum {
     ~FeynruleMomentum() = default;
 
     bool isEmpty() const; 
-    size_t getSize() const;
+    std::size_t getSize() const;
     void clear();
 
     std::vector<FeynruleKey>& getKeys();

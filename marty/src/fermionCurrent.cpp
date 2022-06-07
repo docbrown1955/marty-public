@@ -30,7 +30,7 @@ std::vector<FermionCurrent> parseChains(
     for (const auto& chain : positions) {
         std::vector<csl::Expr> tensors;
         tensors.reserve(chain.pos.size());
-        for (size_t p : chain.pos) {
+        for (std::size_t p : chain.pos) {
             tensors.push_back((*product)[p]);
             if (findAbrev)
                 (*product)[p] = CSL_1;
@@ -38,7 +38,7 @@ std::vector<FermionCurrent> parseChains(
         currents.push_back(FermionCurrent(tensors, diracSpace));
         csl::Index first = currents.back().getFirst();
         csl::Index last  = currents.back().getLast();
-        for (size_t i = 0; i != product->size(); ++i) {
+        for (std::size_t i = 0; i != product->size(); ++i) {
             auto iter = std::find(chain.pos.begin(), chain.pos.end(), i);
             if (iter != chain.pos.end())
                 continue;

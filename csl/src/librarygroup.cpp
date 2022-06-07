@@ -79,7 +79,7 @@ namespace csl {
         tp = -1;
         LibFunction::sortParameters(forcedParameters, tp);
         for (const auto &fp : forcedParameters) {
-            for (size_t i = 0; i != parameters.size(); ++i) {
+            for (std::size_t i = 0; i != parameters.size(); ++i) {
                 if (parameters[i].name == fp.name) {
                     parameters.erase(parameters.begin() + i);
                     if (posTensorParam >= static_cast<int>(i))
@@ -122,11 +122,11 @@ namespace csl {
             int           nIndent
             )
     {
-        constexpr size_t limitParams = 5;
+        constexpr std::size_t limitParams = 5;
         const auto newParamLine = '\n' + LibraryGenerator::indent(nIndent + 2);
         out << LibraryGenerator::indent(nIndent) << "for (auto &par : "
             << nameContainer << "{";
-        size_t count = 0;
+        std::size_t count = 0;
         if (params.size() > limitParams) {
             out << newParamLine;
         }
@@ -175,11 +175,11 @@ namespace csl {
             int           nIndent
             )
     {
-        constexpr size_t limitParams = 5;
+        constexpr std::size_t limitParams = 5;
         const auto newParamLine = '\n' + LibraryGenerator::indent(nIndent + 2);
         out << LibraryGenerator::indent(nIndent) << "for (auto const &par : "
             << nameContainer << "{";
-        size_t count = 0;
+        std::size_t count = 0;
         if (params.size() > limitParams) {
             out << newParamLine;
         }
@@ -344,7 +344,7 @@ namespace csl {
                     LibraryGenerator::complexUsing 
                     :LibraryGenerator::realUsing) << ", " << getParamName();
         out << ">> fmap_" << name << " {\n";
-        for (size_t i = 0; i != functions.size(); ++i) {
+        for (std::size_t i = 0; i != functions.size(); ++i) {
             out << LibraryGenerator::indent(nIndent + 1);
             out << "{\"" << functions[i].getName() 
                 << "\", f_" << name << "[" << i << "]},\n";
@@ -367,7 +367,7 @@ namespace csl {
             int           nIndent
             ) const
     {
-        for (size_t i = 0; i != parameters.size(); ++i) {
+        for (std::size_t i = 0; i != parameters.size(); ++i) {
             auto const &nameParam = parameters[i].name;
             out << LibraryGenerator::indent(nIndent);
             out << "auto const &";

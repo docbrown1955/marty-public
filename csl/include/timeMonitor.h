@@ -36,13 +36,13 @@ class TimeMonitor {
 
     struct Time {
 
-        size_t hour;
-        size_t min;
-        size_t sec;
+        std::size_t hour;
+        std::size_t min;
+        std::size_t sec;
     };
 
-    static void print(size_t nSec, std::ostream& out);
-    static Time processSec(size_t n_sec);
+    static void print(std::size_t nSec, std::ostream& out);
+    static Time processSec(std::size_t n_sec);
 
     public:
 
@@ -51,19 +51,19 @@ class TimeMonitor {
     void reset();
     void print(std::ostream & out);
 
-    size_t getHour() const {
+    std::size_t getHour() const {
         return m_time.hour;
     }
 
-    size_t getMin() const {
+    std::size_t getMin() const {
         return m_time.min;
     }
 
-    size_t getSec() const {
+    std::size_t getSec() const {
         return m_time.sec;
     }
 
-    size_t getTotalSec() const {
+    std::size_t getTotalSec() const {
         return 3600 * m_time.hour + 60 * m_time.min + m_time.sec;
     }
 

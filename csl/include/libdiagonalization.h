@@ -84,8 +84,8 @@ private:
             );
 
     void swap(
-            const size_t i,
-            const size_t j,
+            const std::size_t i,
+            const std::size_t j,
             std::vector<complex> &transfer,
             std::vector<real>    &mass
             );
@@ -106,9 +106,9 @@ private:
     void bidiagonalize();
 
     inline
-    size_t index(
-            const size_t i,
-            const size_t j
+    std::size_t index(
+            const std::size_t i,
+            const std::size_t j
             ) const 
     {
         return i * m_N + j;
@@ -153,7 +153,7 @@ private:
 private:
 
     std::vector<complex> m_data;
-    size_t               m_N;
+    std::size_t               m_N;
     bool                 m_bidiag;
     bool                 m_computed;
 

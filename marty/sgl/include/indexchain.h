@@ -148,11 +148,11 @@ namespace sgl {
         csl::Expr toCSL(TensorSet const &tensors) const override;
 
         std::pair<GExpr, IndexChain> cut(
-                size_t pos, 
-                size_t len = 1
+                std::size_t pos, 
+                std::size_t len = 1
                 ) const;
 
-        void erase(size_t pos, size_t len);
+        void erase(std::size_t pos, std::size_t len);
 
         GExpr applyEOM(MomentumIndex const &p) const;
 
@@ -206,18 +206,18 @@ namespace sgl {
 
         friend GExpr momentumGammaContraction(
                 sgl::IndexChain const&, csl::Tensor,
-                csl::Index const&, csl::Index const&, size_t, size_t
+                csl::Index const&, csl::Index const&, std::size_t, std::size_t
                 );
 
-        GExpr moveIndex(size_t init, size_t target) const;
+        GExpr moveIndex(std::size_t init, std::size_t target) const;
 
     private:
 
-        bool hasContraction(size_t i, size_t j) const;
-        std::optional<std::pair<size_t, size_t>> firstMove() const;
-        std::optional<std::pair<size_t, size_t>> lastMove() const;
+        bool hasContraction(std::size_t i, std::size_t j) const;
+        std::optional<std::pair<std::size_t, std::size_t>> firstMove() const;
+        std::optional<std::pair<std::size_t, std::size_t>> lastMove() const;
 
-        GExpr contraction(size_t i) const;
+        GExpr contraction(std::size_t i) const;
 
     public:
 

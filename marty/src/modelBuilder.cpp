@@ -229,13 +229,13 @@ void ModelBuilder::checksRotation(
                 "Rotation matrix must be a square matrix of size the number of "
                 "fields.");
 
-    for (size_t i = 0; i != fields.size(); ++i) {
+    for (std::size_t i = 0; i != fields.size(); ++i) {
         HEPAssert(fields[i]->getSpinDimension() == newFields[i]->getSpinDimension()
               and fields[i]->getGaugeIrrep() == newFields[i]->getGaugeIrrep(),
               mty::error::ValueError,
               "Fields in mixing must have the same spin and gauge "
               "representation.");
-        for (size_t j = i+1; j < fields.size(); ++j)
+        for (std::size_t j = i+1; j < fields.size(); ++j)
             HEPAssert(fields[i]->getSpinDimension() == fields[j]->getSpinDimension()
                   and fields[i]->getGaugeIrrep() == fields[j]->getGaugeIrrep(),
                   mty::error::ValueError,
@@ -263,9 +263,9 @@ std::vector<csl::Expr> ModelBuilder::getRotationTerms(
 {
     std::vector<csl::Index> indices = newFields[0]->getFullSetOfIndices();
     std::vector<csl::Expr> newExpressions(newFields.size());
-    for (size_t i = 0; i != newFields.size(); ++i) {
+    for (std::size_t i = 0; i != newFields.size(); ++i) {
         std::vector<csl::Expr> terms;
-        for (size_t j = 0; j != newFields.size(); ++j)
+        for (std::size_t j = 0; j != newFields.size(); ++j)
             if (rotation[i][j] != CSL_0) {
                 mty::Particle newField = newFields[j];
                 terms.push_back(
@@ -375,7 +375,7 @@ void ModelBuilder::applyRotation(
             interactionTerms.size() + kineticTerms.size(),
             "Rotating fields in Lagrangian"
             );
-    size_t index = 0;
+    std::size_t index = 0;
     for (auto& term : interactionTerms) {
         bar.progress(index++);
         term = csl::Replaced(term, field, rotation);
@@ -417,14 +417,14 @@ void ModelBuilder::applyRotation(
             interactionTerms.size() + kineticTerms.size(),
             "Rotating fields in Lagrangian"
             );
-    size_t index = 0;
+    std::size_t index = 0;
     for (auto& term : interactionTerms) {
         bar.progress(index++);
         csl::Replace(term, fields, rotations);
     }
     std::vector<csl::Parent> fieldParent(fields.size());
     std::vector<csl::Parent> newFieldParent(fields.size());
-    for (size_t i = 0; i != fieldParent.size(); ++i) {
+    for (std::size_t i = 0; i != fieldParent.size(); ++i) {
         fieldParent[i] = fields[i];
         newFieldParent[i] = newFields[i];
     }
@@ -508,7 +508,7 @@ void ModelBuilder::bidiagonalizeWithSpectrum(
                 }
                 return false;
             });
-    for (size_t i = 0; i != newFields1.size(); ++i)  {
+    for (std::size_t i = 0; i != newFields1.size(); ++i)  {
         const auto &f1 = newFields1[i];
         const auto &f2 = newFields2[i];
         csl::Expr mass = csl::constant_s("m_" + std::string(f1->getName()));
@@ -553,7 +553,7 @@ void ModelBuilder::rotateFields(
     if (!fields.empty() && fields[0]->getFieldStrength()) {
         std::vector<mty::Particle> fs1(fields.size());
         std::vector<mty::Particle> fs2(fields.size());
-        for (size_t i = 0; i != fs1.size(); ++i) {
+        for (std::size_t i = 0; i != fs1.size(); ++i) {
             fs1[i] = fields[i]->getFieldStrength();
             fs2[i] = newFields[i]->getFieldStrength();
         }
@@ -567,7 +567,7 @@ void ModelBuilder::rotateFields(
         fullMassMatrix = getFullMassMatrix(fields);
 
     if (fields.size() >= 3) {
-        for (size_t i = 0; i < fields.size(); ++i) {
+        for (std::size_t i = 0; i < fields.size(); ++i) {
             std::cout << "Replacing " << fields[i]->getName() << " ..."
                 << std::endl; 
             applyRotation(fields[i], newFields[i], newExpressions[i]);
@@ -618,7 +618,7 @@ void ModelBuilder::rotateFields(
     std::vector<csl::Expr> fullMassMatrix  = getFullMassMatrix(fields1);
 
     if (fields1.size() >= 3) {
-        for (size_t i = 0; i < fields1.size(); ++i) {
+        for (std::size_t i = 0; i < fields1.size(); ++i) {
             std::cout << "Replacing " << fields1[i]->getName() << " ..."
                 << std::endl; 
             applyRotation(fields1[i], newFields1[i], newExpressions1[i]);
@@ -658,7 +658,7 @@ void ModelBuilder::rotateFields(
         )
 {
     std::vector<mty::Particle> newFields(fields.size());
-    for (size_t i = 0; i != fields.size(); ++i)
+    for (std::size_t i = 0; i != fields.size(); ++i)
         newFields[i] = fields[i]->generateSimilar(
                 std::string(fields[i]->getName())
                 + " ; " + std::string(fields[i]->getLatexName())
@@ -676,9 +676,9 @@ void ModelBuilder::rotateFields(
         else if (valid)
             break;
     }
-    for (size_t i = 0; i != fields.size(); ++i) {
+    for (std::size_t i = 0; i != fields.size(); ++i) {
         mixing[i] = std::vector<csl::Expr>(fields.size());
-        for (size_t j = 0; j != fields.size(); ++j) {
+        for (std::size_t j = 0; j != fields.size(); ++j) {
             mixing[i][j] = csl::constant_s(
                     baseName + "_" + firstLetters
                         + "_" + toString(i) + toString(j),
@@ -687,7 +687,7 @@ void ModelBuilder::rotateFields(
         }
     }
     rotateFields(fields, newFields, mixing, diagonalizeMasses, nMassLessFields);
-    for (size_t i = 0; i != newFields.size(); ++i) {
+    for (std::size_t i = 0; i != newFields.size(); ++i) {
         if (auto fs = newFields[i]->getFieldStrength(); fs) {
             replace(fs, fields[i]->getFieldStrength()->getInstance());
         }
@@ -706,7 +706,7 @@ void ModelBuilder::birotateFields(
 {
     std::vector<mty::Particle> newFields1(fields1.size());
     std::vector<mty::Particle> newFields2(fields2.size());
-    for (size_t i = 0; i != fields1.size(); ++i) {
+    for (std::size_t i = 0; i != fields1.size(); ++i) {
         newFields1[i] = fields1[i]->generateSimilar(
                 std::string(fields1[i]->getName())
                  + " ; " + std::string(fields1[i]->getLatexName())
@@ -731,10 +731,10 @@ void ModelBuilder::birotateFields(
         else if (valid)
             break;
     }
-    for (size_t i = 0; i != fields1.size(); ++i) {
+    for (std::size_t i = 0; i != fields1.size(); ++i) {
         mixing1[i] = std::vector<csl::Expr>(fields1.size());
         mixing2[i] = std::vector<csl::Expr>(fields2.size());
-        for (size_t j = 0; j != fields1.size(); ++j) {
+        for (std::size_t j = 0; j != fields1.size(); ++j) {
             mixing1[i][j] = csl::constant_s(
                     baseName1 + "_" + firstLetters
                         + "_" + toString(i) + toString(j),
@@ -752,7 +752,7 @@ void ModelBuilder::birotateFields(
                  nMassLessFields);
     applyUnitaryCondition(mixing1);
     applyUnitaryCondition(mixing2);
-    for (size_t i = 0; i != newFields1.size(); ++i) {
+    for (std::size_t i = 0; i != newFields1.size(); ++i) {
         if (auto fs = newFields1[i]->getFieldStrength(); fs) {
             replace(fs, fields1[i]->getFieldStrength()->getInstance());
         }
@@ -882,11 +882,11 @@ void ModelBuilder::applyUnitaryCondition(
             });
     for (auto &term : terms) {
         bool applied = false;
-        for (size_t i = 0; i != unitary.size(); ++i) {
-            for (size_t j = 0; j != unitary.size(); ++j) {
+        for (std::size_t i = 0; i != unitary.size(); ++i) {
+            for (std::size_t j = 0; j != unitary.size(); ++j) {
                 csl::Expr lhs = GetComplexConjugate(unitary[0][i]);
                 csl::Expr rhs = CSL_0;
-                for (size_t k = 1; k != unitary.size(); ++k)
+                for (std::size_t k = 1; k != unitary.size(); ++k)
                     rhs += csl::GetComplexConjugate(unitary[k][i])*unitary[k][j];
                 csl::Expr remnant = (i == j) ? 1 : 0;
                 rhs = (remnant - rhs) / unitary[0][j];
@@ -903,10 +903,10 @@ void ModelBuilder::applyUnitaryCondition(
         }
         L.push_back(term);
     }
-    // for (size_t i = 0; i != unitary.size(); ++i)
-    //     for (size_t j = 0; j != unitary.size(); ++j) {
+    // for (std::size_t i = 0; i != unitary.size(); ++i)
+    //     for (std::size_t j = 0; j != unitary.size(); ++j) {
     //         csl::Expr expr = CSL_0;
-    //         for (size_t k = 0; k != unitary.size(); ++k)
+    //         for (std::size_t k = 0; k != unitary.size(); ++k)
     //             expr += csl::GetComplexConjugate(unitary[k][i])*unitary[k][j];
     //         replace(expr, (i == j) ? CSL_1 : CSL_0);
     //         // replace(csl::GetComplexConjugate(expr), (i == j) ? CSL_1 : CSL_0);
@@ -931,7 +931,7 @@ void ModelBuilder::addParticleFamily(std::vector<mty::Particle> const &family)
 void ModelBuilder::addParticleFamily(std::vector<std::string> const &family)
 {
     std::vector<mty::Particle> particles(family.size());
-    for (size_t i = 0; i != particles.size(); ++i) 
+    for (std::size_t i = 0; i != particles.size(); ++i) 
         particles[i] = getParticle(family[i]);
     return addParticleFamily(particles);
 }
@@ -1111,7 +1111,7 @@ auto replaceMajorana(
             mty::error::TypeError,
             "Expected a product as interaction term, " + toString(expr)
             + " given.")
-    const size_t sz = expr->size();
+    const std::size_t sz = expr->size();
     bool left = false;
     auto d   = dirac4.getDelta();
     auto P_1 = dirac4.P_L;
@@ -1122,7 +1122,7 @@ auto replaceMajorana(
     auto cc = csl::GetComplexConjugate;
     auto C = dirac4.C_matrix;
     bool leftMajorana = false;
-    for (size_t i = 0; i != sz; ++i) {
+    for (std::size_t i = 0; i != sz; ++i) {
         auto &arg = (csl::IsTensorialDerivative(expr[i])) ? 
             expr[i][0] : expr[i];
         if (IsOfType<QuantumField>(arg)) {
@@ -1340,11 +1340,11 @@ void ModelBuilder::applyDiracFermionEmbedding(
 {
     std::vector<csl::Expr> interactionTerms(interaction.size());
     std::vector<csl::Expr> minusInteractionTerms(interaction.size());
-    for (size_t i = 0; i != interaction.size(); ++i) {
+    for (std::size_t i = 0; i != interaction.size(); ++i) {
         interactionTerms[i] = interaction[i]->getFullExpression();
         minusInteractionTerms[i] = -interactionTerms[i];
     }
-    for (size_t i = 0; i != interaction.size(); ++i) {
+    for (std::size_t i = 0; i != interaction.size(); ++i) {
         if (not interaction[i]->containsExactly(leftWeyl.get())
                 and not interaction[i]->containsExactly(rightWeyl.get()))
             continue;
@@ -1361,7 +1361,7 @@ void ModelBuilder::applyDiracFermionEmbedding(
         });
         if (term == CSL_0)
             continue;
-        for (size_t j = i+1; j < interaction.size(); ++j) {
+        for (std::size_t j = i+1; j < interaction.size(); ++j) {
             if (interactionTerms[j] == term) {
                 csl::ForEachNode(term, [&](csl::Expr& expr)
                 {
@@ -1441,12 +1441,12 @@ void ModelBuilder::gatherMass(std::string const &name)
 
 void ModelBuilder::gatherMass(Particle const &part)
 {
-    std::vector<size_t> massTerms;
+    std::vector<std::size_t> massTerms;
     bool sameContent = true;
-    for (size_t i = 0; i != L.mass.size(); ++i)
+    for (std::size_t i = 0; i != L.mass.size(); ++i)
         if (L.mass[i]->containsExactly(part.get())
                 and isValidMassTerm(*L.mass[i])) {
-            for (size_t pos : massTerms)
+            for (std::size_t pos : massTerms)
                 if (sameContent 
                         and !L.mass[pos]->hasSameContent(*L.mass[i]))
                     sameContent = false;
@@ -1462,7 +1462,7 @@ void ModelBuilder::gatherMass(Particle const &part)
         }
     }
     else {
-        for (size_t i = 1; i != massTerms.size(); ++i)
+        for (std::size_t i = 1; i != massTerms.size(); ++i)
             if (L.mass[massTerms[0]]->getContent().size()
                     < L.mass[massTerms[i]]->getContent().size()) {
                 std::swap(massTerms[0], massTerms[i]);
@@ -1495,7 +1495,7 @@ void ModelBuilder::gatherMass(Particle const &part)
                     mty::error::RuntimeError,
                     "Invalid mass term encountered for " + 
                     std::string(part->getName()) + ".")
-            for (size_t i = 0; i != massTerms.size(); ++i) {
+            for (std::size_t i = 0; i != massTerms.size(); ++i) {
                 if (i < newMassTerms.size())
                     L.mass[massTerms[i]] = std::move(newMassTerms[i]);
                 else
@@ -1509,7 +1509,7 @@ void ModelBuilder::gatherMass(Particle const &part)
         else if (auto const &pointed = *content[0].getParent();
                 typeid(WeylFermion) == typeid(pointed)){
             bool massTerm = (massTerms.size() == 2);
-            for (size_t i = 0; i != L.mass.size(); ++i) {
+            for (std::size_t i = 0; i != L.mass.size(); ++i) {
                 auto pos = std::find(massTerms.begin(), massTerms.end(), i);
                 if (pos == massTerms.end()) {
                     if (L.mass[i]->containsWeakly(content[0].getQuantumParent())
@@ -1543,8 +1543,8 @@ void ModelBuilder::gatherMass(Particle const &part)
 
 void ModelBuilder::gatherMasses() 
 {
-    const size_t size = particles.size();
-    for (size_t i = 0; i != size; ++i) {
+    const std::size_t size = particles.size();
+    for (std::size_t i = 0; i != size; ++i) {
         gatherMass(particles[i]);
     }
 }
@@ -1552,7 +1552,7 @@ void ModelBuilder::gatherMasses()
 void ModelBuilder::refresh()
 {
     L.mergeTerms();
-    for (size_t i = 0; i != particles.size(); ++i) {
+    for (std::size_t i = 0; i != particles.size(); ++i) {
         if (IsOfType<FieldStrength>(particles[i])) {
             particles.erase(particles.begin() + i);
             --i;
@@ -1592,7 +1592,7 @@ void ModelBuilder::breakU1GaugeSymmetry(
         )
 {
     Group *brokenGroup = getGroup(groupName);
-    for (size_t i = 0; i != gauge->size(); ++i)
+    for (std::size_t i = 0; i != gauge->size(); ++i)
         if ((*gauge)[i] == brokenGroup)
             gauge->getGaugedGroup(i)->setBroken(true);
 }
@@ -1628,11 +1628,11 @@ void ModelBuilder::breakGaugeSymmetry(
         )
 {
     std::vector<std::vector<std::string>> newNames(brokenFields.size());
-    for (size_t i = 0; i != brokenFields.size(); ++i) {
-        const size_t size 
+    for (std::size_t i = 0; i != brokenFields.size(); ++i) {
+        const std::size_t size 
             = getGroupIrrep(brokenFields[i], brokenGroup).getDim();
         newNames[i] = std::vector<std::string>(size);
-        for (size_t j = 0; j != size; ++j) {
+        for (std::size_t j = 0; j != size; ++j) {
             newNames[i][j] = brokenFields[i]->getName();
             newNames[i][j] += "_" + toString(j + 1);
         }
@@ -1673,10 +1673,10 @@ void ModelBuilder::breakGaugeSymmetry(
                 "Field " + toString(p->getName()) + " has no representation "
                 "for group " + toString(brokenGroup->getName()) + " and can "
                 "thus not be broken !")
-    for (size_t i = 0; i != brokenFields.size(); ++i) {
+    for (std::size_t i = 0; i != brokenFields.size(); ++i) {
         brokenFields[i]->breakParticle(brokenGroup, newNames[i]);
     }
-    for (size_t i = 0; i != brokenFields.size(); ++i) {
+    for (std::size_t i = 0; i != brokenFields.size(); ++i) {
         csl::Space const* vectorSpace = brokenGroup->getVectorSpace(
                 brokenFields[i]->getGroupIrrep(brokenGroup)
                 );
@@ -1687,7 +1687,7 @@ void ModelBuilder::breakGaugeSymmetry(
         }
         removeParticle(brokenFields[i]);
     }
-    for (size_t i = 0; i != gauge->size(); ++i)
+    for (std::size_t i = 0; i != gauge->size(); ++i)
         if ((*gauge)[i] == brokenGroup)
             gauge->getGaugedGroup(i)->setBroken(true);
 }
@@ -1700,11 +1700,11 @@ void ModelBuilder::breakFlavorSymmetry(std::string const &brokenGroup)
         if (getGroupIrrep(part, group) != group->getTrivialRep())
             brokenFields.push_back(part);
     std::vector<std::vector<std::string>> newNames(brokenFields.size());
-    for (size_t i = 0; i != brokenFields.size(); ++i) {
-        const size_t size 
+    for (std::size_t i = 0; i != brokenFields.size(); ++i) {
+        const std::size_t size 
             = getGroupIrrep(brokenFields[i], brokenGroup).getDim();
         newNames[i] = std::vector<std::string>(size);
-        for (size_t j = 0; j != size; ++j) {
+        for (std::size_t j = 0; j != size; ++j) {
             newNames[i][j] = brokenFields[i]->getName();
             newNames[i][j] += "_" + toString(j + 1);
         }
@@ -1714,14 +1714,14 @@ void ModelBuilder::breakFlavorSymmetry(std::string const &brokenGroup)
 
 void ModelBuilder::breakFlavorSymmetry(
         std::string              const &brokenGroup,
-        std::vector<size_t>      const &subGroups,
+        std::vector<std::size_t>      const &subGroups,
         std::vector<std::string>        newFlavors
         )
 {
     if (newFlavors.empty()) {
         newFlavors.reserve(subGroups.size());
-        size_t i = 0;
-        for (size_t dim : subGroups)
+        std::size_t i = 0;
+        for (std::size_t dim : subGroups)
             if (dim > 1)
                 newFlavors.push_back(brokenGroup + "_" + toString(++i));
     }
@@ -1733,11 +1733,11 @@ void ModelBuilder::breakFlavorSymmetry(
         if (getGroupIrrep(part, group) != group->getTrivialRep())
             brokenFields.push_back(part);
     std::vector<std::vector<std::string>> newNames(brokenFields.size());
-    for (size_t i = 0; i != brokenFields.size(); ++i) {
-        const size_t size 
+    for (std::size_t i = 0; i != brokenFields.size(); ++i) {
+        const std::size_t size 
             = getGroupIrrep(brokenFields[i], brokenGroup).getDim();
         newNames[i] = std::vector<std::string>(size);
-        for (size_t j = 0; j != size; ++j) {
+        for (std::size_t j = 0; j != size; ++j) {
             newNames[i][j] = brokenFields[i]->getName();
             newNames[i][j] += "_" + toString(j + 1);
         }
@@ -1759,10 +1759,10 @@ void ModelBuilder::breakFlavorSymmetry(
     if (brokenFields.empty())
         return;
     mty::FlavorGroup* flavor = getFlavorGroup(flavorName);
-    size_t dim = flavor->getVectorSpace(
+    std::size_t dim = flavor->getVectorSpace(
             brokenFields[0]->getFlavorIrrep(flavor))->getDim();
     breakFlavorSymmetry(flavorName, 
-                        std::vector<size_t>(dim, 1),
+                        std::vector<std::size_t>(dim, 1),
                         brokenFields,
                         newNames,
                         std::vector<std::string>(dim, ""));
@@ -1770,12 +1770,12 @@ void ModelBuilder::breakFlavorSymmetry(
 
 void ModelBuilder::breakFlavorSymmetry(
         std::string                           const &flavorName,
-        std::vector<size_t>                   const &subGroups,
+        std::vector<std::size_t>                   const &subGroups,
         std::vector<mty::Particle>            const &brokenFields,
         std::vector<std::vector<std::string>> const &newNames,
         std::vector<std::string>              const &newFlavorNames)
 {
-    size_t dim = std::accumulate(subGroups.begin(),
+    std::size_t dim = std::accumulate(subGroups.begin(),
                                  subGroups.end(),
                                  0);
     mty::FlavorGroup* brokenFlavor = nullptr;
@@ -1802,8 +1802,8 @@ void ModelBuilder::breakFlavorSymmetry(
     std::vector<csl::Space const*> newSpaces;
     newFlavorGroups.reserve(subGroups.size());
     newSpaces.reserve(subGroups.size());
-    size_t nNonTrivial = 0;
-    for (size_t i = 0; i != subGroups.size(); ++i)
+    std::size_t nNonTrivial = 0;
+    for (std::size_t i = 0; i != subGroups.size(); ++i)
         if (subGroups[i] > 1) {
             std::unique_ptr<mty::FlavorGroup> newGroup = 
                     std::make_unique<mty::FlavorGroup>(
@@ -1821,13 +1821,13 @@ void ModelBuilder::breakFlavorSymmetry(
     for (auto& part : particles)
         part->adjustFlavorRep(flavor.get());
 
-    for (size_t i = 0; i != brokenFields.size(); ++i) {
+    for (std::size_t i = 0; i != brokenFields.size(); ++i) {
         brokenFields[i]->breakParticle(
                     brokenFlavor,
                     newFlavorGroups,
                     newNames[i]);
     }
-    for (size_t i = 0; i != brokenFields.size(); ++i) {
+    for (std::size_t i = 0; i != brokenFields.size(); ++i) {
         breakLagrangian(
                 brokenFields[i],
                 brokenFlavor->getFundamentalSpace(),
@@ -1843,7 +1843,7 @@ void ModelBuilder::breakFlavorSymmetry(
 
 void ModelBuilder::replaceTermInLagrangian(
         std::vector<Lagrangian::TermType> &lagrangian,
-        size_t                            &i,
+        std::size_t                            &i,
         csl::vector_expr                  &newTerms)
 {
     std::vector<Lagrangian::TermType> newMass;
@@ -1902,7 +1902,7 @@ void ModelBuilder::breakLagrangian(
         std::vector<csl::Space const*> const &newSpace
         )
 {
-    for (size_t i = 0; i != L.kinetic.size(); ++i)
+    for (std::size_t i = 0; i != L.kinetic.size(); ++i)
         if (L.kinetic[i]->containsExactly(init.get())) {
             csl::vector_expr broke 
                 = expandBrokenIndices(
@@ -1912,7 +1912,7 @@ void ModelBuilder::breakLagrangian(
             replaceTermInLagrangian(L.kinetic, i, broke);
         }
 
-    for (size_t i = 0; i != L.mass.size(); ++i)
+    for (std::size_t i = 0; i != L.mass.size(); ++i)
         if (L.mass[i]->containsExactly(init.get())) {
             csl::vector_expr broke 
                 = expandBrokenIndices(
@@ -1922,7 +1922,7 @@ void ModelBuilder::breakLagrangian(
             replaceTermInLagrangian(L.mass, i, broke);
         }
 
-    for (size_t i = 0; i != L.interaction.size(); ++i)
+    for (std::size_t i = 0; i != L.interaction.size(); ++i)
         if (L.interaction[i]->containsExactly(init.get())) {
             csl::vector_expr broke 
                 = expandBrokenIndices(
@@ -1986,21 +1986,21 @@ bool ModelBuilder::fieldInContent(
 std::vector<MassBlock> ModelBuilder::getMassBlocks() const
 {
     std::vector<MassBlock> blocks;
-    std::vector<size_t> indicesLeft;
+    std::vector<std::size_t> indicesLeft;
     indicesLeft.reserve(L.mass.size());
     std::vector<std::vector<Particle>> contents;
     contents.reserve(L.mass.size());
-    for (size_t i = 0; i != L.mass.size(); ++i)
+    for (std::size_t i = 0; i != L.mass.size(); ++i)
         if (isValidMassTerm(*L.mass[i])) {
             indicesLeft.push_back(i);
             contents.push_back(uniqueContent(*L.mass[i]));
         }
 
-    for (size_t i = 0; i < indicesLeft.size(); ++i) {
+    for (std::size_t i = 0; i < indicesLeft.size(); ++i) {
         if (contents[i].size() == 1)
             continue;
-        std::vector<size_t> block(1, indicesLeft[i]);
-        for (size_t j = 0; j < indicesLeft.size(); ++j) {
+        std::vector<std::size_t> block(1, indicesLeft[i]);
+        for (std::size_t j = 0; j < indicesLeft.size(); ++j) {
             if (i == j)
                 continue;
             bool commonField = false;
@@ -2092,8 +2092,8 @@ bool ModelBuilder::diagonalizeExplicitely(
     csl::Expr transfer = diagonalizer.getInvTransform();
     if (forceDetZero) {
         // If complicated matrix, we abbreviate 
-        for (size_t i = 0; i != transfer->size(); ++i)
-            for (size_t j = 0; j != transfer[i]->size(); ++j)
+        for (std::size_t i = 0; i != transfer->size(); ++i)
+            for (std::size_t j = 0; j != transfer[i]->size(); ++j)
                 transfer[i][j] = transfer[i][j]->getNumericalFactor()
                     * csl::Abbrev::makeAbbreviation(
                             csl::GetTerm(transfer[i][j])
@@ -2101,22 +2101,22 @@ bool ModelBuilder::diagonalizeExplicitely(
     }
     csl::Expr newParts = csl::vector_s(newFields.size());
     std::vector<csl::Index> indices = newFields[0]->getFullSetOfIndices();
-    for (size_t i = 0; i != newFields.size(); ++i)
+    for (std::size_t i = 0; i != newFields.size(); ++i)
         newParts[i] = newFields[i](indices);
 
     csl::Expr replacement = transfer->dot(newParts);
-    for (size_t i = 0; i != replacement->size(); ++i) {
+    for (std::size_t i = 0; i != replacement->size(); ++i) {
         replace(content[i], replacement[i]);
     }
     if (newFields[0]->hasFieldStrength()) {
         csl::Expr newParts = csl::vector_s(newFields.size());
         std::vector<csl::Index> indices 
             = newFields[0]->getFieldStrength()->getFullSetOfIndices();
-        for (size_t i = 0; i != newFields.size(); ++i)
+        for (std::size_t i = 0; i != newFields.size(); ++i)
             newParts[i] = newFields[i]->getFieldStrength()(indices);
 
         csl::Expr replacement = transfer->dot(newParts);
-        for (size_t i = 0; i != replacement->size(); ++i) {
+        for (std::size_t i = 0; i != replacement->size(); ++i) {
             replace(content[i]->getFieldStrength(), replacement[i]);
         }
     }
@@ -2124,11 +2124,11 @@ bool ModelBuilder::diagonalizeExplicitely(
         csl::Expr newParts = csl::vector_s(newFields.size());
         std::vector<csl::Index> indices 
             = newFields[0]->getGhostBoson()->getFullSetOfIndices();
-        for (size_t i = 0; i != newFields.size(); ++i)
+        for (std::size_t i = 0; i != newFields.size(); ++i)
             newParts[i] = newFields[i]->getGhostBoson()(indices);
 
         csl::Expr replacement = transfer->dot(newParts);
-        for (size_t i = 0; i != replacement->size(); ++i) {
+        for (std::size_t i = 0; i != replacement->size(); ++i) {
             replace(content[i]->getGhostBoson(), replacement[i]);
         }
     }
@@ -2140,7 +2140,7 @@ bool ModelBuilder::diagonalizeExplicitely(
         return false;
     });
     csl::Expr D = diagonalizer.getDiagonal();
-    for (size_t i = 0; i != newFields.size(); ++i)  {
+    for (std::size_t i = 0; i != newFields.size(); ++i)  {
         if (D[i][i] != CSL_0) {
             csl::Expr mass = (newFields[i]->isSelfConjugate()) ? 
                 2 * D[i][i] : D[i][i];
@@ -2156,7 +2156,7 @@ bool ModelBuilder::diagonalizeExplicitely(
         csl::Expr D = diagonalizer.getDiagonal();
         mty::Particle massLess = 
             (D[0][0] == CSL_0) ? newFields[0] : newFields[1];
-        for (size_t i = 0; i != L.mass.size(); ++i)
+        for (std::size_t i = 0; i != L.mass.size(); ++i)
             if (L.mass[i]->containsExactly(massLess.get())) {
                 L.mass.erase(L.mass.begin() + i);
                 --i;
@@ -2184,7 +2184,7 @@ bool ModelBuilder::doDiagonalizeSymbolically(
                 continue;
             massBlock = block;
             massBlock.terms.reserve(massBlock.positions.size());
-            for (size_t pos : massBlock.positions)
+            for (std::size_t pos : massBlock.positions)
                 massBlock.terms.push_back(L.mass[pos]);
         }
     }
@@ -2208,7 +2208,7 @@ void ModelBuilder::diagonalizeMassMatrices()
         if (block.particles.size() == 2 
                 or mty::option::diagonalizeSymbolically) {
             block.terms.reserve(block.positions.size());
-            for (size_t pos : block.positions)
+            for (std::size_t pos : block.positions)
                 block.terms.push_back(L.mass[pos]);
         }
     }
@@ -2239,7 +2239,7 @@ void ModelBuilder::diagonalizeYukawa(
         )
 {
     csl::vector_expr diagonal(nameMass.size());
-    for (size_t i = 0; i != nameMass.size(); ++i) {
+    for (std::size_t i = 0; i != nameMass.size(); ++i) {
         diagonal[i] = factor * csl::constant_s(nameMass[i]);
     }
     std::vector<mty::Particle> empty;
@@ -2254,7 +2254,7 @@ void ModelBuilder::diagonalizeYukawa(
         )
 {
     csl::vector_expr diagonal(nameMass.size());
-    for (size_t i = 0; i != nameMass.size(); ++i) {
+    for (std::size_t i = 0; i != nameMass.size(); ++i) {
         diagonal[i] = factor * csl::constant_s(nameMass[i]);
     }
     diagonalizeYukawa(nameYukawa, diagonal, mixing, mixed);
@@ -2371,7 +2371,7 @@ void ModelBuilder::applyDiagonalizationData(
         mixings.reserve(initMix.size1()*initMix.size2() 
                       + initMix2.size1()*initMix2.size2());
         expressions.reserve(initMass.size1()*initMass.size2());
-        for (size_t i = 0; i != initMix.size1(); ++i) {
+        for (std::size_t i = 0; i != initMix.size1(); ++i) {
             const auto &p = parts[i];
             masses.emplace_back(
                     csl::LibraryGenerator::regularName(p->getMass()->getName())
@@ -2380,8 +2380,8 @@ void ModelBuilder::applyDiagonalizationData(
                 masses.back() = "m_" + p->getName();
             }
         }
-        for (size_t i = 0; i != initMix.size1(); ++i)
-            for (size_t j = 0; j != initMix.size2(); ++j) {
+        for (std::size_t i = 0; i != initMix.size1(); ++i)
+            for (std::size_t j = 0; j != initMix.size2(); ++j) {
                 mixings.emplace_back(
                         csl::LibraryGenerator::regularName(initMix(i, j)->getName())
                         );
@@ -2408,8 +2408,8 @@ void ModelBuilder::applyDiagonalizationData(
                 massTerm->print(1, sout, true);
                 expressions.emplace_back(sout.str());
             }
-        for (size_t i = 0; i != initMix2.size1(); ++i)
-            for (size_t j = 0; j != initMix2.size2(); ++j) {
+        for (std::size_t i = 0; i != initMix2.size1(); ++i)
+            for (std::size_t j = 0; j != initMix2.size2(); ++j) {
                 mixings.emplace_back(
                         csl::LibraryGenerator::regularName(initMix2(i, j)->getName())
                         );
@@ -2432,9 +2432,9 @@ void ModelBuilder::writeMatrix(
         ) const
 {
     out << indent << "{\n";
-    for (size_t i1 = 0; i1 != m.size1(); ++i1) {
+    for (std::size_t i1 = 0; i1 != m.size1(); ++i1) {
         out << indent << "{";
-        for (size_t i2 = 0; i2 != m.size2(); ++i2) {
+        for (std::size_t i2 = 0; i2 != m.size2(); ++i2) {
             m(i1, i2)->printCode(1, out);
             if (i2 + 1 != m.size2())
                 out << ", ";
@@ -2494,7 +2494,7 @@ void abbreviate(
 {
     std::vector<csl::Expr> factors;
     csl::Expr term = csl::DeepCopy(prod);
-    for (size_t i = 0; i != term->size(); ++i) {
+    for (std::size_t i = 0; i != term->size(); ++i) {
         if (term[i]->isIndexed())
             break;
         if (csl::AnyOfLeafs(term, [&](csl::Expr const &sub)
@@ -2514,18 +2514,18 @@ void abbreviate(
     prod = newTerm;
 }
 
-void ModelBuilder::abbreviateBigTerms(size_t maxLeafs)
+void ModelBuilder::abbreviateBigTerms(std::size_t maxLeafs)
 {
     std::cout << "Abbreviation complex interaction terms ..." << std::endl;
     csl::ProgressBar bar(L.interaction.size());
-    for (size_t i = 0; i != L.interaction.size(); ++i) {
+    for (std::size_t i = 0; i != L.interaction.size(); ++i) {
         bar.progress(i);
         csl::Expr term = L.interaction[i]->getTerm();
         if (csl::CountLeafs(term) < maxLeafs) {
             continue;
         }
         if (csl::IsSum(term)) {
-            for (size_t i = 0; i != term->size(); ++i) 
+            for (std::size_t i = 0; i != term->size(); ++i) 
                 abbreviate(term[i]);
             csl::Refresh(term);
         }
@@ -2555,19 +2555,19 @@ std::vector<csl::Expr> ModelBuilder::clearDependencies(
 {
     std::vector<csl::Expr> terms;
     terms.reserve(L.fullSize());
-    for (size_t i = 0; i != L.kinetic.size(); ++i) 
+    for (std::size_t i = 0; i != L.kinetic.size(); ++i) 
         if (dependencyFunc(L.kinetic[i])) {
             terms.push_back(L.kinetic[i]->getTerm());
             L.kinetic.erase(L.kinetic.begin()+i);
             --i;
         }
-    for (size_t i = 0; i != L.mass.size(); ++i) 
+    for (std::size_t i = 0; i != L.mass.size(); ++i) 
         if (dependencyFunc(L.mass[i])) {
             terms.push_back(L.mass[i]->getTerm());
             L.mass.erase(L.mass.begin()+i);
             --i;
         }
-    for (size_t i = 0; i != L.interaction.size(); ++i) 
+    for (std::size_t i = 0; i != L.interaction.size(); ++i) 
         if (dependencyFunc(L.interaction[i])) {
             terms.push_back(L.interaction[i]->getTerm());
             L.interaction.erase(L.interaction.begin()+i);
@@ -2584,7 +2584,7 @@ std::vector<csl::Expr> ModelBuilder::clearDependencies(
 {
     std::vector<csl::Expr> res;
     res.reserve(L.fullSize());
-    for (size_t i = 0; i != terms.size(); ++i) 
+    for (std::size_t i = 0; i != terms.size(); ++i) 
         if (dependencyFunc(terms[i])) {
             res.push_back(terms[i]->getTerm());
             terms.erase(terms.begin()+i);

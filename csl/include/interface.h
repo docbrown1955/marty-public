@@ -46,7 +46,7 @@ inline csl::Type GetPrimaryType(T const &expr)
 }
 
 [[nodiscard]]
-inline size_t Size(Expr const &expr)
+inline std::size_t Size(Expr const &expr)
 {
     return expr->size();
 }
@@ -54,7 +54,7 @@ inline size_t Size(Expr const &expr)
 [[nodiscard]]
 inline Expr GetArgument(
         Expr const &expr,
-        size_t      pos = 0
+        std::size_t      pos = 0
         )
 {
     return expr->getArgument(int(pos));
@@ -1184,7 +1184,7 @@ bool CheckValidity(Expr const& init,
  * ignoring all non-Expr 
  * pointed elements.
  */
-size_t MemorySizeOf(Expr const& expression);
+std::size_t MemorySizeOf(Expr const& expression);
 
 } // End of namespace csl
 

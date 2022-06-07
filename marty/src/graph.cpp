@@ -40,9 +40,9 @@ std::vector<std::shared_ptr<Node>> Node::copyGraph(
         std::vector<std::shared_ptr<Node>> const& init)
 {
     std::vector<std::shared_ptr<Node>> newGraph(init.size());
-    for (size_t i = 0; i != init.size(); ++i)
+    for (std::size_t i = 0; i != init.size(); ++i)
         newGraph[i] = std::make_shared<Node>(init[i]->field);
-    for (size_t i = 0; i != init.size(); ++i) {
+    for (std::size_t i = 0; i != init.size(); ++i) {
         auto pos = std::find_if(
                 init.begin(), 
                 init.end(),
@@ -54,7 +54,7 @@ std::vector<std::shared_ptr<Node>> Node::copyGraph(
                 mty::error::RuntimeError,
                 "Node not found in copy of grpah, make sure the graph is "
                 + std::string("fully connected."));
-        size_t partner = pos - init.begin();
+        std::size_t partner = pos - init.begin();
         newGraph[i]->partner = newGraph[partner];
     }
 
@@ -73,7 +73,7 @@ Vertex::Vertex(): vector<shared_ptr<Node>>(),
 {}
 
 Vertex::Vertex(const vector<const QuantumField*>& fields,
-               size_t                             t_id,
+               std::size_t                             t_id,
                bool                               t_external)
     :vector<shared_ptr<Node>>(),
     external(t_external),
@@ -135,14 +135,14 @@ bool Vertex::isDegenerateWith(const Vertex& other) const
     if (id != 0 and id == other.id)
         return true;
     vector<int> indicesLeft(size());
-    for (size_t i = 0; i != size(); ++i)
+    for (std::size_t i = 0; i != size(); ++i)
         indicesLeft[i] = i;
 
     for (auto iter = begin(); iter != end(); ++iter) {
         bool matched = false;
         const QuantumField* fA = (*iter)->field;
-        for (size_t j = 0; j != indicesLeft.size(); ++j) {
-            size_t index = indicesLeft[j];
+        for (std::size_t j = 0; j != indicesLeft.size(); ++j) {
+            std::size_t index = indicesLeft[j];
             const QuantumField* fB = other[index]->field;
             if (fA->getQuantumParent() == fB->getQuantumParent()) {
                 if (fA->isSelfConjugate() 
@@ -240,12 +240,12 @@ int Vertex::getTotalDegeneracyFactor() const
 {
     int factor = 1;
     std::set<QuantumFieldParent*> treated;
-    for (size_t i = 0; i != size(); ++i) {
+    for (std::size_t i = 0; i != size(); ++i) {
         const QuantumField* field = (*this)[i]->field;
         if (treated.find(field->getQuantumParent()) != treated.end())
             continue;
         int n = 1;
-        for (size_t j = i+1; j < size(); ++j)
+        for (std::size_t j = i+1; j < size(); ++j)
             if (areDegenerate(*field, *(*this)[j]->field))
                 ++n;
         treated.insert(field->getQuantumParent());
@@ -260,7 +260,7 @@ Vertex& Vertex::operator=(const Vertex& other)
     external = other.external;
     id = other.id;
     auto first = begin();
-    for (size_t i = 0; i != size(); ++i) 
+    for (std::size_t i = 0; i != size(); ++i) 
         if (not other[i]->partner.expired())
             // Already contracted node: no new allocation, keep the shared_ptr
             *first++ = other[i];
@@ -275,7 +275,7 @@ bool Vertex::operator==(const Vertex& other) const
 {
     if (size() != other.size())
         return false;
-    for (size_t i = 0; i != size(); ++i) 
+    for (std::size_t i = 0; i != size(); ++i) 
         if (*(*this)[i]->field != *other[i]->field)
             return false;
     
@@ -340,7 +340,7 @@ const QuantumField* ConnectedComponent::getFirstContractibleField() const
 
 int ConnectedComponent::getFirstContractibleVertex() const
 {
-    for (size_t i = 0; i != size(); ++i) 
+    for (std::size_t i = 0; i != size(); ++i) 
         if (vertices[i].hasFreeNode()) 
             return i;
     return -1;
@@ -351,7 +351,7 @@ vector<int> ConnectedComponent::getContractibleVertices(
 {
     vector<int> pos_vertices(0);
     int firstVertex = getFirstContractibleVertex();
-    for (size_t i = 0; i != size(); ++i) {
+    for (std::size_t i = 0; i != size(); ++i) {
         if (mty::option::excludeTadpoles 
                 and int(i) == firstVertex
                 and vertices[firstVertex].size() == 3)
@@ -441,10 +441,10 @@ ostream& operator<<(ostream& fout, const ConnectedComponent& c)
     vector<shared_ptr<Node>> nodes;
     for (const auto& v : c)
         nodes.insert(nodes.end(), v.begin(), v.end());
-    vector<size_t> indicesLeft = vector<size_t>(nodes.size());
-    for (size_t i = 0; i != indicesLeft.size(); ++i)
+    vector<std::size_t> indicesLeft = vector<std::size_t>(nodes.size());
+    for (std::size_t i = 0; i != indicesLeft.size(); ++i)
         indicesLeft[i] = i;
-    for (size_t indexA = 0; indexA != indicesLeft.size(); ++indexA) {
+    for (std::size_t indexA = 0; indexA != indicesLeft.size(); ++indexA) {
         shared_ptr<Node> nodeA = nodes[indicesLeft[indexA]];
         if (nodeA->partner.expired()) {
             fout << "free -->  ";
@@ -453,7 +453,7 @@ ostream& operator<<(ostream& fout, const ConnectedComponent& c)
             --indexA;
             continue;
         }
-        for (size_t indexB = 1+indexA; indexB != indicesLeft.size(); ++indexB) {
+        for (std::size_t indexB = 1+indexA; indexB != indicesLeft.size(); ++indexB) {
             shared_ptr<Node> nodeB = nodes[indicesLeft[indexB]];
             if (nodeB->partner.expired())
                 continue;
@@ -491,7 +491,7 @@ Graph::Graph()
 }
 
 Graph::Graph(const vector<QuantumField>& field,
-             std::map<csl::Tensor, size_t>& vertexIds,
+             std::map<csl::Tensor, std::size_t>& vertexIds,
              bool                            t_ruleMode)
     :Graph()
 {
@@ -515,7 +515,7 @@ Graph::Graph(const vector<QuantumField>& field,
     }
 
     // Isolating external from internal vertices
-    for(size_t i = 0; i != vertices.size(); ++i) {
+    for(std::size_t i = 0; i != vertices.size(); ++i) {
         vector<const QuantumField*> vertex = vertices[i];
         if (vertex[0]->isExternal()) {
             Vertex newVertex(vertex, true);
@@ -535,7 +535,7 @@ Graph::Graph(const vector<QuantumField>& field,
 }
 
 Graph::Graph(const csl::Expr& expr,
-             std::map<csl::Tensor, size_t>& vertexId,
+             std::map<csl::Tensor, std::size_t>& vertexId,
              bool                            t_ruleMode)
     :Graph(convertExprToFields(expr), vertexId, t_ruleMode)
 {}
@@ -549,7 +549,7 @@ Graph::Graph(Graph const& other,
             mty::error::ValueError,
             "Wrong number of nodes for graph " + toString(*this)
             + "\n  -> " + toString(newNodes.size()) + " nodes given.");
-    size_t index = 0;
+    std::size_t index = 0;
     for (auto& vertex : connectedCompo)
         for (auto& node : vertex)
             node = newNodes[index++];
@@ -619,11 +619,11 @@ void Graph::isolateIndependantVertices()
 
     independentVertices = vector<int>(0);
     int nFamilies = 0;
-    for(size_t i = 0; i < intVertex.size(); ++i) {
+    for(std::size_t i = 0; i < intVertex.size(); ++i) {
         independentVertices.push_back(i);
-        const size_t index = i;
+        const std::size_t index = i;
         ++nFamilies;
-        for (size_t j = i+1; j < intVertex.size(); ++j) {
+        for (std::size_t j = i+1; j < intVertex.size(); ++j) {
             assert(index < intVertex.size());
             if (intVertex[j].isDegenerateWith(intVertex[index])) {
                 if (i+1 != j)
@@ -641,7 +641,7 @@ void Graph::removeIntVertex(int indexVertex)
         if (index > indexVertex)
             --index;
     // Erasing indices of equivalent classes that are not present anymore
-    for (size_t i = 0; i != independentVertices.size()-1; ++i) 
+    for (std::size_t i = 0; i != independentVertices.size()-1; ++i) 
         if (independentVertices[i] == independentVertices[i+1]) {
             independentVertices.erase(independentVertices.begin()+i);
             --i;
@@ -823,10 +823,10 @@ Graph::Expr_type Graph::getPartialExpression(
     vector<const QuantumField*> finalOrder(0);
     // Setting contracted fields next to each other to get the final order
     // of fields, then compared to the initial for the commutation sign
-    for (size_t i = 0; i < nodes.size()-1; i += 2) {
+    for (std::size_t i = 0; i < nodes.size()-1; i += 2) {
         const auto nodeA = nodes[i];
         finalOrder.push_back(nodes[i]->field);
-        for (size_t j = i+1; j != nodes.size(); ++j) {
+        for (std::size_t j = i+1; j != nodes.size(); ++j) {
             auto& nodeB = nodes[j];
             if (nodeA->partner.lock().get() == nodeB.get()) {
                 if (j != i+1)
@@ -843,7 +843,7 @@ Graph::Expr_type Graph::getPartialExpression(
             "Graph::getExpression()...");
 
     csl::vector_expr terms_ampl(1, globalFactor);
-    for (size_t i = 0; i < finalOrder.size(); i += 2) {
+    for (std::size_t i = 0; i < finalOrder.size(); i += 2) {
         if (finalOrder[i]->isComplexConjugate()
                 and !finalOrder[i+1]->isComplexConjugate())
             std::swap(finalOrder[i], finalOrder[i+1]);
@@ -852,7 +852,7 @@ Graph::Expr_type Graph::getPartialExpression(
     auto C_info = mty::ConjugationInfo::resolveFermionLines(
             finalOrder, initialOrder, ruleMode);
     finalOrder = C_info.getFinalOrder();
-    for (size_t i = 0; i < finalOrder.size(); i += 2) {
+    for (std::size_t i = 0; i < finalOrder.size(); i += 2) {
         // Generating the integral (impulsion) variable in 4D for propagator.
         string Qname = "Q_" + toString(i/2 + 1);
         csl::Expr Q = generateTensor(Qname, {&Minkowski});
@@ -1048,7 +1048,7 @@ void Graph::applySymmetry(
 vector<int> Graph::getContractibleExtVertices(const QuantumField* field) const
 {
     vector<int> vertices(0);
-    for (size_t i = 0; i != extVertex.size(); ++i) 
+    for (std::size_t i = 0; i != extVertex.size(); ++i) 
         if (extVertex[i].getDegeneracy(field) > 0) {
             vertices.push_back(i);
             if (not symmetrizeExternalLegs)
@@ -1060,7 +1060,7 @@ vector<int> Graph::getContractibleExtVertices(const QuantumField* field) const
 vector<int> Graph::getContractibleIntVertices(const QuantumField* field) const
 {
     vector<int> vertices(0);
-    for (size_t i = 0; i != independentVertices.size(); ++i)   {
+    for (std::size_t i = 0; i != independentVertices.size(); ++i)   {
         const int begin = independentVertices[i];
         const int end   = (i != independentVertices.size()-1) ? 
             independentVertices[i+1] : intVertex.size();
@@ -1170,24 +1170,24 @@ std::vector<std::shared_ptr<Graph>> Graph::contractionStep() const
     nullDiagrams.reserve(extContractile.size()
                        + intContractile.size()
                        + connectedContractile.size());
-    for (size_t i = 0; i != extContractile.size(); ++i)  
+    for (std::size_t i = 0; i != extContractile.size(); ++i)  
         if (not newGraphs[i]->contractExternal(field, extContractile[i]))
             nullDiagrams[i] = true;
 
-    size_t size = extContractile.size();
-    for (size_t i = 0; i != intContractile.size(); ++i) 
+    std::size_t size = extContractile.size();
+    for (std::size_t i = 0; i != intContractile.size(); ++i) 
         if (not newGraphs[size+i]->contractInternal(field, intContractile[i]))
             nullDiagrams[size+i] = true;
 
     size += intContractile.size();
-    for (size_t i = 0; i != connectedContractile.size(); ++i)  
+    for (std::size_t i = 0; i != connectedContractile.size(); ++i)  
         if (not newGraphs[size+i]->contractConnected(
                     field, connectedContractile[i]))
             nullDiagrams[size+i] = true;
 
     std::vector<std::shared_ptr<Graph>> nonZeroDiagrams;
     nonZeroDiagrams.reserve(newGraphs.size());
-    for (size_t i = 0; i != newGraphs.size(); ++i)
+    for (std::size_t i = 0; i != newGraphs.size(); ++i)
         nonZeroDiagrams.emplace_back(std::move(newGraphs[i]));
 
     if constexpr (display) {
@@ -1337,9 +1337,9 @@ void Graph::sortNodes(vector<shared_ptr<Node>>& nodes)
     if (nodes.empty())
         return;
     vector<Tensor> foundNodes;
-    for (size_t i = 0; i != nodes.size()-1; ++i) {
-        size_t iPrio = i;
-        for (size_t j = i+1; j < nodes.size(); ++j)
+    for (std::size_t i = 0; i != nodes.size()-1; ++i) {
+        std::size_t iPrio = i;
+        for (std::size_t j = i+1; j < nodes.size(); ++j)
             if (comparePriority(nodes[j], nodes[iPrio], foundNodes)) {
                 iPrio = j;
             }
@@ -1363,17 +1363,17 @@ bool Graph::compare(const Graph& other,
     vector<shared_ptr<Node>> const &otherNodes = other.getNodes();
     // sortNodes(selfNodes);
     // sortNodes(otherNodes);
-    vector<size_t> indicesLeft(otherNodes.size());
-    for (size_t i = 0; i != indicesLeft.size(); ++i)
+    vector<std::size_t> indicesLeft(otherNodes.size());
+    for (std::size_t i = 0; i != indicesLeft.size(); ++i)
         indicesLeft[i] = i;
     vector<Node const*> partnersMatched;
-    for (size_t i = 0; i != selfNodes.size(); ++i) {
+    for (std::size_t i = 0; i != selfNodes.size(); ++i) {
         Node const *node = selfNodes[i].get();
         if (find(partnersMatched.begin(), partnersMatched.end(), node)
                 != partnersMatched.end())
             continue;
         bool matched = false;
-        for (size_t j = 0; j != indicesLeft.size(); ++j) {
+        for (std::size_t j = 0; j != indicesLeft.size(); ++j) {
             Node const *nodeB = otherNodes[indicesLeft[j]].get();
             if (compareNodesWithConstraints(
                         node, nodeB, constraints, fieldBlind)) {
@@ -1401,14 +1401,14 @@ void Graph::contractHighMass(
         mty::QuantumFieldParent const *field
         )
 {
-    for (size_t i = 0; i != connectedCompo.size(); ++i) {
+    for (std::size_t i = 0; i != connectedCompo.size(); ++i) {
         Vertex &vertex = connectedCompo[i];
-        for (size_t j = 0; j != vertex.size(); ++j) {
+        for (std::size_t j = 0; j != vertex.size(); ++j) {
             if (vertex[j]->field->getParent_info() == field) {
                 auto partner = vertex[j]->partner.lock();
                 vertex.erase(vertex.begin() + j);
-                for (size_t k = 0; k != connectedCompo.size(); ++k)
-                    for (size_t l = 0; l != connectedCompo[k].size(); ++l)
+                for (std::size_t k = 0; k != connectedCompo.size(); ++k)
+                    for (std::size_t l = 0; l != connectedCompo[k].size(); ++l)
                         if (connectedCompo[k][l].get() == partner.get()) {
                             connectedCompo[k].erase(
                                     connectedCompo[k].begin() + l);
@@ -1509,7 +1509,7 @@ std::vector<std::shared_ptr<Graph>> WickCalculator::getDiagrams(
 void WickCalculator::eliminateNonPhysicalDiagrams(
         std::vector<std::shared_ptr<Graph>>& diagrams)
 {
-    for (size_t i = 0; i != diagrams.size(); ++i) 
+    for (std::size_t i = 0; i != diagrams.size(); ++i) 
         if (not diagrams[i]->isPhysical()) {
             diagrams.erase(diagrams.begin()+i);
             --i;
@@ -1543,7 +1543,7 @@ void WickCalculator::calculateDiagrams(
     }
 
     // Checking all resulting diagrams
-    for (size_t i = 0; i != feynmanDiagram.size(); ++i) {
+    for (std::size_t i = 0; i != feynmanDiagram.size(); ++i) {
         if (!feynmanDiagram[i]->isValid()) {
             feynmanDiagram.erase(feynmanDiagram.begin()+i);
             --i;
@@ -1559,11 +1559,11 @@ void WickCalculator::calculateDiagrams(
 
     // Merging identical diagrams
     if (not feynmanDiagram.empty()) {
-        for (size_t i = 0; i != feynmanDiagram.size(); ++i)  {
+        for (std::size_t i = 0; i != feynmanDiagram.size(); ++i)  {
             if (feynmanDiagram[i]->getFactor() == 0) {
                 continue;
             }
-            for (size_t j = i+1; j < feynmanDiagram.size(); ++j)
+            for (std::size_t j = i+1; j < feynmanDiagram.size(); ++j)
                 if (*feynmanDiagram[i] == *feynmanDiagram[j]) {
                     feynmanDiagram[i]->addFactor(feynmanDiagram[j]->getFactor());
                     feynmanDiagram.erase(feynmanDiagram.begin() + j);
@@ -1606,7 +1606,7 @@ std::vector<mty::FeynmanDiagram> WickCalculator::getDiagrams(
         mty::Model const *model,
         FeynOptions const &options,
         const csl::Expr& initial,
-        std::map<csl::Tensor, size_t>& vertexIds,
+        std::map<csl::Tensor, std::size_t>& vertexIds,
         bool symmetrizeExternalLegs,
         bool ruleMode)
 {
@@ -1626,7 +1626,7 @@ std::vector<mty::FeynmanDiagram> WickCalculator::getDiagrams(
         mty::Model const *model,
         FeynOptions const &options,
         const csl::Expr& initial,
-        std::map<csl::Tensor, size_t>& vertexIds,
+        std::map<csl::Tensor, std::size_t>& vertexIds,
         std::vector<mty::FeynruleMomentum>& witnessMapping,
         bool symmetrizeExternalLegs,
         bool ruleMode)
@@ -1657,7 +1657,7 @@ std::vector<mty::FeynmanDiagram> WickCalculator::getDiagrams(
                                                           ruleMode);
     std::vector<mty::FeynmanDiagram> res;
     res.reserve(diagrams.size());
-    for (size_t i = 0; i != diagrams.size(); ++i) {
+    for (std::size_t i = 0; i != diagrams.size(); ++i) {
         if (diagrams[i]->getFactor() == 0) {
             if (not witnessMapping.empty())
                 witnessMapping.erase(witnessMapping.begin() + i);
@@ -1674,11 +1674,11 @@ std::vector<mty::FeynmanDiagram> WickCalculator::getDiagrams(
 }
 
 bool WickCalculator::isContractionZero(const vector<QuantumField>& fields,
-                                       size_t maxLoops,
-                                       size_t nVertices)
+                                       std::size_t maxLoops,
+                                       std::size_t nVertices)
 {
-    size_t nLoops = fields.size()/2 - (nVertices - 1);
-    if (maxLoops != size_t(-1) and nVertices != size_t(-1)) {
+    std::size_t nLoops = fields.size()/2 - (nVertices - 1);
+    if (maxLoops != std::size_t(-1) and nVertices != std::size_t(-1)) {
 
         if (mty::option::discardLowerOrders and nLoops != maxLoops)
             return true;
@@ -1690,7 +1690,7 @@ bool WickCalculator::isContractionZero(const vector<QuantumField>& fields,
         if (vec.size() % 2 != 0)
             return true;
         bool allExternal = true;
-        size_t nConjugated = 0;
+        std::size_t nConjugated = 0;
         for (const auto& field : vec) {
             if (field.isComplexConjugate())
                 ++nConjugated;
@@ -1708,11 +1708,11 @@ bool WickCalculator::isContractionZero(const vector<QuantumField>& fields,
 
 bool WickCalculator::isContractionZero(
         const vector<QuantumField const*>& fields,
-        size_t maxLoops,
-        size_t nVertices)
+        std::size_t maxLoops,
+        std::size_t nVertices)
 {
-    size_t nLoops = fields.size()/2 - (nVertices - 1);
-    if (maxLoops != size_t(-1) and nVertices != size_t(-1)) {
+    std::size_t nLoops = fields.size()/2 - (nVertices - 1);
+    if (maxLoops != std::size_t(-1) and nVertices != std::size_t(-1)) {
 
         if (mty::option::discardLowerOrders and nLoops != maxLoops)
             return true;
@@ -1724,7 +1724,7 @@ bool WickCalculator::isContractionZero(
         if (vec.size() % 2 != 0)
             return true;
         bool allExternal = true;
-        size_t nConjugated = 0;
+        std::size_t nConjugated = 0;
         for (const auto& field : vec) {
             if (field->isComplexConjugate())
                 ++nConjugated;
@@ -1744,17 +1744,17 @@ vector<vector<QuantumField>> WickCalculator::splitFields(
         const vector<QuantumField>& field)
 {
     vector<int> fieldsLeft(field.size());
-    for (size_t i = 0; i != field.size(); ++i) 
+    for (std::size_t i = 0; i != field.size(); ++i) 
         fieldsLeft[i] = i;
     vector<vector<QuantumField>> split;
     split.reserve(fieldsLeft.size());
-    for (size_t i = 0; i != fieldsLeft.size() ;) {
+    for (std::size_t i = 0; i != fieldsLeft.size() ;) {
         const int index = fieldsLeft[0];
         vector<QuantumField> splitElement;
         splitElement.reserve(fieldsLeft.size() + 1);
         splitElement.push_back(field[index]);
         fieldsLeft.erase(fieldsLeft.begin());
-        for (size_t j = 0; j != fieldsLeft.size(); ++j) {
+        for (std::size_t j = 0; j != fieldsLeft.size(); ++j) {
             const int jndex = fieldsLeft[j];
             if (field[index].isContractibleWith(field[jndex])) {
                 splitElement.push_back(std::move(field[jndex]));
@@ -1771,17 +1771,17 @@ vector<vector<QuantumField const*>> WickCalculator::splitFields(
         const vector<QuantumField const*>& field)
 {
     vector<int> fieldsLeft(field.size());
-    for (size_t i = 0; i != field.size(); ++i) 
+    for (std::size_t i = 0; i != field.size(); ++i) 
         fieldsLeft[i] = i;
     vector<vector<QuantumField const*>> split;
     split.reserve(fieldsLeft.size());
-    for (size_t i = 0; i != fieldsLeft.size() ;) {
+    for (std::size_t i = 0; i != fieldsLeft.size() ;) {
         const int index = fieldsLeft[0];
         vector<QuantumField const*> splitElement;
         splitElement.reserve(1 + field.size());
         splitElement.push_back(field[index]);
         fieldsLeft.erase(fieldsLeft.begin());
-        for (size_t j = 0; j != fieldsLeft.size(); ++j) {
+        for (std::size_t j = 0; j != fieldsLeft.size(); ++j) {
             const int jndex = fieldsLeft[j];
             if (field[index]->isContractibleWith(*field[jndex])) {
                 splitElement.push_back(field[jndex]);
@@ -1943,7 +1943,7 @@ int getCommutationSign(const std::vector<const mty::QuantumField*>& A,
                        std::vector<const mty::QuantumField*>       B)
 {
     std::vector<mty::QuantumField> A_static(A.size());
-    for (size_t i = 0; i != A.size(); ++i) 
+    for (std::size_t i = 0; i != A.size(); ++i) 
         A_static[i] = *A[i];
     return getCommutationSign(A_static, B);
 }
@@ -1958,8 +1958,8 @@ int getCommutationSign(const std::vector<QuantumField>& A,
     // for (const auto& b : B)
     //     b->print(1);
     // std::cout << std::endl;
-    for (size_t i = 0; i != A.size(); ++i)
-        for (size_t j = i+1; j < B.size(); ++j) 
+    for (std::size_t i = 0; i != A.size(); ++i)
+        for (std::size_t j = i+1; j < B.size(); ++j) 
             if (A[i] == *B[j]) {
                 if (B[j]->isAntiCommuting()) {
                     int nF = countFermions(B.begin()+i, B.begin()+j);

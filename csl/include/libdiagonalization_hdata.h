@@ -91,8 +91,8 @@ void print_libdiagonalization_hdata(std::ostream &out) {
     out << "            );\n";
     out << "\n";
     out << "    void swap(\n";
-    out << "            const size_t i,\n";
-    out << "            const size_t j,\n";
+    out << "            const std::size_t i,\n";
+    out << "            const std::size_t j,\n";
     out << "            std::vector<complex> &transfer,\n";
     out << "            std::vector<real>    &mass\n";
     out << "            );\n";
@@ -113,9 +113,9 @@ void print_libdiagonalization_hdata(std::ostream &out) {
     out << "    void bidiagonalize();\n";
     out << "\n";
     out << "    inline\n";
-    out << "    size_t index(\n";
-    out << "            const size_t i,\n";
-    out << "            const size_t j\n";
+    out << "    std::size_t index(\n";
+    out << "            const std::size_t i,\n";
+    out << "            const std::size_t j\n";
     out << "            ) const \n";
     out << "    {\n";
     out << "        return i * m_N + j;\n";
@@ -164,7 +164,7 @@ void print_libdiagonalization_hdata(std::ostream &out) {
     out << "private:\n";
     out << "\n";
     out << "    std::vector<complex> m_data;\n";
-    out << "    size_t               m_N;\n";
+    out << "    std::size_t               m_N;\n";
     out << "    bool                 m_bidiag;\n";
     out << "    bool                 m_computed;\n";
     out << "\n";

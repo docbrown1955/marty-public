@@ -64,9 +64,9 @@ class DataList {
 
 public:
 
-    static std::vector<size_t> range(size_t N) {
-        std::vector<size_t> indices(N);
-        for (size_t i = 0; i != N; ++i) 
+    static std::vector<std::size_t> range(std::size_t N) {
+        std::vector<std::size_t> indices(N);
+        for (std::size_t i = 0; i != N; ++i) 
             indices[i] = i;
         return indices;
     }
@@ -121,7 +121,7 @@ struct DataDiff {
     DataList<ValueType, Comparator, HardComparator, Printer> rhs;
 
     bool  empty() const { return lhs.empty() && rhs.empty(); }
-    size_t size() const { return lhs.size()  +  rhs.size();  }
+    std::size_t size() const { return lhs.size()  +  rhs.size();  }
 };
 
 template<class ValueType, class Comparator, class HardComparator, class Printer>
@@ -156,13 +156,13 @@ bool DataList<ValueType, Comparator, HardComparator, Printer>::compare(
 {
     if (size() != other.size())
         return false;
-    std::vector<size_t> indices = range(size());
+    std::vector<std::size_t> indices = range(size());
 
     auto comparator = Comparator();
     auto iter = begin();
     while (!indices.empty()) {
         bool matched = false;
-        for (size_t k = 0; k != indices.size(); ++k) {
+        for (std::size_t k = 0; k != indices.size(); ++k) {
             if (comparator(*iter, other[indices[k]])) {
                 matched = true;
                 indices.erase(indices.begin() + k);
@@ -182,16 +182,16 @@ DataDiff<ValueType, Comparator, HardComparator, Printer>
         DataList<ValueType, Comparator, HardComparator, Printer> const &other
         ) const
 {
-    std::vector<size_t> indicesLhs = range(size());
-    std::vector<size_t> indicesRhs = range(other.size());
+    std::vector<std::size_t> indicesLhs = range(size());
+    std::vector<std::size_t> indicesRhs = range(other.size());
     DataDiff<ValueType, Comparator, HardComparator, Printer> diff;
     auto comparator = Comparator();
 
     while (!indicesLhs.empty() && !indicesRhs.empty()) {
-        const size_t i = indicesLhs[0];
+        const std::size_t i = indicesLhs[0];
         bool matched = false;
-        for (size_t k = 0; k != indicesRhs.size(); ++k) {
-            const size_t j = indicesRhs[k];
+        for (std::size_t k = 0; k != indicesRhs.size(); ++k) {
+            const std::size_t j = indicesRhs[k];
             if (comparator(data[i], other[j])) {
                 matched = true;
                 indicesRhs.erase(indicesRhs.begin() + k);
@@ -203,11 +203,11 @@ DataDiff<ValueType, Comparator, HardComparator, Printer>
         indicesLhs.erase(indicesLhs.begin());
     }
     if (!indicesLhs.empty()) {
-        for (size_t i : indicesLhs)
+        for (std::size_t i : indicesLhs)
             diff.lhs.push(data[i]);
     }
     if (!indicesRhs.empty()) {
-        for (size_t i : indicesRhs)
+        for (std::size_t i : indicesRhs)
             diff.rhs.push(other[i]);
     }
 

@@ -197,18 +197,18 @@ void WilsonSet::mergeSorted(std::vector<Wilson> &wilsons)
     if (display)
         std::cout << "Merging identical operators ..." << std::endl;
     csl::ProgressBar bar(wilsons.size());
-    size_t index = 0;
-    for (size_t i = 0; i != wilsons.size(); ++i) {
+    std::size_t index = 0;
+    for (std::size_t i = 0; i != wilsons.size(); ++i) {
         if (display)
             bar.progress(index);
-        size_t j = i+1;
+        std::size_t j = i+1;
         while (j < wilsons.size() && wilsons[i].op == wilsons[j].op) {
             ++j;
         }
         if (j > i+1) {
             std::vector<csl::Expr> coefs(j - i);
             csl::Expr factor = wilsons[i].op.getFactor();
-            for (size_t k = 0; k != j - i; ++k) {
+            for (std::size_t k = 0; k != j - i; ++k) {
                 auto const &wil = wilsons[i+k];
                 coefs[k] = wil.coef.getCoefficient();
                 if (wil.op.getFactor() != factor) {
@@ -268,14 +268,14 @@ std::vector<csl::Expr> parseStructures(
     for (auto& arg : prod) {
         parseStructures(arg, inOperator, quantumStructure);
     }
-    for (size_t k = 0; k != prod->size(); ++k) {
+    for (std::size_t k = 0; k != prod->size(); ++k) {
         csl::Expr &arg = prod[k];
         if (arg == CSL_1)
             continue;
         csl::IndexStructure structure = arg->getIndexStructure();
         bool connected = false;
-        for (size_t i = 0; i != structure.size(); ++i) {
-            for (size_t j = 0; j != quantumStructure.size(); ++j) {
+        for (std::size_t i = 0; i != structure.size(); ++i) {
+            for (std::size_t j = 0; j != quantumStructure.size(); ++j) {
                 if (structure[i] == quantumStructure[j]) {
                     structure.erase(structure.begin() + i);
                     quantumStructure.erase(quantumStructure.begin() + j);
@@ -389,7 +389,7 @@ std::vector<Wilson> sglSimplifyForWilson(
 std::vector<Wilson> copyWilsons(std::vector<Wilson> const &wilsons)
 {
     std::vector<Wilson> res(wilsons.size());
-    for (size_t i = 0; i != res.size(); ++i) {
+    for (std::size_t i = 0; i != res.size(); ++i) {
         res[i].op.setOp(csl::DeepCopy(wilsons[i].op.getOp()));
         res[i].op.setFactor(csl::DeepCopy(wilsons[i].op.getFactor()));
         res[i].coef.setCoefficient(csl::DeepCopy(wilsons[i].coef.getCoefficient()));
@@ -553,7 +553,7 @@ WilsonSet match(
         std::cout << "Matching amplitude on operator basis ..." << '\n';
     }
     csl::ProgressBar bar(fullAmplitudes.size());
-    for (size_t i = 0; i != fullAmplitudes.size(); ++i) {
+    for (std::size_t i = 0; i != fullAmplitudes.size(); ++i) {
         if (longCalc) {
             bar.progress(i);
         }

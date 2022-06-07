@@ -129,13 +129,13 @@ void Diagram::loadGraph(drawer::Graph const&t_graph)
     graph.scale(scaleForGraph);
     nodes.clear();
     nodes.resize(graph.size());
-    for (size_t i = 0; i != graph.size(); ++i) {
+    for (std::size_t i = 0; i != graph.size(); ++i) {
         nodes[i] = buildNode(graph.getNodes()[i].x,
                              graph.getNodes()[i].y);
     }
     auto& adj = graph.getAdjacency();
-    for (size_t i = 0; i != graph.size(); ++i)
-        for (size_t j = i+1; j < graph.size(); ++j)
+    for (std::size_t i = 0; i != graph.size(); ++i)
+        for (std::size_t j = i+1; j < graph.size(); ++j)
             for(int k = 0; k < adj(i, j); ++k)
                 edges.push_back(buildEdge(nodes[i], nodes[j]));
     //updateGraph();
@@ -149,7 +149,7 @@ QPointF Diagram::getNodeLabelPos(
         ) const
 {
     qreal r = 20 + ((node->getNodeType() == 0) ? 0. : node->getNodeSize()/2.);
-    for (size_t j = 0; j != edges.size(); ++j) {
+    for (std::size_t j = 0; j != edges.size(); ++j) {
         auto& edge = edges[j];
         if (edge->isConnectedTo(node)) {
             auto first = edge->getFirst();
@@ -207,8 +207,8 @@ QPointF Diagram::getEdgeLabelPos(
 {
     qreal r = 20;
 
-    size_t i = lEdge.i;
-    size_t j = lEdge.j;
+    std::size_t i = lEdge.i;
+    std::size_t j = lEdge.j;
     QPointF dir = (nodes[j]->pos() - nodes[i]->pos());
     qreal dist = std::sqrt(dir.x()*dir.x() + dir.y()*dir.y());
     dir /= dist;
@@ -275,7 +275,7 @@ void Diagram::loadLinker(drawer::LatexLinker const&t_linker)
     std::vector<drawer::LatexLinker::Node> const& linkNodes
             = t_linker.getNodes();
     std::vector<Edge*> edgesLeft(edges);
-    for (size_t i = 0; i != linkNodes.size(); ++i) {
+    for (std::size_t i = 0; i != linkNodes.size(); ++i) {
         std::string nameVertex = linkNodes[i].name;
         nodes[i]->setNodeType(int(linkNodes[i].type));
         if (linkNodes[i].size != 0)
@@ -286,9 +286,9 @@ void Diagram::loadLinker(drawer::LatexLinker const&t_linker)
         }
     }
     for (const auto& lEdge : linkEdges) {
-        size_t i = lEdge.i;
-        size_t j = lEdge.j;
-        for (size_t k = 0; k != edgesLeft.size(); ++k) {
+        std::size_t i = lEdge.i;
+        std::size_t j = lEdge.j;
+        for (std::size_t k = 0; k != edgesLeft.size(); ++k) {
             auto edge = edgesLeft[k];
             if (edge->isConnectedTo(nodes[i])
                     and edge->isConnectedTo(nodes[j])) {
@@ -317,10 +317,10 @@ void Diagram::clear()
     graph.clear();
     link.clear();
     link.setGraph(graph);
-    for (size_t i = 0; i != edges.size(); ++i) {
+    for (std::size_t i = 0; i != edges.size(); ++i) {
         deleteEdge(edges[i]);
     }
-    for (size_t i = 0; i != nodes.size(); ++i) {
+    for (std::size_t i = 0; i != nodes.size(); ++i) {
         deleteNode(nodes[i]);
     }
 
@@ -484,7 +484,7 @@ drawer::Graph Diagram::getScaledGraph() const
     return scaled;
 }
 
-void Diagram::setFocusOn(size_t pos)
+void Diagram::setFocusOn(std::size_t pos)
 {
     if (mode != SelectionMode)
         resetFocus();
@@ -526,7 +526,7 @@ void Diagram::addNode(QPointF point)
     addNode(point.x(), point.y());
 }
 
-void Diagram::addEdge(size_t i, size_t j)
+void Diagram::addEdge(std::size_t i, std::size_t j)
 {
     ++graph.getAdjacency()(i, j);
     ++graph.getAdjacency()(j, i);
@@ -543,9 +543,9 @@ void Diagram::addEdge(size_t i, size_t j)
 
 void Diagram::addEdge(Node *A, Node *B)
 {
-    size_t i = size_t(-1);
-    size_t j = size_t(-1);
-    for (size_t k = 0; k != nodes.size(); ++k)
+    std::size_t i = std::size_t(-1);
+    std::size_t j = std::size_t(-1);
+    for (std::size_t k = 0; k != nodes.size(); ++k)
         if (nodes[k] == A)
             i = k;
     else if (nodes[k] == B)
@@ -714,9 +714,9 @@ void Diagram::proxyDoubleClicked(Proxy *proxy)
         }
 }
 
-void Diagram::removeNode(size_t i)
+void Diagram::removeNode(std::size_t i)
 {
-    for (size_t j = 0; j != edges.size(); ++j)
+    for (std::size_t j = 0; j != edges.size(); ++j)
         if (edges[j]->isConnectedTo(nodes[i])) {
             removeEdge(edges[j]);
             edges.erase(edges.begin() + int(j));
@@ -739,20 +739,20 @@ void Diagram::removeEdge(Edge *edge)
     link.setGraph(graph);
 }
 
-size_t Diagram::getPosNode(Node const* node) const
+std::size_t Diagram::getPosNode(Node const* node) const
 {
-    for (size_t i = 0; i != nodes.size(); ++i)
+    for (std::size_t i = 0; i != nodes.size(); ++i)
         if (nodes[i] == node)
             return i;
     std::cerr << "Node " << node << " not found in grpah.\n";
     return 0;
 }
 
-std::pair<size_t, size_t> Diagram::getPosEdge(Edge const*edge) const
+std::pair<std::size_t, std::size_t> Diagram::getPosEdge(Edge const*edge) const
 {
-    size_t i = size_t(-1);
-    size_t j = size_t(-1);
-    for (size_t k = 0; k != nodes.size(); ++k) {
+    std::size_t i = std::size_t(-1);
+    std::size_t j = std::size_t(-1);
+    for (std::size_t k = 0; k != nodes.size(); ++k) {
         if (nodes[k] == edge->getFirst())
             i = k;
         else if (nodes[k] == edge->getSecond())
@@ -776,7 +776,7 @@ void Diagram::removeSelected()
 
 void Diagram::removeSelectedNodes()
 {
-    for (size_t i = 0; i != nodes.size(); ++i)
+    for (std::size_t i = 0; i != nodes.size(); ++i)
         if (nodes[i]->hasGraphFocus()) {
             removeNode(i);
             nodes.erase(nodes.begin() + int(i));
@@ -787,7 +787,7 @@ void Diagram::removeSelectedNodes()
 
 void Diagram::removeSelectedEdges()
 {
-    for (size_t i = 0; i != edges.size(); ++i)
+    for (std::size_t i = 0; i != edges.size(); ++i)
         if (edges[i]->hasFocusInGraph()) {
             removeEdge(edges[i]);
             edges.erase(edges.begin()  + int(i));
@@ -828,7 +828,7 @@ void Diagram::move(qreal x, qreal y)
         modificationDone();
     }
     else {
-        for (size_t i = 0; i != nodes.size(); ++i) {
+        for (std::size_t i = 0; i != nodes.size(); ++i) {
             if (nodes[i]->hasGraphFocus()) {
                 graph.getNodes()[i].x += x;
                 graph.getNodes()[i].y += y;
@@ -968,7 +968,7 @@ void Diagram::reinitGraph()
 void Diagram::updateGraph()
 {
     updatingGraph = true;
-    for (size_t i = 0; i != nodes.size(); ++i)
+    for (std::size_t i = 0; i != nodes.size(); ++i)
         nodes[i]->setPos(graph.getNodes()[i].x,
                          graph.getNodes()[i].y);
     updatingGraph = false;
@@ -978,7 +978,7 @@ void Diagram::nodeMoved()
 {
     if (updatingGraph)
         return;
-    for (size_t i = 0; i != nodes.size(); ++i) {
+    for (std::size_t i = 0; i != nodes.size(); ++i) {
         graph.getNodes()[i].x = nodes[i]->x();
         graph.getNodes()[i].y = nodes[i]->y();
     }
@@ -1014,7 +1014,7 @@ void Diagram::moveTo(qint32 X0_new, qint32 Y0_new)
 
 void Diagram::setFocus(Node const*focused)
 {
-    for (size_t i = 0; i != nodes.size(); ++i)
+    for (std::size_t i = 0; i != nodes.size(); ++i)
         if (nodes[i] == focused) {
             setFocusOn(i);
             return;
@@ -1027,7 +1027,7 @@ void Diagram::refreshLinker()
     link.setName(name.toStdString());
     link.getGraph().center();
     std::vector<drawer::LatexLinker::Node> &lNodes = link.getNodes();
-    for (size_t i = 0; i != nodes.size(); ++i) {
+    for (std::size_t i = 0; i != nodes.size(); ++i) {
         std::string name = (nodes[i]->label) ?
                     nodes[i]->label->data.toStdString() : "";
         link.setVertexName(i, name);
@@ -1036,7 +1036,7 @@ void Diagram::refreshLinker()
             lNodes[i].size = nodes[i]->getNodeSize();
         lNodes[i].color = fromQColor(nodes[i]->getColor());
     }
-    for (size_t k = 0; k != edges.size(); ++k) {
+    for (std::size_t k = 0; k != edges.size(); ++k) {
         auto [i, j] = getPosEdge(edges[k]);
         std::string name = (edges[k]->label) ?
                 edges[k]->label->data.toStdString() : "";

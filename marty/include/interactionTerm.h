@@ -104,9 +104,9 @@ class InteractionTerm {
      *
      * @return The number of interacting fields.
      */
-    size_t size() const;
+    std::size_t size() const;
 
-    size_t nTerms() const;
+    std::size_t nTerms() const;
 
     void clear();
 
@@ -168,7 +168,7 @@ class InteractionTerm {
      * @return The number of interacting particles having exactly \b particle
      * as parent (species).
      */
-    size_t count(QuantumFieldParent* particle) const;
+    std::size_t count(QuantumFieldParent* particle) const;
 
     /**
      * @brief Returns the exponent associated to a given coupling in the 
@@ -179,7 +179,7 @@ class InteractionTerm {
      * @return 0 if the term does not depend on \b param.
      * @return n if the term is proportional to \f$ param^n \f$.
      */
-    size_t getExponent(csl::Expr const& parameter) const;
+    std::size_t getExponent(csl::Expr const& parameter) const;
 
     /**
      * @brief Returns the product of bare fields with only free indices.
@@ -388,7 +388,7 @@ class InteractionTerm {
     private:
 
     bool gatherFieldContent(csl::Expr               const& expr,   
-                            size_t                    multiplicity,
+                            std::size_t                    multiplicity,
                             csl::IndexStructure const& derivativeStructure);
 
     void gatherFieldContent();

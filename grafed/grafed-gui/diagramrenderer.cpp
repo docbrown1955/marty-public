@@ -334,7 +334,7 @@ void DiagramRenderer::setDiagramSet(qint32 first, qint32 last)
         table->clear();
         for (qint32 i = first; i != last; ++i) {
             auto res = newDiagram();
-            res.first->loadLinker(links[static_cast<size_t>(i)]);
+            res.first->loadLinker(links[static_cast<std::size_t>(i)]);
             res.first->showNodes(false);
             diagrams.append(res.first);
         }
@@ -462,51 +462,51 @@ void DiagramRenderer::readFile(QString const &nameFile)
     drawer::LatexLinker::autoLabel = false;
 }
 
-size_t DiagramRenderer::maxDiagramNumber(size_t first)
+std::size_t DiagramRenderer::maxDiagramNumber(std::size_t first)
 {
     return std::min(links.size(), first+pageSize);
 }
 
-std::pair<size_t, size_t> DiagramRenderer::page()
+std::pair<std::size_t, std::size_t> DiagramRenderer::page()
 {
-    size_t first = pageNumber*pageSize;
+    std::size_t first = pageNumber*pageSize;
     return {first, maxDiagramNumber(first)};
 }
 
 void DiagramRenderer::refreshLinks()
 {
-    size_t offset = pageNumber*pageSize;
-    size_t nDiags = diagrams.size();
+    std::size_t offset = pageNumber*pageSize;
+    std::size_t nDiags = diagrams.size();
     if (offset + nDiags > nextDiagram) {
         links.insert(links.begin() + offset, offset + nDiags - nextDiagram, drawer::LatexLinker());
     }
     else if (offset + nDiags < nextDiagram) {
         links.erase(links.begin() + offset, links.begin() + nextDiagram - nDiags);
     }
-    for (size_t i = 0; i != nDiags; ++i) {
+    for (std::size_t i = 0; i != nDiags; ++i) {
         diagrams[int(i)]->refreshLinker();
         links[i+offset] = diagrams[int(i)]->link;
     }
 }
 
-std::pair<size_t, size_t> DiagramRenderer::prevPage()
+std::pair<std::size_t, std::size_t> DiagramRenderer::prevPage()
 {
     if (pageNumber > 0) {
         refreshLinks();
         --pageNumber;
-        size_t first = pageNumber*pageSize;
+        std::size_t first = pageNumber*pageSize;
         loadDiagrams(first);
         return {first, maxDiagramNumber(first)};
     }
     else {
-        size_t first = pageNumber*pageSize;
+        std::size_t first = pageNumber*pageSize;
         return {first, maxDiagramNumber(first)};
     }
 }
 
-std::pair<size_t, size_t> DiagramRenderer::nextPage()
+std::pair<std::size_t, std::size_t> DiagramRenderer::nextPage()
 {
-    size_t first = pageNumber*pageSize;
+    std::size_t first = pageNumber*pageSize;
     if (maxDiagramNumber(first) < links.size()) {
         refreshLinks();
         ++pageNumber;
@@ -519,27 +519,27 @@ std::pair<size_t, size_t> DiagramRenderer::nextPage()
     }
 }
 
-std::pair<size_t, size_t> DiagramRenderer::setPage(size_t t_page)
+std::pair<std::size_t, std::size_t> DiagramRenderer::setPage(std::size_t t_page)
 {
     if (t_page != pageNumber && pageNumber*pageSize < links.size()) {
         refreshLinks();
         pageNumber = t_page;
-        size_t first = pageNumber*pageSize;
+        std::size_t first = pageNumber*pageSize;
         loadDiagrams(first);
         return {first, maxDiagramNumber(first)};
     }
     else {
-        size_t first = pageNumber*pageSize;
+        std::size_t first = pageNumber*pageSize;
         return {first, maxDiagramNumber(first)};
     }
 }
 
-void DiagramRenderer::loadDiagrams(size_t first)
+void DiagramRenderer::loadDiagrams(std::size_t first)
 {
     clearScene();
-    size_t last = maxDiagramNumber(first);
+    std::size_t last = maxDiagramNumber(first);
     nextDiagram = last;
-    for (size_t i = first; i != last; ++i) {
+    for (std::size_t i = first; i != last; ++i) {
         auto res = newDiagram();
         res.first->loadLinker(links[i]);
         res.first->showNodes(false);

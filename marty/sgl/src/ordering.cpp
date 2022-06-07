@@ -44,8 +44,8 @@ namespace sgl {
             std::vector<csl::Index> const &nu
             )
     {
-        const size_t mu_size = mu.size();
-        const size_t nu_size = nu.size();
+        const std::size_t mu_size = mu.size();
+        const std::size_t nu_size = nu.size();
         if (mu_size != nu_size)
             return mu_size > nu_size;
         if (mu_size == 1) {
@@ -81,10 +81,10 @@ namespace sgl {
             GammaIndex const &nu
             )
     {
-        constexpr size_t npos = -1;
-        size_t i_mu = npos;
-        size_t i_nu = npos;
-        for (size_t i = 0; i != prod->size(); ++i) {
+        constexpr std::size_t npos = -1;
+        std::size_t i_mu = npos;
+        std::size_t i_nu = npos;
+        for (std::size_t i = 0; i != prod->size(); ++i) {
             auto const &arg = prod[i];
             if (IsType<IndexChain>(arg))
                 continue;
@@ -109,14 +109,14 @@ namespace sgl {
         return contractedOrder(prod[i_mu], prod[i_nu]);
     }
 
-    size_t simplest(
+    std::size_t simplest(
             GExpr const &prod,
             GExpr const &chain,
-            size_t       begin
+            std::size_t       begin
             )
     {
-        size_t simplest = begin;
-        for (size_t i = begin+1; i < chain->size(); ++i) {
+        std::size_t simplest = begin;
+        for (std::size_t i = begin+1; i < chain->size(); ++i) {
             auto const &A = *ConvertTo<GammaIndex>(chain[simplest]);
             auto const &B = *ConvertTo<GammaIndex>(chain[i]);
             if (!isOrdered(prod, A, B)) {

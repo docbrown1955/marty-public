@@ -40,10 +40,10 @@ std::pair< FieldList, FieldList > separatePartners(
         FieldList const &init
         )
 {
-    size_t N = init.size() / 2;
+    std::size_t N = init.size() / 2;
     FieldList fields(N);
     FieldList partners(N);
-    for (size_t i = 0; i != N; ++i) {
+    for (std::size_t i = 0; i != N; ++i) {
         fields[i]   = init[2*i];
         partners[i] = init[2*i + 1];
         if (!fields[i]->isExternal() and partners[i]->isExternal())
@@ -327,7 +327,7 @@ std::vector<FermionLine> chainFermions(
             partners.erase(partner);
         }
         std::vector<csl::Index> indices(line.size());
-        for (size_t i = 0; i != line.size(); ++i) 
+        for (std::size_t i = 0; i != line.size(); ++i) 
             indices[i] = diracIndexOf(line[i]);
 
         res.push_back({ line, indices });
@@ -395,11 +395,11 @@ ConjugationList ConjugationInfo::resolveFermionLines(
                     ruleMode);
             continue;
         }
-        for (size_t i = (loop) ? 0 : 1; i < line.fields.size()-1; ++i) {
+        for (std::size_t i = (loop) ? 0 : 1; i < line.fields.size()-1; ++i) {
             mty::QuantumField const *A = line.fields[i];
             mty::QuantumField const *B = line.fields[i+1];
-            size_t pre = (i-1) % line.fields.size();
-            size_t post = (i+2) % line.fields.size();
+            std::size_t pre = (i-1) % line.fields.size();
+            std::size_t post = (i+2) % line.fields.size();
             csl::Index preIndex = diracIndexOf(line.fields[pre]);
             if (preIndex == diracIndexOf(A))
                 preIndex = diracIndexOf(
@@ -458,7 +458,7 @@ ConjugationList ConjugationInfo::resolveFermionLines(
         )
 {
     FieldList ruleOrder_new(ruleOrder.size());
-    for (size_t i = 0; i != ruleOrder.size(); ++i) 
+    for (std::size_t i = 0; i != ruleOrder.size(); ++i) 
         ruleOrder_new[i] = &ruleOrder[i];
 
     return resolveFermionLines(init, ruleOrder_new, ruleMode);
@@ -468,7 +468,7 @@ void ConjugationInfo::simplify(
         ConjugationList &info,
         bool             ruleMode)
 {
-    for (size_t i = 0; i != info.size(); ++i) {
+    for (std::size_t i = 0; i != info.size(); ++i) {
         if (info[i].getType() != Internal) {
             if (ruleMode) {
                 info.erase(info.begin() + i);
@@ -489,16 +489,16 @@ void ConjugationInfo::simplify(
                 break;
         }
     }
-    for (size_t i = 0; i != info.size(); ++i)
+    for (std::size_t i = 0; i != info.size(); ++i)
         if (info[i].getType() == Internal
                 and info[i].getA() == info[i].getB()) {
             info.erase(info.begin() + i);
             --i;
         }
-    for (size_t i = 0; i != info.size(); ++i) {
+    for (std::size_t i = 0; i != info.size(); ++i) {
         if (info[i].getType() != External)
             continue;
-        for (size_t j = 0; j < info.size(); ++j)  {
+        for (std::size_t j = 0; j < info.size(); ++j)  {
             if (i == j or info[j].getType() != Internal)
                 continue;
             if (info[i].getConjugated() 
@@ -523,7 +523,7 @@ void ConjugationInfo::simplify(
             }
         }
     }
-    for (size_t i = 0; i != info.size(); ++i) {
+    for (std::size_t i = 0; i != info.size(); ++i) {
         if (info[i].getA() == csl::Index()) {
             if (info[i].getB() == csl::Index() or info[i].getType() == External) {
                 info.erase(info.begin() + i);
@@ -808,7 +808,7 @@ void ConjugationInfo::insertInChain(
     if (!foundA or !foundB) {
         csl::IndexStructure structure = expr->getIndexStructure();
         if (not foundA) {
-            size_t match = 0;
+            std::size_t match = 0;
             for (const auto &index : structure)
                 if (index == A)
                     ++match;
@@ -820,7 +820,7 @@ void ConjugationInfo::insertInChain(
             }
         }
         if (not foundB) {
-            size_t match = 0;
+            std::size_t match = 0;
             for (const auto &index : structure)
                 if (index == A)
                     ++match;
@@ -865,7 +865,7 @@ void ConjugationInfo::insertExternal(
         return false;
     });
     if (!found) {
-        size_t match = 0;
+        std::size_t match = 0;
         auto structure = expr->getIndexStructure();
         for (const auto &index : structure)
             if (index == A)

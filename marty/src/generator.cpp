@@ -33,7 +33,7 @@ void GeneratorParent::printDefinition(
     out << csl::Abstract::regularName(group->getGroup()->getName())
         << "->getGenerator({";
     auto highest = irrep.getHighestWeight();
-    for (size_t i = 0; i != highest.size(); ++i) {
+    for (std::size_t i = 0; i != highest.size(); ++i) {
         out << highest[i];
         if (i != highest.size() - 1)
             out << ", ";
@@ -128,7 +128,7 @@ void GeneratorElement::printCode(
         out << "csl::GetComplexConjugate(;";
     out << std::dynamic_pointer_cast<GeneratorParent>(parent)
                 ->getCodeName() << "({";
-    for (size_t i = 0; i != index.size(); ++i) {
+    for (std::size_t i = 0; i != index.size(); ++i) {
         if (index[i].getSign())
             out << '+';
         out << index[i].getIndexCodeName();

@@ -85,8 +85,8 @@ int compare(string_view a, string_view b)
     // return 0 if  a = b
     // return -1 if a < b
 {
-    const size_t sizeA = a.size();
-    const size_t sizeB = b.size();
+    const std::size_t sizeA = a.size();
+    const std::size_t sizeB = b.size();
     if (sizeA > sizeB)
         return 1;
     else if (sizeA < sizeB)
@@ -124,19 +124,19 @@ bool operator<=(const string& a, const string& b)
     return (compare(a, b) <= 0);
 }
 
-vector<size_t> range(size_t n)
+vector<std::size_t> range(std::size_t n)
 {
     return range(0, n, 1);
 }
 
-vector<size_t> range(size_t i, size_t n)
+vector<std::size_t> range(std::size_t i, std::size_t n)
 {
     return range(i, n, 1);
 }
 
-vector<size_t> range(size_t i, size_t n, size_t step)
+vector<std::size_t> range(std::size_t i, std::size_t n, std::size_t step)
 {
-    vector<size_t> rangeVector((n-i)/step);
+    vector<std::size_t> rangeVector((n-i)/step);
     for (auto& element : rangeVector) {
         element = i;
         i += step;

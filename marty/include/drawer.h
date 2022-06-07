@@ -46,7 +46,7 @@ class Drawer {
     static drawer::LatexLinker buildDiagram(
             std::shared_ptr<wick::Graph> const& graph,
             drawer::Graph                   const& model,
-            std::map<size_t, size_t>             & mapping);
+            std::map<std::size_t, std::size_t>             & mapping);
 
     static std::vector<drawer::LatexLinker> buildDiagrams(
             std::vector<std::shared_ptr<wick::Graph>> const& graph,

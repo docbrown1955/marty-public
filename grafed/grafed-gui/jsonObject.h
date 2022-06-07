@@ -157,7 +157,7 @@ class Node: public Object {
     /*!
      * \return **children.size()**, the number of children.
      */
-    size_t size() const {
+    std::size_t size() const {
         return children.size();
     }
 

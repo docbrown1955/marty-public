@@ -49,16 +49,16 @@ static std::set<color::ColorSpace const*> getAdjointSpaces(
     return colors;
 }
 
-static std::vector<size_t> getPos_fABC(
+static std::vector<std::size_t> getPos_fABC(
         csl::Expr &prod,
         color::ColorSpace const *space
         )
 {
-    std::vector<size_t> pos_fABC;
-    const size_t sz = prod->size();
+    std::vector<std::size_t> pos_fABC;
+    const std::size_t sz = prod->size();
     csl::Tensor f = space->getF();
     pos_fABC.reserve(sz);
-    for (size_t i = 0; i != sz; ++i) {
+    for (std::size_t i = 0; i != sz; ++i) {
         if (csl::IsIndicialTensor(prod[i])
                 && f.get() == prod[i]->getParent_info()) {
             pos_fABC.push_back(i);
@@ -93,12 +93,12 @@ static bool isFTrace(
 static int placeCommonIndex(
         csl::IndexStructure &si,
         csl::IndexStructure &sj,
-        size_t posIni,
-        size_t posInj
+        std::size_t posIni,
+        std::size_t posInj
         )
 {
     int sign = 1;
-    for (size_t i = 0; i != si.size(); ++i) { // index i1
+    for (std::size_t i = 0; i != si.size(); ++i) { // index i1
         if (auto posj = sj.find(si[i]); posj != sj.end()) { 
             if (i != posIni) {
                 sign *= -1;
@@ -146,14 +146,14 @@ static bool CalculateFColorTrace_impl(
     HEPAssert(csl::IsProd(prod),
             mty::error::TypeError,
             "Expected a product, " + toString(prod) + " given.")
-    std::vector<size_t> pos_fABC = getPos_fABC(prod, space);
+    std::vector<std::size_t> pos_fABC = getPos_fABC(prod, space);
     if (pos_fABC.size() < 3)
         return false;
-    for (size_t i = 0; i != pos_fABC.size(); ++i) {
+    for (std::size_t i = 0; i != pos_fABC.size(); ++i) {
         auto &fi = prod[pos_fABC[i]];
-        for (size_t j = i+1; j < pos_fABC.size(); ++j) {
+        for (std::size_t j = i+1; j < pos_fABC.size(); ++j) {
             auto &fj = prod[pos_fABC[j]];
-            for (size_t k = j+1; k < pos_fABC.size(); ++k) {
+            for (std::size_t k = j+1; k < pos_fABC.size(); ++k) {
                 auto &fk = prod[pos_fABC[k]];
                 if (isFTrace(fi, fj, fk)) {
                     fi = fTrace(fi, fj, fk, space->getGroup()->getGaugedGroup());

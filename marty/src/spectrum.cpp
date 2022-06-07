@@ -64,8 +64,8 @@ Spectrum::Spectrum(
             (t_mixing2.empty()) ? 0 : t_mixing2[0].size()
           )
 {
-    for (size_t i = 0; i != t_mass.size(); ++i)
-        for (size_t j = 0; j != t_mass[i].size(); ++j) {
+    for (std::size_t i = 0; i != t_mass.size(); ++i)
+        for (std::size_t j = 0; j != t_mass[i].size(); ++j) {
             mass(i, j)    = t_mass   [i][j];
             mixing(i, j)  = t_mixing [i][j];
             if (bidiagonalization)
@@ -110,8 +110,8 @@ void Spectrum::setBlock(
 {
     mass.resize(fields.size(), fields.size());
     mixing.resize(fields.size(), fields.size());
-    for (size_t i = 0; i != mass.size1(); ++i)
-        for (size_t j = 0; j != mass.size2(); ++j)
+    for (std::size_t i = 0; i != mass.size1(); ++i)
+        for (std::size_t j = 0; j != mass.size2(); ++j)
             mass(i, j) = 0;
     massData = csl::identity_s(fields.size());
     for (const auto &term : terms) {
@@ -119,8 +119,8 @@ void Spectrum::setBlock(
             addMassTerm(getMassFromTerm(term));
     }
 
-    for (size_t i = 0; i != t_mixing.size(); ++i) {
-        for (size_t j = 0; j != t_mixing[i].size(); ++j) {
+    for (std::size_t i = 0; i != t_mixing.size(); ++i) {
+        for (std::size_t j = 0; j != t_mixing[i].size(); ++j) {
             mixing(i, j) = t_mixing[i][j];
         }
     }
@@ -135,19 +135,19 @@ void Spectrum::setBlock(
     mass.resize(fields.size()/2, fields.size()/2);
     mixing .resize(fields.size()/2, fields.size()/2);
     mixing2.resize(fields.size()/2, fields.size()/2);
-    for (size_t i = 0; i != mass.size1(); ++i)
-        for (size_t j = 0; j != mass.size2(); ++j)
+    for (std::size_t i = 0; i != mass.size1(); ++i)
+        for (std::size_t j = 0; j != mass.size2(); ++j)
             mass(i, j) = 0;
     massData = csl::identity_s(fields.size()/2);
     for (const auto &term : terms)
         addMassTerm(getMassFromTerm(term));
 
-    for (size_t i = 0; i != mixingA.size(); ++i)
-        for (size_t j = 0; j != mixingA[i].size(); ++j) {
+    for (std::size_t i = 0; i != mixingA.size(); ++i)
+        for (std::size_t j = 0; j != mixingA[i].size(); ++j) {
             mixing(i, j) = mixingA[i][j];
         }
-    for (size_t i = 0; i != mixingB.size(); ++i)
-        for (size_t j = 0; j != mixingB[i].size(); ++j) {
+    for (std::size_t i = 0; i != mixingB.size(); ++i)
+        for (std::size_t j = 0; j != mixingB[i].size(); ++j) {
             mixing2(i, j) = mixingB[i][j];
         }
 }
@@ -158,9 +158,9 @@ void Spectrum::updateData()
 
     // std::cout << massData << std::endl;
     bool numerical = true;
-    const size_t size = (bidiagonalization) ? fields.size()/2 : fields.size();
-    for (size_t i = 0; i != size; ++i) {
-        for (size_t j = i; j < size; ++j) {
+    const std::size_t size = (bidiagonalization) ? fields.size()/2 : fields.size();
+    for (std::size_t i = 0; i != size; ++i) {
+        for (std::size_t j = i; j < size; ++j) {
             // std::cout << mass(i, j) << std::endl;
             massData[i][j] 
                 = csl::Evaluated(
@@ -220,22 +220,22 @@ void Spectrum::applyOn(std::vector<csl::Expr> &expr) const
         applyOn(e);
 }
 
-size_t Spectrum::getFieldPos(
+std::size_t Spectrum::getFieldPos(
         QuantumField const &field
         ) const
 {
-    for (size_t i = 0; i != fields.size(); ++i)  {
+    for (std::size_t i = 0; i != fields.size(); ++i)  {
         if (fields[i].get() == field.getParent_info())
             return (bidiagonalization and i >= fields.size() / 2) ?
                 i - fields.size() / 2 : i;
     }
     std::cerr << "Searching " << field << " in \n";
-    for (size_t i = 0; i != fields.size(); ++i)  
+    for (std::size_t i = 0; i != fields.size(); ++i)  
         std::cerr << fields[i]->getName() << " ";
     CallHEPError(mty::error::TypeError,
             "Field " + toString(field.copy()) + " does not correspond to "
             " mass block.")
-    return size_t(-1);
+    return std::size_t(-1);
 }
 
 
@@ -248,7 +248,7 @@ Spectrum::MatrixEl Spectrum::getMassFromTerm(
                 mty::error::RuntimeError,
                 "Got unexpected empty mass term " + toString(term))
         MatrixEl element = getMassFromTerm(term[0]);
-        for (size_t i = 1; i != term->size(); ++i) {
+        for (std::size_t i = 1; i != term->size(); ++i) {
             element.term += getMassFromTerm(term[i]).term;
         }
         return element;
@@ -261,8 +261,8 @@ Spectrum::MatrixEl Spectrum::getMassFromTerm(
         if (csl::IsPow(sub) 
                 && IsOfType<QuantumField>(sub[0])
                 && csl::IsInteger(sub[1])) {
-            size_t n = sub[1]->evaluateScalar();
-            for (size_t i = 0; i != n; ++i) 
+            std::size_t n = sub[1]->evaluateScalar();
+            for (std::size_t i = 0; i != n; ++i) 
                 massFields.push_back(ConvertTo<QuantumField>(sub[0]));
             sub = CSL_1;
         }
@@ -316,10 +316,10 @@ Spectrum::MatrixEl Spectrum::getMassFromTerm(
     csl::Expand(expression);
     csl::Factor(expression);
 
-    size_t i = getFieldPos(massFields[0]);
-    size_t j = getFieldPos(massFields[1]);
+    std::size_t i = getFieldPos(massFields[0]);
+    std::size_t j = getFieldPos(massFields[1]);
     if (bidiagonalization and i != j) {
-        for (size_t k = 0; k != fields.size() / 2; ++k) {
+        for (std::size_t k = 0; k != fields.size() / 2; ++k) {
             if (fields[k].get() == massFields[0].getParent_info()) {
                 std::swap(i, j);
                 break;
@@ -362,7 +362,7 @@ void Spectrum::bidiagonalize()
     transfer = diagonalizer.getTransform();
     csl::Expr D2 = diagonalizer.getDiagonal();
     diagonal = csl::DeepCopy(D2);
-    for (size_t i = 0; i != csl::Size(diagonal); ++i)
+    for (std::size_t i = 0; i != csl::Size(diagonal); ++i)
         diagonal[i][i] = csl::Evaluated(csl::sqrt_s(diagonal[i][i]),
                                         csl::eval::numerical);
 
@@ -380,10 +380,10 @@ void Spectrum::bidiagonalize()
 void Spectrum::applyDiagonalizationOn(csl::Expr &expr) const
 {
     // std::cout << "HERE" << std::endl;
-    const size_t size = fields.size();
+    const std::size_t size = fields.size();
     std::vector<csl::Expr> oldMasses(size);
     std::vector<csl::Expr> newMasses(size);
-    for (size_t i = 0; i != size; ++i) {
+    for (std::size_t i = 0; i != size; ++i) {
         oldMasses[i] = newFields[i]->getMass();
         newMasses[i] = diagonal[i][i];
         oldMasses[i]->setValue(newMasses[i]);
@@ -396,9 +396,9 @@ void Spectrum::applyDiagonalizationOn(csl::Expr &expr) const
 
     std::vector<csl::Expr> oldMixing(size * size);
     std::vector<csl::Expr> newMixing(size * size);
-    for (size_t i = 0; i != size; ++i)
-        for (size_t j = 0; j != size; ++j) {
-            size_t index = size * i + j;
+    for (std::size_t i = 0; i != size; ++i)
+        for (std::size_t j = 0; j != size; ++j) {
+            std::size_t index = size * i + j;
             oldMixing[index] = mixing(i, j);
             newMixing[index] = transfer[i][j];
             oldMixing[index]->setValue(newMixing[index]);
@@ -411,10 +411,10 @@ void Spectrum::applyDiagonalizationOn(csl::Expr &expr) const
 
 void Spectrum::applyBidiagonalizationOn(csl::Expr &expr) const
 {
-    const size_t size = fields.size() / 2;
+    const std::size_t size = fields.size() / 2;
     std::vector<csl::Expr> oldMasses(size);
     std::vector<csl::Expr> newMasses(size);
-    for (size_t i = 0; i != size; ++i) {
+    for (std::size_t i = 0; i != size; ++i) {
         oldMasses[i] = newFields[i]->getMass();
         newMasses[i] = diagonal[i][i];
         oldMasses[i]->setValue(newMasses[i]);
@@ -424,9 +424,9 @@ void Spectrum::applyBidiagonalizationOn(csl::Expr &expr) const
 
     std::vector<csl::Expr> oldMixing(2 * size*size);
     std::vector<csl::Expr> newMixing(2 * size*size);
-    for (size_t i = 0; i != size; ++i)
-        for (size_t j = 0; j != size; ++j) {
-            const size_t index = size * i + j;
+    for (std::size_t i = 0; i != size; ++i)
+        for (std::size_t j = 0; j != size; ++j) {
+            const std::size_t index = size * i + j;
             oldMixing[2*index] = mixing(i, j);
             newMixing[2*index] = transfer[i][j];
             oldMixing[2*index]->setValue(newMixing[2*index]);

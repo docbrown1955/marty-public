@@ -60,9 +60,9 @@ public:
 
     void openStream();
 
-    size_t getIndentSize() const { return m_indent.size(); }
+    std::size_t getIndentSize() const { return m_indent.size(); }
     std::string const &indent() const;
-    void setIndentSize(size_t s);
+    void setIndentSize(std::size_t s);
 
     std::ostream &getStream(Mode mode);
 

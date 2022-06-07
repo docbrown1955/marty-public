@@ -5,17 +5,17 @@
 namespace csl {
 
     MultiPermutation::MultiPermutation(
-            std::vector<std::vector<size_t>> const &t_numbers
+            std::vector<std::vector<std::size_t>> const &t_numbers
             )
     {
         load(t_numbers);
     }
 
     void MultiPermutation::load(
-            std::vector<std::vector<size_t>> const &t_numbers
+            std::vector<std::vector<std::size_t>> const &t_numbers
             )
     {
-        size_t sz = 0;
+        std::size_t sz = 0;
         for (const auto &vec : t_numbers)
             sz += vec.size();
         m_numbers.reserve(sz);
@@ -30,7 +30,7 @@ namespace csl {
 
     bool MultiPermutation::nextPermutation()
     {
-        for (size_t i = 0; i+1 != m_boundaries.size(); ++i) {
+        for (std::size_t i = 0; i+1 != m_boundaries.size(); ++i) {
             if (std::next_permutation(m_boundaries[i], m_boundaries[i+1]))
                 return true;
         }
@@ -39,7 +39,7 @@ namespace csl {
 
     void MultiPermutation::print() const
     {
-        for (size_t i = 0; i+1 != m_boundaries.size(); ++i) {
+        for (std::size_t i = 0; i+1 != m_boundaries.size(); ++i) {
             std::cout << "( ";
             for (auto iter = m_boundaries[i]; iter != m_boundaries[i+1];
                     ++iter) {

@@ -36,7 +36,7 @@ namespace color {
 struct TraceIndices {
     csl::Expr               factor = CSL_1;
     std::vector<csl::Index> indices;
-    size_t                  symmetry = 1;
+    std::size_t                  symmetry = 1;
 
     IMPLEMENTS_STD_VECTOR(csl::Index, indices)
 
@@ -88,7 +88,7 @@ class ColorSpace: public csl::Space {
     bool isInstance(csl::Expr const &tensor) const;
 
     void applyE(
-            size_t                     j,
+            std::size_t                     j,
             std::vector<TraceIndices> &terms
             ) const;
 
@@ -115,8 +115,8 @@ class ColorSpace: public csl::Space {
 
     std::vector<TraceIndices> commuteTo(
             TraceIndices const &indices,
-            size_t              init,
-            size_t              targetPos
+            std::size_t              init,
+            std::size_t              targetPos
             ) const;
 
     std::vector<TraceIndices> contractFarIndices(
@@ -157,7 +157,7 @@ class ColorSpace: public csl::Space {
 
     csl::Tensor getF() const;
 
-    csl::Tensor getD(size_t p) const;
+    csl::Tensor getD(std::size_t p) const;
 
     csl::Tensor getDTilde() const;
 

@@ -2092,7 +2092,7 @@ bool DiracDelta::operator==(Expr_info other) const
             return false;
         }
         Replace(expr, freeStruct1, freeStruct2);
-        // for (size_t i = 0; i != freeStruct1.size(); ++i)
+        // for (std::size_t i = 0; i != freeStruct1.size(); ++i)
         //     if (freeStruct1[i] != freeStruct2[i])
         //         expr = ReplaceIndex(old2, freeStruct1[i], freeStruct2[i]);
     }

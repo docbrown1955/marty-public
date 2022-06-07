@@ -105,12 +105,12 @@ class Gauge {
 
     std::vector<Particle> getGhosts() const;
 
-    GaugedGroup* getGaugedGroup(size_t pos) const;
+    GaugedGroup* getGaugedGroup(std::size_t pos) const;
 
-    void setGaugeChoice(size_t pos,
+    void setGaugeChoice(std::size_t pos,
                         gauge::Type choice);
 
-    size_t size() const;
+    std::size_t size() const;
 
     iterator begin();
 

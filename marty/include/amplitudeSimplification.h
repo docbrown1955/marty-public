@@ -436,7 +436,7 @@ namespace mty::simpli {
     std::pair<csl::Expr, csl::Expr> getMomentumReplacement(
             std::vector<mty::QuantumField> const &insertions,
             std::vector<csl::Tensor>       const &momenta,
-            size_t                                posReplaced
+            std::size_t                                posReplaced
             );
     /**
      * @brief Applies the momentum conservation by replacing one of the external
@@ -455,7 +455,7 @@ namespace mty::simpli {
             csl::Expr                            &init,
             std::vector<mty::QuantumField> const &insertions,
             std::vector<csl::Tensor>       const &momenta,
-            size_t                                posReplaced
+            std::size_t                                posReplaced
             );
 
     /**

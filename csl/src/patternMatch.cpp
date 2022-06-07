@@ -22,15 +22,15 @@
 
 namespace csl::matcher {
 
-size_t dichoFinder(
+std::size_t dichoFinder(
         csl::Expr          const &expr,
         std::vector<Node*> const &v
         )
 {
-    size_t first = 0;
-    size_t last = v.size();
+    std::size_t first = 0;
+    std::size_t last = v.size();
     while (last != first) {
-        size_t mid = (first + last) / 2;
+        std::size_t mid = (first + last) / 2;
         auto const &midExpr = v[mid]->expr;
         if (expr < midExpr)
             last = mid;
@@ -51,9 +51,9 @@ size_t dichoFinder(
 
 void compress_impl(
         std::vector<csl::Expr> &expressions, 
-        size_t                  nIter)
+        std::size_t                  nIter)
 {
-    for (size_t iter = 0; iter != nIter; ++iter) {
+    for (std::size_t iter = 0; iter != nIter; ++iter) {
         Tree sumTree(Node::ExprType::Sum);
         Tree prodTree(Node::ExprType::Prod);
         std::vector<Tree*> trees = { &sumTree, &prodTree };
@@ -86,7 +86,7 @@ void compress_impl(
 
 void compress(
         std::vector<csl::Expr> &expressions, 
-        size_t                  nIter
+        std::size_t                  nIter
         )
 {
     std::map<csl::AbstractParent const*, csl::Expr> compressedAbbrevs;
@@ -124,9 +124,9 @@ void compress(
 // Class Node
 ///////////////////////////////////////////////////
 
-    size_t Node::distance(Node const *first, Node const *last) 
+    std::size_t Node::distance(Node const *first, Node const *last) 
     {
-        size_t d = 0;
+        std::size_t d = 0;
         while (first != last) {
             last = last->parent;
             ++d;
@@ -134,16 +134,16 @@ void compress(
         return d;
     }
 
-    size_t Node::nLeafs(csl::Expr const &expr) 
+    std::size_t Node::nLeafs(csl::Expr const &expr) 
     {
-        size_t n = 0;
+        std::size_t n = 0;
         csl::VisitEachLeaf(expr, [&n](csl::Expr const&) { ++n; });
         return n;
     }
 
     Node::iterator Node::insert(csl::Expr const &t_expr) 
     {
-        const size_t pos = dichoFinder(t_expr, children);
+        const std::size_t pos = dichoFinder(t_expr, children);
         const auto insertPos = children.begin() + pos;
         if (insertPos != children.end() && (**insertPos).expr == t_expr) {
             ++(**insertPos).nOccurences;
@@ -175,7 +175,7 @@ void compress(
 
     std::vector<csl::Expr> Node::getArgs() const
     {
-        size_t nArgs = 0;
+        std::size_t nArgs = 0;
         auto iter = this;
         while (iter) {
             iter = iter->parent;
@@ -288,7 +288,7 @@ void compress(
             std::vector<csl::Expr>::const_iterator last
             )
     {
-        if (first == last || static_cast<size_t>(last - first) > maxLeaf)
+        if (first == last || static_cast<std::size_t>(last - first) > maxLeaf)
             return;
         if ((**first).isIndexed())
             return;
@@ -374,7 +374,7 @@ Tree::~Tree()
 std::pair<Node*, std::vector<csl::Expr>::const_iterator>
     Tree::findBestMatch(
         std::vector<csl::Expr> const &vec,
-        size_t minElements
+        std::size_t minElements
         ) 
 {
     auto res = root->findBestMatch(vec.begin(), vec.end());
@@ -402,7 +402,7 @@ std::optional<csl::Expr> Tree::getChainAbbreviationFor(
                     }
                     std::vector<csl::Expr> newArgs(1 + args.end() - match.second);
                     newArgs[0] = match.first->getChainAbbreviation();
-                    for (size_t i = 1; i != newArgs.size(); ++i) {
+                    for (std::size_t i = 1; i != newArgs.size(); ++i) {
                         newArgs[i] = args[(match.second - args.begin()) + i - 1];
                     }
                     return csl::sum_s(newArgs, true);
@@ -422,7 +422,7 @@ std::optional<csl::Expr> Tree::getChainAbbreviationFor(
                     }
                     std::vector<csl::Expr> newArgs(1 + args.end() - match.second);
                     newArgs[0] = match.first->getChainAbbreviation();
-                    for (size_t i = 1; i != newArgs.size(); ++i) {
+                    for (std::size_t i = 1; i != newArgs.size(); ++i) {
                         newArgs[i] = args[(match.second - args.begin()) + i - 1];
                     }
                     return csl::prod_s(newArgs, true);

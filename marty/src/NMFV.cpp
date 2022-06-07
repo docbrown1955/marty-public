@@ -60,7 +60,7 @@ void NMFV_Model::getToLowEnergyLagrangian()
     promoteMajoranas();
 
     // Partial NMFV without quartic scalar interactions
-    for (size_t i = 0; i != L.interaction.size(); ++i) {
+    for (std::size_t i = 0; i != L.interaction.size(); ++i) {
         if (L.interaction[i]->getContent().size() == 4) {
             L.interaction.erase(L.interaction.begin() + i);
             --i;
@@ -82,8 +82,8 @@ void NMFV_Model::getToLowEnergyLagrangian()
 
 void NMFV_Model::addPairMixing(
         Mixing mix, 
-        size_t i, 
-        size_t j
+        std::size_t i, 
+        std::size_t j
         )  
 {
     using name_container = std::array<const char*, 3>;
@@ -129,8 +129,8 @@ void NMFV_Model::addPairMixing(
 void NMFV_Model::addMixing(MixingInfo mix)
 {
     const Mixing mixing = mix.mixing;
-    std::vector<size_t> particles = mix.mixedParticles;
-    for (size_t pos : particles)
+    std::vector<std::size_t> particles = mix.mixedParticles;
+    for (std::size_t pos : particles)
         HEPAssert(pos < 3,
                 mty::error::IndexError,
                 "Generation index for mixings must be between 0 and 2.")
@@ -147,10 +147,10 @@ void NMFV_Model::addMixing(MixingInfo mix)
         case Mixing::Ae: M = Ae->getTensor();     break;
     }
 
-    for (size_t i = 0; i != particles.size(); ++i) {
-        for (size_t j = i+1; j < particles.size(); ++j) {
-            const size_t i_eff = particles[i];
-            const size_t j_eff = particles[j];
+    for (std::size_t i = 0; i != particles.size(); ++i) {
+        for (std::size_t j = i+1; j < particles.size(); ++j) {
+            const std::size_t i_eff = particles[i];
+            const std::size_t j_eff = particles[j];
             addPairMixing(mixing, i_eff, j_eff);
             std::string deltaName = "del_" + toString(mixing) + "_"
                 + std::to_string(10*i_eff+j_eff);

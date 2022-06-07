@@ -49,7 +49,7 @@ void FileData::openStream()
     }
 }
 
-void FileData::setIndentSize(size_t s) 
+void FileData::setIndentSize(std::size_t s) 
 {
     m_indent = std::string(s, ' ');
 }

@@ -190,11 +190,11 @@ void Distribute(Expr&     expr,
                 bool      full)
 {
     if (expr->getType() == csl::Type::Prod) {
-        for (size_t i = 0; i != expr->size(); ++i) {
+        for (std::size_t i = 0; i != expr->size(); ++i) {
             if (IsIndicialTensor(expr[i])
                     and expr[i]->getParent_info() == factor) {
                 std::vector<Expr> results;
-                for (size_t j = 0; j != expr->size(); ++j)
+                for (std::size_t j = 0; j != expr->size(); ++j)
                     if (i != j and (*expr)[j]->getType() == csl::Type::Sum) {
                         results.push_back(Copy(expr));
                         results.back()->setArgument(CSL_1, i);
@@ -220,7 +220,7 @@ void Distribute(Expr&     expr,
         }
     }
     if (full and expr->size() > 0)
-        for (size_t i = 0; i != expr->size(); ++i)
+        for (std::size_t i = 0; i != expr->size(); ++i)
             Distribute((*expr)[i], factor, full);
 }
 
@@ -238,10 +238,10 @@ void Distribute(Expr&     expr,
                 bool      full)
 {
     if (expr->getType() == csl::Type::Prod) {
-        for (size_t i = 0; i != expr->size(); ++i) {
+        for (std::size_t i = 0; i != expr->size(); ++i) {
             if (*expr->getArgument(i) == factor) {
                 std::vector<Expr> results;
-                for (size_t j = 0; j != expr->size(); ++j)
+                for (std::size_t j = 0; j != expr->size(); ++j)
                     if (i != j and (*expr)[j]->getType() == csl::Type::Sum) {
                         results.push_back(Copy(expr));
                         results.back()->setArgument(CSL_1, i);
@@ -267,7 +267,7 @@ void Distribute(Expr&     expr,
         }
     }
     if (full and expr->size() > 0)
-        for (size_t i = 0; i != expr->size(); ++i)
+        for (std::size_t i = 0; i != expr->size(); ++i)
             Distribute((*expr)[i], factor, full);
 }
 
@@ -289,10 +289,10 @@ void DistributeIf(
         )
 {
     if (expr->getType() == csl::Type::Prod) {
-        for (size_t i = 0; i != expr->size(); ++i) {
+        for (std::size_t i = 0; i != expr->size(); ++i) {
             if (f(expr[i])) {
                 std::vector<Expr> results;
-                for (size_t j = 0; j != expr->size(); ++j)
+                for (std::size_t j = 0; j != expr->size(); ++j)
                     if (i != j and (*expr)[j]->getType() == csl::Type::Sum) {
                         results.push_back(Copy(expr));
                         results.back()->setArgument(CSL_1, i);
@@ -318,7 +318,7 @@ void DistributeIf(
         }
     }
     if (full and expr->size() > 0)
-        for (size_t i = 0; i != expr->size(); ++i)
+        for (std::size_t i = 0; i != expr->size(); ++i)
             DistributeIf((*expr)[i], f, full);
 }
 
@@ -683,7 +683,7 @@ bool CheckValidity(Expr const& init,
         return false;
     encountered.push_back(init.get());
     if (init->size() > 0){
-        for (size_t i = 0; i != init->size(); ++i) {
+        for (std::size_t i = 0; i != init->size(); ++i) {
             if (not CheckValidity((*init)[i], encountered))
                 return false;
         }
@@ -691,9 +691,9 @@ bool CheckValidity(Expr const& init,
     return true;
 }
 
-size_t MemorySizeOf(Expr const& expression)
+std::size_t MemorySizeOf(Expr const& expression)
 {
-    size_t size = sizeof(Expr);
+    std::size_t size = sizeof(Expr);
     size += sizeof(decltype(*expression));
     size += expression->memoryOverhead();
     if (expression->size() > 0) {
@@ -703,7 +703,7 @@ size_t MemorySizeOf(Expr const& expression)
                 and expression->getType() != csl::Type::Sum
                 and expression->getType() != csl::Type::Prod)
             size -= 2*sizeof(Expr);
-        for (size_t i = 0; i != expression->size(); ++i)
+        for (std::size_t i = 0; i != expression->size(); ++i)
             size += MemorySizeOf((*expression)[i]);
     }
     if (csl::IsIndicialTensor(expression)) {

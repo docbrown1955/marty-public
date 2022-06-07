@@ -51,7 +51,7 @@ namespace mty {
 
     }
 
-    csl::Expr &Amplitude::expression(size_t pos)
+    csl::Expr &Amplitude::expression(std::size_t pos)
     {
         HEPAssert(pos < diagrams.size(),
                 mty::error::IndexError,
@@ -60,7 +60,7 @@ namespace mty {
         return diagrams[pos].getExpression();
     }
 
-    csl::Expr const &Amplitude::expression(size_t pos) const
+    csl::Expr const &Amplitude::expression(std::size_t pos) const
     {
         HEPAssert(pos < diagrams.size(),
                 mty::error::IndexError,
@@ -69,7 +69,7 @@ namespace mty {
         return diagrams[pos].getExpression();
     }
 
-    FeynmanDiagram::diagram_t &Amplitude::diagram(size_t pos)
+    FeynmanDiagram::diagram_t &Amplitude::diagram(std::size_t pos)
     {
         HEPAssert(pos < diagrams.size(),
                 mty::error::IndexError,
@@ -78,7 +78,7 @@ namespace mty {
         return diagrams[pos].getDiagram();
     }
 
-    FeynmanDiagram::diagram_t const &Amplitude::diagram(size_t pos) const
+    FeynmanDiagram::diagram_t const &Amplitude::diagram(std::size_t pos) const
     {
         HEPAssert(pos < diagrams.size(),
                 mty::error::IndexError,
@@ -90,7 +90,7 @@ namespace mty {
     std::vector<csl::Expr> Amplitude::obtainExpressions() const
     {
         std::vector<csl::Expr> res(size());
-        for (size_t i = 0; i != size(); ++i) {
+        for (std::size_t i = 0; i != size(); ++i) {
             res[i] = diagrams[i].getExpression();
         }
         return res;
@@ -100,7 +100,7 @@ namespace mty {
         Amplitude::obtainGraphs() const
     {
         std::vector<std::shared_ptr<mty::wick::Graph>> res(size());
-        for (size_t i = 0; i != size(); ++i) {
+        for (std::size_t i = 0; i != size(); ++i) {
             res[i] = diagrams[i].getDiagram();
         }
         return res;
@@ -138,7 +138,7 @@ namespace mty {
     csl::Expr Amplitude::getSum() const 
     {
         std::vector<csl::Expr> terms(diagrams.size());
-        for (size_t i = 0; i != terms.size(); ++i) 
+        for (std::size_t i = 0; i != terms.size(); ++i) 
             terms[i] = diagrams[i].getExpression();
         return csl::sum_s(terms);
     }
@@ -147,7 +147,7 @@ namespace mty {
     {
         std::vector<FeynmanDiagram> diagramCopy;
         diagramCopy.reserve(diagrams.size());
-        for (size_t i = 0; i != diagrams.size(); ++i) {
+        for (std::size_t i = 0; i != diagrams.size(); ++i) {
             diagramCopy.emplace_back(diagrams[i].copy());
         }
         return Amplitude { options, diagramCopy, kinematics };

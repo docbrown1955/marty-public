@@ -21,7 +21,7 @@ namespace csl {
 
 Expr FindLeaf(Expr const& init,
               Expr const& value,
-              size_t      depth)
+              std::size_t      depth)
 {
     if (init->size() == 0) {
         if (*init == value.get())
@@ -29,7 +29,7 @@ Expr FindLeaf(Expr const& init,
         return nullptr;
     }
     else if (depth != 0) {
-        for (size_t i = 0; i != init->size(); ++i)
+        for (std::size_t i = 0; i != init->size(); ++i)
             if (Expr expr = FindLeaf((*init)[i], value, depth-1);
                     expr != nullptr)
                 return expr;
@@ -39,12 +39,12 @@ Expr FindLeaf(Expr const& init,
 
 Expr FindNode(Expr const& init,
               Expr const& value,
-              size_t      depth)
+              std::size_t      depth)
 {
     if (*init == value)
         return init;
     else if (depth != 0) {
-        for (size_t i = 0; i != init->size(); ++i)
+        for (std::size_t i = 0; i != init->size(); ++i)
             if (Expr expr = FindNode((*init)[i], value, depth-1);
                     expr != nullptr)
                 return expr;
@@ -54,7 +54,7 @@ Expr FindNode(Expr const& init,
 
 Expr FindIfLeaf(Expr const&                             init,
                 std::function<bool(Expr const&)> const& f,
-                size_t                                  depth)
+                std::size_t                                  depth)
 {
     if (init->size() == 0) {
         if (f(init))
@@ -62,7 +62,7 @@ Expr FindIfLeaf(Expr const&                             init,
         return nullptr;
     }
     else if (depth != 0) {
-        for (size_t i = 0; i != init->size(); ++i)
+        for (std::size_t i = 0; i != init->size(); ++i)
             if (Expr expr = FindIfLeaf((*init)[i], f, depth-1);
                     expr != nullptr)
                 return expr;
@@ -72,12 +72,12 @@ Expr FindIfLeaf(Expr const&                             init,
 
 Expr FindIfNode(Expr                             const& init,
                 std::function<bool(Expr const&)> const& f,
-                size_t                                  depth)
+                std::size_t                                  depth)
 {
     if (f(init))
         return init;
     else if (depth != 0) {
-        for (size_t i = 0; i != init->size(); ++i)
+        for (std::size_t i = 0; i != init->size(); ++i)
             if (Expr expr = FindIfNode((*init)[i], f, depth-1);
                     expr != nullptr)
                 return expr;
@@ -92,7 +92,7 @@ bool AnyOfLeafs(Expr_info                             init,
     if (init->size() == 0)
         return f(init);
     else if (depth != 0) {
-        for (size_t i = 0; i != init->size(); ++i)
+        for (std::size_t i = 0; i != init->size(); ++i)
             if (AnyOfLeafs((*init)[i].get(), f, depth-1))
                 return true;
     }
@@ -106,7 +106,7 @@ bool AnyOfLeafs(Expr                             const& init,
     if (init->size() == 0)
         return f(init);
     else if (depth != 0) {
-        for (size_t i = 0; i != init->size(); ++i)
+        for (std::size_t i = 0; i != init->size(); ++i)
             if (AnyOfLeafs((*init)[i], f, depth-1))
                 return true;
     }
@@ -120,7 +120,7 @@ bool AllOfLeafs(Expr_info                             init,
     if (init->size() == 0)
         return f(init);
     else if (depth != 0) {
-        for (size_t i = 0; i != init->size(); ++i)
+        for (std::size_t i = 0; i != init->size(); ++i)
             if (not AllOfLeafs((*init)[i].get(), f, depth-1))
                 return false;
     }
@@ -134,7 +134,7 @@ bool AllOfLeafs(Expr                             const& init,
     if (init->size() == 0)
         return f(init);
     else if (depth != 0) {
-        for (size_t i = 0; i != init->size(); ++i)
+        for (std::size_t i = 0; i != init->size(); ++i)
             if (not AllOfLeafs((*init)[i], f, depth-1))
                 return false;
     }
@@ -148,7 +148,7 @@ bool AnyOfNodes(Expr_info                             init,
     if (f(init))
         return true;
     if (depth != 0) {
-        for (size_t i = 0; i != init->size(); ++i)
+        for (std::size_t i = 0; i != init->size(); ++i)
             if (AnyOfNodes((*init)[i].get(), f, depth-1))
                 return true;
     }
@@ -162,7 +162,7 @@ bool AnyOfNodes(Expr                             const& init,
     if (f(init))
         return true;
     if (depth != 0) {
-        for (size_t i = 0; i != init->size(); ++i)
+        for (std::size_t i = 0; i != init->size(); ++i)
             if (AnyOfNodes((*init)[i], f, depth-1))
                 return true;
     }
@@ -176,7 +176,7 @@ bool AllOfNodes(Expr                             const& init,
     if (not f(init))
         return false;
     if (depth != 0) {
-        for (size_t i = 0; i != init->size(); ++i)
+        for (std::size_t i = 0; i != init->size(); ++i)
             if (not AllOfNodes((*init)[i], f, depth-1))
                 return false;
     }
@@ -190,7 +190,7 @@ bool AllOfNodes(Expr_info                             init,
     if (not f(init))
         return false;
     if (depth != 0) {
-        for (size_t i = 0; i != init->size(); ++i)
+        for (std::size_t i = 0; i != init->size(); ++i)
             if (not AllOfNodes((*init)[i].get(), f, depth-1))
                 return false;
     }
@@ -203,7 +203,7 @@ void VisitEachNode(Expr                             const& init,
 {
     f(init);
     if (depth != 0) {
-        for (size_t i = 0; i != init->size(); ++i)
+        for (std::size_t i = 0; i != init->size(); ++i)
             VisitEachNode((*init)[i], f, depth-1);
     }
 }
@@ -212,7 +212,7 @@ void VisitEachNodeReversed(Expr                             const& init,
                    int                                     depth)
 {
     if (depth != 0) {
-        for (size_t i = 0; i != init->size(); ++i)
+        for (std::size_t i = 0; i != init->size(); ++i)
             VisitEachNodeReversed((*init)[i], f, depth-1);
     }
     f(init);
@@ -224,7 +224,7 @@ void VisitEachNode(Expr_info                             init,
 {
     f(init);
     if (depth != 0) {
-        for (size_t i = 0; i != init->size(); ++i)
+        for (std::size_t i = 0; i != init->size(); ++i)
             VisitEachNode((*init)[i].get(), f, depth-1);
     }
 }
@@ -236,7 +236,7 @@ void VisitEachLeaf(Expr                             const& init,
     if (init->size() == 0)
         f(init);
     else if (depth != 0){
-        for (size_t i = 0; i != init->size(); ++i)
+        for (std::size_t i = 0; i != init->size(); ++i)
             VisitEachLeaf((*init)[i], f, depth-1);
     }
 }
@@ -247,7 +247,7 @@ void VisitEachLeaf(Expr_info                             init,
 {
     f(init);
     if (depth != 0) {
-        for (size_t i = 0; i != init->size(); ++i)
+        for (std::size_t i = 0; i != init->size(); ++i)
             VisitEachLeaf((*init)[i].get(), f, depth-1);
     }
 }
@@ -261,7 +261,7 @@ void VisitEachNodeCut(
     if (f(init))
         return;
     if (depth != 0) {
-        for (size_t i = 0; i != init->size(); ++i)
+        for (std::size_t i = 0; i != init->size(); ++i)
             VisitEachNodeCut((*init)[i], f, depth-1);
     }
 }
@@ -275,7 +275,7 @@ void VisitEachNodeCut(
     if (f(init))
         return;
     if (depth != 0) {
-        for (size_t i = 0; i != init->size(); ++i)
+        for (std::size_t i = 0; i != init->size(); ++i)
             VisitEachNodeCut((*init)[i].get(), f, depth-1);
     }
 }
@@ -287,9 +287,9 @@ bool isUnique(csl::Expr const &expr)
     });
 }
 
-size_t Count(csl::Expr const &expr, csl::Expr const &search)
+std::size_t Count(csl::Expr const &expr, csl::Expr const &search)
 {
-    size_t count = 0;
+    std::size_t count = 0;
     csl::VisitEachNode(expr, [&](csl::Expr const &sub) {
         if (sub == search) 
             ++count;
@@ -297,12 +297,12 @@ size_t Count(csl::Expr const &expr, csl::Expr const &search)
     return count;
 }
 
-size_t CountIf(
+std::size_t CountIf(
         csl::Expr const &expr, 
         std::function<bool(csl::Expr const&)> const &f
         )
 {
-    size_t count = 0;
+    std::size_t count = 0;
     csl::VisitEachNode(expr, [&](csl::Expr const &sub) {
         if (f(sub))
             ++count;
@@ -310,9 +310,9 @@ size_t CountIf(
     return count;
 }
 
-size_t CountNodes(Expr const &init)
+std::size_t CountNodes(Expr const &init)
 {
-    size_t count = 0;
+    std::size_t count = 0;
     csl::VisitEachNode(init,
     [&count](Expr const &)
     {
@@ -321,9 +321,9 @@ size_t CountNodes(Expr const &init)
 
     return count;
 }
-size_t CountLeafs(Expr const &init)
+std::size_t CountLeafs(Expr const &init)
 {
-    size_t count = 0;
+    std::size_t count = 0;
     csl::VisitEachLeaf(init,
     [&count](Expr const &)
     {
@@ -339,7 +339,7 @@ void ForEachNode(Expr                            & init,
 {
     f(init);
     if (depth != 0) {
-        for (size_t i = 0; i != init->size(); ++i)
+        for (std::size_t i = 0; i != init->size(); ++i)
             ForEachNode((*init)[i], f, depth-1);
     }
 }
@@ -349,7 +349,7 @@ void ForEachNodeReversed(Expr                            & init,
                  int                               depth)
 {
     if (depth != 0) {
-        for (size_t i = 0; i != init->size(); ++i)
+        for (std::size_t i = 0; i != init->size(); ++i)
             ForEachNodeReversed((*init)[i], f, depth-1);
     }
     f(init);
@@ -362,7 +362,7 @@ void ForEachNodeCut(Expr                            & init,
     if (f(init))
         return;
     if (depth != 0) {
-        for (size_t i = 0; i != init->size(); ++i)
+        for (std::size_t i = 0; i != init->size(); ++i)
             ForEachNodeCut((*init)[i], f, depth-1);
     }
 }
@@ -374,7 +374,7 @@ void ForEachLeaf(Expr                            & init,
     if (init->size() == 0)
         f(init);
     else if (depth != 0){
-        for (size_t i = 0; i != init->size(); ++i)
+        for (std::size_t i = 0; i != init->size(); ++i)
             ForEachLeaf((*init)[i], f, depth-1);
     }
 }
@@ -402,7 +402,7 @@ bool FirstOfNode(Expr                              & init,
 {
     if (f(init))
         return true;
-    for (size_t i = 0; i != init->size(); ++i)
+    for (std::size_t i = 0; i != init->size(); ++i)
         if (FirstOfNode((*init)[i], f))
             return true;
     return false;
@@ -413,7 +413,7 @@ bool FirstOfLeaf(Expr                            & init,
 {
     if (init->size() == 0)
         return f(init);
-    for (size_t i = 0; i != init->size(); ++i)
+    for (std::size_t i = 0; i != init->size(); ++i)
         if (FirstOfLeaf((*init)[i], f))
             return true;
     return false;
@@ -424,7 +424,7 @@ bool VisitFirstOfNode(Expr                       const  & init,
 {
     if (f(init))
         return true;
-    for (size_t i = 0; i != init->size(); ++i)
+    for (std::size_t i = 0; i != init->size(); ++i)
         if (VisitFirstOfNode((*init)[i], f))
             return true;
     return false;
@@ -435,7 +435,7 @@ bool VisitFirstOfLeaf(Expr                       const& init,
 {
     if (init->size() == 0)
         return f(init);
-    for (size_t i = 0; i != init->size(); ++i)
+    for (std::size_t i = 0; i != init->size(); ++i)
         if (VisitFirstOfLeaf((*init)[i], f))
             return true;
     return false;
@@ -448,7 +448,7 @@ bool Transform(Expr                            & init,
 {
     bool transformed = false;
     if (depth != 0) {
-        for (size_t i = 0; i != init->size(); ++i)
+        for (std::size_t i = 0; i != init->size(); ++i)
             if (Transform((*init)[i], f, depth-1))
                 transformed = true;
     }

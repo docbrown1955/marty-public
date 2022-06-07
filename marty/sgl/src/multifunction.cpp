@@ -33,15 +33,15 @@ namespace sgl {
                 [&](GExpr const &arg) { return arg->contains(index); }
                 );
     }
-    size_t AbstractMultiFunction::size() const
+    std::size_t AbstractMultiFunction::size() const
     {
         return m_argument.size();
     }
-    GExpr const &AbstractMultiFunction::argument(size_t i) const
+    GExpr const &AbstractMultiFunction::argument(std::size_t i) const
     {
         return m_argument[i];
     }
-    GExpr &AbstractMultiFunction::argument(size_t i)
+    GExpr &AbstractMultiFunction::argument(std::size_t i)
     {
         return m_argument[i];
     }
@@ -64,7 +64,7 @@ namespace sgl {
 
     void AbstractMultiFunction::printArgs(std::ostream &out, char sep) const
     {
-        for (size_t i = 0; i != m_argument.size(); ++i) {
+        for (std::size_t i = 0; i != m_argument.size(); ++i) {
             m_argument[i]->print(out);
             if (i < m_argument.size() - 1) {
                 out << sep ;
@@ -72,16 +72,16 @@ namespace sgl {
         }
     }
 
-    size_t AbstractLiteral::size() const
+    std::size_t AbstractLiteral::size() const
     {
         return 0;
     }
-    GExpr const &AbstractLiteral::argument(size_t) const
+    GExpr const &AbstractLiteral::argument(std::size_t) const
     {
         errorPrint();
         throw Exception::AbstractCall;
     }
-    GExpr &AbstractLiteral::argument(size_t)
+    GExpr &AbstractLiteral::argument(std::size_t)
     {
         errorPrint();
         throw Exception::AbstractCall;

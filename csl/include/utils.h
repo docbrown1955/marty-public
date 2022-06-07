@@ -31,17 +31,17 @@ namespace csl {
 std::vector<Expr> InverseTaylorExpand(
         Expr const& init,
         Expr const& big,
-        size_t order);
+        std::size_t order);
 
 std::vector<Expr> TaylorExpand(
         Expr const& init,
         Expr const& eps,
-        size_t order);
+        std::size_t order);
 
 std::vector<Expr> internal_TaylorExpand(
         Expr const& init,
         Expr const& eps,
-        size_t order);
+        std::size_t order);
 
 /*! \fn Expr Copy(const Abstract* expr)
  * \brief See Copy(const Expr& expr).

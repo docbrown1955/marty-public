@@ -299,7 +299,7 @@ char Reader::readObject(Child&        child,
 
 void Reader::writeToFileWithIndent(string const& str)
 {
-    fout << std::string(static_cast<size_t>(indent), ' ') << str;
+    fout << std::string(static_cast<std::size_t>(indent), ' ') << str;
 }
 
 void Reader::writeToFile(Object* object,

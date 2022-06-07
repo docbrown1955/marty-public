@@ -134,14 +134,14 @@ public slots:
     void rotateTo(int angle);
     void moveTo(qint32 X0_new, qint32 Y0_new);
 
-    size_t getPosNode(Node const*node) const;
-    std::pair<size_t, size_t> getPosEdge(Edge const*edge) const;
+    std::size_t getPosNode(Node const*node) const;
+    std::pair<std::size_t, std::size_t> getPosEdge(Edge const*edge) const;
 
     void addNode(qreal x = 0,
                  qreal y = 0);
     void addNode(QPointF point);
-    void addEdge(size_t i,
-                 size_t j);
+    void addEdge(std::size_t i,
+                 std::size_t j);
     void addEdge(Node *A,
                  Node *B);
 
@@ -160,7 +160,7 @@ public slots:
     void proxyDoubleClicked(Proxy *);
 
     void removeEdge(Edge *edge);
-    void removeNode(size_t i);
+    void removeNode(std::size_t i);
     void removeSelected();
     void removeSelectedNodes();
     void removeSelectedEdges();
@@ -197,7 +197,7 @@ protected:
             ) const;
 
     drawer::Graph getScaledGraph() const;
-    void setFocusOn(size_t pos);
+    void setFocusOn(std::size_t pos);
     void move(qreal x, qreal y);
     void keyPressEvent(QKeyEvent *event) ;
     void keyReleaseEvent(QKeyEvent *event) ;

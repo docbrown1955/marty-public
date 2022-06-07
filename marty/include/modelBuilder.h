@@ -35,7 +35,7 @@ class Amplitude;
  * @brief Helper struct to store mass block data when diagonalizing.
  */
 struct MassBlock {
-    std::vector<size_t>               positions;
+    std::vector<std::size_t>               positions;
     std::vector<Particle>             particles;
     std::vector<Lagrangian::TermType> terms;
 };
@@ -401,7 +401,7 @@ public:
 
     void breakFlavorSymmetry(
             std::string                           const &flavorName,
-            std::vector<size_t>                   const &subGroups,
+            std::vector<std::size_t>                   const &subGroups,
             std::vector<std::string>                     newFlavorNames
                 = std::vector<std::string>()
             );
@@ -414,7 +414,7 @@ public:
 
     void breakFlavorSymmetry(
             std::string                           const &flavorName,
-            std::vector<size_t>                   const &subGroups,
+            std::vector<std::size_t>                   const &subGroups,
             std::vector<mty::Particle>            const &brokenFields,
             std::vector<std::vector<std::string>> const &newNames,
             std::vector<std::string>              const &newFlavorNames
@@ -471,7 +471,7 @@ public:
             csl::LibraryGenerator &lib
             );
 
-    void abbreviateBigTerms(size_t maxLeafs = 30);
+    void abbreviateBigTerms(std::size_t maxLeafs = 30);
 
     void checksRotation(
             std::vector<mty::Particle>          const &fields,
@@ -543,7 +543,7 @@ protected:
 
     void replaceTermInLagrangian(
             std::vector<Lagrangian::TermType> &lagrangian,
-            size_t                            &i,
+            std::size_t                            &i,
             csl::vector_expr                  &newTerms);
 
     void fillDependencies(

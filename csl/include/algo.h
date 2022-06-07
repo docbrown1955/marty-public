@@ -110,7 +110,7 @@ namespace csl {
      */
     Expr FindLeaf(Expr const& init,
                   Expr const& value,
-                  size_t      depth = -1);
+                  std::size_t      depth = -1);
 
     /*!
      * \brief Searches and returns an expression in another.
@@ -127,7 +127,7 @@ namespace csl {
      */
     Expr FindNode(Expr const& init,
                   Expr const& node,
-                  size_t      depth = -1);
+                  std::size_t      depth = -1);
 
     /*!
      * \brief Searches and returns an expression in another.
@@ -145,7 +145,7 @@ namespace csl {
      */
     Expr FindIfLeaf(Expr const&                             init,
                     std::function<bool(Expr const&)> const& f,
-                    size_t                                  depth = -1);
+                    std::size_t                                  depth = -1);
 
     /*!
      * \brief Searches and returns an expression in another.
@@ -163,7 +163,7 @@ namespace csl {
      */
     Expr FindIfNode(Expr const&                             init,
                     std::function<bool(Expr const&)> const& f,
-                    size_t                                  depth = -1);
+                    std::size_t                                  depth = -1);
 
     /*!
      * \brief Tells if any of the leafs of an expression respect a certain 
@@ -320,14 +320,14 @@ namespace csl {
 
     bool isUnique(csl::Expr const &expr);
 
-    size_t Count(csl::Expr const &expr, csl::Expr const &search);
-    size_t CountIf(
+    std::size_t Count(csl::Expr const &expr, csl::Expr const &search);
+    std::size_t CountIf(
             csl::Expr const &expr, 
             std::function<bool(csl::Expr const&)> const &f
             );
 
-    size_t CountNodes(Expr const &init);
-    size_t CountLeafs(Expr const &init);
+    std::size_t CountNodes(Expr const &init);
+    std::size_t CountLeafs(Expr const &init);
 
     /*!
      * \brief Applies a user function on each node of an expression. The 

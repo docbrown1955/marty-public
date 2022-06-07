@@ -40,7 +40,7 @@ public:
         :m_size1(0), m_size2(0)
     {}
 
-    matrix(size_t s1, size_t s2)
+    matrix(std::size_t s1, std::size_t s2)
 	:m_size1(s1), m_size2(s2),
 	data(std::vector<T>(s1*s2, 0))
     {}
@@ -52,25 +52,25 @@ public:
 
     ~matrix() {}
 
-    void resize(size_t s1, size_t s2) {
+    void resize(std::size_t s1, std::size_t s2) {
         m_size1 = s1;
         m_size2 = s2;
         data = std::vector<T>(s1*s2, 0);
     }
 
-    size_t size1() const { return m_size1; }
-    size_t size2() const { return m_size2; }
+    std::size_t size1() const { return m_size1; }
+    std::size_t size2() const { return m_size2; }
 
-    T const &operator()(size_t i, size_t j) const {
+    T const &operator()(std::size_t i, std::size_t j) const {
 	return data[i*m_size1 + j];
     }
-    T &operator()(size_t i, size_t j) {
+    T &operator()(std::size_t i, std::size_t j) {
 	return data[i*m_size1 + j];
     }
 
 protected:
-    size_t         m_size1;
-    size_t         m_size2;
+    std::size_t         m_size1;
+    std::size_t         m_size2;
     std::vector<T> data;
 };
 
@@ -78,10 +78,10 @@ template<class T>
 class identity_matrix: public matrix<T> {
 
 public:
-    identity_matrix(size_t s)
+    identity_matrix(std::size_t s)
          :matrix<T>(s, s)
     {
-        for (size_t i = 0; i != this->m_size1; ++i)
+        for (std::size_t i = 0; i != this->m_size1; ++i)
 	    (*this)(i, i) = 1;
     }
 
@@ -97,8 +97,8 @@ std::ostream &operator<<(
         matrix<T> const &m
         )
 {
-    for (size_t i = 0; i < m.size1(); ++i) {
-        for (size_t j = 0; j != m.size2(); ++j) {
+    for (std::size_t i = 0; i < m.size1(); ++i) {
+        for (std::size_t j = 0; j != m.size2(); ++j) {
             out << m(i, j) << ", ";
         }
         out << ",\n";

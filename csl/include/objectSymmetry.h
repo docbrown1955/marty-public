@@ -70,7 +70,7 @@ class ObjectPermutation {
 
     ~ObjectPermutation();
 
-    size_t size() const {
+    std::size_t size() const {
         return permutation.size();
     }
 

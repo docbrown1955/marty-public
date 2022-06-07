@@ -38,7 +38,7 @@ void PropertyList::addProperty(const Expr& leftHandSide, const Expr& rightHandSi
 {
     Equation* property = equation_(leftHandSide, rightHandSide);
     csl::vector_expr BB = property->getBuildingBlocks();
-    const size_t size = props.size();
+    const std::size_t size = props.size();
     for (const auto& bb : BB) {
         Equation* newProp = equation_(property);
         newProp->isolate(bb);
@@ -112,7 +112,7 @@ csl::vector_expr PropertyList::apply(const Expr& expr) const
             if (indexed) {
                 IndexStructure structure2 
                     = foo.value()->getFreeIndexStructure();
-                for (size_t i=0; i!=structure.size(); ++i)
+                for (std::size_t i=0; i!=structure.size(); ++i)
                     Replace(foo.value(), structure2[i],structure[i]);
             }
             if (foo.value() != expr)

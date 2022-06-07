@@ -293,7 +293,7 @@ std::vector<csl::Index> DiracSpace::applyInvolution(
     if (isGammaMu(tensors[0])) {
         // Testing transposed
         csl::Index ind = getSecondIndex(tensors[0]);
-        for (size_t i = 1; i != tensors.size(); ++i) {
+        for (std::size_t i = 1; i != tensors.size(); ++i) {
             auto mu    = getSpaceTimeIndex(tensors[i]);
             auto alpha = getFirstIndex(tensors[i]);
             auto beta  = getSecondIndex(tensors[i]);
@@ -341,7 +341,7 @@ std::vector<csl::Index> DiracSpace::applyInvolution(
         }
     }
     else
-        for (size_t i = 1; i != tensors.size(); ++i) {
+        for (std::size_t i = 1; i != tensors.size(); ++i) {
             auto st_index = getSpaceTimeIndex(tensors[i]);
             indices.push_back(st_index);
         }
@@ -353,10 +353,10 @@ void DiracSpace::applyChiralityProp(
         std::vector<csl::Index>& tensors,
         csl::Expr                   & factor) const
 {
-    for (size_t i = 1; i < tensors.size(); ++i) {
+    for (std::size_t i = 1; i < tensors.size(); ++i) {
         if (isGammaChir(tensors[i])) {
             bool simplified = false;
-            for (size_t j = i; j --> 0 ;)
+            for (std::size_t j = i; j --> 0 ;)
                 if (isGammaMu(tensors[j]))
                     factor = -factor;
                 else if (isProjector(tensors[j])) {
@@ -382,7 +382,7 @@ void DiracSpace::applyChiralityProp(
             }
         }
         else if (isProjector(tensors[i])) {
-            for (size_t j = i; j --> 0 ;) {
+            for (std::size_t j = i; j --> 0 ;) {
                 if (isGammaMu(tensors[j]))
                     flipChirality(tensors[i]);
                 else if (isGammaChir(tensors[j])) {
@@ -417,7 +417,7 @@ void DiracSpace::simplifySquares(
         std::vector<csl::Index>& tensors,
         csl::Expr                   & factor) const
 {
-    for (size_t i = 0; i+1 < tensors.size(); ++i)
+    for (std::size_t i = 0; i+1 < tensors.size(); ++i)
         if (tensors[i].getType() == cslIndex::Fixed
                 and tensors[i+1].getType() ==  cslIndex::Fixed
                 and tensors[i].getValue() == tensors[i+1].getValue()) {
@@ -496,7 +496,7 @@ csl::Expr DiracSpace::applyStandardRecursion(
         return 4 * spaceTime->getMetric()({tensors[0], tensors[1]});
 
     csl::vector_expr terms(tensors.size()-1);
-    for (size_t j = 1; j != tensors.size(); ++j) {
+    for (std::size_t j = 1; j != tensors.size(); ++j) {
         std::vector<csl::Index> copy = tensors;
         csl::Expr metricTerm = spaceTime->getMetric()({copy[0], copy[j]});
         copy.erase(copy.begin()+j);
@@ -541,20 +541,20 @@ csl::Expr DiracSpace::applyChiralRecursion(
     }
 
     csl::vector_expr terms;
-    for (size_t i = 0; i != tensors.size()-1; ++i) {
+    for (std::size_t i = 0; i != tensors.size()-1; ++i) {
         int globalSign = (i%4 >= 2) ? -1 : 1;
-        for (size_t j = i+1; j != tensors.size(); ++j) {
+        for (std::size_t j = i+1; j != tensors.size(); ++j) {
             int sign = ((i+j+1)%2 == 1) ? -globalSign : globalSign;
             std::vector<csl::Index> recursiveMinkoIndices(tensors.size()-2);
-            size_t recursiveIndex = 0;
-            for (size_t k = i+1; k != tensors.size(); ++k,
+            std::size_t recursiveIndex = 0;
+            for (std::size_t k = i+1; k != tensors.size(); ++k,
                                                       ++recursiveIndex)
                 if (k != j)
                     recursiveMinkoIndices[recursiveIndex] = tensors[k];
                 else 
                     --recursiveIndex;
             recursiveIndex = tensors.size()-(i+2);
-            for (size_t k = i; k --> 0 ; ++recursiveIndex)
+            for (std::size_t k = i; k --> 0 ; ++recursiveIndex)
                 recursiveMinkoIndices[recursiveIndex] = tensors[k];
 
             terms.push_back(
@@ -802,8 +802,8 @@ void DiracSpace::initProperties()
 
 DiracSpace::alignedCycle DiracSpace::align(csl::vector_expr tensors) const
 {
-    size_t pos_first = 0;
-    for (size_t i = 0; i != tensors.size(); ++i) 
+    std::size_t pos_first = 0;
+    for (std::size_t i = 0; i != tensors.size(); ++i) 
         if (isGammaMu(tensors[i])) {
             pos_first = i;
             break;
@@ -833,7 +833,7 @@ DiracSpace::alignedCycle DiracSpace::align(csl::vector_expr tensors) const
             auto nextCycle = align(tensors);
             for (auto& cut : nextCycle.cutsBtwCycles)
                 cut += res.size();
-            std::vector<size_t> cuts(1, res.size());
+            std::vector<std::size_t> cuts(1, res.size());
             cuts.insert(cuts.end(),
                         nextCycle.cutsBtwCycles.begin(),
                         nextCycle.cutsBtwCycles.end());
@@ -844,13 +844,13 @@ DiracSpace::alignedCycle DiracSpace::align(csl::vector_expr tensors) const
         }
     }
 
-    return {res, std::vector<size_t>()};
+    return {res, std::vector<std::size_t>()};
 }
 
 DiracSpace::alignedCycle DiracSpace::alignOpen(csl::vector_expr tensors) const
 {
-    size_t pos_first = 0;
-    for (size_t i = 0; i != tensors.size(); ++i) 
+    std::size_t pos_first = 0;
+    for (std::size_t i = 0; i != tensors.size(); ++i) 
         if (isGammaMu(tensors[i])) {
             pos_first = i;
             break;
@@ -893,8 +893,8 @@ DiracSpace::alignedCycle DiracSpace::alignOpen(csl::vector_expr tensors) const
         else if (((reverse and not indexFound) or index == first) 
                     and not tensors.empty()) {
             auto nextCycle = alignOpen(tensors);
-            std::vector<size_t> cuts(1, res.size());
-            for (size_t &cut : nextCycle.cutsBtwCycles)
+            std::vector<std::size_t> cuts(1, res.size());
+            for (std::size_t &cut : nextCycle.cutsBtwCycles)
                 cut += res.size();
             cuts.insert(cuts.end(),
                         nextCycle.cutsBtwCycles.begin(),
@@ -906,40 +906,40 @@ DiracSpace::alignedCycle DiracSpace::alignOpen(csl::vector_expr tensors) const
         }
     }
 
-    return {res, std::vector<size_t>()};
+    return {res, std::vector<std::size_t>()};
 }
 
 void DiracSpace::insert(csl::Index       const & toInsert,
                         std::vector<csl::Index>& tensors,
-                        std::vector<size_t>    & cuts,
-                        size_t i) const
+                        std::vector<std::size_t>    & cuts,
+                        std::size_t i) const
 {
     tensors.insert(tensors.begin() + i, toInsert);
-    for (size_t& pos : cuts) {
+    for (std::size_t& pos : cuts) {
         if (pos > i)
             ++pos;
     }
 }
 
 void DiracSpace::contract(std::vector<csl::Index>& tensors,
-                          std::vector<size_t>    & cuts,
-                          size_t i) const
+                          std::vector<std::size_t>    & cuts,
+                          std::size_t i) const
 {
     tensors.erase(tensors.begin() + i);
-    for (size_t& pos : cuts) {
+    for (std::size_t& pos : cuts) {
         if (pos > i)
             --pos;
     }
 }
 
 void DiracSpace::contract(std::vector<csl::Index>& tensors,
-                          std::vector<size_t>    & cuts,
-                          size_t i,
-                          size_t j) const
+                          std::vector<std::size_t>    & cuts,
+                          std::size_t i,
+                          std::size_t j) const
 {
     tensors.erase(tensors.begin() + j);
     tensors.erase(tensors.begin() + i);
-    for (size_t& pos : cuts) {
+    for (std::size_t& pos : cuts) {
         if (pos > j)
             pos -= 2;
     }
@@ -947,13 +947,13 @@ void DiracSpace::contract(std::vector<csl::Index>& tensors,
 
 void DiracSpace::contractTensor(
         std::vector<csl::Index>& tensors,
-        std::vector<size_t>    & cuts,
-        size_t i,
-        size_t j) const
+        std::vector<std::size_t>    & cuts,
+        std::size_t i,
+        std::size_t j) const
 {
     tensors.erase(tensors.begin() + j);
     tensors.erase(tensors.begin() + i);
-    for (size_t& pos : cuts) {
+    for (std::size_t& pos : cuts) {
         if (pos > i and pos > j)
             pos -= 2;
         else if (pos > i)
@@ -963,7 +963,7 @@ void DiracSpace::contractTensor(
 
 std::vector<DiracSpace::Chain> DiracSpace::simplifyGammaProd(
         std::vector<csl::Index> const &indices,
-        std::vector<size_t>     const &cuts,
+        std::vector<std::size_t>     const &cuts,
         csl::Expr                    const &factor
         ) const
 {
@@ -1000,14 +1000,14 @@ std::vector<DiracSpace::Chain> DiracSpace::simplifyGammaProd(
     if (init.size() < 2)
         return {};
     csl::Index minkoIndex;
-    size_t index_cut = 0;
+    std::size_t index_cut = 0;
     std::vector<DiracSpace::Chain> chains;
-    for (size_t i = 0; i != init.size(); ++i) {
+    for (std::size_t i = 0; i != init.size(); ++i) {
         if (i == init.cuts[index_cut])
             ++index_cut;
         if (isGammaMu(init[i]) 
                 and init[i].getType() != cslIndex::Fixed) {
-            for (size_t j = i+1; j < init.cuts[index_cut]; ++j)
+            for (std::size_t j = i+1; j < init.cuts[index_cut]; ++j)
                 if (init[i] == init[j]) {
                     if (j == i + 1) {
                         csl::Expr factor = csl::DMinko * init.factor;
@@ -1020,20 +1020,20 @@ std::vector<DiracSpace::Chain> DiracSpace::simplifyGammaProd(
         }
     }
     index_cut = 0;
-    for (size_t i = 0; i != init.size(); ++i) {
+    for (std::size_t i = 0; i != init.size(); ++i) {
         if (i == init.cuts[index_cut])
             ++index_cut;
         if (isGammaMu(init[i]) 
                 and init[i].getType() != cslIndex::Fixed) {
-            for (size_t j = i+1; j < init.cuts[index_cut]; ++j)
+            for (std::size_t j = i+1; j < init.cuts[index_cut]; ++j)
                 if (init[i] == init[j]) {
                     std::vector<Chain> newChains;
                     newChains.reserve(j - i - 1);
-                    for (size_t k = i + 1; k != j - 1; ++k) {
+                    for (std::size_t k = i + 1; k != j - 1; ++k) {
                         Chain newChain(init);
                         newChain.factor *= csl::pow_s(-1, k-(i+1)) * 2;
                         csl::Index movedIndex = newChain[k];
-                        for (size_t l = k; l != j-1; ++l)
+                        for (std::size_t l = k; l != j-1; ++l)
                             newChain[l] = newChain[l+1];
                         newChain[j-1] = movedIndex;
                         contract(
@@ -1060,8 +1060,8 @@ std::vector<DiracSpace::Chain> DiracSpace::simplifyGammaProd(
 }
 
 Chirality DiracSpace::getChirality(
-        size_t pos,
-        size_t cut,
+        std::size_t pos,
+        std::size_t cut,
         csl::Index proj
         ) const
 {
@@ -1078,26 +1078,26 @@ std::vector<DiracSpace::FiertzContraction> DiracSpace::getFiertzContractions(
         ) const
 {
     std::vector<FiertzContraction> contractions;
-    size_t index_cut = 0;
-    for (size_t i = 0; i != init.size(); ++i) {
+    std::size_t index_cut = 0;
+    for (std::size_t i = 0; i != init.size(); ++i) {
         if (i == init.cuts[index_cut])
             ++index_cut;
-        size_t i_cut = init.cuts[index_cut];
+        std::size_t i_cut = init.cuts[index_cut];
         if (isGammaMu(init[i]) 
                 and init[i].getType() != cslIndex::Fixed) {
             Chirality chir_i = getChirality(
                     i, 
                     i_cut,
                     init[i_cut - 1]);
-            for (size_t j = i_cut; j != init.size(); ++j)
+            for (std::size_t j = i_cut; j != init.size(); ++j)
                 if (init[i] == init[j]) {
-                    size_t index_j_cut = index_cut+1;
-                    for (size_t cut = index_cut+1; 
+                    std::size_t index_j_cut = index_cut+1;
+                    for (std::size_t cut = index_cut+1; 
                             cut != init.cuts.size(); 
                             ++cut)
                         if (j >= init.cuts[cut])
                             ++index_j_cut;
-                    size_t j_cut = init.cuts[index_j_cut];
+                    std::size_t j_cut = init.cuts[index_j_cut];
                     Chirality chir_j = getChirality(
                             j, 
                             j_cut,
@@ -1131,11 +1131,11 @@ std::vector<DiracSpace::Chain> DiracSpace::simplifyFiertzProd(
             contractTensor(newChain.indices, newChain.cuts, c.i, c.j);
             return {newChain};
         }
-    for (size_t i = 0; i != contractions.size(); ++i) {
+    for (std::size_t i = 0; i != contractions.size(); ++i) {
         FiertzContraction const &c_i = contractions[i];
         if (!c_i.isChiral())
             continue;
-        for (size_t j = i + 1; j < contractions.size(); ++j) {
+        for (std::size_t j = i + 1; j < contractions.size(); ++j) {
             FiertzContraction const &c_j = contractions[j];
             if (c_i.i_cut == c_j.i_cut
                     and c_i.j_cut == c_j.j_cut) {
@@ -1150,14 +1150,14 @@ std::vector<DiracSpace::Chain> DiracSpace::simplifyFiertzProd(
                 }
 
                 if (sameSide)  {
-                    for (size_t k = c_i.i+1; k < init.cuts[c_i.i_cut]-1; ++k) {
+                    for (std::size_t k = c_i.i+1; k < init.cuts[c_i.i_cut]-1; ++k) {
                             insert(
                                     init[k], 
                                     newChain.indices, 
                                     newChain.cuts, 
                                     c_i.j+1);
                     }
-                    for (size_t k = c_i.i+1; k < init.cuts[c_i.i_cut]-1; ++k) {
+                    for (std::size_t k = c_i.i+1; k < init.cuts[c_i.i_cut]-1; ++k) {
                         contract(
                                 newChain.indices, 
                                 newChain.cuts, 
@@ -1165,24 +1165,24 @@ std::vector<DiracSpace::Chain> DiracSpace::simplifyFiertzProd(
                     }
                 }
                 else {
-                    size_t ni = init.cuts[c_i.i_cut]-c_i.i-2;
-                    size_t nj = init.cuts[c_i.j_cut]-c_i.j-2;
-                    for (size_t k = 0; k < std::min(ni, nj); ++k) {
+                    std::size_t ni = init.cuts[c_i.i_cut]-c_i.i-2;
+                    std::size_t nj = init.cuts[c_i.j_cut]-c_i.j-2;
+                    for (std::size_t k = 0; k < std::min(ni, nj); ++k) {
                         std::swap(newChain[c_i.i+1+k], newChain[c_i.j+1+k]);
                     }
-                    size_t n = std::max(ni, nj) - std::min(ni, nj);
-                    size_t beginInsert = (ni > nj) ? c_i.j+1 : c_i.i+1;
+                    std::size_t n = std::max(ni, nj) - std::min(ni, nj);
+                    std::size_t beginInsert = (ni > nj) ? c_i.j+1 : c_i.i+1;
                     beginInsert += std::min(ni, nj);
-                    size_t beginErase  = (ni > nj) ? c_i.i+1 : c_i.j+1;
+                    std::size_t beginErase  = (ni > nj) ? c_i.i+1 : c_i.j+1;
                     beginErase  += std::min(ni, nj);
-                    for (size_t k = 0; k != n; ++k) {
+                    for (std::size_t k = 0; k != n; ++k) {
                             insert(
                                     init[beginErase+k], 
                                     newChain.indices, 
                                     newChain.cuts, 
                                     beginInsert+k);
                     }
-                    for (size_t k = 0; k != n; ++k) {
+                    for (std::size_t k = 0; k != n; ++k) {
                         contract(
                                 newChain.indices, 
                                 newChain.cuts, 
@@ -1199,19 +1199,19 @@ std::vector<DiracSpace::Chain> DiracSpace::simplifyFiertzProd(
 
 void DiracSpace::applyUniqueChiralityStructure(
         std::vector<csl::Index>& tensors,
-        std::vector<size_t>& cuts,
+        std::vector<std::size_t>& cuts,
         csl::Expr& factor) const
 {
     enum Mode { None, Chir, Left, Right };
     if (tensors.empty())
         return;
-    size_t pos = 0;
-    for (size_t p = 0; p != cuts.size(); ++p) {
+    std::size_t pos = 0;
+    for (std::size_t p = 0; p != cuts.size(); ++p) {
         if (pos + 1 >= cuts[p]) {
             pos = cuts[p];
             continue;
         }
-        for (size_t i = pos; i+1 < cuts[p]; ++i) {
+        for (std::size_t i = pos; i+1 < cuts[p]; ++i) {
             Mode mode = None;
             if (isGammaChir(tensors[i]))
                 mode = Chir;
@@ -1222,7 +1222,7 @@ void DiracSpace::applyUniqueChiralityStructure(
             if (mode == 0)
                 continue;
             bool simplified = false;
-            for (size_t j = i+1; j < cuts[p]; ++j) {
+            for (std::size_t j = i+1; j < cuts[p]; ++j) {
                 if (isGammaChir(tensors[j])){
                     switch(mode) {
                         case Chir:
@@ -1289,7 +1289,7 @@ void DiracSpace::applyUniqueChiralityStructure(
                 }
             }
             if (not simplified) {
-                for (size_t j = i; j < cuts[p]-1; ++j)
+                for (std::size_t j = i; j < cuts[p]-1; ++j)
                     tensors[j] = tensors[j+1];
                 switch(mode) {
                     case Chir:
@@ -1342,7 +1342,7 @@ std::pair<csl::Index, csl::Index> DiracSpace::getBorderOfChain(
 
 std::vector<std::pair<csl::Index, csl::Index>>
     DiracSpace::getBorderOfChains(std::vector<csl::Expr>   const& tensors,
-                                  std::vector<size_t>      & cuts) const
+                                  std::vector<std::size_t>      & cuts) const
 {
     std::vector<std::pair<csl::Index, csl::Index>> res;
     if (cuts.empty() or cuts[cuts.size()-1] != tensors.size())
@@ -1351,7 +1351,7 @@ std::vector<std::pair<csl::Index, csl::Index>>
         return res;
     res.reserve(cuts.size());
     auto first = tensors.begin();
-    for (size_t cut : cuts) {
+    for (std::size_t cut : cuts) {
         auto last = tensors.begin() + cut;
         res.push_back(getBorderOfChain(first, last));
         first = last;
@@ -1362,8 +1362,8 @@ std::vector<std::pair<csl::Index, csl::Index>>
 
 csl::vector_expr DiracSpace::applyChainIndices(
         std::vector<csl::Index> const& tensors,
-        std::vector<size_t>     const& cuts,
-        std::vector<std::pair<size_t, size_t>>         const& flipped,
+        std::vector<std::size_t>     const& cuts,
+        std::vector<std::pair<std::size_t, std::size_t>>         const& flipped,
         std::vector<std::pair<csl::Index, csl::Index>> const& indices) const
 {
     HEPAssert(cuts.size() == indices.size(),
@@ -1372,9 +1372,9 @@ csl::vector_expr DiracSpace::applyChainIndices(
     if (tensors.empty())
         return csl::vector_expr();
 
-    auto getIndex = [&](size_t indexCut)
+    auto getIndex = [&](std::size_t indexCut)
     {
-        size_t currentCut = indexCut;
+        std::size_t currentCut = indexCut;
         for (const auto &[first ,second] : flipped)
             if (first == currentCut) 
                 currentCut = second;
@@ -1383,10 +1383,10 @@ csl::vector_expr DiracSpace::applyChainIndices(
         return indices[currentCut].second;
     };
 
-    size_t indexCut = 0;
+    std::size_t indexCut = 0;
     csl::vector_expr exprTensors(tensors.size());
     csl::Index current = indices[0].first;
-    for (size_t i = 0; i != tensors.size(); ++i) {
+    for (std::size_t i = 0; i != tensors.size(); ++i) {
         csl::Index second;
         if (i + 1 == cuts[indexCut]) {
             second = getIndex(indexCut);
@@ -1438,7 +1438,7 @@ csl::vector_expr DiracSpace::simplifyChain(
     std::vector<csl::Index> tensorsIndices = exprToIndex(
             aligned.tensors, aligned.cutsBtwCycles);
     //std::cout << "HERE" << std::endl;
-    //size_t index = 0;
+    //std::size_t index = 0;
     //for (const auto &i : tensorsIndices) {
     //    std::cout << i << " ";
     //    if (auto pos = std::find(aligned.cutsBtwCycles.begin(),
@@ -1447,8 +1447,8 @@ csl::vector_expr DiracSpace::simplifyChain(
     //        std::cout << "| ";
     //}
     //std::cout << std::endl;
-    // size_t pos = 0;
-    // for (size_t cut_pos = 0;
+    // std::size_t pos = 0;
+    // for (std::size_t cut_pos = 0;
     //         cut_pos != aligned.cutsBtwCycles.size();
     //         ++cut_pos) {
     //     std::vector<csl::Index> tensors(aligned.cutsBtwCycles[cut_pos]-pos);
@@ -1461,14 +1461,14 @@ csl::vector_expr DiracSpace::simplifyChain(
     //               tensors.end(),
     //               tensorsIndices.begin() + pos);
 
-    //     size_t maxi = tensors.size() + pos;
-    //     size_t Ndiff = aligned.cutsBtwCycles[cut_pos] - pos - tensors.size();
+    //     std::size_t maxi = tensors.size() + pos;
+    //     std::size_t Ndiff = aligned.cutsBtwCycles[cut_pos] - pos - tensors.size();
     //     if (Ndiff > 0) {
-    //         for (size_t pos = cut_pos
+    //         for (std::size_t pos = cut_pos
     //                 ; pos != aligned.cutsBtwCycles.size()
     //                 ; ++pos)
     //             aligned.cutsBtwCycles[pos] -= Ndiff;
-    //         for (size_t i = 0; i != Ndiff; ++i)
+    //         for (std::size_t i = 0; i != Ndiff; ++i)
     //             tensorsIndices.erase(tensorsIndices.begin() + maxi);
     //     }
     //     pos = aligned.cutsBtwCycles[cut_pos];
@@ -1503,14 +1503,14 @@ csl::vector_expr DiracSpace::simplifyChain(
     //return terms;
 }
 
-size_t DiracSpace::getSpinorDimension(size_t spaceTimeDim)
+std::size_t DiracSpace::getSpinorDimension(std::size_t spaceTimeDim)
 {
     return pow(2, spaceTimeDim / 2);
 }
 
-size_t DiracSpace::countGammaMult(csl::vector_expr const& tensors) const
+std::size_t DiracSpace::countGammaMult(csl::vector_expr const& tensors) const
 {
-    size_t count = 0;
+    std::size_t count = 0;
     for (const auto& t : tensors)
         if (isGammaMu(t))
             count += 1;
@@ -1526,9 +1526,9 @@ size_t DiracSpace::countGammaMult(csl::vector_expr const& tensors) const
     return count;
 }
 
-size_t DiracSpace::countGammaMult(std::vector<csl::Index> const& tensors) const
+std::size_t DiracSpace::countGammaMult(std::vector<csl::Index> const& tensors) const
 {
-    size_t count = 0;
+    std::size_t count = 0;
     for (const auto& t : tensors)
         if (isGammaMu(t))
             count += 1;
@@ -1544,16 +1544,16 @@ size_t DiracSpace::countGammaMult(std::vector<csl::Index> const& tensors) const
 
 std::vector<csl::Index> DiracSpace::exprToIndex(
         std::vector<csl::Expr> const& tensors,
-        std::vector<size_t>    & cuts) const
+        std::vector<std::size_t>    & cuts) const
 {
     std::vector<csl::Index> indices;
     indices.reserve(tensors.size());
-    for (size_t i = 0; i != tensors.size(); ++i) {
+    for (std::size_t i = 0; i != tensors.size(); ++i) {
         csl::Index mu = getSpaceTimeIndex(tensors[i]);
         if (mu != dim+4)
             indices.push_back(mu);
         else
-            for (size_t& cut : cuts)
+            for (std::size_t& cut : cuts)
                 if (cut+1 > indices.size())
                     --cut;
     }
@@ -1975,15 +1975,15 @@ bool ConjugationSimplifier::commutationWithProduct(
     HEPAssert(csl::IsProd(prod),
             mty::error::TypeError,
             "Expecting a product, " + toString(prod) + " given.");
-    size_t nArgs = prod->size();
+    std::size_t nArgs = prod->size();
     std::vector<csl::IndexStructure> indices(nArgs);
-    for (size_t i = 0; i != nArgs; ++i)
+    for (std::size_t i = 0; i != nArgs; ++i)
         indices[i] = prod[i]->getIndexStructure();
-    size_t nCommut = 0;
+    std::size_t nCommut = 0;
     bool commuted;
     do {
         commuted = false;
-        for (size_t i = 0; i != nArgs; ++i) {
+        for (std::size_t i = 0; i != nArgs; ++i) {
             for (const auto& index : indices[i])
                 if (index == second) {
                     if (commutation(first, second, prod[i])) {

@@ -105,7 +105,7 @@ csl::Index MinkowskiIndex(std::string const& name = "");
  * \param name Name of the index (optional).
  * \return \b n indices living in mty::dirac4 space.
  */
-std::vector<csl::Index> DiracIndices(size_t n, std::string const& name = "");
+std::vector<csl::Index> DiracIndices(std::size_t n, std::string const& name = "");
 
 /*!
  * \brief Returns indices in csl::Minkowki space.
@@ -120,7 +120,7 @@ std::vector<csl::Index> DiracIndices(size_t n, std::string const& name = "");
  * \param name Name of the index (optional).
  * \return \b n indices living in csl::Minkowski space.
  */
-std::vector<csl::Index> MinkowskiIndices(size_t n, std::string const& name = "");
+std::vector<csl::Index> MinkowskiIndices(std::size_t n, std::string const& name = "");
 
 /*!
  * \brief Returns a csl::Index in the 4-dimensional Dirac space mty::dirac4.
@@ -212,12 +212,12 @@ csl::Index FlavorIndex(mty::Model  const& model,
  */
 template<class GroupType>
 std::vector<csl::Index> FlavorIndices(
-        size_t             nIndices,
+        std::size_t             nIndices,
         mty::Model  const& model,
         GroupType       && group)
 {
     std::vector<csl::Index> indices(nIndices);
-    for (size_t i = 0; i != nIndices; ++i) 
+    for (std::size_t i = 0; i != nIndices; ++i) 
         indices[i] = FlavorIndex<GroupType>(
                 model,
                 std::forward<GroupType>(group)
@@ -285,13 +285,13 @@ csl::Index GaugeIndex(mty::Model  const& model,
  */
 template<class GroupType, class FieldType>
 std::vector<csl::Index> GaugeIndices(
-        size_t             nIndices,
+        std::size_t             nIndices,
         mty::Model  const& model,
         GroupType       && group,
         FieldType       && part)
 {
     std::vector<csl::Index> indices(nIndices);
-    for (size_t i = 0; i != nIndices; ++i) 
+    for (std::size_t i = 0; i != nIndices; ++i) 
         indices[i] = GaugeIndex<GroupType, FieldType>(
                 model,
                 std::forward<GroupType>(group),
@@ -535,23 +535,23 @@ void Show(WilsonSet const &wilsons);
 
 void Show(
         std::vector<FeynmanRule> const& rules,
-        size_t first,
-        size_t last
+        std::size_t first,
+        std::size_t last
         );
 void Show(
         std::vector<std::shared_ptr<wick::Graph>> const& diagrams,
-        size_t first,
-        size_t last
+        std::size_t first,
+        std::size_t last
         );
 void Show(
         mty::Amplitude const& diagrams,
-        size_t first,
-        size_t last
+        std::size_t first,
+        std::size_t last
         );
 void Show(
         WilsonSet const &wilsons,
-        size_t first,
-        size_t last
+        std::size_t first,
+        std::size_t last
         );
 
 void SaveDiagrams(

@@ -170,12 +170,12 @@ namespace sgl {
         LOG(csl::IndexStructure(A))
         LOG(csl::IndexStructure(B))
         int nPerm = 0;
-        size_t nContraction = 0;
+        std::size_t nContraction = 0;
         bool contractionFound;
         do {
             contractionFound = false;
-            for (size_t i = nContraction; i != A.size(); ++i) {
-                for (size_t j = nContraction; j != B.size(); ++j) {
+            for (std::size_t i = nContraction; i != A.size(); ++i) {
+                for (std::size_t j = nContraction; j != B.size(); ++j) {
                     if (A[i] == B[j]) {
                         if (i != nContraction) {
                             std::swap(A[i], A[nContraction]);
@@ -232,8 +232,8 @@ namespace sgl {
             csl::Tensor        p,
             csl::Index  const &mu,
             csl::Index  const &nu,
-            size_t             i,
-            size_t             j
+            std::size_t             i,
+            std::size_t             j
             )
     {
         SCOPELOG

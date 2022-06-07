@@ -35,7 +35,7 @@ namespace mty {
 
     }
         
-    std::vector<std::vector<size_t>> Expander::findNonZeroDiagrams()
+    std::vector<std::vector<std::size_t>> Expander::findNonZeroDiagrams()
     {
         if (insertions.empty()) {
             return {};
@@ -56,20 +56,20 @@ namespace mty {
                 mty::error::ValueError,
                 "Order should be positive in Expander::expandLagrangian().");
 
-        size_t maxInteractionLegs = 0;
+        std::size_t maxInteractionLegs = 0;
         for (const auto &term : effectiveLagrangian) {
-            size_t nLegs = term->getContent().size();
+            std::size_t nLegs = term->getContent().size();
             if (nLegs > maxInteractionLegs)
                 maxInteractionLegs = nLegs;
         }
-        std::map<std::vector<size_t>, bool> vertexMap;
+        std::map<std::vector<std::size_t>, bool> vertexMap;
         std::vector<std::vector<bool>>   insertionsPaired(
                 1, std::vector<bool>(insertions.size(), false)
                 );
-        std::vector<std::vector<size_t>> numberVertices(
-                1, std::vector<size_t>{}
+        std::vector<std::vector<std::size_t>> numberVertices(
+                1, std::vector<std::size_t>{}
                 );
-        std::vector<std::vector<size_t>> fixedSets;
+        std::vector<std::vector<std::size_t>> fixedSets;
         if (options.verboseAmplitude) {
             std::cout << "Expanding Lagrangian at order " << order << " ...\n";
         }
@@ -78,27 +78,27 @@ namespace mty {
             if (options.verboseAmplitude) {
                 bar.progress(iter);
             }
-            std::vector<std::vector<size_t>> newNumbers;
+            std::vector<std::vector<std::size_t>> newNumbers;
             std::vector<std::vector<bool>>   newInsertionPairing;
             if (order > 1) {
                 newNumbers.reserve(
                         std::min(
-                            static_cast<size_t>(1e6),
+                            static_cast<std::size_t>(1e6),
                             effectiveLagrangian.size()*numberVertices.size()
                             )
                         );
                 newInsertionPairing.reserve(
                         std::min(
-                            static_cast<size_t>(1e6),
+                            static_cast<std::size_t>(1e6),
                             effectiveLagrangian.size()*numberVertices.size()
                             )
                         );
             }
 
-            for (size_t iTerm = 0; iTerm != effectiveLagrangian.size(); ++iTerm) {
+            for (std::size_t iTerm = 0; iTerm != effectiveLagrangian.size(); ++iTerm) {
                 std::vector<QuantumField> const &newFields 
                     = effectiveLagrangian[iTerm]->getContent();
-                for (size_t iV = 0; iV != numberVertices.size(); ++iV) {
+                for (std::size_t iV = 0; iV != numberVertices.size(); ++iV) {
                     std::vector<bool> pairing;
                     if (contractionPossible(numberVertices[iV],
                                             insertionsPaired[iV],
@@ -129,7 +129,7 @@ namespace mty {
                                         + numbers.size()*5);
                     for (auto& field : insertions)
                         finalCorrelator.push_back(&field);
-                    for (size_t pos : numbers) {
+                    for (std::size_t pos : numbers) {
                         std::vector<QuantumField> const& content 
                             = effectiveLagrangian[pos]->getContent();
                         for (auto const& field : content)
@@ -157,14 +157,14 @@ namespace mty {
     }
 
     bool Expander::contractionPossible(
-            std::vector<size_t>       const& fieldPos,
+            std::vector<std::size_t>       const& fieldPos,
             std::vector<bool>         const& insertionsPaired,
             std::vector<QuantumField> const& newFields,
             std::vector<bool>&               newPairing,
             int                              order,
             int                              maxOrder,
-            size_t                           nLoops,
-            size_t                           maxInteractionLegs
+            std::size_t                           nLoops,
+            std::size_t                           maxInteractionLegs
             )
     {
         if (order >= maxOrder - 2) {
@@ -174,7 +174,7 @@ namespace mty {
                                 + fieldPos.size()*5);
             for (auto& field : insertions)
                 finalCorrelator.push_back(&field);
-            for (size_t pos : fieldPos) {
+            for (std::size_t pos : fieldPos) {
                 std::vector<QuantumField> const& content 
                     = effectiveLagrangian[pos]->getContent();
                 for (auto& field : content)
@@ -188,11 +188,11 @@ namespace mty {
                 return !wick::WickCalculator::isContractionZero(finalCorrelator);
             }
             else {
-                std::vector<size_t> indicesLeft(finalCorrelator.size());
-                for (size_t i = 0; i != indicesLeft.size(); ++i)
+                std::vector<std::size_t> indicesLeft(finalCorrelator.size());
+                for (std::size_t i = 0; i != indicesLeft.size(); ++i)
                     indicesLeft[i] = i;
-                for (size_t i = 0; i < indicesLeft.size(); ++i) {
-                    for (size_t j = i+1; j < indicesLeft.size(); ++j) {
+                for (std::size_t i = 0; i < indicesLeft.size(); ++i) {
+                    for (std::size_t j = i+1; j < indicesLeft.size(); ++j) {
                         if (finalCorrelator[indicesLeft[i]]
                                 ->isExactlyContractiblewith(
                                     *finalCorrelator[indicesLeft[j]]
@@ -206,10 +206,10 @@ namespace mty {
                 }
                 if (indicesLeft.size() > maxInteractionLegs)
                     return false;
-                size_t n = newFields.size();
-                size_t n_connected = 0;
+                std::size_t n = newFields.size();
+                std::size_t n_connected = 0;
                 for (const auto &f :newFields)
-                    for (size_t i = 0; i != finalCorrelator.size() - n; ++i) 
+                    for (std::size_t i = 0; i != finalCorrelator.size() - n; ++i) 
                         if (f.isExactlyContractiblewith(
                                     *finalCorrelator[i]
                                     )) {
@@ -224,7 +224,7 @@ namespace mty {
         bool insertionFiled = false;
         newPairing = insertionsPaired;
         for (const auto& newF : newFields) {
-            for (size_t j = 0; j != newPairing.size(); ++j) {
+            for (std::size_t j = 0; j != newPairing.size(); ++j) {
                 if (not newPairing[j]) {
                     complete = false;
                     if (insertions[j].isExactlyContractiblewith(newF)) {
@@ -241,12 +241,12 @@ namespace mty {
         if (not complete)
             return true;
 
-        std::vector<size_t> insertionLeft(insertions.size());
-        for (size_t i = 0; i != insertions.size(); ++i)
+        std::vector<std::size_t> insertionLeft(insertions.size());
+        for (std::size_t i = 0; i != insertions.size(); ++i)
             insertionLeft[i] = i;
 
         // Here insertions are all filled, we look for other fields
-        for (size_t iF = 0;
+        for (std::size_t iF = 0;
                     iF < fieldPos.size();
                     iF++) {
             std::vector<QuantumField> const& content 
@@ -261,16 +261,16 @@ namespace mty {
     }
 
     void Expander::addVertexCarefully(
-            size_t                  iTerm,
-            std::vector<size_t>        const& terms,
-            std::vector<std::vector<size_t>>& numbers,
+            std::size_t                  iTerm,
+            std::vector<std::size_t>        const& terms,
+            std::vector<std::vector<std::size_t>>& numbers,
             std::vector<std::vector<bool>>&   newPairing,
             const std::vector<bool>&     pairing,
-            std::map<std::vector<size_t>, bool> &vertexMap
+            std::map<std::vector<std::size_t>, bool> &vertexMap
             )
     {
         // We insert the new number, keeping elements sorted in ascending order.
-        std::vector<size_t> newNumbers(terms);
+        std::vector<std::size_t> newNumbers(terms);
         bool inserted = false;
         for (auto iter = newNumbers.begin(); iter != newNumbers.end(); ++iter)
             if (*iter > iTerm) {

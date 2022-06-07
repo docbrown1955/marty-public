@@ -31,7 +31,7 @@ inline const csl::Expr FiniteFlag = csl::constant_s("Finite");
 
 csl::Expr getLocalTerm(
         IntegralType               type,
-        std::vector<size_t> const &indices,
+        std::vector<std::size_t> const &indices,
         std::vector<csl::Expr> const &momentum,
         std::vector<csl::Expr> const &masses
         );

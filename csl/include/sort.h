@@ -43,7 +43,7 @@ namespace csl {
      * @details For smaller containers, selectionSort() is called instead, even
      * trying to use specifically mergeSort().
      */
-    inline size_t minMergeSize = 10;
+    inline std::size_t minMergeSize = 10;
 
     /**
      * @brief Sorts a container using mergeSort().

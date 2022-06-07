@@ -68,7 +68,7 @@ FeynmanRule::FeynmanRule(
     std::vector<QuantumFieldParent*> nonphysical;
     std::vector<QuantumFieldParent*> disabled;
     bool fieldProjected = false;
-    for (size_t i = 0; i != fieldProduct.size(); ++i) {
+    for (std::size_t i = 0; i != fieldProduct.size(); ++i) {
         auto const &pointed = *fieldProduct[i].getParent();
         if (typeid(FieldStrength) == typeid(pointed)) {
             auto vectorBoson = dynamic_cast<FieldStrength*>(
@@ -98,9 +98,9 @@ FeynmanRule::FeynmanRule(
         csl::Expr shared = csl::make_shared<QuantumField>(fieldProduct[i]);
         insertions.push_back(shared);
     }
-    for (size_t i = 0; i != std::ceil(fieldProduct.size() / 2.); ++i) {
-        size_t i1 = i;
-        size_t i2 = fieldProduct.size() - 1 - i;
+    for (std::size_t i = 0; i != std::ceil(fieldProduct.size() / 2.); ++i) {
+        std::size_t i1 = i;
+        std::size_t i2 = fieldProduct.size() - 1 - i;
         if (i1 != i2) {
             std::swap(insertions[i1], insertions[i2]);
             std::swap(momenta[i1], momenta[i2]);
@@ -168,10 +168,10 @@ csl::Expr FeynmanRule::getFieldProduct(
         std::vector<csl::Tensor>::iterator &first,
         std::vector<csl::Tensor>::iterator last)
 {
-    HEPAssert(size_t(last-first) == fieldProduct.size(),
+    HEPAssert(std::size_t(last-first) == fieldProduct.size(),
             mty::error::ValueError,
             "Not enough witness vertices for rule " + toString(*this)
-            + "-> " + toString(size_t(last-first)) + " given.");
+            + "-> " + toString(std::size_t(last-first)) + " given.");
 
     std::vector<csl::Expr> product(getSize() + 1);
     auto iter = product.begin();
@@ -240,9 +240,9 @@ bool FeynmanRule::containsWeakly(QuantumFieldParent const *parent) const
     return term->containsWeakly(parent);
 }
 
-size_t FeynmanRule::count(QuantumFieldParent const *parent) const
+std::size_t FeynmanRule::count(QuantumFieldParent const *parent) const
 {
-    size_t c = 0;
+    std::size_t c = 0;
     for (const auto& field : fieldProduct)
         if (field.getQuantumParent()->contains(parent))
             ++c;
@@ -313,7 +313,7 @@ bool FeynmanRule::isEmpty() const
     return fieldProduct.empty();
 }
 
-size_t FeynmanRule::getSize() const
+std::size_t FeynmanRule::getSize() const
 {
     return fieldProduct.size();
 }
@@ -333,8 +333,8 @@ bool FeynmanRule::operator<(FeynmanRule const& other) const
     if (fieldProduct.size() != other.fieldProduct.size())
         return fieldProduct.size() < other.fieldProduct.size();
 
-    for (size_t i = 0; i != fieldProduct.size(); ++i) {
-        const size_t n = i;
+    for (std::size_t i = 0; i != fieldProduct.size(); ++i) {
+        const std::size_t n = i;
         if (fieldProduct[n] < other.fieldProduct[n])
             return true;
         else if (other.fieldProduct[n] < fieldProduct[n])

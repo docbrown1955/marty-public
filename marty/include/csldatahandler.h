@@ -103,7 +103,7 @@ protected:
     void printCSLDefinition(
             csl::Tensor  tensor,
             std::ostream &out,
-            size_t        indentSize
+            std::size_t        indentSize
             ) const;
 
     void parseAbbreviations(csl::Expr const &expr);
@@ -130,7 +130,7 @@ protected:
             );
     void treatIndices(
             csl::Space const *space,
-            size_t            N
+            std::size_t            N
             );
     
 protected:
@@ -142,7 +142,7 @@ protected:
     std::vector<csl::Tensor>       tensors;
     std::vector<csl::Expr>         literal;      
 
-    std::map<csl::Space const*, size_t> nIndices;
+    std::map<csl::Space const*, std::size_t> nIndices;
     std::vector<std::shared_ptr<csl::Space>> ownSpaces;
 };
 

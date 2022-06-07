@@ -54,7 +54,7 @@ class Abbrev {
                         AbstractParent* const& B);
     };
         
-    static std::map<std::string, size_t> id_name;
+    static std::map<std::string, std::size_t> id_name;
 
     static bool isAnAbbreviation(Expr const &ab);
 

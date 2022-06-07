@@ -234,7 +234,7 @@ class GaugedGroup {
 
     mty::Generator getF() const;
 
-    csl::Tensor getD(size_t p) const;
+    csl::Tensor getD(std::size_t p) const;
 
     virtual csl::Tensor getDTilde() const;
 
@@ -304,7 +304,7 @@ class GaugedGroup {
     mty::Generator                 f;
 
     mutable
-    std::map<size_t, csl::Tensor> d;
+    std::map<std::size_t, csl::Tensor> d;
 
     IrrepMap<mty::Generator>      generator;
 

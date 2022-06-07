@@ -26,7 +26,7 @@ namespace mty {
 
 bool isIndexZeroSU(
         std::vector<int> const &rep,
-        size_t p
+        std::size_t p
         )
 {
     if (p > rep.size() + 1)
@@ -35,7 +35,7 @@ bool isIndexZeroSU(
 }
 bool isIndexZeroEvenSO(
         std::vector<int> const &rep,
-        size_t p
+        std::size_t p
         )
 {
     // No invariant if p odd and different from l
@@ -48,7 +48,7 @@ bool isIndexZeroEvenSO(
 }
 bool isIndexZeroOddSO(
         std::vector<int> const &rep,
-        size_t p
+        std::size_t p
         )
 {
     // No invariant if p odd
@@ -61,7 +61,7 @@ bool isIndexZeroOddSO(
 }
 bool isIndexZeroSp(
         std::vector<int> const &rep,
-        size_t p
+        std::size_t p
         )
 {
     // No invariant if p odd
@@ -74,7 +74,7 @@ bool isIndexZeroSp(
 }
 bool isIndexZeroE6(
         std::vector<int> const &,
-        size_t p
+        std::size_t p
         )
 {
 
@@ -89,7 +89,7 @@ bool isIndexZeroE6(
 }
 bool isIndexZeroE7(
         std::vector<int> const &,
-        size_t p
+        std::size_t p
         )
 {
     if (p == 2
@@ -102,7 +102,7 @@ bool isIndexZeroE7(
 }
 bool isIndexZeroE8(
         std::vector<int> const &,
-        size_t p
+        std::size_t p
         )
 {
     if (p == 2
@@ -113,7 +113,7 @@ bool isIndexZeroE8(
 }
 bool isIndexZeroF4(
         std::vector<int> const &,
-        size_t p
+        std::size_t p
         )
 {
     if (p == 2
@@ -125,7 +125,7 @@ bool isIndexZeroF4(
 }
 bool isIndexZeroG2(
         std::vector<int> const &,
-        size_t p
+        std::size_t p
         )
 {
     return p == 2 or p == 6;
@@ -135,7 +135,7 @@ bool isIndexZeroG2(
 csl::Expr getIndexNorm(
         algebra::Type    algebra,
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         )
 {
     if (n == 1)
@@ -178,7 +178,7 @@ csl::Expr getIndexNorm(
 }
 csl::Expr getSUIndexNorm(
         std::vector<int> const &rep,
-        size_t n
+        std::size_t n
         )
 {
     if (isIndexZeroSU(rep, n))
@@ -187,7 +187,7 @@ csl::Expr getSUIndexNorm(
 }
 csl::Expr getEvenSOIndexNorm(
         std::vector<int> const &rep,
-        size_t n
+        std::size_t n
         )
 {
     if (isIndexZeroEvenSO(rep, n))
@@ -214,7 +214,7 @@ csl::Expr getEvenSOIndexNorm(
 }
 csl::Expr getOddSOIndexNorm(
         std::vector<int> const &rep,
-        size_t n
+        std::size_t n
         )
 {
     if (isIndexZeroOddSO(rep, n))
@@ -234,7 +234,7 @@ csl::Expr getOddSOIndexNorm(
 }
 csl::Expr getSpIndexNorm(
         std::vector<int> const &rep,
-        size_t n
+        std::size_t n
         )
 {
     if (isIndexZeroSp(rep, n))
@@ -243,7 +243,7 @@ csl::Expr getSpIndexNorm(
 }
 csl::Expr getE6IndexNorm(
         std::vector<int> const &rep,
-        size_t n
+        std::size_t n
         )
 {
     if (isIndexZeroE6(rep, n))
@@ -254,7 +254,7 @@ csl::Expr getE6IndexNorm(
 }
 csl::Expr getE7IndexNorm(
         std::vector<int> const &rep,
-        size_t n
+        std::size_t n
         )
 {
     if (isIndexZeroE7(rep, n))
@@ -265,7 +265,7 @@ csl::Expr getE7IndexNorm(
 }
 csl::Expr getE8IndexNorm(
         std::vector<int> const &rep,
-        size_t n
+        std::size_t n
         )
 {
     if (isIndexZeroE8(rep, n))
@@ -276,7 +276,7 @@ csl::Expr getE8IndexNorm(
 }
 csl::Expr getF4IndexNorm(
         std::vector<int> const &rep,
-        size_t n
+        std::size_t n
         )
 {
     if (isIndexZeroF4(rep, n))
@@ -287,7 +287,7 @@ csl::Expr getF4IndexNorm(
 }
 csl::Expr getG2IndexNorm(
         std::vector<int> const &rep,
-        size_t n
+        std::size_t n
         )
 {
     if (isIndexZeroG2(rep, n))
@@ -300,7 +300,7 @@ csl::Expr getG2IndexNorm(
 csl::Expr getIndex(
         algebra::Type    algebra,
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         )
 {
     if (n == 1)
@@ -327,8 +327,8 @@ std::vector<csl::Expr> getFi_A(std::vector<int> const &dinkin)
 {
     std::vector<csl::Expr> f(dinkin.size() + 1);
     csl::Expr sum_f = 0;
-    for (size_t i = 0; i != dinkin.size(); ++i) {
-        size_t index = dinkin.size() - i - 1;
+    for (std::size_t i = 0; i != dinkin.size(); ++i) {
+        std::size_t index = dinkin.size() - i - 1;
         f[index] = dinkin[index];
         if (i != 0)
             f[index] += f[index + 1];
@@ -349,8 +349,8 @@ std::vector<csl::Expr> getFi_A(std::vector<int> const &dinkin)
 std::vector<csl::Expr> getLi_A(std::vector<csl::Expr> const &f)
 {
     std::vector<csl::Expr> l(f.size());
-    size_t n = f.size() - 1;
-    for (size_t i = 0; i != f.size(); ++i) {
+    std::size_t n = f.size() - 1;
+    for (std::size_t i = 0; i != f.size(); ++i) {
         l[i] = f[i] + n + 1 - (i+1);
     }
     // std::cout << "L = " << std::endl;
@@ -368,7 +368,7 @@ std::vector<csl::Expr> getLi_A(std::vector<int> const &dinkin)
 
 csl::Expr getSUIndex(
         std::vector<int> const &rep,
-        size_t                  p
+        std::size_t                  p
         )
 {
     // No invariant if p > l+1
@@ -377,9 +377,9 @@ csl::Expr getSUIndex(
     std::vector<csl::Expr> l = getLi_A(rep);
     std::vector<csl::Expr> ITerms;
     ITerms.reserve(p+1);
-    for (size_t j = 0; j < l.size(); ++j) {
+    for (std::size_t j = 0; j < l.size(); ++j) {
         csl::Expr prod = csl::pow_s(l[j], p);
-        for (size_t k = 0; k < l.size(); ++k) {
+        for (std::size_t k = 0; k < l.size(); ++k) {
             if (j != k) {
                 prod *= l[k] + 1 - l[j];
                 prod /= l[k] - l[j];
@@ -400,9 +400,9 @@ csl::Expr getSUIndex(
 std::vector<csl::Expr> getFi_B(std::vector<int> const &dinkin)
 {
     std::vector<csl::Expr> f(dinkin.size());
-    for (size_t i = 0; i != f.size(); ++i) {
+    for (std::size_t i = 0; i != f.size(); ++i) {
         f[i] = CSL_0;
-        for (size_t j = i; j != f.size(); ++j) {
+        for (std::size_t j = i; j != f.size(); ++j) {
             if (j == f.size() - 1)
                 f[i] += csl::intfraction_s(dinkin[j], 2);
             else
@@ -420,9 +420,9 @@ std::vector<csl::Expr> getFi_B(std::vector<int> const &dinkin)
 std::vector<csl::Expr> getLi_B(std::vector<csl::Expr> const &f)
 {
     std::vector<csl::Expr> l(f.size());
-    size_t n = f.size();
+    std::size_t n = f.size();
     std::cout << "L = ";
-    for (size_t i = 0; i != f.size(); ++i) {
+    for (std::size_t i = 0; i != f.size(); ++i) {
         l[i] = f[i] + n + CSL_HALF - (i+1);
         std::cout << l[i] << " ";
     }
@@ -439,7 +439,7 @@ std::vector<csl::Expr> getLi_B(std::vector<int> const &dinkin)
 
 csl::Expr getOddSOIndex(
         std::vector<int> const &rep,
-        size_t                  p
+        std::size_t                  p
         )
 {
     if (isIndexZeroOddSO(rep, p))
@@ -450,10 +450,10 @@ csl::Expr getOddSOIndex(
     std::vector<csl::Expr> ITerms;
     ITerms.reserve(1 + 2*rep.size());
     ITerms.push_back(csl::pow_s(-n, p));
-    for (size_t j = 0; j != l.size(); ++j) {
+    for (std::size_t j = 0; j != l.size(); ++j) {
         csl::Expr prod1 = CSL_1;
         csl::Expr prod2 = CSL_1;
-        for (size_t k = 0; k != l.size(); ++k) {
+        for (std::size_t k = 0; k != l.size(); ++k) {
             if (j != k) {
                 prod1 *= (l[j]+1)*(l[j]+1) - l[k]*l[k];
                 prod1 /= l[j]*l[j] - l[k]*l[k];
@@ -479,16 +479,16 @@ csl::Expr getOddSOIndex(
 std::vector<csl::Expr> getFi_D(std::vector<int> const &dinkin)
 {
     std::vector<csl::Expr> f(dinkin.size());
-    for (size_t i = 0; i != f.size()-2; ++i) {
+    for (std::size_t i = 0; i != f.size()-2; ++i) {
         f[i] = CSL_0;
-        for (size_t j = i; j != f.size(); ++j) {
+        for (std::size_t j = i; j != f.size(); ++j) {
             if (j >= f.size() - 2)
                 f[i] += CSL_HALF * dinkin[j];
             else
                 f[i] += dinkin[j];
         }
     }
-    size_t n = dinkin.size();
+    std::size_t n = dinkin.size();
     f[n-1] = CSL_HALF * (dinkin[n-1] - dinkin[n-2]);
     f[n-2] = CSL_HALF * (dinkin[n-1] + dinkin[n-2]);
 
@@ -498,8 +498,8 @@ std::vector<csl::Expr> getFi_D(std::vector<int> const &dinkin)
 std::vector<csl::Expr> getLi_D(std::vector<csl::Expr> const &f)
 {
     std::vector<csl::Expr> l(f.size());
-    size_t n = f.size();
-    for (size_t i = 0; i != f.size(); ++i) {
+    std::size_t n = f.size();
+    for (std::size_t i = 0; i != f.size(); ++i) {
         l[i] = f[i] + n - (i+1);
     }
 
@@ -513,20 +513,20 @@ std::vector<csl::Expr> getLi_D(std::vector<int> const &dinkin)
 
 csl::Expr getEvenSOIndex(
         std::vector<int> const &rep,
-        size_t                  p
+        std::size_t                  p
         )
 {
     if (isIndexZeroEvenSO(rep, p))
         return CSL_0;
     std::vector<csl::Expr> l = getLi_D(rep);
-    size_t n = rep.size();
+    std::size_t n = rep.size();
 
     std::vector<csl::Expr> ITerms;
     ITerms.reserve(2*rep.size());
-    for (size_t j = 0; j != l.size(); ++j) {
+    for (std::size_t j = 0; j != l.size(); ++j) {
         csl::Expr prod1 = CSL_1;
         csl::Expr prod2 = CSL_1;
-        for (size_t k = 0; k != l.size(); ++k) {
+        for (std::size_t k = 0; k != l.size(); ++k) {
             if (j != k) {
                 prod1 *= (l[j]+1)*(l[j]+1) - l[k]*l[k];
                 prod1 /= l[j]*l[j] - l[k]*l[k];
@@ -546,7 +546,7 @@ csl::Expr getEvenSOIndex(
 }
 csl::Expr getLastEvenSOIndex(
         std::vector<int> const &rep,
-        size_t                  n,
+        std::size_t                  n,
         bool                    normalize
         )
 {
@@ -576,9 +576,9 @@ csl::Expr getLastEvenSOIndex(
 std::vector<csl::Expr> getFi_C(std::vector<int> const &dinkin)
 {
     std::vector<csl::Expr> f(dinkin.size());
-    for (size_t i = 0; i != f.size(); ++i) {
+    for (std::size_t i = 0; i != f.size(); ++i) {
         f[i] = CSL_0;
-        for (size_t j = i; j != f.size(); ++j)
+        for (std::size_t j = i; j != f.size(); ++j)
             f[i] += dinkin[j];
     }
 
@@ -588,8 +588,8 @@ std::vector<csl::Expr> getFi_C(std::vector<int> const &dinkin)
 std::vector<csl::Expr> getLi_C(std::vector<csl::Expr> const &f)
 {
     std::vector<csl::Expr> l(f.size());
-    size_t n = f.size();
-    for (size_t i = 0; i != f.size(); ++i) {
+    std::size_t n = f.size();
+    for (std::size_t i = 0; i != f.size(); ++i) {
         l[i] = f[i] + n + 1 - (i+1);
     }
 
@@ -603,7 +603,7 @@ std::vector<csl::Expr> getLi_C(std::vector<int> const &dinkin)
 
 csl::Expr getSpIndex(
         std::vector<int> const &rep,
-        size_t                  p
+        std::size_t                  p
         )
 {
     if (isIndexZeroSp(rep, p))
@@ -611,11 +611,11 @@ csl::Expr getSpIndex(
     std::vector<csl::Expr> ITerms;
     ITerms.reserve(2*rep.size());
     std::vector<csl::Expr> l = getLi_C(rep);
-    size_t n = rep.size();
-    for (size_t j = 0; j != l.size(); ++j) {
+    std::size_t n = rep.size();
+    for (std::size_t j = 0; j != l.size(); ++j) {
         csl::Expr prod1 = CSL_1;
         csl::Expr prod2 = CSL_1;
-        for (size_t k = 0; k != l.size(); ++k) {
+        for (std::size_t k = 0; k != l.size(); ++k) {
             if (j != k) {
                 prod1 *= (l[j]+1)*(l[j]+1) - l[k]*l[k];
                 prod1 /= l[j]*l[j] - l[k]*l[k];
@@ -634,7 +634,7 @@ csl::Expr getSpIndex(
             );
 }
 
-template<size_t N, size_t nReps>
+template<std::size_t N, std::size_t nReps>
 csl::Expr getIntegerIndex(
         std::array<int, N>             const &t_rep,
         std::array<GIndex_t<N>, nReps> const &data
@@ -646,7 +646,7 @@ csl::Expr getIntegerIndex(
     return CSL_0;
 }
 
-template<size_t N, size_t nReps>
+template<std::size_t N, std::size_t nReps>
 csl::Expr getRationalIndex(
         std::array<int, N>             const &t_rep,
         std::array<GIndex_t<N>, nReps> const &data,
@@ -661,7 +661,7 @@ csl::Expr getRationalIndex(
 
 csl::Expr getE6Index(
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         )
 {
     ASSERT_SIZE(rep, 6)
@@ -684,7 +684,7 @@ csl::Expr getE6Index(
 
 csl::Expr getE7Index(
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         )
 {
     ASSERT_SIZE(rep, 7)
@@ -705,7 +705,7 @@ csl::Expr getE7Index(
 
 csl::Expr getE8Index(
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         )
 {
     ASSERT_SIZE(rep, 8)
@@ -722,7 +722,7 @@ csl::Expr getE8Index(
 
 csl::Expr getF4Index(
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         )
 {
     ASSERT_SIZE(rep, 4)
@@ -741,7 +741,7 @@ csl::Expr getF4Index(
 
 csl::Expr getG2Index(
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         )
 {
     ASSERT_SIZE(rep, 2)

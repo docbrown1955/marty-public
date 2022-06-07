@@ -302,7 +302,7 @@ bool Index::operator==(int t_value) const
     return static_cast<int>(nameOrValue) == t_value;
 }
 
-bool Index::operator==(size_t t_value) const
+bool Index::operator==(std::size_t t_value) const
 {
     return static_cast<int>(nameOrValue) == int(t_value);
 }
@@ -312,7 +312,7 @@ bool Index::operator!=(int value) const
     return not (*this == value);
 }
 
-bool Index::operator!=(size_t value) const
+bool Index::operator!=(std::size_t value) const
 {
     return not (*this == value);
 }
@@ -488,7 +488,7 @@ permutation.size());
     // Applies the permutation on copies of the indices of *this,
     // creates a new IndexStructure with this permutation and returns it.
     vector<Index> newIndex(0);
-    for (size_t i=0; i<index.size(); ++i)
+    for (std::size_t i=0; i<index.size(); ++i)
         newIndex.push_back(index[permutation[i]]);
 
     return IndexStructure(newIndex);
@@ -560,7 +560,7 @@ void IndexStructure::reset()
 IndexStructure& IndexStructure::operator+=(const IndexStructure& structure)
 {
     // Using operator+=(Index) with all indices in structure.
-    for (size_t i = 0; i != structure.size(); ++i) 
+    for (std::size_t i = 0; i != structure.size(); ++i) 
         operator+=(structure[i]);
 
     return *this;
@@ -578,7 +578,7 @@ IndexStructure IndexStructure::operator+(const IndexStructure& structure) const
 {
     // Using operator+(Index) with all indices in structure.
     IndexStructure newStructure(*this);
-    for (size_t i = 0; i != structure.size(); ++i) 
+    for (std::size_t i = 0; i != structure.size(); ++i) 
         newStructure += structure[i];
 
     return newStructure;
@@ -598,7 +598,7 @@ bool IndexStructure::exactMatch(const IndexStructure& structure) const
     if (index.size() != structure.size()) 
         return false;
 
-    for (size_t i=0; i!=index.size(); ++i)
+    for (std::size_t i=0; i!=index.size(); ++i)
         if (not index[i].exactMatch(structure[i])) {
             return false;
         }
@@ -628,7 +628,7 @@ bool IndexStructure::compareWithDummy(const IndexStructure& structure,
         return false;
 
     const vector<Index>& t_index = structure.getIndex();
-    for (size_t i=0; i!=index.size(); ++i) {
+    for (std::size_t i=0; i!=index.size(); ++i) {
         // If the index is free, they must be the same
         if ((index[i].getFree() and not Comparator::freeIndexComparisonActive)
                 or index[i].getType() == cslIndex::Fixed) {
@@ -673,11 +673,11 @@ bool IndexStructure::operator==(const IndexStructure& structure) const
         if (structure[i].getFree())
             indicesLeft.push_back(i);
 
-    for (size_t i=0; i!=index.size(); ++i) {
+    for (std::size_t i=0; i!=index.size(); ++i) {
         // Comparing only free indices
         if (index[i].getFree()) {
             bool match = false;
-            for (size_t j=0; j!=indicesLeft.size(); ++j) {
+            for (std::size_t j=0; j!=indicesLeft.size(); ++j) {
                 // The free structure needs exact match to be correct
                 if (index[i].exactMatch(structure[indicesLeft[j]])) {
                     match = true;
@@ -713,8 +713,8 @@ bool IndexStructure::operator&=(const IndexStructure& structure) const
 
 bool IndexStructure::operator<(const IndexStructure& structure) const
 {
-    const size_t sizeSelf = index.size();
-    const size_t sizeOther = structure.index.size();
+    const std::size_t sizeSelf = index.size();
+    const std::size_t sizeOther = structure.index.size();
     if (sizeSelf != sizeOther) {
         if (sizeSelf == 0)
             return true;

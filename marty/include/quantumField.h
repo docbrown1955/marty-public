@@ -268,12 +268,12 @@ class QuantumFieldParent: public csl::TensorFieldParent {
     /*!
      * \brief Position of the first gauge index, after flavor indices.
      */
-    size_t firstGaugeIndex;
+    std::size_t firstGaugeIndex;
 
     /*!
      * \brief Position of the first space index, after flavor and gauge indices.
      */
-    size_t firstSpaceIndex;
+    std::size_t firstSpaceIndex;
 
     /*!
      * \brief Pointer to the flavor the particle is a representation of.
@@ -1129,7 +1129,7 @@ class QuantumFieldParent: public csl::TensorFieldParent {
     std::vector<csl::Parent> breakSpace(
             const csl::Space*                     broken,
             const std::vector<const csl::Space*>& newSpace,
-            const std::vector<size_t>&           pieces
+            const std::vector<std::size_t>&           pieces
             ) const override;
 
     /*!

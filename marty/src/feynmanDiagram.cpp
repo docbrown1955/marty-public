@@ -196,9 +196,9 @@ namespace mty {
             return node->field->getQuantumParent() == mediator.get();
         };
         bool mediatorFound = false;
-        for (size_t i = 0; i != newVertices.size(); ++i) {
+        for (std::size_t i = 0; i != newVertices.size(); ++i) {
             if (isMediator(newVertices[i])) {
-                for (size_t j = i+1; j < newVertices.size(); ++j) {
+                for (std::size_t j = i+1; j < newVertices.size(); ++j) {
                     if (isMediator(newVertices[j])) {
                         newVertices[i].push_back(newVertices[j][0]);
                         newVertices[i].setExternal(false);

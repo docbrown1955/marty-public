@@ -41,12 +41,12 @@
 
 namespace mty {
 
-size_t Model::getFeynmanRulesNumber() const
+std::size_t Model::getFeynmanRulesNumber() const
 {
     return feynmanRules.size();
 }
 
-mty::FeynmanRule& Model::getFeynmanRule(size_t i)
+mty::FeynmanRule& Model::getFeynmanRule(std::size_t i)
 {
     HEPAssert(i < feynmanRules.size(),
             mty::error::IndexError,
@@ -55,7 +55,7 @@ mty::FeynmanRule& Model::getFeynmanRule(size_t i)
     return feynmanRules[i];
 }
 
-mty::FeynmanRule const& Model::getFeynmanRule(size_t i) const
+mty::FeynmanRule const& Model::getFeynmanRule(std::size_t i) const
 {
     HEPAssert(i < feynmanRules.size(),
             mty::error::IndexError,
@@ -82,7 +82,7 @@ std::vector<mty::QuantumField> Model::recoverQuantumInsertions(
         return field;
     };
 
-    for (size_t i = 0; i != expr.size(); ++i) 
+    for (std::size_t i = 0; i != expr.size(); ++i) 
         fields[i] = getField(expr[i]);
     return fields;
 }
@@ -162,12 +162,12 @@ mty::Amplitude Model::computeAmplitude(
     if (options.orderExternalFermions)
         applyFermionOrder(insertions, fermionOrder);
     auto quantumInsertions = recoverQuantumInsertions(GetExpression(insertions));
-    size_t i = 1;
+    std::size_t i = 1;
     for (auto& field : quantumInsertions) {
         csl::Tensor Xi = csl::tensor_s("X_"+toString(i++), &csl::Minkowski);
         field.setPoint(Xi);
     }
-    std::vector<std::vector<size_t>> terms = Expander::getDiagrams(
+    std::vector<std::vector<std::size_t>> terms = Expander::getDiagrams(
             this,
             options,
             lagrangian, 
@@ -204,7 +204,7 @@ mty::Amplitude Model::computeAmplitude(
 {
     auto quantumInsertions = recoverQuantumInsertions(GetExpression(insertions));
     std::vector<Lagrangian::TermType> lagrangian(feynRules.size());
-    for (size_t i = 0; i != lagrangian.size(); ++i) 
+    for (std::size_t i = 0; i != lagrangian.size(); ++i) 
         lagrangian[i] = feynRules[i]->getInteractionTerm();
     return computeAmplitude(
             lagrangian, insertions, kinematics, options, feynRules
@@ -282,7 +282,7 @@ std::vector<csl::Expr> evalForSquare(WilsonSet const &wilsons)
     csl::Abbrev::enableGenericEvaluation("Color");
     csl::Abbrev::enableGenericEvaluation("P");
     std::vector<csl::Expr> eval(wilsons.size());
-    for (size_t i = 0; i != wilsons.size(); ++i)  {
+    for (std::size_t i = 0; i != wilsons.size(); ++i)  {
         eval[i] = csl::Evaluated(wilsons[i].op.getOp());
     }
     csl::Abbrev::disableGenericEvaluation("EXT");
@@ -326,12 +326,12 @@ csl::Expr Model::computeSquaredAmplitude(
         incomingDof = amplL.kinematics.getDegreesOfFreedomFactor();
     }
     csl::vector_expr res;
-    size_t index = 0;
+    std::size_t index = 0;
     std::cout << "Squaring amplitude ..." << std::endl;
     csl::ProgressBar bar(amplL.size()*(amplR.size() + 1)/2);
-    for (size_t i = 0; i != amplR.size(); ++i) {
+    for (std::size_t i = 0; i != amplR.size(); ++i) {
         // If same start at i and add complex conjugate
-        for (size_t j = areSame*i; j != amplL.size(); ++j) {
+        for (std::size_t j = areSame*i; j != amplL.size(); ++j) {
             if (mty::option::verboseAmplitude)
                 bar.progress(index++);
             csl::Expr renamed = csl::Factored(csl::DeepCopy(evalL[j]));
@@ -466,9 +466,9 @@ csl::Expr Model::computeWidth(
             return !IsOfType<GoldstoneBoson>(p)
                 && !IsOfType<GhostBoson>(p);
         });
-    for (size_t i = 0; i != physicalParticles.size(); ++i) {
+    for (std::size_t i = 0; i != physicalParticles.size(); ++i) {
         const auto &p1 = physicalParticles[i];
-        for (size_t j = i; j != physicalParticles.size(); ++j) {
+        for (std::size_t j = i; j != physicalParticles.size(); ++j) {
             const auto &p2 = physicalParticles[j];
             auto insertions = getIndependentDecays({
                 Incoming(particle), Outgoing(p1), Outgoing(p2)});
@@ -542,7 +542,7 @@ void Model::computeModelWidths(
         });
     std::vector<Insertion> insertions;
     insertions.reserve(particles.size());
-    for (size_t i = 0; i != particles.size(); ++i) {
+    for (std::size_t i = 0; i != particles.size(); ++i) {
         insertions.push_back(particles[i]);
     }
     computeModelWidths(orderLeft, orderRight, insertions, options);
@@ -605,12 +605,12 @@ WilsonSet Model::getWilsonCoefficients(
 
 int operatorDegeneracy(std::vector<mty::Insertion> const &insertions)
 {
-    std::vector<size_t> indicesLeft(insertions.size());
+    std::vector<std::size_t> indicesLeft(insertions.size());
     std::iota(indicesLeft.begin(), indicesLeft.end(), 0);
     int factor = 1;
     while (!indicesLeft.empty()) {
         int nFields = 1;
-        for (size_t i = 1; i != indicesLeft.size(); ++i) {
+        for (std::size_t i = 1; i != indicesLeft.size(); ++i) {
             if (insertions[indicesLeft[0]].isEquivalent(
                         insertions[indicesLeft[i]])) {
                 indicesLeft.erase(indicesLeft.begin() + i);
@@ -626,7 +626,7 @@ int operatorDegeneracy(std::vector<mty::Insertion> const &insertions)
 
 static int nPermutations(std::vector<int> &fermionOrder)
 {
-    for (size_t i = 0; i+1 < fermionOrder.size(); ++i) {
+    for (std::size_t i = 0; i+1 < fermionOrder.size(); ++i) {
         if (fermionOrder[i+1] < fermionOrder[i]) {
             std::swap(fermionOrder[i], fermionOrder[i+1]);
             return 1 + nPermutations(fermionOrder);
@@ -679,7 +679,7 @@ WilsonSet Model::getWilsonCoefficients(
     const int degeneracy = operatorDegeneracy(insertions);
     const int effSign    = matchingFermionSign(feynOptions.getFermionOrder());
     csl::ProgressBar bar(wilsons.size());
-    size_t index = 0;
+    std::size_t index = 0;
     std::vector<csl::Expr> coefs;
     coefs.reserve(wilsons.size());
     for (auto &w : wilsons) {
@@ -704,7 +704,7 @@ WilsonSet Model::getWilsonCoefficients(
         coefs.push_back(a);
         csl::matcher::compress(a, 2);
     }
-    for (size_t i = 0; i != wilsons.size(); ++i) {
+    for (std::size_t i = 0; i != wilsons.size(); ++i) {
         csl::Expr &a = coefs[i];
         Wilson    &w = wilsons[i];
         csl::matcher::compress(a, 2);
@@ -745,8 +745,8 @@ WilsonSet Model::computeWilsonCoefficients(
     }
 
     // One-loop calculation here
-    size_t nF{0}, nV{0};
-    size_t nTot = insertions.size();
+    std::size_t nF{0}, nV{0};
+    std::size_t nTot = insertions.size();
     std::for_each(insertions.begin(), insertions.end(), 
             [&](Insertion const &ins) {
                 switch(ins.getField()->getSpinDimension()) {
@@ -817,9 +817,9 @@ int fermionSign(
 {
     // Supposes only fermion insertions with same size model && order
     int nPerm = 0;
-    for (size_t i = 0; i != model.size(); ++i) {
-        size_t index = i;
-        for (size_t j = i+1; j != order.size(); ++j) {
+    for (std::size_t i = 0; i != model.size(); ++i) {
+        std::size_t index = i;
+        for (std::size_t j = i+1; j != order.size(); ++j) {
             if (model[i] == order[j]) {
                 index = j;
                 break;
@@ -835,8 +835,8 @@ int fermionSign(
 
 WilsonSet Model::computeSingleWilsonPenguin_4Fermions(
         Kinematics                const &kinematics,
-        std::pair<size_t, size_t> const &treeCoupling,
-        std::pair<size_t, size_t> const &loopCoupling,
+        std::pair<std::size_t, std::size_t> const &treeCoupling,
+        std::pair<std::size_t, std::size_t> const &loopCoupling,
         Insertion                 const &mediator,
         FeynOptions                      feynOptions
         )
@@ -881,7 +881,7 @@ WilsonSet Model::computeSingleWilsonPenguin_4Fermions(
         applyPenguinPatch(wil, loopAmplitude.getKinematics());
         loopAmplitude.getDiagrams() = std::vector<FeynmanDiagram>(
                 wil.size(), loopAmplitude.getDiagrams()[0]);
-        for (size_t i = 0; i != wil.size(); ++i) 
+        for (std::size_t i = 0; i != wil.size(); ++i) 
             loopAmplitude.getDiagrams()[i].getExpression() = 
                 wil[i].getExpression();
     }
@@ -912,7 +912,7 @@ WilsonSet Model::computeWilsonPenguins_4Fermions(
     auto bosons = getPhysicalParticles([&](Particle const &p) { 
         return p->isBosonic(); 
     });
-    constexpr std::array<std::array<size_t, 4>, 6> pairs {{
+    constexpr std::array<std::array<std::size_t, 4>, 6> pairs {{
         {0, 1, 2, 3},
         {0, 2, 1, 3},
         {0, 3, 1, 2},
@@ -1005,7 +1005,7 @@ WilsonSet Model::computeWilsonCoefficients_4Fermions(
 static int linkPosition(Kinematics const &M)
 {
     auto const &insertions = M.getInsertions();
-    for (size_t i = 0; i != insertions.size(); ++i) {
+    for (std::size_t i = 0; i != insertions.size(); ++i) {
         if (insertions[i].isMediator())
             return static_cast<int>(i);
     }
@@ -1015,7 +1015,7 @@ static int linkPosition(Kinematics const &M)
 
 std::pair<csl::Expr, csl::Expr> Model::getMomentumReplacement(
         Amplitude const &M,
-        size_t           replacedMomentum
+        std::size_t           replacedMomentum
         ) const
 {
     std::vector<mty::QuantumField> fields;
@@ -1068,13 +1068,13 @@ Model::KinematicLink Model::connectKinematics(
             mty::error::TypeError,
             "To connect two amplitudes they must contain exactly one mediator "
             "each, see mty::Mediator() for mty::Insertion objects.")
-    size_t const mediatorIndex = k1.size() + k2.size() - 1;
-    size_t maxIndex = 0;
-    std::vector<size_t> newK1Indices(k1.size() - 1);
-    std::vector<size_t> newK2Indices(k2.size() - 1);
-    for (size_t &i : newK1Indices)
+    std::size_t const mediatorIndex = k1.size() + k2.size() - 1;
+    std::size_t maxIndex = 0;
+    std::vector<std::size_t> newK1Indices(k1.size() - 1);
+    std::vector<std::size_t> newK2Indices(k2.size() - 1);
+    for (std::size_t &i : newK1Indices)
         i = ++maxIndex;
-    for (size_t &i : newK2Indices)
+    for (std::size_t &i : newK2Indices)
         i = ++maxIndex;
     newK1Indices.insert(newK1Indices.begin() + linkM1, mediatorIndex);
     newK2Indices.insert(newK2Indices.begin() + linkM2, mediatorIndex);
@@ -1106,7 +1106,7 @@ bool Model::mediatorToPropagator(
         ) const
 {
     std::pair<int, int> mediatorPos { -1, -1 };
-    for (size_t i = 0; i != prod->size(); ++i) {
+    for (std::size_t i = 0; i != prod->size(); ++i) {
         int isMed = link.isMediator(prod[i]);
         if (isMed == -1) {
             mediatorPos.first = i;
@@ -1199,21 +1199,21 @@ Amplitude Model::connectAmplitudes(
 
 void Model::filterFeynmanRules()
 {
-    size_t index = 0;
-    for (size_t i = 0; i < feynmanRules.size(); ++i) {
+    std::size_t index = 0;
+    for (std::size_t i = 0; i < feynmanRules.size(); ++i) {
         if (feynmanRules[i].isEmpty() or feynmanRules[i].isZero()) {
             L.interaction.erase(L.interaction.begin()+index);
         }
         else
             ++index;
     }
-    for (size_t i = 0; i < feynmanRules.size(); ++i) {
+    for (std::size_t i = 0; i < feynmanRules.size(); ++i) {
         if (feynmanRules[i].isEmpty() or feynmanRules[i].isZero()) {
             feynmanRules.erase(feynmanRules.begin()+i);
             --i;
             continue;
         }
-        for (size_t j = i+1; j < feynmanRules.size(); ++j)
+        for (std::size_t j = i+1; j < feynmanRules.size(); ++j)
             if (feynmanRules[i].isSame(feynmanRules[j])) {
                 feynmanRules.erase(feynmanRules.begin()+j);
                 --j;
@@ -1228,7 +1228,7 @@ void Model::computeFeynmanRules()
     feynmanRules.clear();
     feynmanRules.shrink_to_fit();
     feynmanRules.reserve(L.size());
-    size_t index = 0;
+    std::size_t index = 0;
     std::cout << "Computing Feynman Rules ..." << std::endl;
     csl::ProgressBar bar(L.size());
     for (const auto& interacTerm : L) {

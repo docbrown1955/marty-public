@@ -64,10 +64,10 @@ namespace sgl {
     {
         bool transformed = sgl::transform<sgl::Prod>(expr, [&](GExpr &sub)
         {
-            for (size_t i = 0; i != sub->size(); ++i) {
+            for (std::size_t i = 0; i != sub->size(); ++i) {
                 if (!IsType<sgl::IndexChain>(sub[i]))
                     continue;
-                for (size_t j = i+1; j < sub->size(); ++j) {
+                for (std::size_t j = i+1; j < sub->size(); ++j) {
                     if (!IsType<sgl::IndexChain>(sub[j]))
                         continue;
                     auto const &c1 = *ConvertTo<sgl::IndexChain>(sub[i]);

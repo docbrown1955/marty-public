@@ -65,7 +65,7 @@ namespace mty {
             ) const
     {
         std::vector<FeynmanRule const*> filtered(lagrangian.size());
-        for (size_t i = 0; i != lagrangian.size(); ++i) 
+        for (std::size_t i = 0; i != lagrangian.size(); ++i) 
             filtered[i] = &lagrangian[i];
         applyFilters(
                 filtered,
@@ -98,7 +98,7 @@ namespace mty {
             FeynmanDiagram const &diagram
             ) const
     {
-        const size_t lastFilter = (!partialCalculation) ?
+        const std::size_t lastFilter = (!partialCalculation) ?
             dfilters.size() : nDefaultDiagramFilters;
         return std::all_of(
                 begin(dfilters), begin(dfilters) + lastFilter,
@@ -112,7 +112,7 @@ namespace mty {
             bool                         forceFilters
             ) const
     {
-        const size_t lastFilter = (forceFilters || !partialCalculation) ?
+        const std::size_t lastFilter = (forceFilters || !partialCalculation) ?
             dfilters.size() : nDefaultDiagramFilters;
         applyFilters(
                 diagrams,

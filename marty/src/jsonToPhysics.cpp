@@ -343,7 +343,7 @@ csl::Expr JSONToHEP::interpretYukawaCoupling(Model*        model,
     Index flavorIndex2;
     Index gaugeIndex;
     bool offset = false;
-    for (size_t i = 0; i != field1Indices.size(); ++i) {
+    for (std::size_t i = 0; i != field1Indices.size(); ++i) {
         if (field1Indices[i].getSpace() != field2Indices[i-offset].getSpace()){
             HEPAssert(not offset,
                       mty::error::TypeError,
@@ -428,10 +428,10 @@ GaugeIrrep JSONToHEP::readIrrep(JSON::Node* node, Gauge* gauge)
 
     vector<string>      groupName;
     vector<vector<int>> dinkinLabels;
-    for (size_t i = 0; i != gauge->size(); ++i) 
+    for (std::size_t i = 0; i != gauge->size(); ++i) 
         groupName.push_back((*gauge)[i]->getName());
     
-    for (size_t i = 0; i != groupName.size(); ++i) {
+    for (std::size_t i = 0; i != groupName.size(); ++i) {
         string name = groupName[i];
         optional<string> irrepSpec =
             JSON::Parser::parseArgument<string>(node, name);
@@ -459,7 +459,7 @@ FlavorIrrep JSONToHEP::readFlavorIrrep(JSON::Node* node,
 
     vector<string_view>      flavorName;
     vector<vector<int>> dinkinLabels;
-    for (size_t i = 0; i != flavor->size(); ++i) 
+    for (std::size_t i = 0; i != flavor->size(); ++i) 
         flavorName.push_back((*flavor)[i]->getName());
     
     FlavorIrrep flavorRep(flavor);

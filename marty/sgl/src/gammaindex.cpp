@@ -48,9 +48,9 @@ namespace sgl {
             return CSL_0;
         csl::Expr sign = CSL_1;
         std::vector<csl::Index> indices = m_indices;
-        for (size_t i = 0; i != indices.size(); ++i) {
-            size_t min = i;
-            for (size_t j = i+1; j != indices.size(); ++j) {
+        for (std::size_t i = 0; i != indices.size(); ++i) {
+            std::size_t min = i;
+            for (std::size_t j = i+1; j != indices.size(); ++j) {
                 if (indices[j] < indices[min])
                     min = j;
             }
@@ -69,9 +69,9 @@ namespace sgl {
         if (isZero())
             return cslexpr_s(CSL_0);
         std::vector<csl::Index> indices = m_indices;
-        for (size_t i = 0; i != indices.size(); ++i) {
-            size_t min = i;
-            for (size_t j = i+1; j != indices.size(); ++j) {
+        for (std::size_t i = 0; i != indices.size(); ++i) {
+            std::size_t min = i;
+            for (std::size_t j = i+1; j != indices.size(); ++j) {
                 if (indices[j] < indices[min])
                     min = j;
             }
@@ -87,8 +87,8 @@ namespace sgl {
         if ((!isGammaMu() && !isSigma()) 
                 || (!other.isGammaMu() && !other.isSigma()))
             return false;
-        const size_t szA = m_indices.size();
-        const size_t szB = other.m_indices.size();
+        const std::size_t szA = m_indices.size();
+        const std::size_t szB = other.m_indices.size();
         if (szA > szB)
             return true;
         else if (szB > szA)

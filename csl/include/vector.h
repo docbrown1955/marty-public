@@ -80,7 +80,7 @@ class AbstractVectorial: public Abstract{
 
     int getNArgs(int axis=0) const override;
 
-    size_t size() const override;
+    std::size_t size() const override;
 
     csl::vector_expr::iterator begin() override;
     csl::vector_expr::const_iterator begin() const override

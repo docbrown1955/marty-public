@@ -72,7 +72,7 @@ namespace sgl {
         LOG(expr)
         if (expr->size() > 0) {
             std::vector<GExpr> args(expr->size());
-            for (size_t i = 0; i != args.size(); ++i) 
+            for (std::size_t i = 0; i != args.size(); ++i) 
                 args[i] = csl_to_sgl(expr[i], tensors);
             if (csl::IsSum(expr)) {
                 LOG(sgl::sum_s(args))
@@ -164,7 +164,7 @@ namespace sgl {
             if (iter.second == parent) {
                 std::vector<csl::Index> minkoIndices 
                     = expr->getIndexStructureView().getIndex();
-                const size_t nI = expr->getIndexStructureView().size();
+                const std::size_t nI = expr->getIndexStructureView().size();
                 csl::Index a = expr->getIndexStructureView()[nI-2];
                 csl::Index b = expr->getIndexStructureView()[nI-1];
                 minkoIndices.erase(minkoIndices.end() - 2, minkoIndices.end());

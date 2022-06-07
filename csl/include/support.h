@@ -122,11 +122,11 @@ bool operator>=(const std::string& a, const std::string& b);
 
 bool operator<=(const std::string& a, const std::string& b);
 
-std::vector<size_t> range(size_t n);
+std::vector<std::size_t> range(std::size_t n);
 
-std::vector<size_t> range(size_t i, size_t n);
+std::vector<std::size_t> range(std::size_t i, std::size_t n);
 
-std::vector<size_t> range(size_t i, size_t n, size_t step);
+std::vector<std::size_t> range(std::size_t i, std::size_t n, std::size_t step);
 
 /*!
  * \brief Template function that compares the elements in two vectors \b A and
@@ -143,17 +143,17 @@ template <typename T>
 bool comparePlaceIndependant(std::vector<T> A,
                              std::vector<T> B)
 {
-    const size_t size = A.size();
+    const std::size_t size = A.size();
     if (size != B.size())
         return false;
     std::vector<int> indicesLeft(size);
-    for (size_t i = 0; i != size; ++i) 
+    for (std::size_t i = 0; i != size; ++i) 
         indicesLeft[i] = i;
 
-    for (size_t iA = 0; iA != size; ++iA) {
+    for (std::size_t iA = 0; iA != size; ++iA) {
         bool matched = false;
-        for (size_t iLeft = 0; iLeft != indicesLeft.size(); ++iLeft)  {
-            size_t iB = indicesLeft[iLeft];
+        for (std::size_t iLeft = 0; iLeft != indicesLeft.size(); ++iLeft)  {
+            std::size_t iB = indicesLeft[iLeft];
             if (A[iA] == B[iB]) {
                 matched = true;
                 indicesLeft.erase(indicesLeft.begin()+iLeft);
@@ -185,12 +185,12 @@ bool partialComparePlaceIndependant(std::vector<T> A, std::vector<T> B)
     if (A.size() < B.size())
         return false;
     std::vector<int> indicesLeft(B.size());
-    for (size_t i = 0; i != B.size(); ++i) 
+    for (std::size_t i = 0; i != B.size(); ++i) 
         indicesLeft[i] = i;
 
-    for (size_t iA = 0; iA != A.size(); ++iA) {
-        for (size_t iLeft = 0; iLeft != indicesLeft.size(); ++iLeft)  {
-            size_t iB = indicesLeft[iLeft];
+    for (std::size_t iA = 0; iA != A.size(); ++iA) {
+        for (std::size_t iLeft = 0; iLeft != indicesLeft.size(); ++iLeft)  {
+            std::size_t iB = indicesLeft[iLeft];
             if (A[iA] == B[iB]) {
                 indicesLeft.erase(indicesLeft.begin()+iLeft);
                 break;

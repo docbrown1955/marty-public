@@ -76,7 +76,7 @@ void reduceAlternate(csl::vector_expr& alternateForms)
     //partial_sort(alternateForms.begin(), alternateForms.begin()+MAX_ALTERNATE_FORMS, alternateForms.end());
     for (int i=0; i<MAX_ALTERNATE_FORMS; ++i) {
         int iMin = i;
-        for (size_t j=i+1; j!=alternateForms.size(); ++j)
+        for (std::size_t j=i+1; j!=alternateForms.size(); ++j)
             if (*alternateForms[j] < alternateForms[iMin])
                 iMin = j;
         if (iMin != i)
@@ -99,8 +99,8 @@ csl::vector_expr applyProperties(const csl::vector_expr& alternateForms)
 
 void clearRedundancyAlternate(csl::vector_expr& alternateForms)
 {
-    for (size_t i=0; i!=alternateForms.size(); ++i) 
-        for (size_t j=i+1; j!=alternateForms.size(); ++j) 
+    for (std::size_t i=0; i!=alternateForms.size(); ++i) 
+        for (std::size_t j=i+1; j!=alternateForms.size(); ++j) 
             if (*alternateForms[i] == alternateForms[j]) {
                 alternateForms.erase(alternateForms.begin()+j);
                 --j;
@@ -123,15 +123,15 @@ csl::vector_expr getRecursiveAlternateForms(const Expr& expr, int depth)
         toReturn = csl::vector_expr(0);
         csl::vector_expr fooVec(0);
         Expr foo;
-        for (size_t j=0; j<alternateForms.size(); j++)
+        for (std::size_t j=0; j<alternateForms.size(); j++)
         {
             //taking alternate of alternate
             fooVec = internalRecursiveAlternateForms(alternateForms[j],depth-1);
             if (fooVec.size() == 0)
                 fooVec.push_back(DeepCopy(alternateForms[j]));
             
-            size_t fooSize = toReturn.size();
-            for (size_t k=0; k<fooVec.size(); ++k) {
+            std::size_t fooSize = toReturn.size();
+            for (std::size_t k=0; k<fooVec.size(); ++k) {
                 if (*fooVec[k] == CSL_0)
                     return csl::vector_expr(1,CSL_0);
                 addAlternateForm(toReturn, fooVec[k]);
@@ -192,7 +192,7 @@ csl::vector_expr internalRecursiveAlternateForms(const Expr& expr, int depth)
         for (int i=0; i<nArgs; i++)
         {
             fooVec = internalRecursiveAlternateForms(argument[i],depth-1);
-            for (size_t j=0; j<fooVec.size(); j++)
+            for (std::size_t j=0; j<fooVec.size(); j++)
            // We take 1+n-1 copies of actual alternates
             {
                 foo = DeepCopy(expr);
@@ -205,7 +205,7 @@ csl::vector_expr internalRecursiveAlternateForms(const Expr& expr, int depth)
         //cout<<"AFTER ALL ARGS: \n";
         //printVector(alternateForms);
         csl::vector_expr toReturn(0);
-        for (size_t i=0; i<alternateForms.size(); i++)
+        for (std::size_t i=0; i<alternateForms.size(); i++)
         {
             alternateForms[i] = DeepRefreshed(alternateForms[i]);
             if (*alternateForms[i] == CSL_0)
@@ -213,7 +213,7 @@ csl::vector_expr internalRecursiveAlternateForms(const Expr& expr, int depth)
             fooVec = alternateForms[i]->getAlternateForms();
             if (fooVec.size() == 0)
                 fooVec.push_back(alternateForms[i]);
-            for (size_t j=0; j<fooVec.size(); j++)
+            for (std::size_t j=0; j<fooVec.size(); j++)
                 addAlternateForm(toReturn, DeepRefreshed(fooVec[j]));
         }
         reduceAlternate(toReturn);
@@ -252,14 +252,14 @@ Expr Simplify(const Expr& expr, int depth)
 
         trials = getRecursiveAlternateForms(simplifiedAbstract, depth);
         if (checkIndexExpressions)
-            for (size_t i=0; i<trials.size(); i++)
+            for (std::size_t i=0; i<trials.size(); i++)
             {
                 if (*trials[i] == -1*simplifiedAbstract)
                     simplifiedAbstract = CSL_0;
             }
         if (simplifiedAbstract == CSL_0)
             break;
-        for (size_t i=0; i<trials.size(); i++)
+        for (std::size_t i=0; i<trials.size(); i++)
         {
             trials[i] = DeepRefreshed(trials[i]);
             if (*trials[i] < simplifiedAbstract)
@@ -286,7 +286,7 @@ csl::vector_expr Sum::getAlternateForms() const
     //Sum-specific alternate forms
     int nArgs2;
     csl::vector_expr factors(0);
-    for (size_t i = 0; i < size(); i++)
+    for (std::size_t i = 0; i < size(); i++)
     {
         foo = DeepCopy(this);
         if (argument[i]->getType() == csl::Type::Prod) 
@@ -310,7 +310,7 @@ csl::vector_expr Sum::getAlternateForms() const
                     {
                         int power = -1*foo2->getArgument(1)->evaluateScalar();
                         foo2->setArgument(int_s(power),1);
-                        for (size_t k = 0; k < argument.size(); k++)
+                        for (std::size_t k = 0; k < argument.size(); k++)
                             foo->setArgument(prod_s(DeepCopy(foo2),DeepCopy(argument[k])),k);
                         foo2->setArgument(int_s(-power),1);
 
@@ -335,7 +335,7 @@ csl::vector_expr Sum::getAlternateForms() const
             {
                 int power = -1*foo2->getArgument(1)->evaluateScalar();
                 foo2->setArgument(int_s(power),1);
-                for (size_t k = 0; k < argument.size(); k++)
+                for (std::size_t k = 0; k < argument.size(); k++)
                     foo->setArgument(prod_s(DeepCopy(foo2),DeepCopy(argument[k])),k);
                 foo2->setArgument(int_s(-power),1);
 
@@ -382,7 +382,7 @@ csl::vector_expr Sum::getAlternateForms() const
     }
     foo = DeepCopy(this);
 
-    for (size_t i=0; i!=factors.size(); ++i) {
+    for (std::size_t i=0; i!=factors.size(); ++i) {
         if (factors[i]->getPrimaryType() == csl::PrimaryType::Numerical)
             continue;
         bool factorOk = true;
@@ -411,12 +411,12 @@ csl::vector_expr Prod::getAlternateForms() const
 
     alternateForms = csl::vector_expr(0);
     bool cosProdFound = false;
-    for (size_t i = 0; i < argument.size(); i++)
+    for (std::size_t i = 0; i < argument.size(); i++)
     {
         csl::Type type = argument[i]->getType();
         if (not cosProdFound and type == csl::Type::Cos)
         {
-            for (size_t j = i+1; j < argument.size(); j++)
+            for (std::size_t j = i+1; j < argument.size(); j++)
             {
                 type = argument[j]->getType();
                 if (type == csl::Type::Cos) // cos(a)cos(b)=cos(a+b)+sin(a)sin(b)
@@ -445,7 +445,7 @@ csl::vector_expr Prod::getAlternateForms() const
         }
         else if (not cosProdFound and type == csl::Type::Sin)
         {
-            for (size_t j = i+1; j < argument.size(); j++)
+            for (std::size_t j = i+1; j < argument.size(); j++)
             {
                 type = argument[j]->getType();
                 if (type == csl::Type::Sin) // sin(a)sin(b)=cos(a)cos(b)-cos(a+b)
@@ -473,7 +473,7 @@ csl::vector_expr Prod::getAlternateForms() const
             }
         }
     }
-    for (size_t i = 0; i != alternateForms.size(); i++)
+    for (std::size_t i = 0; i != alternateForms.size(); i++)
     {
         // We add automatically expandped alternate form
         foo = Expanded(alternateForms[i]);
@@ -769,8 +769,8 @@ csl::vector_expr getRandomMutation(const Expr& expr){
             }
         }
 
-    const size_t size = res.size();
-    for (size_t i=0; i!=size; ++i) {
+    const std::size_t size = res.size();
+    for (std::size_t i=0; i!=size; ++i) {
         csl::vector_expr mutations = res[i]->getAlternateForms();
         for (const auto& m : mutations)
             addAlternateForm(res, m);
@@ -835,15 +835,15 @@ csl::vector_expr getRecursiveAlternateFormsBis(const Expr& expr, int depth)
         alternateForms = toReturn;
         toReturn = csl::vector_expr(0);
         Expr foo;
-        for (size_t j=0; j<alternateForms.size(); j++)
+        for (std::size_t j=0; j<alternateForms.size(); j++)
         {
             //taking alternate of alternate
             fooVec = internalRecursiveAlternateForms(alternateForms[j],depth-1);
             if (fooVec.size() == 0)
                 fooVec.push_back(DeepCopy(alternateForms[j]));
             
-            size_t fooSize = toReturn.size();
-            for (size_t k=0; k<fooVec.size(); k++)
+            std::size_t fooSize = toReturn.size();
+            for (std::size_t k=0; k<fooVec.size(); k++)
                 addAlternateForm(toReturn, fooVec[k]);
             // If there is no new alternate
             if (fooSize == toReturn.size()) {
@@ -901,7 +901,7 @@ csl::vector_expr internalRecursiveAlternateFormsBis(const Expr& expr, int depth)
                 //printVector(fooVec);
                 if (fooVec.size() == 0)
                     fooVec = csl::vector_expr(1,DeepCopy(argument[i]));
-                for (size_t j=0; j<fooVec.size(); j++) // We take 1+n-1 copies of actual alternates
+                for (std::size_t j=0; j<fooVec.size(); j++) // We take 1+n-1 copies of actual alternates
                 {
                     //cout<<"Adding alternate "; fooVec[j]->print();
                     foo = DeepCopy(expr);
@@ -931,7 +931,7 @@ csl::vector_expr internalRecursiveAlternateFormsBis(const Expr& expr, int depth)
         else
         {
             fooVec = internalRecursiveAlternateForms(expr->getArgument(),depth-1);
-            for (size_t i=0; i<fooVec.size(); i++)
+            for (std::size_t i=0; i<fooVec.size(); i++)
             {
                 alternateForms.push_back(DeepCopy(expr));
                 alternateForms[i]->setArgument(DeepRefreshed(fooVec[i]));
@@ -943,13 +943,13 @@ csl::vector_expr internalRecursiveAlternateFormsBis(const Expr& expr, int depth)
         if (alternateForms.size() == 0)
             alternateForms.push_back(DeepCopy(expr));
         csl::vector_expr toReturn(0);
-        for (size_t i=0; i<alternateForms.size(); i++)
+        for (std::size_t i=0; i<alternateForms.size(); i++)
         {
             alternateForms[i] = DeepRefreshed(alternateForms[i]);
             fooVec = alternateForms[i]->getAlternateForms();
             if (fooVec.size() == 0)
                 fooVec.push_back(DeepCopy(alternateForms[i]));
-            for (size_t j=0; j<fooVec.size(); j++)
+            for (std::size_t j=0; j<fooVec.size(); j++)
                 addAlternateForm(toReturn, DeepRefreshed(fooVec[j]));
         }
         reduceAlternate(toReturn);

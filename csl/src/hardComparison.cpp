@@ -9,9 +9,9 @@ static MultiPermutation getAllPossiblePermutations(
         std::vector<csl::Expr> const &tensors
         )
 {
-    std::vector<std::vector<size_t>> permutations;
+    std::vector<std::vector<std::size_t>> permutations;
     permutations.reserve(tensors.size());
-    std::vector<size_t> indicesLeft(tensors.size());
+    std::vector<std::size_t> indicesLeft(tensors.size());
     std::iota(indicesLeft.begin(), indicesLeft.end(), 0);
     while (!indicesLeft.empty()) {
         auto const &tensor1 = tensors[indicesLeft[0]];
@@ -19,7 +19,7 @@ static MultiPermutation getAllPossiblePermutations(
         indicesLeft.erase(indicesLeft.begin());
         if (!tensor1->getCommutable())
             continue;
-        for (size_t i = 0; i != indicesLeft.size(); ++i) {
+        for (std::size_t i = 0; i != indicesLeft.size(); ++i) {
             auto const &tensor2 = tensors[indicesLeft[i]];
             if (tensor1->getParent_info() == tensor2->getParent_info()
                     && tensor1->isComplexConjugate() == tensor2->isComplexConjugate()) {
@@ -42,7 +42,7 @@ static void sortTensors(std::vector<csl::Expr> &tensors)
     std::vector<csl::Expr> sorted;
     sorted.reserve(tensors.size());
     csl::IndexStructure contractedIndices;
-    auto step = [&](size_t pos) {
+    auto step = [&](std::size_t pos) {
         contractedIndices = free(
                 contractedIndices + tensors[pos]->getIndexStructureView());
         sorted.push_back(tensors[pos]);
@@ -55,7 +55,7 @@ static void sortTensors(std::vector<csl::Expr> &tensors)
             continue;
         }
         bool foundCommon = false;
-        for (size_t i = 0; i != tensors.size(); ++i) {
+        for (std::size_t i = 0; i != tensors.size(); ++i) {
             if (csl::IsTensorField(tensors[i]))
                 continue;
             auto const &index = tensors[i]->getIndexStructureView();
@@ -107,7 +107,7 @@ int matchBOnA(
         return tensorsInA.size() < tensorsInB.size();
     }
     std::vector<std::pair<csl::Index, csl::Index>> mapping;
-    for (size_t i = 0; i != tensorsInA.size(); ++i) {
+    for (std::size_t i = 0; i != tensorsInA.size(); ++i) {
         if (tensorsInA[i]->getParent_info() 
                 != tensorsInB[i]->getParent_info()) {
             return tensorsInA[i]->getName() < tensorsInB[i]->getName();
@@ -121,7 +121,7 @@ int matchBOnA(
             last = std::remove_if(Bstruct.begin(), Bstruct.end(),
                     [&](csl::Index const &i) { return i.getFree(); });
             Bstruct.erase(last, Bstruct.end());
-            for (size_t j = 0; j != Astruct.size(); ++j) {
+            for (std::size_t j = 0; j != Astruct.size(); ++j) {
                 auto pos = std::find_if(
                         mapping.begin(),
                         mapping.end(),
@@ -138,7 +138,7 @@ int matchBOnA(
     intermediateIndices.reserve(mapping.size());
     for (const auto &mappy : mapping)
         intermediateIndices.push_back(mappy.first.rename());
-    size_t index = 0;
+    std::size_t index = 0;
     for (auto& mappy : mapping) {
         B = csl::Replaced(
                 B, 
@@ -188,7 +188,7 @@ static bool hardComparison_impl(
 {
     auto [tensorsInA, tensorsInB] = getSortedTensors(A, B);
     MultiPermutation permutation = getAllPossiblePermutations(tensorsInB);
-    size_t i = 0;
+    std::size_t i = 0;
     do {
         csl::Expr B_cpy = csl::DeepCopy(B);
         auto tensorsInB_perm = permutation.applyPermutation(tensorsInB);

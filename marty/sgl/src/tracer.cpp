@@ -36,14 +36,14 @@ namespace sgl::tracer {
     }
 
     static bool isAntiSymmetric(
-            size_t i,
-            size_t j,
+            std::size_t i,
+            std::size_t j,
             std::vector<GammaIndex> const &indices
             )
     {
         if (j < i)
             return isAntiSymmetric(j, i, indices);
-        size_t n = 0;
+        std::size_t n = 0;
         bool i_found = false;
         for (const auto &genindex : indices) {
             for ([[maybe_unused]]const auto &index : genindex.indices()) {
@@ -63,11 +63,11 @@ namespace sgl::tracer {
 
     static void cutIndex(
             std::vector<GammaIndex> &init,
-            size_t i
+            std::size_t i
             )
     {
-        size_t n = 0;
-        for (size_t k = 0; k != init.size(); ++k) {
+        std::size_t n = 0;
+        for (std::size_t k = 0; k != init.size(); ++k) {
             auto &genIndex = init[k];
             if (i < n + genIndex.indices().size()) {
                 genIndex.indices().erase(genIndex.indices().begin() + i - n);
@@ -82,8 +82,8 @@ namespace sgl::tracer {
 
     static void cutIndices(
             std::vector<GammaIndex> &init,
-            size_t i,
-            size_t j
+            std::size_t i,
+            std::size_t j
             )
     {
         if (j < i) {
@@ -96,8 +96,8 @@ namespace sgl::tracer {
 
     static void cutIndex(
             std::vector<GammaIndex> &init,
-            size_t i,
-            size_t j
+            std::size_t i,
+            std::size_t j
             )
     {
         if (init[i].indices().size() == 1) {
@@ -110,10 +110,10 @@ namespace sgl::tracer {
 
     static std::vector<GammaIndex> cutIndices(
             std::vector<GammaIndex> const &init,
-            size_t i1,
-            size_t j1,
-            size_t i2,
-            size_t j2
+            std::size_t i1,
+            std::size_t j1,
+            std::size_t i2,
+            std::size_t j2
             )
     {
         if (i2 < i1)
@@ -145,7 +145,7 @@ namespace sgl::tracer {
         SCOPELOG
         LOG("Standard Trace for", toString(indices))
         auto gam = gammas(indices);
-        const size_t N = gam.size();
+        const std::size_t N = gam.size();
         LOG(N, "gamma matrices")
         if (N == 0)
             return cslexpr_s(Ddirac);
@@ -161,8 +161,8 @@ namespace sgl::tracer {
         std::vector<GExpr> terms;
         terms.reserve(N);
         int sign = (indices[0].indices().size() & 1) ? 1 : -1;
-        for (size_t i = 1; i != indices.size(); ++i) {
-            for (size_t l = 0; l != indices[i].indices().size(); ++l) {
+        for (std::size_t i = 1; i != indices.size(); ++i) {
+            for (std::size_t l = 0; l != indices[i].indices().size(); ++l) {
                 GExpr g = metricindex_s(
                         indices[0].indices()[0],
                         indices[i].indices()[l]
@@ -191,7 +191,7 @@ namespace sgl::tracer {
         SCOPELOG
         LOG("Chiral Trace for", toString(indices))
         const std::vector<csl::Index> gam = gammas(indices);
-        const size_t N = gam.size();
+        const std::size_t N = gam.size();
         const static auto zero = cslexpr_s(CSL_0);
         if (N % 2 == 1 || N < 4)
             return zero;
@@ -201,9 +201,9 @@ namespace sgl::tracer {
         }
         std::vector<GExpr> terms;
         terms.reserve(N);
-        for (size_t i = 0; i != gam.size()-1; ++i) {
+        for (std::size_t i = 0; i != gam.size()-1; ++i) {
             int globalSign = (i%4 >= 2) ? -1 : 1;
-            for (size_t j = i+1; j != gam.size(); ++j) {
+            for (std::size_t j = i+1; j != gam.size(); ++j) {
                 if (isAntiSymmetric(i, j, indices))
                     continue;
                 int sign = ((i+j+1)%2 == 1) ? -globalSign : globalSign;

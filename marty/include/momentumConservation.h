@@ -54,7 +54,7 @@ namespace mty {
 
         std::vector<bool>        signs;
         std::vector<csl::Tensor> momenta;
-        size_t                   posSimplestMomenta;
+        std::size_t                   posSimplestMomenta;
         csl::Index               mu;
     };
 }

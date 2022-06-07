@@ -32,7 +32,7 @@ namespace csl {
 /*************************************************/
 ///////////////////////////////////////////////////
 
-size_t AbstractFunc::size() const
+std::size_t AbstractFunc::size() const
 {
     return 1;
 }
@@ -744,7 +744,7 @@ optional<Expr> AbstractMultiFunc::findSubExpression(
         return newExpression;
     vector<optional<Expr>> argSub(argument.size());
     bool found = false;
-    for (size_t i = 0; i != argument.size(); ++i) {
+    for (std::size_t i = 0; i != argument.size(); ++i) {
         argSub[i] = argument[i]->findSubExpression(
                     subExpression, newExpression);
         if (not found and argSub[i])
@@ -752,7 +752,7 @@ optional<Expr> AbstractMultiFunc::findSubExpression(
     }
     if (found) {
         Expr res = copy();
-        for (size_t i = 0; i != argument.size(); ++i)
+        for (std::size_t i = 0; i != argument.size(); ++i)
             res->setArgument(argSub[i].value_or(argument[i]), i);
         return Refreshed(res);
     }
@@ -760,7 +760,7 @@ optional<Expr> AbstractMultiFunc::findSubExpression(
     return nullopt;
 }
 
-size_t AbstractMultiFunc::size() const
+std::size_t AbstractMultiFunc::size() const
 {
     return argument.size();
 }
@@ -839,14 +839,14 @@ optional<Expr> AbstractMultiFunc::getComplexConjugate() const
 {
     vector<optional<Expr>> optConjug(argument.size());
     bool conjugFound = false;
-    for (size_t i = 0; i != argument.size(); ++i) {
+    for (std::size_t i = 0; i != argument.size(); ++i) {
         optConjug[i] = argument[i]->getComplexConjugate();
         if (not conjugFound and optConjug[i])
             conjugFound = true;
     }
     if (conjugFound) {
         Expr conjugate = Copy(this);
-        for (size_t i = 0; i != argument.size(); ++i)
+        for (std::size_t i = 0; i != argument.size(); ++i)
             conjugate->setArgument(
                     optConjug[i].value_or(argument[i]), i);
         return Refreshed(conjugate);
@@ -863,7 +863,7 @@ optional<Expr> AbstractMultiFunc::replaceIndex(
 
     csl::vector_expr newArg(argument.size());
     bool replaced = false;
-    for (size_t i = 0; i != argument.size(); ++i)
+    for (std::size_t i = 0; i != argument.size(); ++i)
         if (optional<Expr> opt 
                 = argument[i]->replaceIndex(
                     indexToReplace,
@@ -895,7 +895,7 @@ std::optional<Expr> AbstractMultiFunc::replaceIndices(
 {
     csl::vector_expr newArg(argument.size());
     bool replaced = false;
-    for (size_t i = 0; i != argument.size(); ++i)
+    for (std::size_t i = 0; i != argument.size(); ++i)
         if (optional<Expr> opt 
                 = argument[i]->replaceIndices(
                     oldIndices,
@@ -927,14 +927,14 @@ optional<Expr> AbstractMultiFunc::factor(bool full) const
        // Expr result = Copy(this);
        vector<optional<Expr>> argFacto(argument.size());
        bool factoFound = false;
-       for (size_t i = 0; i != argument.size(); i++) {
+       for (std::size_t i = 0; i != argument.size(); i++) {
            argFacto[i] = argument[i]->factor(true);
            if (not factoFound and argFacto[i])
                factoFound = true;
        }
        if (factoFound) {
            Expr res = copy();
-           for (size_t i = 0; i != argument.size(); ++i)
+           for (std::size_t i = 0; i != argument.size(); ++i)
                res->setArgument(argFacto[i].value_or(argument[i]), i);
 
            return Refreshed(res);
@@ -950,14 +950,14 @@ optional<Expr> AbstractMultiFunc::factor(Expr_info expr, bool full) const
        // Expr result = Copy(this);
        vector<optional<Expr>> argFacto(argument.size());
        bool factoFound = false;
-       for (size_t i = 0; i != argument.size(); i++) {
+       for (std::size_t i = 0; i != argument.size(); i++) {
            argFacto[i] = argument[i]->factor(expr, true);
            if (not factoFound and argFacto[i])
                factoFound = true;
        }
        if (factoFound) {
            Expr res = copy();
-           for (size_t i = 0; i != argument.size(); ++i)
+           for (std::size_t i = 0; i != argument.size(); ++i)
                res->setArgument(argFacto[i].value_or(argument[i]), i);
 
            return Refreshed(res);
@@ -975,14 +975,14 @@ optional<Expr> AbstractMultiFunc::collect(
     if (full) {
        vector<optional<Expr>> argCollect(argument.size());
        bool factoFound = false;
-       for (size_t i = 0; i != argument.size(); i++) {
+       for (std::size_t i = 0; i != argument.size(); i++) {
            argCollect[i] = argument[i]->collect(factors, true);
            if (not factoFound and argCollect[i])
                factoFound = true;
        }
        if (factoFound) {
            Expr res = copy();
-           for (size_t i = 0; i != argument.size(); ++i)
+           for (std::size_t i = 0; i != argument.size(); ++i)
                res[i] = argCollect[i].value_or(res[i]);
 
            return Refreshed(res);
@@ -999,14 +999,14 @@ optional<Expr> AbstractMultiFunc::expand(bool full,
        // Expr result = Copy(this);
        vector<optional<Expr>> argExpand(argument.size());
        bool expandFound = false;
-       for (size_t i = 0; i != argument.size(); i++) {
+       for (std::size_t i = 0; i != argument.size(); i++) {
            argExpand[i] = argument[i]->expand(true, inPlace);
            if (not expandFound and argExpand[i])
                expandFound = true;
        }
        if (expandFound) {
            Expr res = copy();
-           for (size_t i = 0; i != argument.size(); ++i)
+           for (std::size_t i = 0; i != argument.size(); ++i)
                res->setArgument(argExpand[i].value_or(argument[i]), i);
 
            return Refreshed(res);
@@ -1023,7 +1023,7 @@ optional<Expr> AbstractMultiFunc::expand_if(
 {
     if (full) {
        Expr res = copy();
-       for (size_t i = 0; i != res->size(); ++i)
+       for (std::size_t i = 0; i != res->size(); ++i)
            res->setArgument(
                        res[i]->expand_if(f, true, inPlace).value_or(res[i]), 
                        i);

@@ -318,7 +318,7 @@ void VectorBoson::setBrokenParts(
         const std::vector<Particle>& parts)
 {
     std::vector<Particle> fieldStrengthParts(parts.size());
-    for (size_t i = 0; i != parts.size(); ++i) {
+    for (std::size_t i = 0; i != parts.size(); ++i) {
         fieldStrengthParts[i] = csl::make_shared<FieldStrength>(
                 dynamic_cast<VectorBoson*>(parts[i].get()));
         parts[i]->setFieldStrength(fieldStrengthParts[i]);
@@ -414,9 +414,9 @@ void VectorBoson::updateBrokenFieldStrength(csl::Space const *space)
     if (!getFieldStrength())
         return;
     const auto &brokenParts = getBrokenParts(space);
-    const size_t sz = brokenParts.size();
+    const std::size_t sz = brokenParts.size();
     std::vector<mty::Particle> brokenFS(sz);
-    for (size_t i = 0; i != sz; ++i) {
+    for (std::size_t i = 0; i != sz; ++i) {
         brokenFS[i] = ConvertToPtr<QuantumFieldParent>(brokenParts[i])
             ->getFieldStrength();
     }
@@ -432,8 +432,8 @@ void VectorBoson::updateBrokenGhost(
         return;
     const auto &brokenParts = getBrokenParts(space);
     const auto &brokenGhosts = local_ghost->getBrokenParts(space);
-    const size_t sz = brokenParts.size();
-    for (size_t i = 0; i != sz; ++i) {
+    const std::size_t sz = brokenParts.size();
+    for (std::size_t i = 0; i != sz; ++i) {
         dynamic_cast<VectorBoson*>(brokenParts[i].get())
             ->setGhostBoson(std::dynamic_pointer_cast<QuantumFieldParent>(
                         brokenGhosts[i]));
@@ -446,8 +446,8 @@ void VectorBoson::updateBrokenGoldstone(csl::Space const *space)
         return;
     const auto &brokenParts = getBrokenParts(space);
     const auto &brokenGoldstones = goldstone->getBrokenParts(space);
-    const size_t sz = brokenParts.size();
-    for (size_t i = 0; i != sz; ++i) {
+    const std::size_t sz = brokenParts.size();
+    for (std::size_t i = 0; i != sz; ++i) {
         dynamic_cast<VectorBoson*>(brokenParts[i].get())
             ->setGoldstoneBoson(std::dynamic_pointer_cast<QuantumFieldParent>(
                         brokenGoldstones[i]));
@@ -544,7 +544,7 @@ FieldStrength::FieldStrength(VectorBoson* t_vectorParent)
     relatives.clear();
     setName("F_" + t_vectorParent->getName());
     space.push_back(Lorentz->getVectorSpace(spin));
-    // const size_t n = space.size();
+    // const std::size_t n = space.size();
     // addAntiSymmetry(n-2, n-1);
 }
 

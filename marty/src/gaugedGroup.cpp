@@ -136,7 +136,7 @@ mty::Generator GaugedGroup::getF() const
     return f;
 }
 
-csl::Tensor GaugedGroup::getD(size_t p) const
+csl::Tensor GaugedGroup::getD(std::size_t p) const
 {
     if (auto pos = d.find(p); pos != d.end())
         return pos->second;
@@ -206,7 +206,7 @@ Particle GaugedGroup::buildVectorBoson()
         nameBoson = "A_" + group->getName();
     GaugeIrrep irrep = gauge->getTrivialRep();
     bool groupInGauge = false;
-    for (size_t i = 0; i != gauge->size(); ++i)
+    for (std::size_t i = 0; i != gauge->size(); ++i)
         if ((*gauge)[i] == group) {
             irrep[i] = group->getAdjointRep();
             groupInGauge = true;
@@ -232,7 +232,7 @@ Particle GaugedGroup::buildGhost()
         return nullptr;
     GaugeIrrep irrep = gauge->getTrivialRep();
     bool groupInGauge = false;
-    for (size_t i = 0; i != gauge->size(); ++i)
+    for (std::size_t i = 0; i != gauge->size(); ++i)
         if ((*gauge)[i] == group) {
             irrep[i] = group->getAdjointRep();
             groupInGauge = true;
@@ -454,7 +454,7 @@ csl::Expr NonAbelianGauged::covariantDerivative(QuantumFieldParent&   field,
     Index a;
     Index b = spaceIrrepField->generateIndex();
     int posGaugeIndex = -1;
-    for (size_t i = 0; i != fieldIndices.size(); ++i)
+    for (std::size_t i = 0; i != fieldIndices.size(); ++i)
         if (fieldIndices[i].getSpace() == spaceIrrepField) {
             posGaugeIndex = i;
             a = fieldIndices[i];
@@ -572,7 +572,7 @@ void SUGauged::init_f_d_ABC()
     csl::Tensor d_ABC = getD(3);
     d_ABC->addTraceLessNess(adjointSpace);
 
-    const size_t N = group->getAlgebra()->getOrderL() + 1;
+    const std::size_t N = group->getAlgebra()->getOrderL() + 1;
     if (N == 2) {
         Irrep adjoint = group->getAdjointRep();
         f = mty::Generator(

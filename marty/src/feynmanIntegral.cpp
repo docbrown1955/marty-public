@@ -384,7 +384,7 @@ void printLooptoolsId(IntegralType type,
 
 int loopToolsIdOf(
         IntegralType               type,
-        std::vector<size_t> const &indices
+        std::vector<std::size_t> const &indices
         )
 {
     switch(type) {
@@ -401,7 +401,7 @@ int loopToolsIdOf(
 }
 
 int loopToolsIdOf_A(
-        std::vector<size_t> const &indices
+        std::vector<std::size_t> const &indices
         )
 {
     if (indices.size() > 2)
@@ -419,7 +419,7 @@ int loopToolsIdOf_A(
     std::equal(A.begin(), A.end(), std::initializer_list<int>B.begin())
 
 int loopToolsIdOf_B(
-        std::vector<size_t> const &indices
+        std::vector<std::size_t> const &indices
         )
 {
     if (indices.size() > 3)
@@ -446,7 +446,7 @@ int loopToolsIdOf_B(
 }
 
 int loopToolsIdOf_C(
-        std::vector<size_t> const &indices
+        std::vector<std::size_t> const &indices
         )
 {
     if (indices.size() > 4)
@@ -507,7 +507,7 @@ int loopToolsIdOf_C(
 }
 
 int loopToolsIdOf_D(
-        std::vector<size_t> const &indices
+        std::vector<std::size_t> const &indices
         )
 {
     if (indices.size() > 5)
@@ -782,7 +782,7 @@ std::array<int, 5> getRank5Indices(int loopToolsId)
 }
 
 int loopToolsBegin(IntegralType type,
-                   size_t       nIndices)
+                   std::size_t       nIndices)
 {
     switch(type) {
         case IntegralType::A:
@@ -844,7 +844,7 @@ int loopToolsBegin(IntegralType type,
     // return -1;
 }
 
-size_t nPropagatorForIntegral(IntegralType type)
+std::size_t nPropagatorForIntegral(IntegralType type)
 {
     switch(type) {
         case IntegralType::None:
@@ -857,7 +857,7 @@ size_t nPropagatorForIntegral(IntegralType type)
     return 0;
 }
 
-size_t nIndicesForIntegral(IntegralType type)
+std::size_t nIndicesForIntegral(IntegralType type)
 {
     switch(type) {
         case IntegralType::None:
@@ -870,7 +870,7 @@ size_t nIndicesForIntegral(IntegralType type)
     return 0;
 }
 
-size_t nArgumentsForIntegral(IntegralType type)
+std::size_t nArgumentsForIntegral(IntegralType type)
 {
     switch(type) {
         case IntegralType::None:
@@ -1059,13 +1059,13 @@ csl::Expr FeynmanIntegral::replaceIntegral(
         }
     }
 
-    size_t firstZero = size_t(-1);
-    for (size_t i = 0; i != momentum.size(); ++i)
+    std::size_t firstZero = std::size_t(-1);
+    for (std::size_t i = 0; i != momentum.size(); ++i)
         if (momentum[i] == CSL_0) {
             firstZero = i;
             break;
         }
-    HEPAssert(firstZero != size_t(-1) or momentum.empty(),
+    HEPAssert(firstZero != std::size_t(-1) or momentum.empty(),
             mty::error::RuntimeError,
             "No standard q momentum found in integral. Should get at least"
             " one propagator with momentum q (q beeing integration variable), "
@@ -1080,8 +1080,8 @@ csl::Expr FeynmanIntegral::replaceIntegral(
         momentum.erase(momentum.begin());
 
     applyIndices(momentum);
-    //for (size_t i = 0; i != indices.size(); ++i) 
-    //    for (size_t j = i+1; j < indices.size(); ++j) 
+    //for (std::size_t i = 0; i != indices.size(); ++i) 
+    //    for (std::size_t j = i+1; j < indices.size(); ++j) 
     //        if (indices[i] == indices[j]) {
     //            return applyQSquared(
     //                    indices[i],
@@ -1140,8 +1140,8 @@ csl::Expr FeynmanIntegral::applyQSquared(
         )
 {
     csl::Expr p1;
-    size_t imin = 0;
-    for (size_t k = 0; k != momentum.size(); ++k) 
+    std::size_t imin = 0;
+    for (std::size_t k = 0; k != momentum.size(); ++k) 
         if (momentum[k]->size() < momentum[imin]->size())
             imin = k;
     p1 = momentum[imin];
@@ -1189,7 +1189,7 @@ csl::Expr FeynmanIntegral::applyQSquared(
         }
     });
     std::vector<csl::Index> newIndices(indices);
-    for (size_t i = 0; i != newIndices.size(); ++i) 
+    for (std::size_t i = 0; i != newIndices.size(); ++i) 
         if (newIndices[i] == squaredIndex) {
             newIndices.erase(newIndices.begin() + i);
             --i;
@@ -1210,7 +1210,7 @@ void FeynmanIntegral::removeExternalMomenta(
         )
 {
     if (csl::IsSum(expr) || csl::IsProd(expr) || csl::IsPow(expr)) {
-        for (size_t i = 0; i != expr->size(); ++i)
+        for (std::size_t i = 0; i != expr->size(); ++i)
             removeExternalMomenta(expr[i], Q);
     }
     else if (csl::IsIndicialTensor(expr)) {
@@ -1224,11 +1224,11 @@ void FeynmanIntegral::removeExternalMomenta(
 
 void testError(IntegralType type,
                std::vector<csl::Expr> const& momentum,
-               size_t                   nMomentum,
+               std::size_t                   nMomentum,
                std::vector<csl::Expr> const& mass,
-               size_t                   nMass,
+               std::size_t                   nMass,
                std::vector<csl::Index> const&,
-               size_t)
+               std::size_t)
 {
     auto mom_string = [&]() 
     {
@@ -1284,7 +1284,7 @@ csl::Expr psquared(csl::Expr const &A,
     csl::Expr flipped = DeepCopy(B);
     csl::IndexStructure Astructure = A->getIndexStructure();
     csl::IndexStructure Bstructure = B->getIndexStructure();
-    for (size_t i = 0; i != Astructure.size(); ++i) 
+    for (std::size_t i = 0; i != Astructure.size(); ++i) 
         if (Astructure[i].getSpace()->getSignedIndex())
             flipped = Replaced(
                     flipped, 
@@ -1300,7 +1300,7 @@ csl::Expr psum(csl::Expr const &A,
     csl::Expr flipped = csl::DeepCopy(B);
     csl::IndexStructure Astructure = A->getIndexStructure();
     csl::IndexStructure Bstructure = B->getIndexStructure();
-    for (size_t i = 0; i != Astructure.size(); ++i) 
+    for (std::size_t i = 0; i != Astructure.size(); ++i) 
         if (Astructure[i].getSpace()->getSignedIndex())
             flipped = Replaced(
                     flipped, 
@@ -1332,12 +1332,12 @@ void FeynmanIntegral::applyIndices(std::vector<csl::Expr>& momentum)
     if (momentum.size() < 2)
         return;
     csl::IndexStructure structure;
-    size_t first;
+    std::size_t first;
     for (first = 0; first != momentum.size(); ++first)
         if (momentum[first] != CSL_0) {
             structure = momentum[first]->getIndexStructure();
         }
-    for (size_t i = 0; i < momentum.size(); ++i) {
+    for (std::size_t i = 0; i < momentum.size(); ++i) {
         if (i == first)
             continue;
         csl::IndexStructure other_struct = momentum[i]->getIndexStructure();
@@ -1347,7 +1347,7 @@ void FeynmanIntegral::applyIndices(std::vector<csl::Expr>& momentum)
                 "Momentum indices do not match between " 
                 + toString(momentum[first]) + " and " + toString(momentum[i]) 
                 + ".");
-        for (size_t j = 0; j != structure.size(); ++j)
+        for (std::size_t j = 0; j != structure.size(); ++j)
             if (momentum[i] != CSL_0)
                 momentum[i] = Replaced(
                         momentum[i], 
@@ -1357,29 +1357,29 @@ void FeynmanIntegral::applyIndices(std::vector<csl::Expr>& momentum)
     }
 }
 
-std::vector<std::vector<size_t>> getMetricIndices(
-        std::vector<size_t> indices
+std::vector<std::vector<std::size_t>> getMetricIndices(
+        std::vector<std::size_t> indices
         )
 {
-    size_t n = indices.size();
+    std::size_t n = indices.size();
     HEPAssert(n > 0 and n % 2 == 0,
             mty::error::ValueError,
             "Cannot get metric term for " + toString(n) + " indices.")
 
     if (n == 2)
         return {{ indices[0], indices[1] }};
-    std::function<size_t(size_t)> N; // N(n) = (n-1)!!
-    N = [&](size_t n) { return (n == 2) ? 1 : (n-1)*N(n-2); };
-    std::vector<std::vector<size_t>> res;
+    std::function<std::size_t(std::size_t)> N; // N(n) = (n-1)!!
+    N = [&](std::size_t n) { return (n == 2) ? 1 : (n-1)*N(n-2); };
+    std::vector<std::vector<std::size_t>> res;
     res.reserve(N(n));
-    std::vector<size_t> newIndices(indices.size()-2);
-    for (size_t i = 1; i != indices.size(); ++i) {
-        for (size_t j = 1; j != indices.size(); ++j)
+    std::vector<std::size_t> newIndices(indices.size()-2);
+    for (std::size_t i = 1; i != indices.size(); ++i) {
+        for (std::size_t j = 1; j != indices.size(); ++j)
             if (j < i)
                 newIndices[j-1] = indices[j];
             else if (j > i)
                 newIndices[j-2] = indices[j];
-        std::vector<std::vector<size_t>> interm = getMetricIndices(newIndices);
+        std::vector<std::vector<std::size_t>> interm = getMetricIndices(newIndices);
         auto toInsert = { indices[0], indices[i] };
         for (auto &indexSet : interm) {
             res.push_back(std::move(indexSet));
@@ -1392,12 +1392,12 @@ std::vector<std::vector<size_t>> getMetricIndices(
     return res;
 }
 
-std::vector<std::vector<size_t>> getMetricIndices(
-        size_t n
+std::vector<std::vector<std::size_t>> getMetricIndices(
+        std::size_t n
         )
 {
-    std::vector<size_t> indices(n);
-    for (size_t i = 0; i != n; ++i)
+    std::vector<std::size_t> indices(n);
+    for (std::size_t i = 0; i != n; ++i)
         indices[i] = i;
     return getMetricIndices(indices);
 }
@@ -1429,14 +1429,14 @@ csl::Expr FeynmanIntegral::metricTerm(
             + g({mu, sigma}) * g({nu, rho});
     }
 
-    std::vector<std::vector<size_t>> indicesPos 
+    std::vector<std::vector<std::size_t>> indicesPos 
         = getMetricIndices(indices.size());
     std::vector<csl::Expr> terms;
     terms.reserve(indicesPos.size());
     for (const auto &pos : indicesPos) {
         std::vector<csl::Expr> args;
         args.reserve(pos.size() / 2);
-        for (size_t i = 0; i != pos.size(); i += 2)
+        for (std::size_t i = 0; i != pos.size(); i += 2)
             args.push_back(g({indices[pos[i]], indices[pos[i+1]]}));
         terms.push_back(csl::prod_s(args));
     }
@@ -1447,14 +1447,14 @@ csl::Expr FeynmanIntegral::applyIndicesToTensors(
         csl::Space              const* space,
         std::vector<csl::Expr>       const& momentum,
         std::vector<csl::Index> const& indices,
-        std::vector<size_t>            tensorPos)
+        std::vector<std::size_t>            tensorPos)
 {
     std::vector<csl::Expr> res;
     std::sort(tensorPos.begin(), tensorPos.end());
     do {
         std::vector<csl::Expr> prod;
         std::vector<csl::Index> metricIndices;
-        for (size_t i = 0; i != tensorPos.size(); ++i) {
+        for (std::size_t i = 0; i != tensorPos.size(); ++i) {
             if (tensorPos[i] > 0) {
                 if (momentum[tensorPos[i]-1] == CSL_0) {
                     prod = {CSL_0};
@@ -1488,14 +1488,14 @@ csl::Expr FeynmanIntegral::computeFinalIntegralDecomposition(
     for (int nMetric = indices.size() / 2; 
              nMetric >= 0; 
            --nMetric) {
-        size_t nMomentumIndices = indices.size() - 2*nMetric;
+        std::size_t nMomentumIndices = indices.size() - 2*nMetric;
         if (nMomentumIndices > 0) {
-            symmetricCounter<size_t> counter(
+            symmetricCounter<std::size_t> counter(
                     nMomentumIndices, momentum.size());
             std::vector<csl::Expr> sum_terms_intermediate;
             do {
-                std::vector<size_t> tensorPos(indices.size(), 0);
-                for (size_t i = 2*nMetric; i != indices.size(); ++i)
+                std::vector<std::size_t> tensorPos(indices.size(), 0);
+                for (std::size_t i = 2*nMetric; i != indices.size(); ++i)
                     tensorPos[i] = 1 + counter[i - 2*nMetric];
                 csl::Expr integral = feynmanintegral_s(type,
                                                   integral_id,
@@ -1524,13 +1524,13 @@ csl::Expr FeynmanIntegral::computeFinalIntegralDecomposition(
             csl::Expr integral = feynmanintegral_s(type,
                                               integral_id,
                                               arguments,
-                                              std::vector<size_t>(nMetric, 0));
+                                              std::vector<std::size_t>(nMetric, 0));
             sum_terms.push_back(integral
                     * applyIndicesToTensors(
                         &csl::Minkowski,
                         momentum,
                         indices,
-                        std::vector<size_t>(indices.size(), 0)));
+                        std::vector<std::size_t>(indices.size(), 0)));
         }
         integral_id += loopToolsStep;
     }
@@ -1561,11 +1561,11 @@ csl::Expr FeynmanIntegral::replaceIntegral_A(
     }
     else {
         // arxiv hep-ph/0509141.pdf
-        size_t n = indices.size() / 2;
+        std::size_t n = indices.size() / 2;
         csl::Expr factor = csl::pow_s(mass[0], 2*n) 
             / (std::pow(2, n) * csl::factorial(n+1));
         csl::Expr offset = CSL_0;
-        for (size_t i = 1; i <= n; ++i)
+        for (std::size_t i = 1; i <= n; ++i)
             offset += CSL_1 / (i + 1);
         return factor * metricTerm(&csl::Minkowski, indices) * (
                 feynmanintegral_s(
@@ -1806,13 +1806,13 @@ FeynmanIntegral::FeynmanIntegral(IntegralType             t_type,
 FeynmanIntegral::FeynmanIntegral(IntegralType               t_type,
                                  int                        t_looptoolsId,
                                  std::vector<csl::Expr>   const &t_argument,
-                                 std::vector<size_t> const &t_indices)
+                                 std::vector<std::size_t> const &t_indices)
     :FeynmanIntegral(t_type, t_looptoolsId, t_argument)
 {
     integralIndices = t_indices;
 }
 
-std::pair<csl::Expr, csl::Expr> FeynmanIntegral::getPair(size_t i) const
+std::pair<csl::Expr, csl::Expr> FeynmanIntegral::getPair(std::size_t i) const
 {
     return std::make_pair(
             argument[i], 
@@ -1820,7 +1820,7 @@ std::pair<csl::Expr, csl::Expr> FeynmanIntegral::getPair(size_t i) const
             );
 }
 
-bool FeynmanIntegral::compare(size_t i, size_t j) const
+bool FeynmanIntegral::compare(std::size_t i, std::size_t j) const
 {
     auto A = getPair(i);
     auto B = getPair(j);
@@ -1836,16 +1836,16 @@ void FeynmanIntegral::sortArgument()
     if (type == IntegralType::A
             or type == IntegralType::B)
         return;
-    const size_t n = argument.size() / 2;
+    const std::size_t n = argument.size() / 2;
 
-    for (size_t i = 0; i != n; ++i) {
-        size_t mini = i;
-        for (size_t j = i+1; j < n; ++j) {
+    for (std::size_t i = 0; i != n; ++i) {
+        std::size_t mini = i;
+        for (std::size_t j = i+1; j < n; ++j) {
             if (compare(j, mini))
                 mini = j;
         } 
         if (mini != i) {
-            size_t offset = (argument.size()+1) / 2;
+            std::size_t offset = (argument.size()+1) / 2;
             std::swap(argument[i], argument[mini]);
             std::swap(argument[i+offset], argument[mini+offset]);
         }
@@ -1865,11 +1865,11 @@ void FeynmanIntegral::print(
         printLooptoolsId(type, loopToolsId, out);
     else {
         out << type;
-        for (size_t i = 0; i != integralIndices.size(); ++i) 
+        for (std::size_t i = 0; i != integralIndices.size(); ++i) 
             if (integralIndices[i] == 0)
                 out << '0';
             else {
-                for (size_t j = integralIndices.size(); j --> i ;)
+                for (std::size_t j = integralIndices.size(); j --> i ;)
                     out << integralIndices[j];
                 break;
             }
@@ -1877,7 +1877,7 @@ void FeynmanIntegral::print(
     }
     if (mty::option::displayIntegralArgs) {
         out << "(";
-        for (size_t i = 0; i != argument.size(); ++i)  {
+        for (std::size_t i = 0; i != argument.size(); ++i)  {
             out << argument[i];
             if (i+1 != argument.size())
                 out << ", ";
@@ -1922,7 +1922,7 @@ void FeynmanIntegral::printLib(int mode,
     }
     out << "mty::lt::" << type << "0iC(" << int(loopToolsId) << ", ";
     // }
-    for (size_t i = 0; i != argument.size(); ++i)  {
+    for (std::size_t i = 0; i != argument.size(); ++i)  {
         argument[i]->print(mode, out, true);
         out << ", ";
     }
@@ -1962,7 +1962,7 @@ std::optional<csl::Expr> FeynmanIntegral::evaluate(
     if (not evaluateIntegrals) {
         csl::Expr copyExpr = copy();
         bool evaluated = false;
-        for (size_t i = 0; i != argument.size(); ++i) {
+        for (std::size_t i = 0; i != argument.size(); ++i) {
             std::optional<csl::Expr> arg = argument[i]->evaluate(user_mode);
             if (arg) {
                 copyExpr->setArgument(arg.value(), i);
@@ -1985,7 +1985,7 @@ csl::unique_Expr FeynmanIntegral::copy_unique() const
 csl::Expr FeynmanIntegral::deepCopy() const
 {
     std::vector<csl::Expr> copyArg(argument.size());
-    for (size_t i = 0; i != argument.size(); ++i) 
+    for (std::size_t i = 0; i != argument.size(); ++i) 
         copyArg[i] = DeepCopy(argument[i]);
 
     return std::make_shared<FeynmanIntegral>(
@@ -2009,7 +2009,7 @@ bool FeynmanIntegral::operator==(csl::Expr_info other) const
         if (integralIndices != other_int->integralIndices)
             return false;
 
-    for (size_t i = 0; i != argument.size(); ++i)
+    for (std::size_t i = 0; i != argument.size(); ++i)
         if (!argument[i]->compareWithDummy(other_int->argument[i].get()))
             return false;
 
@@ -2035,7 +2035,7 @@ bool FeynmanIntegral::operator<(csl::Expr_info other) const
             return true;
         else if (integralIndices.size() > other_int->integralIndices.size())
             return false;
-        for (size_t i = 0; i != integralIndices.size(); ++i)
+        for (std::size_t i = 0; i != integralIndices.size(); ++i)
             if (integralIndices[i] < other_int->integralIndices[i])
                 return true;
             else if (integralIndices[i] > other_int->integralIndices[i])
@@ -2148,7 +2148,7 @@ ComplexType FeynmanIntegral::evaluateIntegral() const
 csl::Expr feynmanintegral_s(IntegralType               type,
                        int                        looptoolsId,
                        std::vector<csl::Expr>   const &argument,
-                       std::vector<size_t> const &indices)
+                       std::vector<std::size_t> const &indices)
 {
     return csl::make_shared<FeynmanIntegral>(
             type,

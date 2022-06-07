@@ -95,12 +95,12 @@ public:
     // Getters
     ///////////////////////////////////////////////////
 
-    size_t getFeynmanRulesNumber() const;
+    std::size_t getFeynmanRulesNumber() const;
 
     std::vector<mty::FeynmanRule> const &getFeynmanRules();
 
-    mty::FeynmanRule& getFeynmanRule(size_t pos);
-    mty::FeynmanRule const& getFeynmanRule(size_t pos) const;
+    mty::FeynmanRule& getFeynmanRule(std::size_t pos);
+    mty::FeynmanRule const& getFeynmanRule(std::size_t pos) const;
 
     ///////////////////////////////////////////////////
     // Modifiers
@@ -285,8 +285,8 @@ public:
 
     WilsonSet computeSingleWilsonPenguin_4Fermions(
             Kinematics                const &kinematics,
-            std::pair<size_t, size_t> const &treeCoupling,
-            std::pair<size_t, size_t> const &loopCoupling,
+            std::pair<std::size_t, std::size_t> const &treeCoupling,
+            std::pair<std::size_t, std::size_t> const &loopCoupling,
             Insertion                 const &mediator,
             FeynOptions                      feynOptions = {}
             );
@@ -346,7 +346,7 @@ protected:
 
     std::pair<csl::Expr, csl::Expr> getMomentumReplacement(
             Amplitude const &M,
-            size_t           replacedMomentum
+            std::size_t           replacedMomentum
             ) const;
 
     void replaceMomentumForLink(

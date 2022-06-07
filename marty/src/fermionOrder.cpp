@@ -73,12 +73,12 @@ namespace mty {
 
     void applyGoodAdjacentOrder(
             std::vector<int>    &numbers,
-            std::vector<size_t> &indicesLeft,
+            std::vector<std::size_t> &indicesLeft,
             std::vector<mty::Insertion const*> const &fermions
             )
     {
-        for (size_t i = 0; i != indicesLeft.size(); i += 2) {
-            const size_t index = indicesLeft[i];
+        for (std::size_t i = 0; i != indicesLeft.size(); i += 2) {
+            const std::size_t index = indicesLeft[i];
             auto const &left  = *fermions[numbers[index]];
             auto const &right = *fermions[numbers[index+1]];
             const auto firstLeft = begin(indicesLeft);
@@ -96,15 +96,15 @@ namespace mty {
 
     void applyGoodNonAdjacentOrder(
             std::vector<int>    &numbers,
-            std::vector<size_t> &indicesLeft,
+            std::vector<std::size_t> &indicesLeft,
             std::vector<mty::Insertion const*> const &fermions
             )
     {
-        for (size_t i = 0; i != indicesLeft.size(); i += 2) {
-            const size_t index_i = indicesLeft[i];
+        for (std::size_t i = 0; i != indicesLeft.size(); i += 2) {
+            const std::size_t index_i = indicesLeft[i];
             auto const &left  = *fermions[numbers[index_i]];
-            for (size_t j = i + 2; j != indicesLeft.size(); ++j) {
-                const size_t index_j = indicesLeft[j];
+            for (std::size_t j = i + 2; j != indicesLeft.size(); ++j) {
+                const std::size_t index_j = indicesLeft[j];
                 auto const &right = *fermions[numbers[index_j]];
                 auto const firstLeft = begin(indicesLeft);
                 if (ordered(left, right)) {
@@ -134,7 +134,7 @@ namespace mty {
         std::iota(begin(numbers), end(numbers), 0);
         if (fields.size() & 1)
             return numbers;
-        std::vector<size_t> indicesLeft(fields.size());
+        std::vector<std::size_t> indicesLeft(fields.size());
         std::iota(begin(indicesLeft), end(indicesLeft), 0);
         applyGoodAdjacentOrder(numbers, indicesLeft, fields);
         applyGoodNonAdjacentOrder(numbers, indicesLeft, fields);
@@ -150,7 +150,7 @@ namespace mty {
         std::vector<mty::Insertion*> fermions = fermionsOf(insertions);
         if (fermions.size() != order.size())
             return;
-        for (size_t i = 0; i != order.size()/2; ++i) {
+        for (std::size_t i = 0; i != order.size()/2; ++i) {
             const int i1 = order[2*i];
             const int i2 = order[2*i + 1];
             HEPAssert(i1 >= 0 && i1 < static_cast<int>(fermions.size()),

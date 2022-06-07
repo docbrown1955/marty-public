@@ -86,7 +86,7 @@ void ModelData::checkHermiticity()
     terms.reserve(L.interaction.size());
     std::vector<csl::Expr> hermitic;
     hermitic.reserve(L.interaction.size());
-    for (size_t i = 0; i != L.interaction.size(); ++i) {
+    for (std::size_t i = 0; i != L.interaction.size(); ++i) {
         csl::Expr expr = csl::Evaluated(
                 L.interaction[i]->getTerm(),
                 csl::eval::abbreviation);
@@ -101,15 +101,15 @@ void ModelData::checkHermiticity()
             }
         }
     }
-    std::vector<size_t> indicesLeft(terms.size());
+    std::vector<std::size_t> indicesLeft(terms.size());
     std::iota(indicesLeft.begin(), indicesLeft.end(), 0);
     std::vector<csl::Expr> termsNotFound;
     csl::ProgressBar bar(terms.size());
-    for (size_t i = 0; i != terms.size(); ++i) {
+    for (std::size_t i = 0; i != terms.size(); ++i) {
         if (terms.size() > 500)
             bar.progress(i);
         bool found = false;
-        for (size_t j = 0; j < indicesLeft.size(); ++j) {
+        for (std::size_t j = 0; j < indicesLeft.size(); ++j) {
             if (csl::hardComparison(terms[i], hermitic[indicesLeft[j]])) {
                 indicesLeft.erase(indicesLeft.begin() + j);
                 found = true;
@@ -210,7 +210,7 @@ void ModelData::writeGauge(
     OUT << "///////////////////////////////////" << END;
     OUT << END;
     OUT << END;
-    for (size_t i = 0; i != gauge->size(); ++i) {
+    for (std::size_t i = 0; i != gauge->size(); ++i) {
         if (gauge->getGaugedGroup(i)->isBroken())
             continue;
         auto group = (*gauge)[i];
@@ -221,7 +221,7 @@ void ModelData::writeGauge(
             defined.push_back(parent);
         }
     }
-    for (size_t i = 0; i != gauge->size(); ++i) {
+    for (std::size_t i = 0; i != gauge->size(); ++i) {
         if (gauge->getGaugedGroup(i)->isBroken())
             continue;
         auto group = (*gauge)[i];
@@ -234,7 +234,7 @@ void ModelData::writeGauge(
         out << END;
         OUT2 << ");" << END;
     }
-    for (size_t i = 0; i != gauge->size(); ++i) {
+    for (std::size_t i = 0; i != gauge->size(); ++i) {
         if (gauge->getGaugedGroup(i)->isBroken())
             continue;
         OUT << "mty::GaugedGroup *" 
@@ -266,7 +266,7 @@ void ModelData::writeFlavor(
             << "\", " << group->getDim() << ", " << group->isComplex() << ");"
             << END;
     }
-    for (size_t i = 0; i != flavor->size(); ++i) {
+    for (std::size_t i = 0; i != flavor->size(); ++i) {
         OUT << "mty::FlavorGroup *" 
             << csl::Abstract::regularName((*flavor)[i]->getName())
             << " = (*model->getFlavor())[" << i << "];" << END;
@@ -361,7 +361,7 @@ void ModelData::writeDependencies(
     std::string indent(indentSize, ' ');
     std::set<csl::AbstractParent const*> parents;
     std::map<csl::Space const*, std::vector<csl::Index>> indices;
-    std::map<csl::Space const*, size_t> nIndices;
+    std::map<csl::Space const*, std::size_t> nIndices;
     auto insertIndex = [&](csl::Index &i)
     {
         auto pos = indices.find(i.getSpace());
@@ -770,7 +770,7 @@ void ModelData::addParticlesIn(csl::Expr const &expr)
 
 void ModelData::removeParticle(mty::Particle const &part)
 {
-    for (size_t i = 0; i != particles.size(); ++i) {
+    for (std::size_t i = 0; i != particles.size(); ++i) {
         if (particles[i] == part) {
             auto left  = particles[i]->getWeylFermion(Chirality::Left);
             auto right = particles[i]->getWeylFermion(Chirality::Right);
@@ -801,7 +801,7 @@ void ModelData::removeParticles(
 
 void ModelData::removeParticle(std::string const &part)
 {
-    for (size_t i = 0; i != particles.size(); ++i) {
+    for (std::size_t i = 0; i != particles.size(); ++i) {
         if (particles[i]->getName() == part) {
             removeParticle(Particle(particles[i]));
             return;
@@ -860,7 +860,7 @@ void ModelData::addQuantumNumber(
             mty::error::ValueError,
             "Expecting 1 value per particle for quantum numbers.");
     mty::QuantumNumber q(std::string(t_name), conserved);
-    for (size_t i = 0; i != fields.size(); ++i) {
+    for (std::size_t i = 0; i != fields.size(); ++i) {
         int number = 
             (values.empty()) ? 
             defaultQuantumNumber
@@ -942,11 +942,11 @@ bool ModelData::findTensorCoupling(csl::AbstractParent const *coupling) const
 
 mty::Group const *ModelData::getGroup(std::string_view t_name) const
 {
-    for (size_t i = 0; i != gauge->size(); ++i)
+    for (std::size_t i = 0; i != gauge->size(); ++i)
         if ((*gauge)[i]->getName() == t_name)
             return (*gauge)[i];
     if (flavor)
-        for (size_t i = 0; i != flavor->size(); ++i)
+        for (std::size_t i = 0; i != flavor->size(); ++i)
             if ((*flavor)[i]->getName() == t_name)
                 return (*flavor)[i]->getGroup();
     CallHEPError(mty::error::NameError,
@@ -956,11 +956,11 @@ mty::Group const *ModelData::getGroup(std::string_view t_name) const
 }
 mty::Group *ModelData::getGroup(std::string_view t_name)
 {
-    for (size_t i = 0; i != gauge->size(); ++i)
+    for (std::size_t i = 0; i != gauge->size(); ++i)
         if ((*gauge)[i]->getName() == t_name)
             return (*gauge)[i];
     if (flavor)
-        for (size_t i = 0; i != flavor->size(); ++i)
+        for (std::size_t i = 0; i != flavor->size(); ++i)
             if ((*flavor)[i]->getName() == t_name)
                 return (*flavor)[i]->getGroup();
     CallHEPError(mty::error::NameError,
@@ -993,7 +993,7 @@ mty::GaugedGroup const *ModelData::getGaugedGroup(
         std::string_view t_name
         ) const
 {
-    for (size_t i = 0; i != gauge->size(); ++i)
+    for (std::size_t i = 0; i != gauge->size(); ++i)
         if ((*gauge)[i]->getName() == t_name)
             return gauge->getGaugedGroup(i);
     CallHEPError(mty::error::NameError,
@@ -1003,7 +1003,7 @@ mty::GaugedGroup const *ModelData::getGaugedGroup(
 }
 mty::GaugedGroup *ModelData::getGaugedGroup(std::string_view t_name)
 {
-    for (size_t i = 0; i != gauge->size(); ++i)
+    for (std::size_t i = 0; i != gauge->size(); ++i)
         if ((*gauge)[i]->getName() == t_name)
             return gauge->getGaugedGroup(i);
     CallHEPError(mty::error::NameError,
@@ -1017,7 +1017,7 @@ mty::FlavorGroup const *ModelData::getFlavorGroup(std::string_view t_name) const
     HEPAssert(flavor,
             mty::error::KeyError,
             "There is no flavor in the model");
-    for (size_t i = 0; i != flavor->size(); ++i)
+    for (std::size_t i = 0; i != flavor->size(); ++i)
         if ((*flavor)[i]->getName() == t_name)
             return (*flavor)[i];
     CallHEPError(mty::error::NameError,
@@ -1030,7 +1030,7 @@ mty::FlavorGroup *ModelData::getFlavorGroup(std::string_view t_name)
     HEPAssert(flavor,
             mty::error::KeyError,
             "There is no flavor in the model");
-    for (size_t i = 0; i != flavor->size(); ++i)
+    for (std::size_t i = 0; i != flavor->size(); ++i)
         if ((*flavor)[i]->getName() == t_name)
             return (*flavor)[i];
     CallHEPError(mty::error::NameError,
@@ -1361,7 +1361,7 @@ void ModelData::doAddBosonicMass(
         )
 {
     particle->setMass(mass);
-    for (size_t i = 0; i != L.mass.size(); ++i)
+    for (std::size_t i = 0; i != L.mass.size(); ++i)
         if (L.mass[i]->containsExactly(particle.get())) {
             L.mass.erase(L.mass.begin() + i);
             --i;
@@ -1384,7 +1384,7 @@ void ModelData::doAddFermionicMass(
 {
     left->setMass(mass);
     right->setMass(mass);
-    for (size_t i = 0; i != L.mass.size(); ++i)
+    for (std::size_t i = 0; i != L.mass.size(); ++i)
         if (L.mass[i]->containsExactly(left.get())
                 or L.mass[i]->containsExactly(right.get())) {
             L.mass.erase(L.mass.begin() + i);
@@ -1486,10 +1486,10 @@ void ModelData::printSubPart(
         ) const
 {
     std::vector<mty::Particle> particles(particleNames.size());
-    for (size_t i = 0; i != particles.size(); ++i)
+    for (std::size_t i = 0; i != particles.size(); ++i)
         particles[i] = getParticle(particleNames[i]);
     out << "Interaction terms :" << std::endl;
-    size_t i = 0;
+    std::size_t i = 0;
     for (const auto &term : L.interaction) {
         std::vector<mty::QuantumField> const &content = term->getContent();
         bool cont = false;
@@ -1591,7 +1591,7 @@ void ModelData::initGaugedGroups(bool initGaugeTerms)
         part->setFlavor(flavor.get());
         addParticle(part, initGaugeTerms);
     }
-    for (size_t i = 0; i != gauge->size(); ++i)
+    for (std::size_t i = 0; i != gauge->size(); ++i)
         addScalarCoupling(gauge->getGaugedGroup(i)->getCouplingConstant());
 }
 

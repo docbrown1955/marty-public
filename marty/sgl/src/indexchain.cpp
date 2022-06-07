@@ -275,7 +275,7 @@ namespace sgl {
                     other.m_argument.begin(),
                     other.m_argument.end()
                     );
-            for (size_t i = 0; i != newArgs.size(); ++i) {
+            for (std::size_t i = 0; i != newArgs.size(); ++i) {
                 if (newArgs[i]->indices().size() == 0) {
                     newArgs.erase(newArgs.begin() + i);
                     --i;
@@ -434,7 +434,7 @@ namespace sgl {
         std::vector<csl::Expr> terms(m_argument.size());
         csl::Index i = cpy.a;
         csl::Index j;
-        for (size_t k = 0; k != m_argument.size(); ++k) {
+        for (std::size_t k = 0; k != m_argument.size(); ++k) {
             if (k == m_argument.size() - 1)
                 j = cpy.b;
             else
@@ -451,8 +451,8 @@ namespace sgl {
     }
 
     std::pair<GExpr, IndexChain> IndexChain::cut(
-            size_t pos,
-            size_t len
+            std::size_t pos,
+            std::size_t len
             ) const
     {
         SCOPELOG
@@ -487,14 +487,14 @@ namespace sgl {
         return {left*right, IndexChain(aL, bR)};
     }
 
-    void IndexChain::erase(size_t pos, size_t len)
+    void IndexChain::erase(std::size_t pos, std::size_t len)
     {
         if (pos >= m_argument.size() || pos + len > m_argument.size())
             throw Exception::IndexError;
         m_argument.erase(m_argument.begin() + pos, m_argument.begin() + pos + len);
     }
 
-    bool IndexChain::hasContraction(size_t i, size_t j) const
+    bool IndexChain::hasContraction(std::size_t i, std::size_t j) const
     {
         for (const auto &index : m_argument[i]->indices()) {
             if (index.getType() != cslIndex::Fixed
@@ -510,7 +510,7 @@ namespace sgl {
         return false;
     }
 
-    std::optional<std::pair<size_t, size_t>> IndexChain::firstMove() const
+    std::optional<std::pair<std::size_t, std::size_t>> IndexChain::firstMove() const
     {
         auto isChiral = [&](GExpr const &expr) {
             auto const *ptr = dynamic_cast<GammaIndex const*>(expr.get());
@@ -530,8 +530,8 @@ namespace sgl {
                     size() - 1
                     );
         }
-        for (size_t i = 0; i != m_argument.size(); ++i) {
-            for (size_t j = i+2; j < m_argument.size(); ++j) {
+        for (std::size_t i = 0; i != m_argument.size(); ++i) {
+            for (std::size_t j = i+2; j < m_argument.size(); ++j) {
                 if (hasContraction(i, j))
                     return std::make_pair(i, j-1);
             }
@@ -539,10 +539,10 @@ namespace sgl {
         return std::nullopt;
     }
 
-    std::optional<std::pair<size_t, size_t>> IndexChain::lastMove() const
+    std::optional<std::pair<std::size_t, std::size_t>> IndexChain::lastMove() const
     {
-        for (size_t i = 0; i+1 < m_argument.size(); ++i) {
-            const size_t j = i+1;
+        for (std::size_t i = 0; i+1 < m_argument.size(); ++i) {
+            const std::size_t j = i+1;
             if (!IsType<GammaIndex>(m_argument[i])
                     || !IsType<GammaIndex>(m_argument[j]))
                 continue;
@@ -554,7 +554,7 @@ namespace sgl {
         return std::nullopt;
     }
 
-    GExpr IndexChain::contraction(size_t i) const
+    GExpr IndexChain::contraction(std::size_t i) const
     {
         SCOPELOG
         LOG("Contraction of", m_argument[i], "and", m_argument[i+1])
@@ -570,8 +570,8 @@ namespace sgl {
     }
 
     GExpr IndexChain::moveIndex(
-            size_t init,
-            size_t target
+            std::size_t init,
+            std::size_t target
             ) const
     {
         SCOPELOG
@@ -611,7 +611,7 @@ namespace sgl {
 
     std::optional<GExpr> IndexChain::reduceStep() const
     {
-        for (size_t i = 0; i + 1 < m_argument.size(); ++i) {
+        for (std::size_t i = 0; i + 1 < m_argument.size(); ++i) {
             if (hasContraction(i, i+1)) {
                 return contraction(i);
             }
@@ -650,10 +650,10 @@ namespace sgl {
         auto        p  = p1.getP();
         if (!contains(mu) || !contains(nu) || p1.getP().get() != p2.getP().get())
             return std::nullopt;
-        constexpr size_t npos = -1;
-        size_t i = npos;
-        size_t j = npos;
-        for (size_t k = 0; k != m_argument.size(); ++k) {
+        constexpr std::size_t npos = -1;
+        std::size_t i = npos;
+        std::size_t j = npos;
+        for (std::size_t k = 0; k != m_argument.size(); ++k) {
             if (m_argument[k]->contains(mu) || m_argument[k]->contains(nu)) {
                 (i == npos ? i : j) = k;
             }
@@ -680,9 +680,9 @@ namespace sgl {
         LOG((left ? "Left EOM" : "Right EOM"))
         bool hasSign = (left) ? !psiL->particle : !psiR->particle;
         csl::Expr sign = (hasSign) ? CSL_M_1 : CSL_1;
-        for (size_t i = 0; i != m_argument.size(); ++i) {
+        for (std::size_t i = 0; i != m_argument.size(); ++i) {
             if (m_argument[i]->contains(p.indices()[0])) {
-                size_t target = left ? 0 : m_argument.size() - 1;
+                std::size_t target = left ? 0 : m_argument.size() - 1;
                 if (i == target) {
                     if (m_argument[i]->indices().size() == 1) {
                         LOG("Simple Gamma EOM")
@@ -827,7 +827,7 @@ namespace sgl {
     }
 
     std::tuple<GExpr, IndexChain, IndexChain> chiralBasisElement(
-            size_t i
+            std::size_t i
             )
     {
         auto e = diracSpace->generateIndices(4);
@@ -870,7 +870,7 @@ namespace sgl {
     }
 
     std::tuple<GExpr, IndexChain, IndexChain> standardBasisElement(
-            size_t i
+            std::size_t i
             )
     {
         auto e = diracSpace->generateIndices(4);
@@ -913,7 +913,7 @@ namespace sgl {
     }
 
     std::tuple<GExpr, IndexChain, IndexChain> basisElement(
-            size_t i,
+            std::size_t i,
             bool   chiral
             )
     {

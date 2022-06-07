@@ -59,7 +59,7 @@ void Diagonalizer::diagonalize()
 
 #ifndef COMPILE_32_BITS
     // Initialization of gsl
-    const size_t n = init_matrix.size();
+    const std::size_t n = init_matrix.size();
     gsl_eigen_hermv_workspace* workspace    = gsl_eigen_hermv_alloc(n);
     gsl_matrix_complex*        init_gsl     = csl_to_gsl(init_matrix);
     gsl_vector*                eigenValues  = gsl_vector_alloc(n);
@@ -112,7 +112,7 @@ csl::vector_expr Diagonalizer::getEigenValues()
     if (not diagonalized)
         diagonalize();
     csl::vector_expr eigen(D.size());
-    for (size_t i = 0; i != eigen.size(); ++i)
+    for (std::size_t i = 0; i != eigen.size(); ++i)
         eigen[i] = (*D[i])[i];
 
     return eigen;
@@ -181,7 +181,7 @@ Expr findCommonFactor(std::vector<Expr*> const& expressions)
             {
                 if (el->getType() == csl::Type::Sum) {
                     int index = -1;
-                    for (size_t i = 0; i != el->size(); ++i)
+                    for (std::size_t i = 0; i != el->size(); ++i)
                         if ((*el)[i]->dependsExplicitlyOn(b.get())) {
                             index = i;
                             break;
@@ -200,13 +200,13 @@ Expr findCommonFactor(std::vector<Expr*> const& expressions)
         }
 
         std::vector<Expr> X(modified.size());
-        for (size_t i = 0; i != modified.size(); ++i) {
+        for (std::size_t i = 0; i != modified.size(); ++i) {
             X[i] = constant_s("x_"+toString(i));
             modified[i] = DeepRefreshed(X[i] * modified[i]);
         }
 
         Expr seekFactors = Factored(sum_s(modified), true);
-        for (size_t i = 0; i != modified.size(); ++i) 
+        for (std::size_t i = 0; i != modified.size(); ++i) 
             modified[i] = modified[i] / X[i];
 
         Expr factor = CSL_1;
@@ -222,7 +222,7 @@ Expr findCommonFactor(std::vector<Expr*> const& expressions)
                 }
         }
         if (factor != CSL_1) {
-            for (size_t i = 0; i != expressions.size(); ++i)
+            for (std::size_t i = 0; i != expressions.size(); ++i)
                 *expressions[i] = modified[i];
             return factor;
         }
@@ -362,8 +362,8 @@ void Diagonalizer::checkSquareHermitian()
         callError(cslError::UndefinedBehaviour,
                 "Diagonalizer::checkSquareHermitian().");
     }
-    for (size_t i = 0; i != init_matrix.size(); ++i)
-        for (size_t j = i; j != init_matrix.size(); ++j)
+    for (std::size_t i = 0; i != init_matrix.size(); ++i)
+        for (std::size_t j = i; j != init_matrix.size(); ++j)
             if (i == j) {
                 if (not (*init_matrix[i])[j]->isReal()) {
                     diagonalizeNonHermitic();
@@ -427,9 +427,9 @@ gsl_matrix_complex* Diagonalizer::csl_to_gsl(
     vector<int> shape = csl_matrix.getShape();
     gsl_matrix_complex* gsl_matrix
         = gsl_matrix_complex_alloc(shape[0], shape[1]);
-    size_t i = 0;
+    std::size_t i = 0;
     for (auto row = csl_matrix.begin(); row != csl_matrix.end(); ++row) {
-        size_t j = 0;
+        std::size_t j = 0;
         for (auto col = (*row)->begin(); col != (*row)->end(); ++col) {
             gsl_matrix_complex_set(gsl_matrix, i, j, csl_to_gsl(*col));
             ++j;
@@ -450,8 +450,8 @@ Matrix Diagonalizer::gsl_to_csl(gsl_matrix_complex* gsl_matrix)
 {
     vector<csl::vector_expr> elements(gsl_matrix->size1,
                                   csl::vector_expr(gsl_matrix->size2));
-    for (size_t i = 0; i != gsl_matrix->size1; ++i)
-        for (size_t j = 0; j != gsl_matrix->size2; ++j)
+    for (std::size_t i = 0; i != gsl_matrix->size1; ++i)
+        for (std::size_t j = 0; j != gsl_matrix->size2; ++j)
             elements[i][j] = gsl_to_csl(
                     gsl_matrix_complex_get(gsl_matrix, i, j));
 
@@ -461,7 +461,7 @@ Matrix Diagonalizer::gsl_to_csl(gsl_matrix_complex* gsl_matrix)
 Matrix Diagonalizer::diagFromEigenValues(gsl_vector* eigenValues)
 {
     csl::vector_expr csl_values(eigenValues->size);
-    for (size_t i = 0; i != eigenValues->size; ++i)
+    for (std::size_t i = 0; i != eigenValues->size; ++i)
         csl_values[i] = float_s(gsl_vector_get(eigenValues, i));
 
     return pointer_to_object<Matrix>(diagonal_s(csl_values));

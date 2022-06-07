@@ -35,7 +35,7 @@ class Base_iterable {
 
     using Type      = T1;
     using PType     = T2;
-    using size_type = size_t;
+    using size_type = std::size_t;
     using iterator        = typename std::vector<Type>::iterator;
     using const_iterator  = typename std::vector<Type>::const_iterator;
 
@@ -44,7 +44,7 @@ class Base_iterable {
     {}
 
     explicit
-    Base_iterable(size_t N)
+    Base_iterable(std::size_t N)
         :elements(std::vector<Type>(N, Type()))
     {
 
@@ -77,7 +77,7 @@ class Base_iterable {
         return elements.empty();
     }
 
-    size_t size() const {
+    std::size_t size() const {
         return elements.size();
     }
 
@@ -97,11 +97,11 @@ class Base_iterable {
         return elements.end();
     }
 
-    Type& operator[](size_t pos) {
+    Type& operator[](std::size_t pos) {
         return elements[pos];
     }
 
-    Type operator[](size_t pos) const {
+    Type operator[](std::size_t pos) const {
         return elements[pos];
     }
 
@@ -120,7 +120,7 @@ class Vector: public Base_iterable<T1, T2> {
     using iterator       = typename Base_iterable<T1, T2>::iterator;
     using const_iterator = typename Base_iterable<T1, T2>::const_iterator;
 
-    Vector(size_t N)
+    Vector(std::size_t N)
         :Base_iterable<T1, T2>(N)
     {}
 
@@ -149,11 +149,11 @@ class Vector: public Base_iterable<T1, T2> {
         return -1;
     }
 
-    Type& operator()(size_t i) {
+    Type& operator()(std::size_t i) {
         return this->elements[i];
     }
 
-    Type operator()(size_t i) const {
+    Type operator()(std::size_t i) const {
         return this->elements[i];
     }
 
@@ -185,7 +185,7 @@ class Matrix: public Base_iterable<T1, T2> {
     using iterator       = typename Base_iterable<T1, T2>::iterator;
     using const_iterator = typename Base_iterable<T1, T2>::const_iterator;
 
-    Matrix(size_t M)
+    Matrix(std::size_t M)
         :Base_iterable<T1, T2>(M * M),
         N(M)
     {}
@@ -217,11 +217,11 @@ class Matrix: public Base_iterable<T1, T2> {
         return N;
     }
 
-    Type& operator()(size_t i, size_t j) {
+    Type& operator()(std::size_t i, std::size_t j) {
         return this->elements[this->size()*i + j];
     }
 
-    Type operator()(size_t i, size_t j) const {
+    Type operator()(std::size_t i, std::size_t j) const {
         return this->elements[this->size()*i + j];
     }
 
@@ -239,8 +239,8 @@ template<class U1, typename U2>
 std::ostream& operator<<(std::ostream& out,
                          Matrix<U1, U2> const& mat)
 {
-    for (size_t i = 0; i != mat.size(); ++i) {
-        for (size_t j = 0; j != mat.size(); ++j)
+    for (std::size_t i = 0; i != mat.size(); ++i) {
+        for (std::size_t j = 0; j != mat.size(); ++j)
             if constexpr (std::is_same<U1, U2>::value)
                 out << mat(i, j) << "  ";
             else
@@ -404,11 +404,11 @@ Matrix<U1, U2> operator*(Matrix<U1, U2> const& A,
                          Matrix<U1, U2> const& B)
 {
     assert(A.size() == B.size());
-    const size_t s = A.size();
+    const std::size_t s = A.size();
     Matrix<U1, U2> C(s);
-    for (size_t i = 0; i != s; ++i)
-        for (size_t j = 0; j != s; ++j)
-            for (size_t k = 0; k != s; ++k)
+    for (std::size_t i = 0; i != s; ++i)
+        for (std::size_t j = 0; j != s; ++j)
+            for (std::size_t k = 0; k != s; ++k)
                 C(i, j) += A(i, k) * B(k, j);
 
     return C;
@@ -426,7 +426,7 @@ Matrix<U1, U2> pow(Matrix<U1, U2> const& mat, Int_type value)
 {
     assert(value > 0);
     Matrix<U1, U2> res = mat;
-    for (size_t i = 1; i < value; ++i)
+    for (std::size_t i = 1; i < value; ++i)
         res = res * mat;
     return res;
 }

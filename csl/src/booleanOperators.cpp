@@ -46,7 +46,7 @@ namespace csl {
 
     void BooleanOperator::applyToArgs(std::function<void(csl::Expr &)> const &f)
     {
-        const size_t first = size() - 2;
+        const std::size_t first = size() - 2;
         f(argument[first]);
         f(argument[first+1]);
     }
@@ -97,7 +97,7 @@ namespace csl {
             bool lib
             ) const
     {
-        const size_t first = size() - 2;
+        const std::size_t first = size() - 2;
         if (lib) {
             out << "( (";
             switch (type) {
@@ -268,7 +268,7 @@ namespace csl {
         if (boolean->type != type || size() != boolean->size()) {
             return false;
         }
-        for (size_t i = 0; i != size(); ++i) {
+        for (std::size_t i = 0; i != size(); ++i) {
             if (argument[i] != (*boolean)[i]) {
                 return false;
             }

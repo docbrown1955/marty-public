@@ -131,7 +131,7 @@ namespace csl {
 
     Expr LibFunction::addIntermediate(Expr const& intermediate)
     {
-        const size_t count = 1 + intermediateSteps.size();
+        const std::size_t count = 1 + intermediateSteps.size();
         std::string nameInterm = "interm_" + toString(count);
         std::ostringstream sout;
         printExpression(
@@ -166,7 +166,7 @@ namespace csl {
 
     void LibFunction::removeParameter(std::string_view param)
     {
-        for (size_t i = 0; i != parameters.size(); ++i) 
+        for (std::size_t i = 0; i != parameters.size(); ++i) 
             if (parameters[i].name == param) {
                 if (tensorParameter >= static_cast<int>(i))
                     --tensorParameter;
@@ -239,11 +239,11 @@ namespace csl {
         std::vector<std::string> lines;
         std::string str = sout.str();
 
-        size_t base = 0;
-        size_t max = 80 - LibraryGenerator::nSpaceIndent * indent;
-        size_t end = 0;
-        for (size_t i = max - beginning.size(); i < str.size(); i += max) {
-            for (size_t j = i; j --> base ;)
+        std::size_t base = 0;
+        std::size_t max = 80 - LibraryGenerator::nSpaceIndent * indent;
+        std::size_t end = 0;
+        for (std::size_t i = max - beginning.size(); i < str.size(); i += max) {
+            for (std::size_t j = i; j --> base ;)
                 if (std::find(delimiters.begin(), delimiters.end(), str[j])
                         != delimiters.end()) {
                     lines.push_back(std::string(str.begin() + base,
@@ -256,7 +256,7 @@ namespace csl {
         }
         if (end != str.size() - 1)
             lines.push_back(std::string(str.begin()+end, str.end()));
-        for (size_t i = 0; i != lines.size(); ++i) {
+        for (std::size_t i = 0; i != lines.size(); ++i) {
             out << LibraryGenerator::indent(indent) << ((i == 0) ? beginning : "  ") 
                 << lines[i] << ((i == lines.size()-1) ? ";" : "") << "\n";
         }
@@ -267,8 +267,8 @@ namespace csl {
             int                       &tensorParameter
             )
     {
-        for (size_t i = 0; i != parameters.size(); ++i) {
-            for (size_t j = i+1; j < parameters.size(); ++j) {
+        for (std::size_t i = 0; i != parameters.size(); ++i) {
+            for (std::size_t j = i+1; j < parameters.size(); ++j) {
                 if (parameters[i].name == parameters[j].name) {
                     parameters.erase(parameters.begin() + j);
                     if (tensorParameter >= static_cast<int>(j))
@@ -288,7 +288,7 @@ namespace csl {
             return A.type < B.type 
                 || (A.type == B.type && A.name < B.name);
         };
-        if (static_cast<size_t>(tensorParameter) < parameters.size()) {
+        if (static_cast<std::size_t>(tensorParameter) < parameters.size()) {
             std::sort(parameters.begin(), parameters.begin() + tensorParameter, comp);
             std::sort(parameters.begin() + tensorParameter, parameters.end(), comp);
         }
@@ -314,7 +314,7 @@ namespace csl {
         std::vector<Expr> unEvaluated = session.getUnEval();
         tensors = session.getTensors();
         parameters = std::vector<LibParameter>(unEvaluated.size());
-        for (size_t i = 0; i != parameters.size(); ++i)
+        for (std::size_t i = 0; i != parameters.size(); ++i)
             parameters[i] = {
                 LibraryGenerator::regularName(
                     std::string(unEvaluated[i]->getName())
@@ -323,7 +323,7 @@ namespace csl {
                     LibraryGenerator::realUsing 
                     :LibraryGenerator::complexUsing
             };
-        for (size_t i = 0; i != tensors.size(); ++i)
+        for (std::size_t i = 0; i != tensors.size(); ++i)
             if (not isEvaluated(tensors[i])) {
                 if (tensorParameter == -1)
                     tensorParameter = parameters.size();

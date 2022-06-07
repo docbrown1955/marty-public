@@ -33,7 +33,7 @@ inline const FileDeleter deleter;
 
 struct SumMonitor {
 
-    SumMonitor(size_t t_nArgs, int t_mode)
+    SumMonitor(std::size_t t_nArgs, int t_mode)
         :nArgs(t_nArgs),
         mode(t_mode),
         time(std::clock())
@@ -50,7 +50,7 @@ struct SumMonitor {
              << simple << '\n';
     }
 
-    size_t nArgs;
+    std::size_t nArgs;
     int mode;
     csl::Type type { csl::Type::NoType };
     bool indicial { false };
@@ -60,13 +60,13 @@ struct SumMonitor {
 
 struct ProdMonitor {
 
-    ProdMonitor(size_t t_nArgs, int t_mode)
+    ProdMonitor(std::size_t t_nArgs, int t_mode)
         :nArgs(t_nArgs),
         mode(t_mode),
         time(std::clock())
     {}
 
-    ProdMonitor(size_t t_nArgs, int t_mode, csl::Expr const &a, csl::Expr const &b)
+    ProdMonitor(std::size_t t_nArgs, int t_mode, csl::Expr const &a, csl::Expr const &b)
         :nArgs(t_nArgs),
         mode(t_mode),
         time(std::clock())
@@ -90,13 +90,13 @@ struct ProdMonitor {
              << n << '\n';
     }
 
-    size_t nArgs;
+    std::size_t nArgs;
     int mode;
     csl::Type type { csl::Type::NoType };
     bool indicial { false };
     bool op { false };
     bool simple { false };
-    size_t n { 0 };
+    std::size_t n { 0 };
     std::clock_t time;
 };
 

@@ -114,7 +114,7 @@ bool LibEval::isInstance(Expr const &expr)
     std::string_view exprName = expr->getName();
     if (exprName.size() < LibEval::name.size() + 1)
         return false;
-    for (size_t i = 0; i != LibEval::name.size(); ++i)
+    for (std::size_t i = 0; i != LibEval::name.size(); ++i)
         if (LibEval::name[i] != exprName[i])
             return false;
     return true;
@@ -177,7 +177,7 @@ csl::IndexStructure getFullStructure(Expr const &expr)
             return;
         csl::IndexStructure const &structure = sub->getIndexStructureView();
         for (const auto &index : structure) {
-            size_t match = 0;
+            std::size_t match = 0;
             for (const auto &otherIndex : res)
                 if (index == otherIndex)
                     ++match;
@@ -205,7 +205,7 @@ void LibEval::replaceTensors()
         name += "[{";
         csl::IndexStructure structure = tensor->getIndexStructure();
         bool first = true;
-        for (size_t i = 0; i != structure.size(); ++i) {
+        for (std::size_t i = 0; i != structure.size(); ++i) {
             if (!first)
                 name += ", ";
             if (structure[i].getType() != cslIndex::Fixed) 
@@ -219,8 +219,8 @@ void LibEval::replaceTensors()
     };
     std::array<std::string, 9> nameIndices 
         = {"i", "j", "k", "l", "m", "n", "o", "p", "q"};
-    size_t index = 0;
-    size_t pos = size_t(-1);
+    std::size_t index = 0;
+    std::size_t pos = std::size_t(-1);
     auto getIndexName = [&]() {
         if (++pos == nameIndices.size()) {
             pos = 0;
@@ -233,8 +233,8 @@ void LibEval::replaceTensors()
     // indices = init->getIndexStructure();
     indices = getFullStructure(init);
     csl::IndexStructure metricIndices;
-    for (size_t i = 0; i != indices.size(); ++i) {
-        for (size_t j = i+1; j < indices.size(); ++j) {
+    for (std::size_t i = 0; i != indices.size(); ++i) {
+        for (std::size_t j = i+1; j < indices.size(); ++j) {
             if (indices[i] != indices[j])
                 continue;
             if (indices[i].getSpace()->getSignedIndex()) {
@@ -283,7 +283,7 @@ void LibEval::replaceTensors()
     });
     std::vector<Expr> args = (init->getType() == csl::Type::Prod) ?
         init->getVectorArgument() : std::vector<Expr>{init};
-    for (size_t i = 0; i != metricIndices.size(); i += 2) {
+    for (std::size_t i = 0; i != metricIndices.size(); i += 2) {
         auto g = metricIndices[i].getSpace()->getMetric();
         Expr g_expr = g({metricIndices[i], metricIndices[i+1]});
         transfoTensor(g_expr);
@@ -323,16 +323,16 @@ void LibEval::printLib(
     out << LibraryGenerator::indent(indent) << var << ' ' << expr << " = 0;\n";
     replaceTensors();
     std::vector<std::string> indexNames(indices.size());
-    for (size_t i = 0; i != indexNames.size(); ++i) {
+    for (std::size_t i = 0; i != indexNames.size(); ++i) {
         indexNames[i] = toString(indices[i].getName());
-        out << LibraryGenerator::indent(indent) << "for (size_t " << indexNames[i] 
+        out << LibraryGenerator::indent(indent) << "for (std::size_t " << indexNames[i] 
             << " = 0; " << indexNames[i] <<" != " 
             << indices[i].getSpace()->getDim() << "; ++" << indexNames[i] 
             << ") {\n";
     }
     printExpression(out, init, indent+1, toString(expr) + " += ");
     out << LibraryGenerator::indent(indent);
-    for (size_t i = 0; i != indexNames.size(); ++i) {
+    for (std::size_t i = 0; i != indexNames.size(); ++i) {
         out << "}";
     }
     out << '\n';
@@ -341,7 +341,7 @@ void LibEval::printLib(
 bool isTensorName(std::string_view name)
 {
     bool c1 = false;
-    for (size_t i = 0; i < name.size(); ++i) {
+    for (std::size_t i = 0; i < name.size(); ++i) {
         if (!c1 and i < name.size()-1 and name[i] == '[' and name[i+1] == '{')
             c1 = true;
         if (c1 and i < name.size()-1 and name[i] == '}' and name[i+1] == ']')
@@ -382,10 +382,10 @@ void LibEval::printExpression(
     std::vector<std::string> lines;
     std::string str = sout.str();
 
-    size_t base = 0;
-    size_t max = 79 - LibraryGenerator::nSpaceIndent * indent;
-    for (size_t i = max - beginning.size(); i < str.size(); i += max) {
-        for (size_t j = i; j --> base ;)
+    std::size_t base = 0;
+    std::size_t max = 79 - LibraryGenerator::nSpaceIndent * indent;
+    for (std::size_t i = max - beginning.size(); i < str.size(); i += max) {
+        for (std::size_t j = i; j --> base ;)
             if (std::find(delimiters.begin(), delimiters.end(), str[j])
                     != delimiters.end()) {
                 if (j > base and str[j] == '-' and str[j-1] == 'e')
@@ -401,7 +401,7 @@ void LibEval::printExpression(
     }
     if (base < str.size())
         lines.push_back(std::string(str.begin()+base, str.end()));
-    for (size_t i = 0; i != lines.size(); ++i) {
+    for (std::size_t i = 0; i != lines.size(); ++i) {
         out << LibraryGenerator::indent(indent) << ((i == 0) ? beginning : "  ") 
             << lines[i] << ((i == lines.size()-1) ? ";" : "") << "\n";
     }
@@ -530,7 +530,7 @@ LibEval exprToEval(Expr const                 &expr,
 {
     std::string_view name = expr->getName();
     char buffer[5] {0, 0, 0, 0, 0};
-    for (size_t i = LibEval::name.size()+1; i != name.size(); ++i)
+    for (std::size_t i = LibEval::name.size()+1; i != name.size(); ++i)
         buffer[i-LibEval::name.size()-1] = name[i];
     int id = std::atoi(buffer);
     // lib_log << "Searching " << expr << std::endl;
@@ -559,11 +559,11 @@ LibEvalSession::Perf LibEvalSession::getPerf(Expr &init)
         if (LibEval::isInstance(expr))
             getPerf(exprToEval(expr, eval), newEval, nOccurences);
     });
-    size_t nOp  = 0;
+    std::size_t nOp  = 0;
     for (const auto& nEval : newEval)
         nOp += (nEval.init->size() == 0) ? 
             0 : nEval.init->size() - 1;
-    // for (size_t i = 0; i != newEval.size(); ++i) 
+    // for (std::size_t i = 0; i != newEval.size(); ++i) 
     //     if (nOccurences[i] <= 1 
     //             and newEval[i].expr != init
     //             and !newEval[i].init->isIndexed()
@@ -574,7 +574,7 @@ LibEvalSession::Perf LibEvalSession::getPerf(Expr &init)
     //                     newEval[i].expr,
     //                     newEval[i].init
     //                     );
-    //         for (size_t j = 0; j != newEval.size(); ++j)
+    //         for (std::size_t j = 0; j != newEval.size(); ++j)
     //             if (i != j)
     //                 if (newEval[j].init->dependsExplicitlyOn(
     //                             newEval[i].expr.get())) {
@@ -630,18 +630,18 @@ void LibEvalSession::getPerf(
 void LibEvalSession::merge()
 {
     csl::ProgressBar bar(eval.size());
-    for (size_t i = 0; i + 1 < eval.size(); ++i) {
+    for (std::size_t i = 0; i + 1 < eval.size(); ++i) {
         bar.progress(i+1);
         CSL_ASSERT_SPEC(eval[i].getExpr() != eval[i].init,
                 CSLError::RuntimeError,
                 "Expression and abreviation of LibEval should be different for"
                 " " + toString(eval[i].getExpr()));
-        for (size_t j = i + 1; j < eval.size(); ++j)
+        for (std::size_t j = i + 1; j < eval.size(); ++j)
             if (eval[i] == eval[j]) {
                 // lib_log << "Merging : \n";
                 // lib_log << eval[i] << std::endl;
                 // lib_log << eval[j] << std::endl;
-                for (size_t k = 0; k != eval.size(); ++k)
+                for (std::size_t k = 0; k != eval.size(); ++k)
                     Replace(eval[k].init,
                             eval[j].expr,
                             eval[i].expr);
@@ -671,15 +671,15 @@ bool independent(
         and not B.getInit()->dependsExplicitlyOn(A.getExpr().get()));
 }
 
-void LibEvalSession::simplifyProds(size_t min_factors)
+void LibEvalSession::simplifyProds(std::size_t min_factors)
 {
     csl::ProgressBar bar(eval.size());
-    for (size_t i = 0 ; i != eval.size(); ++i) {
+    for (std::size_t i = 0 ; i != eval.size(); ++i) {
         bar.progress(i);
         auto eval1 = eval[i];
         if (eval1.init->getType() != csl::Type::Prod)
             continue;
-        for (size_t j = i + 1; j < eval.size(); ++j) {
+        for (std::size_t j = i + 1; j < eval.size(); ++j) {
             auto eval2 = eval[j];
             if (eval2.init->getType() != csl::Type::Prod)
                 continue;
@@ -721,7 +721,7 @@ void LibEvalSession::simplifyProds(size_t min_factors)
 void LibEvalSession::simplifySums() 
 {
     csl::ProgressBar bar(eval.size());
-    for (size_t i = 0 ; i != eval.size(); ++i) {
+    for (std::size_t i = 0 ; i != eval.size(); ++i) {
         bar.progress(i);
         auto eval1 = eval[i];
         if (eval1.init->getType() != csl::Type::Sum)
@@ -730,7 +730,7 @@ void LibEvalSession::simplifySums()
         for (auto& arg : args_1)
             arg = GetTerm(arg);
         Expr prod_1 = prod_s(args_1);
-        for (size_t j = i + 1; j < eval.size(); ++j) {
+        for (std::size_t j = i + 1; j < eval.size(); ++j) {
             auto eval2 = eval[j];
             if (eval2.init->getType() != csl::Type::Sum)
                 continue;
@@ -794,9 +794,9 @@ csl::IndexStructure LibEvalSession::getFreeStructure(
     return csl::Abbrev::getFreeStructure(t_init);
 }
 
-size_t getNLeafs(csl::Expr const &expr) 
+std::size_t getNLeafs(csl::Expr const &expr) 
 {
-    size_t n = 0;
+    std::size_t n = 0;
     csl::VisitEachLeaf(expr, [&n](csl::Expr const&) { ++n; });
     return n;
 }
@@ -874,9 +874,9 @@ Expr LibEvalSession::expandIProd(Expr const &iprod)
             csl::IndexStructure const &B
             )
     {
-        size_t n = 0;
-        for (size_t iA = 0; iA != A.size(); ++iA) 
-            for (size_t iB = 0; iB != B.size(); ++iB) 
+        std::size_t n = 0;
+        for (std::size_t iA = 0; iA != A.size(); ++iA) 
+            for (std::size_t iB = 0; iB != B.size(); ++iB) 
                 if (A[iA] == B[iB])
                     ++n;
         return n;
@@ -901,15 +901,15 @@ Expr LibEvalSession::expandIProd(Expr const &iprod)
         structure.push_back(arg->getIndexStructure());
 
     struct maxCommon {
-        size_t i;
-        size_t j;
-        size_t max;
+        std::size_t i;
+        std::size_t j;
+        std::size_t max;
     };
 
     while (sum.size() > 1) {
         maxCommon maxi {0, 0, 0};
-        for (size_t i = 0; i != structure.size(); ++i)
-            for (size_t j = i+1; j < structure.size(); ++j)
+        for (std::size_t i = 0; i != structure.size(); ++i)
+            for (std::size_t j = i+1; j < structure.size(); ++j)
                 if (auto n = nCommonIndices(structure[i], structure[j]);
                         n > maxi.max) 
                     maxi = {i, j, n};
@@ -942,15 +942,15 @@ void LibEvalSession::parseProduct(
             CSLError::TypeError,
             "Expecting IProd, " + toString(iprod->getType()) + " given.");
 
-    // static size_t n = 0;
+    // static std::size_t n = 0;
     // lib_log << "Parsing prod (" << n << ")\n" << iprod << std::endl;
     std::vector<Expr> args = iprod->getVectorArgument();
-    size_t pos = 0;
+    std::size_t pos = 0;
     do {
         Expr first;
         std::vector<Expr> scalar;
         int firstScalar = -1;
-        for (size_t i = pos; i != args.size(); ++i) {
+        for (std::size_t i = pos; i != args.size(); ++i) {
             if (not first and args[i]->isIndexed()) {
                 pos = i;
                 first = args[i];
@@ -972,14 +972,14 @@ void LibEvalSession::parseProduct(
                 csl::Abbrev::getFreeStructure(args[pos]->getIndexStructure());
             std::vector<Expr> subArgs(1, args[pos]);
             args[pos] = CSL_1;
-            size_t index = pos;
+            std::size_t index = pos;
             while (structure.size() > 0 and ++index < args.size()) {
                 if (args[index] == CSL_1)
                     continue;
                 csl::IndexStructure otherStruct
                     = csl::Abbrev::getFreeStructure(
                             args[index]->getIndexStructure());
-                size_t totalSize = structure.size() + otherStruct.size();
+                std::size_t totalSize = structure.size() + otherStruct.size();
                 csl::IndexStructure merged = csl::Abbrev::getFreeStructure(
                         structure + otherStruct);
                 if (merged.size() < totalSize) {

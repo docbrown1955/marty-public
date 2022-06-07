@@ -129,7 +129,7 @@ struct WilsonSet: public std::vector<Wilson> {
 
     std::vector<csl::Expr> obtainExpressions() const {
         std::vector<csl::Expr> res(size());
-        for (size_t i = 0; i != size(); ++i) {
+        for (std::size_t i = 0; i != size(); ++i) {
             res[i] = (*this)[i].getExpression();
         }
         return res;

@@ -39,7 +39,7 @@ public:
     auto cend() const { return data.end(); }
 
     iterator erase(iterator iter) {
-        size_t pos = std::distance(begin(), iter);
+        std::size_t pos = std::distance(begin(), iter);
         data.erase(iter);
         return data.begin() + pos;
     }

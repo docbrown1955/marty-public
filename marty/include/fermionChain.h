@@ -33,7 +33,7 @@ class FermionChain {
     public:
 
     struct Chain {
-        std::vector<size_t> pos;
+        std::vector<std::size_t> pos;
         bool                cycle = false;
     };
 

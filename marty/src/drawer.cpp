@@ -27,9 +27,9 @@ drawer::LatexLinker Drawer::buildDiagram(
     csl::ScopedProperty idIndices(&csl::option::printIndexIds, false);
     auto diagram = convertGraph(graph, true, external);
     std::vector<wick::Vertex> const &vertices = graph->getVertices();
-    const size_t N = vertices.size();
+    const std::size_t N = vertices.size();
     drawer::LatexLinker link(diagram);
-    for (size_t i = 0; i != N; ++i) {
+    for (std::size_t i = 0; i != N; ++i) {
         if (vertices[i][0]->field->isExternal()) {
             std::string name 
                 = std::string(vertices[i][0]->field->getPoint()->getLatexName());
@@ -41,14 +41,14 @@ drawer::LatexLinker Drawer::buildDiagram(
                 std::string(vertices[i][0]->field->getLatexName())
                     + (showMomenta ? ("(" + name + ")") : std::string()));
         }
-        for (size_t j = 0; j != vertices[i].size(); ++j)
-            for (size_t k = j+1; k < vertices[i].size(); ++k) 
+        for (std::size_t j = 0; j != vertices[i].size(); ++j)
+            for (std::size_t k = j+1; k < vertices[i].size(); ++k) 
                 if (vertices[i][j]->field->getPoint().get()
                     != vertices[i][k]->field->getPoint().get())
                     link.addOperator(i);
 
         for (const auto& nodeA : vertices[i]) {
-            for (size_t j = i; j != N; ++j) 
+            for (std::size_t j = i; j != N; ++j) 
                 for (const auto& nodeB : vertices[j]) 
                     if (nodeA->partner.lock() == nodeB) {
                         auto type = getType(*nodeA->field);
@@ -69,13 +69,13 @@ drawer::LatexLinker Drawer::buildDiagram(
 drawer::LatexLinker Drawer::buildDiagram(
         std::shared_ptr<wick::Graph> const& graph,
         drawer::Graph                   const& model,
-        std::map<size_t, size_t>             & mapping)
+        std::map<std::size_t, std::size_t>             & mapping)
 {
     auto vertices = graph->getVertices();
     csl::ScopedProperty idIndices(&csl::option::printIndexIds, false);
-    const size_t N = vertices.size();
+    const std::size_t N = vertices.size();
     auto newGraph = model;
-    for (size_t i = 0; i != N; ++i) {
+    for (std::size_t i = 0; i != N; ++i) {
         if (vertices[i][0]->field->isExternal()) {
             newGraph.setSide(
                     mapping[i],
@@ -88,7 +88,7 @@ drawer::LatexLinker Drawer::buildDiagram(
     }
     newGraph.project(true, true);
     drawer::LatexLinker link(newGraph);
-    for (size_t i = 0; i != N; ++i) {
+    for (std::size_t i = 0; i != N; ++i) {
         if (vertices[i][0]->field->isExternal()) {
             std::string name 
                 = std::string(vertices[i][0]->field->getPoint()->getLatexName());
@@ -99,13 +99,13 @@ drawer::LatexLinker Drawer::buildDiagram(
                     std::string(vertices[i][0]->field->getLatexName())
                     + "(" + name + ")");
         }
-        for (size_t j = 0; j != vertices[i].size(); ++j)
-            for (size_t k = j+1; k < vertices[i].size(); ++k) 
+        for (std::size_t j = 0; j != vertices[i].size(); ++j)
+            for (std::size_t k = j+1; k < vertices[i].size(); ++k) 
                 if (vertices[i][j]->field->getPoint().get()
                     != vertices[i][k]->field->getPoint().get())
                     link.addOperator(i);
         for (const auto& nodeA : vertices[i]) {
-            for (size_t j = i; j != N; ++j) 
+            for (std::size_t j = i; j != N; ++j) 
                 for (const auto& nodeB : vertices[j]) 
                     if (nodeA->partner.lock() == nodeB) {
                         auto type = getType(*nodeA->field);
@@ -145,9 +145,9 @@ drawer::LatexLinker Drawer::buildDiagram(
 //             "Layout not recognized for " + toString(graph) + ".");
 //     auto vertices = graph->getVertices();
 //     auto vertexModel = modelGraph->getVertices();
-//     std::vector<size_t> posMap(vertices.size());
-//     for (size_t i = 0; i != posMap.size(); ++i)
-//         for (size_t j = 0; j != posMap.size(); ++j)
+//     std::vector<std::size_t> posMap(vertices.size());
+//     for (std::size_t i = 0; i != posMap.size(); ++i)
+//         for (std::size_t j = 0; j != posMap.size(); ++j)
 //             if (constraints[vertices[j][0]->field->getPoint()].get()
 //                     == vertexModel[i][0]->field->getPoint().get()) {
 //                 posMap[j] = i;
@@ -155,9 +155,9 @@ drawer::LatexLinker Drawer::buildDiagram(
 //             }
 //     csl::ScopedProperty idIndices(&csl::Index::printIds, false);
 //     auto diagram = linker.getGraph();
-//     const size_t N = vertices.size();
+//     const std::size_t N = vertices.size();
 //     drawer::LatexLinker link(diagram);
-//     for (size_t i = 0; i != N; ++i) {
+//     for (std::size_t i = 0; i != N; ++i) {
 //         if (vertices[i][0]->field->isExternal()) {
 //             link.setVertexName(posMap[i], 
 //                     std::string(vertices[i][0]->field->getLatexName())
@@ -165,7 +165,7 @@ drawer::LatexLinker Drawer::buildDiagram(
 //                     + ")");
 //         }
 //         for (const auto& nodeA : vertices[i]) {
-//             for (size_t j = i; j != N; ++j) 
+//             for (std::size_t j = i; j != N; ++j) 
 //                 for (const auto& nodeB : vertices[j]) 
 //                     if (nodeA->partner.lock() == nodeB) {
 //                         auto type = getType(*nodeA->field);
@@ -195,8 +195,8 @@ std::vector<drawer::LatexLinker> Drawer::buildDiagrams(
                 "Null graph encountered ! ")
     std::vector<drawer::LatexLinker> links(graphs.size());
     std::vector<drawer::Graph> graphsD;
-    std::map<size_t, size_t> mapping;
-    for (size_t i = 0; i != graphs.size(); ++i) {
+    std::map<std::size_t, std::size_t> mapping;
+    for (std::size_t i = 0; i != graphs.size(); ++i) {
         auto g = convertGraph(graphs[i], false);
         bool found = false;
         for (const auto& gD : graphsD) {
@@ -268,16 +268,16 @@ void Drawer::exportPDF(
 {
     if (graphs.empty())
         return;
-    // size_t nDigits = std::ceil(std::log10(1+graphs.size()));
-    // auto getName = [&](size_t n)
+    // std::size_t nDigits = std::ceil(std::log10(1+graphs.size()));
+    // auto getName = [&](std::size_t n)
     // {
     //     std::string str = toString(n);
-    //     for (size_t i = 0; str.size() < nDigits; ++i)
+    //     for (std::size_t i = 0; str.size() < nDigits; ++i)
     //         str = 'd0' + str;
     //     return str;
     // };
 
-    for (size_t i = 0; i != graphs.size(); ++i) {
+    for (std::size_t i = 0; i != graphs.size(); ++i) {
         auto link = buildDiagram(graphs[i]);
         // link.exportPDF(name + "_" + getName(i), path);
     }
@@ -290,16 +290,16 @@ void Drawer::exportPNG(
 {
     if (graphs.empty())
         return;
-    size_t nDigits = std::ceil(std::log10(1+graphs.size()));
-    auto getName = [&](size_t n)
+    std::size_t nDigits = std::ceil(std::log10(1+graphs.size()));
+    auto getName = [&](std::size_t n)
     {
         std::string str = toString(n);
-        for (size_t i = 0; str.size() < nDigits; ++i)
+        for (std::size_t i = 0; str.size() < nDigits; ++i)
             str = '0' + str;
         return str;
     };
 
-    for (size_t i = 0; i != graphs.size(); ++i) {
+    for (std::size_t i = 0; i != graphs.size(); ++i) {
         auto link = buildDiagram(graphs[i]);
         link.exportPNG(name + "_" + getName(i), path);
     }
@@ -332,15 +332,15 @@ drawer::Graph Drawer::convertGraph(
         bool                                   external)
 {
     std::vector<wick::Vertex> vertices = graph->getVertices();
-    const size_t N = vertices.size();
+    const std::size_t N = vertices.size();
     drawer::Graph diagram(N);
     std::vector<std::shared_ptr<wick::Node>> alreadySeen;
-    for (size_t i = 0; i != N; ++i)  {
+    for (std::size_t i = 0; i != N; ++i)  {
         if (external and vertices[i][0]->field->isExternal()) 
             diagram.setSide(i, vertices[i][0]->field->isIncoming() ? -1 : 1);
         for (const auto& nodeA : vertices[i]) {
             alreadySeen.push_back(nodeA);
-            for (size_t j = 0; j != N; ++j) 
+            for (std::size_t j = 0; j != N; ++j) 
                 for (const auto& nodeB : vertices[j])  {
                     auto pos =
                         std::find(alreadySeen.begin(), alreadySeen.end(), nodeB);

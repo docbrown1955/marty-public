@@ -111,11 +111,11 @@ public:
         /**
          * @brief Row index of the term.
          */
-        size_t i;
+        std::size_t i;
         /**
          * @brief Column index of the term.
          */
-        size_t j;
+        std::size_t j;
         /**
          * @brief Actual term. Fields are removed, it should then be a purely
          * scalar factor.
@@ -363,7 +363,7 @@ protected:
      *
      * @return The position of \b field in the attribute \b fields.
      */
-    size_t getFieldPos(QuantumField const &field) const;
+    std::size_t getFieldPos(QuantumField const &field) const;
 
     /*!
      * @brief Returns a MatrixEl object from a Lagrangian term.

@@ -137,15 +137,15 @@ void Space::buildEpsilon()
         else
             indices2[0] = indices[0];
 
-        vector<size_t> perm = csl::range(dim-1); 
+        vector<std::size_t> perm = csl::range(dim-1); 
         csl::vector_expr res;
         res.reserve(factorial(dim-1));
         int sign = 1;
-        size_t count = 1;
+        std::size_t count = 1;
         do {
             Expr term = CSL_1;
-            size_t i = 0;
-            for (size_t p : perm) {
+            std::size_t i = 0;
+            for (std::size_t p : perm) {
                 term = term * metric({indices[1+i++], indices2[1+p]});
             }
             res.push_back(sign*term);
@@ -198,7 +198,7 @@ Tensor Space::getEpsilon() const {
 }
 
 Expr Space::applyMetricOnTensor(Expr const&  tensor,
-                                size_t       axis,
+                                std::size_t       axis,
                                 bool         covariant) const
 { 
     Expr appliedTensor = (covariant) ? metric->getTensor()
@@ -207,11 +207,11 @@ Expr Space::applyMetricOnTensor(Expr const&  tensor,
 
     Expr newTensor = highdtensor_s(tensor->getShape());
     std::vector<int> pos(tensor->getDim());
-    std::list<size_t> max;
+    std::list<std::size_t> max;
     std::vector<int> shape = tensor->getShape();
     for (int i : shape)
-        max.push_back(static_cast<size_t>(i));
-    counter<size_t> count(max);
+        max.push_back(static_cast<std::size_t>(i));
+    counter<std::size_t> count(max);
     count.restart();
 
     do {
@@ -299,7 +299,7 @@ void fillEpsilonTensor(Expr& tensor,
     for (int i = 0; i != dim; ++i)
         indices[i] = i;
 
-    size_t parity = 0;
+    std::size_t parity = 0;
     Expr value = CSL_1;
     do {
         if (++parity % 2 == 0)

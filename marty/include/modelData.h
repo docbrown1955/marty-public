@@ -65,7 +65,7 @@ public:
      * \brief Number of momenta instantiated for the model (10). With 5 maximum 
      * external legs, this is fairly safe.
      */
-    inline static size_t            nMomentums           = 10;
+    inline static std::size_t            nMomentums           = 10;
     /*!
      * \brief Default space-time for the model's particles. There is actually
      * no support for another space that csl::Minkowski yet.
@@ -1175,7 +1175,7 @@ public:
      */
     template< class GroupType, class FieldType >
         std::vector<csl::Index> generateIndices(
-                size_t      nIndices,
+                std::size_t      nIndices,
                 GroupType &&group,
                 FieldType &&field
                 ) const;
@@ -1194,7 +1194,7 @@ public:
      */
     template< class GroupType >
         std::vector<csl::Index> generateIndices(
-                size_t      nIndices,
+                std::size_t      nIndices,
                 GroupType &&group
                 ) const;
 
@@ -2220,13 +2220,13 @@ template< class GroupType >
 
     template< class GroupType, class FieldType >
     std::vector<csl::Index> ModelData::generateIndices(
-            size_t      nIndices,
+            std::size_t      nIndices,
             GroupType &&group,
             FieldType &&field
             ) const
     {
         std::vector<csl::Index> indices(nIndices);
-        for (size_t i = 0; i != nIndices; ++i) 
+        for (std::size_t i = 0; i != nIndices; ++i) 
             indices[i] = generateIndex<GroupType, FieldType>(
                     std::forward<GroupType>(group),
                     std::forward<FieldType>(field)
@@ -2237,12 +2237,12 @@ template< class GroupType >
 
     template< class GroupType >
     std::vector<csl::Index> ModelData::generateIndices(
-            size_t      nIndices,
+            std::size_t      nIndices,
             GroupType &&group
             ) const
     {
         std::vector<csl::Index> indices(nIndices);
-        for (size_t i = 0; i != nIndices; ++i) 
+        for (std::size_t i = 0; i != nIndices; ++i) 
             indices[i] = generateIndex<GroupType>(
                     std::forward<GroupType>(group)
                     );

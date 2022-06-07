@@ -49,22 +49,22 @@ csl::Index DiracIndex(std::string const& name)
 }
 
 std::vector<csl::Index> MinkowskiIndices(
-        size_t n,
+        std::size_t n,
         std::string const &nameIndex)
 {
     std::vector<csl::Index> indices(n);
-    for (size_t i = 0; i != n; ++i) 
+    for (std::size_t i = 0; i != n; ++i) 
         indices[i] = MinkowskiIndex(nameIndex);
 
     return indices;
 }
 
 std::vector<csl::Index> DiracIndices(
-        size_t n,
+        std::size_t n,
         std::string const &nameIndex)
 {
     std::vector<csl::Index> indices(n);
-    for (size_t i = 0; i != n; ++i) 
+    for (std::size_t i = 0; i != n; ++i) 
         indices[i] = DiracIndex(nameIndex);
 
     return indices;
@@ -203,7 +203,7 @@ void Display(std::vector<FeynmanRule> const& rules,
     if (mty::option::searchAbreviations 
             and mty::option::displayAbbreviations)
         DisplayAbbreviations(out);
-    size_t i = 0;
+    std::size_t i = 0;
     for (const auto& rule : rules) {
         out << "(" << i++ << ") : ";
         out << rule << std::endl;
@@ -228,7 +228,7 @@ void Display(std::vector<csl::Expr> const& amplitudes,
             Display({sum}, out, false);
         return;
     }
-    size_t i = 0;
+    std::size_t i = 0;
     for (auto& A : amplitudes) {
         out << i++ << "  :  ";
         if (A->getType() == csl::Type::Sum) {
@@ -255,7 +255,7 @@ void Display(mty::Amplitude const& amplitudes,
 void Show(std::vector<FeynmanRule> const& rules)
 {
     std::vector<std::shared_ptr<wick::Graph>> graphs(rules.size());
-    for (size_t i = 0; i != rules.size(); ++i)
+    for (std::size_t i = 0; i != rules.size(); ++i)
         graphs[i] = rules[i].getDiagram();
     Show(graphs, false);
 }
@@ -279,8 +279,8 @@ void Show(WilsonSet const &wilsons)
 
 void Show(
         std::vector<FeynmanRule> const& rules,
-        size_t first,
-        size_t last
+        std::size_t first,
+        std::size_t last
         )
 {
     HEPAssert(first < last && first < rules.size() && last < rules.size(),
@@ -295,8 +295,8 @@ void Show(
 }
 void Show(
         std::vector<std::shared_ptr<wick::Graph>> const& diagrams,
-        size_t first,
-        size_t last
+        std::size_t first,
+        std::size_t last
         )
 {
     HEPAssert(first < last && first < diagrams.size() && last < diagrams.size(),
@@ -311,16 +311,16 @@ void Show(
 }
 void Show(
         mty::Amplitude const& diagrams,
-        size_t first,
-        size_t last
+        std::size_t first,
+        std::size_t last
         )
 {
     Show(diagrams.obtainGraphs(), first, last);
 }
 void Show(
         WilsonSet const &wilsons,
-        size_t first,
-        size_t last
+        std::size_t first,
+        std::size_t last
         )
 {
     Show(wilsons.graphs, first, last);
@@ -331,7 +331,7 @@ void SaveDiagrams(
     std::vector<FeynmanRule> const& rules)
 {
     std::vector<std::shared_ptr<wick::Graph>> graphs(rules.size());
-    for (size_t i = 0; i != rules.size(); ++i)
+    for (std::size_t i = 0; i != rules.size(); ++i)
         graphs[i] = rules[i].getDiagram();
     SaveDiagrams(fileName, graphs, false);
 }
@@ -358,7 +358,7 @@ void Display(WilsonSet const& wilsons,
             and mty::option::displayAbbreviations)
         DisplayAbbreviations(out);
     out << wilsons.size() << " wilsons:" << std::endl;
-    for (size_t i = 0; i != wilsons.size(); ++i)
+    for (std::size_t i = 0; i != wilsons.size(); ++i)
         out << "(" << i << ") : " << wilsons[i] << std::endl;
 }
 
@@ -567,10 +567,10 @@ void Rotate(mty::Model & model,
             bool diagonalizeMasses)
 {
     std::vector<Particle> fields(fieldNames.size());
-    for (size_t i = 0; i != fields.size(); ++i)
+    for (std::size_t i = 0; i != fields.size(); ++i)
         fields[i] = GetParticle(model, fieldNames[i]);
     std::vector<Particle> newFields(newFieldNames.size());
-    for (size_t i = 0; i != newFields.size(); ++i)
+    for (std::size_t i = 0; i != newFields.size(); ++i)
         newFields[i] = GetParticle(model, newFieldNames[i]);
     model.rotateFields(fields, newFields, rotation, diagonalizeMasses);
 }
@@ -597,7 +597,7 @@ void BreakGaugeSymmetry(
         std::vector<std::vector<std::string>> const& newNames)
 {
     std::vector<Particle> particle(brokenFields.size());
-    for (size_t i = 0; i != particle.size(); ++i)
+    for (std::size_t i = 0; i != particle.size(); ++i)
         particle[i] = GetParticle(model, *(brokenFields.begin()+i));
     BreakGaugeSymmetry(model, brokenGroup, particle, newNames);
 }

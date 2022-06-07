@@ -44,9 +44,9 @@ namespace sgl {
             GammaIndex const &nu
             );
 
-    size_t simplest(
+    std::size_t simplest(
             GExpr const &prod,
             GExpr const &chain,
-            size_t       begin = 0
+            std::size_t       begin = 0
             );
 }

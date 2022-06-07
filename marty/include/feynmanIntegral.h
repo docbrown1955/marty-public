@@ -66,34 +66,34 @@ void printLooptoolsId_E(int id,
 inline constexpr int loopToolsStep = 3;
 
 int loopToolsBegin(IntegralType type,
-                   size_t       nIndices);
+                   std::size_t       nIndices);
 
 int loopToolsIdOf(
         IntegralType               type,
-        std::vector<size_t> const &indices
+        std::vector<std::size_t> const &indices
         );
 
 int loopToolsIdOf_A(
-        std::vector<size_t> const &indices
+        std::vector<std::size_t> const &indices
         );
 
 int loopToolsIdOf_B(
-        std::vector<size_t> const &indices
+        std::vector<std::size_t> const &indices
         );
 
 int loopToolsIdOf_C(
-        std::vector<size_t> const &indices
+        std::vector<std::size_t> const &indices
         );
 
 int loopToolsIdOf_D(
-        std::vector<size_t> const &indices
+        std::vector<std::size_t> const &indices
         );
 
-size_t nPropagatorForIntegral(IntegralType type);
+std::size_t nPropagatorForIntegral(IntegralType type);
 
-size_t nIndicesForIntegral(IntegralType type);
+std::size_t nIndicesForIntegral(IntegralType type);
 
-size_t nArgumentsForIntegral(IntegralType type);
+std::size_t nArgumentsForIntegral(IntegralType type);
 
 csl::Expr getDivergentFactor(IntegralType type,
                         int          integral_id,
@@ -132,7 +132,7 @@ class FeynmanIntegral: public csl::AbstractMultiFunc {
             csl::Space              const* space,
             std::vector<csl::Expr>       const& momentum,
             std::vector<csl::Index> const& indices,
-            std::vector<size_t>            tensorPos);
+            std::vector<std::size_t>            tensorPos);
 
     static csl::Expr computeFinalIntegralDecomposition(
             IntegralType                   type,
@@ -188,7 +188,7 @@ class FeynmanIntegral: public csl::AbstractMultiFunc {
     FeynmanIntegral(IntegralType               t_type,
                     int                        t_looptoolsId,
                     std::vector<csl::Expr>   const &t_argument,
-                    std::vector<size_t> const &t_indices);
+                    std::vector<std::size_t> const &t_indices);
 
     ~FeynmanIntegral() override {}
 
@@ -200,7 +200,7 @@ class FeynmanIntegral: public csl::AbstractMultiFunc {
         return type;
     }
 
-    std::vector<size_t> const &getIntegralIndices() const {
+    std::vector<std::size_t> const &getIntegralIndices() const {
         return integralIndices;
     }
 
@@ -238,9 +238,9 @@ class FeynmanIntegral: public csl::AbstractMultiFunc {
 
     private:
 
-    std::pair<csl::Expr, csl::Expr> getPair(size_t i) const;
+    std::pair<csl::Expr, csl::Expr> getPair(std::size_t i) const;
 
-    bool compare(size_t i, size_t j) const;
+    bool compare(std::size_t i, std::size_t j) const;
 
     void sortArgument();
 
@@ -257,7 +257,7 @@ class FeynmanIntegral: public csl::AbstractMultiFunc {
 
     int loopToolsId;
 
-    std::vector<size_t> integralIndices;
+    std::vector<std::size_t> integralIndices;
 };
 
 csl::Expr feynmanintegral_s(IntegralType             t_type,
@@ -267,7 +267,7 @@ csl::Expr feynmanintegral_s(IntegralType             t_type,
 csl::Expr feynmanintegral_s(IntegralType               t_type,
                        int                        t_looptoolsId,
                        std::vector<csl::Expr>   const &t_argument,
-                       std::vector<size_t> const &indices);
+                       std::vector<std::size_t> const &indices);
 
 template<class IntegralID>
 csl::Expr feynmanintegral_s(IntegralType             t_type,

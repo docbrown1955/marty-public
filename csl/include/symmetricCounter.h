@@ -37,13 +37,13 @@ class symmetricCounter {
 
     static constexpr char separator = '\'';
 
-    symmetricCounter(size_t N)
+    symmetricCounter(std::size_t N)
         :symmetricCounter(N, N) 
     {
 
     }
 
-    symmetricCounter(size_t N, size_t t_max)
+    symmetricCounter(std::size_t N, std::size_t t_max)
         :max(t_max),
         counter(N, 0)
     {
@@ -66,11 +66,11 @@ class symmetricCounter {
         return *this;
     }
 
-    static size_t combinatorial(size_t N, size_t m)
+    static std::size_t combinatorial(std::size_t N, std::size_t m)
     {
-        size_t num = 1;
-        size_t denom = 1;
-        for (size_t i = 1; i <= N; ++i) {
+        std::size_t num = 1;
+        std::size_t denom = 1;
+        for (std::size_t i = 1; i <= N; ++i) {
             if (i > m)
                 num *= i;
             if (i <= N - m)
@@ -80,14 +80,14 @@ class symmetricCounter {
         return num / denom;
     }
 
-    size_t factor() const
+    std::size_t factor() const
     {
         auto copy = counter;
         auto last = std::unique(copy.begin(), copy.end());
-        size_t factor = 1;
-        size_t N = counter.size();
+        std::size_t factor = 1;
+        std::size_t N = counter.size();
         for (auto el = copy.begin(); el != last; ++el) {
-            size_t m = std::count(counter.begin(), counter.end(), *el);
+            std::size_t m = std::count(counter.begin(), counter.end(), *el);
             factor *= combinatorial(N, m);
             N -= m;
         }
@@ -116,7 +116,7 @@ class symmetricCounter {
 
     protected:
 
-    bool increment(size_t pos)
+    bool increment(std::size_t pos)
     {
         ++counter[pos];
         if (counter[pos] == max) {
@@ -143,7 +143,7 @@ class symmetricCounter {
 
     private:
 
-    size_t max;
+    std::size_t max;
 
     std::vector<T> counter;
 };

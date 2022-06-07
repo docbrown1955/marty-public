@@ -71,9 +71,9 @@ class Irrep{
      * \details The size returned here does not count multiplicities. For
      * example, the size of the gluon representation if 7 and not 8. For the
      * total dimension of the representation see Irrep::getDim();
-     * \return A size_t (long unsigned int), number of states in the irrep.
+     * \return A std::size_t (long unsigned int), number of states in the irrep.
      */
-    size_t size() const;
+    std::size_t size() const;
 
     /*!
      * \brief Tells if the Irrep is empty, i.e. contains no state.

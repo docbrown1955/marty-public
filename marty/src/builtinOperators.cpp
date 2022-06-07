@@ -49,7 +49,7 @@ namespace mty {
         std::vector<OpInsertion> res(kinematics.size());
         const auto &insertions = kinematics.getInsertions();
         const auto &momenta    = kinematics.getMomenta();
-        for (size_t i = 0; i != kinematics.size(); ++i) {
+        for (std::size_t i = 0; i != kinematics.size(); ++i) {
             res[i] = {createField(insertions[i], momenta[i]), momenta[i]};
         }
         return res;
@@ -67,11 +67,11 @@ namespace mty {
     {
         if (insertions.size() != requirements.size())
             return false;
-        std::vector<size_t> indicesLeft(insertions.size());
+        std::vector<std::size_t> indicesLeft(insertions.size());
         std::iota(indicesLeft.begin(), indicesLeft.end(), 0);
-        for (size_t i = 0; i != insertions.size(); ++i) {
+        for (std::size_t i = 0; i != insertions.size(); ++i) {
             auto const &field = insertions[i].field;
-            for (size_t j = 0; j != indicesLeft.size(); ++j) {
+            for (std::size_t j = 0; j != indicesLeft.size(); ++j) {
                 auto const &req = requirements[indicesLeft[j]];
                 if (!(field.getSpinDimension() == req.spin))
                     continue;
@@ -157,7 +157,7 @@ namespace mty {
             auto i = space->generateIndex();
             auto j = space->generateIndex();
             A->getIndexStructureView()[0] = I;
-            for (size_t k = 0; k != psi->getIndexStructureView().size(); ++k)
+            for (std::size_t k = 0; k != psi->getIndexStructureView().size(); ++k)
                 if (psi->getIndexStructureView()[k].getSpace() == space) {
                     psi_star->getIndexStructureView()[k] = i;
                     psi     ->getIndexStructureView()[k] = j;
@@ -181,7 +181,7 @@ namespace mty {
         csl::Expr psi      = fermionExpr(rightFermion, false);
 
         // Coupling by the identity by default 
-        for (size_t i = 0; i != psi->getIndexStructureView().size(); ++i)
+        for (std::size_t i = 0; i != psi->getIndexStructureView().size(); ++i)
             csl::Replace(
                     psi_star, 
                     psi_star->getIndexStructureView()[i],
@@ -236,7 +236,7 @@ namespace mty {
     {
         OpInsertion leftFermion, rightFermion, vectorBoson;
         bool leftFound = false;
-        for (size_t i = 0; i != insertions.size(); ++i) {
+        for (std::size_t i = 0; i != insertions.size(); ++i) {
             if (insertions[i].field.isFermionic()) {
                 if (!leftFound) {
                     leftFermion = insertions[i];
@@ -465,7 +465,7 @@ namespace mty {
         return res;
     }
 
-    static std::pair<size_t, size_t> findTwoIdenticalReps(
+    static std::pair<std::size_t, std::size_t> findTwoIdenticalReps(
             mty::Irrep const &rep1,
             mty::Irrep const &rep2,
             mty::Irrep const &rep3,
@@ -526,7 +526,7 @@ namespace mty {
     {
         csl::Expr coupling = CSL_1;
         std::array<csl::Expr*, 4> psi {&psi1, &psi2, &psi3, &psi4};
-        for (size_t i = 0; i != model.getGauge()->size(); ++i) {
+        for (std::size_t i = 0; i != model.getGauge()->size(); ++i) {
             auto group = (*model.getGauge())[i];
             if (group->getType() == group::Type::U1)
                 continue;
@@ -535,7 +535,7 @@ namespace mty {
             auto rep3 = qf(psi3)->getQuantumParent()->getGroupIrrep(group);
             auto rep4 = qf(psi4)->getQuantumParent()->getGroupIrrep(group);
             auto [k, l] = findTwoIdenticalReps(rep1, rep2, rep3, rep4);
-            constexpr size_t npos = -1;
+            constexpr std::size_t npos = -1;
             if (k != npos && l != npos) {
                 csl::Index a = groupIndex(model, group, *psi[k]);
                 csl::Index b = groupIndex(model, group, *psi[l]);
@@ -593,7 +593,7 @@ namespace mty {
     {
         csl::Expr coupling = CSL_1;
         std::array<csl::Expr*, 4> psi {&psi1, &psi2, &psi3, &psi4};
-        for (size_t i = 0; i != model.getGauge()->size(); ++i) {
+        for (std::size_t i = 0; i != model.getGauge()->size(); ++i) {
             auto group = (*model.getGauge())[i];
             auto rep1 = qf(psi1)->getQuantumParent()->getGroupIrrep(group);
             auto rep2 = qf(psi2)->getQuantumParent()->getGroupIrrep(group);
@@ -700,7 +700,7 @@ namespace mty {
         csl::Expr psi      = fermionExpr(rightFermion, false);
 
         // Coupling by the identity by default 
-        for (size_t i = 0; i != psi->getIndexStructureView().size(); ++i)
+        for (std::size_t i = 0; i != psi->getIndexStructureView().size(); ++i)
             csl::Replace(
                     psi_star, 
                     psi_star->getIndexStructureView()[i],

@@ -42,7 +42,7 @@ namespace mty {
             )
     {
         std::vector<Wilson> wilcontrib(contributions.size());
-        for (size_t i = 0; i != contributions.size(); ++i) {
+        for (std::size_t i = 0; i != contributions.size(); ++i) {
             wilcontrib[i] = {CSL_1, contributions[i]};
         }
         return getWilsonCoefficient(wilsons, wilcontrib);

@@ -30,14 +30,14 @@
 
 namespace csl {
 
-extern size_t PRECISION;
+extern std::size_t PRECISION;
 
 extern bool WARN_OVERFLOW;
 
 void fillDigits(const std::vector<short>& digits,
                 std::vector<short>&       receiver);
 
-template<const size_t base>
+template<const std::size_t base>
 long double log(long double x) 
 {
 #include "math.h"
@@ -46,13 +46,13 @@ long double log(long double x)
 
 char convertDigit(short digit);
 
-template<size_t base = 10>
+template<std::size_t base = 10>
 class float_sap;
 
-template<size_t base = 10>
+template<std::size_t base = 10>
 class int_ap{
 
-    template<size_t t_base>
+    template<std::size_t t_base>
     friend class float_sap;
 
     public:
@@ -83,7 +83,7 @@ class int_ap{
 
     int_ap<base>& operator=(const int_ap<base>& value);
 
-    template<size_t targetBase>
+    template<std::size_t targetBase>
     int_ap<targetBase> convert() const
     {
         int_ap<targetBase> res(0);
@@ -108,11 +108,11 @@ class int_ap{
         return res;
     }
 
-    size_t size() const;
+    std::size_t size() const;
 
     bool empty() const;
 
-    short operator[](size_t i) const;
+    short operator[](std::size_t i) const;
 
     bool getMinusSign() const;
 
@@ -120,15 +120,15 @@ class int_ap{
 
     void flipSign();
 
-    void flip(size_t i);
+    void flip(std::size_t i);
 
     int_ap flip() const;
 
     int_ap all() const;
 
-    void shiftLeft(size_t n = 1);
+    void shiftLeft(std::size_t n = 1);
 
-    void shiftRight(size_t n = 1);
+    void shiftRight(std::size_t n = 1);
 
     void cut();
 
@@ -283,13 +283,13 @@ class int_ap{
         }
         // Here a > 0, b > 0 and a > b
         short retenue = 0;
-        for (size_t i = 0; i != b.size(); ++i) {
+        for (std::size_t i = 0; i != b.size(); ++i) {
             short res = base + a[i] - (b[i] + retenue);
             a.digits[i] = res % base;
             retenue = res < (int)base;
         }
         if (a.size() > b.size()) {
-            for (size_t j = b.size(); j != a.size(); ++j) {
+            for (std::size_t j = b.size(); j != a.size(); ++j) {
                 if (retenue) {
                     if (a[j] == 0)
                         a.digits[j] = base - 1;
@@ -378,10 +378,10 @@ class int_ap{
     {
         std::vector<short> newDigits(0);
         int_ap<base> res;
-        for (size_t i = 0; i != a.digits.size(); ++i) {
+        for (std::size_t i = 0; i != a.digits.size(); ++i) {
             std::vector<short> intermediateDigits(i,0);
             short retenue = 0;
-            for (size_t j = 0; j != b.digits.size(); ++j) {
+            for (std::size_t j = 0; j != b.digits.size(); ++j) {
                 int product = retenue + a.digits[i]*b.digits[j];
                 if (product > (int)base-1) {
                     retenue = product / base;
@@ -443,7 +443,7 @@ class int_ap{
 
         int_ap<base> prod(0);
         int_ap<base> divisor(0);
-        for (size_t i = 0; i != base; ++i) {
+        for (std::size_t i = 0; i != base; ++i) {
             int_ap<base> foo = prod + b;
             if (foo > a)
                 break;
@@ -610,7 +610,7 @@ class int_ap{
         if (a.digits.size() != b.digits.size())
             return false;
 
-        for (size_t i = 0; i != a.digits.size(); ++i)
+        for (std::size_t i = 0; i != a.digits.size(); ++i)
             if (a.digits[i] != b.digits[i])
                 return false;
         return true;
@@ -657,7 +657,7 @@ class int_ap{
             return true;
         if (b.digits.size() < a.digits.size())
             return false;
-        for (size_t i = a.size(); i --> 0 ;) {
+        for (std::size_t i = a.size(); i --> 0 ;) {
             if (a.digits[i] < b.digits[i])
                 return true;
             else if (b.digits[i] != a.digits[i])
@@ -722,24 +722,24 @@ class int_ap{
 
 };
 
-template<size_t base>
+template<std::size_t base>
 int_ap<base>::int_ap(): digits(std::vector<short>(1,0)){}
 
-template<size_t base>
+template<std::size_t base>
 int_ap<base>::int_ap(long long int value)
 {
     *this = value;
     cut();
 }
 
-template<size_t base>
+template<std::size_t base>
 int_ap<base>::int_ap(const std::vector<short>& t_digits)
 {
     fillDigits(t_digits, digits);
     cut();
 }
 
-template<size_t base>
+template<std::size_t base>
 int_ap<base>::int_ap(bool                      t_minusSign,
                        const std::vector<short>& t_digits)
 {
@@ -748,31 +748,31 @@ int_ap<base>::int_ap(bool                      t_minusSign,
     setMinusSign(t_minusSign);
 }
 
-template<size_t base>
-size_t int_ap<base>::size() const
+template<std::size_t base>
+std::size_t int_ap<base>::size() const
 {
     return digits.size();
 }
 
-template<size_t base>
+template<std::size_t base>
 bool int_ap<base>::empty() const
 {
     return digits.empty();
 }
 
-template<size_t base>
-short int_ap<base>::operator[](size_t i) const
+template<std::size_t base>
+short int_ap<base>::operator[](std::size_t i) const
 {
     return digits[i];
 }
 
-template<size_t base>
+template<std::size_t base>
 bool int_ap<base>::getMinusSign() const
 {
     return minusSign;
 }
 
-template<size_t base>
+template<std::size_t base>
 void int_ap<base>::setMinusSign(bool t_minusSign)
 {
     minusSign = t_minusSign;
@@ -781,37 +781,37 @@ void int_ap<base>::setMinusSign(bool t_minusSign)
         minusSign = false;
 }
 
-template<size_t base>
+template<std::size_t base>
 void int_ap<base>::flipSign()
 {
     setMinusSign(not minusSign);
 }
 
-template<size_t base>
-void int_ap<base>::flip(size_t i) 
+template<std::size_t base>
+void int_ap<base>::flip(std::size_t i) 
 {
     digits[i] = base - digits[i];
 }
 
-template<size_t base>
+template<std::size_t base>
 int_ap<base> int_ap<base>::flip() const
 {
     std::vector<short> newDigits(digits.size());
-    for (size_t i = 0; i != digits.size(); ++i)
+    for (std::size_t i = 0; i != digits.size(); ++i)
         newDigits[i] = base - digits[i];
     return int_ap<base>(minusSign, newDigits);
 }
 
-template<size_t base>
+template<std::size_t base>
 int_ap<base> int_ap<base>::all() const
 {
     return int_ap<base>(minusSign, std::vector<short>(digits.size(), base-1));
 }
 
-template<size_t base>
+template<std::size_t base>
 void int_ap<base>::cut()
 {
-    for (size_t i = digits.size(); i --> 0 ;)
+    for (std::size_t i = digits.size(); i --> 0 ;)
         if (digits[i] != 0) {
             if (i+1 <= digits.size()-1)
                 digits.erase(digits.begin()+i+1,digits.end());
@@ -820,10 +820,10 @@ void int_ap<base>::cut()
     digits = std::vector<short>(1, 0);
 }
 
-template<size_t base>
+template<std::size_t base>
 void int_ap<base>::cutRight()
 {
-    for (size_t i = 0; i != digits.size(); ++i)
+    for (std::size_t i = 0; i != digits.size(); ++i)
         if (digits[i] != 0) {
             if (i > 0)
                 digits.erase(digits.begin(), digits.begin()+i);
@@ -832,8 +832,8 @@ void int_ap<base>::cutRight()
     digits = std::vector<short>(1, 0);
 }
 
-template<size_t base>
-void int_ap<base>::shiftLeft(size_t n)
+template<std::size_t base>
+void int_ap<base>::shiftLeft(std::size_t n)
 {
     if (*this == 0)
         return;
@@ -841,15 +841,15 @@ void int_ap<base>::shiftLeft(size_t n)
     digits.insert(digits.begin(), newDigits.begin(), newDigits.end());
 }
 
-template<size_t base>
-void int_ap<base>::shiftRight(size_t n)
+template<std::size_t base>
+void int_ap<base>::shiftRight(std::size_t n)
 {
     if (n > digits.size())
         n = digits.size();
     digits.erase(digits.begin(), digits.begin()+n);
 }
 
-template<size_t base>
+template<std::size_t base>
 int_ap<base>& int_ap<base>::operator=(long long int value)
 {
     digits.clear();
@@ -862,7 +862,7 @@ int_ap<base>& int_ap<base>::operator=(long long int value)
         digits = std::vector<short>(1);
     else if (value != 0)
         digits = std::vector<short>(1 + floor(log<base>((value))));
-    for (size_t i = 0; i != digits.size(); ++i) {
+    for (std::size_t i = 0; i != digits.size(); ++i) {
         int digit = value % base;
         digits[i] = digit;
         value -= digit;
@@ -872,7 +872,7 @@ int_ap<base>& int_ap<base>::operator=(long long int value)
     return *this;
 }
 
-template<size_t base>
+template<std::size_t base>
 int_ap<base>& int_ap<base>::operator=(const int_ap<base>& value)
 {
     minusSign = value.minusSign;
@@ -880,7 +880,7 @@ int_ap<base>& int_ap<base>::operator=(const int_ap<base>& value)
     return *this;
 }
 
-template<size_t base>
+template<std::size_t base>
 int_ap<base> factorial(const int_ap<base>& number)
 {
     int_ap<base> res(1);
@@ -890,7 +890,7 @@ int_ap<base> factorial(const int_ap<base>& number)
     return res;
 }
 
-template<size_t base>
+template<std::size_t base>
 long long int int_ap<base>::toCInteger() const
 {
     if (abs(*this) > pow(int_ap<base>(2), int_ap<base>(63))) {

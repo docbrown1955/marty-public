@@ -88,17 +88,17 @@ class Lagrangian {
 
     csl::Expr operator()(const csl::Expr& point);
 
-    size_t size() const;
+    std::size_t size() const;
 
-    size_t fullSize() const;
+    std::size_t fullSize() const;
 
     bool empty() const;
 
     bool totalEmpty() const;
 
-    TermType operator[](size_t pos) const;
+    TermType operator[](std::size_t pos) const;
 
-    TermType& operator[](size_t pos);
+    TermType& operator[](std::size_t pos);
 
     std::vector<TermType>::iterator begin();
 
@@ -128,13 +128,13 @@ class Lagrangian {
 };
 
 inline 
-size_t Lagrangian::size() const
+std::size_t Lagrangian::size() const
 {
     return interaction.size();
 }
 
 inline
-size_t Lagrangian::fullSize() const
+std::size_t Lagrangian::fullSize() const
 {
     return kinetic.size()
          + mass.size()
@@ -154,13 +154,13 @@ bool Lagrangian::totalEmpty() const
 }
 
 inline
-Lagrangian::TermType Lagrangian::operator[](size_t pos) const
+Lagrangian::TermType Lagrangian::operator[](std::size_t pos) const
 {
     return interaction[pos];
 }
 
 inline 
-Lagrangian::TermType& Lagrangian::operator[](size_t pos)
+Lagrangian::TermType& Lagrangian::operator[](std::size_t pos)
 {
     return interaction[pos];
 }

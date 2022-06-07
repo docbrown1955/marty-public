@@ -77,8 +77,8 @@ void LatexLinker::setGraph(drawer::Graph const& t_graph)
     graph = t_graph;
 }
 
-void LatexLinker::setParticlesType(size_t       i,
-                                   size_t       j,
+void LatexLinker::setParticlesType(std::size_t       i,
+                                   std::size_t       j,
                                    ParticleType type,
                                    std::string const& t_name,
                                    bool               sign,
@@ -93,7 +93,7 @@ void LatexLinker::setParticlesType(size_t       i,
     // }
     if (i == j) {
         // Tadpole structure
-        for (size_t k = 0; k != graph.size(); ++k)
+        for (std::size_t k = 0; k != graph.size(); ++k)
             if (graph.getAdjacency()(i, k) == 2) {
                 if (i > k)
                     std::swap(i, k);
@@ -117,13 +117,13 @@ void LatexLinker::setParticlesType(size_t       i,
             {i, j, type, t_name, sign, curve, flipped, color, lineWidth});
 }
 
-void LatexLinker::addOperator(size_t pos)
+void LatexLinker::addOperator(std::size_t pos)
 {
     nodes[pos].type = NodeType::Operator;
 }
 
-void LatexLinker::replaceParticlesType(size_t       i,
-                                       size_t       j,
+void LatexLinker::replaceParticlesType(std::size_t       i,
+                                       std::size_t       j,
                                        ParticleType type,
                                        bool         sign)
 {
@@ -134,9 +134,9 @@ void LatexLinker::replaceParticlesType(size_t       i,
         }
 }
 
-void LatexLinker::removeEdge(size_t i, size_t j)
+void LatexLinker::removeEdge(std::size_t i, std::size_t j)
 {
-    for (size_t k = 0; k != edges.size(); ++k)
+    for (std::size_t k = 0; k != edges.size(); ++k)
         if ((edges[k].i == i and edges[k].j == j)
                 or (edges[k].j == i and edges[k].j == i)) {
             edges.erase(edges.begin() + k);
@@ -144,19 +144,19 @@ void LatexLinker::removeEdge(size_t i, size_t j)
         }
 }
 
-std::string LatexLinker::getNameExternal(size_t pos) const
+std::string LatexLinker::getNameExternal(std::size_t pos) const
 {
     return nodes[pos].name;
 }
 
-void LatexLinker::setVertexName(size_t             pos,
+void LatexLinker::setVertexName(std::size_t             pos,
                                 std::string const& name)
 {
     nodes[pos].name = name;
 }
 
-void LatexLinker::setEdgeName(size_t             i,
-                              size_t             j,
+void LatexLinker::setEdgeName(std::size_t             i,
+                              std::size_t             j,
                               std::string const& name)
 {
     for (auto& e : edges)
@@ -166,8 +166,8 @@ void LatexLinker::setEdgeName(size_t             i,
         }
 }
 
-void LatexLinker::setEdgeSign(size_t i,
-                              size_t j,
+void LatexLinker::setEdgeSign(std::size_t i,
+                              std::size_t j,
                               bool   sign)
 {
     for (auto& e : edges)
@@ -182,7 +182,7 @@ void LatexLinker::write(std::ostream& out)
    out << "\\begin{tikzpicture}\n";
    out << "  \\begin{feynman}[large]\n";
    out << "    \\vertex (" << nameOrigin << ");\n";
-   for (size_t i = 0; i != graph.size(); ++i)
+   for (std::size_t i = 0; i != graph.size(); ++i)
        writeVertex(
                out,
                i,
@@ -249,9 +249,9 @@ void LatexLinker::exportPNG(std::string const& fileName,
     system(command.c_str());
 }
 
-void LatexLinker::removeNode(size_t pos)
+void LatexLinker::removeNode(std::size_t pos)
 {
-    for (size_t i = 0; i != edges.size(); ++i)
+    for (std::size_t i = 0; i != edges.size(); ++i)
         if (edges[i].i >= pos or edges[i].j >= pos) {
             if (edges[i].i == pos or edges[i].j == pos) {
                 edges.erase(edges.begin()+i);
@@ -276,7 +276,7 @@ void LatexLinker::scale(float factor)
     scaleFactor *= factor;
 }
 
-std::string LatexLinker::getNameVertex(size_t pos)
+std::string LatexLinker::getNameVertex(std::size_t pos)
 {
     std::string res = "";
     if (pos >= 26)
@@ -291,7 +291,7 @@ void LatexLinker::getFlippedEdgeLabels() const
     std::vector<Point> labelPositions;
     labelPositions.reserve(edges.size());
 
-    auto getPosLabel = [&](size_t i, size_t j, double curve, bool flipped)
+    auto getPosLabel = [&](std::size_t i, std::size_t j, double curve, bool flipped)
     {
         Point A = graph.nodes[i];
         Point B = graph.nodes[j];
@@ -371,7 +371,7 @@ void LatexLinker::getFlippedEdgeLabels() const
         }
     }
     double minDistance = 0.7;
-    for (size_t i = 0; i != edges.size(); ++i) {
+    for (std::size_t i = 0; i != edges.size(); ++i) {
         auto& edge = edges[i];
         if (edge.name == "") {
             continue;
@@ -410,7 +410,7 @@ void LatexLinker::getStringValue(
 }
 
 void LatexLinker::writeVertex(std::ostream     & out,
-                              size_t             i,
+                              std::size_t             i,
                               Point       const& vertex,
                               std::string const& nameVertex,
                               std::string const& nameParticle)
@@ -425,7 +425,7 @@ void LatexLinker::writeVertex(std::ostream     & out,
     if (nameParticle.empty())
         out << "cm of " << nameVertex << "_it](" << nameVertex << ");\n";
     else 
-        for (size_t j = 0; j != graph.size(); ++j)
+        for (std::size_t j = 0; j != graph.size(); ++j)
             if (i != j and graph.adjacency(i, j) != 0) {
                 auto angleLabel =
                     -int(180*(graph.nodes[i]-graph.nodes[j]).angle()/M_PI);
@@ -511,7 +511,7 @@ void LatexLinker::saveToNode(JSON::Node *node) const
     node->addChild(scaleLeaf);
 
     auto graphNode = JSON::List::make("graph");
-    for (size_t i = 0; i != graph.getNodes().size(); ++i) {
+    for (std::size_t i = 0; i != graph.getNodes().size(); ++i) {
         auto const &node = graph.getNodes()[i];
         auto jsonNode = JSON::Node::make("graph");
         auto nameLeaf = JSON::Leaf<std::string>::make("name", nodes[i].name);
@@ -608,7 +608,7 @@ void LatexLinker::loadFromNode(JSON::Node *node)
     scaleFactor = scaleLeaf.value_or(1); 
 
     JSON::Node* graphNode = JSON::Parser::parseNode(node, "graph");
-    size_t nNodes = 0;
+    std::size_t nNodes = 0;
     if (graphNode) {
         for (const auto& point : *graphNode) {
             double x
@@ -655,8 +655,8 @@ void LatexLinker::loadFromNode(JSON::Node *node)
             = JSON::Parser::parseArgument<int>(e, "lineWidth");
 
         edges.push_back({
-                size_t(i), 
-                size_t(j), 
+                std::size_t(i), 
+                std::size_t(j), 
                 ParticleType(type),
                 name, 
                 sign,

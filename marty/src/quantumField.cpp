@@ -47,7 +47,7 @@ vector<const Space*> getSpaceRepresentations(Gauge* gauge,
             "Taking gauge space rep with a non matching gauge");
 
     vector<const Space*> res(0);
-    for (size_t i = 0; i != gauge->size(); ++i) {
+    for (std::size_t i = 0; i != gauge->size(); ++i) {
         const Space* space = (*gauge)[i]->getVectorSpace(irrep[i]);
         if (space and space->getDim() > 0)
             res.push_back((*gauge)[i]->getVectorSpace(irrep[i]));
@@ -195,8 +195,8 @@ Index generateIndex(string       name,
 void QuantumFieldParent::initIndexSpaces()
 {
     if (flavor) {
-        size_t nonTrivialReps = 0;
-        for (size_t i = 0; i != flavor->size(); ++i) {
+        std::size_t nonTrivialReps = 0;
+        for (std::size_t i = 0; i != flavor->size(); ++i) {
             const Space* unit_space = 
                 (*flavor)[i]->getVectorSpace(flavorRep[i]);
             if (unit_space and unit_space->getDim() > 0) {
@@ -209,8 +209,8 @@ void QuantumFieldParent::initIndexSpaces()
     else
         firstGaugeIndex = 0;
     if (gauge) {
-        size_t nonTrivialReps = 0;
-        for (size_t i = 0; i != gauge->size(); ++i) {
+        std::size_t nonTrivialReps = 0;
+        for (std::size_t i = 0; i != gauge->size(); ++i) {
             const Space* unit_space = (*gauge)[i]->getVectorSpace(irrep[i]);
             if (unit_space and unit_space->getDim() > 0) {
                 space.push_back(unit_space);
@@ -468,7 +468,7 @@ void QuantumFieldParent::printQuantumDefinition(
     if (width != CSL_0)
         out << indent << regName << "->setWidth(" << 
             csl::Abstract::regularName(width->getName()) << ");\n";
-    for (size_t i = 0; i != gauge->size(); ++i) {
+    for (std::size_t i = 0; i != gauge->size(); ++i) {
         mty::Irrep const &rep = irrep[i];
         if (rep == (*gauge)[i]->getTrivialRep()
                 or gauge->getGaugedGroup(i)->isBroken())
@@ -477,7 +477,7 @@ void QuantumFieldParent::printQuantumDefinition(
         out << "\"" << csl::Abstract::regularLiteral((*gauge)[i]->getName()) 
             << "\", {";
         mty::AlgebraState highestWeight = rep.getHighestWeight();
-        for (size_t i = 0; i != highestWeight.size(); ++i) {
+        for (std::size_t i = 0; i != highestWeight.size(); ++i) {
             out << highestWeight[i];
             if (i+1 != highestWeight.size())
                 out << ", ";
@@ -485,7 +485,7 @@ void QuantumFieldParent::printQuantumDefinition(
         out << "});\n";
     }
     if (flavor) {
-        for (size_t i = 0; i != flavor->size(); ++i) {
+        for (std::size_t i = 0; i != flavor->size(); ++i) {
             mty::Irrep const &rep = flavorRep[i];
             if (rep == (*flavor)[i]->getTrivialRep())
                 continue;
@@ -594,11 +594,11 @@ GaugeIrrep QuantumFieldParent::getGaugeIrrep() const
 
 Irrep QuantumFieldParent::getGroupIrrep(const Group* group) const
 {
-    for (size_t i = 0; i != gauge->size(); ++i) {
+    for (std::size_t i = 0; i != gauge->size(); ++i) {
         if ((*gauge)[i] == group)
             return irrep[i];
     }
-    for (size_t i = 0; i != flavor->size(); ++i) {
+    for (std::size_t i = 0; i != flavor->size(); ++i) {
         if ((*flavor)[i]->getGroup() == group)
             return flavorRep[i];
     }
@@ -633,7 +633,7 @@ Irrep QuantumFieldParent::getFlavorIrrep(const FlavorGroup* group) const
 {
     if (!flavor)
         return Irrep();
-    for (size_t i = 0; i != flavor->size(); ++i) {
+    for (std::size_t i = 0; i != flavor->size(); ++i) {
         if ((*flavor)[i] == group)
             return flavorRep[i];
     }
@@ -648,7 +648,7 @@ vector<Index> QuantumFieldParent::getSpaceIndex(const string& /*nameIndex*/) con
     if (getSpinDimension() == 1)
         return vector<Index>();
     vector<Index> spaceIndices(space.size()-firstSpaceIndex);
-    for (size_t i = 0; i != spaceIndices.size(); ++i)
+    for (std::size_t i = 0; i != spaceIndices.size(); ++i)
         spaceIndices[i] = space[i+firstSpaceIndex]->generateIndex();
 
     return spaceIndices;
@@ -656,10 +656,10 @@ vector<Index> QuantumFieldParent::getSpaceIndex(const string& /*nameIndex*/) con
 
 vector<Index> QuantumFieldParent::getGaugeIndex(vector<string> nameIndex) const
 {
-    const size_t size = firstSpaceIndex - firstGaugeIndex;
+    const std::size_t size = firstSpaceIndex - firstGaugeIndex;
     if (nameIndex.empty())  {
         nameIndex = vector<string>(size);
-        for (size_t i = 0; i != nameIndex.size(); ++i)
+        for (std::size_t i = 0; i != nameIndex.size(); ++i)
             nameIndex[i] = space[i+firstGaugeIndex]->getNextIndexName();
     }
     HEPAssert(nameIndex.size() == size,
@@ -669,7 +669,7 @@ vector<Index> QuantumFieldParent::getGaugeIndex(vector<string> nameIndex) const
     vector<Index> indices;
     indices.reserve(size);
 
-    for (size_t i = 0; i != size; ++i)
+    for (std::size_t i = 0; i != size; ++i)
         indices.push_back(generateIndex(nameIndex[i], space[i+firstGaugeIndex]));
 
     return indices;
@@ -678,10 +678,10 @@ vector<Index> QuantumFieldParent::getGaugeIndex(vector<string> nameIndex) const
 vector<Index> QuantumFieldParent::getFlavorIndex(
         vector<string> nameIndex) const
 {
-    const size_t size = firstGaugeIndex;
+    const std::size_t size = firstGaugeIndex;
     if (nameIndex.empty())  {
         nameIndex = vector<string>(size);
-        for (size_t i = 0; i != size; ++i)
+        for (std::size_t i = 0; i != size; ++i)
             nameIndex[i] = space[i]->getNextIndexName();
     }
     HEPAssert(nameIndex.size() == size,
@@ -691,7 +691,7 @@ vector<Index> QuantumFieldParent::getFlavorIndex(
     vector<Index> indices;
     indices.reserve(size);
 
-    for (size_t i = 0; i != size; ++i)
+    for (std::size_t i = 0; i != size; ++i)
         indices.push_back(generateIndex(nameIndex[i], space[i]));
 
     return indices;
@@ -700,7 +700,7 @@ vector<Index> QuantumFieldParent::getFlavorIndex(
 vector<Index> QuantumFieldParent::getFullSetOfIndices() const
 {
     vector<Index> indices(space.size());
-    for (size_t i = 0; i != indices.size(); ++i)
+    for (std::size_t i = 0; i != indices.size(); ++i)
         indices[i] = space[i]->generateIndex();
 
     return indices;
@@ -796,7 +796,7 @@ void QuantumFieldParent::setGaugeIrrep(GaugeIrrep const &newRep)
             mty::error::ValueError,
             "Wrong number of group for " + toString(newRep) + " in gauge.");
     applyToRelatives([&](Particle p) { p->setGaugeIrrep(newRep); });
-    for (size_t i = 0; i != newRep.size(); ++i)
+    for (std::size_t i = 0; i != newRep.size(); ++i)
         setGroupRep((*gauge)[i], newRep[i]);
 }
 
@@ -808,7 +808,7 @@ void QuantumFieldParent::setGroupRep(const std::string& group,
             "You must set a gauge for field " + std::string(getName()) 
             + " before setting its representation.");
     applyToRelatives([&](Particle p) { p->setGroupRep(group, highestWeight); });
-    for (size_t i = 0; i != gauge->size(); ++i) {
+    for (std::size_t i = 0; i != gauge->size(); ++i) {
         if ((*gauge)[i]->getName() == group) {
             Irrep rep = (*gauge)[i]->highestWeightRep(highestWeight);
             setGroupRep((*gauge)[i], rep);
@@ -832,11 +832,11 @@ void QuantumFieldParent::setGroupRep(Group*       group,
 {
     applyToRelatives([&](Particle p) { p->setGroupRep(group, newRep); });
     symmetry.clear();
-    for (size_t i = 0; i != gauge->size(); ++i) {
+    for (std::size_t i = 0; i != gauge->size(); ++i) {
         Group* g = (*gauge)[i];
         if (g == group) {
             if (newRep.getDim() <= 1 and irrep[i].getDim() > 1) {
-                for (size_t j = 0; j != space.size(); ++j)
+                for (std::size_t j = 0; j != space.size(); ++j)
                     if (space[j] == group->getVectorSpace(irrep[i])) {
                         space.erase(space.begin() + j);
                         --firstSpaceIndex;
@@ -844,8 +844,8 @@ void QuantumFieldParent::setGroupRep(Group*       group,
                     }
             }
             else if (newRep.getDim() > 1 and irrep[i].getDim() <= 1) {
-                size_t nonTrivialRep = 0;
-                for (size_t j = 0; j != i; ++j)
+                std::size_t nonTrivialRep = 0;
+                for (std::size_t j = 0; j != i; ++j)
                     if (irrep[j].getDim() > 1)
                         ++nonTrivialRep;
                 space.insert(space.begin() + nonTrivialRep + firstGaugeIndex,
@@ -880,11 +880,11 @@ void QuantumFieldParent::setFlavorRep(const FlavorGroup* group,
 {
     applyToRelatives([&](Particle p) { p->setFlavorRep(group, newRep); });
     symmetry.clear();
-    for (size_t i = 0; i != flavor->size(); ++i) {
+    for (std::size_t i = 0; i != flavor->size(); ++i) {
         FlavorGroup* flavGroup = (*flavor)[i];
         if (flavGroup == group) {
             if (newRep.getDim() <= 1 and flavorRep[i].getDim() > 1) {
-                for (size_t j = 0; j != space.size(); ++j)
+                for (std::size_t j = 0; j != space.size(); ++j)
                     if (space[j] == group->getVectorSpace(flavorRep[i])) {
                         space.erase(space.begin() + j);
                         --firstGaugeIndex;
@@ -893,8 +893,8 @@ void QuantumFieldParent::setFlavorRep(const FlavorGroup* group,
                     }
             }
             else if (newRep.getDim() > 1 and flavorRep[i].getDim() <= 1) {
-                size_t nonTrivialFlavor = 0;
-                for (size_t j = 0; j != i; ++j)
+                std::size_t nonTrivialFlavor = 0;
+                for (std::size_t j = 0; j != i; ++j)
                     if (flavorRep[j].getDim() > 1)
                         ++nonTrivialFlavor;
                 space.insert(space.begin() + nonTrivialFlavor,
@@ -930,14 +930,14 @@ void QuantumFieldParent::setBrokenParts(
         const vector<Particle>& parts)
 {
     brokenParts[broken] = vector<Parent>(parts.size());
-    for (size_t i = 0; i != parts.size(); ++i)
+    for (std::size_t i = 0; i != parts.size(); ++i)
         brokenParts[broken][i] = parts[i];
 }
 
 std::vector<csl::Parent> QuantumFieldParent::breakSpace(
         const csl::Space*                     broken,
         const std::vector<const csl::Space*>& newSpace,
-        const std::vector<size_t>&           pieces
+        const std::vector<std::size_t>&           pieces
         ) const
 {
     return TensorFieldParent::breakSpace(broken, newSpace, pieces);
@@ -1089,7 +1089,7 @@ std::weak_ptr<mty::QuantumFieldParent> QuantumFieldParent::removeRelative(
 
 void QuantumFieldParent::checkRelatives()
 {
-    for (size_t i = 0; i != relatives.size(); ++i) {
+    for (std::size_t i = 0; i != relatives.size(); ++i) {
         if (!relatives[i].lock()) {
             relatives.erase(relatives.begin() + i);
             --i;
@@ -1111,9 +1111,9 @@ void QuantumFieldParent::breakParticle(
     csl::Space const* repSpace = brokenGroup->getVectorSpace(
             getGroupIrrep(brokenGroup)
             );
-    size_t nParts = repSpace->getDim();
+    std::size_t nParts = repSpace->getDim();
     newParticles.reserve(nParts);
-    for (size_t i = 0; i != nParts; ++i)  {
+    for (std::size_t i = 0; i != nParts; ++i)  {
         Particle newPart = generateSimilar(newNames[i]);
         newPart->setGroupRep(brokenGroup,
                              brokenGroup->getTrivialRep());
@@ -1138,7 +1138,7 @@ void QuantumFieldParent::breakParticle(
         return;
     std::vector<mty::Particle> newParticles;
     newParticles.reserve(subGroups.size());
-    for (size_t i = 0; i != subGroups.size(); ++i)  {
+    for (std::size_t i = 0; i != subGroups.size(); ++i)  {
         Particle newPart = generateSimilar(names[i]);
         newPart->setFlavorRep(brokenFlavor,
                               brokenFlavor->getGroup()->getTrivialRep());
@@ -1484,7 +1484,7 @@ bool QuantumField::commutesWith(csl::Expr_info other, int sign) const
         return false;
     if (other->size() == 0)
         return true;
-    for (size_t i = 0; i != other->size(); ++i)
+    for (std::size_t i = 0; i != other->size(); ++i)
         if (not commutesWith((*other)[i].get()))
             return false;
     return true;
@@ -1678,7 +1678,7 @@ csl::Expr getMomentumSum(const vector<QuantumField>& insertions,
                      const Index&                index)
 {
     csl::Expr sum = CSL_0;
-    for (size_t i = 0; i != insertions.size(); ++i) {
+    for (std::size_t i = 0; i != insertions.size(); ++i) {
         auto sign = int_s(insertions[i].isIncoming())*2 - 1;
         sum = sum + sign*(*impulsions[i])(index);
     }

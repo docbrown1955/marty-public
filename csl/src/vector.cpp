@@ -113,7 +113,7 @@ void AbstractVectorial::printCode(
 {
     if (csl::IsVector(this)) {
         out << "csl::vector_s({";
-        for (size_t i = 0; i != argument.size(); ++i) {
+        for (std::size_t i = 0; i != argument.size(); ++i) {
             argument[i]->printCode(1, out);
             if (i + 1 != argument.size())
                 out << ", ";
@@ -122,7 +122,7 @@ void AbstractVectorial::printCode(
     }
     else if (csl::IsMatrix(this)) {
         out << "csl::matrix_s({";
-        for (size_t i = 0; i != argument.size(); ++i) {
+        for (std::size_t i = 0; i != argument.size(); ++i) {
             argument[i]->printCode(1, out);
             if (i + 1 != argument.size())
                 out << ", \n";
@@ -131,7 +131,7 @@ void AbstractVectorial::printCode(
     }
     else {
         out << "csl::highdtensor_from_args_s({";
-        for (size_t i = 0; i != argument.size(); ++i) {
+        for (std::size_t i = 0; i != argument.size(); ++i) {
             argument[i]->printCode(1, out);
             if (i + 1 != argument.size())
                 out << ", \n\n";
@@ -192,7 +192,7 @@ unique_Expr AbstractVectorial::copy_unique() const
 Expr AbstractVectorial::deepCopy() const
 {
     csl::vector_expr copyArg(argument.size());
-    for (size_t i = 0; i != argument.size(); ++i)
+    for (std::size_t i = 0; i != argument.size(); ++i)
         copyArg[i] = argument[i]->deepCopy();
 
     switch(getType()) {
@@ -234,7 +234,7 @@ Expr AbstractVectorial::refresh() const
 Expr AbstractVectorial::deepRefresh() const
 {
     csl::vector_expr refreshed(argument.size());
-    for (size_t i = 0; i != argument.size(); ++i)
+    for (std::size_t i = 0; i != argument.size(); ++i)
         refreshed[i] = argument[i]->deepRefresh();
 
     switch(getType()) {
@@ -269,7 +269,7 @@ int AbstractVectorial::getNArgs(int axis) const
     return argument[0]->getNArgs(axis-1);
 }
 
-size_t AbstractVectorial::size() const
+std::size_t AbstractVectorial::size() const
 {
     return argument.size();
 }
@@ -362,7 +362,7 @@ Expr const &AbstractVectorial::getArgument(const vector<int>& indices) const
         return getArgument(indices[0]);
 
     vector<int> newIndices(indices.size()-1);
-    for (size_t i = 1; i < indices.size(); ++i)
+    for (std::size_t i = 1; i < indices.size(); ++i)
         newIndices[i-1] = indices[i];
 
     return argument[indices[0]]->getArgument(newIndices);
@@ -376,7 +376,7 @@ Expr& AbstractVectorial::getArgument(const vector<int>& indices)
         return getArgument(indices[0]);
 
     vector<int> newIndices(indices.size()-1);
-    for (size_t i = 1; i < indices.size(); ++i)
+    for (std::size_t i = 1; i < indices.size(); ++i)
         newIndices[i-1] = indices[i];
 
     return argument[indices[0]]->getArgument(newIndices);
@@ -506,7 +506,7 @@ bool AbstractVectorial::exactMatchShape(Expr_info expr) const
     vector<int> shape1(getShape()), shape2(expr->getShape());
     if (shape1.size() != shape2.size()) 
         return false;
-    for (size_t i=0; i<shape1.size(); i++)
+    for (std::size_t i=0; i<shape1.size(); i++)
         if (shape1[i] != shape2[i])
             return false;
 
@@ -598,7 +598,7 @@ Expr AbstractVectorial::getSubVectorial(
     }
     csl::vector_expr newArg;
     newArg.reserve(keepDim.size());
-    for (size_t index : keepDim)
+    for (std::size_t index : keepDim)
         newArg.push_back(argument[index]->getSubVectorial(
                     std::next(begin), 
                     end));
@@ -650,7 +650,7 @@ Expr AbstractVectorial::dot(const Expr& expr) const
         }
         for (int i=0; i<dim-1; i++)
             newShape[i] = shape[i];
-        for (size_t j=dim-1; j<newShape.size(); j++)
+        for (std::size_t j=dim-1; j<newShape.size(); j++)
             newShape[j] = shape2[2+j-dim];
 
         if (dim == 1) {
@@ -806,7 +806,7 @@ Expr AbstractVectorial::trace(int axis1, int axis2) const
     for (int i=0; i<dim; i++)
         if (i == axis1 or i == axis2)
             newShape[i] = 1;
-    for (size_t i=0; i<newShape.size(); i++) {
+    for (std::size_t i=0; i<newShape.size(); i++) {
         if (newShape[i] == 1) {
             newShape.erase(newShape.begin()+i);
             i--;
@@ -847,14 +847,14 @@ vector<list<int>> getNonZeroElements_impl(Expr_info vec)
     if (vec->getDim() == 1) {
         vector<list<int>> indices;
         indices.reserve(vec->size());
-        for (size_t i = 0; i != vec->size(); ++i)
+        for (std::size_t i = 0; i != vec->size(); ++i)
             if ((*vec)[i] != CSL_0)
                 indices.push_back(list<int>(1, i));
         return indices;
     }
     vector<list<int>> indices;
     indices.reserve(vec->size());
-    for (size_t i = 0; i != vec->size(); ++i) {
+    for (std::size_t i = 0; i != vec->size(); ++i) {
         vector<list<int>> recursiveIndices 
             = getNonZeroElements_impl((*vec)[i].get());
         for (auto& listIndices : recursiveIndices)
@@ -870,7 +870,7 @@ vector<vector<int>> getNonZeroElements(Expr_info vec)
 {
     vector<list<int>> listIndices = getNonZeroElements_impl(vec);
     vector<vector<int>> vecIndices(listIndices.size());
-    for (size_t i = 0; i != listIndices.size(); ++i)
+    for (std::size_t i = 0; i != listIndices.size(); ++i)
         vecIndices[i].insert(vecIndices[i].begin(),
                              listIndices[i].begin(),
                              listIndices[i].end());
@@ -932,7 +932,7 @@ Expr AbstractVectorial::antisymmetrise() const
     for (auto& index : indices) {
         Expr element = getArgument(index);
         int sign = sort_keep_sign(index.begin(), index.end());
-        size_t counter = 1;
+        std::size_t counter = 1;
         do {
             // For explication on the counter and std::next_permutation:
             // https://stackoverflow.com/questions/43927942/signature-next-permutation-c

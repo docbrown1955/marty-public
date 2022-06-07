@@ -115,17 +115,17 @@ void Lagrangian::mergeTerms()
 
 void Lagrangian::removeParticle(Particle const &particle)
 {
-    for (size_t i = 0; i != kinetic.size(); ++i)
+    for (std::size_t i = 0; i != kinetic.size(); ++i)
         if (kinetic[i]->containsExactly(particle.get())) {
             kinetic.erase(kinetic.begin() + i);
             --i;
         }
-    for (size_t i = 0; i != mass.size(); ++i)
+    for (std::size_t i = 0; i != mass.size(); ++i)
         if (mass[i]->containsExactly(particle.get())) {
             mass.erase(mass.begin() + i);
             --i;
         }
-    for (size_t i = 0; i != interaction.size(); ++i)
+    for (std::size_t i = 0; i != interaction.size(); ++i)
         if (interaction[i]->containsExactly(particle.get())) {
             interaction.erase(interaction.begin() + i);
             --i;
@@ -136,7 +136,7 @@ void Lagrangian::mergeTerms(vector<TermType>& terms)
 {
     // Refreshing first all the terms
     std::vector<csl::Expr> linear;
-    for (size_t i = 0; i != terms.size(); ++i) {
+    for (std::size_t i = 0; i != terms.size(); ++i) {
         std::vector<mty::QuantumField> const &content = terms[i]->getContent();
         if (content.size() == 1) {
             linear.push_back(terms[i]->getTerm());
@@ -147,12 +147,12 @@ void Lagrangian::mergeTerms(vector<TermType>& terms)
     }
 
     csl::ProgressBar bar(terms.size(), "Merging all interaction terms");
-    for (size_t i = 0; i + 1 < terms.size(); ++i) {
+    for (std::size_t i = 0; i + 1 < terms.size(); ++i) {
         if (terms.size() > 5000)
             bar.progress(i);
         bool merged = false;
         std::vector<csl::Expr> expressions;
-        for (size_t j = i+1; j < terms.size(); ++j)
+        for (std::size_t j = i+1; j < terms.size(); ++j)
             if (terms[i]->hasSameContent(*terms[j])) {
                 if (merged)
                     expressions.push_back(
@@ -248,7 +248,7 @@ void Lagrangian::ensurePoint(mty::InteractionTerm &term)
 std::ostream& operator<<(std::ostream& fout, const Lagrangian& L)
 {
     fout << L.kinetic.size() << " kinetic terms:\n";
-    size_t i = 0;
+    std::size_t i = 0;
     for (const auto& term : L.kinetic)
         fout << i++ << " (" << term->size() << ") : " 
             << term->getTerm() << "\n\n";

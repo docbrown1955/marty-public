@@ -541,10 +541,10 @@ void DiracFermion::breakParticle(
 void DiracFermion::updateChiralBrokenParts(csl::Space const *space)
 {
     const auto &brokenParts = getBrokenParts(space);
-    const size_t sz = brokenParts.size();
+    const std::size_t sz = brokenParts.size();
     std::vector<mty::Particle> leftBroken(sz);
     std::vector<mty::Particle> rightBroken(sz);
-    for (size_t i = 0; i != sz; ++i) {
+    for (std::size_t i = 0; i != sz; ++i) {
         auto const &parent = ConvertToPtr<QuantumFieldParent>(brokenParts[i]);
         leftBroken[i]  = parent->getWeylFermion(Chirality::Left);
         rightBroken[i] = parent->getWeylFermion(Chirality::Right);

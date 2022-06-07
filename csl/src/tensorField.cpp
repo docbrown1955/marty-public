@@ -71,7 +71,7 @@ void TensorFieldParent::printDefinition(
     out << "csl::TensorField " << regName << "("
         << "\"" << csl::Abstract::regularLiteral(name) << "\", ";
     out << csl::Abstract::regularName(spaceField->getName()) << ", {";
-    for (size_t i = 0; i != space.size(); ++i) {
+    for (std::size_t i = 0; i != space.size(); ++i) {
         out << csl::Abstract::regularName(space[i]->getName());
         if (i+1 != space.size())
             out << ", ";
@@ -100,7 +100,7 @@ void TensorFieldParent::setFieldSpace(const Space* t_space)
 vector<Parent> TensorFieldParent::breakSpace(
         const Space*                broken,
         const vector<const Space*>& newSpace,
-        const vector<size_t>&       pieces
+        const vector<std::size_t>&       pieces
         ) const
 {
     return TensorParent::breakSpace(broken, newSpace, pieces);
@@ -247,7 +247,7 @@ csl::Type TDerivativeElement::getType() const
     return csl::Type::TDerivativeElement;
 }
 
-size_t TDerivativeElement::size() const
+std::size_t TDerivativeElement::size() const
 {
     return 1;
 }
@@ -281,7 +281,7 @@ void TDerivativeElement::printCode(
     out << regularName(point->getName()) << ", ";
     out << regularName(parent->getName()) << "_der, ";
     out << "{";
-    for (size_t i = 0; i != index.size(); ++i) {
+    for (std::size_t i = 0; i != index.size(); ++i) {
         if (index[i].getSign())
             out << '+';
         out << index[i].getIndexCodeName();
@@ -391,7 +391,7 @@ optional<Expr> TDerivativeElement::expand(bool full,
     else if (newOperand->getType() == csl::Type::Prod) {
         std::vector<Expr> summed;
         summed.reserve(newOperand->size());
-        for (size_t i = 0; i != newOperand->size(); ++i) {
+        for (std::size_t i = 0; i != newOperand->size(); ++i) {
             std::vector<Expr> args = newOperand->getVectorArgument();
             args[i] = tderivativeelement_s(point,
                                             parent,
@@ -438,7 +438,7 @@ optional<Expr> TDerivativeElement::expand_if(
     else if (newOperand->getType() == csl::Type::Prod and f(newOperand)) {
         std::vector<Expr> summed;
         summed.reserve(newOperand->size());
-        for (size_t i = 0; i != newOperand->size(); ++i) {
+        for (std::size_t i = 0; i != newOperand->size(); ++i) {
             std::vector<Expr> args = newOperand->getVectorArgument();
             args[i] = tderivativeelement_s(point,
                                             parent,
@@ -770,7 +770,7 @@ void TensorFieldElement::printCode(
     if (conjugated)
         out << "csl::GetComplexConjugate(";
     out << regularName(parent->getName()) << "({";
-    for (size_t i = 0; i != index.size(); ++i) {
+    for (std::size_t i = 0; i != index.size(); ++i) {
         if (index[i].getSign())
             out << '+';
         out << index[i].getIndexCodeName();
@@ -914,7 +914,7 @@ void TDerivativeElement::setIndexStructure(const IndexStructure& t_structure)
         IndexStructure derivativeStruct = IndexStructure();
         derivativeStruct += t_structure[0];
         IndexStructure operandStruct    = IndexStructure();
-        for (size_t i = 1; i != t_structure.size(); ++i)
+        for (std::size_t i = 1; i != t_structure.size(); ++i)
             operandStruct += t_structure[i];
         TensorElement::setIndexStructure(derivativeStruct);
         operand->setIndexStructure(operandStruct);
@@ -928,7 +928,7 @@ void TDerivativeElement::selfCheckIndexStructure()
     if (operand->isIndexed()) {
         IndexStructure fooStruct = operand->getIndexStructure();
         bool contractionFound = false;
-        for (size_t k=0; k!=fooStruct.size(); ++k) 
+        for (std::size_t k=0; k!=fooStruct.size(); ++k) 
             if (index[0] == fooStruct[k]) 
                 if (fooStruct[k].getFree()
                         and index[0].testContraction(fooStruct[k])) {

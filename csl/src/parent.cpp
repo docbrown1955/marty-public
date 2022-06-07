@@ -67,7 +67,7 @@ csl::ComplexProperty AbstractParent::getComplexProp() const
 
 void AbstractParent::setName(string t_name)
 {
-    for (size_t i = 0; i != t_name.size(); ++i) {
+    for (std::size_t i = 0; i != t_name.size(); ++i) {
         if (t_name[i] == ';') {
             if (i > 0 and t_name[i-1] == '\\') {
                 t_name.erase(i - 1);
@@ -75,13 +75,13 @@ void AbstractParent::setName(string t_name)
             else if (i+1 != t_name.size()) {
                 std::string reg(t_name.begin(), t_name.begin() + i);
                 std::string latex(t_name.begin() + i + 1, t_name.end());
-                for (size_t i = reg.size(); i --> 0 ;) {
+                for (std::size_t i = reg.size(); i --> 0 ;) {
                     if (reg[i] == ' ')
                         reg.erase(reg.begin() + i);
                     else
                         break;
                 }
-                for (size_t i = 0; i != latex.size(); ++i) {
+                for (std::size_t i = 0; i != latex.size(); ++i) {
                     if (latex[i] == ' ') {
                         latex.erase(latex.begin() + i);
                         --i;
@@ -534,7 +534,7 @@ vector<Parent> AbstractParent::getBrokenParts(const Space*) const
 vector<Parent> AbstractParent::breakSpace(
         const Space*,
         const vector<const Space*>&,
-        const vector<size_t>&
+        const vector<std::size_t>&
         ) const
 {
     return vector<Parent>();

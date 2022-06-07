@@ -91,8 +91,8 @@ namespace sgl {
 #endif
 
     struct ScopeLog {
-        static inline size_t r_general = 0;
-        size_t r;
+        static inline std::size_t r_general = 0;
+        std::size_t r;
         ScopeLog(): r(r_general++)  { LOG() LOG("******************************** R", r) LOG() }
         ~ScopeLog() { /*--r_general;*/    LOG() LOG("******************************** R", r) LOG() }
     };

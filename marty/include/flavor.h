@@ -42,7 +42,7 @@ class FlavorGroup {
                 int                nFlavors,
                 bool               complexFields = true);
 
-    size_t getDim() const;
+    std::size_t getDim() const;
 
     std::string_view getName() const;
 
@@ -85,7 +85,7 @@ class Flavor {
         return flavors.empty();
     }
 
-    size_t size() const {
+    std::size_t size() const {
         return flavors.size();
     }
 
@@ -121,7 +121,7 @@ class Flavor {
         flavors.push_back(newPtr.release());
     }
 
-    FlavorGroup* operator[](size_t i) const {
+    FlavorGroup* operator[](std::size_t i) const {
         return flavors[i];
     }
 

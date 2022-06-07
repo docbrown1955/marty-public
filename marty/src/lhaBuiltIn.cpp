@@ -50,7 +50,7 @@ void readFile(std::ifstream &file)
 bool applyLHA(
         LHAFileData const &data,
         std::string_view   nameBlock,
-        size_t             id,
+        std::size_t             id,
         csl::Expr              &expr
         )
 {
@@ -67,8 +67,8 @@ bool applyLHA(
 bool applyLHA(
         LHAFileData const &data,
         std::string_view   nameBlock,
-        size_t             i,
-        size_t             j,
+        std::size_t             i,
+        std::size_t             j,
         csl::Expr              &expr
         )
 {
@@ -96,8 +96,8 @@ bool applyLHA(
     if (block.empty())
         return false;
     
-    for (size_t i = 0; i != csl::Size(expr); ++i) 
-        for (size_t j = 0; j != csl::Size(expr[i]); ++j) 
+    for (std::size_t i = 0; i != csl::Size(expr); ++i) 
+        for (std::size_t j = 0; j != csl::Size(expr[i]); ++j) 
             if (!applyLHA(data, nameBlock, i+1, j+1, expr[i][i]))
                 expr[i][j]->setValue(0);
 

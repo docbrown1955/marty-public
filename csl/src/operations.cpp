@@ -116,7 +116,7 @@ bool Sum::isPurelyImaginary() const
 optional<Expr> Sum::getRealPart() const
 {
     csl::vector_expr newArg(argument.size());
-    for (size_t i = 0; i < argument.size(); i++)
+    for (std::size_t i = 0; i < argument.size(); i++)
         newArg[i] = GetRealPart(argument[i]);
 
     return sum_s(newArg);
@@ -125,7 +125,7 @@ optional<Expr> Sum::getRealPart() const
 Expr Sum::getImaginaryPart() const
 {
     csl::vector_expr newArg(argument.size());
-    for (size_t i = 0; i < argument.size(); i++)
+    for (std::size_t i = 0; i < argument.size(); i++)
         newArg[i] = GetImaginaryPart(argument[i]);
 
     return sum_s(newArg);
@@ -209,7 +209,7 @@ void Sum::print(
 {
     if (mode > 1) // Priority lesser than the previous operation: brackets
         out<<"(";
-    for (size_t i = 0; i < argument.size(); i++) {
+    for (std::size_t i = 0; i < argument.size(); i++) {
         argument[i]->print(1, out, lib);
         if (i+1 < size()) {
             if (argument[i+1] == -CSL_1)
@@ -236,7 +236,7 @@ void Sum::printCode(
         ) const
 {
     out << "csl::sum_s({";
-    for (size_t i = 0; i != size(); ++i) {
+    for (std::size_t i = 0; i != size(); ++i) {
         argument[i]->printCode(1, out);
         if (i+1 != size())
             out << " , ";
@@ -249,7 +249,7 @@ string Sum::printLaTeX(int mode) const
     ostringstream sout;
     if (mode > 1) // Priority lesser than the previous operation: brackets
         sout<<"\\left(";
-    for (size_t i = 0; i < argument.size(); i++) {
+    for (std::size_t i = 0; i < argument.size(); i++) {
         sout<<argument[i]->printLaTeX(1);
         if (i+1 < size())
             sout<<"+";
@@ -265,7 +265,7 @@ string Sum::printLaTeX(int mode) const
 long double Sum::evaluateScalar() const
 {
     double sum=0;
-    for (size_t i = 0; i < argument.size(); i++) {
+    for (std::size_t i = 0; i < argument.size(); i++) {
         if (argument[i]->getDim() > 0) 
             // if the sum contains a non-scalar term, the function returns 0.
             return 0;
@@ -285,7 +285,7 @@ optional<Expr> Sum::evaluate(
     // evaluate to numbers to save time.
     vector<optional<Expr>> newArg(argument.size());
     bool eval = false;
-    for (size_t i = 0; i != argument.size(); ++i) {
+    for (std::size_t i = 0; i != argument.size(); ++i) {
         newArg[i] = argument[i]->evaluate(user_mode);
         if (not eval and newArg[i])
             eval = true;
@@ -294,7 +294,7 @@ optional<Expr> Sum::evaluate(
         return nullopt;
     Expr numericalRes = CSL_0;
     csl::vector_expr new_argument;
-    for (size_t i = 0; i < argument.size(); i++) {
+    for (std::size_t i = 0; i < argument.size(); i++) {
         Expr foo = newArg[i].value_or(argument[i]);
         if (foo->getPrimaryType() == csl::PrimaryType::Numerical)
             numericalRes = numericalRes->addition_own(foo);
@@ -320,7 +320,7 @@ unique_Expr Sum::copy_unique() const
 Expr Sum::deepCopy() const
 {
     csl::vector_expr copyArgument(argument.size());
-    for (size_t i = 0; i != argument.size(); ++i)
+    for (std::size_t i = 0; i != argument.size(); ++i)
         copyArgument[i] = argument[i]->deepCopy();
 
     if (isIndexed())
@@ -337,7 +337,7 @@ Expr Sum::refresh() const
 Expr Sum::deepRefresh() const
 {
     csl::vector_expr refreshedArgument(argument.size());
-    for (size_t i = 0; i != argument.size(); ++i) {
+    for (std::size_t i = 0; i != argument.size(); ++i) {
         refreshedArgument[i] = argument[i]->deepRefresh();
     }
 
@@ -353,11 +353,11 @@ bool Sum::mergeTerms()
 
     // Here we check if there are Sum terms in the arguments, we flatten the 
     // whole thing to have only non-plus arguments.
-    for (size_t i = 0; i < argument.size(); i++) {
+    for (std::size_t i = 0; i < argument.size(); i++) {
         if (argument[i]->getType() == csl::Type::Sum) { // Sum(Sum(.. 
             int t_nArgs = argument[i]->getNArgs();
             vector_expr t_argument = argument[i]->getVectorArgument();
-            for (size_t j = 0; j < argument.size(); j++)
+            for (std::size_t j = 0; j < argument.size(); j++)
                 if (i != j)
                     t_argument.push_back(argument[j]);
 
@@ -373,7 +373,7 @@ bool Sum::mergeTerms()
     // Here is the merge of numbers in the expression (for example 3+x+2 = 5+x)
     bool numericalFactor = (argument[0]->getPrimaryType() 
             == csl::PrimaryType::Numerical);
-    for (size_t i = numericalFactor; i < argument.size(); i++) {
+    for (std::size_t i = numericalFactor; i < argument.size(); i++) {
         if (argument[i]->getPrimaryType() == csl::PrimaryType::Numerical) {
             if (!numericalFactor) {
                 Expr foo = argument[i];
@@ -402,13 +402,13 @@ bool Sum::mergeTerms()
 
     // Check for identical terms in the sum, x + 2*x = 3*x
     std::vector<csl::Expr> terms(argument.size());
-    for (size_t i = 0; i != terms.size(); ++i) 
+    for (std::size_t i = 0; i != terms.size(); ++i) 
         terms[i] = GetTerm(argument[i]);
-    for (size_t i = numericalFactor; i+1 < argument.size(); i++) {
+    for (std::size_t i = numericalFactor; i+1 < argument.size(); i++) {
         Expr term = terms[i];
         Expr factor = argument[i]->getNumericalFactor();
         bool matched = false;
-        for (size_t j = i+1; j < argument.size(); j++) {
+        for (std::size_t j = i+1; j < argument.size(); j++) {
             Expr term2 = terms[j];
             if (*term == term2) {
                 factor = factor->addition_own(argument[j]->getNumericalFactor());
@@ -455,8 +455,8 @@ void testSimplificationRule(std::vector<Expr> const &arg)
             std::cin.get();
         }
     }
-    for (size_t i = 0; i != arg.size(); ++i)
-        for (size_t j = 0; j < arg.size(); ++j) {
+    for (std::size_t i = 0; i != arg.size(); ++i)
+        for (std::size_t j = 0; j < arg.size(); ++j) {
             if (i != j)
                 continue;
             if (arg[i] < arg[j]) {
@@ -482,9 +482,9 @@ void testSimplificationRule(std::vector<Expr> const &arg)
                 std::cin.get();
             }
         }
-    for (size_t i = 0; i != arg.size(); ++i)
-        for (size_t j = 0; j < arg.size(); ++j) 
-            for (size_t k = 0; k != arg.size(); ++k)
+    for (std::size_t i = 0; i != arg.size(); ++i)
+        for (std::size_t j = 0; j < arg.size(); ++j) 
+            for (std::size_t k = 0; k != arg.size(); ++k)
                 if (i != j and i != k and k != j) {
                     bool r_ij = arg[i] < arg[j];
                     bool r_ik = arg[i] < arg[k];
@@ -512,17 +512,17 @@ void Sum::orderTerms()
 
     // if (testOperatorComparison) {
     //     testSimplificationRule(argument);
-    //     for (size_t i = 0; i != size(); ++i) {
+    //     for (std::size_t i = 0; i != size(); ++i) {
     //         std::cout << i << " = " << argument[i] << std::endl;
     //     }
     //     std::cout << "  ";
-    //     for (size_t i = 0; i != size(); ++i) {
+    //     for (std::size_t i = 0; i != size(); ++i) {
     //         std::cout << i << " -- ";
     //         std::cout << std::endl;
     //     }
-    //     for (size_t i = 0; i != size(); ++i) {
+    //     for (std::size_t i = 0; i != size(); ++i) {
     //         std::cout << i << " ";
-    //         for (size_t j = 0; j != size(); ++j)
+    //         for (std::size_t j = 0; j != size(); ++j)
     //             std::cout << (argument[i] < argument[j]) << " -- ";
     //         std::cout << std::endl;
     //     }
@@ -539,7 +539,7 @@ optional<Expr> Sum::derive(Expr_info expr) const
     // Derivative is the sum of the derivatives of arguments
     Expr rep = CSL_0;
     csl::vector_expr newArgs;
-    for (size_t i = 0; i < argument.size(); i++) {
+    for (std::size_t i = 0; i < argument.size(); i++) {
         if (not argument[i]->dependsOn(expr))
             continue;
         if (Expr derivative = Derived(argument[i], expr);
@@ -557,8 +557,8 @@ Expr Sum::getNumericalFactor() const
         return (csl::IsInteger(num) && std::fabs(num->evaluateScalar()) < lim)
             || (csl::IsIntFraction(num) && std::fabs(num->evaluateScalar()) < lim);
     };
-    const size_t sz = argument.size();
-    for (size_t i = 0; i != sz; ++i) {
+    const std::size_t sz = argument.size();
+    for (std::size_t i = 0; i != sz; ++i) {
         const auto &arg = argument[i];
         if (arg != CSL_0) {
             auto factor = (isValidFactor(arg)) ?  arg : arg->getNumericalFactor();
@@ -573,7 +573,7 @@ int Sum::getOrderOf(Expr_info expr) const
     if (argument.empty())
         return 0;
     int order = argument[0]->getOrderOf(expr);
-    for (size_t i = 1; i != argument.size(); ++i)
+    for (std::size_t i = 1; i != argument.size(); ++i)
         if (auto newOrder = argument[i]->getOrderOf(expr);
                 newOrder < order)
             order = newOrder;
@@ -585,7 +585,7 @@ optional<Expr> Sum::getTerm() const
     Expr num = getNumericalFactor();
     if (num != CSL_1 and num != CSL_0) {
         csl::vector_expr copyArgument(argument.size());
-        for (size_t i = 0; i != size(); ++i) {
+        for (std::size_t i = 0; i != size(); ++i) {
             copyArgument[i] = argument[i] / num;
         }
         return sum_s(copyArgument, true);
@@ -619,13 +619,13 @@ void Sum::gatherFactors(
     arg = argument;
     // If full, we factor first the arguments independently
     if (full) {
-        for (size_t i = 0; i < argument.size(); i++)
+        for (std::size_t i = 0; i < argument.size(); i++)
             Factor(arg[i], full);
     }
 
-    size_t mini = 0;
+    std::size_t mini = 0;
     int nFactorsMini = arg[0]->getNFactor();
-    for (size_t i = 1; i < argument.size(); i++) {
+    for (std::size_t i = 1; i < argument.size(); i++) {
         if (!GetCommutable(arg[mini])
                 or (GetCommutable(arg[i]) 
                 and nFactorsMini > arg[i]->getNFactor())) {
@@ -638,9 +638,9 @@ void Sum::gatherFactors(
     }
     factors = arg[mini]->getFactors();
     if (factors.size() == 0) factors = csl::vector_expr(1,arg[mini]);
-    for (size_t i = 0; i < argument.size(); i++) {
+    for (std::size_t i = 0; i < argument.size(); i++) {
         if (i != mini) {
-            for (size_t j=0; j<factors.size(); j++) {
+            for (std::size_t j=0; j<factors.size(); j++) {
                 if (!arg[i]->askTerm(factors[j].get())) {
                     factors.erase(factors.begin()+j);
                     j--;
@@ -657,7 +657,7 @@ void Sum::clearRedundantFactors(csl::vector_expr& factors) const
 {
     // Here we clear redundant factors, i.e. different powers of the same object.
     // For example if x, x^2, x^3 are possible we only keep x^3.
-    for (size_t i=0; i<factors.size(); i++) {
+    for (std::size_t i=0; i<factors.size(); i++) {
         if (!GetCommutable(factors[i])) {
             factors.erase(factors.begin() + i);
             --i;
@@ -672,7 +672,7 @@ void Sum::clearRedundantFactors(csl::vector_expr& factors) const
                 continue;
             }
 
-            for (size_t j=0; j<factors.size(); j++) {
+            for (std::size_t j=0; j<factors.size(); j++) {
                 if (i != j) {
                     if (factors[j]->getType() == csl::Type::Pow
                             and factors[i]->getArgument() == 
@@ -722,10 +722,10 @@ optional<Expr> Sum::factor(bool full) const
         return nullopt;
     // Finally, if there is some factors left, we factor them out of the
     // expression
-    for (size_t j=0; j<factors.size(); j++) {
+    for (std::size_t j=0; j<factors.size(); j++) {
         Expr expr = factors[j];
         Expr newAbstract = CSL_0;
-        for (size_t i = 0; i < argument.size(); i++) {
+        for (std::size_t i = 0; i < argument.size(); i++) {
             if (*arg[i]==expr)
                 arg[i] = CSL_1;
             else {
@@ -755,13 +755,13 @@ optional<Expr> Sum::factor(Expr_info expr, bool full) const
     // If (full) we first factor recursively the arguments independently
     csl::vector_expr arg = argument;
     if (full)
-        for (size_t i = 0; i < argument.size(); i++)
+        for (std::size_t i = 0; i < argument.size(); i++)
             Factor(arg[i], true);
 
     // Here we test the factor for each argument (if it is a valid factor)
     Expr newAbstract = CSL_0;
     vector<int> toFactor(0);
-    for (size_t i = 0; i < argument.size(); i++) {
+    for (std::size_t i = 0; i < argument.size(); i++) {
         if (*arg[i] == expr)
             toFactor.push_back(i);
         else {
@@ -782,7 +782,7 @@ optional<Expr> Sum::factor(Expr_info expr, bool full) const
     if (toFactor.size() == argument.size()) {
         std::vector<csl::Expr> factored;
         factored.reserve(toFactor.size());
-        for (size_t i=0; i<toFactor.size(); i++) {
+        for (std::size_t i=0; i<toFactor.size(); i++) {
             Expr foo = arg[toFactor[i]]->suppressTerm(expr);
             if (foo*copyExpr != arg[toFactor[i]])
                 return nullopt;
@@ -817,17 +817,17 @@ std::optional<Expr> Sum::collect(
             }
         }
     }
-    size_t size = copy->size();
-    std::vector<size_t> indicesLeft(size);
-    for (size_t i = 0; i != indicesLeft.size(); ++i) 
+    std::size_t size = copy->size();
+    std::vector<std::size_t> indicesLeft(size);
+    for (std::size_t i = 0; i != indicesLeft.size(); ++i) 
         indicesLeft[i] = i;
     std::vector<Expr> expo1(factors.size(), CSL_0);
     std::vector<Expr> expo2(factors.size(), CSL_0);
-    std::vector<size_t> sameFactors;
+    std::vector<std::size_t> sameFactors;
     sameFactors.reserve(argument.size());
 
     std::vector<Expr> terms;
-    for (size_t arg1 = 0; arg1 != indicesLeft.size(); ++arg1)  {
+    for (std::size_t arg1 = 0; arg1 != indicesLeft.size(); ++arg1)  {
         std::fill(expo1.begin(), expo1.end(), CSL_0);
         copy[indicesLeft[arg1]]->getExponents(factors, expo1);
         if (std::all_of(
@@ -839,7 +839,7 @@ std::optional<Expr> Sum::collect(
             continue;
         sameFactors.clear();
         sameFactors.push_back(arg1);
-        for (size_t arg2 = arg1+1; arg2 < indicesLeft.size(); ++arg2) {
+        for (std::size_t arg2 = arg1+1; arg2 < indicesLeft.size(); ++arg2) {
             std::fill(expo2.begin(), expo2.end(), CSL_0);
             copy[indicesLeft[arg2]]->getExponents(factors, expo2);
             if (expo1 == expo2) {
@@ -849,15 +849,15 @@ std::optional<Expr> Sum::collect(
         if (sameFactors.size() > 1) {
             std::vector<Expr> frontTerm;
             frontTerm.reserve(factors.size());
-            for (size_t i = 0; i != factors.size(); ++i) {
+            for (std::size_t i = 0; i != factors.size(); ++i) {
                 if (expo1[i] != CSL_0)
                     frontTerm.push_back(csl::pow_s(factors[i], expo1[i]));
             }
             std::vector<Expr> sumTerms;
             sumTerms.reserve(sameFactors.size());
-            for (size_t i = sameFactors.size(); i --> 0 ;) {
+            for (std::size_t i = sameFactors.size(); i --> 0 ;) {
                 Expr term = copy[indicesLeft[sameFactors[i]]];
-                for (size_t j = 0; j != factors.size(); ++j) {
+                for (std::size_t j = 0; j != factors.size(); ++j) {
                     if (expo1[j] != CSL_0) {
                         auto removed = term->suppressExponent(
                                 factors[j], expo1[j]);
@@ -881,7 +881,7 @@ std::optional<Expr> Sum::collect(
     }
     if (!collected)
         return std::nullopt;
-    for (size_t i : indicesLeft)
+    for (std::size_t i : indicesLeft)
         terms.push_back(copy[i]);
     return csl::sum_s(terms);
 }
@@ -908,7 +908,7 @@ Expr Sum::suppressTerm(Expr_info term) const
         return getNumericalFactor();
     }
     csl::vector_expr newArg(argument.size());
-    for (size_t i = 0; i != argument.size(); ++i)
+    for (std::size_t i = 0; i != argument.size(); ++i)
         newArg[i] = argument[i]->suppressTerm(term);
     return sum_s(newArg);
 }
@@ -921,7 +921,7 @@ int Sum::getParity(Expr_info t_variable) const
     if (parity == 0)
         return 0;
 
-    for (size_t i = 1; i < argument.size(); i++)
+    for (std::size_t i = 1; i < argument.size(); i++)
         if (parity != argument[i]->getParity(t_variable))
             return 0;
 
@@ -944,13 +944,13 @@ bool Sum::operator==(Expr_info expr) const
         return false;
     if (sz != expr->size()) 
         return false;
-    vector<size_t> indicesLeft(sz);
-    for (size_t i = 0; i < sz; ++i) 
+    vector<std::size_t> indicesLeft(sz);
+    for (std::size_t i = 0; i < sz; ++i) 
         indicesLeft[i] = i;
 
-    for (size_t i = 0; i < sz; ++i) {
+    for (std::size_t i = 0; i < sz; ++i) {
         bool matched = false;
-        for (size_t j = 0; j != indicesLeft.size(); ++j) {
+        for (std::size_t j = 0; j != indicesLeft.size(); ++j) {
             map<Index,Index> constraints;
             Expr const &foo = expr->getArgument(indicesLeft[j]);    
             if (*argument[i] == foo.get()) {
@@ -1113,7 +1113,7 @@ Prod::Prod(const Expr& leftOperand,
 
 void Prod::mergeProducts()
 {
-    size_t extraSize = 0;
+    std::size_t extraSize = 0;
     for (const auto &arg : argument)
         if (arg->getType() == csl::Type::Prod) {
             extraSize += arg->size();
@@ -1162,7 +1162,7 @@ optional<Expr> Prod::getTerm() const
 int Prod::getNFactor() const
 {
     int nFactor = 1;
-    for (size_t i = 0; i < argument.size(); i++)
+    for (std::size_t i = 0; i < argument.size(); i++)
         nFactor *= argument[i]->getNFactor();
 
     return nFactor;
@@ -1171,7 +1171,7 @@ int Prod::getNFactor() const
 csl::vector_expr Prod::getFactors() const
 {
     csl::vector_expr foo, bar;
-    for (size_t i = 0; i != argument.size(); i++) {
+    for (std::size_t i = 0; i != argument.size(); i++) {
         bar = argument[i]->getFactors();
         if (bar.empty())
             bar = csl::vector_expr(1, argument[i]);
@@ -1191,7 +1191,7 @@ void Prod::getExponents(
 
 bool Prod::askTerm(Expr_info expr, bool exact) const
 {
-    for (size_t i = 0; i < argument.size(); i++) {
+    for (std::size_t i = 0; i < argument.size(); i++) {
         if (Comparator::freeIndexComparison(argument[i].get(),expr))
             return true;
         else if (!exact //and argument[i]->getType() == csl::Type::Pow and // Pow
@@ -1206,10 +1206,10 @@ bool Prod::askTerm(Expr_info expr, bool exact) const
 Expr Prod::suppressTerm(Expr_info expr) const
 {
     csl::vector_expr newArg;
-    const size_t sz = argument.size();
+    const std::size_t sz = argument.size();
     newArg.reserve(sz);
     bool matched = false;
-    for (size_t i = 0; i < sz; i++) {
+    for (std::size_t i = 0; i < sz; i++) {
         auto arg = argument[i];
         if (not matched) {
             if (arg->getType() == csl::Type::Pow) { // Pow 
@@ -1250,9 +1250,9 @@ std::optional<Expr> Prod::suppressExponent(
         Expr const &exponent
         ) const
 {
-    size_t pos;
+    std::size_t pos;
     Expr removed = nullptr;
-    for (size_t i = 0; i != argument.size(); ++i) {
+    for (std::size_t i = 0; i != argument.size(); ++i) {
         auto rm = argument[i]->suppressExponent(factor, exponent);
         if (rm) {
             removed = *rm;
@@ -1278,8 +1278,8 @@ int Prod::getOrderOf(Expr_info expr) const
 
 bool Prod::isReal() const 
 {
-    size_t nReal = 0;
-    size_t nImag = 0;
+    std::size_t nReal = 0;
+    std::size_t nImag = 0;
     for (const auto &arg : argument) {
         if (arg->isReal())
             ++nReal;
@@ -1297,8 +1297,8 @@ bool Prod::isReal() const
 
 bool Prod::isPurelyImaginary() const
 {
-    size_t nReal = 0;
-    size_t nImag = 0;
+    std::size_t nReal = 0;
+    std::size_t nImag = 0;
     for (const auto &arg : argument) {
         if (arg->isReal())
             ++nReal;
@@ -1319,7 +1319,7 @@ optional<Expr> Prod::getRealPart() const
     Expr realPart = GetRealPart(argument[0]);
     Expr imaginaryPart = GetImaginaryPart(argument[0]);
     Expr foo;
-    for (size_t i = 1; i < argument.size(); i++) {
+    for (std::size_t i = 1; i < argument.size(); i++) {
         foo = Copy(realPart);
         realPart = sum_s(prod_s(realPart,GetRealPart(argument[i])),
                          prod_s(CSL_M_1,
@@ -1339,7 +1339,7 @@ Expr Prod::getImaginaryPart() const
     Expr realPart = GetRealPart(argument[0]);
     Expr imaginaryPart = argument[0]->getImaginaryPart();
     Expr foo;
-    for (size_t i = 1; i < argument.size(); i++) {
+    for (std::size_t i = 1; i < argument.size(); i++) {
         foo = Copy(realPart);
         if (i+1 < size())
             realPart = sum_s(prod_s(realPart,GetRealPart(argument[i])),
@@ -1377,12 +1377,12 @@ optional<Expr> Prod::getHermitianConjugate(
         const vector<const Space*>& space) const
 {
     vector<optional<Expr>> newArg(argument.size());
-    for (size_t i = 0; i != argument.size(); ++i) {
+    for (std::size_t i = 0; i != argument.size(); ++i) {
         newArg[i] = argument[i]->getHermitianConjugate(space);
     }
     Prod res;
     res.argument = argument;
-    for (size_t i = 0; i != argument.size(); ++i)
+    for (std::size_t i = 0; i != argument.size(); ++i)
         res.setArgument(newArg[i].value_or(argument[i]),
                          argument.size()-1-i);
 
@@ -1399,14 +1399,14 @@ optional<Expr> Prod::findSubExpression(
             // all terms of subExpression and place newExpression
             // at the place of the first term of subExpression.
             Expr res = copy();
-            size_t t_nArgs = subExpression->getNArgs();
+            std::size_t t_nArgs = subExpression->getNArgs();
             const csl::vector_expr& t_arg = subExpression->getVectorArgument();
-            for (size_t i = 0; i < argument.size(); ++i)
+            for (std::size_t i = 0; i < argument.size(); ++i)
                 if (*t_arg[0] == argument[i]) {
                     res->setArgument(newExpression, i);
                     break;
                 }
-            for (size_t i = 1; i < t_nArgs; ++i)
+            for (std::size_t i = 1; i < t_nArgs; ++i)
                 res = res->suppressTerm(t_arg[i].get());
 
             return Refreshed(res);
@@ -1427,7 +1427,7 @@ void Prod::print(
         out<<"(";
     vector<int> denominatorIndices(0);
     vector<int> numeratorIndices(0);
-    for (size_t i = 0; i < argument.size(); i++) {
+    for (std::size_t i = 0; i < argument.size(); i++) {
         if (argument[i]->getType() == csl::Type::Pow and
             argument[i]->getArgument(1)->isInteger() and
             argument[i]->getArgument(1)->evaluateScalar() == -1)
@@ -1444,7 +1444,7 @@ void Prod::print(
                 out << "*";
         }
     }
-    for (size_t i=1; i<numeratorIndices.size(); i++) {
+    for (std::size_t i=1; i<numeratorIndices.size(); i++) {
         argument[numeratorIndices[i]]->print(2, out, lib);
         if (i <numeratorIndices.size() - 1)
             out<<"*";
@@ -1460,7 +1460,7 @@ void Prod::print(
             argument[denominatorIndices[0]]->getArgument(0)->print(3, out, lib);
         else {
             out<<"(";
-            for(size_t i=0; i<denominatorIndices.size(); i++) {
+            for(std::size_t i=0; i<denominatorIndices.size(); i++) {
                 argument[denominatorIndices[i]]->getArgument(0)->print(2, out, lib);
                 if (i < denominatorIndices.size()-1)
                     out<<"*";
@@ -1481,7 +1481,7 @@ void Prod::printCode(
         ) const
 {
     out << "csl::prod_s({";
-    for (size_t i = 0; i != argument.size(); ++i) {
+    for (std::size_t i = 0; i != argument.size(); ++i) {
         argument[i]->printCode(0, out);
         if (i != argument.size() - 1)
             out << ", ";
@@ -1496,7 +1496,7 @@ string Prod::printLaTeX(int mode) const
         sout<<"\\left(";
     vector<int> denominatorIndices(0);
     vector<int> numeratorIndices(0);
-    for (size_t i = 0; i < argument.size(); i++) {
+    for (std::size_t i = 0; i < argument.size(); i++) {
         if (argument[i]->getType() == csl::Type::Pow and
             argument[i]->getArgument(1)->isInteger() and
             argument[i]->getArgument(1)->evaluateScalar() == -1)
@@ -1506,7 +1506,7 @@ string Prod::printLaTeX(int mode) const
     }
     if (denominatorIndices.size() > 0)
         sout<<"\\frac{";
-    for (size_t i=0; i<numeratorIndices.size(); i++) {
+    for (std::size_t i=0; i<numeratorIndices.size(); i++) {
         sout<<argument[numeratorIndices[i]]->printLaTeX(2);
         if (i <numeratorIndices.size() - 1
                 and static_cast<int>(argument[numeratorIndices[i]]->getPrimaryType()) < 10
@@ -1515,7 +1515,7 @@ string Prod::printLaTeX(int mode) const
     }
     if (denominatorIndices.size() > 0) {
         sout<<"}{";
-        for(size_t i=0; i<denominatorIndices.size(); i++) {
+        for(std::size_t i=0; i<denominatorIndices.size(); i++) {
             sout<<argument[denominatorIndices[i]]->getArgument(0)->printLaTeX(2);
             if (i < denominatorIndices.size()-1
                 and static_cast<int>(argument[denominatorIndices[i]]->getPrimaryType()) < 10
@@ -1605,10 +1605,10 @@ void Prod::insert(const Expr& expr, bool side)
 void Prod::leftInsert(const Expr& expr)
 {
     // If not numerical, we search for a similar term
-    size_t max = size();
+    std::size_t max = size();
     Expr term, exponent;
     getExponentStructure(expr, term, exponent);
-    for (size_t i = 0; i < argument.size(); i++) {
+    for (std::size_t i = 0; i < argument.size(); i++) {
         Expr term2, exponent2;
         getExponentStructure(argument[i], term2, exponent2);
         if (not option::checkCommutations 
@@ -1637,7 +1637,7 @@ void Prod::leftInsert(const Expr& expr)
     }
 
     // No term corresponds, we order correctly the new term in the sum
-    for (size_t i = 0; i < max; i++) 
+    for (std::size_t i = 0; i < max; i++) 
         if (not option::checkCommutations
                 or expr < argument[i]
                 or *Commutation(expr, argument[i]) != CSL_0) {
@@ -1713,7 +1713,7 @@ void Prod::rightInsert(const Expr& expr)
 long double Prod::evaluateScalar() const
 {
     double product=1;
-    for (size_t i = 0; i < argument.size(); i++)
+    for (std::size_t i = 0; i < argument.size(); i++)
     {
         if (argument[i]->getDim() > 0) return 0;
         product *= argument[i]->evaluateScalar();
@@ -1728,7 +1728,7 @@ optional<Expr> Prod::evaluate(
     bool number = true;
     Expr numericalRes = CSL_1;
     csl::vector_expr newArgs;
-    for (size_t i = 0; i < argument.size(); i++) {
+    for (std::size_t i = 0; i < argument.size(); i++) {
         optional<Expr> evalArg = argument[i]->evaluate(user_mode);
         Expr foo = evalArg.value_or(argument[i]);
         if (foo->getPrimaryType() == csl::PrimaryType::Numerical)
@@ -1757,7 +1757,7 @@ unique_Expr Prod::copy_unique() const
 Expr Prod::deepCopy() const
 {
     csl::vector_expr copyArgument(argument.size());
-    for (size_t i = 0; i != argument.size(); ++i)
+    for (std::size_t i = 0; i != argument.size(); ++i)
         copyArgument[i] = argument[i]->deepCopy();
 
     if (isIndexed()) {
@@ -1775,7 +1775,7 @@ Expr Prod::refresh() const
 Expr Prod::deepRefresh() const
 {
     csl::vector_expr refreshed(argument.size());
-    for (size_t i = 0; i != argument.size(); ++i) {
+    for (std::size_t i = 0; i != argument.size(); ++i) {
         refreshed[i] = argument[i]->deepRefresh();
     }
 
@@ -1785,8 +1785,8 @@ Expr Prod::deepRefresh() const
 
 bool Prod::mergeNumericals()
 {
-    size_t posNonNumerical = 0;
-    for (size_t i = 0; i != argument.size(); ++i) {
+    std::size_t posNonNumerical = 0;
+    for (std::size_t i = 0; i != argument.size(); ++i) {
         if (argument[i] == CSL_0) {
             argument = {CSL_0};
             return true;
@@ -1805,7 +1805,7 @@ bool Prod::mergeNumericals()
     }
 
     Expr totalFactor = CSL_1;
-    for (size_t i = posNonNumerical; i != argument.size(); ++i) {
+    for (std::size_t i = posNonNumerical; i != argument.size(); ++i) {
         Expr factor = argument[i]->getNumericalFactor();
         if (factor == CSL_0) {
             argument = {CSL_0};
@@ -1848,7 +1848,7 @@ bool Prod::mergeTerms()
     }
     bool indexed = isIndexed();
     bool remergeNumericals = false;
-    for (size_t i = 0; i+1 < argument.size(); i++) {
+    for (std::size_t i = 0; i+1 < argument.size(); i++) {
         if (indexed
                 and argument[i]->isIndexed() 
                 and argument[i]->getIndexStructure().size() > 0) {
@@ -1927,14 +1927,14 @@ void Prod::orderTerms()
         csl::sort(argument.begin(), argument.end());
         return;
     }
-    for (size_t i = 0; i != argument.size(); i++) {
+    for (std::size_t i = 0; i != argument.size(); i++) {
         if (argument[i]->getType() == csl::Type::Prod) { 
             //csl::vector_expr newArg(argument.size() + argument[i]->size() - 1);
-            //for (size_t j = 0; j != i; ++j)
+            //for (std::size_t j = 0; j != i; ++j)
             //    newArg[j] = argument[j];
-            //for (size_t j = 0; j != argument[i]->size(); ++j)
+            //for (std::size_t j = 0; j != argument[i]->size(); ++j)
             //    newArg[i+j] = (*argument[i])[j];
-            //for (size_t j = i+1; j < argument.size(); ++j)
+            //for (std::size_t j = i+1; j < argument.size(); ++j)
             //    newArg[argument[i]->size() + j - 1] = argument[j];
             //argument = std::move(newArg);
             //i += argument[i]->size()-1;
@@ -1944,7 +1944,7 @@ void Prod::orderTerms()
             argument.insert(argument.begin() + i+1,
                             t_argument.begin(),
                             t_argument.end());
-            size_t old_i {i};
+            std::size_t old_i {i};
             i += argument[i]->getNArgs()-1;
             argument.erase(argument.begin() + old_i);
         }
@@ -1955,9 +1955,9 @@ void Prod::orderTerms()
         csl::sort(argument.begin(), argument.end());
         return;
     }
-    for (size_t i = 0; i < argument.size()-1; i++) {
-        size_t simpler = i;
-        for (size_t j = i+1; j != argument.size(); j++) {
+    for (std::size_t i = 0; i < argument.size()-1; i++) {
+        std::size_t simpler = i;
+        for (std::size_t j = i+1; j != argument.size(); j++) {
             if (option::checkCommutations 
                     and Commutation(argument[i], argument[j]) != CSL_0) {
                 break;
@@ -1969,7 +1969,7 @@ void Prod::orderTerms()
         if (simpler != i) {
             if (not GetCommutable(argument[simpler])) {
                 bool commutes = true;
-                for (size_t j = i+1; j < simpler; ++j)
+                for (std::size_t j = i+1; j < simpler; ++j)
                     if (option::checkCommutations 
                          and Commutation(argument[simpler], argument[j]) != CSL_0) {
                         commutes = false;
@@ -1980,7 +1980,7 @@ void Prod::orderTerms()
             }
             if (not GetCommutable(argument[i])) {
                 bool commutes = true;
-                for (size_t j = i+1; j <= simpler; ++j)
+                for (std::size_t j = i+1; j <= simpler; ++j)
                     if (option::checkCommutations 
                          and Commutation(argument[i], argument[j]) != CSL_0) {
                         commutes = false;
@@ -2001,7 +2001,7 @@ optional<Expr> Prod::derive(Expr_info expr) const
     std::vector<Expr> rep;
     rep.reserve(size());
     Expr intermediateResult = nullptr;
-    for (size_t i = 0; i < size(); i++) {
+    for (std::size_t i = 0; i < size(); i++) {
         intermediateResult = CSL_0;
         if (not argument[i]->dependsOn(expr))
             continue;
@@ -2028,7 +2028,7 @@ optional<Expr> Prod::expand_if(
 {
     Expr copy = Copy(this);
     if (full)
-        for (size_t i = 0; i != copy->size(); i++)
+        for (std::size_t i = 0; i != copy->size(); i++)
             copy->setArgument(ExpandedIf(copy[i], f, true, inPlace),i);
     std::vector<std::vector<Expr>> newAbstracts(1, {CSL_1});
     bool expanded = full;
@@ -2052,7 +2052,7 @@ optional<Expr> Prod::expand_if(
         else
             args.push_back(arg);
     }
-    for (size_t i = 0; i != args.size(); ++i) {
+    for (std::size_t i = 0; i != args.size(); ++i) {
         if (args[i]->getType() == csl::Type::Sum 
                 and f(args[i])) {
             expanded = true;
@@ -2073,7 +2073,7 @@ optional<Expr> Prod::expand_if(
             std::vector<std::vector<Expr>> foo;
             foo.reserve(toDevelop.size() * newAbstracts.size());
             for (const auto& arg : toDevelop)
-                for (size_t k = 0; k < newAbstracts.size(); k++) {
+                for (std::size_t k = 0; k < newAbstracts.size(); k++) {
                     std::vector<Expr> intermediate;
                     intermediate.reserve(size());
                     for (const auto &el : newAbstracts[k])
@@ -2084,7 +2084,7 @@ optional<Expr> Prod::expand_if(
             newAbstracts = std::move(foo);
         }
         else if (!inPlace or f(args[i])){
-            for (size_t j = 0; j < newAbstracts.size(); j++)
+            for (std::size_t j = 0; j < newAbstracts.size(); j++)
                 newAbstracts[j].push_back(args[i]);
         }
         else
@@ -2098,7 +2098,7 @@ optional<Expr> Prod::expand_if(
     if (!denom.empty() and !expandedDenom)
         expandedDenom = csl::prod_s(denom, true);
     std::vector<Expr> terms(newAbstracts.size());
-    for (size_t i = 0; i != newAbstracts.size(); ++i) {
+    for (std::size_t i = 0; i != newAbstracts.size(); ++i) {
         if (!denom.empty())
             newAbstracts[i].push_back(1 / *expandedDenom);
         terms[i] = prod_s(newAbstracts[i]);
@@ -2117,11 +2117,11 @@ int Prod::isPolynomial(Expr_info expr) const
     bool polynomialTermFound = false;
     bool dependencyFound = false;
     int order = 0;
-    for (size_t i = 0; i < size(); i++) {
+    for (std::size_t i = 0; i < size(); i++) {
         if (argument[i]->dependsExplicitlyOn(expr)) {
             order = argument[i]->isPolynomial(expr);
             if (order > 0) {
-                for (size_t j = i+1; j < size(); ++j)
+                for (std::size_t j = i+1; j < size(); ++j)
                     if (option::checkCommutations
                             and *Commutation(argument[j].get(), expr) != CSL_0) 
                         return 0;
@@ -2143,7 +2143,7 @@ optional<Expr> Prod::getPolynomialTerm(Expr_info t_variable, int order) const
     if (order == 0)
         return result;
     Expr copyVar = Copy(t_variable);
-    for (size_t i = 0; i < size(); i++) {
+    for (std::size_t i = 0; i < size(); i++) {
         if (argument[i]->dependsExplicitlyOn(t_variable)) {
             argument_order = argument[i]->isPolynomial(t_variable);
             if (order == argument_order) {
@@ -2161,7 +2161,7 @@ optional<Expr> Prod::getPolynomialTerm(Expr_info t_variable, int order) const
 int Prod::getParity(Expr_info t_variable) const
 {
     int parity = 1;
-    for (size_t i = 0; i < size(); i++) {
+    for (std::size_t i = 0; i < size(); i++) {
         parity *= argument[i]->getParity(t_variable);
         if (parity == 0)
             return 0;
@@ -2183,8 +2183,8 @@ bool Prod::operator==(Expr_info expr) const
     if (sz != expr->size())
         return false;
 
-    vector<size_t> indicesLeft(sz);
-    for (size_t i = 0; i != sz; ++i)
+    vector<std::size_t> indicesLeft(sz);
+    for (std::size_t i = 0; i != sz; ++i)
         indicesLeft[i] = i;
 
     bool dummySearch = false;
@@ -2192,10 +2192,10 @@ bool Prod::operator==(Expr_info expr) const
         dummySearch = true;
         Comparator::setDummyComparisonActive(false);
     }
-    for (size_t i = 0; i < sz; ++i) {
+    for (std::size_t i = 0; i < sz; ++i) {
         bool matched = false;
         Expr const &arg = argument[i];
-        for (size_t j = 0; j != indicesLeft.size(); ++j) {
+        for (std::size_t j = 0; j != indicesLeft.size(); ++j) {
             Expr const &foo = expr->getArgument(indicesLeft[j]);
             if (option::checkCommutations 
                     and *Commutation(arg,foo) != CSL_0)
@@ -2234,15 +2234,15 @@ bool Prod::partialComparison(Expr_info expr) const
     if (expr->getType() != csl::Type::Prod)
         return false;
 
-    size_t t_size = expr->size();
-    vector<size_t> indicesLeft(t_size);
-    for (size_t i = 0; i < t_size; i++)
+    std::size_t t_size = expr->size();
+    vector<std::size_t> indicesLeft(t_size);
+    for (std::size_t i = 0; i < t_size; i++)
         indicesLeft[i] = i;
 
     Expr foo;
-    for (size_t i = 0; i < argument.size(); i++) {
+    for (std::size_t i = 0; i < argument.size(); i++) {
         bool matched = false;
-        for (size_t j=0; j<indicesLeft.size(); j++) {
+        for (std::size_t j=0; j<indicesLeft.size(); j++) {
             foo = expr->getArgument(indicesLeft[j]);
             if (option::checkCommutations and *Commutation(argument[i],foo) != CSL_0)
                     break;
@@ -2366,7 +2366,7 @@ Expr prod_s(const Expr& leftOperand, const Expr& rightOperand, bool explicitProd
             and rPType == csl::PrimaryType::Numerical
             and rType != csl::Type::Float) {
         Expr copy = Copy(leftOperand);
-        for (size_t i = 0; i != copy->size(); ++i)
+        for (std::size_t i = 0; i != copy->size(); ++i)
             (*copy)[i] = (*copy)[i] * rightOperand;
         return copy;
     }
@@ -2375,7 +2375,7 @@ Expr prod_s(const Expr& leftOperand, const Expr& rightOperand, bool explicitProd
             and lPType == csl::PrimaryType::Numerical
             and lType != csl::Type::Float) {
         Expr copy = Copy(rightOperand);
-        for (size_t i = 0; i != copy->size(); ++i)
+        for (std::size_t i = 0; i != copy->size(); ++i)
             (*copy)[i] = (*copy)[i] * leftOperand;
         return copy;
     }
@@ -2605,7 +2605,7 @@ void Pow::getExponents(
         std::vector<Expr>       &exponents
         ) const
 {
-    for (size_t i = 0; i != factors.size(); ++i) 
+    for (std::size_t i = 0; i != factors.size(); ++i) 
         if (factors[i] == argument[0]) {
             exponents[i] = argument[1];
             return;
@@ -2719,7 +2719,7 @@ void Pow::printCode(
         ) const
 {
     out << "csl::pow_s(";
-    for (size_t i = 0; i != size(); ++i) {
+    for (std::size_t i = 0; i != size(); ++i) {
         argument[i]->printCode(3, out);
         if (i+1 != size())
             out << ", ";
@@ -3071,8 +3071,8 @@ Expr pow_s(const Expr& leftOperand, const Expr& rightOperand)
     if (leftOperand->isIndexed() 
             and rightOperand->isInteger()
             and rightOperand->evaluateScalar() > 0) {
-        csl::vector_expr terms((size_t)rightOperand->evaluateScalar());
-        for (size_t i = 0; i != terms.size(); ++i) {
+        csl::vector_expr terms((std::size_t)rightOperand->evaluateScalar());
+        for (std::size_t i = 0; i != terms.size(); ++i) {
             terms[i] = DeepCopy(leftOperand);
             RenameIndices(terms[i]);
         }
@@ -3218,13 +3218,13 @@ Polynomial::Polynomial(const csl::vector_expr& terms, const Expr& t_variable): A
 
 bool Polynomial::mergeTerms()
 {
-    for (size_t i = 0; i < argument.size(); i++) {
+    for (std::size_t i = 0; i < argument.size(); i++) {
         if (argument[i]->getType() == csl::Type::Polynomial)
             argument[i] = argument[i]->getRegularExpression();
     }
     if (argument.empty())
         return false;
-    for (size_t i = argument.size() - 1; i >= 1; i--) {
+    for (std::size_t i = argument.size() - 1; i >= 1; i--) {
         if (*argument[i] == CSL_0) {
             argument.erase(argument.begin()+i);
         }
@@ -3273,7 +3273,7 @@ void Polynomial::print(
 {
     if (mode > 1) // Priority lesser than the previous operation: brackets
         out<<"(";
-    for (size_t i = 0; i < argument.size(); i++) {
+    for (std::size_t i = 0; i < argument.size(); i++) {
         if (*argument[i] != CSL_0) {
             if (i == 0 or *argument[i] != CSL_1)
                 argument[i]->print(2, out, lib);
@@ -3301,7 +3301,7 @@ void Polynomial::printCode(
         ) const
 {
     out << "csl::polynomial_s(";
-    for (size_t i = 0; i != size(); ++i) {
+    for (std::size_t i = 0; i != size(); ++i) {
         argument[i]->printCode(1, out);
         out << ", ";
     }
@@ -3314,7 +3314,7 @@ string Polynomial::printLaTeX(int mode) const
     ostringstream sout;
     if (mode > 1) // Priority lesser than the previous operation: brackets
         sout<<"\\left(";
-    for (size_t i = 0; i < argument.size(); i++)
+    for (std::size_t i = 0; i < argument.size(); i++)
     {
         sout<<argument[i]->printLaTeX(1);
         if (i+1 < argument.size())
@@ -3331,7 +3331,7 @@ string Polynomial::printLaTeX(int mode) const
 long double Polynomial::evaluateScalar() const
 {
     double sum=0;
-    for (size_t i = 0; i < argument.size(); i++) {
+    for (std::size_t i = 0; i < argument.size(); i++) {
         if (argument[i]->getDim() > 0)
             return 0;
         sum += argument[i]->evaluateScalar()*pow(variable->evaluateScalar(),i);
@@ -3354,7 +3354,7 @@ unique_Expr Polynomial::copy_unique() const
 Expr Polynomial::deepCopy() const
 {
     csl::vector_expr copyArgument(argument.size());
-    for (size_t i = 0; i != argument.size(); ++i)
+    for (std::size_t i = 0; i != argument.size(); ++i)
         copyArgument[i] = argument[i]->deepCopy();
 
     return csl::make_shared<Polynomial>(copyArgument, variable->deepCopy());
@@ -3368,7 +3368,7 @@ Expr Polynomial::refresh() const
 Expr Polynomial::deepRefresh() const
 {
     csl::vector_expr refreshed(argument.size());
-    for (size_t i = 0; i != argument.size(); ++i)
+    for (std::size_t i = 0; i != argument.size(); ++i)
         refreshed[i] = argument[i]->deepRefresh();
 
     return polynomial_s(refreshed, variable->deepRefresh());
@@ -3388,12 +3388,12 @@ optional<Expr> Polynomial::derive(Expr_info expr) const
             else
                 newTerms.insert(newTerms.begin(),foo);
         }
-        for(size_t i=0; i<newTerms.size(); i++)
+        for(std::size_t i=0; i<newTerms.size(); i++)
             newTerms[i] = prod_s(int_s(i+1), newTerms[i]);
         
         return polynomial_s(newTerms, variable);
     }
-    for (size_t i = 0; i < argument.size(); i++)
+    for (std::size_t i = 0; i < argument.size(); i++)
         newTerms[i] = Derived(newTerms[i], expr);
     for (int i=newTerms.size()-1; i>= 0; i--)
         if (*newTerms[i] == CSL_0)
@@ -3408,7 +3408,7 @@ int Polynomial::getParity(Expr_info t_variable) const
     int newParity;
     if (*variable == t_variable) {
         if (*argument[0] != CSL_0) parity = argument[0]->getParity(t_variable);
-        for (size_t i = 1; i < argument.size(); i++) {
+        for (std::size_t i = 1; i < argument.size(); i++) {
             if (*argument[i] != CSL_0) {
                 if (parity == 0)
                     parity = -(i%2);
@@ -3427,7 +3427,7 @@ int Polynomial::getParity(Expr_info t_variable) const
     parity = argument[0]->getParity(t_variable);
     if (parity == 0 or variable->getParity(t_variable) == 0)
         return 0;
-    for (size_t i = 1; i < argument.size(); i++) {
+    for (std::size_t i = 1; i < argument.size(); i++) {
         newParity = argument[i]->getParity(t_variable);
         if (newParity != parity)
             return 0;
@@ -3439,7 +3439,7 @@ int Polynomial::getParity(Expr_info t_variable) const
 Expr Polynomial::getRegularExpression() const
 {
     Expr result = CSL_0;
-    for (size_t i = 0; i < argument.size(); i++)
+    for (std::size_t i = 0; i < argument.size(); i++)
         result = sum_s(result,prod_s(argument[i],pow_s(variable,int_s(i))));
 
     return result;
@@ -3453,9 +3453,9 @@ Expr Polynomial::addition_own(const Expr& expr) const
     else 
         foo = expr;
     csl::vector_expr foo_argument = argument;
-    size_t foo_nArgs = argument.size();
+    std::size_t foo_nArgs = argument.size();
     if (*variable == foo->getVariable()) {
-        for (size_t i = 0; i < foo->size(); i++) {
+        for (std::size_t i = 0; i < foo->size(); i++) {
             if (i >= foo_nArgs) {
                 foo_nArgs++;
                 foo_argument.push_back(CSL_0);
@@ -3479,7 +3479,7 @@ Expr Polynomial::multiplication_own(const Expr& expr, bool side) const
     //side = true;
     if (*variable == foo->getVariable()) {
         csl::vector_expr foo_argument(argument.size() + foo->size()-1,CSL_0);
-        for (size_t i = 0; i < foo->size(); i++) {
+        for (std::size_t i = 0; i < foo->size(); i++) {
             if (option::checkCommutations
                     and *Commutation(variable,foo->getArgument(i)) != CSL_0){
                 if (side)
@@ -3487,7 +3487,7 @@ Expr Polynomial::multiplication_own(const Expr& expr, bool side) const
                 else
                     return prod_s(foo->getRegularExpression(),getRegularExpression());
             }
-            for (size_t j = 0; j < argument.size(); j++) {
+            for (std::size_t j = 0; j < argument.size(); j++) {
                 if (option::checkCommutations
                         and *Commutation(variable,argument[j]) != CSL_0){
                     if (side)
@@ -3606,7 +3606,7 @@ bool Polynomial::operator==(Expr_info expr) const
         csl::vector_expr t_argument = expr->getVectorArgument();
         if (t_argument.size() != argument.size())
             return false;
-        for (size_t i=0; i<t_argument.size(); i++)
+        for (std::size_t i=0; i<t_argument.size(); i++)
             if (*argument[i] != t_argument[i])
                 return false;
 
@@ -3617,12 +3617,12 @@ bool Polynomial::operator==(Expr_info expr) const
     if (size() != expr->size())
         return false;
     vector<int> indicesLeft(argument.size());
-    for (size_t i = 0; i < argument.size();i++)
+    for (std::size_t i = 0; i < argument.size();i++)
         indicesLeft[i] = i;
 
-    for (size_t i = 0; i < argument.size(); i++) {
+    for (std::size_t i = 0; i < argument.size(); i++) {
         bool matched = 0;
-        for (size_t j = 0; j < indicesLeft.size(); j++) {
+        for (std::size_t j = 0; j < indicesLeft.size(); j++) {
             if (*prod_s(argument[i],pow_s(variable,int_s(i))) ==
                     expr->getArgument(indicesLeft[j]))
             {
@@ -3714,7 +3714,7 @@ void Derivative::printCode(
         ) const
 {
     out << "csl::derivative_s(";
-    for (size_t i = 0; i != size(); ++i) {
+    for (std::size_t i = 0; i != size(); ++i) {
         argument[i]->printCode(1, out);
         out << ", ";
     }
@@ -3761,7 +3761,7 @@ optional<Expr> Derivative::evaluate(
 {
     if (argument[0]->getType() == csl::Type::Prod) {
         csl::vector_expr t_argument(argument[0]->getNArgs());
-        for (size_t i=0; i!=t_argument.size(); ++i) {
+        for (std::size_t i=0; i!=t_argument.size(); ++i) {
             t_argument[i] = Copy(argument[0]);
             t_argument[i]->setArgument(
                     derivative_s(argument[0]->getArgument(i), argument[1],
@@ -3987,7 +3987,7 @@ void Integral::printCode(
         ) const
 {
     out << "csl::integral_s(";
-    for (size_t i = 0; i != size(); ++i) {
+    for (std::size_t i = 0; i != size(); ++i) {
         argument[i]->printCode(1, out);
         out << ", ";
     }

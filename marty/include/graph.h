@@ -123,7 +123,7 @@ class Vertex: public std::vector<std::shared_ptr<Node>> {
      */
     explicit
     Vertex(const std::vector<const mty::QuantumField*>& fields,
-           size_t                                       id,
+           std::size_t                                       id,
            bool                                         t_external=false);
 
     /*!
@@ -264,7 +264,7 @@ class Vertex: public std::vector<std::shared_ptr<Node>> {
      */
     bool external;
 
-    size_t id;
+    std::size_t id;
 };
 
 /*!
@@ -411,7 +411,7 @@ class Graph {
      */
     explicit
     Graph(const std::vector<mty::QuantumField>& field,
-          std::map<csl::Tensor, size_t>& vertexIds,
+          std::map<csl::Tensor, std::size_t>& vertexIds,
           bool                           ruleMode);
 
     /*!
@@ -420,7 +420,7 @@ class Graph {
      */
     explicit
     Graph(const csl::Expr& expr,
-          std::map<csl::Tensor, size_t>& vertexIds,
+          std::map<csl::Tensor, std::size_t>& vertexIds,
           bool                           ruleMode);
 
     Graph(Graph const& other,
@@ -811,7 +811,7 @@ class WickCalculator {
             mty::Model const *model,
             FeynOptions const &options,
             const csl::Expr& initialExpr,
-            std::map<csl::Tensor, size_t>& vertexIds,
+            std::map<csl::Tensor, std::size_t>& vertexIds,
             std::vector<mty::FeynruleMomentum>& witnessMapping,
             bool symmetriseExternalLegs = false,
             bool ruleMode = true);
@@ -820,7 +820,7 @@ class WickCalculator {
             mty::Model const *model,
             FeynOptions const &options,
             const csl::Expr& initialExpr,
-            std::map<csl::Tensor, size_t>& vertexIds,
+            std::map<csl::Tensor, std::size_t>& vertexIds,
             bool symmetriseExternalLegs = false,
             bool ruleMode = true);
 
@@ -835,13 +835,13 @@ class WickCalculator {
      */
     static bool isContractionZero(
             const std::vector<mty::QuantumField>& fields,
-            size_t maxLoops  = size_t(-1),
-            size_t nVertices = size_t(-1));
+            std::size_t maxLoops  = std::size_t(-1),
+            std::size_t nVertices = std::size_t(-1));
 
     static bool isContractionZero(
             const std::vector<mty::QuantumField const*>& fields,
-            size_t maxLoops  = size_t(-1),
-            size_t nVertices = size_t(-1));
+            std::size_t maxLoops  = std::size_t(-1),
+            std::size_t nVertices = std::size_t(-1));
 
     private:
 

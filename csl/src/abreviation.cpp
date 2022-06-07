@@ -28,12 +28,12 @@
 
 namespace csl {
 
-std::map<std::string, size_t> Abbrev::id_name;
+std::map<std::string, std::size_t> Abbrev::id_name;
 
 bool compareString(std::string_view a, std::string_view b)
 {
-    size_t size = std::min(a.size(), b.size());
-    for (size_t i = 0; i != size; ++i)
+    std::size_t size = std::min(a.size(), b.size());
+    for (std::size_t i = 0; i != size; ++i)
         if (a[i] == '_' or b[i] == '_')
             return true;
         else if (a[i] != b[i])
@@ -41,7 +41,7 @@ bool compareString(std::string_view a, std::string_view b)
     return true;
 }
 
-size_t dichoFinder(
+std::size_t dichoFinder(
         csl::Expr                    const &expr,
         std::vector<AbstractParent*> const &v
         )
@@ -56,10 +56,10 @@ size_t dichoFinder(
                 return 0;
             });
     return iter - v.begin();
-    // size_t first = 0;
-    // size_t last = v.size();
+    // std::size_t first = 0;
+    // std::size_t last = v.size();
     // while (last != first) {
-    //     size_t mid = (first + last) / 2;
+    //     std::size_t mid = (first + last) / 2;
     //     auto const &midExpr = v[mid]->getEncapsulated();
     //     if (expr < midExpr)
     //         last = mid;
@@ -120,7 +120,7 @@ void Abbrev::addAbbreviation(
     //           + " already exists.");
     auto &abbreviations = getAbbreviationsForName(name.data());
     auto encapsulated = ptr->getEncapsulated();
-    size_t insertionPos;
+    std::size_t insertionPos;
     if (useDichotomy) {
         insertionPos = dichoFinder(encapsulated, abbreviations);
         abbreviations.insert(abbreviations.begin() + insertionPos, ptr);
@@ -239,11 +239,11 @@ void Abbrev::compressAbbreviations_impl(
         std::vector<AbstractParent*> &abbreviations
         )
 {
-    for (size_t i = 0; i != abbreviations.size(); ++i) {
+    for (std::size_t i = 0; i != abbreviations.size(); ++i) {
         csl::Expr encaps_i = abbreviations[i]->getEncapsulated();
         if (!csl::IsProd(encaps_i) || csl::IsIndexed(encaps_i))
             continue;
-        for (size_t j = i+1; j < abbreviations.size(); ++j) {
+        for (std::size_t j = i+1; j < abbreviations.size(); ++j) {
             csl::Expr encaps_j = abbreviations[i]->getEncapsulated();
             if (!csl::IsProd(encaps_j) || csl::IsIndexed(encaps_j))
                 continue;
@@ -268,7 +268,7 @@ std::string Abbrev::getFinalName(std::string_view initialName)
         return init;
     }
     std::string newName = toString(++id_name[init]);
-    for (size_t i = 0; newName.size() < 4; ++i)
+    for (std::size_t i = 0; newName.size() < 4; ++i)
         newName = '0' + newName;
     return init + "_" + newName;
 }
@@ -364,14 +364,14 @@ csl::IndexStructure Abbrev::getFreeStructure(
         csl::IndexStructure const& structure)
 {
     auto freeStructure = structure;
-    for (size_t i = 0; i != freeStructure.size(); ++i) 
+    for (std::size_t i = 0; i != freeStructure.size(); ++i) 
         if (freeStructure[i].getType() == cslIndex::Fixed) {
             freeStructure.erase(freeStructure.begin() + i);
             --i;
         }
         else if (i < freeStructure.size()-1 
                 and freeStructure[i].getType() == cslIndex::Dummy) {
-            for (size_t j = i + 1; j != freeStructure.size(); ++j)
+            for (std::size_t j = i + 1; j != freeStructure.size(); ++j)
                 if (freeStructure[i] == freeStructure[j]) {
                     freeStructure.erase(freeStructure.begin() + j);
                     freeStructure.erase(freeStructure.begin() + i);
@@ -397,7 +397,7 @@ std::optional<Expr> Abbrev::findExisting(
     auto structure = getFreeStructure(encapsulated);
     if (structure.empty()) {
         if (useDichotomy and !encapsulated->isIndexed()) {
-            size_t pos = dichoFinder(encapsulated, abbreviations);
+            std::size_t pos = dichoFinder(encapsulated, abbreviations);
             if (pos < abbreviations.size() 
                     && abbreviations[pos]->getEncapsulated()->compareWithDummy(
                         encapsulated.get())) {
@@ -442,7 +442,7 @@ std::optional<Expr> Abbrev::findExisting(
                 continue;
             }
             bool diff = false;
-            for (size_t i = 0; i != encapsulated->size(); ++i) 
+            for (std::size_t i = 0; i != encapsulated->size(); ++i) 
                 if (encapsulated[i]->getType() != comparison[i]->getType()) {
                     diff = true;
                     break;
@@ -451,12 +451,12 @@ std::optional<Expr> Abbrev::findExisting(
                 continue;
             }
             csl::Replace(comparison, ab_ptr->initialStructure, structure);
-            //for (size_t i = 0; i != ab_ptr->initialStructure.size(); ++i)
+            //for (std::size_t i = 0; i != ab_ptr->initialStructure.size(); ++i)
             //    Replace(comparison,
             //            ab_ptr->initialStructure[i],
             //            intermediate[i],
             //            false);
-            //for (size_t i = 0; i != ab_ptr->initialStructure.size(); ++i)
+            //for (std::size_t i = 0; i != ab_ptr->initialStructure.size(); ++i)
             //    Replace(comparison,
             //            intermediate[i],
             //            structure[i],
@@ -518,14 +518,14 @@ Expr Abbrev::makeAbbreviation(std::string name,
     if (name == "Ab" 
             && split 
             && (csl::IsSum(encaps) || csl::IsProd(encaps))) {
-        const size_t size = csl::Size(encaps);
+        const std::size_t size = csl::Size(encaps);
         std::vector<csl::Expr> abbrevs;
         std::vector<csl::Expr> numericals;
         std::vector<csl::Expr> funcs;
         std::vector<csl::Expr> multis;
         std::vector<csl::Expr> tensors;
         std::vector<csl::Expr> others;
-        for (size_t i = 0; i != size; ++i) { 
+        for (std::size_t i = 0; i != size; ++i) { 
             auto const &arg = encaps[i];
             if (isAnAbbreviation(arg)) {
                 abbrevs.push_back(arg);
@@ -608,7 +608,7 @@ Expr Abbrev::makeAbbreviation(std::string name,
 
     csl::IndexStructure fullStructure = encaps->getIndexStructure();
     std::vector<const Space*> spaces(freeStructure.size());
-    for (size_t i = 0; i != spaces.size(); ++i)
+    for (std::size_t i = 0; i != spaces.size(); ++i)
         spaces[i] = freeStructure[i].getSpace();
     Tensor parent 
         = csl::make_shared<Abbreviation<TensorParent>>(

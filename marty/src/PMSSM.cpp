@@ -63,8 +63,8 @@ void PMSSM_Model::approximateYukawa()
     csl::Expr Yd_t = Yd->getTensor();
     csl::Expr Ye_t = Ye->getTensor();
 
-    for (size_t i = 0; i != 3; ++i)
-        for (size_t j = 0; j != 3; ++j)
+    for (std::size_t i = 0; i != 3; ++i)
+        for (std::size_t j = 0; j != 3; ++j)
             if (i != 2 or j != 2) {
                 Yu_t[i][j] = CSL_0;
                 Yd_t[i][j] = CSL_0;
@@ -105,8 +105,8 @@ void PMSSM_Model::approximateInputMatrices()
     csl::Expr A3 = Ae->getTensor();
     A3[2][2] = mssm_input::Atau;
 
-    for (size_t i = 0; i != 3; ++i)
-        for (size_t j = 0 ; j != 3; ++j) 
+    for (std::size_t i = 0; i != 3; ++i)
+        for (std::size_t j = 0 ; j != 3; ++j) 
             if (i != j) {
                 MqL[i][j] = CSL_0;
                 MlL[i][j] = CSL_0;
@@ -179,7 +179,7 @@ void PMSSM_Model::approximateCKM()
     };
     auto countSmallCKM = [&](csl::Expr const &product)
     {
-        size_t count = 0;
+        std::size_t count = 0;
         for (const auto &arg : product)
             if (isSmallCKM(arg))
                 ++count;
@@ -211,8 +211,8 @@ void PMSSM_Model::addAllowedMixing(std::vector<std::string> const &names)
 
 void PMSSM_Model::mergeAllowedMixings()
 {
-    for (size_t i = 0; i != allowedMixings.size(); ++i) {
-        for (size_t j = i+1; j < allowedMixings.size(); ++j) {
+    for (std::size_t i = 0; i != allowedMixings.size(); ++i) {
+        for (std::size_t j = i+1; j < allowedMixings.size(); ++j) {
             bool common = false;
             for (const auto &name : allowedMixings[i])
                 if (allowedMixings[j].find(name) != allowedMixings[j].end()) {
@@ -256,7 +256,7 @@ bool PMSSM_Model::isSuppressedMixing(mty::InteractionTerm const &massTerm) const
 
 void PMSSM_Model::approximateSFermionMixings()
 {
-    for (size_t i = 0; i != L.mass.size(); ++i) {
+    for (std::size_t i = 0; i != L.mass.size(); ++i) {
         if (isSuppressedMixing(*L.mass[i])) {
             L.mass.erase(L.mass.begin() + i);
             --i;
@@ -274,7 +274,7 @@ void PMSSM_Model::renameSFermions()
         {"\\tilde{t}_L", "\\tilde{t}_R", 
           "\\tilde{b}_L", "\\tilde{b}_R", 
           "\\tilde{\\tau}_L", "\\tilde{\\tau}_R"};
-    for (size_t i = 0; i != oldNames.size(); ++i) {
+    for (std::size_t i = 0; i != oldNames.size(); ++i) {
         renameParticle(oldNames[i], newNames[i] + ";" + newLatexNames[i]);
     }
 }

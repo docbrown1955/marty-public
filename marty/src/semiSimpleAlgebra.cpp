@@ -75,7 +75,7 @@ csl::Expr SemiSimpleAlgebra::getQuadraticCasimir(const AlgebraState& highest) co
 
     csl::Expr exprLabels = vector_s(labels.size());
     csl::Expr norms      = vector_s(labels.size());
-    for (size_t i = 0; i != labels.size(); ++i) {
+    for (std::size_t i = 0; i != labels.size(); ++i) {
         exprLabels->setArgument(int_s(labels[i]), i);
         norms->setArgument(absoluteNorms[i], i);
     }
@@ -86,7 +86,7 @@ csl::Expr SemiSimpleAlgebra::getQuadraticCasimir(const AlgebraState& highest) co
 
 csl::Expr SemiSimpleAlgebra::getIndex(
         const Irrep& irrep,
-        size_t       p
+        std::size_t       p
         ) const
 {
     for (const auto& index : indices)
@@ -132,7 +132,7 @@ void SemiSimpleAlgebra::init()
 
     for (int i = 0; i != l; ++i) {
         absoluteNorms[i] = CSL_0;
-        for (size_t j = 0; j != positiveRoots.size(); ++j) {
+        for (std::size_t j = 0; j != positiveRoots.size(); ++j) {
             csl::Expr intermediate = CSL_0;
             for (int k = 0; k != l; ++k) {
                 intermediate = intermediate + 
@@ -256,7 +256,7 @@ void SemiSimpleAlgebra::invertCartanMatrix()
 
     // Setting the symbolicRoots
     symbolicSquaredNorms = csl::vector_expr(positiveRoots.size());
-    for (size_t i=0; i!=positiveRoots.size(); ++i) {
+    for (std::size_t i=0; i!=positiveRoots.size(); ++i) {
         symbolicRoots[i] = vector_s(l);
         for (int j=0; j!=l; ++j)
             symbolicRoots[i]->setArgument(int_s(positiveRoots[i][j]),j);
@@ -266,7 +266,7 @@ void SemiSimpleAlgebra::invertCartanMatrix()
 
     // Setting the symbolicRho
     symbolicRho = symbolicRoots[0];
-    for (size_t i=1; i!=symbolicRoots.size(); ++i)
+    for (std::size_t i=1; i!=symbolicRoots.size(); ++i)
         symbolicRho = symbolicRho + symbolicRoots[i];
     symbolicRho = Expanded(symbolicRho/2);
 }
@@ -344,9 +344,9 @@ csl::Expr SemiSimpleAlgebra::computeSquaredNorm(const csl::Expr& root) const
 void SemiSimpleAlgebra::sortRep(vector<AlgebraState>& rep,
                                 vector<int>&  mult) const
 {
-    for (size_t i = 0; i != rep.size()-1; ++i) {
-        size_t iMax = i;
-        for (size_t j = i+1; j != rep.size(); ++j)
+    for (std::size_t i = 0; i != rep.size()-1; ++i) {
+        std::size_t iMax = i;
+        for (std::size_t j = i+1; j != rep.size(); ++j)
             if (comparatorHighest(rep[j],rep[i])) // State j >= State i
                 iMax = j;
         if (iMax != i) {
@@ -372,7 +372,7 @@ AlgebraState SemiSimpleAlgebra::applyAnnihilationOperator(
         const AlgebraState& state) const
 {
     AlgebraState newState(state);
-    for (size_t i=0; i!=root.size(); ++i) {
+    for (std::size_t i=0; i!=root.size(); ++i) {
         if (root[i] < 0)
             continue;
         for (int j=0; j!=root[i]; ++j)
@@ -398,7 +398,7 @@ AlgebraState SemiSimpleAlgebra::applyCreationOperator(
         const AlgebraState& state) const
 {
     AlgebraState newState(state);
-    for (size_t i=0; i!=root.size(); ++i) {
+    for (std::size_t i=0; i!=root.size(); ++i) {
         if (root[i] < 0)
             continue;
         for (int j=0; j!=root[i]; ++j)
@@ -469,10 +469,10 @@ std::vector<AlgebraState> SemiSimpleAlgebra::getRootChain(
     while (newStates.size() > 0) {
         // We only get RootChain for new states.
         vector<AlgebraState> newStatesBis;
-        newStatesBis.reserve(std::max(size_t(10), 10*newStates.size()));
+        newStatesBis.reserve(std::max(std::size_t(10), 10*newStates.size()));
         for (const auto& s : newStates) {
             // For all the states
-            for (size_t iRoot=0; iRoot!=positiveRoots.size(); ++iRoot) {
+            for (std::size_t iRoot=0; iRoot!=positiveRoots.size(); ++iRoot) {
                 // and for all directions (positive roots)
                 int iState = findInVector(states,s);
                 // If we already checked that line we pass to the next direction
@@ -533,13 +533,13 @@ void SemiSimpleAlgebra::getRootChainExperimental(
         directionExplored.push_back(vector<bool>(positiveRoots.size(),false));
 
     vector<AlgebraState> newStates(1,heighestWeightState);
-    size_t nNewStates = 1;
+    std::size_t nNewStates = 1;
     while (nNewStates > 0) {
         // We only get RootChain for new states.
-        size_t nStates_beg = states.size();
+        std::size_t nStates_beg = states.size();
         for (const auto& s : newStates) {
             // For all the states
-            for (size_t iRoot=0; iRoot!=positiveRoots.size(); ++iRoot) {
+            for (std::size_t iRoot=0; iRoot!=positiveRoots.size(); ++iRoot) {
                 // and for all directions (positive roots)
                 int iState = findInVector(states,s);
                 // If we already checked that line we pass to the next direction
@@ -553,8 +553,8 @@ void SemiSimpleAlgebra::getRootChainExperimental(
                 getSingleChainExperimental(s, states, directionExplored, iRoot);
             }
         }
-        size_t nStates_end = states.size();
-        for (size_t i = nStates_beg; i != nStates_end; ++i) 
+        std::size_t nStates_end = states.size();
+        for (std::size_t i = nStates_beg; i != nStates_end; ++i) 
             getRootChainExperimental(states[i], states, directionExplored);
         nNewStates = states.size() - nStates_beg;
     }
@@ -574,7 +574,7 @@ void SemiSimpleAlgebra::computeMultiplicity(
     csl::Expr lambda = convertState(state);
     csl::Expr lambda_rho_squared = computeSquaredNorm(lambda+symbolicRho);
     std::vector<csl::Expr> mulTerms;
-    for (size_t i=0; i!=positiveRoots.size(); ++i) {
+    for (std::size_t i=0; i!=positiveRoots.size(); ++i) {
         AlgebraState fooState(state);
         while (true) {
             fooState = applyCreationOperator(positiveRoots[i], fooState);
@@ -614,7 +614,7 @@ std::vector<int> SemiSimpleAlgebra::multiplicities(
         return vector<int>(1,1);
     // highest weight has multiplicity 1
     mult[0] = 1;
-    for (size_t i=1; i!=rep.size(); ++i)
+    for (std::size_t i=1; i!=rep.size(); ++i)
         if (mult[i] == -1) {
             computeMultiplicity(mult, rep, rep[i]);
         }
@@ -726,7 +726,7 @@ mty::SumIrrep SemiSimpleAlgebra::tensorProduct(
     // We determine all different highest weights of the irreducible reps
     // (in the decomposition as a sum of irreducible reps) and their 
     // multiplicities.
-    for (size_t i=0; i!=lambda1.size(); ++i) {
+    for (std::size_t i=0; i!=lambda1.size(); ++i) {
         AlgebraState root = addWeights(addWeights(lambda1[i],
                                                   Lambda2),
                                                   rhoWeight);
@@ -757,7 +757,7 @@ mty::SumIrrep SemiSimpleAlgebra::tensorProduct(
     // corresponding mty::Irrep and add it as many times as the multiplicity of the
     // state.
     vector<mty::Irrep> directSum(0);
-    for (size_t i=0; i!=highestWeights.size(); ++i) {
+    for (std::size_t i=0; i!=highestWeights.size(); ++i) {
         if (multiplicity[i] <= 0)
             continue;
         mty::Irrep newRep = highestWeightRep(highestWeights[i], computeMul);

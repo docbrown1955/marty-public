@@ -206,16 +206,16 @@ class ContractionChain {
 
     bool isGoodIndex(
             csl::Space const *space,
-            size_t            iTensor, 
-            size_t            iIndex
+            std::size_t            iTensor, 
+            std::size_t            iIndex
             ) const;
 
     std::pair<csl::Index, csl::Index> getContractedIndices(
             csl::Space const *space,
-            size_t            iTensor
+            std::size_t            iTensor
             ) const;
 
-    std::vector<std::vector<size_t>> getCycles(const Space *space);
+    std::vector<std::vector<std::size_t>> getCycles(const Space *space);
 
     private:
 
@@ -502,7 +502,7 @@ class TensorParent: public AbstractParent{
     std::vector<Parent> breakSpace(
             const Space*                     broken,
             const std::vector<const Space*>& newSpace,
-            const std::vector<size_t>&       pieces
+            const std::vector<std::size_t>&       pieces
             ) const override;
 
     virtual Expr operator()(Index index) override;
@@ -832,7 +832,7 @@ class TensorElement: public AbstractElement{
         return csl::PrimaryType::Indicial;
     }
 
-    size_t memoryOverhead() const override;
+    std::size_t memoryOverhead() const override;
 
     bool isIndexed() const override {
         return true;

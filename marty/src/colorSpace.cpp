@@ -26,13 +26,13 @@ using namespace csl;
 namespace color {
 
 template<class Container>
-size_t cycleIndex(size_t i, Container const &container)
+std::size_t cycleIndex(std::size_t i, Container const &container)
 {
     return (i < container.size()) ? i : i - container.size();
 }
 
 template<class Container>
-size_t distance(size_t i, size_t j, Container const &container)
+std::size_t distance(std::size_t i, std::size_t j, Container const &container)
 {
     if (j < i)
         return distance(j, i, container);
@@ -42,7 +42,7 @@ size_t distance(size_t i, size_t j, Container const &container)
 }
 
 template<class Container>
-bool direction(size_t from, size_t to, Container const &container)
+bool direction(std::size_t from, std::size_t to, Container const &container)
 {
     if (from < to)
         return (to - from) <= distance(from, to, container);
@@ -54,7 +54,7 @@ std::ostream &operator<<(
         TraceIndices const &trace)
 {
     out << trace.factor << " * [ ";
-    for (size_t i = 0; i != trace.size(); ++i) {
+    for (std::size_t i = 0; i != trace.size(); ++i) {
         if (trace.symmetry == i)
             out << "| ";
         out << trace[i] << " ";
@@ -140,7 +140,7 @@ csl::Tensor ColorSpace::getF() const
     return nullptr;
 }
 
-csl::Tensor ColorSpace::getD(size_t p) const
+csl::Tensor ColorSpace::getD(std::size_t p) const
 {
     auto gauged = group->getGaugedGroup();
     if (gauged)
@@ -192,7 +192,7 @@ csl::Expr ColorSpace::calculateTrace(csl::vector_expr tensors) const
 }
 
 void ColorSpace::applyE(
-        size_t                     j,
+        std::size_t                     j,
         std::vector<TraceIndices> &terms
         ) const
 {
@@ -204,10 +204,10 @@ void ColorSpace::applyE(
             ++term.symmetry;
         return;
     }
-    size_t n = terms[0].symmetry;
+    std::size_t n = terms[0].symmetry;
     std::vector<TraceIndices> res;
     res.reserve(n * terms.size());
-    for (size_t i = 0; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         for (const auto &term : terms) {
             TraceIndices newTerm(term);
             csl::Index A = newTerm[i];
@@ -235,11 +235,11 @@ std::vector<TraceIndices> ColorSpace::symmetrize(
     }
     // std::cout << "Symmetrizing" << std::endl;
     // std::cout << init << std::endl;
-    size_t n = init.symmetry;
+    std::size_t n = init.symmetry;
     std::vector<TraceIndices> res;
     res.push_back(init);
     ++res[0].symmetry;
-    for (size_t j = 1; j <= n; ++j) {
+    for (std::size_t j = 1; j <= n; ++j) {
         csl::Expr factor = 
             csl::pow_s(-1, j) / csl::factorial(j) * mty::bernoulliNumber(j);
         if (factor == CSL_0)
@@ -274,7 +274,7 @@ csl::Expr ColorSpace::applySingleTraceIdentity(
         factors.push_back(id.factor);
         for (const auto &tensor : tensorProduct) {
             std::vector<csl::Index> indices(tensor.size());
-            for (size_t i = 0; i != indices.size(); ++i)
+            for (std::size_t i = 0; i != indices.size(); ++i)
                 indices[i] = trace.indices[tensor.indices[i]];
             factors.push_back(symmetrizedTrace({CSL_1, indices}));
         }
@@ -338,10 +338,10 @@ bool areSameTraces(
 {
     if (A.size() != B.size())
         return false;
-    for (size_t i = 0; i != A.size(); ++i)
-        for (size_t j = 0; j != B.size(); ++j) {
+    for (std::size_t i = 0; i != A.size(); ++i)
+        for (std::size_t j = 0; j != B.size(); ++j) {
             bool same = true;
-            for (size_t k = 0; k != A.size(); ++k)
+            for (std::size_t k = 0; k != A.size(); ++k)
                 if (A[cycleIndex(i + k, A.indices)]
                         != B[cycleIndex(j + k, B.indices)]) {
                     same = false;
@@ -355,8 +355,8 @@ bool areSameTraces(
 
 void ColorSpace::mergeTraces(std::vector<TraceIndices> &traces) const
 {
-    for (size_t i = 0; i != traces.size(); ++i)
-        for (size_t j = i+1; j < traces.size(); ++j)
+    for (std::size_t i = 0; i != traces.size(); ++i)
+        for (std::size_t j = i+1; j < traces.size(); ++j)
             if (areSameTraces(traces[i], traces[j])) {
                 traces[i].factor += traces[j].factor;
                 traces.erase(traces.begin() + j);
@@ -371,8 +371,8 @@ bool ColorSpace::contractCloseIndices(
         ) const
 {
     bool contracted = false;
-    for (size_t i = 0; i != indices.size(); ++i) {
-        size_t j = cycleIndex(i+1, indices);
+    for (std::size_t i = 0; i != indices.size(); ++i) {
+        std::size_t j = cycleIndex(i+1, indices);
         if (indices[i] == indices[j]) {
             indices.factor *= CR;
             indices.erase(indices.begin() + std::max(i, j));
@@ -396,15 +396,15 @@ bool ColorSpace::contractCloseIndices(
 
 std::vector<TraceIndices> ColorSpace::commuteTo(
         TraceIndices const &indices,
-        size_t              initPos,
-        size_t              targetPos
+        std::size_t              initPos,
+        std::size_t              targetPos
         ) const
 {
     csl::Tensor f = getF();// = group->getAdjointRep()
     csl::Index B = indices[initPos];
     csl::Index C = group->getVectorSpace(group->getAdjointRep())
         ->generateIndex();
-    size_t n = distance(initPos, targetPos, indices) - 1;
+    std::size_t n = distance(initPos, targetPos, indices) - 1;
     if (n == 0)
         return {indices};
     bool dir = direction(initPos, targetPos, indices);
@@ -415,8 +415,8 @@ std::vector<TraceIndices> ColorSpace::commuteTo(
     newIndices.emplace_back(indices);
     std::swap(newIndices[0][initPos],
               newIndices[0][cycleIndex(targetPos-increment, indices)]);
-    for (size_t i = 0; i != n; ++i) {
-        size_t pos = cycleIndex(initPos + (i+1)*increment, indices);
+    for (std::size_t i = 0; i != n; ++i) {
+        std::size_t pos = cycleIndex(initPos + (i+1)*increment, indices);
         newIndices.emplace_back(indices);
         csl::Index A = indices[pos];
         newIndices.back().factor *= factor * f({A, B, C});
@@ -463,8 +463,8 @@ std::vector<TraceIndices> ColorSpace::contractFarIndices(
         csl::Expr         const &CR,
         csl::Expr         const &CA) const
 {
-    for (size_t i = 0; i != indices.size(); ++i) 
-        for (size_t j = i+3; j < indices.size(); ++j) 
+    for (std::size_t i = 0; i != indices.size(); ++i) 
+        for (std::size_t j = i+3; j < indices.size(); ++j) 
             if (i == j)  {
                 std::vector<TraceIndices> newIndices
                     = commuteTo(indices, j, i);
@@ -490,7 +490,7 @@ std::vector<TraceIndices> ColorSpace::contractStructureConstants(
             C = sub->getIndexStructureView()[2];
         }
     });
-    for (size_t i = 0; i != indices.size(); ++i)  {
+    for (std::size_t i = 0; i != indices.size(); ++i)  {
         csl::Index first;
         csl::Index second;
         if (indices[i] == A) {
@@ -505,7 +505,7 @@ std::vector<TraceIndices> ColorSpace::contractStructureConstants(
             first  = A;
             second = B;
         }
-        for (size_t j = i+1; j < indices.size(); ++j) 
+        for (std::size_t j = i+1; j < indices.size(); ++j) 
             if (indices[j] == first or indices[j] == second)  {
                 bool dir = direction(j, i, indices);
                 std::vector<TraceIndices> newIndices
@@ -619,7 +619,7 @@ std::vector<csl::Index> ColorSpace::exprToIndices(
         ) const
 {
     // All tensors should be instances (isInstance() returns true)
-    auto index = [&](csl::Expr const &tensor, size_t i)
+    auto index = [&](csl::Expr const &tensor, std::size_t i)
     {
         return tensor->getIndexStructureView()[i];
     };
@@ -627,10 +627,10 @@ std::vector<csl::Index> ColorSpace::exprToIndices(
     indices.reserve(tensors.size());
     indices.push_back(index(tensors[0], 0));
     csl::Index second = index(tensors[0], 2);
-    std::vector<size_t> indicesLeft(tensors.size() - 1);
-    for (size_t i = 0; i != indicesLeft.size(); ++i)
+    std::vector<std::size_t> indicesLeft(tensors.size() - 1);
+    for (std::size_t i = 0; i != indicesLeft.size(); ++i)
         indicesLeft[i] = i+1;
-    for (size_t i = 0; i != indicesLeft.size(); ++i) {
+    for (std::size_t i = 0; i != indicesLeft.size(); ++i) {
         if (index(tensors[indicesLeft[i]], 1) == second) {
             second = index(tensors[indicesLeft[i]], 2);
             indices.push_back(index(tensors[indicesLeft[i]], 0));
@@ -656,13 +656,13 @@ tuple<csl::Index, csl::Index, int> ColorSpace::getFreeIndices(
 
     int freeIndexA = -1;
     int freeIndexB = -1;
-    for (size_t i = 0; i != structA.size(); ++i) 
+    for (std::size_t i = 0; i != structA.size(); ++i) 
         if (structA[i].getSpace() != this) {
             freeIndexA = i;
             break;
         }
 
-    for (size_t i = 0; i != structB.size(); ++i) 
+    for (std::size_t i = 0; i != structB.size(); ++i) 
         if (structB[i].getSpace() != this) {
             freeIndexB = i;
             break;
@@ -678,14 +678,14 @@ tuple<csl::Index, csl::Index, int> ColorSpace::getFreeIndicesAdjoint(
 {
     csl::IndexStructure structA = tensorA->getIndexStructure();
     csl::IndexStructure structB = tensorB->getIndexStructure();
-    vector<size_t> left(structB.size());
-    for (size_t i = 0; i != left.size(); ++i)
+    vector<std::size_t> left(structB.size());
+    for (std::size_t i = 0; i != left.size(); ++i)
         left[i] = i;
 
     int posIndexA = -1;
-    for (size_t i = 0; i != structA.size(); ++i) {
+    for (std::size_t i = 0; i != structA.size(); ++i) {
         bool matched = false;
-        for (size_t j = 0; j != left.size(); ++j) {
+        for (std::size_t j = 0; j != left.size(); ++j) {
             if (structA[i] == structB[left[j]]) {
                 left.erase(left.begin() + j);
                 matched = true;

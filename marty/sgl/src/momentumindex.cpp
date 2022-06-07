@@ -74,9 +74,9 @@ namespace sgl {
             return false;
         }
         // Searching for a common index with a gamma matrix
-        constexpr size_t npos = static_cast<size_t>(-1);
-        size_t posIndex = npos;
-        for (size_t i = 0; i != chain.size(); ++i) {
+        constexpr std::size_t npos = static_cast<std::size_t>(-1);
+        std::size_t posIndex = npos;
+        for (std::size_t i = 0; i != chain.size(); ++i) {
             auto const &arg = chain.argument(i);
             if (arg->indices().size() > 2) 
                 continue;

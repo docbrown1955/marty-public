@@ -41,7 +41,7 @@ bool FermionChain::applyOn(csl::Expr& prod,
         return false;
     bool allGamma = true;
     for (const auto& chain : chains) {
-        for (size_t pos : chain.pos) {
+        for (std::size_t pos : chain.pos) {
             if (not diracSpace->isGammaTensor(prod[pos])) {
                 allGamma = false;
                 break;
@@ -55,7 +55,7 @@ bool FermionChain::applyOn(csl::Expr& prod,
         std::vector<csl::Expr> chainTensors;
         chainTensors.reserve(2 * chains.size());
         for (const auto& chain : chains) 
-            for (size_t pos : chain.pos) {
+            for (std::size_t pos : chain.pos) {
                 csl::Expr& arg = (*prod)[pos];
                 chainTensors.push_back(arg);
                 arg = CSL_1;
@@ -80,7 +80,7 @@ bool FermionChain::applyOn(csl::Expr& prod,
         std::vector<csl::Expr> chainTensors;
         chainTensors.reserve(chain.pos.size());
         bool allGamma = true;
-        for (size_t pos : chain.pos) {
+        for (std::size_t pos : chain.pos) {
             csl::Expr& arg = (*prod)[pos];
             if (not diracSpace->isGammaTensor(arg))
                 allGamma = false;
@@ -88,10 +88,10 @@ bool FermionChain::applyOn(csl::Expr& prod,
             arg = CSL_1;
         }
         if (chain.cycle) {
-            for (size_t i = 0; i != chainTensors.size(); ++i) {
+            for (std::size_t i = 0; i != chainTensors.size(); ++i) {
                 if (chainTensors[i]->getType() == csl::Type::TensorElement
                         and diracSpace->isDelta(chainTensors[i])) {
-                    for (size_t j = 0; j != chainTensors.size(); ++j) {
+                    for (std::size_t j = 0; j != chainTensors.size(); ++j) {
                         if (i != j)
                             csl::Replace(
                                  chainTensors[j],
@@ -157,12 +157,12 @@ std::vector<FermionChain::Chain> FermionChain::getChains(
             "FermionChain may apply on a product only, " + toString(prod)
             + " given.");
     std::vector<csl::IndexStructure> indices(prod->size());
-    for (size_t i = 0; i != prod->size(); ++i)
+    for (std::size_t i = 0; i != prod->size(); ++i)
         if ((*prod)[i]->isIndexed() 
                 and (*prod)[i]->getType() != csl::Type::VectorIntegral
                 and diracSpace->isGammaTensor((*prod)[i])) {
             indices[i] = (*prod)[i]->getIndexStructure();
-            for (size_t j = 0; j != indices[i].size(); ++j)
+            for (std::size_t j = 0; j != indices[i].size(); ++j)
                 if (indices[i][j].getSpace() != diracSpace) {
                     indices[i].erase(indices[i].begin() + j);
                     --j;
@@ -171,17 +171,17 @@ std::vector<FermionChain::Chain> FermionChain::getChains(
                 indices[i].clear();
         }
     std::vector<Chain> chains;
-    for (size_t i = 0; i != indices.size(); ++i) {
+    for (std::size_t i = 0; i != indices.size(); ++i) {
         if (indices[i].empty())
             continue;
         csl::IndexStructure toSearch = indices[i];
         indices[i].clear();
         chains.push_back({{i}, false});
-        for (size_t j = i+1; j != indices.size(); ++j) 
+        for (std::size_t j = i+1; j != indices.size(); ++j) 
             if (i != j and not indices[j].empty()) {
                 bool found = false;
-                for (size_t k = 0; k != indices[j].size(); ++k)
-                    for (size_t l = 0; l != toSearch.size(); ++l)
+                for (std::size_t k = 0; k != indices[j].size(); ++k)
+                    for (std::size_t l = 0; l != toSearch.size(); ++l)
                         if (indices[j][k] == toSearch[l]) {
                             toSearch.erase(toSearch.begin() + l);
                             indices[j].erase(indices[j].begin() + k);

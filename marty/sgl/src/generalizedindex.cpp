@@ -32,8 +32,8 @@ namespace sgl {
 
     bool AbstractGeneralizedIndex::hasSelfContraction() const
     {
-        for (size_t i = 0; i != m_indices.size(); ++i) 
-            for (size_t j = i+1; j < m_indices.size(); ++j) 
+        for (std::size_t i = 0; i != m_indices.size(); ++i) 
+            for (std::size_t j = i+1; j < m_indices.size(); ++j) 
                 if (m_indices[i] == m_indices[j])
                     return true;
         return false;
@@ -44,7 +44,7 @@ namespace sgl {
             char          sep
             ) const
     {
-        for (size_t i = 0; i != m_indices.size(); ++i) {
+        for (std::size_t i = 0; i != m_indices.size(); ++i) {
             out << m_indices[i];
             if (i < m_indices.size() - 1)
                 out << ' ' << sep << ' ';

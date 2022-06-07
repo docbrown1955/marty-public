@@ -181,7 +181,7 @@ bool PseudoIntegral::evaluateDelta(
         }
         return false;
     }
-    for (size_t i = 0; i != dependencies.size(); ++i) {
+    for (std::size_t i = 0; i != dependencies.size(); ++i) {
         Expr& arg = (*dependencies[i]);
         if (arg->getType() != csl::Type::DiracDelta)
             continue;
@@ -331,7 +331,7 @@ Expr PseudoIntegral::evaluate()
         return argument;
     }
     expandExponentials();
-    for (size_t i = 0; i != vectorIntegrals.size(); ++i) {
+    for (std::size_t i = 0; i != vectorIntegrals.size(); ++i) {
         Expr integ = vectorIntegrals[i];
         std::vector<Expr*> dependencies;
         dependencies.reserve(5);
@@ -360,7 +360,7 @@ Expr PseudoIntegral::applyOn(const Expr& expr) const
 {
     if (expr->getType() == csl::Type::Sum) {
         csl::vector_expr res(expr->size());
-        for (size_t i = 0; i != res.size(); ++i)
+        for (std::size_t i = 0; i != res.size(); ++i)
             res[i] = applyOn((*expr)[i]);
         return sum_s(res);
     }
@@ -376,7 +376,7 @@ Expr PseudoIntegral::applyOn(const Expr& expr) const
                 Expr expanded = Expanded(
                         prod_s(prod_s(argumentVector, true), expr, true));
                 csl::vector_expr res(expanded->size());
-                for (size_t i = 0; i != res.size(); ++i)
+                for (std::size_t i = 0; i != res.size(); ++i)
                     res[i] = Evaluated(PseudoIntegral(
                                 vectorIntegrals,
                                 (*expanded)[i]).evaluate());

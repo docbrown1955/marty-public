@@ -114,12 +114,12 @@ public:
 
     using ID_t = LibEval::ID_t;
 
-    static inline size_t maxLeafs = 20;
+    static inline std::size_t maxLeafs = 20;
 
     struct Perf {
 
-        size_t nEval;
-        size_t nOperations;
+        std::size_t nEval;
+        std::size_t nOperations;
         std::vector<LibEval> evals;
     };
 
@@ -143,7 +143,7 @@ public:
     void removeUnique();
 
     void simplify();
-    void simplifyProds(size_t min_factors = 2);
+    void simplifyProds(std::size_t min_factors = 2);
     void simplifySums();
 
     static LibEvalSession parseExpression(

@@ -149,7 +149,7 @@ namespace csl {
                 });
 
         // Asserting the correctness of replacements
-        for (size_t i = 0; i != from.size(); ++i) {
+        for (std::size_t i = 0; i != from.size(); ++i) {
             CSL_ASSERT_SPEC(parentFrom[i],
                     CSLError::TypeError,
                     "Expected indicial tensor in replace, " + toString(expr) 
@@ -343,7 +343,7 @@ namespace csl {
                     });
             if (pos != end(from)) {
                 const csl::Expr ratio = expr[1] / (*pos)[1];
-                const size_t i = std::distance(begin(from), pos);
+                const std::size_t i = std::distance(begin(from), pos);
                 if (ratio->isInteger() && ratio->evaluateScalar() > 0) {
                     if (isPredicate)
                         return CSL_UNDEF;
@@ -364,7 +364,7 @@ namespace csl {
     {
         auto parent = expr->getParent_info();
         auto posF = end(parentFrom);
-        for (size_t i = 0; i != from.size(); ++i) {
+        for (std::size_t i = 0; i != from.size(); ++i) {
             if (parent != parentFrom[i])
                 continue;
             // If replacement from complex conjugate, expr must also be
@@ -376,7 +376,7 @@ namespace csl {
         if (posF != end(parentFrom)) {
             if (isPredicate)
                 return CSL_UNDEF;
-            const size_t i = std::distance(begin(parentFrom), posF);
+            const std::size_t i = std::distance(begin(parentFrom), posF);
             csl::Expr const &res = to[i];
             if (res == CSL_0)
                 return CSL_0;
@@ -421,13 +421,13 @@ namespace csl {
         if (pos != end(from)) {
             if (isPredicate)
                 return CSL_UNDEF;
-            const size_t i = std::distance(begin(from), pos);
+            const std::size_t i = std::distance(begin(from), pos);
             res->setParent(to[i]);
         }
         if (csl::IsField(expr) && posPoint != end(from)) {
             if (isPredicate)
                 return CSL_UNDEF;
-            const size_t i = std::distance(begin(from), posPoint);
+            const std::size_t i = std::distance(begin(from), posPoint);
             const auto tensorPoint = 
                 std::dynamic_pointer_cast<TensorParent>(to[i]);
             CSL_ASSERT_SPEC(
@@ -456,7 +456,7 @@ namespace csl {
         if (pos != end(from)) {
             if (isPredicate)
                 return CSL_UNDEF;
-            const size_t i = std::distance(begin(from), pos);
+            const std::size_t i = std::distance(begin(from), pos);
             if (to[i] == CSL_0)
                 return CSL_0;
             IndexStructure structureToSave 

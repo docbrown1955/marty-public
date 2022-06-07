@@ -139,7 +139,7 @@ class Abstract{
 
     virtual LibDependency getLibDependency() const;
 
-    virtual size_t memoryOverhead() const;
+    virtual std::size_t memoryOverhead() const;
                                                        
 
     /*************************************************/
@@ -283,7 +283,7 @@ class Abstract{
      */
     virtual int getNArgs(int axis=0) const;
 
-    virtual size_t size() const;
+    virtual std::size_t size() const;
 
     virtual bool empty() const;
 

@@ -56,10 +56,10 @@ namespace sgl {
     {
         sgl::transform<sgl::Prod>(init, [](GExpr &sub) {
             std::vector<sgl::MomentumIndex> p;
-            std::vector<size_t> ppos;
+            std::vector<std::size_t> ppos;
             std::vector<sgl::IndexChain const*> chains;
-            std::vector<size_t> cpos;
-            for (size_t i = 0; i != sub->size(); ++i) {
+            std::vector<std::size_t> cpos;
+            for (std::size_t i = 0; i != sub->size(); ++i) {
                 auto const &arg = sub[i];
                 if (IsType<MomentumIndex>(arg)) {
                     p.push_back(*ConvertTo<MomentumIndex>(arg));
@@ -72,9 +72,9 @@ namespace sgl {
             }
             if (p.size() < 2 || chains.size() < 1)
                 return false;
-            for (size_t ic = 0; ic != chains.size(); ++ic) {
-                for (size_t ip1 = 0; ip1 != p.size(); ++ip1) {
-                    for (size_t ip2 = ip1+1; ip2 < p.size(); ++ip2) {
+            for (std::size_t ic = 0; ic != chains.size(); ++ic) {
+                for (std::size_t ip1 = 0; ip1 != p.size(); ++ip1) {
+                    for (std::size_t ip2 = ip1+1; ip2 < p.size(); ++ip2) {
                         auto opt = chains[ic]->reduceMomenta(p[ip1], p[ip2]);
                         if (opt) {
                             sub[cpos[ic]] = cslexpr_s(CSL_1);
@@ -119,8 +119,8 @@ namespace sgl {
                         IndexChain::isC);
                 if (conjugation != arg->end())
                     continue;
-                for (size_t i = 0; i != arg->size(); ++i) {
-                    size_t simp = simplest(prod, arg, i);
+                for (std::size_t i = 0; i != arg->size(); ++i) {
+                    std::size_t simp = simplest(prod, arg, i);
                     if (simp != i) {
                         arg = chain->moveIndex(simp, i);
                         return true;

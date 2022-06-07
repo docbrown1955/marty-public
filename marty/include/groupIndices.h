@@ -31,7 +31,7 @@
 
 namespace mty {
 
-template<class Type, size_t N>
+template<class Type, std::size_t N>
     std::array<Type, N> toArray(
             std::vector<Type> const &vec
             )
@@ -47,128 +47,128 @@ template<class Type, size_t N>
 
 bool isIndexZeroSU(
         std::vector<int> const &rep,
-        size_t p
+        std::size_t p
         );
 bool isIndexZeroEvenSO(
         std::vector<int> const &rep,
-        size_t p
+        std::size_t p
         );
 bool isIndexZeroOddSO(
         std::vector<int> const &rep,
-        size_t p
+        std::size_t p
         );
 bool isIndexZeroSp(
         std::vector<int> const &rep,
-        size_t p
+        std::size_t p
         );
 bool isIndexZeroE6(
         std::vector<int> const &rep,
-        size_t p
+        std::size_t p
         );
 bool isIndexZeroE7(
         std::vector<int> const &rep,
-        size_t p
+        std::size_t p
         );
 bool isIndexZeroE8(
         std::vector<int> const &rep,
-        size_t p
+        std::size_t p
         );
 bool isIndexZeroF4(
         std::vector<int> const &rep,
-        size_t p
+        std::size_t p
         );
 bool isIndexZeroG2(
         std::vector<int> const &rep,
-        size_t p
+        std::size_t p
         );
 
 csl::Expr getIndexNorm(
         algebra::Type    algebra,
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         );
 csl::Expr getSUIndexNorm(
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         );
 csl::Expr getEvenSOIndexNorm(
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         );
 csl::Expr getOddSOIndexNorm(
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         );
 csl::Expr getSpIndexNorm(
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         );
 csl::Expr getE6IndexNorm(
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         );
 csl::Expr getE7IndexNorm(
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         );
 csl::Expr getE8IndexNorm(
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         );
 csl::Expr getF4IndexNorm(
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         );
 csl::Expr getG2IndexNorm(
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         );
 
 csl::Expr getIndex(
         algebra::Type    algebra,
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         );
 csl::Expr getSUIndex(
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         );
 csl::Expr getEvenSOIndex(
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         );
 csl::Expr getOddSOIndex(
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         );
 csl::Expr getLastEvenSOIndex(
         std::vector<int> const &rep,
-        size_t                  n,
+        std::size_t                  n,
         bool                    normalize = true
         );
 csl::Expr getSpIndex(
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         );
 csl::Expr getE6Index(
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         );
 csl::Expr getE7Index(
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         );
 csl::Expr getE8Index(
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         );
 csl::Expr getF4Index(
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         );
 csl::Expr getG2Index(
         std::vector<int> const &rep,
-        size_t                  n
+        std::size_t                  n
         );
 
 // All the following indices are taken from
@@ -184,7 +184,7 @@ csl::Expr getG2Index(
 /*************************************************/
 ///////////////////////////////////////////////////
 
-template<size_t N>
+template<std::size_t N>
 using GIndex_t = std::pair<std::array<int, N>, long long int>;
 
 inline constexpr std::array<GIndex_t<6>, 12>

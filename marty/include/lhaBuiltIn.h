@@ -82,7 +82,7 @@ void readFile(std::ifstream &file);
 bool applyLHA(
         LHAFileData const &data,
         std::string_view   nameBlock,
-        size_t             id,
+        std::size_t             id,
         csl::Expr              &expr
         );
 
@@ -103,8 +103,8 @@ bool applyLHA(
 bool applyLHA(
         LHAFileData const &data,
         std::string_view   nameBlock,
-        size_t             i,
-        size_t             j,
+        std::size_t             i,
+        std::size_t             j,
         csl::Expr              &expr
         );
 
@@ -137,7 +137,7 @@ struct LHAElementInputData {
     /**
      * @brief Possible id (if not matrix) of the expression.
      */
-    size_t id;
+    std::size_t id;
     /**
      * @brief Expression to modify.
      */

@@ -483,7 +483,7 @@ namespace csl {
                 source << indent(3) << expression << ",\n";
             source << indent(2) << "},\n";
             source << indent(2) << "{";
-            size_t s1 = diag.masses.size()*diag.masses.size();
+            std::size_t s1 = diag.masses.size()*diag.masses.size();
             CSL_ASSERT_SPEC(s1 <= diag.mixings.size(),
                     CSLError::RuntimeError,
                     "Too few mixings (" + toString(diag.mixings.size()) + ") "
@@ -491,8 +491,8 @@ namespace csl {
                     + toString(diag.masses.size()) + "), probably a name "
                     "conflict in the mixing matrix (be sure that all elements"
                     " have different names).")
-            size_t s2 = diag.mixings.size();
-            for (size_t i = 0; i != s1; ++i) 
+            std::size_t s2 = diag.mixings.size();
+            for (std::size_t i = 0; i != s1; ++i) 
                 source << "&outputs." <<  diag.mixings[i] << ", ";
             source << "},\n";
             if (s2 != s1) {
@@ -504,7 +504,7 @@ namespace csl {
                         + toString(diag.masses.size()) + "), probably a name "
                         "conflict in the mixing matrix (be sure that all elements"
                         " have different names).")
-                for (size_t i = s1; i != s2; ++i) 
+                for (std::size_t i = s1; i != s2; ++i) 
                     source << "&outputs." << diag.mixings[i] << ", ";
                 source << "},\n";
             }
@@ -1051,7 +1051,7 @@ namespace csl {
             out << "> \n" << indent(1) << name << "(\n";
             out << indent(2) << "{";
             std::vector<const csl::Space*> spaces = tensor->getSpace();
-            for (size_t i = 0; i != spaces.size(); ++i) {
+            for (std::size_t i = 0; i != spaces.size(); ++i) {
                 out << spaces[i]->getDim();
                 if (i != spaces.size() - 1)
                     out << ", ";
@@ -1067,18 +1067,18 @@ namespace csl {
                     CSLError::TypeError,
                     "Tensor " + std::string(tensor->getName()) 
                     + " not allowed in library generation, it has no value.")
-            std::list<size_t> maxima;
-            size_t max_iter = 1;
+            std::list<std::size_t> maxima;
+            std::size_t max_iter = 1;
             for (auto& s : spaces) {
                 maxima.push_back(s->getDim());
                 max_iter *= s->getDim();
             }
 
-            counter<size_t> index_counter(maxima);
+            counter<std::size_t> index_counter(maxima);
             index_counter.restart();
             std::vector<int> indices(spaces.size());
-            size_t iter = 0;
-            size_t periodicity = spaces[spaces.size()-1]->getDim();
+            std::size_t iter = 0;
+            std::size_t periodicity = spaces[spaces.size()-1]->getDim();
             out.precision(nDigits);
             out << indent(3);
             out << std::left;

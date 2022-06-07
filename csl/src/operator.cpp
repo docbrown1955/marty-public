@@ -18,11 +18,11 @@
 
 namespace csl {
 
-bool pullLeft(csl::vector_expr& argument, size_t pos, size_t& begin)
+bool pullLeft(csl::vector_expr& argument, std::size_t pos, std::size_t& begin)
 {
     bool blocked = false;
     if (pos > 0) 
-        for (size_t j = pos; j --> begin ;) 
+        for (std::size_t j = pos; j --> begin ;) 
             if (*Commutation(argument[j], argument[pos]) != CSL_0) {
                 blocked = true;
                 break;
@@ -37,11 +37,11 @@ bool pullLeft(csl::vector_expr& argument, size_t pos, size_t& begin)
     return false;
 }
 
-bool pullRight(csl::vector_expr& argument, size_t& pos, size_t& end)
+bool pullRight(csl::vector_expr& argument, std::size_t& pos, std::size_t& end)
 {
     bool blocked = false;
     if (pos > 0) 
-        for (size_t j=pos+1; j<end; ++j) 
+        for (std::size_t j=pos+1; j<end; ++j) 
             if (*Commutation(argument[j], argument[pos]) != CSL_0) {
                 blocked = true;
                 break;
@@ -57,7 +57,7 @@ bool pullRight(csl::vector_expr& argument, size_t& pos, size_t& end)
     return false;
 }
 
-void getParts(const csl::vector_expr& argument, size_t begin, size_t end,
+void getParts(const csl::vector_expr& argument, std::size_t begin, std::size_t end,
         Expr& left, Expr& mid, Expr& right)
 {
     if (begin > 0)

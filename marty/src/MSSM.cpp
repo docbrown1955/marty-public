@@ -673,8 +673,8 @@ void MSSM_Model::initQuarticInteractions()
 }
 void MSSM_Model::initQuarticDTerms()
 {
-    for (size_t i = 0; i != gauge->size(); ++i) {
-        for (size_t p1 = 0; p1 != particles.size(); ++p1) {
+    for (std::size_t i = 0; i != gauge->size(); ++i) {
+        for (std::size_t p1 = 0; p1 != particles.size(); ++p1) {
             if (particles[p1]->getSpinDimension() != 1
                 or particles[p1]->getParticleType() 
                     == mty::ParticleType::GhostBoson)
@@ -682,7 +682,7 @@ void MSSM_Model::initQuarticDTerms()
             auto rep1 = particles[p1]->getGroupIrrep((*gauge)[i]);
             bool sign1 = SUSY[particles[p1]]->isFermionic()
                 && SUSY[particles[p1]]->getChirality() == Chirality::Right;
-            for (size_t p2 = 0; p2 < particles.size(); ++p2) {
+            for (std::size_t p2 = 0; p2 < particles.size(); ++p2) {
                 if (particles[p2]->getSpinDimension() != 1
                     or particles[p2]->getParticleType() 
                         == mty::ParticleType::GhostBoson)
@@ -1413,8 +1413,8 @@ void MSSM_Model::sortSfermions(std::vector<mty::Particle> &parts)
         bool B_left = nameB.find('L') != std::string::npos;
         if (A_left & !B_left) return true;
         if (!A_left & B_left) return false;
-        size_t A_order = order.find(nameA[1]);
-        size_t B_order = order.find(nameB[1]);
+        std::size_t A_order = order.find(nameA[1]);
+        std::size_t B_order = order.find(nameB[1]);
         if (A_order != std::string::npos && B_order != std::string::npos) {
             return A_order < B_order;
         }

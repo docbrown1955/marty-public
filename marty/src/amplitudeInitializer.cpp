@@ -59,7 +59,7 @@ namespace mty {
     }
 
     Amplitude AmplitudeInitializer::getAmplitude(
-            std::vector<std::vector<size_t>> const &terms
+            std::vector<std::vector<std::size_t>> const &terms
             )
     {
         csl::ScopedProperty p1(&mty::option::excludeTadpoles,
@@ -85,7 +85,7 @@ namespace mty {
     }
 
     Amplitude AmplitudeInitializer::fullQuantumCalculation(
-            std::vector<std::vector<size_t>> const &terms
+            std::vector<std::vector<std::size_t>> const &terms
             )
     {
         csl::Expr LSZInsertion = getLSZInsertions(
@@ -100,21 +100,21 @@ namespace mty {
         integral.addTerm(LSZInsertion);
 
         std::vector<csl::Expr> fieldVertices(insertions.size());
-        for (size_t i = 0; i != insertions.size(); ++i) {
+        for (std::size_t i = 0; i != insertions.size(); ++i) {
             fieldVertices[i] = insertions[i].copy();
         }
         Amplitude res { options, kinematics };
-        for (size_t index = 0; index != terms.size(); ++index) {
+        for (std::size_t index = 0; index != terms.size(); ++index) {
             const auto &termPos = terms[index];
             std::vector<csl::Tensor> vertices = getVertices(termPos.size());
-            for (size_t i = 0; i != termPos.size(); ++i) {
+            for (std::size_t i = 0; i != termPos.size(); ++i) {
                 lagrangian[termPos[i]]->setPoint(vertices[i]);
             }
-            std::map<csl::Tensor, size_t> vertexIds;
+            std::map<csl::Tensor, std::size_t> vertexIds;
             auto cpyFieldVertices = fieldVertices;
             cpyFieldVertices.resize(fieldVertices.size() + termPos.size());
             csl::PseudoIntegral integral_cpy = integral;
-            for (size_t i = 0; i != termPos.size(); ++i) {
+            for (std::size_t i = 0; i != termPos.size(); ++i) {
                 integral_cpy.addTerm(csl::vectorintegral_s(vertices[i]));
                 vertexIds[vertices[i]] = i;
                 cpyFieldVertices[insertions.size() + i] 
@@ -127,7 +127,7 @@ namespace mty {
             cpyFieldVertices.push_back(
                     csl::pow_s(CSL_I, csl::int_s(termPos.size())));
             auto fieldProd = mty::wick_s(csl::prod_s(cpyFieldVertices, true));
-            std::vector<std::vector<size_t>> externalSym
+            std::vector<std::vector<std::size_t>> externalSym
                 = getExternalSymmetries(fieldProd);
             std::vector<FeynmanDiagram> amplitude 
                 = wick::WickCalculator::getDiagrams(
@@ -136,7 +136,7 @@ namespace mty {
                     fieldProd,
                     vertexIds
                     );
-            for (size_t i = 0; i != amplitude.size(); ++i) {
+            for (std::size_t i = 0; i != amplitude.size(); ++i) {
                 simplifyFullQuantumCalculation(
                         amplitude[i],
                         integral_cpy,
@@ -152,7 +152,7 @@ namespace mty {
     }
 
     Amplitude AmplitudeInitializer::ruledCalculation(
-            std::vector<std::vector<size_t>> const &terms
+            std::vector<std::vector<std::size_t>> const &terms
             )
     {
         csl::Expr LSZInsertion = getLSZInsertions(
@@ -167,12 +167,12 @@ namespace mty {
         integral.addTerm(LSZInsertion);
 
         std::vector<csl::Expr> fieldVertices(insertions.size());
-        for (size_t i = 0; i != insertions.size(); ++i) {
+        for (std::size_t i = 0; i != insertions.size(); ++i) {
             fieldVertices[i] = insertions[i].copy();
         }
         Amplitude res { options, kinematics };
-        // size_t III = 0;
-        for (size_t index = 0; index != terms.size(); ++index) {
+        // std::size_t III = 0;
+        for (std::size_t index = 0; index != terms.size(); ++index) {
             ///////////////////////////////:
             // This line is important as it disables all index contractions
             // This allows to disbable index replacements from deltas and keep
@@ -188,12 +188,12 @@ namespace mty {
             std::vector<FeynmanRule> localRules;
             localRules.reserve(termPos.size());
             // std::cout << "For rules:" << '\n';
-            for (size_t i : termPos) {
+            for (std::size_t i : termPos) {
                 localRules.push_back(*feynmanRules[i]);
                 // std::cout << localRules.back() << '\n';
             }
             std::vector<csl::Tensor> vertices = getVertices(termPos.size());
-            std::map<csl::Tensor, size_t> vertexIds;
+            std::map<csl::Tensor, std::size_t> vertexIds;
             std::vector<csl::Tensor> witnessVertices;
             auto fieldVertices_cpy = fieldVertices;
             auto integral_cpy = integral;
@@ -226,7 +226,7 @@ namespace mty {
             // Setting this option to its old value
             csl::option::applySelfContractions = selfContractionEnabled;
             ////////////////////////////////////////
-            for (size_t i = 0; i != amplitude.size(); ++i) {
+            for (std::size_t i = 0; i != amplitude.size(); ++i) {
                 simplifyRuledCalculation(
                         amplitude[i],
                         integral_cpy,
@@ -255,8 +255,8 @@ namespace mty {
     void AmplitudeInitializer::simplifyFullQuantumCalculation(
                 mty::FeynmanDiagram            &diagram,
                 csl::PseudoIntegral      const &integral,
-                std::vector<size_t>      const &posTerms,
-                std::vector<std::vector<size_t>> &externalSym
+                std::vector<std::size_t>      const &posTerms,
+                std::vector<std::vector<std::size_t>> &externalSym
                 )
     {
         csl::Expr res = integral.applyOn(diagram.getExpression());
@@ -269,7 +269,7 @@ namespace mty {
                     ind);
             res = res->suppressTerm(csl::diracdelta_s(PSum).get());
             if (mty::option::applyFactorsAndSymmetries) {
-                for (size_t i : posTerms) {
+                for (std::size_t i : posTerms) {
                     res = lagrangian[i]->applyFactorAndSymmetriesOn(res);
                 }
             }
@@ -387,7 +387,7 @@ namespace mty {
         // Gathering LSZ insertions of fields
         std::vector<csl::Expr> terms(insertions.size());
         bool firstFermionFound = false;
-        for (size_t i = 0; i != insertions.size(); ++i) {
+        for (std::size_t i = 0; i != insertions.size(); ++i) {
             auto& field = insertions[i];
             if (!firstFermionFound && field.isFermionic() && !field.isSelfConjugate()) {
                 firstFermionFound = true;
@@ -406,10 +406,10 @@ namespace mty {
         return res;
     }
 
-    std::vector<csl::Tensor> AmplitudeInitializer::getVertices(size_t N)
+    std::vector<csl::Tensor> AmplitudeInitializer::getVertices(std::size_t N)
     {
         std::vector<csl::Tensor> vertices(N);
-        for (size_t i = 0; i != N; ++i) {
+        for (std::size_t i = 0; i != N; ++i) {
             vertices[i] = csl::Tensor("V_" + std::to_string(i), &csl::Minkowski);
         }
         return vertices;
@@ -418,7 +418,7 @@ namespace mty {
     static bool compareFields(
             QuantumField const &A,
             QuantumField const &B,
-            [[maybe_unused]] size_t pos
+            [[maybe_unused]] std::size_t pos
             )
     {
         if (A.isSelfConjugate() != B.isSelfConjugate())
@@ -436,12 +436,12 @@ namespace mty {
             FeynOptions                    &options
             )
     {
-        std::vector<size_t> indices(kinematics.size());
+        std::vector<std::size_t> indices(kinematics.size());
         std::iota(begin(indices), end(indices), 0);
         std::vector<int> fermionOrder = options.getFermionOrder();
         std::vector<int> fermions(kinematics.size());
         int iF = 0;
-        for (size_t i = 0; i != insertions.size(); ++i)  {
+        for (std::size_t i = 0; i != insertions.size(); ++i)  {
             if (insertions[i].isFermionic()) {
                 fermions[i] = iF++;
             }
@@ -449,9 +449,9 @@ namespace mty {
                 fermions[i] = -1;
             }
         }
-        for (size_t i = 0; i != insertions.size(); ++i)  {
-            size_t mini = i;
-            for (size_t j = i+1; j < insertions.size(); ++j)  {
+        for (std::size_t i = 0; i != insertions.size(); ++i)  {
+            std::size_t mini = i;
+            for (std::size_t j = i+1; j < insertions.size(); ++j)  {
                 if (compareFields(insertions[j], insertions[mini], i))
                     mini = j;
             }
@@ -463,7 +463,7 @@ namespace mty {
         }
         std::vector<int> newFermionOrder(fermionOrder.size());
         iF = 0;
-        for (size_t i = 0; i != fermions.size(); ++i) {
+        for (std::size_t i = 0; i != fermions.size(); ++i) {
             if (fermions[i] != -1) {
                 newFermionOrder[iF++] = fermionOrder[fermions[i]];
             }
@@ -474,23 +474,23 @@ namespace mty {
 
     void AmplitudeInitializer::initMomentumVertices(
             std::vector<FeynmanRule>       &localRules,
-            std::map<csl::Tensor, size_t>  &vertexIds,
+            std::map<csl::Tensor, std::size_t>  &vertexIds,
             std::vector<csl::Tensor> const &vertices,
             std::vector<csl::Tensor>       &witnessVertices,
             csl::PseudoIntegral            &integral,
             std::vector<csl::Expr>         &fieldVertices
             )
     {
-        size_t index = 0;
-        for (size_t i = 0; i != localRules.size(); ++i) {
-            for (size_t j = 0; j != localRules[i].getSize(); ++j)
+        std::size_t index = 0;
+        for (std::size_t i = 0; i != localRules.size(); ++i) {
+            for (std::size_t j = 0; j != localRules[i].getSize(); ++j)
                 witnessVertices.push_back(csl::tensor_s(
                             "W_"+toString(index++),
                             &csl::Minkowski));
         }
         auto firstWitness = witnessVertices.begin();
         fieldVertices.resize(fieldVertices.size() + localRules.size());
-        for (size_t i = 0; i != localRules.size(); ++i) {
+        for (std::size_t i = 0; i != localRules.size(); ++i) {
             auto lastWitness = firstWitness + localRules[i].getSize();
             integral.addTerm(csl::vectorintegral_s(vertices[i]));
             vertexIds[vertices[i]] = i;
@@ -502,7 +502,7 @@ namespace mty {
         }
     }
 
-    std::vector<std::vector<size_t>> AmplitudeInitializer::getExternalSymmetries(
+    std::vector<std::vector<std::size_t>> AmplitudeInitializer::getExternalSymmetries(
         csl::Expr &fieldProd
         ) const
     {
@@ -520,7 +520,7 @@ namespace mty {
             return {};
         mty::QuantumField firstField = ConvertTo<QuantumField>(firstFieldExpr);
 
-        std::vector<std::vector<size_t>> res;
+        std::vector<std::vector<std::size_t>> res;
         if (insertions.size() < 3)
             return res;
 
@@ -529,13 +529,13 @@ namespace mty {
             return wick::areDegenerate(field, firstField)
                 and field.getPoint().get() == firstField.getPoint().get();
         };
-        std::vector<size_t> indicesLeft = csl::range(insertions.size());
-        for (size_t i = 0; i < indicesLeft.size()-1; ++i) {
-            std::vector<size_t> intermediate;
+        std::vector<std::size_t> indicesLeft = csl::range(insertions.size());
+        for (std::size_t i = 0; i < indicesLeft.size()-1; ++i) {
+            std::vector<std::size_t> intermediate;
             QuantumField field = insertions[indicesLeft[i]];
             if (not isFirst(field))
                 intermediate.push_back(indicesLeft[i]);
-            for (size_t j = i+1; j < indicesLeft.size(); ++j) {
+            for (std::size_t j = i+1; j < indicesLeft.size(); ++j) {
                 if (wick::areDegenerate(field,
                             insertions[indicesLeft[j]])) {
                     if (not isFirst(insertions[indicesLeft[j]]))
@@ -554,26 +554,26 @@ namespace mty {
 
     std::vector<csl::Expr> AmplitudeInitializer::applyExternalSymmetries(
             csl::Expr    const& res,
-            std::vector<size_t> perm
+            std::vector<std::size_t> perm
             ) const
     {
-        const size_t nIndices = insertions[perm[0]].
+        const std::size_t nIndices = insertions[perm[0]].
             getIndexStructureView().size();
 
         std::vector<mty::QuantumField> deg_insertions(perm.size());
         std::vector<csl::Tensor>       deg_momentum(perm.size());
         std::vector<csl::Index>        deg_indices(perm.size() * nIndices);
 
-        for (size_t i = 0; i != perm.size(); ++i) {
+        for (std::size_t i = 0; i != perm.size(); ++i) {
             deg_momentum[i] = kinematics.getMomenta()[perm[i]];
             deg_insertions[i] = insertions[perm[i]];
-            for (size_t j = 0; j != nIndices; ++j) {
+            for (std::size_t j = 0; j != nIndices; ++j) {
                 deg_indices[nIndices*i + j] =
                     deg_insertions[i].getIndexStructureView()[j];
             }
         }
 
-        size_t count = 0;
+        std::size_t count = 0;
         bool fermionic = not insertions[perm[0]].isBosonic();
         int sign = -1;
         std::vector<csl::Expr> terms(1, DeepRefreshed(res));
@@ -584,7 +584,7 @@ namespace mty {
             csl::ForEachLeaf(copyRes, [&](csl::Expr& el)
             {
                 if (el->isIndexed()) {
-                    for (size_t i = 0; i != deg_momentum.size(); ++i)
+                    for (std::size_t i = 0; i != deg_momentum.size(); ++i)
                         if (el->getParent_info() == deg_momentum[i].get()) {
                             el->setParent(deg_momentum[perm[i]]);
                             if (deg_insertions[i].isIncoming() xor
@@ -595,7 +595,7 @@ namespace mty {
                 }
             });
             if (fermionic) {
-                for (size_t k = 0; k != perm.size(); ++k) {
+                for (std::size_t k = 0; k != perm.size(); ++k) {
                     if (k < perm[k]) {
                         // Majorana symmetry, conjugation matrix to introduce
                         csl::Index alpha = deg_indices[(k+1)*nIndices - 1]; // Last = Dirac
@@ -627,9 +627,9 @@ namespace mty {
                         = el->getIndexStructureView();
                     csl::Expr init = DeepCopy(el);
                     for (auto& index : structure)
-                        for (size_t n = 0; n != nIndices; ++n) {
+                        for (std::size_t n = 0; n != nIndices; ++n) {
                             bool breakValue = false;
-                            for (size_t i = 0; i != perm.size(); ++i)  {
+                            for (std::size_t i = 0; i != perm.size(); ++i)  {
                                 if (index == deg_indices[i*nIndices + n]
                                         and deg_indices[i*nIndices+n]
                                             != deg_indices[perm[i]*nIndices+n]) {
@@ -659,8 +659,8 @@ namespace mty {
 
     std::vector<csl::Expr> AmplitudeInitializer::applyAllExternalSymmetries(
             std::vector<csl::Expr>             const& init,
-            std::vector<std::vector<size_t>>::iterator first,
-            std::vector<std::vector<size_t>>::iterator last
+            std::vector<std::vector<std::size_t>>::iterator first,
+            std::vector<std::vector<std::size_t>>::iterator last
             ) const
     {
         if (first == last)

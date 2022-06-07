@@ -50,7 +50,7 @@ Irrep::Irrep(const SemiSimpleAlgebra* t_algebra,
         dim += m;
 }
 
-size_t Irrep::size() const
+std::size_t Irrep::size() const
 {
     return rep.size();
 }
@@ -226,7 +226,7 @@ SumIrrep::SumIrrep(const vector<Irrep>& t_irrep)
 {
     if (t_irrep.size() > 0) {
         algebra = t_irrep[0].getAlgebra();
-        for (size_t i=1; i!=t_irrep.size(); ++i)
+        for (std::size_t i=1; i!=t_irrep.size(); ++i)
             HEPAssert(algebra == t_irrep[i].getAlgebra(),
                     mty::error::ValueError,
                     "Non identical algebras in direct sum !");

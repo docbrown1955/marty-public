@@ -131,9 +131,9 @@ int Permutation::getSign()
         return sign;
     sign = 1;
     Permutation foo(permutation);
-    for (size_t i = 0; i != size(); ++i) {
+    for (std::size_t i = 0; i != size(); ++i) {
         if (foo[i] != (int)i) {
-            for (size_t j = i+1; j != size(); ++j) {
+            for (std::size_t j = i+1; j != size(); ++j) {
                 if (foo[j] == (int)i) {
                     std::swap(foo[i],foo[j]);
                     sign *= -1;
@@ -158,15 +158,15 @@ void Permutation::setSymmetry(int t_symmetry) {
     symmetry = t_symmetry;
 }
 
-void Permutation::adjustToSize(size_t newSize)
+void Permutation::adjustToSize(std::size_t newSize)
 {
     if (size() < newSize) {
-        for (size_t i = size(); i != newSize; ++i)
+        for (std::size_t i = size(); i != newSize; ++i)
             push_back(i);
     }
 }
 
-void Permutation::applyRedefinition(const vector<size_t>& redefinition)
+void Permutation::applyRedefinition(const vector<std::size_t>& redefinition)
 {
     if (not (redefinition.size() == size())) {
         cout << size() << "  " << redefinition.size() << endl;
@@ -174,17 +174,17 @@ void Permutation::applyRedefinition(const vector<size_t>& redefinition)
                 "Permutation::applyRedefinition()",
                 "Applying redefinition on a permutation of different size!");
     }
-    size_t max = 0;
+    std::size_t max = 0;
     for (auto& element : *this) {
         if (redefinition[element] > max)
             max = redefinition[element];
         element = redefinition[element];
     }
     vector<int> newPermutation(max+1, -1);
-    for (size_t i = 0; i != redefinition.size(); ++i)
+    for (std::size_t i = 0; i != redefinition.size(); ++i)
         newPermutation[redefinition[i]] = permutation[i];
     if (max+1 > size())
-        for (size_t i = 0; i != max+1; ++i)
+        for (std::size_t i = 0; i != max+1; ++i)
             if (newPermutation[i] == -1)
                 newPermutation[i] = i;
 
@@ -198,7 +198,7 @@ vector<int> Permutation::getPermutation() const {
 bool Permutation::operator==(const Permutation& t_permutation) const {
     if (size() != t_permutation.size()) 
         return false;
-    for (size_t i = 0; i < size(); ++i)
+    for (std::size_t i = 0; i < size(); ++i)
         if (permutation[i] != t_permutation[i])
             return false;
 
@@ -221,7 +221,7 @@ Permutation Permutation::operator*(const Permutation& t_permutation) const
         smaller = false;
         newPerm = vector<int>(size());
     }
-    for (size_t i = 0; i != size(); ++i)
+    for (std::size_t i = 0; i != size(); ++i)
         if (smaller and t_permutation[i] >= (int)size())
             newPerm[i] = t_permutation[i];
         else
@@ -236,7 +236,7 @@ Permutation Permutation::operator*(const Permutation& t_permutation) const
 std::ostream& operator<<(std::ostream& fout, const Permutation& permutation)
 {
     fout<<"Permutation of "<<permutation.size()<<" elements: ";
-    for (size_t i = 0; i != permutation.size(); ++i)
+    for (std::size_t i = 0; i != permutation.size(); ++i)
         fout<<permutation[i]<<" ";
     
     return fout;
@@ -263,7 +263,7 @@ vector<vector<int> > permutations(vector<int> init)
 
     vector<vector<int> > rep(factorial(init.size()));
     rep[0] = init;
-    size_t index = 0;
+    std::size_t index = 0;
     while (std::next_permutation(init.begin(), init.end()))
         rep[++index] = init;
 
@@ -279,7 +279,7 @@ vector<vector<int> > permutations(vector<int> init)
     //     // And get all the permutations of the n-1 other elements in 
     //     // intermediateRep.
     //     vector<vector<int> >intermediateRep = permutations(foo);
-    //     for (size_t j=0; j<intermediateRep.size(); ++j)
+    //     for (std::size_t j=0; j<intermediateRep.size(); ++j)
     //         // We add as the first element of each found permutation the 
     //         // element we erased from foo, the n^th element
     //         intermediateRep[j].insert(intermediateRep[j].begin(), init[i]);
@@ -303,7 +303,7 @@ vector<Permutation> permutations(const Permutation& init)
     vector<vector<int> > intermediateRep = permutations(
             init.getPermutation());
     vector<Permutation> rep(intermediateRep.size());
-    for (size_t i=0; i!=rep.size(); ++i)
+    for (std::size_t i=0; i!=rep.size(); ++i)
         rep[i] = Permutation(intermediateRep[i]);
 
     return rep;
@@ -312,8 +312,8 @@ vector<Permutation> permutations(const Permutation& init)
 // Erase redundant permutations in the vector permutation
 void reducePermutation(std::vector<Permutation >& permutation)
 {
-    for (size_t i=0; i<permutation.size()-1; ++i) 
-        for (size_t j=i+1; j!=permutation.size(); ++j) 
+    for (std::size_t i=0; i<permutation.size()-1; ++i) 
+        for (std::size_t j=i+1; j!=permutation.size(); ++j) 
             if (permutation[i] == permutation[j]) {
                 permutation.erase(permutation.begin()+j);
                 --j;
@@ -328,11 +328,11 @@ std::vector<Permutation > getSpan(const std::vector<Permutation >& init)
     std::vector<Permutation > newPermutation = rep;
     while (not newPermutation.empty()) {
         // While we get newPermutations by composing the ones we already had
-        const size_t size = rep.size();
-        for (size_t i=0; i!=newPermutation.size(); ++i) {
+        const std::size_t size = rep.size();
+        for (std::size_t i=0; i!=newPermutation.size(); ++i) {
             // For each newPermutation and for each old permutation
             // we add the two possible composition A*B and B*A
-            for (size_t j=0; j!=size; ++j) {
+            for (std::size_t j=0; j!=size; ++j) {
                 rep.push_back(newPermutation[i]*rep[j]);
                 rep.push_back(rep[j]*newPermutation[i]);
             }
@@ -356,9 +356,9 @@ void getSpan(std::vector<Permutation >& spanned,
     spanned.push_back(element);
     std::vector<Permutation > newPermutation(1,element);
     while (not newPermutation.empty()) {
-        const size_t size = spanned.size();
-        for (size_t i=0; i!=newPermutation.size(); ++i) {
-            for (size_t j=0; j!=size; ++j) {
+        const std::size_t size = spanned.size();
+        for (std::size_t i=0; i!=newPermutation.size(); ++i) {
+            for (std::size_t j=0; j!=size; ++j) {
                 spanned.push_back(newPermutation[i]*spanned[j]);
                 spanned.push_back(spanned[j]*newPermutation[i]);
             }
@@ -386,7 +386,7 @@ int Symmetry::getDim() const {
     return dim;
 }
 
-size_t Symmetry::getNPermutation() const {
+std::size_t Symmetry::getNPermutation() const {
     return permutation.size();
 }
 
@@ -480,7 +480,7 @@ void Symmetry::setMustGetSpan(bool t_must)
 
 void Symmetry::adjustPermutationSize()
 {
-    size_t max = 0;
+    std::size_t max = 0;
     for (const auto& perm : *this)
         if (perm.size() > max)
             max = perm.size();
@@ -498,12 +498,12 @@ bool Symmetry::operator==(const Symmetry& symmetry) const
     return comparePlaceIndependant(permutation, symmetry.getPermutation());
     // const vector<Permutation>& t_permutation = symmetry.getPermutation();
     // vector<int> indicesLeft(t_permutation.size());
-    // for (size_t i=0; i!= indicesLeft.size(); ++i)
+    // for (std::size_t i=0; i!= indicesLeft.size(); ++i)
     //     indicesLeft[i] = i;
 
-    // for (size_t i=0; i!=permutation.size(); ++i) {
+    // for (std::size_t i=0; i!=permutation.size(); ++i) {
     //     bool match = false;
-    //     for (size_t j=0; j!=indicesLeft.size(); ++j) {
+    //     for (std::size_t j=0; j!=indicesLeft.size(); ++j) {
     //         if (permutation[i] == t_permutation[indicesLeft[j]]) {
     //             match = true;
     //             indicesLeft.erase(indicesLeft.begin()+j);
@@ -617,8 +617,8 @@ void IndexedSymmetry::addAntiSymmetry(const pair<Index, Index>& perm)
 }
 
 
-size_t IndexedSymmetry::findPos(const Index&    index,
-                                size_t&         posMax,
+std::size_t IndexedSymmetry::findPos(const Index&    index,
+                                std::size_t&         posMax,
                                 IndexStructure& newInit) const
 {
     if (auto pos = find_if(init.begin(), init.end(),
@@ -638,8 +638,8 @@ pair<Symmetry, Symmetry> IndexedSymmetry::getCorrespondingSymmetries(
         IndexStructure& newInit
         ) const
 {
-    vector<size_t> correspondance;
-    size_t posMax = init.size();
+    vector<std::size_t> correspondance;
+    std::size_t posMax = init.size();
     newInit = init;
     for (const auto& index : other.init)
         correspondance.push_back(findPos(index, posMax, newInit));
@@ -711,11 +711,11 @@ csl::vector_expr IndexedSymmetry::applySymmetry(const Expr& expr) const
     for (auto& foo : fooIndices)
         foo = init[0].getSpace()->generateIndex( "foo");
             
-    for (size_t i = 0; i != size(); ++i) {
+    for (std::size_t i = 0; i != size(); ++i) {
         res[i] = DeepCopy(expr);
-        for (size_t j = 0; j != permutation[i].size(); ++j) 
+        for (std::size_t j = 0; j != permutation[i].size(); ++j) 
             Replace(res[i], init[j], fooIndices[j]);
-        for (size_t j = 0; j != permutation[i].size(); ++j) 
+        for (std::size_t j = 0; j != permutation[i].size(); ++j) 
             Replace(res[i], fooIndices[j], init[permutation[i][j]]);
         res[i] = DeepRefreshed(res[i]);
     }

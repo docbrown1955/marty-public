@@ -399,7 +399,7 @@ class AbstractParent: public std::enable_shared_from_this<AbstractParent>{
     std::vector<Parent> breakSpace(
             const Space*                     broken,
             const std::vector<const Space*>& newSpace,
-            const std::vector<size_t>&       pieces
+            const std::vector<std::size_t>&       pieces
             ) const;
 
     /*! \brief Generate the Element for an TensorParent of dimension 1 (a 

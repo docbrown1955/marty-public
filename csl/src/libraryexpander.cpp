@@ -121,12 +121,12 @@ std::vector<Structure> LibraryExpander::parse(
     return structures;
 }
 
-size_t LibraryExpander::nCommonIndices(
+std::size_t LibraryExpander::nCommonIndices(
         Structure const &s1,
         Structure const &s2
         )
 {
-    size_t nCommon = 0;
+    std::size_t nCommon = 0;
     for (const auto& p1 : s1.indices)
         for (const auto& p2 : s2.indices) {
             nCommon += (p1.getFirst() == p2.getFirst());
@@ -186,18 +186,18 @@ std::vector<Structure> LibraryExpander::merge(
     if (init.size() == 1)
         return init[0];
 
-    std::vector<size_t> indicesLeft(init.size()-1);
-    for (size_t i = 0; i != indicesLeft.size(); ++i) 
+    std::vector<std::size_t> indicesLeft(init.size()-1);
+    for (std::size_t i = 0; i != indicesLeft.size(); ++i) 
         indicesLeft[i] = i+1;
 
     std::vector<Structure> res = std::move(init[0]);
     while (!indicesLeft.empty()) {
-        size_t maxCommon = 0;
-        size_t iMaxCommon = indicesLeft[0];
+        std::size_t maxCommon = 0;
+        std::size_t iMaxCommon = indicesLeft[0];
         if (!res.empty())
-            for (size_t i : indicesLeft)
+            for (std::size_t i : indicesLeft)
                 if (!init[i].empty())
-                    if (size_t n = nCommonIndices(res[0], init[i][0]);
+                    if (std::size_t n = nCommonIndices(res[0], init[i][0]);
                             n > maxCommon) {
                         maxCommon = n;
                         iMaxCommon = i;
@@ -313,7 +313,7 @@ void Structure::mult(
         Expr  const &t_factor
         )
 {
-    for (size_t i = 0; i != indices.size(); ++i) {
+    for (std::size_t i = 0; i != indices.size(); ++i) {
         if (int res = commonIndex(indices[i], p); res != -1) {
             switch(res) {
                 case 0:
@@ -343,7 +343,7 @@ void Structure::mult(
     }
     if (t_factor)
         factor = factor * t_factor;
-    for (size_t i = 0; i != indices.size(); ++i) 
+    for (std::size_t i = 0; i != indices.size(); ++i) 
         if (p < indices[i]) {
             indices.insert(indices.begin() + i, p);
             return;
@@ -354,8 +354,8 @@ void Structure::mult(
 
 void Structure::simplify()
 {
-    for (size_t i = 0; i != indices.size(); ++i) {
-        for (size_t j = i + 1; j < indices.size(); ++j) 
+    for (std::size_t i = 0; i != indices.size(); ++i) {
+        for (std::size_t j = i + 1; j < indices.size(); ++j) 
             if (int res = commonIndex(indices[i], indices[j]); res != -1) {
                 switch(res) {
                     case 0:
@@ -401,7 +401,7 @@ bool Structure::operator==(Structure const &other) const
 {
     if (indices.size() != other.indices.size())
         return false;
-    for (size_t i = 0; i != indices.size(); ++i) 
+    for (std::size_t i = 0; i != indices.size(); ++i) 
         if (indices[i] != other.indices[i])
             return false;
     return true;

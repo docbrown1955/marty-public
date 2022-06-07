@@ -82,7 +82,7 @@ namespace mty {
          * lines, memory will have to be reallocated elsewhere with more space 
          * (implies deallocation, reallocation, copies etc).
          */
-        constexpr static size_t maxFermionLines = 3;
+        constexpr static std::size_t maxFermionLines = 3;
 
         /**
          * @brief Resolves all fermion lines in a set of fields.
@@ -375,7 +375,7 @@ namespace mty {
         {}
 
         std::vector<QuantumField const *> getFinalOrder(
-                size_t sizeHint = 10
+                std::size_t sizeHint = 10
                 ) const {
             std::vector<QuantumField const *> finalOrder;
             finalOrder.reserve(sizeHint);

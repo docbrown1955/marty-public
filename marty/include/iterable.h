@@ -40,8 +40,8 @@ class iterable_view {
 
     const Containor& iterable;
 
-    const size_t custom_begin;
-    const size_t custom_end;
+    const std::size_t custom_begin;
+    const std::size_t custom_end;
 
     public:
 
@@ -54,8 +54,8 @@ class iterable_view {
     }
 
     iterable_view(const Containor& t_iterable,
-                  size_t           b,
-                  size_t           e)
+                  std::size_t           b,
+                  std::size_t           e)
         :iterable(t_iterable),
         custom_begin(b), 
         custom_end(e)
@@ -71,7 +71,7 @@ class iterable_view {
         return end() == begin();
     }
 
-    size_t size() const {
+    std::size_t size() const {
         return distance(begin(), end());
     }
 
@@ -91,7 +91,7 @@ class iterable_view {
         return iterable.rend() - custom_begin;
     }
 
-    Value_Type operator[](size_t i) const {
+    Value_Type operator[](std::size_t i) const {
         return iterable[custom_begin + i];
     }
 };

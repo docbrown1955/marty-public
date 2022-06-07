@@ -44,7 +44,7 @@ public:
 
     double_vector_single_view(
             double_vector_type t_data, 
-            size_t             t_pos)
+            std::size_t             t_pos)
         :data(t_data),
         pos(t_pos-1) 
     {}
@@ -53,15 +53,15 @@ public:
     double_vector_single_view
         &operator=(double_vector_single_view const & other)
     {
-        size_t min = std::min(size(), other.size());
-        for (size_t i = 0; i != min; ++i)
+        std::size_t min = std::min(size(), other.size());
+        for (std::size_t i = 0; i != min; ++i)
             (*this)[i] = other[i];
         if (size() == min) {
-            for (size_t i = min; i != other.size(); ++i)
+            for (std::size_t i = min; i != other.size(); ++i)
                 push_back(other[i]);
         }
         else {
-            for (size_t i = min; i != size(); ++i)
+            for (std::size_t i = min; i != size(); ++i)
                 erase(begin() + min);
         }
 
@@ -69,7 +69,7 @@ public:
     }
 
     void empty() const { return size() == 0; }
-    size_t size() const { return data->getCut(pos+1) - data->getCut(pos); }
+    std::size_t size() const { return data->getCut(pos+1) - data->getCut(pos); }
 
     void push_back(Type const &el);
 
@@ -90,12 +90,12 @@ public:
         return data->vecBegin() + data->getCut(1+pos); 
     }
 
-    Type &operator[](size_t i);
-    Type const &operator[](size_t i) const;
+    Type &operator[](std::size_t i);
+    Type const &operator[](std::size_t i) const;
 
 private:
     double_vector_type data;
-    size_t             pos;
+    std::size_t             pos;
 };
 
 template<typename Type, class double_vector_type>
@@ -111,7 +111,7 @@ public:
 
     double_vector_iterator(
             double_vector_type t_data,
-            size_t pos
+            std::size_t pos
             )
         :data(t_data),
         current(t_data, pos)
@@ -169,14 +169,14 @@ public:
         return copy;
     }
 
-    size_t operator-(
+    std::size_t operator-(
             double_vector_iterator<Type, double_vector_type> const &other
             ) const 
     {
         return current.pos - other.current.pos;
     }
     double_vector_iterator<Type, double_vector_type> operator+(
-            size_t diff
+            std::size_t diff
             ) const 
     {
         auto copy(*this);
@@ -184,7 +184,7 @@ public:
         return copy;
     }
     double_vector_iterator<Type, double_vector_type> operator-(
-            size_t diff
+            std::size_t diff
             ) const 
     {
         auto copy(*this);
@@ -225,19 +225,19 @@ public:
     bool empty() const {
         return size() == 0;
     }
-    size_t size() const {
+    std::size_t size() const {
         return cut.size();
     }
 
-    Type &getElement(size_t i) { return data[i]; }
-    Type const &getElement(size_t i) const { return data[i]; }
+    Type &getElement(std::size_t i) { return data[i]; }
+    Type const &getElement(std::size_t i) const { return data[i]; }
 
-    size_t getCut(size_t i) const { 
-        return (i == size_t(-1)) ? 0 : cut[i]; 
+    std::size_t getCut(std::size_t i) const { 
+        return (i == std::size_t(-1)) ? 0 : cut[i]; 
     }
 
     std::vector<Type> const &getData() const { return data; }
-    std::vector<size_t> const &getCuts() const { return cut; }
+    std::vector<std::size_t> const &getCuts() const { return cut; }
 
     void push_back(std::vector<Type> const &row);
     void push_back(std::vector<Type> &&row);
@@ -259,9 +259,9 @@ public:
     }
 
     double_vector_single_view<Type, double_vector<Type>*> 
-        operator[](size_t i);
+        operator[](std::size_t i);
     const double_vector_single_view<Type, double_vector<Type> const*> 
-        operator[](size_t i) const;
+        operator[](std::size_t i) const;
 
 private:
 
@@ -279,19 +279,19 @@ private:
     }
 
     void push_row(
-            size_t pos, 
+            std::size_t pos, 
             Type const &el
             );
 
     void eraseEl(
-            size_t pos, 
-            size_t pos_j
+            std::size_t pos, 
+            std::size_t pos_j
             );
 
 private:
 
     std::vector<Type>   data;
-    std::vector<size_t> cut;
+    std::vector<std::size_t> cut;
 };
 
 template<typename Type, class double_vector_type>
@@ -313,7 +313,7 @@ erase(const_iterator i)
 template<typename Type, class double_vector_type>
 Type &
 double_vector_single_view<Type, double_vector_type>::
-operator[](size_t i)
+operator[](std::size_t i)
 {
     return data->getElement(data->getCut(pos) + i);
 }
@@ -321,7 +321,7 @@ operator[](size_t i)
 template<typename Type, class double_vector_type>
 Type const &
 double_vector_single_view<Type, double_vector_type>::
-operator[](size_t i) const
+operator[](std::size_t i) const
 {
     return data->getElement(data->getCut(pos) + i);
 }
@@ -356,30 +356,30 @@ void double_vector<Type>::push_back(std::vector<Type> &&row)
 
 template<typename Type>
 void double_vector<Type>::eraseEl(
-        size_t pos,
-        size_t pos_j
+        std::size_t pos,
+        std::size_t pos_j
         )
 {
     data.erase(data.begin() + pos + pos_j);
-    for (size_t i = pos+1; i < cut.size(); ++i)
+    for (std::size_t i = pos+1; i < cut.size(); ++i)
         --cut[i];
 }
 
 template<typename Type>
 void double_vector<Type>::push_row(
-        size_t pos, 
+        std::size_t pos, 
         Type const &el
         )
 {
-    size_t insertPos = getCut(pos+1);
+    std::size_t insertPos = getCut(pos+1);
     data.insert(data.begin() + insertPos, el);
-    for (size_t i = pos+1; i < cut.size(); ++i)
+    for (std::size_t i = pos+1; i < cut.size(); ++i)
         ++cut[i];
 }
 
 template<typename Type>
 double_vector_single_view<Type, double_vector<Type>*> 
-    double_vector<Type>::operator[](size_t i)
+    double_vector<Type>::operator[](std::size_t i)
 {
     return double_vector_single_view<Type, double_vector<Type>*>(
             this,
@@ -389,7 +389,7 @@ double_vector_single_view<Type, double_vector<Type>*>
 
 template<typename Type>
 const double_vector_single_view<Type, double_vector<Type> const*> 
-    double_vector<Type>::operator[](size_t i) const
+    double_vector<Type>::operator[](std::size_t i) const
 {
     return double_vector_single_view<Type, double_vector<Type> const*>(
             this,

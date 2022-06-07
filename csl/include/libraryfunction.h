@@ -46,7 +46,7 @@ namespace csl {
 
         public:
 
-        static inline size_t nParamThresholdStructure = 10;
+        static inline std::size_t nParamThresholdStructure = 10;
 
         DEFINE_DEFAULT_CPY_MV(LibFunction)
 

@@ -66,7 +66,7 @@ class FeynmanRule {
     std::shared_ptr<wick::Graph> const& getDiagram() const;
     csl::Expr getExpr() const;
     bool contains(mty::QuantumFieldParent const *parent) const;
-    size_t count(mty::QuantumFieldParent const *parent) const;
+    std::size_t count(mty::QuantumFieldParent const *parent) const;
     bool contains(mty::Particle const &p) const { 
         return contains(p.get()); 
     }
@@ -74,7 +74,7 @@ class FeynmanRule {
     bool containsWeakly(mty::Particle const &p) const { 
         return containsWeakly(p.get()); 
     }
-    size_t count(mty::Particle const &p) const { 
+    std::size_t count(mty::Particle const &p) const { 
         return count(p.get()); 
     }
 
@@ -88,7 +88,7 @@ class FeynmanRule {
     bool isZero() const;
     bool isEmpty() const;
     bool isSame(FeynmanRule const& other) const;
-    size_t getSize() const;
+    std::size_t getSize() const;
 
     bool operator==(FeynmanRule const&) const;
     bool operator!=(FeynmanRule const&) const;

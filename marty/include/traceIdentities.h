@@ -33,10 +33,10 @@ class TraceIdentity {
 public:
 
     struct Tensor {
-        size_t finalSize;
-        std::vector<size_t> indices;
+        std::size_t finalSize;
+        std::vector<std::size_t> indices;
         
-        Tensor(size_t t_finalSize)
+        Tensor(std::size_t t_finalSize)
             :finalSize(t_finalSize)
         {
             indices.reserve(finalSize);
@@ -48,12 +48,12 @@ public:
         Tensor &operator=(Tensor &&other) = default;
         ~Tensor() = default;
 
-        IMPLEMENTS_STD_VECTOR(size_t, indices);
+        IMPLEMENTS_STD_VECTOR(std::size_t, indices);
     };
 
     IMPLEMENTS_STD_VECTOR(std::vector<Tensor>, terms)
 
-    TraceIdentity(std::vector<size_t> const &t_tensorSize);
+    TraceIdentity(std::vector<std::size_t> const &t_tensorSize);
 
     TraceIdentity &operator*=(csl::Expr const &t_factor);
     TraceIdentity &operator/=(csl::Expr const &t_factor);
@@ -72,7 +72,7 @@ private:
     std::vector<std::vector<Tensor>> step(
             std::vector<Tensor> const &term) const;
 
-    size_t totalIndices(std::vector<Tensor> const &term) const;
+    std::size_t totalIndices(std::vector<Tensor> const &term) const;
 
     bool isFull(Tensor const &tensor) const;
 
@@ -84,14 +84,14 @@ public:
 
 private:
 
-    size_t n;
-    std::vector<size_t> tensorSize;
+    std::size_t n;
+    std::vector<std::size_t> tensorSize;
     std::vector<std::vector<Tensor>> terms;
 };
 
 struct PartitionPair {
-    size_t ni;
-    size_t mi;
+    std::size_t ni;
+    std::size_t mi;
 };
 
 std::ostream &operator<<(
@@ -99,48 +99,48 @@ std::ostream &operator<<(
         std::vector<PartitionPair> const &partition
         );
 
-std::vector<std::vector<PartitionPair>> evenPartition(size_t n);
+std::vector<std::vector<PartitionPair>> evenPartition(std::size_t n);
 
 std::vector<TraceIdentity> traceIdentity(
         algebra::Type type,
-        size_t n
+        std::size_t n
         );
 std::vector<TraceIdentity> traceIdentity(
         algebra::Type type,
-        size_t l,
-        size_t n
+        std::size_t l,
+        std::size_t n
         );
 
 std::vector<TraceIdentity> ATraceIdentity(
-        size_t l,
-        size_t n
+        std::size_t l,
+        std::size_t n
         );
 std::vector<TraceIdentity> BTraceIdentity(
-        size_t l,
-        size_t n
+        std::size_t l,
+        std::size_t n
         );
 std::vector<TraceIdentity> CTraceIdentity(
-        size_t l,
-        size_t n
+        std::size_t l,
+        std::size_t n
         );
 std::vector<TraceIdentity> DTraceIdentity(
-        size_t l,
-        size_t n
+        std::size_t l,
+        std::size_t n
         );
 std::vector<TraceIdentity> E6TraceIdentity(
-        size_t n
+        std::size_t n
         );
 std::vector<TraceIdentity> E7TraceIdentity(
-        size_t n
+        std::size_t n
         );
 std::vector<TraceIdentity> E8TraceIdentity(
-        size_t n
+        std::size_t n
         );
 std::vector<TraceIdentity> F4TraceIdentity(
-        size_t n
+        std::size_t n
         );
 std::vector<TraceIdentity> G2TraceIdentity(
-        size_t n
+        std::size_t n
         );
 
 }

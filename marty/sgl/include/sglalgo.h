@@ -33,8 +33,8 @@ namespace sgl {
                 std::function<void(GExpr &)> f
                 )
         {
-            const size_t sz = expr->size();
-            for (size_t i = 0; i != sz; ++i) 
+            const std::size_t sz = expr->size();
+            for (std::size_t i = 0; i != sz; ++i) 
                 sgl::for_each<Type>(expr->argument(i), f);
             if (IsType<Type>(expr))
                 f(expr);
@@ -46,9 +46,9 @@ namespace sgl {
                 std::function<bool(GExpr &)> f
                 )
         {
-            const size_t sz = expr->size();
+            const std::size_t sz = expr->size();
             bool transformed = false;
-            for (size_t i = 0; i != sz; ++i) 
+            for (std::size_t i = 0; i != sz; ++i) 
                 if (sgl::transform<Type>(expr->argument(i), f))
                     transformed = true;
             if (IsType<Type>(expr)) {

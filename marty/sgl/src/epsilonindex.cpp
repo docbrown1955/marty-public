@@ -96,9 +96,9 @@ namespace sgl {
     {
         SCOPELOG
         LOG("Chisholm idendity for", mu, "in", copy(), ": indices", a, b)
-        size_t i_mu = 0;
+        std::size_t i_mu = 0;
         std::vector<csl::Index> nu;
-        for (size_t i = 0; i != m_indices.size(); ++i)  {
+        for (std::size_t i = 0; i != m_indices.size(); ++i)  {
             if (m_indices[i] == mu) {
                 i_mu = i;
             }
@@ -162,10 +162,10 @@ namespace sgl {
     {
         SCOPELOG
         LOG("Chisholm idendity for", mu, "and", nu, "in", copy(), ": indices", a, b)
-        size_t i_mu = -1;
-        size_t i_nu = -1;
+        std::size_t i_mu = -1;
+        std::size_t i_nu = -1;
         std::vector<csl::Index> rho;
-        for (size_t i = 0; i != m_indices.size(); ++i)  {
+        for (std::size_t i = 0; i != m_indices.size(); ++i)  {
             if (m_indices[i] == mu) {
                 i_mu = i;
             }
@@ -181,9 +181,9 @@ namespace sgl {
                 LOG("Not two indices ...")
                 throw Exception::MathError;
             }
-            const size_t m_one = static_cast<size_t>(-1);
+            const std::size_t m_one = static_cast<std::size_t>(-1);
             int sign = (i_mu == m_one) ? -1 : 1;
-            const size_t i = (i_mu != m_one) ? i_mu : i_nu;
+            const std::size_t i = (i_mu != m_one) ? i_mu : i_nu;
             const csl::Index tau = (i_mu != m_one) ? nu : mu;
             if (!(i & 1))
                 sign *= -1;
@@ -292,7 +292,7 @@ namespace sgl {
                     );
         }
         std::shared_ptr<IndexChain> indexChain = ConvertTo<IndexChain>(other);
-        for (size_t i = 0; i != indexChain->size(); ++i) {
+        for (std::size_t i = 0; i != indexChain->size(); ++i) {
             auto const &arg = indexChain->argument(i);
             for (const auto &index : arg->indices())
                 if (contains(index)) {

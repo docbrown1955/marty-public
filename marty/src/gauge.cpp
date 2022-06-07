@@ -79,7 +79,7 @@ GaugeIrrep Gauge::getRepresentation(
         const vector<vector<int> >& highestWeights)
 {
     vector<Irrep> reps(0);
-    for (size_t i = 0; i != groups.size(); ++i) 
+    for (std::size_t i = 0; i != groups.size(); ++i) 
         reps.push_back(groups[i]->highestWeightRep(highestWeights[i]));
 
     return GaugeIrrep(this,reps);
@@ -91,11 +91,11 @@ bool Gauge::containsTrivialRep(
 {
     if (fields.empty())
         return true;
-    for (size_t i = 0; i != gaugedGroups.size(); ++i) {
+    for (std::size_t i = 0; i != gaugedGroups.size(); ++i) {
         if (gaugedGroups[i]->isBroken())
             continue;
         SumIrrep decompo {fields[0].getGroupIrrep(groups[i].get())};
-        for (size_t j = 1; j != fields.size(); ++j) {
+        for (std::size_t j = 1; j != fields.size(); ++j) {
             decompo = groups[i]->getAlgebra()->tensorProduct(
                     decompo,
                     fields[j].getGroupIrrep(groups[i].get())
@@ -125,7 +125,7 @@ bool Gauge::containsTrivialRep(
 GaugeIrrep Gauge::getTrivialRep()
 {
     GaugeIrrep rep(this);
-    for (size_t i = 0; i != rep.size(); ++i) 
+    for (std::size_t i = 0; i != rep.size(); ++i) 
         rep[i] = groups[i]->getTrivialRep();
 
     return rep;
@@ -195,7 +195,7 @@ vector<Particle> Gauge::getGhosts() const
     return ghosts;
 }
 
-GaugedGroup* Gauge::getGaugedGroup(size_t pos) const
+GaugedGroup* Gauge::getGaugedGroup(std::size_t pos) const
 {
     HEPAssert(pos < gaugedGroups.size(),
             mty::error::IndexError,
@@ -204,7 +204,7 @@ GaugedGroup* Gauge::getGaugedGroup(size_t pos) const
     return gaugedGroups[pos].get();
 }
 
-void Gauge::setGaugeChoice(size_t pos,
+void Gauge::setGaugeChoice(std::size_t pos,
                            gauge::Type choice)
 {
     HEPAssert(pos < gaugedGroups.size(),
@@ -214,7 +214,7 @@ void Gauge::setGaugeChoice(size_t pos,
     gaugedGroups[pos]->setGaugeChoice(choice);
 }
 
-size_t Gauge::size() const
+std::size_t Gauge::size() const
 {
     return groups.size();
 }
@@ -266,7 +266,7 @@ SemiSimpleGroup* Gauge::operator[](int i) const
 
 ostream& operator<<(ostream& fout, const Gauge& obj)
 {
-    for (size_t i = 0; i != obj.size(); ++i) {
+    for (std::size_t i = 0; i != obj.size(); ++i) {
         fout << *obj[i];
         if (i != obj.size()-1)
             fout << " x ";
@@ -292,7 +292,7 @@ bool GaugeIrrep::isTrivial() const
 ostream& operator<<(ostream& fout, const GaugeIrrep& irrep)
 {
     fout << "( ";
-    for (size_t i = 0; i != irrep.size(); ++i) {
+    for (std::size_t i = 0; i != irrep.size(); ++i) {
         if (irrep[i].getAlgebra()
                 and irrep[i].getAlgebra()->getType() != algebra::Type::R)
             fout << irrep[i].getDim();
@@ -333,23 +333,23 @@ Gauge* GaugeIrrep::getGauge() const
 SumGaugeIrrep GaugeIrrep::operator*(const GaugeIrrep& other) const
 {
     SumGaugeIrrep sum;
-    const size_t nGroups = rep.size();
+    const std::size_t nGroups = rep.size();
     vector<vector<Irrep> > res(0);
     if (other.size() == 0)
         return SumGaugeIrrep(gauge, {rep});
     if (size() == 0)
         return SumGaugeIrrep(gauge, {other.rep});
     SumIrrep foo = rep[0]*other[0]; 
-    for (size_t i = 0; i != foo.size(); ++i) {
+    for (std::size_t i = 0; i != foo.size(); ++i) {
         res.push_back(vector<Irrep>(nGroups));
         res[i][0] = foo[i];
     }
-    for (size_t i = 1; i != rep.size(); ++i) {
+    for (std::size_t i = 1; i != rep.size(); ++i) {
         foo = rep[i]*other[i];
-        for (size_t j = 0; j != res.size(); ++j) 
+        for (std::size_t j = 0; j != res.size(); ++j) 
             res[j][i] = foo[0];
-        const size_t sizeRes = res.size();
-        for (size_t j = res.size(); j != sizeRes*foo.size(); ++j) {
+        const std::size_t sizeRes = res.size();
+        for (std::size_t j = res.size(); j != sizeRes*foo.size(); ++j) {
             res.push_back(res[j%sizeRes]);
             res[j][i] = foo[j/sizeRes];
         }
@@ -367,7 +367,7 @@ bool GaugeIrrep::operator==(const GaugeIrrep& other) const
 {
     if (gauge != other.gauge)
         return false;
-    for (size_t i = 0; i != size(); ++i) 
+    for (std::size_t i = 0; i != size(); ++i) 
         if (not gauge->getGaugedGroup(i)->isBroken() 
                 and rep[i] != other[i])
             return false;
@@ -383,7 +383,7 @@ SumGaugeIrrep::SumGaugeIrrep(const vector<GaugeIrrep>& irreps)
 {
     if (irreps.size() > 0) {
         gauge = irreps[0].getGauge();
-        for (size_t i = 1; i != irreps.size(); ++i) 
+        for (std::size_t i = 1; i != irreps.size(); ++i) 
             HEPAssert(gauge == irreps[i].getGauge(),
                     mty::error::ValueError,
                     "Sum of irreps from different gauges.")
@@ -400,7 +400,7 @@ SumGaugeIrrep::SumGaugeIrrep(Gauge* t_gauge,
 
 int SumGaugeIrrep::find(const GaugeIrrep& irrep) const
 {
-    for (size_t i = 0; i != size(); ++i) 
+    for (std::size_t i = 0; i != size(); ++i) 
         if ((*this)[i] == irrep)
             return i;
     return -1;
@@ -443,7 +443,7 @@ std::ostream& operator<<(
         std::ostream&     fout,
         const SumGaugeIrrep& irrep)
 {
-    for (size_t i = 0; i != irrep.size(); ++i) {
+    for (std::size_t i = 0; i != irrep.size(); ++i) {
         fout << irrep[i];
         if (i != irrep.size()-1)
             fout << " + ";

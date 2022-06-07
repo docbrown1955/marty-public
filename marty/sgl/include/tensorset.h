@@ -32,7 +32,7 @@ namespace sgl {
         csl::Tensor C;
         csl::Tensor P_L;
         csl::Tensor P_R;
-        std::map<size_t, csl::Tensor> gamma;
+        std::map<std::size_t, csl::Tensor> gamma;
     };
 
     TensorSet buildTensorSet(

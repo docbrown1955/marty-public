@@ -351,7 +351,7 @@ class Index{
      * \return \b True if the two indices are equal independantly of their sign.
      * \return \b False else.
      */
-    bool operator==(size_t value) const;
+    bool operator==(std::size_t value) const;
 
     /*!
      * \brief operator!=, opposite of the operator!=
@@ -364,7 +364,7 @@ class Index{
 
     bool operator!=(int value) const;
 
-    bool operator!=(size_t value) const;
+    bool operator!=(std::size_t value) const;
 
     /*!
      * \brief operator|=, simplicity comparator.

@@ -45,7 +45,7 @@ namespace sgl {
             csl::Tensor        p,
             csl::Index  const &mu,
             csl::Index  const &nu,
-            size_t             i,
-            size_t             j
+            std::size_t             i,
+            std::size_t             j
             );
 }

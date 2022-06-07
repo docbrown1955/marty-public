@@ -21,10 +21,10 @@
 
 namespace mty {
 
-std::string indicesToString(std::vector<size_t> const &indices)
+std::string indicesToString(std::vector<std::size_t> const &indices)
 {
     std::string str(indices.size(), ' ');
-    for (size_t i = 0; i != indices.size(); ++i) 
+    for (std::size_t i = 0; i != indices.size(); ++i) 
         str[i] = '0' + indices[i];
 
     return str;
@@ -32,7 +32,7 @@ std::string indicesToString(std::vector<size_t> const &indices)
 
 csl::Expr getLocalTerm(
         IntegralType               type,
-        std::vector<size_t> const &indices,
+        std::vector<std::size_t> const &indices,
         std::vector<csl::Expr>   const &p,
         std::vector<csl::Expr>   const &m
         )
@@ -70,7 +70,7 @@ csl::Expr getLocalATerm(
         std::vector<csl::Expr> const &m
         )
 {
-    size_t n = indices.size()/2;
+    std::size_t n = indices.size()/2;
     if (n == 0)
         return -2 * m[0];
     if (n % 2 == 0) {

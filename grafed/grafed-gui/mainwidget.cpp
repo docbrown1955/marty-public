@@ -398,7 +398,7 @@ void MainWidget::exportPNG()
                     );
         if (path.isEmpty())
             return;
-        size_t iDiagram = 0;
+        std::size_t iDiagram = 0;
         renderer->setPage(0);
         for (qint32 i = 0; i != static_cast<int>(renderer->links.size()); ++i) {
             QString fileName = path + "/" + name + "_"
@@ -445,11 +445,11 @@ void MainWidget::renderPDF(
 
     int iRow = 0;
     int iCol = 0;
-    size_t iDiagram = 0;
-    size_t iCell = 0;
-    constexpr size_t maxPreviewSize = 50;
+    std::size_t iDiagram = 0;
+    std::size_t iCell = 0;
+    constexpr std::size_t maxPreviewSize = 50;
     renderer->setPage(0);
-    for (size_t i = 0; i != renderer->links.size(); ++i) {
+    for (std::size_t i = 0; i != renderer->links.size(); ++i) {
         if (i == maxPreviewSize && !printer) {
             return;
         }

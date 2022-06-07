@@ -158,7 +158,7 @@ csl::Expr CSLDataHandler::treatLiteral(
 
 void CSLDataHandler::treatIndices(
         csl::Space const *space,
-        size_t            N
+        std::size_t            N
         )
 {
     if (nIndices.find(space) == nIndices.end() or N > nIndices[space])
@@ -401,7 +401,7 @@ void CSLDataHandler::printComBlock(
 void CSLDataHandler::printCSLDefinition(
         csl::Tensor   tensor,
         std::ostream &out,
-        size_t        indentSize
+        std::size_t        indentSize
         ) const
 {
     if (auto der = dynamic_cast<csl::TDerivativeParent const*>(tensor.get());
@@ -447,7 +447,7 @@ void CSLDataHandler::printCode(std::ostream &out) const
         out << "->generateIndices(" << nIndex << ");\n";
     }
     printComBlock("Expressions", out, indent);
-    size_t i = 0;
+    std::size_t i = 0;
     for (const auto &e : expressions) {
         out << indent << "inline csl::Expr expr_" << i++ << " = ";
         e->printCode(1, out);

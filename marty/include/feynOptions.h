@@ -543,7 +543,7 @@ namespace mty {
          */
         OperatorBasis wilsonOperatorBasis = OperatorBasis::Chiral;
 
-        constexpr static size_t nDefaultDiagramFilters = 1;
+        constexpr static std::size_t nDefaultDiagramFilters = 1;
     };
 
 } // namespace mty

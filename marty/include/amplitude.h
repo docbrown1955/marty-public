@@ -96,7 +96,7 @@ namespace mty {
          * @return The size of the amplitude i.e. the number of diagrams / 
          * expressions.
          */
-        size_t size() const {
+        std::size_t size() const {
             return diagrams.size();
         }
 
@@ -118,7 +118,7 @@ namespace mty {
          *
          * @return The expression of the diagram number \b pos (starts at 0).
          */
-        csl::Expr       &expression(size_t pos);
+        csl::Expr       &expression(std::size_t pos);
 
         /**
          * @brief Returns the const expression of the diagram at a given pos.
@@ -127,7 +127,7 @@ namespace mty {
          *
          * @return The expression of the diagram number \b pos (starts at 0).
          */
-        csl::Expr const &expression(size_t pos) const;
+        csl::Expr const &expression(std::size_t pos) const;
 
         /**
          * @brief Returns a reference to the graph layout of the diagram at a 
@@ -137,7 +137,7 @@ namespace mty {
          *
          * @return The graph layout of the diagram at \b pos.
          */
-        FeynmanDiagram::diagram_t       &diagram(size_t pos);
+        FeynmanDiagram::diagram_t       &diagram(std::size_t pos);
 
         /**
          * @brief Returns a const reference to the graph layout of the diagram 
@@ -147,7 +147,7 @@ namespace mty {
          *
          * @return The graph layout of the diagram at \b pos.
          */
-        FeynmanDiagram::diagram_t const &diagram(size_t pos) const;
+        FeynmanDiagram::diagram_t const &diagram(std::size_t pos) const;
 
         /**
          * @brief Creates and return a range containing the expressions of all 

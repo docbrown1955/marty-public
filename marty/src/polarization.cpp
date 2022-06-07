@@ -221,7 +221,7 @@ csl::Expr PolarizationField::sumPolarization(csl::Expr_info other) const
             {
             // For each Index the sum gives a kronecker delta
             csl::Expr deltaFactor = CSL_1;
-            for (size_t i = 0; i != structA.size(); ++i)
+            for (std::size_t i = 0; i != structA.size(); ++i)
                 deltaFactor = deltaFactor * structA[i].getSpace()->getDelta()(
                         {structA[i],
                          structB[i]});
@@ -252,7 +252,7 @@ csl::Expr PolarizationField::sumPolarization(csl::Expr_info other) const
             structB.erase(structB.end()-1);
             // For each Index the sum gives a kronecker delta
             csl::Expr deltaFactor = CSL_1;
-            for (size_t i = 0; i != structA.size(); ++i)
+            for (std::size_t i = 0; i != structA.size(); ++i)
                 deltaFactor = deltaFactor * structA[i].getSpace()->getDelta()(
                         {structA[i],
                          structB[i]});
@@ -282,7 +282,7 @@ csl::Expr PolarizationField::sumPolarization(csl::Expr_info other) const
             structB.erase(structB.end()-1);
             // For each Index the sum gives a kronecker delta
             csl::Expr deltaFactor = CSL_1;
-            for (size_t i = 0; i != structA.size(); ++i)
+            for (std::size_t i = 0; i != structA.size(); ++i)
                 deltaFactor = deltaFactor * structA[i].getSpace()->getDelta()(
                         {structA[i],
                          structB[i]});

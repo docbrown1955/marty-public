@@ -99,7 +99,7 @@ std::optional<std::vector<RealType>> isReal(
         std::vector<ComplexType> const& init)
 {
     std::vector<RealType> realNumbers(init.size());
-    for (size_t i = 0; i != init.size(); ++i)
+    for (std::size_t i = 0; i != init.size(); ++i)
         if (init[i].imag() != 0)
             return std::nullopt;
         else

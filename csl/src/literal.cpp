@@ -34,7 +34,7 @@ namespace csl {
 /*************************************************/
 ///////////////////////////////////////////////////
 
-size_t AbstractLiteral::memoryOverhead() const
+std::size_t AbstractLiteral::memoryOverhead() const
 {
     return sizeof(Equation) * props.size();
 }

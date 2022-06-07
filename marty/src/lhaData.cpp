@@ -95,14 +95,14 @@ bool LHABlock::isName(std::string_view t_name) const
 {
     if (name.size() != t_name.size())
         return false;
-    for (size_t i = 0; i != name.size(); ++i) {
+    for (std::size_t i = 0; i != name.size(); ++i) {
         if (std::tolower(name[i]) != std::tolower(t_name[i]))
             return false;
     }
     return true;
 }
 
-std::optional<LHAElement> LHABlock::getElement(size_t id) const
+std::optional<LHAElement> LHABlock::getElement(std::size_t id) const
 {
     for (const auto &e : elements) {
         if (e.id == id)
@@ -112,19 +112,19 @@ std::optional<LHAElement> LHABlock::getElement(size_t id) const
 }
 
 std::optional<LHAElement> LHABlock::getElement(
-        size_t id,
-        size_t id_sup
+        std::size_t id,
+        std::size_t id_sup
         ) const
 {
     for (const auto &e : elements) {
-        if (e.id == id and (id_sup == size_t(-1) or e.id_sup == id_sup))
+        if (e.id == id and (id_sup == std::size_t(-1) or e.id_sup == id_sup))
             return e;
     }
     return std::nullopt;
 }
 
 std::vector<LHAElement> LHABlock::getMultipleElements(
-        size_t id
+        std::size_t id
         ) const
 {
     std::vector<LHAElement> res;
@@ -148,16 +148,16 @@ void LHABlock::sortElements()
 }
 
 void LHABlock::addElement(
-        size_t    id,
+        std::size_t    id,
         FloatType value
         )
 {
-    elements.push_back({id, size_t(-1), value});
+    elements.push_back({id, std::size_t(-1), value});
 }
 
 void LHABlock::addElement(
-        size_t    id,
-        size_t    id_sup,
+        std::size_t    id,
+        std::size_t    id_sup,
         FloatType value
         )
 {
@@ -180,11 +180,11 @@ void LHABlock::addElement(LHAElement &&t_element)
 /*************************************************/
 ///////////////////////////////////////////////////
 
-size_t LHAFileData::findBlock(
+std::size_t LHAFileData::findBlock(
         std::string_view nameBlock
         ) const
 {
-    for (size_t i = 0; i != blocks.size(); ++i) 
+    for (std::size_t i = 0; i != blocks.size(); ++i) 
         if (blocks[i].isName(nameBlock))
             return i;
     return npos;
@@ -216,7 +216,7 @@ std::vector<FloatType> LHAFileData::getValues(
 
 std::optional<FloatType> LHAFileData::getValue(
         std::string_view nameBlock,
-        size_t           id
+        std::size_t           id
         ) const
 {
     for (const auto &block : blocks)
@@ -230,8 +230,8 @@ std::optional<FloatType> LHAFileData::getValue(
 
 std::optional<FloatType> LHAFileData::getValue(
         std::string_view nameBlock,
-        size_t           i,
-        size_t           j
+        std::size_t           i,
+        std::size_t           j
         ) const
 {
     for (const auto &block : blocks)
@@ -256,7 +256,7 @@ std::optional<FloatType> LHAFileData::getValue(
  *
  * @return std::ceil(std::log10(n)) >= 4 ? 10 : 5
  */
-int nSpace(size_t n) {
+int nSpace(std::size_t n) {
     return (std::ceil(std::log10(n)) >= 4) ? 10 : 5;
 }
 
@@ -269,7 +269,7 @@ std::ostream &operator<<(
     out << std::setw(nSpace(element.id)) << element.id;
     if (element.id_sup > 0)
         out << std::setw(nSpace(element.id_sup)) << element.id_sup;
-    size_t n_digits = std::numeric_limits<FloatType>::max_digits10;
+    std::size_t n_digits = std::numeric_limits<FloatType>::max_digits10;
     out.precision(n_digits);
     out << std::setw(n_digits + 8) << element.value;
 

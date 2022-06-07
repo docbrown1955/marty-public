@@ -20,7 +20,7 @@
 
 namespace csl {
 
-void TimeMonitor::print(size_t nSec,
+void TimeMonitor::print(std::size_t nSec,
                         std::ostream& out)
 {
     TimeMonitor::Time time = TimeMonitor::processSec(nSec);
@@ -49,7 +49,7 @@ void TimeMonitor::print(std::ostream & out)
     print(getTotalSec(), out);
 }
 
-TimeMonitor::Time TimeMonitor::processSec(size_t t_sec)
+TimeMonitor::Time TimeMonitor::processSec(std::size_t t_sec)
 {
     TimeMonitor::Time time;
     time.hour = t_sec / 3600;

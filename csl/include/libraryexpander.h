@@ -62,7 +62,7 @@ private:
             csl::Space const *space
             ); 
 
-    static size_t nCommonIndices(
+    static std::size_t nCommonIndices(
             Structure const &s1,
             Structure const &s2
             );
@@ -180,7 +180,7 @@ public:
             );
 
 public:
-    size_t reserveStorage = 10;
+    std::size_t reserveStorage = 10;
 
     Expr factor;
     std::vector<ipair> indices;

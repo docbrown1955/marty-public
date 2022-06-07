@@ -22,23 +22,23 @@ namespace csl::matcher {
 
 struct Node;
 struct Tree;
-size_t dichoFinder(
+std::size_t dichoFinder(
         csl::Expr          const &expr,
         std::vector<Node*> const &v
         );
 
 void compress_impl(
         std::vector<csl::Expr> &expr, 
-        size_t                  nIter = 1
+        std::size_t                  nIter = 1
         );
 void compress(
         std::vector<csl::Expr> &expr, 
-        size_t                  nIter = 1
+        std::size_t                  nIter = 1
         );
 
 inline void compress(
         csl::Expr &expr, 
-        size_t     nIter = 1
+        std::size_t     nIter = 1
         )
 {
     std::vector<csl::Expr> vec { expr };
@@ -48,7 +48,7 @@ inline void compress(
 
 inline void compress_impl(
         csl::Expr &expr, 
-        size_t     nIter = 1
+        std::size_t     nIter = 1
         )
 {
     std::vector<csl::Expr> vec { expr };
@@ -68,7 +68,7 @@ struct Node {
     };
 
     static inline bool   useDifferedStart = false;
-    static inline size_t maxLeaf          = 10;
+    static inline std::size_t maxLeaf          = 10;
 
     bool empty() const { return children.empty(); }
     auto size() const { return children.size(); }
@@ -90,11 +90,11 @@ struct Node {
             ExprType                      type
             );
 
-    static size_t distance(
+    static std::size_t distance(
             Node const *first,
             Node const *last
             );
-    static size_t nLeafs(csl::Expr const &expr);
+    static std::size_t nLeafs(csl::Expr const &expr);
 
     iterator insert(csl::Expr const &t_expr); 
 
@@ -137,7 +137,7 @@ struct Node {
     Node       *parent;
     csl::Expr   abbreviation { nullptr };
     csl::Expr   chainAbbreviation { nullptr };
-    size_t      nOccurences {1};
+    std::size_t      nOccurences {1};
     std::vector<Node*> children {};
 };
 
@@ -149,7 +149,7 @@ struct Tree {
     std::pair<Node*, std::vector<csl::Expr>::const_iterator>
         findBestMatch(
             std::vector<csl::Expr> const &vec,
-            size_t minElements = 2
+            std::size_t minElements = 2
             ); 
 
     static std::optional<csl::Expr> getChainAbbreviationFor(

@@ -34,7 +34,7 @@ namespace csl {
 std::vector<Expr> InverseTaylorExpand(
         Expr const& init,
         Expr const& big,
-        size_t order)
+        std::size_t order)
 {
     Expr eps = csl::variable_s("eps");
     Expr copy = Replaced(init, big, 1 / eps);
@@ -48,7 +48,7 @@ std::vector<Expr> InverseTaylorExpand(
 std::vector<Expr> TaylorExpand(
         Expr const& init,
         Expr const& eps,
-        size_t order)
+        std::size_t order)
 {
     Expr copy = DeepCopy(init);
     csl::Transform(copy, [&](Expr& expr)
@@ -71,13 +71,13 @@ std::vector<Expr> TaylorExpand(
 std::vector<Expr> internal_TaylorExpand(
         Expr const& init,
         Expr const& eps,
-        size_t order)
+        std::size_t order)
 {
     Expr f = init;
     Expr numFactor = CSL_1;
     Expr powerFactor = CSL_1;
     std::vector<Expr> res(order + 1);
-    for (size_t i = 0; i != order+1; ++i) {
+    for (std::size_t i = 0; i != order+1; ++i) {
         Expr eval = Replaced(DeepCopy(f), eps, CSL_0);
         res[i] = powerFactor / numFactor * eval;
         if (i != order) {

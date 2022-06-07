@@ -157,9 +157,9 @@ class Permutation{
      */
     void setSymmetry(int t_symmetry);
 
-    void adjustToSize(size_t newSize);
+    void adjustToSize(std::size_t newSize);
 
-    void applyRedefinition(const std::vector<size_t>& redefinition);
+    void applyRedefinition(const std::vector<std::size_t>& redefinition);
 
     /*!
      * \brief Assignement operator. Copies \b t_permutation and returns a 
@@ -329,7 +329,7 @@ class Symmetry{
     /*!
      * \return The number of Permutation objects the Symmetry handles.
      */
-    size_t getNPermutation() const;
+    std::size_t getNPermutation() const;
 
     /*!
      * \return The vector of Permutation objects managed by the Symmetry.
@@ -459,8 +459,8 @@ class IndexedSymmetry: public Symmetry {
 
     private:
 
-    size_t findPos(const Index&    index,
-                   size_t&         maxPos,
+    std::size_t findPos(const Index&    index,
+                   std::size_t&         maxPos,
                    IndexStructure& newInit) const;
 
     std::pair<Symmetry, Symmetry> getCorrespondingSymmetries(

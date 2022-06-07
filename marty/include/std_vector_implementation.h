@@ -32,7 +32,7 @@
         = typename std::vector<object>::const_reverse_iterator;\
     \
     \
-    size_t size() const { \
+    std::size_t size() const { \
         return variable.size(); \
     } \
  \
@@ -110,13 +110,13 @@
         return variable.insert(pos, value);\
     }\
     void insert(typename std::vector<object>::iterator pos, \
-                size_t                                 count,\
+                std::size_t                                 count,\
                 const object&                          value) {\
         variable.insert(pos, count, value);\
     }\
     typename std::vector<object>::iterator insert(\
                 typename std::vector<object>::const_iterator pos, \
-                size_t                                       count,\
+                std::size_t                                       count,\
                 const object&                                value) {\
         return variable.insert(pos, count, value);\
     }\
@@ -152,22 +152,22 @@
 #define IMPLEMENTS_STD_VECTOR_NO_PB(object, variable) \
     IMPLEMENTS_STD_VECTOR_NO_OP_NO_PB(object, variable)\
  \
-    object operator[](size_t i) const { \
+    object operator[](std::size_t i) const { \
         return variable[i]; \
     } \
  \
-    object& operator[](size_t i) { \
+    object& operator[](std::size_t i) { \
         return variable[i]; \
     } \
 
 #define IMPLEMENTS_STD_VECTOR(object, variable) \
     IMPLEMENTS_STD_VECTOR_NO_OP(object, variable)\
  \
-    object operator[](size_t i) const { \
+    object operator[](std::size_t i) const { \
         return variable[i]; \
     } \
  \
-    object& operator[](size_t i) { \
+    object& operator[](std::size_t i) { \
         return variable[i]; \
     } \
 

@@ -33,7 +33,7 @@ const int maxMantisseSize = 64;
 
 std::pair<int_ap<2>, int> decomposeLongFloat(long double number);
 
-template<size_t base>
+template<std::size_t base>
 float_sap<base> decomposeLongFloat(long double number)
 {
     std::pair<int_ap<2>, int> res = decomposeLongFloat(number);
@@ -59,7 +59,7 @@ float_sap<base> decomposeLongFloat(long double number)
     return result;
 }
 
-template<size_t base>
+template<std::size_t base>
 class float_sap {
 
     public:
@@ -169,7 +169,7 @@ class float_sap {
         if (f.isScientific()) {
             fout << convertDigit(floating.mantissa[
                     floating.mantissa.size()-1]) << ".";
-            for (size_t i = 1; i != floating.mantissa.size(); ++i)
+            for (std::size_t i = 1; i != floating.mantissa.size(); ++i)
                 if (i > f.getMaxDigits())
                     break;
                 else
@@ -190,7 +190,7 @@ class float_sap {
             }
             if (nDigits > f.getMaxDigits())
                 return fout;
-            for (size_t i = 0; i != floating.mantissa.size(); ++i)
+            for (std::size_t i = 0; i != floating.mantissa.size(); ++i)
                 if (i + nDigits > f.getMaxDigits())
                     break;
                 else
@@ -200,7 +200,7 @@ class float_sap {
         }
         int nDigits = 0;
         bool floatingPoint = false;
-        for (size_t i = 0; i != floating.mantissa.size(); ++i) {
+        for (std::size_t i = 0; i != floating.mantissa.size(); ++i) {
             if (i == floating.exponent) {
                 floatingPoint = true;
                 fout << ".";
@@ -386,7 +386,7 @@ class float_sap {
         divide(a.mantissa, b.mantissa, divisor, rest);
         int_ap<base> newExponent = a.exponent - b.exponent;
         float_sap<base> result(std::move(divisor), newExponent);
-        size_t nDigits = result.mantissa.size();
+        std::size_t nDigits = result.mantissa.size();
         while (rest != 0 and nDigits < PRECISION) {
             rest *= base;
             divide(rest, b.mantissa, divisor, rest);
@@ -608,7 +608,7 @@ class float_sap {
     }
 };
 
-template<size_t base>
+template<std::size_t base>
 float_sap<base>::float_sap()
     :mantissa(int_ap<base>(1)),
     exponent(int_ap<base>(0))
@@ -616,20 +616,20 @@ float_sap<base>::float_sap()
 
 }
 
-template<size_t base>
+template<std::size_t base>
 float_sap<base>::float_sap(long double other)
 {
     *this = other;
 }
 
-template<size_t base>
+template<std::size_t base>
 float_sap<base>::float_sap(const int_ap<base>& other)
 {
     mantissa = other;
     exponent = mantissa / base + 1;
 }
 
-template<size_t base>
+template<std::size_t base>
 float_sap<base>::float_sap(const int_ap<base>& t_mantissa,
                          const int_ap<base>& t_exponent)
     :mantissa(t_mantissa),
@@ -638,25 +638,25 @@ float_sap<base>::float_sap(const int_ap<base>& t_mantissa,
 
 }
 
-template<size_t base>
+template<std::size_t base>
 bool float_sap<base>::getMinusSign() const
 {
     return mantissa.getMinusSign();
 }
 
-template<size_t base>
+template<std::size_t base>
 void float_sap<base>::setMinusSign(bool t_sign)
 {
     mantissa.setMinusSign(t_sign);
 }
 
-template<size_t base>
+template<std::size_t base>
 void float_sap<base>::adjustOnExponent(const float_sap<base>& number)
 {
     adjustOnExponent(number.exponent);
 }
 
-template<size_t base>
+template<std::size_t base>
 void float_sap<base>::adjustOnExponent(const int_ap<base>& t_exponent)
 {
     int diff = (exponent - t_exponent).toCInteger();
@@ -668,7 +668,7 @@ void float_sap<base>::adjustOnExponent(const int_ap<base>& t_exponent)
     mantissa.shiftLeft(diff);
 }
 
-template<size_t base>
+template<std::size_t base>
 float_sap<base>& float_sap<base>::operator=(long double other)
 {
     if (other == 0)
@@ -684,7 +684,7 @@ float_sap<base>& float_sap<base>::operator=(long double other)
     return *this;
 }
 
-template<size_t base>
+template<std::size_t base>
 float_sap<base>& float_sap<base>::operator=(const float_sap<base>& other)
 {
     mantissa = other.mantissa;
@@ -692,13 +692,13 @@ float_sap<base>& float_sap<base>::operator=(const float_sap<base>& other)
     return *this;
 }
 
-template<size_t base>
+template<std::size_t base>
 int_ap<base> float_sap<base>::getFloatingPointPos() const
 {
     return exponent;
 }
 
-template<size_t base>
+template<std::size_t base>
 float_sap<base>& float_sap<base>::format(std::string const& f)
 {
     csl::Formatter::setFormat(f);

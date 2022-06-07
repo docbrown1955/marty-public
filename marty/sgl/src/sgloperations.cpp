@@ -84,7 +84,7 @@ namespace sgl {
         }
         std::vector<csl::Expr> exprs;
         exprs.reserve(m_argument.size());
-        for (size_t i = 0; i != newArgs.size(); ++i) {
+        for (std::size_t i = 0; i != newArgs.size(); ++i) {
             if (IsType<CSLExpr>(newArgs[i])) {
                 exprs.push_back(newArgs[i]->expr());
                 newArgs.erase(newArgs.begin() + i);
@@ -100,7 +100,7 @@ namespace sgl {
 
     void Sum::print(std::ostream &out) const
     {
-        for (size_t i = 0; i != m_argument.size(); ++i) {
+        for (std::size_t i = 0; i != m_argument.size(); ++i) {
             m_argument[i]->print(out);
             if (i < m_argument.size() - 1) {
                 out << " + ";
@@ -186,14 +186,14 @@ namespace sgl {
         }
         std::vector<csl::Expr> exprs;
         exprs.reserve(m_argument.size());
-        for (size_t i = 0; i != newArgs.size(); ++i) {
+        for (std::size_t i = 0; i != newArgs.size(); ++i) {
             if (IsType<CSLExpr>(newArgs[i])) {
                 exprs.push_back(newArgs[i]->expr());
                 newArgs.erase(newArgs.begin() + i);
                 --i;
             }
         }
-        for (size_t i = 0; i != newArgs.size(); ++i) {
+        for (std::size_t i = 0; i != newArgs.size(); ++i) {
             if (auto f = newArgs[i]->getFactor(); f != CSL_1) {
                 exprs.push_back(f);
                 newArgs[i] = newArgs[i]->getTerm();
@@ -216,7 +216,7 @@ namespace sgl {
 
     void Prod::print(std::ostream &out) const
     {
-        for (size_t i = 0; i != m_argument.size(); ++i) {
+        for (std::size_t i = 0; i != m_argument.size(); ++i) {
             bool bracket = IsType<Sum>(m_argument[i]);
             if (bracket)
                 out << '(';
@@ -231,8 +231,8 @@ namespace sgl {
 
     void Prod::applyProperties()
     {
-        for (size_t i = 0; i != m_argument.size(); ++i) {
-            for (size_t j = 0; j < m_argument.size(); ++j) {
+        for (std::size_t i = 0; i != m_argument.size(); ++i) {
+            for (std::size_t j = 0; j < m_argument.size(); ++j) {
                 if (i != j && m_argument[i]->hasPropertyWith(m_argument[j])) {
                     GExpr res = m_argument[i]->propertyWith(m_argument[j]);
                     m_argument[i] = res;
@@ -250,11 +250,11 @@ namespace sgl {
         LOG("Expanding", copy())
         if (m_argument.size() == 1)
             return m_argument[0];
-        for (size_t i = 0; i != m_argument.size(); ++i) {
+        for (std::size_t i = 0; i != m_argument.size(); ++i) {
             if (IsType<Sum>(m_argument[i])) {
                 LOG("Sum found :", m_argument[i])
                 std::vector<GExpr> terms(m_argument[i]->size());
-                for (size_t k = 0; k != terms.size(); ++k) {
+                for (std::size_t k = 0; k != terms.size(); ++k) {
                     std::vector<GExpr> args = m_argument;
                     args[i] = m_argument[i]->argument(k);
                     terms[k] = sgl::prod_s(args);

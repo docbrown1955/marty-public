@@ -28,7 +28,7 @@ namespace mty {
 
 Flavor::~Flavor()
 {
-    for (size_t i = 0; i != flavors.size(); ++i)
+    for (std::size_t i = 0; i != flavors.size(); ++i)
         if (flavors[i])
             delete flavors[i];
 }
@@ -52,7 +52,7 @@ FlavorGroup::FlavorGroup(string const& t_name,
     }
 }
 
-size_t FlavorGroup::getDim() const
+std::size_t FlavorGroup::getDim() const
 {
     return getVectorSpace(getFundamentalRep())->getDim();
 }
@@ -152,7 +152,7 @@ FlavorIrrep::FlavorIrrep(Flavor const* t_flavors,
             mty::error::ValueError,
             "Copying a flavor representation in a smaller FlavorGroup set.");
     rep.reserve(flavors->size());
-    size_t i = 0;
+    std::size_t i = 0;
     for (const auto& r : other) {
         HEPAssert((*flavors)[i++]->getGroup()->getAlgebra() == r.getAlgebra(),
                 mty::error::ValueError,
@@ -203,7 +203,7 @@ bool FlavorIrrep::operator==(FlavorIrrep const &other) const
         return false;
     if (size() != other.size())
         return false;
-    for (size_t i = 0; i != size(); ++i)
+    for (std::size_t i = 0; i != size(); ++i)
         if (rep[i] != other[i])
             return false;
     return true;
@@ -212,7 +212,7 @@ bool FlavorIrrep::operator==(FlavorIrrep const &other) const
 ostream& operator<<(ostream& fout, const FlavorIrrep& irrep)
 {
     fout << "( ";
-    for (size_t i = 0; i != irrep.size(); ++i) {
+    for (std::size_t i = 0; i != irrep.size(); ++i) {
         if (irrep[i].getAlgebra()
                 and irrep[i].getAlgebra()->getType() != algebra::Type::R)
             fout << irrep[i].getDim();

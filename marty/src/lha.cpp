@@ -36,7 +36,7 @@ LHAFileData Reader::readFile(std::ifstream &in)
 {
     LHAFileData data;
     std::vector<std::string> currentLine;
-    size_t iLine = 1;
+    std::size_t iLine = 1;
     std::string currentType = "";
     while (!in.eof()) {
         currentLine = split(nextLine(in));

@@ -28,11 +28,11 @@ namespace mty {
             momenta.erase(momenta.begin() + signs.size(), momenta.end());
         }
         posSimplestMomenta = 0;
-        for (size_t i = 1; i < momenta.size(); ++i) {
+        for (std::size_t i = 1; i < momenta.size(); ++i) {
             if (momenta[i]->getName() < momenta[posSimplestMomenta]->getName())
                 posSimplestMomenta = i;
         }
-        for (size_t i = 0; i != insertions.size(); ++i) {
+        for (std::size_t i = 0; i != insertions.size(); ++i) {
             if (!insertions[i].isIncoming())
                 signs[i] = false;
         }
@@ -65,7 +65,7 @@ namespace mty {
         if (!csl::IsIndicialTensor(sub))
             return -1;
         const auto p = sub->getParent_info();
-        for (size_t i = 0; i != momenta.size(); ++i) 
+        for (std::size_t i = 0; i != momenta.size(); ++i) 
             if (momenta[i].get() == p)
                 return i;
         return -1;
@@ -144,7 +144,7 @@ namespace mty {
 
     bool MomentumConservater::simplify(std::vector<csl::Expr> &factors)
     {
-        auto getNZero = [](std::vector<csl::Expr> const &f) -> size_t {
+        auto getNZero = [](std::vector<csl::Expr> const &f) -> std::size_t {
             return std::count(f.begin(), f.end(), CSL_0);
         };
 
@@ -154,7 +154,7 @@ namespace mty {
 
         auto best = factors;
         bool simplified = false;
-        for (size_t i = 0; i != factors.size(); ++i) {
+        for (std::size_t i = 0; i != factors.size(); ++i) {
             if (factors[i] != CSL_0) {
                 auto test = factors;
                 std::for_each(
@@ -181,7 +181,7 @@ namespace mty {
     {
         std::vector<csl::Expr> sumArgs;
         sumArgs.reserve(factors.size());
-        for (size_t i = 0; i != factors.size(); ++i) {
+        for (std::size_t i = 0; i != factors.size(); ++i) {
             if (factors[i] != CSL_0) {
                 const auto f = (signs[i]) ? factors[i] : -factors[i];
                 sumArgs.push_back(f * momenta[i](mu));

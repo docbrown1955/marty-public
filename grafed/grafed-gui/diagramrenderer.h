@@ -105,7 +105,7 @@ public slots:
     void readFile(
             QString const &nameFile);
     void refreshLinks();
-    void loadDiagrams(size_t first);
+    void loadDiagrams(std::size_t first);
     void addDiagram();
 
     void diagramDoubleClicked(qint32, qint32);
@@ -121,10 +121,10 @@ public slots:
 
     void modificationDone();
 
-    std::pair<size_t, size_t> page();
-    std::pair<size_t, size_t> prevPage();
-    std::pair<size_t, size_t> nextPage();
-    std::pair<size_t, size_t> setPage(size_t t_page);
+    std::pair<std::size_t, std::size_t> page();
+    std::pair<std::size_t, std::size_t> prevPage();
+    std::pair<std::size_t, std::size_t> nextPage();
+    std::pair<std::size_t, std::size_t> setPage(std::size_t t_page);
 
 signals:
 
@@ -142,7 +142,7 @@ protected:
         generateDiagram(qint32 iRow, qint32 iCol);
     std::pair<Diagram*, DiagramWidget*> newDiagram();
 
-    size_t maxDiagramNumber(size_t first);
+    std::size_t maxDiagramNumber(std::size_t first);
 
 private:
 
@@ -156,9 +156,9 @@ private:
     qint32          firstDiag;
     qint32          lastDiag;
 
-    constexpr static size_t pageSize = 64;
-    size_t                  pageNumber;
-    size_t                  nextDiagram;
+    constexpr static std::size_t pageSize = 64;
+    std::size_t                  pageNumber;
+    std::size_t                  nextDiagram;
     std::vector<drawer::LatexLinker> links;
     QList<Diagram*>       allDiagrams;
     QList<Diagram*>       diagrams;

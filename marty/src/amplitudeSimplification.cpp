@@ -55,7 +55,7 @@ namespace mty::simpli {
         csl::ForEachNode(expr, [&](csl::Expr &sub) {
             if (csl::IsProd(sub)) {
                 std::vector<csl::Expr> external;
-                for (size_t i = 0; i != sub->size(); ++i) {
+                for (std::size_t i = 0; i != sub->size(); ++i) {
                     if (mty::IsOfType<mty::PolarizationField>(sub[i])) {
                         external.push_back(sub[i]);
                         sub[i] = CSL_1;
@@ -74,7 +74,7 @@ namespace mty::simpli {
         if (csl::IsSum(res)) {
             bool integral = true;
             for (const auto &arg : res) {
-                const size_t size = arg->size();
+                const std::size_t size = arg->size();
                 if (size == 0
                         and !csl::IsNumerical(arg)
                         and !IsOfType<FeynmanIntegral>(arg)) {
@@ -83,7 +83,7 @@ namespace mty::simpli {
                 }
                 else if (size > 0
                         and !IsOfType<FeynmanIntegral>(arg)) {
-                    for (size_t i = 0; i != size; ++i) 
+                    for (std::size_t i = 0; i != size; ++i) 
                         if (!csl::IsNumerical(arg[i])
                                 and !IsOfType<FeynmanIntegral>(arg[i])) {
                             integral = false;
@@ -100,11 +100,11 @@ namespace mty::simpli {
                         );
             }
             else
-                for (size_t i = 0; i != res->size(); ++i)
+                for (std::size_t i = 0; i != res->size(); ++i)
                     abbreviateIntegral(res[i]);
         }
         else
-            for (size_t i = 0; i != res->size(); ++i)
+            for (std::size_t i = 0; i != res->size(); ++i)
                 abbreviateIntegral(res[i]);
     }
 
@@ -194,8 +194,8 @@ namespace mty::simpli {
         for (auto& arg : *res)
             findAbbreviations(arg);
 
-        std::vector<size_t> constants;
-        for (size_t i = 0; i != res->size(); ++i) {
+        std::vector<std::size_t> constants;
+        for (std::size_t i = 0; i != res->size(); ++i) {
             if ((*res)[i]->getPrimaryType() != csl::PrimaryType::Numerical
                     and (*res)[i] != CSL_I
                     and csl::AllOfLeafs((*res)[i], [](const csl::Expr& el)
@@ -215,7 +215,7 @@ namespace mty::simpli {
                 or res->getArgument(constants[0])->size() > 0) {
             csl::vector_expr args;
             args.reserve(constants.size());
-            for (size_t pos : constants) {
+            for (std::size_t pos : constants) {
                 args.push_back((*res)[pos]);
                 (*res)[pos] = CSL_1;
             }
@@ -355,7 +355,7 @@ namespace mty::simpli {
         {
             if (!csl::IsSum(sum))
                 return;
-            size_t hasIndex = 0;
+            std::size_t hasIndex = 0;
             for (const auto &arg : sum)
                 if (arg->isIndexed()) {
                     ++hasIndex;
@@ -369,10 +369,10 @@ namespace mty::simpli {
                 termsAndFactors.push_back(termAndFactor(arg));
             }
             bool merged = false;
-            for (size_t i = 0; i != termsAndFactors.size(); ++i) {
+            for (std::size_t i = 0; i != termsAndFactors.size(); ++i) {
                 if (termsAndFactors[i].second == CSL_1)
                     return;
-                for (size_t j = i+1; j != termsAndFactors.size(); ++j) {
+                for (std::size_t j = i+1; j != termsAndFactors.size(); ++j) {
                     if (termsAndFactors[j].first != CSL_0
                             && termsAndFactors[j].second == termsAndFactors[i].second) {
                         termsAndFactors[i].first += termsAndFactors[j].first;
@@ -399,8 +399,8 @@ namespace mty::simpli {
             std::vector<color::ColorSpace const*> const &spaces
             )
     {
-        std::vector<size_t> indicesLeft(tensors.size());
-        for (size_t i = 0; i != indicesLeft.size(); ++i) {
+        std::vector<std::size_t> indicesLeft(tensors.size());
+        for (std::size_t i = 0; i != indicesLeft.size(); ++i) {
             indicesLeft[i] = i;
         }
 
@@ -411,7 +411,7 @@ namespace mty::simpli {
             subArg.reserve(tensors.size());
             subArg.push_back(tensors[indicesLeft[0]]);
             indicesLeft.erase(indicesLeft.begin());
-            for (size_t j = 0; j != indicesLeft.size(); ++j) {
+            for (std::size_t j = 0; j != indicesLeft.size(); ++j) {
                 if (spaces[indicesLeft[j]]->getGroup() == color->getGroup()) {
                     subArg.push_back(tensors[indicesLeft[j]]);
                     indicesLeft.erase(indicesLeft.begin() + j);
@@ -452,18 +452,18 @@ namespace mty::simpli {
     }
 
     bool commonIndex(
-            std::vector<size_t> const &A,
-            std::vector<size_t> const &B
+            std::vector<std::size_t> const &A,
+            std::vector<std::size_t> const &B
             )
     {
-        return std::any_of(begin(A), end(A), [&](size_t i) {
+        return std::any_of(begin(A), end(A), [&](std::size_t i) {
             return end(B) != std::find(begin(B), end(B), i);
         });
     }
 
     void mergeIn(
-            std::vector<size_t>       &target,
-            std::vector<size_t> const &toCopy
+            std::vector<std::size_t>       &target,
+            std::vector<std::size_t> const &toCopy
             )
     {
         target.insert(target.end(), toCopy.begin(), toCopy.end());
@@ -472,14 +472,14 @@ namespace mty::simpli {
         target.erase(last, target.end());
     }
 
-    std::vector<std::vector<size_t>> findStructureMatches(
+    std::vector<std::vector<std::size_t>> findStructureMatches(
             std::vector<csl::IndexStructure> const &structures
             )
     {
-        std::vector<std::vector<size_t>> res;
-        for (size_t i = 0; i != structures.size(); ++i) {
+        std::vector<std::vector<std::size_t>> res;
+        for (std::size_t i = 0; i != structures.size(); ++i) {
             res.push_back({i});
-            for (size_t j = i+1; j < structures.size(); ++j) {
+            for (std::size_t j = i+1; j < structures.size(); ++j) {
                 bool match = false;
                 for (const auto& ind : structures[i]) {
                     for (const auto &jnd : structures[j])
@@ -497,8 +497,8 @@ namespace mty::simpli {
                 res.erase(res.end() - 1);
         }
 
-        for (size_t i = 0; i != res.size(); ++i) {
-            for (size_t j = i+1; j < res.size(); ++j) {
+        for (std::size_t i = 0; i != res.size(); ++i) {
+            for (std::size_t j = i+1; j < res.size(); ++j) {
                 if (commonIndex(res[i], res[j])) {
                     mergeIn(res[i], res[j]);
                     res.erase(res.begin() + j);
@@ -515,27 +515,27 @@ namespace mty::simpli {
             std::function<csl::IndexStructure(csl::Expr const&)> const &structureGetter
             )
     {
-        std::vector<size_t> pos;
+        std::vector<std::size_t> pos;
         std::vector<csl::IndexStructure> structures;
         structures.reserve(prod->size());
-        for (size_t i = 0; i != prod->size(); ++i) {
+        for (std::size_t i = 0; i != prod->size(); ++i) {
             if (auto structure = structureGetter(prod[i]);
                     !structure.empty()) {
                 pos.push_back(i);
                 structures.push_back(structure);
             }
         }
-        std::vector<std::vector<size_t>> toExpand
+        std::vector<std::vector<std::size_t>> toExpand
             = findStructureMatches(structures);
         if (toExpand.empty()) {
             return false;
         }
         // prod = csl::Copy(prod);
-        for (size_t i = 0; i != toExpand.size(); ++i) {
-            std::vector<size_t> const &positions = toExpand[i];
+        for (std::size_t i = 0; i != toExpand.size(); ++i) {
+            std::vector<std::size_t> const &positions = toExpand[i];
             std::vector<csl::Expr> args;
             args.reserve(positions.size());
-            for (size_t k : positions) {
+            for (std::size_t k : positions) {
                 args.push_back(prod[pos[k]]);
                 prod[pos[k]] = CSL_1;
             }
@@ -717,7 +717,7 @@ namespace mty::simpli {
             )
     {
         csl::IndexStructure prodStruct = prod->getIndexStructure();
-        for (size_t i = 0; i != indices.size(); ++i) {
+        for (std::size_t i = 0; i != indices.size(); ++i) {
             bool found = false;
             for (const auto &index : prodStruct)
                 if (index == indices[i]) {
@@ -739,8 +739,8 @@ namespace mty::simpli {
                     return true;
             return false;
         });
-        for (size_t i = 0; i != indices.size(); ++i)
-            for (size_t j = i+1; j < indices.size(); ++j) {
+        for (std::size_t i = 0; i != indices.size(); ++i)
+            for (std::size_t j = i+1; j < indices.size(); ++j) {
                 csl::Expr replaced = csl::Swapped(
                         prod,
                         indices[i],
@@ -765,7 +765,7 @@ namespace mty::simpli {
         bool simplified = false;
         csl::ForEachNode(expr, [&](csl::Expr &prod) {
             if (csl::IsProd(prod)) {
-                for (size_t i = 0; i != prod->size(); ++i)
+                for (std::size_t i = 0; i != prod->size(); ++i)
                     if (isEpsilon(prod[i])) {
                         std::vector<csl::Expr> args = prod->getVectorArgument();
                         args[i] = CSL_1;
@@ -911,12 +911,12 @@ namespace mty::simpli {
     std::pair<csl::Expr, csl::Expr> getMomentumReplacement(
             std::vector<mty::QuantumField> const &insertions,
             std::vector<csl::Tensor>       const &momenta,
-            size_t                                posReplaced
+            std::size_t                                posReplaced
             )
     {
         csl::Expr momentumSum = CSL_0;
         csl::Index mu = csl::Minkowski.generateIndex();
-        for (size_t i = 0; i != insertions.size(); ++i) {
+        for (std::size_t i = 0; i != insertions.size(); ++i) {
             if (i != posReplaced)
                 momentumSum += (insertions[i].isIncoming()) ? 
                     csl::Tensor(momenta[i])(mu)
@@ -934,7 +934,7 @@ namespace mty::simpli {
             csl::Expr                            &init,
             std::vector<mty::QuantumField> const &insertions,
             std::vector<csl::Tensor>       const &momenta,
-            size_t                                posReplaced
+            std::size_t                                posReplaced
             )
     {
         auto [p, momentumEquivalence] = getMomentumReplacement(
@@ -949,8 +949,8 @@ namespace mty::simpli {
             std::vector<csl::Tensor>       const &momenta
             )
     {
-        size_t mini = 0;
-        for (size_t i = 1; i != insertions.size(); ++i) {
+        std::size_t mini = 0;
+        for (std::size_t i = 1; i != insertions.size(); ++i) {
             if (compareFields(insertions[i], insertions[mini]))
                 mini = i;
         }
@@ -1013,7 +1013,7 @@ namespace mty::simpli {
                 });
             }
         });
-        size_t nOnShellFermions = 0;
+        std::size_t nOnShellFermions = 0;
         for (const auto &field : insertions)
             if (field.isFermionic() && field.isOnShell())
                 ++nOnShellFermions;
@@ -1041,7 +1041,7 @@ namespace mty::simpli {
         //}
         std::vector<csl::Expr> factors;
         if (csl::IsProd(expr)) {
-            for (size_t i = 0; i != expr->size(); ++i) {
+            for (std::size_t i = 0; i != expr->size(); ++i) {
                 if (!mayBeSimplified(expr[i])) {
                     factors.push_back(expr[i]);
                     expr[i] = CSL_1;
@@ -1067,12 +1067,12 @@ namespace mty::simpli {
         if (mode == Amplitude)
             reduceTensorIntegrals(expr);
         expandMomentaExperimental(expr, momenta);
-        size_t maxLoop = 10;
+        std::size_t maxLoop = 10;
         bool simplified;
         csl::Abbrev::enableGenericEvaluation("EXT");
         csl::Evaluate(expr);
         csl::Abbrev::disableGenericEvaluation("EXT");
-        size_t loop = 0;
+        std::size_t loop = 0;
         do {
             simplified = expandMinkoStructures(expr);
             simplified = simplifyEpsilon(expr) || simplified;

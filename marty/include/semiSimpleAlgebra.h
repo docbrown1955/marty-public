@@ -81,7 +81,7 @@ int getCoxeterNumber(
 
 struct IndexData {
     AlgebraState state;
-    size_t p;
+    std::size_t p;
     csl::Expr index;
 };
 
@@ -137,7 +137,7 @@ class SemiSimpleAlgebra{
 
     virtual csl::Expr getIndex(
             const Irrep& irrep,
-            size_t       n) const;
+            std::size_t       n) const;
 
     /*!
      * \brief Calculates and returns the highest weight representation. 
@@ -989,8 +989,8 @@ template<typename T>
 int binaryFindInVector(const std::vector<T>& v,
                        const T             & element)
 {
-    size_t a = 0;
-    size_t b = v.size();
+    std::size_t a = 0;
+    std::size_t b = v.size();
     while (b != a) {
         const auto middleIndex = (a+b) / 2;
         const auto middle = v[middleIndex];
@@ -1027,7 +1027,7 @@ std::vector<T> operator+(const std::vector<T>& x,
         std::exit(1);
     }
     std::vector<T> rep(x.size());
-    for (size_t i=0; i!=x.size(); ++i)
+    for (std::size_t i=0; i!=x.size(); ++i)
         rep[i] = x[i]+y[i];
 
     return rep;
@@ -1043,7 +1043,7 @@ std::vector<T> operator-(const std::vector<T>& x,
         std::exit(1);
     }
     std::vector<T> rep(x.size());
-    for (size_t i=0; i!=x.size(); ++i)
+    for (std::size_t i=0; i!=x.size(); ++i)
         rep[i] = x[i]-y[i];
 
     return rep;
@@ -1088,7 +1088,7 @@ T operator*(const std::vector<T>& x,
         std::exit(1);
     }
     T rep = 0;
-    for (size_t i=0; i!=x.size(); ++i)
+    for (std::size_t i=0; i!=x.size(); ++i)
         rep += x[i]*y[i];
 
     return rep;
@@ -1107,8 +1107,8 @@ std::vector<T> operator*(const std::vector<std::vector<T>>& A,
         std::exit(1);
     }
     std::vector<T> rep(A.size(),0);
-    for (size_t i=0; i!=A.size(); ++i)
-        for (size_t j=0; j!=x.size(); ++j)
+    for (std::size_t i=0; i!=A.size(); ++i)
+        for (std::size_t j=0; j!=x.size(); ++j)
             rep[i] += A[i][j]*x[j];
 
     return rep;
@@ -1126,8 +1126,8 @@ std::vector<T> operator*(const std::vector<T>              &x,
         std::exit(1);
     }
     std::vector<T> rep(A.size(),0);
-    for (size_t i=0; i!=A.size(); ++i)
-        for (size_t j=0; j!=x.size(); ++j)
+    for (std::size_t i=0; i!=A.size(); ++i)
+        for (std::size_t j=0; j!=x.size(); ++j)
             rep[i] += A[i][j]*x[j];
 
     return rep;
@@ -1146,9 +1146,9 @@ std::vector<std::vector<T> > operator*(const std::vector<std::vector<T>>& A,
         std::exit(1);
     }
     std::vector<std::vector<T> > rep(A.size(), std::vector<T>(B[0].size(),0));
-    for (size_t i=0; i!=A.size(); ++i)
-        for (size_t j=0; j!=B[0].size(); ++j)
-            for (size_t k=0; k!=A[0].size(); ++k)
+    for (std::size_t i=0; i!=A.size(); ++i)
+        for (std::size_t j=0; j!=B[0].size(); ++j)
+            for (std::size_t k=0; k!=A[0].size(); ++k)
                 rep[i][j] += A[i][k]*B[k][j];
 
     return rep;

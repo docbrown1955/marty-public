@@ -45,22 +45,22 @@ namespace csl {
         using const_reverse_iterator 
             = typename std::vector<Type>::const_reverse_iterator;
 
-        static size_t getTotalDimension(std::vector<size_t> const& dimensions)
+        static std::size_t getTotalDimension(std::vector<std::size_t> const& dimensions)
         {
-            size_t tot = 1;
-            for (size_t d : dimensions)
+            std::size_t tot = 1;
+            for (std::size_t d : dimensions)
                 tot *= d;
             return tot;
         }
 
-        LibraryTensor(std::vector<size_t> const& t_dimensions)
+        LibraryTensor(std::vector<std::size_t> const& t_dimensions)
             :dimensions(t_dimensions),
             data(getTotalDimension(dimensions))
         {
 
         }
 
-        LibraryTensor(std::vector<size_t> const& t_dimensions,
+        LibraryTensor(std::vector<std::size_t> const& t_dimensions,
                       Type                const& filler)
             :dimensions(t_dimensions),
             data(getTotalDimension(dimensions), filler)
@@ -68,7 +68,7 @@ namespace csl {
 
         }
 
-        LibraryTensor(std::vector<size_t> const& t_dimensions,
+        LibraryTensor(std::vector<std::size_t> const& t_dimensions,
                       std::vector<Type>   const& t_data)
             :dimensions(t_dimensions),
             data(t_data)
@@ -82,17 +82,17 @@ namespace csl {
             }
         }
      
-        std::vector<size_t> const& getDimensions() const {
+        std::vector<std::size_t> const& getDimensions() const {
             return dimensions;
         }
         std::vector<Type> const& toStdVector() const {
             return data;
         }
 
-        size_t getIndex(std::vector<size_t> const& indices) const {
+        std::size_t getIndex(std::vector<std::size_t> const& indices) const {
             if (dimensions.size() == 1)
                 return indices[0];
-            size_t index = 0;
+            std::size_t index = 0;
             auto iter_index = indices.begin();
             auto iter_dim   = dimensions.begin();
             for (; iter_dim != dimensions.end(); ++iter_index, ++iter_dim) {
@@ -106,7 +106,7 @@ namespace csl {
         bool empty() const {
             return data.empty();
         }
-        size_t size() const {
+        std::size_t size() const {
             return data.size();
         }
 
@@ -138,23 +138,23 @@ namespace csl {
         }
 #endif
 
-        Type& operator[](size_t pos) {
+        Type& operator[](std::size_t pos) {
             return data[pos];
         }
-        Type const& operator[](size_t pos) const {
+        Type const& operator[](std::size_t pos) const {
             return data[pos];
         }
 
-        Type& operator[](std::vector<size_t> const& indices) {
+        Type& operator[](std::vector<std::size_t> const& indices) {
             return data[getIndex(indices)];
         }
-        Type const& operator[](std::vector<size_t> const& indices) const {
+        Type const& operator[](std::vector<std::size_t> const& indices) const {
             return data[getIndex(indices)];
         }
 
         public:
 
-        std::vector<size_t> dimensions;
+        std::vector<std::size_t> dimensions;
 
         std::vector<Type>   data;
     };

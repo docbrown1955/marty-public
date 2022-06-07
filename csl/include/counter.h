@@ -108,7 +108,7 @@ class counter {
     constexpr static char     separator = '\'';
     constexpr static counter* end_value = nullptr;
 
-    size_t   max   = 0;
+    std::size_t   max   = 0;
     T        value;
     counter* next = end_value;
 
@@ -119,7 +119,7 @@ class counter {
 
     }
 
-    counter(size_t t_max)
+    counter(std::size_t t_max)
         :max(t_max),
         value(T(0))
     {
@@ -171,7 +171,7 @@ class counter {
             delete next;
     }
 
-    size_t size() const
+    std::size_t size() const
     {
         return (next != end_value) ? (1 + next->size()) : 1;
     }
@@ -245,14 +245,14 @@ class counter {
         return other;
     }
 
-    T& operator[](size_t pos)
+    T& operator[](std::size_t pos)
     {
         if (pos == 0)
             return value;
         return (*next)[pos-1];
     }
 
-    T operator[](size_t pos) const
+    T operator[](std::size_t pos) const
     {
         if (pos == 0)
             return value;

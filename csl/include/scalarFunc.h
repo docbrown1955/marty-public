@@ -69,7 +69,7 @@ class AbstractFunc: public Abstract{
 
     bool isIndexed() const override;
 
-    size_t size() const override;
+    std::size_t size() const override;
 
     bool compareWithDummy(Expr_info expr,
                           std::map<Index, Index>& constraints,
@@ -242,7 +242,7 @@ class AbstractDuoFunc: public Abstract{
      */
     int getNArgs(int axis=0) const override;
 
-    size_t size() const override {
+    std::size_t size() const override {
         return 2;
     }
 
@@ -402,7 +402,7 @@ class AbstractMultiFunc: public Abstract{
             Expr_info   subExpression,
             const Expr& newExpression) const override;
 
-    size_t size() const override;
+    std::size_t size() const override;
 
     bool empty() const override;
 

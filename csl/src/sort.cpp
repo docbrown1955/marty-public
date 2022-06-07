@@ -73,7 +73,7 @@ static void mergeSort(
     iterator b_last
     )
 {
-    if (static_cast<size_t>(a_last - a_first) <= minMergeSize) {
+    if (static_cast<std::size_t>(a_last - a_first) <= minMergeSize) {
         selectionSort(a_first, a_last);
     }
     else {
@@ -98,7 +98,7 @@ void sort(
 {
     std::vector<Expr> copy(first, last);
     mergeSort(first, last, copy.begin(), copy.end());
-    if (static_cast<size_t>(last - first) > minMergeSize)
+    if (static_cast<std::size_t>(last - first) > minMergeSize)
         std::copy(copy.begin(), copy.end(), first);
 }
 

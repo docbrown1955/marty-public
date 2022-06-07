@@ -60,7 +60,7 @@ namespace mty::simpli {
                 int integral = -1;
                 int dpos   = -1;
                 int dpower = 0;
-                for (size_t i = 0; i < sub->size(); ++i) {
+                for (std::size_t i = 0; i < sub->size(); ++i) {
                     if (IsOfType<FeynmanIntegral>(sub[i]))
                         integral = i;
                     else if (int power = getDMinkoPower(sub[i]); power > 0) {

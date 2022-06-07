@@ -68,7 +68,7 @@ csl::Index GetIndex(csl::Space const& space)
 }
 
 std::vector<csl::Index> GetIndices(
-        size_t             N,
+        std::size_t             N,
         csl::Tensor const& tensor,
         int                pos
         )
@@ -77,7 +77,7 @@ std::vector<csl::Index> GetIndices(
 }
 
 std::vector<csl::Index> GetIndices(
-        size_t            N,
+        std::size_t            N,
         csl::Space const* space
         )
 {
@@ -89,7 +89,7 @@ std::vector<csl::Index> GetIndices(
 }
 
 std::vector<csl::Index> GetIndices(
-        size_t            N,
+        std::size_t            N,
         csl::Space const& space
         )
 {
@@ -101,7 +101,7 @@ std::vector<csl::Index> GetFullSetOfIndicesFor(
 {
     std::vector<const csl::Space*> spaces = tensor->getSpace();
     std::vector<csl::Index> indices(spaces.size());
-    for (size_t i = 0; i != indices.size(); ++i) {
+    for (std::size_t i = 0; i != indices.size(); ++i) {
         indices[i] = spaces[i]->generateIndex();
     }
 
@@ -146,8 +146,8 @@ bool TestIndexSanity(
                 and expr->getType() != csl::Type::Sum)
             return false;
         if (expr->getType() == csl::Type::Sum) {
-            for (size_t i = 0; i != expr->size(); ++i)
-                for (size_t j = i+1; j < expr->size(); ++j)
+            for (std::size_t i = 0; i != expr->size(); ++i)
+                for (std::size_t j = i+1; j < expr->size(); ++j)
                     if (expr[i]->getIndexStructure()
                             != expr[j]->getIndexStructure()) {
                         if (verbose) {
@@ -163,9 +163,9 @@ bool TestIndexSanity(
         csl::IndexStructure structure;
         for (const auto &arg : expr)
             structure += arg->getIndexStructure();
-        for (size_t i = 0; i != structure.size(); ++i) {
+        for (std::size_t i = 0; i != structure.size(); ++i) {
             bool found = false;
-            for (size_t j = i+1; j < structure.size(); ++j) {
+            for (std::size_t j = i+1; j < structure.size(); ++j) {
                 if (structure[i] == structure[j]) {
                     if (!found)
                         found = true;
