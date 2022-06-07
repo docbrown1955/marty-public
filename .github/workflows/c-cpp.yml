@@ -39,7 +39,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: configure
-      run: source setup.sh .install
+      run: sudo source setup.sh /usr/local
     - name: make
       run: |
         source marty_env.sh
@@ -50,7 +50,7 @@ jobs:
         export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/lib
         make
     - name: install
-      run: make install
+      run: sudo make install
     - name: download-tests
       run: git clone https://github.com/docbrown1955/test-suite.git
     - name: run-tests
