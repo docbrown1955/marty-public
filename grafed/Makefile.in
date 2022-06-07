@@ -43,7 +43,7 @@ grafed: lib
 	cp $(JSONDIR)/src/*.cpp $(JSONDIR)/include/*.h grafed-gui
 	mkdir -p build-grafed-gui-Desktop_Qt_5_12_1_GCC_64bit-Debug;
 	cd build-grafed-gui-Desktop_Qt_5_12_1_GCC_64bit-Debug; \
-		qmake -makefile -o Makefile "CONFIG+=debug" "QMAKE_CXX=$(CXX)" "QMAKE_LINK=$(CXX)" ../grafed-gui/grafed-gui.pro; \
+		qmake -makefile -o Makefile "CONFIG+=debug" "QMAKE_CXX=$(CXX)" "QMAKE_LINK=$(CXX)" "QMAKE_CXXFLAGS += -Wno-deprecated-copy" ../grafed-gui/grafed-gui.pro; \
 		sed -i=.foo 's/-std=c++.[^7]//g' Makefile; \
 		sed -i=.foo 's/-std=gnu++..//g' Makefile; \
 		sed -i=.foo 's/[^ ^\n]*libc++//g' Makefile; \
@@ -52,7 +52,7 @@ grafed: lib
 		$(MAKE)
 	mkdir -p build-grafed-gui-Desktop_Qt_5_12_1_GCC_64bit-Release;
 	cd build-grafed-gui-Desktop_Qt_5_12_1_GCC_64bit-Release; \
-		qmake -makefile -o Makefile "QMAKE_CXX=$(CXX)" "QMAKE_LINK=$(CXX)" ../grafed-gui/grafed-gui.pro;\
+		qmake -makefile -o Makefile "QMAKE_CXX=$(CXX)" "QMAKE_LINK=$(CXX)" "QMAKE_CXXFLAGS += -Wno-deprecated-copy" ../grafed-gui/grafed-gui.pro;\
 		sed -i=.foo 's/-std=c++.[^7]//g' Makefile; \
 		sed -i=.foo 's/-std=gnu++..//g' Makefile; \
 		sed -i=.foo 's/[^ ^\n]*libc++//g' Makefile; \
