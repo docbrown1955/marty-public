@@ -2,6 +2,7 @@
 
 #include "looptools_patch.h"
 
+<<<<<<< HEAD:src/marty/core/looptools_interface.h
 #ifdef __cplusplus
 #define _MTY_INLINE inline
 #else
@@ -9,6 +10,9 @@
 #endif
 
 _MTY_INLINE lti_complex_t mtylt_A0iC(
+=======
+inline lti_complex_t mtylt_A0iC(
+>>>>>>> Intermediate:marty/include/looptools_interface.h
         int id,
         lti_complex_t m1
         )
@@ -27,7 +31,11 @@ _MTY_INLINE lti_complex_t mtylt_A0iC(
 #endif
 }
 
+<<<<<<< HEAD:src/marty/core/looptools_interface.h
 _MTY_INLINE lti_complex_t mtylt_B0iC(
+=======
+inline lti_complex_t mtylt_B0iC(
+>>>>>>> Intermediate:marty/include/looptools_interface.h
         int id,
         lti_complex_t p1,
         lti_complex_t m1,
@@ -52,7 +60,11 @@ _MTY_INLINE lti_complex_t mtylt_B0iC(
 #endif
 }
 
+<<<<<<< HEAD:src/marty/core/looptools_interface.h
 _MTY_INLINE lti_complex_t mtylt_C0iC(
+=======
+inline lti_complex_t mtylt_C0iC(
+>>>>>>> Intermediate:marty/include/looptools_interface.h
         int id,
         lti_complex_t p1,
         lti_complex_t p2,
@@ -105,7 +117,11 @@ _MTY_INLINE lti_complex_t mtylt_C0iC(
 #endif
 }
 
+<<<<<<< HEAD:src/marty/core/looptools_interface.h
 _MTY_INLINE lti_complex_t mtylt_D0iC(
+=======
+inline lti_complex_t mtylt_D0iC(
+>>>>>>> Intermediate:marty/include/looptools_interface.h
         int id,
         lti_complex_t p1,
         lti_complex_t p2,
@@ -151,7 +167,11 @@ _MTY_INLINE lti_complex_t mtylt_D0iC(
 #endif
 }
 
+<<<<<<< HEAD:src/marty/core/looptools_interface.h
 _MTY_INLINE lti_complex_t mtylt_E0iC(
+=======
+inline lti_complex_t mtylt_E0iC(
+>>>>>>> Intermediate:marty/include/looptools_interface.h
         int id,
         lti_complex_t p1,
         lti_complex_t p2,
