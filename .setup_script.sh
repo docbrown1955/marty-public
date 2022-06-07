@@ -96,14 +96,16 @@ testDependencies_Linux()
             dep_ok=0
     fi
 
-    libqt=`dpkg -l | grep libqt5`
+    qtbase=`dpkg -l | grep qtbase5-dev-tools`
+    qtchooser=`dpkg -l | grep qtchooser`
+    qtqmake=`dpkg -l | grep qt5-qmake`
     qtcreat=`command -v qtcreator`
-    if [ "$libqt" == "" ] || [ "$qtcreat" == "" ]
+    if [ "$qtbase" == "" ] || [ "$qtchooser" == ""  || [ "$qtqmake" == "" ]] || [ "$qtcreat" == "" ]
     then
             missingdep
 	    echo "Qt5 (Free software for Desktop application development) should be installed on your computer for GRAFED to work"
 	    echo "Consider installing qt5-default and qtcreator using (Ubuntu / Debian)"
-	    echo -e " ${BLUE}${BOLD}$ sudo apt-get install qt5-default qtcreator -y${NC}${NORMAL}"
+        echo -e " ${BLUE}${BOLD}$ sudo apt-get install qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools qtcreator-y${NC}${NORMAL}"
             dep_ok=0
     fi
     dvipng_com=`command -v dvipng`
