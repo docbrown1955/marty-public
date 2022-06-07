@@ -39,7 +39,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: configure
-      run: sudo source setup.sh /usr/local
+      run: |
+        sudo -s
+        source setup.sh /usr/local
     - name: make
       run: |
         source marty_env.sh
