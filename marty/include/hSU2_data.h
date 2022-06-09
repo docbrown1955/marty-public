@@ -47,7 +47,7 @@ struct hSU2_Data{
 
     csl::Expr g_s; // SU(3)_C coupling constant
     csl::Expr g_L; // SU(2)_L coupling constant
-    csl::Expr g_L; // U(1)_Y coupling constant
+    csl::Expr g_Y; // U(1)_Y coupling constant
     csl::Expr g_X; // SU(2)_X coupling constant 
 
 
@@ -124,7 +124,20 @@ struct hSU2_Data{
     csl::Expr v_h; // Higgs' VEV 
     csl::Expr v_y; // Y VEV : v_y^2 = v_y1^2 + v_y2^2 
     csl::Expr v_x; // X VEV  
-}
+    
+    ///////////////////////////////////////////////////
+    // Vector like particles 
+    /////////////////////////////////////////////////////
+  
+    mty::Particle Psi_uL; // Up-type Left vector-like fermion 
+    mty::Particle Psi_dL; // Down-type Left vector-like fermion
+    mty::Particle Psi_lL; // Lepton-type Left vector-like fermion
+
+    mty::Particle Psi_uR; // Up-type Right vector-like fermion
+    mty::Particle Psi_dR; // Down-type Right vector-like fermion
+    mty::Particle Psi_lR; // Lepton-type Right vector-like fermion
+
+  };
 
 } // End of namespace mty 
 

@@ -6,16 +6,16 @@ using namespace csl;
 
 int main(){
 
-  int init = 1;
   cout << "Testing without anything declared" << endl; 
-
   cout << "Declaring class" << endl;
 
-  mty::hSU2_Model horizSU2(init);
+  mty::hSU2_Model horizSU2("savefile.out");
 
   cout << horizSU2 << endl;
       auto hSU2_rules = horizSU2.getFeynmanRules(); // Rules in terminal
   Display(hSU2_rules);
+  cout << "Preparing to display Feynman diagrams..." ;
   Show(hSU2_rules);
+  cout << endl; 
   return 0;
 }
