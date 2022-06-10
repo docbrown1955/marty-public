@@ -255,11 +255,13 @@ void hSU2_Model::initInteractions(){
   Psi_uR = GetParticle(*this, "\\Psi_{uR}");
   Psi_uL = GetParticle(*this, "\\Psi_{uL}");
   Y = GetParticle(*this, "Y");
+  X = GetParticle(*this, "X");
   Q0 = GetParticle(*this, "{Q_L}_0");
   U0 = GetParticle(*this, "{U_R}_0");
   // Indices 
   csl::Index a = generateIndex("C",Qi); // SU(3)_c index
   csl::Index I  = generateIndex("X",Qi); // SU(2)_h index
+  csl::Index J  = generateIndex("X",Qi); // SU(2)_h index
   std::vector< csl::Index > i = generateIndices(2,"L",Qi);
   auto al = DiracIndex();
 
@@ -306,7 +308,32 @@ void hSU2_Model::initInteractions(){
       * GetComplexConjugate(H(i[1]))
       * U0({a,al})
       ,true);
+    
+  csl::Expr k_u0 = hSU2_input::k_u0 ;
+  csl::Expr k_u1 = hSU2_input::k_u1 ;
+  auto  hsu2_space = getVectorSpace("X",Ui);
 
+  addLagrangianTerm(
+      k_u0 
+      * GetComplexConjugate(Psi_uR({a,I,al}))
+      * X(I) 
+      * U0({a,al})
+      ,true);
+ 
+  csl::Tensor K_u = csl::tensor_s(
+      "\\kappa_u",
+      {hsu2_space},
+      csl::matrix_s({k_u1,CSL_0})
+      );
+  std::cout << "Tensor K_u : " << std::endl;
+  std::cout << K_u->getTensor() << std::endl;
+  addLagrangianTerm(
+      K_u(J)
+      * GetComplexConjugate(Psi_uR({a,I,al}))
+      * X(I) 
+      * Ui({a,J,al})
+      ,true);
+  
 
 }
 void hSU2_Model::gatherhSU2Inputs(){

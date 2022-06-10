@@ -83,6 +83,12 @@ namespace mty::hSU2_input{
   inline
     csl::Expr k_u2 = csl::constant_s("\\kappa_u2"); // \tilde{\kappa_u}
 
+  inline
+    csl::Expr tk_u0 = csl::constant_s("\\tilde{\\kappa}_u0");
+  inline
+    csl::Expr tk_u1 = csl::constant_s("\\tilde{\\kappa}_u1");
+  inline 
+    csl::Expr tk_u2 = csl::constant_s("\\tilde{\\kappa}_u2"); 
 
   inline
     csl::Expr k_d0 = csl::constant_s("\\kappa_d0");
@@ -135,7 +141,9 @@ namespace mty::hSU2_input{
 
 namespace mty{
 /* 
- * hSU2 master class */
+ * @brief Base class for simple hSU2 model. 
+ * WIP : will contain any arbitrary horizontal symmetry group on top  of the SM gauge groups ?
+ */
 
   class hSU2_Model: public mty::Model, protected hSU2_Data{
 
