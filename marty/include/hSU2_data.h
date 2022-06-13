@@ -85,8 +85,9 @@ struct hSU2_Data{
     mty::Particle Li; // Left-handed neutrinos+leptons
     mty::Particle L0; // Left-handed neutrinos+leptons
     
-    mty::Particle Ei; // Right-handed leptons
     mty::Particle E0; // Right-handed leptons 
+    mty::Particle E1; // Right-handed leptons 
+    mty::Particle E2; // Right-handed leptons 
 
     csl::Tensor Ye; // Lepton SM Yukawa coupling 
     csl::Tensor ye; // Lepton SU(2)_X Yukawa coupling
@@ -99,8 +100,10 @@ struct hSU2_Data{
     mty::Particle Qi; // Left-handed quarks
     mty::Particle Q0; // Left-handed quarks
 
-    mty::Particle Ui; // Right-handed up-type quarks
-    mty::Particle Di; // Right-handed down-type quarks
+    mty::Particle U2; // Right-handed up-type quarks
+    mty::Particle D2; // Right-handed down-type quarks
+    mty::Particle U1; // Right-handed up-type quarks
+    mty::Particle D1; // Right-handed down-type quarks
     mty::Particle U0; // Right-handed up-type quarks
     mty::Particle D0; // Right-handed down-type quarks
 

@@ -14,6 +14,12 @@ int main(){
   cout << horizSU2 << endl;
       auto hSU2_rules = horizSU2.getFeynmanRules(); // Rules in terminal
   Display(hSU2_rules);
+  cout << "Calculating Spectrum..." << endl;
+  
+  mty::Library lib("test_spectrum");
+  lib.generateSpectrum(horizSU2);
+  lib.print();
+  
   cout << "Preparing to display Feynman diagrams..." ;
   Show(hSU2_rules);
   cout << endl; 

@@ -97,6 +97,12 @@ namespace mty::hSU2_input{
   inline
     csl::Expr k_d2 = csl::constant_s("\\kappa_d2"); // \tilde{\kappa_d}
 
+  inline
+    csl::Expr tk_d0 = csl::constant_s("\\kappa_d0");
+  inline
+    csl::Expr tk_d1 = csl::constant_s("\\kappa_d1");
+  inline
+    csl::Expr tk_d2 = csl::constant_s("\\kappa_d2"); // \tilde{\kappa_d}
 
   inline
     csl::Expr k_l0 = csl::constant_s("\\kappa_l0");
@@ -104,6 +110,13 @@ namespace mty::hSU2_input{
     csl::Expr k_l1 = csl::constant_s("\\kappa_l1");
   inline
     csl::Expr k_l2 = csl::constant_s("\\kappa_l2"); // \tilde{\kappa_l}
+
+  inline
+    csl::Expr tk_l0 = csl::constant_s("\\kappa_l0");
+  inline
+    csl::Expr tk_l1 = csl::constant_s("\\kappa_l1");
+  inline
+    csl::Expr tk_l2 = csl::constant_s("\\kappa_l2"); // \tilde{\kappa_l}
 
 #define MTY_CST(arg) csl::constant_s(arg)
 #define MTY_TVEC(name) \

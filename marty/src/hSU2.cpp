@@ -248,7 +248,7 @@ void hSU2_Model::initQuarks(){
 
 void hSU2_Model::initHiggs(){
   std::cout << "Initializing SM Higgs Field" << std::endl;
-  Particle H = mty::scalarboson_s("H",*this);
+  H = mty::scalarboson_s("H",*this);
   H->setGroupRep("L",1);
   H->setGroupRep("Y",{1,2});
   csl::Expr m_H = csl::constant_s("m_H"); // higgs mass. Should be left as input. 
@@ -259,67 +259,69 @@ void hSU2_Model::initInteractions(){
   //Complete the Lagrangian with Yukawa interactions.   
   std::cout << "Building Yukawa interactions" << std::endl;
   std::cout << "Building Yukawa interactions" << std::endl;
-  Particle H = GetParticle(*this, "H");
-  Qi = GetParticle(*this, "{Q_L}_i");
-  Psi_uR = GetParticle(*this, "\\Psi_{uR}");
-  Psi_uL = GetParticle(*this, "\\Psi_{uL}");
-  Y = GetParticle(*this, "Y");
-  X = GetParticle(*this, "X");
-  Q0 = GetParticle(*this, "{Q_L}_0");
-  U0 = GetParticle(*this, "{U_R}_0");
-  U1 = GetParticle(*this, "{U_R}_1");
-  U2 = GetParticle(*this, "{U_R}_2");
+
   // Indices 
   csl::Index a = generateIndex("C",Qi); // SU(3)_c index
   csl::Index I  = generateIndex("X",Qi); // SU(2)_h index
-  csl::Index J  = generateIndex("X",Qi); // SU(2)_h index
-  std::vector< csl::Index > i = generateIndices(2,"L",Qi);
+  csl::Index J  = generateIndex("X",Li); // SU(2)_h index
+  csl::Index A = generateIndex("X", Y);  
+  std::vector<csl::Index> ih = generateIndices(2, "X", Psi_uL);
+  std::vector<csl::Index> il = generateIndices(2, "L", Qi);
   auto al = DiracIndex();
 
+  csl::Tensor half_sigma = getGenerator("X", Psi_uL); // SU(2)_X generators
   csl::Tensor eps = getVectorSpace("L", "{Q_L}_i")->getEpsilon(); // = i * sigma^2
+  csl::Tensor eps_h = getVectorSpace("X", "{Q_L}_i")->getEpsilon(); // = i * sigma^2
+
   Expr y_u = constant_s("y_u");
   Expr lambda_u = constant_s("\\lambda_u");
   Expr tilde_lambda_u = constant_s("\\tilde{\\lambda}_u");
+ 
+  Expr y_d = constant_s("y_d");
+  Expr lambda_d = constant_s("\\lambda_d");
+  Expr tilde_lambda_d = constant_s("\\tilde{\\lambda}_d");
+  
+  Expr y_l = constant_s("y_l");
+  Expr lambda_l = constant_s("\\lambda_l");
+  Expr tilde_lambda_l = constant_s("\\tilde{\\lambda}_l");
 
-  // Interaction term : 
+  // Interaction terms : 
+  // up sector
   addLagrangianTerm(
       y_u 
-      * GetComplexConjugate(Qi({a,i[0],I, al}))
-      * eps({i[0],i[1]})
-      * GetComplexConjugate(H(i[1]))
+      * GetComplexConjugate(Qi({a,il[0],I, al}))
+      * eps({il[0],il[1]})
+      * GetComplexConjugate(H(il[1]))
       * Psi_uR({a,I,al}),
       true); // Add also the complex conjugate of this term
 
-  std::vector<csl::Index> ii = generateIndices(2, "X", Psi_uL);
-  csl::Index A = generateIndex("X", Y);  
-  csl::Tensor half_sigma = getGenerator("X", Psi_uL); // SU(2)_X generators
-  csl::Expr term = 
-    lambda_u 
-    * GetComplexConjugate(Psi_uL({a,ii[0],al})) 
-    * Y(A)
-    * half_sigma({A, ii[0], ii[1]}) 
-    * Psi_uR({a,ii[1],al});
-  addLagrangianTerm(term, true);
+  addLagrangianTerm(
+      lambda_u 
+      * GetComplexConjugate(Psi_uL({a,ih[0],al})) 
+      * Y(A)
+      * half_sigma({A, ih[0], ih[1]}) 
+      * Psi_uR({a,ih[1],al})
+      ,true);
 
   addLagrangianTerm(
       tilde_lambda_u
-      * GetComplexConjugate(Psi_uL({a,ii[0],al})) 
-      * eps({i[0],i[1]})
+      * GetComplexConjugate(Psi_uL({a,ih[0],al})) 
+      * eps({il[0],il[1]})
       * Y(A)
-      * eps({i[0],i[1]}) // = CSL_I * Sigma(2)
-      * half_sigma({A,ii[0],ii[1]})
-      * Psi_uR({a,ii[1],al})
+      * eps({il[0],il[1]}) // = CSL_I * Sigma(2)
+      * half_sigma({A,ih[0],ih[1]})
+      * Psi_uR({a,ih[1],al})
       ,true );
 
   Expr y_u0 = constant_s("y_{u0}");
   addLagrangianTerm(
       y_u0 
-      * GetComplexConjugate(Q0({a,i[0],al}))
-      * eps({i[0],i[1]})
-      * GetComplexConjugate(H(i[1]))
+      * GetComplexConjugate(Q0({a,il[0],al}))
+      * eps({il[0],il[1]})
+      * GetComplexConjugate(H(il[1]))
       * U0({a,al})
       ,true);
-    
+
   csl::Expr k_u0 = hSU2_input::k_u0 ;
   csl::Expr k_u1 = hSU2_input::k_u1 ;
   csl::Expr tk_u0 = hSU2_input::tk_u0 ;
@@ -328,9 +330,9 @@ void hSU2_Model::initInteractions(){
 
   std::vector<csl::Expr> K_u  =  {k_u0, k_u1, CSL_0} ;
   std::vector<csl::Expr> tK_u = {tk_u0, CSL_0, tk_u2};
- 
+
   std::vector<Particle> U_R = {U0, U1, U2};
- 
+
   for(int a_u = 0; a_u < 3; a_u++){
     addLagrangianTerm(
         K_u[a_u]
@@ -338,15 +340,138 @@ void hSU2_Model::initInteractions(){
         * X(I)
         * U_R[a_u]({a,al})
         ,true);
-    // addLagrangianTerm(
-        // tK_u[a_u]
-        // * GetComplexConjugate(Psi_uR({a,i[0],al}))
-        // * eps({i[0],i[1]})
-        // * GetComplexConjugate(X(i[1]))
-        // * U_R[a_u]({a,al})
-        // ,true);
+    addLagrangianTerm(
+        tK_u[a_u]
+        * GetComplexConjugate(Psi_uR({a,ih[0],al}))
+        * eps_h({ih[0],ih[1]})
+        * GetComplexConjugate(X(ih[1]))
+        * U_R[a_u]({a,al})
+        ,true);
   }
+  std::cout << "Up quark sector interactions complete..." << std::endl;
+  // Down sector
+  addLagrangianTerm(
+      y_d
+      * GetComplexConjugate(Qi({a,il[0],I, al}))
+      * eps({il[0],il[1]})
+      * GetComplexConjugate(H(il[1]))
+      * Psi_dR({a,I,al}),
+      true); // Add also the complex conjugate of this term
+  addLagrangianTerm( 
+      lambda_d 
+      * GetComplexConjugate(Psi_dL({a,ih[0],al})) 
+      * Y(A)
+      * half_sigma({A, ih[0], ih[1]}) 
+      * Psi_dR({a,ih[1],al})
+      ,true);
 
+  addLagrangianTerm(
+      tilde_lambda_d
+      * GetComplexConjugate(Psi_dL({a,ih[0],al})) 
+      * eps({il[0],il[1]})
+      * Y(A)
+      * eps({il[0],il[1]}) // = CSL_I * Sigma(2)
+      * half_sigma({A,ih[0],ih[1]})
+      * Psi_dR({a,ih[1],al})
+      ,true );
+
+  Expr y_d0 = constant_s("y_{d0}");
+  addLagrangianTerm(
+      y_d0 
+      * GetComplexConjugate(Q0({a,il[0],al}))
+      * eps({il[0],il[1]})
+      * GetComplexConjugate(H(il[1]))
+      * U0({a,al})
+      ,true);
+
+  csl::Expr k_d0 = hSU2_input::k_d0 ;
+  csl::Expr k_d1 = hSU2_input::k_d1 ;
+  csl::Expr tk_d0 = hSU2_input::tk_d0 ;
+  csl::Expr tk_d2 = hSU2_input::tk_d2 ;
+
+
+  std::vector<csl::Expr> K_d  =  {k_d0, k_d1, CSL_0} ;
+  std::vector<csl::Expr> tK_d = {tk_d0, CSL_0, tk_d2};
+
+  std::vector<Particle> D_R = {D0, D1, D2};
+
+  for(int a_d = 0; a_d < 3; a_d++){
+    addLagrangianTerm(
+        K_d[a_d]
+        * GetComplexConjugate(Psi_dR({a,I,al}))
+        * X(I)
+        * D_R[a_d]({a,al})
+        ,true);
+    addLagrangianTerm(
+        tK_d[a_d]
+        * GetComplexConjugate(Psi_dR({a,ih[0],al}))
+        * eps_h({ih[0],ih[1]})
+        * GetComplexConjugate(X(ih[1]))
+        * D_R[a_d]({a,al})
+        ,true);
+  }
+  // Lepton sector
+  addLagrangianTerm(
+      y_l
+      * GetComplexConjugate(Li({il[0],I, al}))
+      * eps({il[0],il[1]})
+      * GetComplexConjugate(H(il[1]))
+      * Psi_lR({I,al}),
+      true); // Add also the complex conjugate of this term
+
+  addLagrangianTerm(
+      lambda_l 
+      * GetComplexConjugate(Psi_lL({ih[0],al})) 
+      * Y(A)
+      * half_sigma({A, ih[0], ih[1]}) 
+      * Psi_lR({ih[1],al})
+      ,true);
+
+  addLagrangianTerm(
+      tilde_lambda_l
+      * GetComplexConjugate(Psi_lL({ih[0],al})) 
+      * eps({il[0],il[1]})
+      * Y(A)
+      * eps({il[0],il[1]}) // = CSL_I * Sigma(2)
+      * half_sigma({A,ih[0],ih[1]})
+      * Psi_lR({ih[1],al})
+      ,true );
+
+  Expr y_l0 = constant_s("y_{l0}");
+  addLagrangianTerm(
+      y_l0
+      * GetComplexConjugate(L0({il[0],al}))
+      * eps({il[0],il[1]})
+      * GetComplexConjugate(H(il[1]))
+      * E0({al})
+      ,true);
+
+  csl::Expr k_l0 = hSU2_input::k_l0 ;
+  csl::Expr k_l1 = hSU2_input::k_l1 ;
+  csl::Expr tk_l0 = hSU2_input::tk_l0 ;
+  csl::Expr tk_l2 = hSU2_input::tk_l2 ;
+
+
+  std::vector<csl::Expr> K_l  =  {k_l0, k_l1, CSL_0} ;
+  std::vector<csl::Expr> tK_l = {tk_l0, CSL_0, tk_l2};
+
+  std::vector<Particle> E_R = {E0, E1, E2};
+
+  for(int a_l = 0; a_l < 3; a_l++){
+    addLagrangianTerm(
+        K_l[a_l]
+        * GetComplexConjugate(Psi_lR({J,al}))
+        * X(J)
+        * E_R[a_l]({al})
+        ,true);
+    addLagrangianTerm(
+        tK_l[a_l]
+        * GetComplexConjugate(Psi_lR({ih[0],al}))
+        * eps_h({ih[0],ih[1]})
+        * GetComplexConjugate(X(ih[1]))
+        * E_R[a_l]({al})
+        ,true);
+  }
 }
 void hSU2_Model::gatherhSU2Inputs(){
 
