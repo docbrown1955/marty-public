@@ -124,8 +124,9 @@ void hSU2_Model::initLeptons(){
   Li = weylfermion_s("{L_L}_i",*this,Chirality::Left);
   L0 = weylfermion_s("{L_L}_0",*this,Chirality::Left);
 
-  Ei = weylfermion_s("{E_R}_i",*this,Chirality::Right);
-  E0 = weylfermion_s("{E_R}_i",*this,Chirality::Right);
+  E0 = weylfermion_s("{E_R}_0",*this,Chirality::Right);
+  E1 = weylfermion_s("{E_R}_1",*this,Chirality::Right);
+  E2 = weylfermion_s("{E_R}_2",*this,Chirality::Right);
 
   Psi_lL = weylfermion_s("\\Psi_{lL}", *this, Chirality::Left);
   Psi_lR = weylfermion_s("\\Psi_{lR}", *this, Chirality::Right);
@@ -136,27 +137,31 @@ void hSU2_Model::initLeptons(){
   L0->setGroupRep("L",1);
   L0->setGroupRep("Y",{-1,2});
 
-  Ei->setGroupRep("Y",-1);
-  Ei->setGroupRep("X",1);
 
   E0->setGroupRep("Y",-1);
+  E1->setGroupRep("Y",-1);
+  E2->setGroupRep("Y",-1);
 
   Psi_lL->setGroupRep("Y",{-1,2});
   Psi_lL->setGroupRep("X",1);
 
   Psi_lR->setGroupRep("Y", {-1,2});
   Psi_lR->setGroupRep("X",1);
-  addParticles({Li, L0, Ei, E0,Psi_lL, Psi_lR});
+  addParticles({Li, L0, E0, E1, E2, Psi_lL, Psi_lR});
 }
 void hSU2_Model::initQuarks(){
   std::cout << "Initializing quarks" << std::endl;
   Qi = weylfermion_s("{Q_L}_i",*this,Chirality::Left);
-  Ui = weylfermion_s("{U_R}_i",*this,Chirality::Right);
-  Di = weylfermion_s("{D_L}_i",*this,Chirality::Right);
-
   Q0 = weylfermion_s("{Q_L}_0",*this, Chirality::Left);
+  
   U0 = weylfermion_s("{U_R}_0",*this, Chirality::Right);
   D0 = weylfermion_s("{D_R}_0",*this, Chirality::Right);
+  
+  U1 = weylfermion_s("{U_R}_1",*this, Chirality::Right);
+  D1 = weylfermion_s("{D_R}_1",*this, Chirality::Right);
+  
+  U2 = weylfermion_s("{U_R}_2",*this, Chirality::Right);
+  D2 = weylfermion_s("{D_R}_2",*this, Chirality::Right);
 
   Qi->setGroupRep("C",{1,0});
   Qi->setGroupRep("L", 1); 
@@ -168,13 +173,6 @@ void hSU2_Model::initQuarks(){
   Q0->setGroupRep("Y",{1,6});
   Q0->setGroupRep("X",0); // SM quark SU(2)_L doublet
 
-  Ui->setGroupRep("C", {1, 0});
-  Ui->setGroupRep("Y", {2, 3});
-  Ui->setGroupRep("X",1);
-
-  Di->setGroupRep("C",{1,0});
-  Di->setGroupRep("Y", {-1, 3});
-  Di->setGroupRep("X",1);
 
   U0->setGroupRep("C",{1,0});
   D0->setGroupRep("C",{1,0});
@@ -182,16 +180,27 @@ void hSU2_Model::initQuarks(){
   U0->setGroupRep("Y", {2, 3});
   D0->setGroupRep("Y", {-1, 3});
 
-  U0->setGroupRep("X",0);
-  D0->setGroupRep("X",0);
+  U1->setGroupRep("C",{1,0});
+  D1->setGroupRep("C",{1,0});
+
+  U1->setGroupRep("Y", {2, 3});
+  D1->setGroupRep("Y", {-1, 3});
+  
+  U2->setGroupRep("C",{1,0});
+  D2->setGroupRep("C",{1,0});
+
+  U2->setGroupRep("Y", {2, 3});
+  D2->setGroupRep("Y", {-1, 3});
 
   addParticle(Qi);
-  addParticle(Ui);
-  addParticle(Di);
-
   addParticle(Q0);
+  
   addParticle(U0);
+  addParticle(U1);
+  addParticle(U2);
   addParticle(D0);
+  addParticle(D1);
+  addParticle(D2);
 
   Psi_uL = weylfermion_s("\\Psi_{uL}",*this, Chirality::Left);
   Psi_uR = weylfermion_s("\\Psi_{uR}",*this, Chirality::Right);
@@ -258,6 +267,8 @@ void hSU2_Model::initInteractions(){
   X = GetParticle(*this, "X");
   Q0 = GetParticle(*this, "{Q_L}_0");
   U0 = GetParticle(*this, "{U_R}_0");
+  U1 = GetParticle(*this, "{U_R}_1");
+  U2 = GetParticle(*this, "{U_R}_2");
   // Indices 
   csl::Index a = generateIndex("C",Qi); // SU(3)_c index
   csl::Index I  = generateIndex("X",Qi); // SU(2)_h index
@@ -311,29 +322,30 @@ void hSU2_Model::initInteractions(){
     
   csl::Expr k_u0 = hSU2_input::k_u0 ;
   csl::Expr k_u1 = hSU2_input::k_u1 ;
-  auto  hsu2_space = getVectorSpace("X",Ui);
+  csl::Expr tk_u0 = hSU2_input::tk_u0 ;
+  csl::Expr tk_u2 = hSU2_input::tk_u2 ;
 
-  addLagrangianTerm(
-      k_u0 
-      * GetComplexConjugate(Psi_uR({a,I,al}))
-      * X(I) 
-      * U0({a,al})
-      ,true);
+
+  std::vector<csl::Expr> K_u  =  {k_u0, k_u1, CSL_0} ;
+  std::vector<csl::Expr> tK_u = {tk_u0, CSL_0, tk_u2};
  
-  csl::Tensor K_u = csl::tensor_s(
-      "\\kappa_u",
-      {hsu2_space},
-      csl::matrix_s({k_u1,CSL_0})
-      );
-  std::cout << "Tensor K_u : " << std::endl;
-  std::cout << K_u->getTensor() << std::endl;
-  addLagrangianTerm(
-      K_u(J)
-      * GetComplexConjugate(Psi_uR({a,I,al}))
-      * X(I) 
-      * Ui({a,J,al})
-      ,true);
-  
+  std::vector<Particle> U_R = {U0, U1, U2};
+ 
+  for(int a_u = 0; a_u < 3; a_u++){
+    addLagrangianTerm(
+        K_u[a_u]
+        * GetComplexConjugate(Psi_uR({a,I,al}))
+        * X(I)
+        * U_R[a_u]({a,al})
+        ,true);
+    // addLagrangianTerm(
+        // tK_u[a_u]
+        // * GetComplexConjugate(Psi_uR({a,i[0],al}))
+        // * eps({i[0],i[1]})
+        // * GetComplexConjugate(X(i[1]))
+        // * U_R[a_u]({a,al})
+        // ,true);
+  }
 
 }
 void hSU2_Model::gatherhSU2Inputs(){
