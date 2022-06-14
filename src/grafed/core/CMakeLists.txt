@@ -11,5 +11,4 @@ planargraph.cpp
 planargraph.h
 )
 
-add_library(grafed-core ${ALL_SOURCES})
-target_link_libraries(grafed-core grafed-jsonparser)
+add_library(grafed-core OBJECT ${ALL_SOURCES})

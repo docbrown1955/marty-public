@@ -10,5 +10,4 @@ set(ALL_SOURCES
     pmssm_mass.cpp
 )
 
-add_library(marty-models SHARED ${ALL_SOURCES})
-target_link_libraries(marty-models marty-core csl)
+add_library(marty-models OBJECT ${ALL_SOURCES})

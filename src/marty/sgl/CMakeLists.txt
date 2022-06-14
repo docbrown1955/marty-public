@@ -1,6 +1,3 @@
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 set(ALL_SOURCES
 abstractgammasym.cpp
 abstractgammasym.h
@@ -50,5 +47,5 @@ tracer.h
 typecast.h
 )
 
-add_library(sgl SHARED ${ALL_SOURCES})
+add_library(sgl OBJECT ${ALL_SOURCES})
 target_link_libraries(sgl csl)

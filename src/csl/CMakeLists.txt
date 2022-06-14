@@ -1,8 +1,6 @@
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(GSL REQUIRED)
-
 set(ALL_SOURCES
     abreviation.cpp
     abreviation.h
@@ -156,5 +154,4 @@ set(ALL_SOURCES
     vector.h
 )
 
-add_library(csl SHARED ${ALL_SOURCES})
-target_link_libraries(csl GSL::gsl GSL::gslcblas)
+add_library(csl OBJECT ${ALL_SOURCES})

@@ -182,5 +182,4 @@ wilsonOperator.cpp
 wilsonOperator.h
 )
 
-add_library(marty-calc SHARED ${ALL_SOURCES})
-target_link_libraries(marty-calc csl sgl)
+add_library(marty-core OBJECT ${ALL_SOURCES})

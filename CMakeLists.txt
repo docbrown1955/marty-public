@@ -49,10 +49,14 @@ else()
     )
 endif()
 
+find_package(GSL REQUIRED)
+
 add_subdirectory(dep)
 add_subdirectory(src)
 add_subdirectory(examples)
 
-add_library(marty INTERFACE)
+add_library(marty)
 
-target_link_libraries(marty INTERFACE csl grafed marty-core)
+target_link_libraries(marty csl grafed-core jsonparser marty-core sgl marty-models)
+target_link_libraries(marty GSL::gsl GSL::gslcblas )
+target_link_libraries(marty ${PROJECT_BINARY_DIR}/libooptools.so)

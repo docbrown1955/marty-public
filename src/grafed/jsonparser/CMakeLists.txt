@@ -9,4 +9,4 @@ set(ALL_SOURCES
     jsonLoader.cpp
 )
 
-add_library(jsonparser ${ALL_SOURCES})
+add_library(jsonparser OBJECT ${ALL_SOURCES})
