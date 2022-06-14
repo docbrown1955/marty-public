@@ -14,7 +14,7 @@
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "latexLink.h"
-#include "jsonLoader.h"
+#include "../jsonparser/jsonLoader.h"
 #include <iomanip>
 #include <fstream>
 
