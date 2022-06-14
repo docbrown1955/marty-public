@@ -1,4 +1,4 @@
-#include <marty>
+#include <marty.h>
 #pragma GCC diagnostic ignored "-Wunused-variable"
 
 using namespace csl;

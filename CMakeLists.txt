@@ -51,6 +51,7 @@ endif()
 
 add_subdirectory(dep)
 add_subdirectory(src)
+add_subdirectory(examples)
 
 add_library(marty INTERFACE)
 

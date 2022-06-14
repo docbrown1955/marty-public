@@ -1,4 +1,4 @@
-#include <marty>
+#include <marty.h>
 
 using namespace csl;
 using namespace mty;
