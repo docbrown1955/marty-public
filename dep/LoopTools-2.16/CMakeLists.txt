@@ -1,0 +1,31 @@
+cmake_minimum_required(VERSION 3.5)
+
+add_custom_command(
+    OUTPUT ${PROJECT_BINARY_DIR}/clooptools.h ${PROJECT_BINARY_DIR}/libooptools.so
+    COMMAND export FFLAGS=-fPIC
+    COMMAND export CFLAGS=-fPIC
+    COMMAND export CXXFLAGS=-fPIC
+    COMMAND rm -rf build
+    COMMAND ./configure
+    COMMAND make
+    COMMAND cp build/clooptools.h ${PROJECT_BINARY_DIR}/clooptools.h
+    COMMAND ${CMAKE_Fortran_COMPILER} -shared build/*.o -o ${PROJECT_BINARY_DIR}/libooptools.so
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+add_custom_command(
+    OUTPUT ${PROJECT_BINARY_DIR}/libooptools-quad.so
+    COMMAND export FFLAGS=-fPIC
+    COMMAND export CFLAGS=-fPIC
+    COMMAND export CXXFLAGS=-fPIC
+    COMMAND rm -rf build-quad
+    COMMAND ./configure --quad
+    COMMAND make
+    COMMAND ${CMAKE_Fortran_COMPILER} -shared build-quad/*.o -o ${PROJECT_BINARY_DIR}/libooptools-quad.so
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_custom_target(looptools ALL
+    DEPENDS ${PROJECT_BINARY_DIR}/clooptools.h
+    DEPENDS ${PROJECT_BINARY_DIR}/libooptools.so
+    DEPENDS ${PROJECT_BINARY_DIR}/libooptools-quad.so
+)

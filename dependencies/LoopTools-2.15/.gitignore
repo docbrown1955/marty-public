@@ -1,8 +1,0 @@
-x86_64-Linux/bin/*
-x86_64-Linux/lib64/*
-bin/*
-build/*
-build-quad/*
-makefile
-include/*
-lib64/*
