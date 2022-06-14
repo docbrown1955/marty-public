@@ -142,10 +142,10 @@ void hSU2_Model::initLeptons(){
   E1->setGroupRep("Y",-1);
   E2->setGroupRep("Y",-1);
 
-  Psi_lL->setGroupRep("Y",{-1,2});
+  Psi_lL->setGroupRep("Y",-1);
   Psi_lL->setGroupRep("X",1);
 
-  Psi_lR->setGroupRep("Y", {-1,2});
+  Psi_lR->setGroupRep("Y", -1);
   Psi_lR->setGroupRep("X",1);
   addParticles({Li, L0, E0, E1, E2, Psi_lL, Psi_lR});
 }
@@ -265,6 +265,7 @@ void hSU2_Model::initInteractions(){
   csl::Index I  = generateIndex("X",Qi); // SU(2)_h index
   csl::Index J  = generateIndex("X",Li); // SU(2)_h index
   csl::Index A = generateIndex("X", Y);  
+  csl::Index Il = generateIndex("L", Qi);  
   std::vector<csl::Index> ih = generateIndices(2, "X", Psi_uL);
   std::vector<csl::Index> il = generateIndices(2, "L", Qi);
   auto al = DiracIndex();
@@ -347,14 +348,16 @@ void hSU2_Model::initInteractions(){
         * GetComplexConjugate(X(ih[1]))
         * U_R[a_u]({a,al})
         ,true);
+    refresh();
   }
   std::cout << "Up quark sector interactions complete..." << std::endl;
-  // Down sector
+  // Down sector 
+  // No charge conjugation on Higgs
   addLagrangianTerm(
       y_d
-      * GetComplexConjugate(Qi({a,il[0],I, al}))
-      * eps({il[0],il[1]})
-      * GetComplexConjugate(H(il[1]))
+      * GetComplexConjugate(Qi({a,Il,I, al}))
+     // * eps({il[0],il[1]})
+      * H(Il)
       * Psi_dR({a,I,al}),
       true); // Add also the complex conjugate of this term
   addLagrangianTerm( 
@@ -378,10 +381,9 @@ void hSU2_Model::initInteractions(){
   Expr y_d0 = constant_s("y_{d0}");
   addLagrangianTerm(
       y_d0 
-      * GetComplexConjugate(Q0({a,il[0],al}))
-      * eps({il[0],il[1]})
-      * GetComplexConjugate(H(il[1]))
-      * U0({a,al})
+      * GetComplexConjugate(Q0({a,Il,al}))
+      * H(Il)
+      * D0({a,al})
       ,true);
 
   csl::Expr k_d0 = hSU2_input::k_d0 ;
@@ -413,9 +415,8 @@ void hSU2_Model::initInteractions(){
   // Lepton sector
   addLagrangianTerm(
       y_l
-      * GetComplexConjugate(Li({il[0],I, al}))
-      * eps({il[0],il[1]})
-      * GetComplexConjugate(H(il[1]))
+      * GetComplexConjugate(Li({Il,I, al}))
+      * H(Il)
       * Psi_lR({I,al}),
       true); // Add also the complex conjugate of this term
 
@@ -440,23 +441,22 @@ void hSU2_Model::initInteractions(){
   Expr y_l0 = constant_s("y_{l0}");
   addLagrangianTerm(
       y_l0
-      * GetComplexConjugate(L0({il[0],al}))
-      * eps({il[0],il[1]})
-      * GetComplexConjugate(H(il[1]))
+      * GetComplexConjugate(L0({Il,al}))
+      * H(Il)
       * E0({al})
       ,true);
-
+  
   csl::Expr k_l0 = hSU2_input::k_l0 ;
   csl::Expr k_l1 = hSU2_input::k_l1 ;
   csl::Expr tk_l0 = hSU2_input::tk_l0 ;
   csl::Expr tk_l2 = hSU2_input::tk_l2 ;
-
-
+//
+//
   std::vector<csl::Expr> K_l  =  {k_l0, k_l1, CSL_0} ;
   std::vector<csl::Expr> tK_l = {tk_l0, CSL_0, tk_l2};
-
+//
   std::vector<Particle> E_R = {E0, E1, E2};
-
+//
   for(int a_l = 0; a_l < 3; a_l++){
     addLagrangianTerm(
         K_l[a_l]
@@ -480,7 +480,7 @@ void hSU2_Model::horizontalSymmetryBreaking(){
     ////////////////////////////////////////////////
     // Horizontal symmetry breaking 
     ///////////////////////////////////////////////
-//    BreakGaugeSymmetry(*this, "X");
+  //  BreakGaugeSymmetry(*this, "X");
 //    renameParticle("")
 }
 
