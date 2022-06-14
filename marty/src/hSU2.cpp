@@ -43,17 +43,17 @@ hSU2_Model::hSU2_Model(
     initContent();
     std::cout << "Initializing interactions ..." << std::endl;
     initInteractions();
-    if (save) {
-      save << "****************************" << std::endl;
-      save << "**   Initial Lagrangian   **" << std::endl;
-      save << "****************************" << std::endl;
-      save << *this << "\n\n";
-    }
+    // if (save) {
+      // save << "****************************" << std::endl;
+      // save << "**   Initial Lagrangian   **" << std::endl;
+      // save << "****************************" << std::endl;
+      // save << *this << "\n\n";
+    // }
     std::cout << "Gathering Model inputs ..." << std::endl;
     //      gatherhSU2Inputs();
     std::cout << "Getting to low energy Lagrangian ..." << std::endl;
-    horizontalSymmetryBreaking();
-    getToLowEnergyLagrangian();
+    // horizontalSymmetryBreaking();
+    // getToLowEnergyLagrangian();
     if (save) {
       save << "****************************" << std::endl;
       save << "**    Final Lagrangian    **" << std::endl;
@@ -61,9 +61,12 @@ hSU2_Model::hSU2_Model(
       save << *this << "\n\n";
     }
     std::cout << "Checking Hermiticity ..." << std::endl;
-    checkHermiticity();
+    // checkHermiticity();
     refresh();
     getFeynmanRules();
+    std::cout << std::endl << std::endl << "Coucou! Checking for X..." << std::endl;
+    printSubPart({"X"});
+
     if (save) {
       std::ostream &out = save;
       mty::Display(ComputeFeynmanRules(*this), out);
@@ -471,6 +474,7 @@ void hSU2_Model::initInteractions(){
         * GetComplexConjugate(X(ih[1]))
         * E_R[a_l]({al})
         ,true);
+    printSubPart({"X"});
   }
 }
 void hSU2_Model::gatherhSU2Inputs(){
