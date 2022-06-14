@@ -43,17 +43,16 @@ hSU2_Model::hSU2_Model(
     initContent();
     std::cout << "Initializing interactions ..." << std::endl;
     initInteractions();
-    // if (save) {
-      // save << "****************************" << std::endl;
-      // save << "**   Initial Lagrangian   **" << std::endl;
-      // save << "****************************" << std::endl;
-      // save << *this << "\n\n";
-    // }
+    if (save) {
+      save << "****************************" << std::endl;
+      save << "**   Initial Lagrangian   **" << std::endl;
+      save << "****************************" << std::endl;
+      save << *this << "\n\n";
+    }
     std::cout << "Gathering Model inputs ..." << std::endl;
-    //      gatherhSU2Inputs();
+    gatherhSU2Inputs();
     std::cout << "Getting to low energy Lagrangian ..." << std::endl;
-    // horizontalSymmetryBreaking();
-    // getToLowEnergyLagrangian();
+    getToLowEnergyLagrangian();
     if (save) {
       save << "****************************" << std::endl;
       save << "**    Final Lagrangian    **" << std::endl;
@@ -65,7 +64,6 @@ hSU2_Model::hSU2_Model(
     refresh();
     getFeynmanRules();
     std::cout << std::endl << std::endl << "Coucou! Checking for X..." << std::endl;
-    printSubPart({"X"});
 
     if (save) {
       std::ostream &out = save;
@@ -340,13 +338,13 @@ void hSU2_Model::initInteractions(){
   for(int a_u = 0; a_u < 3; a_u++){
     addLagrangianTerm(
         K_u[a_u]
-        * GetComplexConjugate(Psi_uR({a,I,al}))
+        * GetComplexConjugate(Psi_uL({a,I,al}))
         * X(I)
         * U_R[a_u]({a,al})
         ,true);
     addLagrangianTerm(
         tK_u[a_u]
-        * GetComplexConjugate(Psi_uR({a,ih[0],al}))
+        * GetComplexConjugate(Psi_uL({a,ih[0],al}))
         * eps_h({ih[0],ih[1]})
         * GetComplexConjugate(X(ih[1]))
         * U_R[a_u]({a,al})
@@ -403,13 +401,13 @@ void hSU2_Model::initInteractions(){
   for(int a_d = 0; a_d < 3; a_d++){
     addLagrangianTerm(
         K_d[a_d]
-        * GetComplexConjugate(Psi_dR({a,I,al}))
+        * GetComplexConjugate(Psi_dL({a,I,al}))
         * X(I)
         * D_R[a_d]({a,al})
         ,true);
     addLagrangianTerm(
         tK_d[a_d]
-        * GetComplexConjugate(Psi_dR({a,ih[0],al}))
+        * GetComplexConjugate(Psi_dL({a,ih[0],al}))
         * eps_h({ih[0],ih[1]})
         * GetComplexConjugate(X(ih[1]))
         * D_R[a_d]({a,al})
@@ -453,43 +451,72 @@ void hSU2_Model::initInteractions(){
   csl::Expr k_l1 = hSU2_input::k_l1 ;
   csl::Expr tk_l0 = hSU2_input::tk_l0 ;
   csl::Expr tk_l2 = hSU2_input::tk_l2 ;
-//
-//
+
+
   std::vector<csl::Expr> K_l  =  {k_l0, k_l1, CSL_0} ;
   std::vector<csl::Expr> tK_l = {tk_l0, CSL_0, tk_l2};
-//
+
   std::vector<Particle> E_R = {E0, E1, E2};
-//
+
   for(int a_l = 0; a_l < 3; a_l++){
     addLagrangianTerm(
         K_l[a_l]
-        * GetComplexConjugate(Psi_lR({J,al}))
+        * GetComplexConjugate(Psi_lL({J,al}))
         * X(J)
         * E_R[a_l]({al})
         ,true);
     addLagrangianTerm(
         tK_l[a_l]
-        * GetComplexConjugate(Psi_lR({ih[0],al}))
+        * GetComplexConjugate(Psi_lL({ih[0],al}))
         * eps_h({ih[0],ih[1]})
         * GetComplexConjugate(X(ih[1]))
         * E_R[a_l]({al})
         ,true);
-    printSubPart({"X"});
   }
 }
 void hSU2_Model::gatherhSU2Inputs(){
 
 }
+
+void hSU2_Model::getToLowEnergyLagrangian(){
+  
+     std::cout << "Breaking the SU(2)_h symmetry...." << std::endl;
+     horizontalSymmetryBreaking();
+     std::cout << "Expanding around additional Scalars' VEV's"
+     expandAroundVEVs();
+}
 void hSU2_Model::horizontalSymmetryBreaking(){
     ////////////////////////////////////////////////
     // Horizontal symmetry breaking 
     ///////////////////////////////////////////////
-  //  BreakGaugeSymmetry(*this, "X");
-//    renameParticle("")
+
+     BreakGaugeSymmetry(*this, "X");
+     renameParticle("{U_R}_0","u_R");
+     renameParticle("{U_R}_1","c_R");
+     renameParticle("{U_R}_2","t_R");
+
+     renameParticle("{D_R}_0","d_R");
+     renameParticle("{D_R}_1","s_R");
+     renameParticle("{D_R}_2","b_R");
+     
+     renameParticle("{E_R}_0","e_R");
+     renameParticle("{E_R}_1","\\mu_R");
+     renameParticle("{E_R}_2","\\tau_R");
 }
 
-void hSU2_Model::getToLowEnergyLagrangian(){
+void expandAroundVEVs(){
+  v_h = hSU2_input::v_h ;
+  
+  Particle Y1 = GetParticle(*this, "Y_1");
+  Particle Y2 = GetParticle(*this, "Y_2");
+  Particle Y3 = GetParticle(*this, "Y_3"); 
 
+  Particle X1 = GetParticle(*this, "X_1");
+  Particle X2 = GetParticle(*this, "X_2");
+
+  Particle x0 = scalarboson_s("x0 ; x")
+
+  
 }
 void hSU2_Model::checkHermiticity(){
 

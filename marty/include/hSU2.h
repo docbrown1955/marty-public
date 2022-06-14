@@ -35,6 +35,8 @@ namespace mty::hSU2_input{
 
   /// hSU2 inputs  ? Should define a clean way to read and sample them.
 
+  inline 
+    csl::Expr v_h = csl::constant_s("v_h"); // Higgs VEV
   inline
     csl::Expr v_x = csl::constant_s("v_x"); // X spurion vev
 
@@ -97,7 +99,7 @@ namespace mty::hSU2_input{
   inline
     csl::Expr k_d2 = csl::constant_s("\\kappa_d2"); // \tilde{\kappa_d}
 
-  inline
+  inlin 
     csl::Expr tk_d0 = csl::constant_s("\\kappa_d0");
   inline
     csl::Expr tk_d1 = csl::constant_s("\\kappa_d1");
@@ -174,11 +176,13 @@ namespace mty{
         void  initLeptons();
         void  initQuarks();
 
-      void initInteractions(); // Encapsulates call to the following methods
+        void initInteractions(); 
         void gatherhSU2Inputs();
-        void horizontalSymmetryBreaking();
         void initHiggs();
-        void getToLowEnergyLagrangian();
+
+      void getToLowEnergyLagrangian();
+        void horizontalSymmetryBreaking();
+        void expandAroundVEVs();
         void checkHermiticity();
         void computeFeynmanRules();
         void adjust_fermions(); // ?
