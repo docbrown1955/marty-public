@@ -1,6 +1,2 @@
 marty_env.sh
-csl/Makefile
-grafed/Makefile
-marty/Makefile
-dependencies/Makefile
-jsonparser/Makefile
+build*
