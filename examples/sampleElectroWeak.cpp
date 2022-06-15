@@ -29,12 +29,12 @@ int main()
     ///////////////////////////////////////////////////
 
     Particle H = scalarboson_s("H", ElectroWeak);
-    SetGroupRep(H, "SU2_L", {1});
+    SetGroupRep(H, "SU2_L", 1);
     SetGroupRep(H, "U1_Y", {1, 2});
     AddParticle(ElectroWeak, H);
 
     Particle q_L = weylfermion_s("q_L", ElectroWeak, Chirality::Left);
-    SetGroupRep(q_L, "SU2_L", {1});
+    SetGroupRep(q_L, "SU2_L", 1);
     SetGroupRep(q_L, "U1_Y", {1, 6});
     AddParticle(ElectroWeak, q_L);
 
@@ -47,7 +47,7 @@ int main()
     AddParticle(ElectroWeak, d_R);
 
     Particle l_L = weylfermion_s("l_L", ElectroWeak, Chirality::Left);
-    SetGroupRep(l_L, "SU2_L", {1});
+    SetGroupRep(l_L, "SU2_L", 1);
     SetGroupRep(l_L, "U1_Y", {-1, 2});
     AddParticle(ElectroWeak, l_L);
 

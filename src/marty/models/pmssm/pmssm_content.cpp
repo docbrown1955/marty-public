@@ -838,7 +838,7 @@ void PMSSM_LEM::initContent()
     // Tensors                       //
     ///////////////////////////////////
 
-    X            = csl::Tensor("X", {&Minko});
+    X            = csl::Tensor("X", &Minko);
     d_der        = csl::TDerivative("d", &Minko);
     f_C_1_1      = Color->getGenerator({1, 1});
     T_C_10_C_1_0 = Color->getGenerator({1, 0});
