@@ -95,7 +95,7 @@ mty::Amplitude Model::computeAmplitude(int                         order,
 
 mty::Amplitude Model::computeAmplitude(int                         order,
                                        std::vector<mty::Insertion> insertions,
-                                       Kinematics const &          kinematics)
+                                       Kinematics const           &kinematics)
 {
     FeynOptions options;
     return computeAmplitude(order, insertions, kinematics, options);
@@ -103,7 +103,7 @@ mty::Amplitude Model::computeAmplitude(int                         order,
 
 mty::Amplitude Model::computeAmplitude(int                         order,
                                        std::vector<mty::Insertion> insertions,
-                                       FeynOptions &               options)
+                                       FeynOptions                &options)
 {
     Kinematics kinematics{insertions};
     auto       res = computeAmplitude(order, insertions, kinematics, options);
@@ -113,8 +113,8 @@ mty::Amplitude Model::computeAmplitude(int                         order,
 
 mty::Amplitude Model::computeAmplitude(int                         order,
                                        std::vector<mty::Insertion> insertions,
-                                       Kinematics const &          kinematics,
-                                       FeynOptions &               options)
+                                       Kinematics const           &kinematics,
+                                       FeynOptions                &options)
 {
     if (!options.getFeynRuleCalculation())
         options.setLoopOrder(order, static_cast<int>(insertions.size()));
@@ -139,7 +139,7 @@ mty::Amplitude Model::computeAmplitude(int                         order,
 mty::Amplitude
 Model::computeAmplitude(std::vector<Lagrangian::TermType> &lagrangian,
                         std::vector<mty::Insertion>        insertions,
-                        Kinematics const &                 kinematics,
+                        Kinematics const                  &kinematics,
                         FeynOptions                        options,
                         std::vector<FeynmanRule const *>   rules)
 {
@@ -170,9 +170,9 @@ Model::computeAmplitude(std::vector<Lagrangian::TermType> &lagrangian,
 
 mty::Amplitude
 Model::computeAmplitude(std::vector<FeynmanRule const *> &feynRules,
-                        std::vector<Insertion> const &    insertions,
-                        Kinematics const &                kinematics,
-                        FeynOptions const &               options)
+                        std::vector<Insertion> const     &insertions,
+                        Kinematics const                 &kinematics,
+                        FeynOptions const                &options)
 {
     auto quantumInsertions
         = recoverQuantumInsertions(GetExpression(insertions));
@@ -193,7 +193,7 @@ mty::Amplitude Model::computePartialAmplitude(
 mty::Amplitude
 Model::computePartialAmplitude(int                         order,
                                std::vector<mty::Insertion> insertions,
-                               Kinematics const &          kinematics,
+                               Kinematics const           &kinematics,
                                FeynOptions                 options)
 {
     options.partialCalculation = true;
@@ -456,7 +456,7 @@ void Model::computeModelWidths(int                                orderLeft,
                                mty::FeynOptions                   options)
 {
     options.discardLowerOrders = false;
-    for (const auto p : insertions) {
+    for (const auto &p : insertions) {
         auto width = computeWidth(orderLeft, orderRight, p, options);
         if (width != CSL_0) {
             std::string name      = "Gamma_" + p.getField()->getName();
@@ -514,7 +514,7 @@ void Model::projectOnBasis(csl::Expr &expr, OperatorBasis basis)
     }
 }
 
-WilsonSet Model::getWilsonCoefficients(Amplitude const & ampl,
+WilsonSet Model::getWilsonCoefficients(Amplitude const  &ampl,
                                        DecompositionMode mode)
 {
     return getWilsonCoefficients(ampl, ampl.getOptions(), mode);
@@ -557,7 +557,7 @@ int matchingFermionSign(std::vector<int> fermionOrder)
     return (nPermutations(fermionOrder) & 1) ? -1 : 1;
 }
 
-WilsonSet Model::getWilsonCoefficients(Amplitude const &  ampl,
+WilsonSet Model::getWilsonCoefficients(Amplitude const   &ampl,
                                        FeynOptions const &feynOptions,
                                        DecompositionMode  mode)
 {
@@ -620,7 +620,7 @@ WilsonSet Model::getWilsonCoefficients(Amplitude const &  ampl,
     }
     for (size_t i = 0; i != wilsons.size(); ++i) {
         csl::Expr &a = coefs[i];
-        Wilson &   w = wilsons[i];
+        Wilson    &w = wilsons[i];
         csl::matcher::compress(a, 2);
         if (isMinimal) {
             a = csl::Abbrev::makeAbbreviation("Cw", a);
@@ -690,7 +690,7 @@ Model::computeWilsonCoefficients(int                           order,
 WilsonSet Model::computeWilsonCoefficients_default(
     int                           order,
     std::vector<Insertion> const &insertions,
-    FeynOptions const &           feynOptions)
+    FeynOptions const            &feynOptions)
 {
     auto option_cpy = feynOptions;
     auto ampl       = computeAmplitude(order, insertions, option_cpy);
@@ -739,14 +739,14 @@ int fermionSign(std::vector<Insertion> const &model,
 }
 
 WilsonSet Model::computeSingleWilsonPenguin_4Fermions(
-    Kinematics const &               kinematics,
+    Kinematics const                &kinematics,
     std::pair<size_t, size_t> const &treeCoupling,
     std::pair<size_t, size_t> const &loopCoupling,
-    Insertion const &                mediator,
+    Insertion const                 &mediator,
     FeynOptions                      feynOptions)
 {
     // feynOptions.verboseAmplitude = false;
-    auto const &           insertions     = kinematics.getInsertions();
+    auto const            &insertions     = kinematics.getInsertions();
     std::vector<Insertion> treeInsertions = {insertions[treeCoupling.first],
                                              insertions[treeCoupling.second],
                                              Mediator(mediator)};
@@ -985,7 +985,7 @@ Model::KinematicLink Model::connectKinematics(Amplitude &M1,
             mediator};
 }
 
-bool Model::mediatorToPropagator(csl::Expr &          prod,
+bool Model::mediatorToPropagator(csl::Expr           &prod,
                                  KinematicLink const &link) const
 {
     std::pair<int, int> mediatorPos{-1, -1};
@@ -1018,8 +1018,8 @@ bool Model::mediatorToPropagator(csl::Expr &          prod,
     return true;
 }
 
-csl::Expr Model::connectMediator(csl::Expr const &    M1,
-                                 csl::Expr const &    M2,
+csl::Expr Model::connectMediator(csl::Expr const     &M1,
+                                 csl::Expr const     &M2,
                                  KinematicLink const &link) const
 {
     csl::Abbrev::enableGenericEvaluation("EXT");
@@ -1043,8 +1043,8 @@ csl::Expr Model::connectMediator(csl::Expr const &    M1,
     return full;
 }
 
-Amplitude Model::connectAmplitudes(Amplitude const &  M1,
-                                   Amplitude const &  M2,
+Amplitude Model::connectAmplitudes(Amplitude const   &M1,
+                                   Amplitude const   &M2,
                                    FeynOptions const &options)
 {
     Amplitude     M1_copy       = M1.copy();

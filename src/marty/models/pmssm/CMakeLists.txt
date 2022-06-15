@@ -10,4 +10,6 @@ set(ALL_SOURCES
     pmssm_mass.cpp
 )
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+
 add_library(marty-models OBJECT ${ALL_SOURCES})

@@ -109,7 +109,7 @@ static std::vector<GammaIndex> cutIndices(std::vector<GammaIndex> const &init,
 [[maybe_unused]] static std::string toString(std::vector<GammaIndex> const &v)
 {
     std::ostringstream out;
-    for (const auto i : v) {
+    for (const auto &i : v) {
         i.print(out);
         out << ' ';
     }
@@ -117,7 +117,7 @@ static std::vector<GammaIndex> cutIndices(std::vector<GammaIndex> const &init,
 }
 
 GExpr standardTrace(std::vector<GammaIndex> const &indices,
-                    csl::Expr const &              Ddirac)
+                    csl::Expr const               &Ddirac)
 {
     SCOPELOG
     LOG("Standard Trace for", toString(indices))
@@ -155,7 +155,7 @@ GExpr standardTrace(std::vector<GammaIndex> const &indices,
 }
 
 GExpr chiralTrace(std::vector<GammaIndex> const &indices,
-                  csl::Expr const &              Ddirac)
+                  csl::Expr const               &Ddirac)
 {
     SCOPELOG
     LOG("Chiral Trace for", toString(indices))

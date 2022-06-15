@@ -40,7 +40,7 @@ std::array<Type, N> toArray(std::vector<Type> const &vec)
                   + " in conversion"
                     ", vector of size "
                   + toString(vec.size()) + " given.");
-    std::array<Type, N> res;
+    std::array<Type, N> res{Type{}};
     std::copy(vec.begin(), vec.end(), res.begin());
     return res;
 }
@@ -56,7 +56,7 @@ bool isIndexZeroF4(std::vector<int> const &rep, size_t p);
 bool isIndexZeroG2(std::vector<int> const &rep, size_t p);
 
 csl::Expr
-          getIndexNorm(algebra::Type algebra, std::vector<int> const &rep, size_t n);
+getIndexNorm(algebra::Type algebra, std::vector<int> const &rep, size_t n);
 csl::Expr getSUIndexNorm(std::vector<int> const &rep, size_t n);
 csl::Expr getEvenSOIndexNorm(std::vector<int> const &rep, size_t n);
 csl::Expr getOddSOIndexNorm(std::vector<int> const &rep, size_t n);
@@ -68,7 +68,7 @@ csl::Expr getF4IndexNorm(std::vector<int> const &rep, size_t n);
 csl::Expr getG2IndexNorm(std::vector<int> const &rep, size_t n);
 
 csl::Expr
-          getIndex(algebra::Type algebra, std::vector<int> const &rep, size_t n);
+getIndex(algebra::Type algebra, std::vector<int> const &rep, size_t n);
 csl::Expr getSUIndex(std::vector<int> const &rep, size_t n);
 csl::Expr getEvenSOIndex(std::vector<int> const &rep, size_t n);
 csl::Expr getOddSOIndex(std::vector<int> const &rep, size_t n);

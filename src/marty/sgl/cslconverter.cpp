@@ -113,7 +113,7 @@ GExpr csl_to_sgl(csl::Expr const &expr, TensorSet const &tensors)
         return indexchain_s(
             gammaindex_s(8), expr->getIndex(0), expr->getIndex(1));
     }
-    for (const auto iter : tensors.gamma)
+    for (const auto &iter : tensors.gamma)
         if (iter.second == parent) {
             std::vector<csl::Index> minkoIndices
                 = expr->getIndexStructureView().getIndex();

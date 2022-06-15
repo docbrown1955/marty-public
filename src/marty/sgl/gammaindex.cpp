@@ -104,7 +104,7 @@ bool GammaIndex::leftOf(GammaIndex const &other) const
         return m_indices[0].getName() < other.m_indices[0].getName();
     }
     else {
-        for (const auto i : m_indices) {
+        for (const auto &i : m_indices) {
             bool simpler = false;
             for (const auto &j : other.m_indices)
                 if (!(i.getName() < j.getName())) {
@@ -128,7 +128,7 @@ GExpr GammaIndex::refresh() const
     return gammaindex_s(m_indices);
 }
 
-csl::Expr GammaIndex::buildTensor(TensorSet const & tensors,
+csl::Expr GammaIndex::buildTensor(TensorSet const  &tensors,
                                   csl::Index const &a,
                                   csl::Index const &b) const
 {

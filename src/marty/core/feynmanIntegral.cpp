@@ -2390,14 +2390,8 @@ void FeynmanIntegral::printLib(int mode, std::ostream &out) const
 csl::LibDependency FeynmanIntegral::getLibDependency() const
 {
     csl::LibDependency dependencies;
-    // if (type == IntegralType::E and loopToolsId >= Nee) {
-    //     dependencies.addInclude("pjfry.h");
-    //     dependencies.addLib("-lpjfry");
-    //     dependencies.addLib("-lavh_olo");
-    // }
-    // else {
-    dependencies.addInclude("marty/looptools_init.h");
-    dependencies.addInclude("marty/looptools_interface.h");
+    dependencies.addInclude("marty/core/looptools_init.h");
+    dependencies.addInclude("marty/core/looptools_interface.h");
     dependencies.addLib("-lgfortran");
     dependencies.addInclude("clooptools.h");
     if (csl::LibraryGenerator::isQuadruplePrecision()) {

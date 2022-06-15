@@ -30,11 +30,11 @@ namespace mty {
 class Library : public csl::LibraryGenerator {
   public:
     template <class... Args>
-    Library(Args &&... args)
+    Library(Args &&...args)
         : csl::LibraryGenerator(std::forward<Args>(args)...)
     {
         addInclude("clooptools.h");
-        addInclude("marty/looptools_init.h");
+        addInclude("marty/core/looptools_init.h");
 #if !(defined __APPLE__ || defined __MACH__)
         // If we are not on MacOS, add -lgfortran
         addLibrary("-lgfortran");
@@ -44,7 +44,7 @@ class Library : public csl::LibraryGenerator {
 #endif
         if (csl::LibraryGenerator::isQuadruplePrecision()) {
             addLibrary("-looptools-quad");
-            addInclude("marty/looptools_quad_extension.h");
+            addInclude("marty/core/looptools_quad_extension.h");
             addLibrary("-lquadmath");
         }
         else {

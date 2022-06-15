@@ -783,7 +783,7 @@ void ModelBuilder::applyUnitaryCondition(
 {
     auto dependsOnMixing = [&](csl::Expr const &expr) {
         for (const auto &row : unitary)
-            for (const auto el : row)
+            for (const auto &el : row)
                 if (expr->dependsExplicitlyOn(el.get()))
                     return true;
         return false;

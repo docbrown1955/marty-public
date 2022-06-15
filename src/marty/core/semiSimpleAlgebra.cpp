@@ -180,7 +180,7 @@ bool SemiSimpleAlgebra::isOnWall(const AlgebraState &state) const
 
 AlgebraState
 SemiSimpleAlgebra::toDominantWeylChamber(const AlgebraState &state,
-                                         int &               sign) const
+                                         int                &sign) const
 {
     sign = 1;
     if (isPositiveWeight(state))
@@ -344,7 +344,7 @@ csl::Expr SemiSimpleAlgebra::computeSquaredNorm(const csl::Expr &root) const
 }
 
 void SemiSimpleAlgebra::sortRep(vector<AlgebraState> &rep,
-                                vector<int> &         mult) const
+                                vector<int>          &mult) const
 {
     for (size_t i = 0; i != rep.size() - 1; ++i) {
         size_t iMax = i;
@@ -370,7 +370,7 @@ SemiSimpleAlgebra::applyAnnihilationOperator(int                 annihilator,
 }
 
 AlgebraState
-SemiSimpleAlgebra::applyAnnihilationOperator(const vector<int> & root,
+SemiSimpleAlgebra::applyAnnihilationOperator(const vector<int>  &root,
                                              const AlgebraState &state) const
 {
     AlgebraState newState(state);
@@ -396,7 +396,7 @@ SemiSimpleAlgebra::applyCreationOperator(int                 creator,
 }
 
 AlgebraState
-SemiSimpleAlgebra::applyCreationOperator(const vector<int> & root,
+SemiSimpleAlgebra::applyCreationOperator(const vector<int>  &root,
                                          const AlgebraState &state) const
 {
     AlgebraState newState(state);
@@ -431,8 +431,8 @@ SemiSimpleAlgebra::getSingleChain(const AlgebraState &state,
 }
 
 void SemiSimpleAlgebra::getSingleChainExperimental(
-    const AlgebraState &            state,
-    std::vector<AlgebraState> &     states,
+    const AlgebraState             &state,
+    std::vector<AlgebraState>      &states,
     std::vector<std::vector<bool>> &directionExplored,
     int                             direction) const
 
@@ -454,7 +454,7 @@ void SemiSimpleAlgebra::getSingleChainExperimental(
 }
 
 std::vector<AlgebraState>
-SemiSimpleAlgebra::getRootChain(const AlgebraState & heighestWeightState,
+SemiSimpleAlgebra::getRootChain(const AlgebraState  &heighestWeightState,
                                 vector<AlgebraState> states,
                                 vector<vector<bool>> directionExplored) const
 {
@@ -522,7 +522,7 @@ SemiSimpleAlgebra::getRootChain(const AlgebraState & heighestWeightState,
 }
 
 void SemiSimpleAlgebra::getRootChainExperimental(
-    const AlgebraState &  heighestWeightState,
+    const AlgebraState   &heighestWeightState,
     vector<AlgebraState> &states,
     vector<vector<bool>> &directionExplored) const
 {
@@ -566,9 +566,9 @@ void SemiSimpleAlgebra::getRootChainExperimental(
 }
 
 void SemiSimpleAlgebra::computeMultiplicity(
-    std::vector<int> &               multiplicity,
+    std::vector<int>                &multiplicity,
     const std::vector<AlgebraState> &rep,
-    const AlgebraState &             state) const
+    const AlgebraState              &state) const
 {
     if (rep[0] == state)
         return;
@@ -632,10 +632,16 @@ mty::Irrep
 SemiSimpleAlgebra::highestWeightRep(const AlgebraState &highestWeight,
                                     bool                computeMul) const
 {
-    for (int label : highestWeight)
-        HEPAssert(label >= 0, mty::error::ValueError, "Cannot have a highest weight with negative label !") for (
-            const auto &[highest, rep] :
-            irreps) if (highest == highestWeight) return rep;
+    for (int label : highestWeight) {
+        HEPAssert(label >= 0,
+                  mty::error::ValueError,
+                  "Cannot have a highest weight with negative label !")
+    }
+    for (const auto &[highest, rep] : irreps) {
+        if (highest == highestWeight) {
+            return rep;
+        }
+    }
     Irrep res_rep;
     if constexpr (useExperimental) {
         std::vector<AlgebraState>      state;
@@ -679,7 +685,7 @@ mty::Irrep SemiSimpleAlgebra::getDefiningRep() const
 }
 
 mty::SumIrrep SemiSimpleAlgebra::tensorProduct(const mty::SumIrrep &A,
-                                               const mty::Irrep &   B,
+                                               const mty::Irrep    &B,
                                                bool computeMul) const
 {
     SumIrrep res;
@@ -688,7 +694,7 @@ mty::SumIrrep SemiSimpleAlgebra::tensorProduct(const mty::SumIrrep &A,
     return res;
 }
 
-mty::SumIrrep SemiSimpleAlgebra::tensorProduct(const mty::Irrep &   A,
+mty::SumIrrep SemiSimpleAlgebra::tensorProduct(const mty::Irrep    &A,
                                                const mty::SumIrrep &B,
                                                bool computeMul) const
 {
@@ -714,8 +720,8 @@ mty::SumIrrep SemiSimpleAlgebra::tensorProduct(const mty::Irrep &A,
     vector<int>                 multiplicity(0);
     AlgebraState                rhoWeight(vector<int>(l, 1));
     const vector<AlgebraState> &lambda1            = A.getRep();
-    const vector<int> &         multiplicitiesRep1 = A.getMult();
-    const AlgebraState &        Lambda2            = B.getHighestWeight();
+    const vector<int>          &multiplicitiesRep1 = A.getMult();
+    const AlgebraState         &Lambda2            = B.getHighestWeight();
 
     // We determine all different highest weights of the irreducible reps
     // (in the decomposition as a sum of irreducible reps) and their
@@ -889,11 +895,11 @@ R::tensorProduct(const mty::Irrep &A, const mty::Irrep &B, bool) const
 
     csl::Expr charge = chargeA + chargeB;
     int       num    = (charge->getType() == csl::Type::IntFraction)
-                  ? charge->getNum()
-                  : charge->evaluateScalar();
-    int denom = (charge->getType() == csl::Type::IntFraction)
-                    ? charge->getDenom()
-                    : 1;
+                           ? charge->getNum()
+                           : charge->evaluateScalar();
+    int       denom  = (charge->getType() == csl::Type::IntFraction)
+                           ? charge->getDenom()
+                           : 1;
     vector<mty::AlgebraState> rep(1);
     rep[0] = mty::AlgebraState({num, denom});
     vector<int> mult(1, 1);

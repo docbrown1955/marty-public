@@ -180,8 +180,8 @@ void SM_Model::replaceLeptonYukawa()
     csl::Tensor       M_e         = csl::tensor_s("M_e",
                                     {flavorSpace, flavorSpace},
                                     csl::matrix_s({{m_e, CSL_0, CSL_0},
-                                                   {CSL_0, m_mu, CSL_0},
-                                                   {CSL_0, CSL_0, m_tau}}));
+                                                                 {CSL_0, m_mu, CSL_0},
+                                                                 {CSL_0, CSL_0, m_tau}}));
 
     replace(Ye, factor * M_e({f_i, f_j}));
 }
@@ -265,7 +265,7 @@ void SM_Model::flavorSymmetryBreaking()
         {"E_R_2", "mu_R;\\mu_R"},
         {"E_R_3", "tau_R;\\tau_R"},
     };
-    for (const auto [previous, next] : names)
+    for (const auto &[previous, next] : names)
         renameParticle(previous, next);
 }
 

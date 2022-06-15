@@ -561,7 +561,7 @@ csl::Expr getSpIndex(std::vector<int> const &rep, size_t p)
 }
 
 template <size_t N, size_t nReps>
-csl::Expr getIntegerIndex(std::array<int, N> const &            t_rep,
+csl::Expr getIntegerIndex(std::array<int, N> const             &t_rep,
                           std::array<GIndex_t<N>, nReps> const &data)
 {
     for (const auto &[rep, index] : data)
@@ -571,11 +571,11 @@ csl::Expr getIntegerIndex(std::array<int, N> const &            t_rep,
 }
 
 template <size_t N, size_t nReps>
-csl::Expr getRationalIndex(std::array<int, N> const &            t_rep,
+csl::Expr getRationalIndex(std::array<int, N> const             &t_rep,
                            std::array<GIndex_t<N>, nReps> const &data,
                            int                                   denom)
 {
-    for (const auto [rep, index] : data)
+    for (const auto &[rep, index] : data)
         if (rep == t_rep)
             return csl::intfraction_s(index, denom);
     return CSL_0;

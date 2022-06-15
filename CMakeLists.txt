@@ -28,10 +28,6 @@ if(REQUIRED_COMPILER_VERSION AND GNU_COMPILERS AND IDENTICAL_COMPILER_VERSION)
     message("> Using CXX: ${CMAKE_CXX_COMPILER_VERSION}")
     message("> Using CC : ${CMAKE_C_COMPILER_VERSION}")
     message("> Using FC : ${CMAKE_Fortran_COMPILER_VERSION}")
-    set(ENV{CXX} ${CMAKE_CXX_COMPILER})
-    set(ENV{CC} ${CMAKE_C_COMPILER})
-    set(ENV{FC} ${CMAKE_Fortran_COMPILER})
-    set(ENV{FFLAGS} "ENV{FFLAGS} -fPIC")
 else()
     if(${GNU_COMPILERS} EQUAL 0)
         set(error "The build system requires GNU compilers (gcc/g++/gfortran)")
@@ -60,6 +56,8 @@ endif()
 
 find_package(GSL REQUIRED)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -Wextra -Wpedantic")
+
 add_subdirectory(dep)
 add_subdirectory(src)
 add_subdirectory(examples)
@@ -70,6 +68,8 @@ target_link_libraries(marty csl grafed-core jsonparser marty-core sgl marty-mode
 target_link_libraries(marty GSL::gsl GSL::gslcblas)
 target_link_libraries(marty ${PROJECT_BINARY_DIR}/libooptools.so)
 
-install(TARGETS marty-core
-    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_PREFIX}/include
-)
+install(TARGETS marty csl DESTINATION lib)
+install(DIRECTORY src/ DESTINATION include
+    FILES_MATCHING PATTERN *.h)
+install(TARGETS grafed-gui DESTINATION bin
+    RENAME grafed)
