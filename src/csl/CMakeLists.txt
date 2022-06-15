@@ -154,4 +154,5 @@ set(ALL_SOURCES
     vector.h
 )
 
-add_library(csl OBJECT ${ALL_SOURCES})
+add_library(csl-core OBJECT ${ALL_SOURCES})
+set_property(TARGET csl-core PROPERTY POSITION_INDEPENDENT_CODE 1)

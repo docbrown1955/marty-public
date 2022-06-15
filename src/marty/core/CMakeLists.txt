@@ -2,253 +2,125 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(ALL_SOURCES
-2HDM.cpp
-2HDM.h
-CKM.cpp
-CKM.h
-GTHDM.cpp
-GTHDM.h
-MSSM.cpp
-MSSM.h
-MSSMData.h
-NMFV.cpp
-NMFV.h
-PMSSM.cpp
-PMSSM.h
-QCD.cpp
-QCD.h
-QED.cpp
-QED.h
-SM.cpp
-SM.h
-SU_N_algebra.cpp
-SU_N_algebra.h
-algebra.h
-algebraState.cpp
-algebraState.h
-amplitude.cpp
-amplitude.h
-amplitudeInitializer.cpp
-amplitudeInitializer.h
-amplitudeSimplification.cpp
-amplitudeSimplification.h
-bernoulli.h
-builtinOperators.cpp
-builtinOperators.h
-cache.h
-callback.h
-checkpoint.h
-colorSimplification.cpp
-colorSimplification.h
-colorSpace.cpp
-colorSpace.h
-csldatahandler.cpp
-csldatahandler.h
-datalist.h
-dimensionalRegularization.cpp
-dimensionalRegularization.h
-diracology.cpp
-diracology.h
-doc_brown_link.h
-docbrown.cpp
-docbrown.h
-doubleVector.h
-drawer.cpp
-drawer.h
-expander.cpp
-expander.h
-fermionChain.cpp
-fermionChain.h
-fermionCurrent.cpp
-fermionCurrent.h
-fermionFlow.cpp
-fermionFlow.h
-fermionOrder.cpp
-fermionOrder.h
-fermionicField.cpp
-fermionicField.h
-feynOptions.cpp
-feynOptions.h
-feynmanDiagram.cpp
-feynmanDiagram.h
-feynmanIntegral.cpp
-feynmanIntegral.h
-feynmanRule.cpp
-feynmanRule.h
-feynruleMomentum.cpp
-feynruleMomentum.h
-fileData.cpp
-fileData.h
-filters.h
-flavor.cpp
-flavor.h
-gauge.cpp
-gauge.h
-gauged.h
-gaugedGroup.cpp
-gaugedGroup.h
-generator.cpp
-generator.h
-ghostField.cpp
-ghostField.h
-goldstoneField.cpp
-goldstoneField.h
-graph.cpp
-graph.h
-group.cpp
-group.h
-groupIndices.cpp
-groupIndices.h
-insertion.cpp
-insertion.h
-interactionTerm.cpp
-interactionTerm.h
-iterable.cpp
-iterable.h
-jsonToPhysics.cpp
-jsonToPhysics.h
-kinematics.cpp
-kinematics.h
-lagrangian.cpp
-lagrangian.h
-lha.cpp
-lha.h
-lhaBlocks.h
-lhaBuiltIn.cpp
-lhaBuiltIn.h
-lhaData.cpp
-lhaData.h
-localTerms.cpp
-localTerms.h
-looptools_extension.cpp
-looptools_extension.h
-looptools_init.h
-looptools_interface.h
-looptools_patch.h
-looptools_quad_extension.h
-marty.h
-matrix.h
-model.cpp
-model.h
-modelBuilder.cpp
-modelBuilder.h
-modelData.cpp
-modelData.h
-momentumConservation.cpp
-momentumConservation.h
-mrtError.h
-mrtInterface.cpp
-mrtInterface.h
-mrtInterfaceCurrent.h
-mrtOptions.h
-mrtUtils.h
-mrtlog.h
-mtylibrary.h
-mtyversion.h
-operatorBasis.h
-penguinpatch.cpp
-penguinpatch.h
-polarization.cpp
-polarization.h
-propagator.cpp
-propagator.h
-quantumField.cpp
-quantumField.h
-quantumFieldTheory.cpp
-quantumFieldTheory.h
-quantumNumber.cpp
-quantumNumber.h
-representation.cpp
-representation.h
-scalarField.cpp
-scalarField.h
-semiSimpleAlgebra.cpp
-semiSimpleAlgebra.h
-simpleWilson.cpp
-simpleWilson.h
-spectrum.cpp
-spectrum.h
-std_vector_implementation.h
-topology.h
-traceIdentities.cpp
-traceIdentities.h
-vectorField.cpp
-vectorField.h
-wick.cpp
-wick.h
-wilson.cpp
-wilson.h
-wilsonOperator.cpp
-wilsonOperator.h
-)
-
-add_library(marty-core OBJECT ${ALL_SOURCES})
-set_target_properties(marty-core PROPERTIES PUBLIC_HEADER
+    2HDM.cpp
     2HDM.h
+    CKM.cpp
     CKM.h
+    GTHDM.cpp
     GTHDM.h
+    MSSM.cpp
     MSSM.h
     MSSMData.h
+    NMFV.cpp
     NMFV.h
+    PMSSM.cpp
     PMSSM.h
+    QCD.cpp
     QCD.h
+    QED.cpp
     QED.h
+    SM.cpp
     SM.h
+    SU_N_algebra.cpp
     SU_N_algebra.h
     algebra.h
+    algebraState.cpp
     algebraState.h
+    amplitude.cpp
     amplitude.h
+    amplitudeInitializer.cpp
     amplitudeInitializer.h
+    amplitudeSimplification.cpp
     amplitudeSimplification.h
     bernoulli.h
+    builtinOperators.cpp
     builtinOperators.h
     cache.h
     callback.h
     checkpoint.h
+    colorSimplification.cpp
     colorSimplification.h
+    colorSpace.cpp
     colorSpace.h
+    csldatahandler.cpp
     csldatahandler.h
     datalist.h
+    dimensionalRegularization.cpp
     dimensionalRegularization.h
+    diracology.cpp
     diracology.h
     doc_brown_link.h
+    docbrown.cpp
     docbrown.h
     doubleVector.h
+    drawer.cpp
     drawer.h
+    expander.cpp
     expander.h
+    fermionChain.cpp
     fermionChain.h
+    fermionCurrent.cpp
     fermionCurrent.h
+    fermionFlow.cpp
     fermionFlow.h
+    fermionOrder.cpp
     fermionOrder.h
+    fermionicField.cpp
     fermionicField.h
+    feynOptions.cpp
     feynOptions.h
+    feynmanDiagram.cpp
     feynmanDiagram.h
+    feynmanIntegral.cpp
     feynmanIntegral.h
+    feynmanRule.cpp
     feynmanRule.h
+    feynruleMomentum.cpp
     feynruleMomentum.h
+    fileData.cpp
     fileData.h
     filters.h
+    flavor.cpp
     flavor.h
+    gauge.cpp
     gauge.h
     gauged.h
+    gaugedGroup.cpp
     gaugedGroup.h
+    generator.cpp
     generator.h
+    ghostField.cpp
     ghostField.h
+    goldstoneField.cpp
     goldstoneField.h
+    graph.cpp
     graph.h
+    group.cpp
     group.h
+    groupIndices.cpp
     groupIndices.h
+    insertion.cpp
     insertion.h
+    interactionTerm.cpp
     interactionTerm.h
+    iterable.cpp
     iterable.h
+    jsonToPhysics.cpp
     jsonToPhysics.h
+    kinematics.cpp
     kinematics.h
+    lagrangian.cpp
     lagrangian.h
+    lha.cpp
     lha.h
     lhaBlocks.h
+    lhaBuiltIn.cpp
     lhaBuiltIn.h
+    lhaData.cpp
     lhaData.h
+    localTerms.cpp
     localTerms.h
+    looptools_extension.cpp
     looptools_extension.h
     looptools_init.h
     looptools_interface.h
@@ -256,11 +128,16 @@ set_target_properties(marty-core PROPERTIES PUBLIC_HEADER
     looptools_quad_extension.h
     marty.h
     matrix.h
+    model.cpp
     model.h
+    modelBuilder.cpp
     modelBuilder.h
+    modelData.cpp
     modelData.h
+    momentumConservation.cpp
     momentumConservation.h
     mrtError.h
+    mrtInterface.cpp
     mrtInterface.h
     mrtInterfaceCurrent.h
     mrtOptions.h
@@ -269,24 +146,41 @@ set_target_properties(marty-core PROPERTIES PUBLIC_HEADER
     mtylibrary.h
     mtyversion.h
     operatorBasis.h
+    penguinpatch.cpp
     penguinpatch.h
+    polarization.cpp
     polarization.h
+    propagator.cpp
     propagator.h
+    quantumField.cpp
     quantumField.h
+    quantumFieldTheory.cpp
     quantumFieldTheory.h
+    quantumNumber.cpp
     quantumNumber.h
+    representation.cpp
     representation.h
+    scalarField.cpp
     scalarField.h
+    semiSimpleAlgebra.cpp
     semiSimpleAlgebra.h
-    sglconverter.h
-    sglsimplify.h
+    simpleWilson.cpp
     simpleWilson.h
+    spectrum.cpp
     spectrum.h
     std_vector_implementation.h
     topology.h
+    traceIdentities.cpp
     traceIdentities.h
+    vectorField.cpp
     vectorField.h
+    wick.cpp
     wick.h
+    wilson.cpp
     wilson.h
+    wilsonOperator.cpp
     wilsonOperator.h
 )
+
+add_library(marty-core OBJECT ${ALL_SOURCES})
+set_property(TARGET marty-core PROPERTY POSITION_INDEPENDENT_CODE 1)

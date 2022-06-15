@@ -10,6 +10,11 @@ set(ALL_SOURCES
     pmssm_mass.cpp
 )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
-
+SET_SOURCE_FILES_PROPERTIES(
+    pmssm_content.cpp
+    pmssm_interaction.cpp
+    pmssm_kinetic.cpp
+    pmssm_mass.cpp
+    PROPERTIES COMPILE_FLAGS -O0)
 add_library(marty-models OBJECT ${ALL_SOURCES})
+set_property(TARGET marty-models PROPERTY POSITION_INDEPENDENT_CODE 1)

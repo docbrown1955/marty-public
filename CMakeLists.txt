@@ -56,20 +56,46 @@ endif()
 
 find_package(GSL REQUIRED)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -Wextra -Wpedantic")
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wpedantic")
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 add_subdirectory(dep)
 add_subdirectory(src)
 add_subdirectory(examples)
 
-add_library(marty)
+add_library(csl SHARED)
+target_link_libraries(csl csl-core)
+target_link_libraries(csl GSL::gsl GSL::gslcblas)
 
-target_link_libraries(marty csl grafed-core jsonparser marty-core sgl marty-models)
+add_library(csl-static STATIC)
+target_link_libraries(csl-static csl-core)
+target_link_libraries(csl-static GSL::gsl GSL::gslcblas)
+
+add_library(marty SHARED)
+target_link_libraries(marty csl-core grafed-core jsonparser marty-core sgl marty-models)
 target_link_libraries(marty GSL::gsl GSL::gslcblas)
 target_link_libraries(marty ${PROJECT_BINARY_DIR}/libooptools.so)
 
-install(TARGETS marty csl DESTINATION lib)
-install(DIRECTORY src/ DESTINATION include
+add_library(marty-static STATIC)
+target_link_libraries(marty-static csl-core grafed-core jsonparser marty-core sgl marty-models)
+target_link_libraries(marty-static GSL::gsl GSL::gslcblas)
+target_link_libraries(marty-static ${PROJECT_BINARY_DIR}/libooptools.so)
+
+install(TARGETS marty marty-static csl csl-static
+    DESTINATION lib)
+install(DIRECTORY src/
+    DESTINATION include
     FILES_MATCHING PATTERN *.h)
-install(TARGETS grafed-gui DESTINATION bin
-    RENAME grafed)
+install(FILES ${PROJECT_BINARY_DIR}/clooptools.h
+    DESTINATION include)
+install(FILES ${PROJECT_BINARY_DIR}/libooptools.so ${PROJECT_BINARY_DIR}/libooptools-quad.so
+    DESTINATION lib)
+install(FILES ${PROJECT_BINARY_DIR}/libooptools-static.a ${PROJECT_BINARY_DIR}/libooptools-quad-static.a
+    DESTINATION lib)
+install(TARGETS grafed-gui
+    DESTINATION bin)

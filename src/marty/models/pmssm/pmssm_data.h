@@ -23,7 +23,7 @@
 #ifndef DEFINITION_PMSSM_DATA_H_INCLUDED
 #define DEFINITION_PMSSM_DATA_H_INCLUDED
 
-#include "marty.h"
+#include "../../core/marty.h"
 
 namespace mty {
 

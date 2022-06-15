@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
-#include "marty.h"
+#include "../../core/marty.h"
 #include "pmssm_lem.h"
 
 namespace mty {

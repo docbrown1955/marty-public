@@ -66,8 +66,8 @@ drawer::LatexLinker Drawer::buildDiagram(
 
 drawer::LatexLinker
 Drawer::buildDiagram(std::shared_ptr<wick::Graph> const &graph,
-                     drawer::Graph const &               model,
-                     std::map<size_t, size_t> &          mapping)
+                     drawer::Graph const                &model,
+                     std::map<size_t, size_t>           &mapping)
 {
     auto                vertices = graph->getVertices();
     csl::ScopedProperty idIndices(&csl::option::printIndexIds, false);
@@ -213,7 +213,8 @@ void Drawer::launchViewer(std::vector<drawer::LatexLinker> const &links)
 {
     if constexpr (enableApp) {
         drawer::LatexLinker::saveMultiple("graphs.json", links);
-        [[maybe_unused]] int res = system("grafed graphs.json &>/dev/null");
+        [[maybe_unused]] int res = system("grafed-gui graphs.json "
+                                          "&>/dev/null");
         res                      = system("sleep 0.5");
     }
 }
@@ -224,14 +225,14 @@ void Drawer::launchViewer(
     launchViewer(buildDiagrams(graphs, showMomenta));
 }
 
-void Drawer::saveToJSON(std::string const &                     fileName,
+void Drawer::saveToJSON(std::string const                      &fileName,
                         std::vector<drawer::LatexLinker> const &links)
 {
     drawer::LatexLinker::saveMultiple(fileName, links);
 }
 
 void Drawer::saveToJSON(
-    std::string const &                              fileName,
+    std::string const                               &fileName,
     std::vector<std::shared_ptr<wick::Graph>> const &graphs,
     bool                                             showMomenta)
 {
@@ -267,9 +268,9 @@ void Drawer::exportPDF(std::string const &,
     }
 }
 
-void Drawer::exportPNG(std::string const &                              name,
+void Drawer::exportPNG(std::string const                               &name,
                        std::vector<std::shared_ptr<wick::Graph>> const &graphs,
-                       std::string const &                              path)
+                       std::string const                               &path)
 {
     if (graphs.empty())
         return;

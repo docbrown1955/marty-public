@@ -10,3 +10,4 @@ set(ALL_SOURCES
 )
 
 add_library(jsonparser OBJECT ${ALL_SOURCES})
+set_property(TARGET jsonparser PROPERTY POSITION_INDEPENDENT_CODE 1)
