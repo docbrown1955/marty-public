@@ -1,24 +1,24 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "lhaBuiltIn.h"
-#include "lhaData.h"
 #include "lha.h"
+#include "lhaData.h"
 
-#include "SM.h"
 #include "MSSM.h"
+#include "SM.h"
 
 #include <fstream>
 
@@ -27,87 +27,80 @@ namespace mty::lha {
 void readFile(std::string const &fileName)
 {
     std::ifstream file(fileName, std::ios::in);
-    HEPAssert(file,
-            mty::error::NameError,
-            "File \"" + fileName + "\" not found.")
+    HEPAssert(
+        file, mty::error::NameError, "File \"" + fileName + "\" not found.")
 
-    readFile(file);
+        readFile(file);
     file.close();
 }
 
 void readFile(std::ifstream &file)
 {
-    LHAFileData data = Reader::readFile(file);
+    LHAFileData              data        = Reader::readFile(file);
     std::optional<FloatType> model_value = data.getValue("MODSEL", 0);
-    int model = (model_value) ? std::round(*model_value) : 0;
-    LHAInputData &sm   = getSMInput();
+    int           model = (model_value) ? std::round(*model_value) : 0;
+    LHAInputData &sm    = getSMInput();
     std::vector<LHAInputData> &mssm = getMSSMInput(model);
     applyLHAOnInputs(data, sm);
     for (auto &mssm_in : mssm)
         applyLHAOnInputs(data, mssm_in);
 }
 
-bool applyLHA(
-        LHAFileData const &data,
-        std::string_view   nameBlock,
-        size_t             id,
-        csl::Expr              &expr
-        )
+bool applyLHA(LHAFileData const &data,
+              std::string_view   nameBlock,
+              size_t             id,
+              csl::Expr &        expr)
 {
     HEPAssert(csl::IsLiteral(expr),
-            mty::error::TypeError,
-            "Expression " + toString(expr) + " should be a literal for lha "
-            "reader.")
-    std::optional<FloatType> value = data.getValue(nameBlock, id);
+              mty::error::TypeError,
+              "Expression " + toString(expr)
+                  + " should be a literal for lha "
+                    "reader.") std::optional<FloatType>
+        value = data.getValue(nameBlock, id);
     if (value)
         expr->setValue(*value);
     return bool(value);
 }
 
-bool applyLHA(
-        LHAFileData const &data,
-        std::string_view   nameBlock,
-        size_t             i,
-        size_t             j,
-        csl::Expr              &expr
-        )
+bool applyLHA(LHAFileData const &data,
+              std::string_view   nameBlock,
+              size_t             i,
+              size_t             j,
+              csl::Expr &        expr)
 {
     HEPAssert(csl::IsLiteral(expr),
-            mty::error::TypeError,
-            "Expression " + toString(expr) + " should be a literal for lha "
-            "reading.")
-    std::optional<FloatType> value = data.getValue(nameBlock, i, j);
+              mty::error::TypeError,
+              "Expression " + toString(expr)
+                  + " should be a literal for lha "
+                    "reading.") std::optional<FloatType>
+        value = data.getValue(nameBlock, i, j);
     if (value)
         expr->setValue(*value);
     return bool(value);
 }
 
-bool applyLHA(
-        LHAFileData const &data,
-        std::string_view   nameBlock,
-        csl::Expr              &expr
-        )
+bool applyLHA(LHAFileData const &data,
+              std::string_view   nameBlock,
+              csl::Expr &        expr)
 {
     HEPAssert(csl::IsMatrix(expr),
-            mty::error::TypeError,
-            "Expression " + toString(expr) + " should be a matrix for lha "
-            "block-type reading.")
-    auto block = data.getValues(nameBlock);
+              mty::error::TypeError,
+              "Expression " + toString(expr)
+                  + " should be a matrix for lha "
+                    "block-type reading.") auto block
+        = data.getValues(nameBlock);
     if (block.empty())
         return false;
-    
-    for (size_t i = 0; i != csl::Size(expr); ++i) 
-        for (size_t j = 0; j != csl::Size(expr[i]); ++j) 
-            if (!applyLHA(data, nameBlock, i+1, j+1, expr[i][i]))
+
+    for (size_t i = 0; i != csl::Size(expr); ++i)
+        for (size_t j = 0; j != csl::Size(expr[i]); ++j)
+            if (!applyLHA(data, nameBlock, i + 1, j + 1, expr[i][i]))
                 expr[i][j]->setValue(0);
 
     return true;
 }
 
-void applyLHAOnInputs(
-        LHAFileData const &data,
-        LHAInputData      &inputs
-        )
+void applyLHAOnInputs(LHAFileData const &data, LHAInputData &inputs)
 {
     for (auto &input : inputs)
         if (input.isMatrix)
@@ -119,17 +112,17 @@ void applyLHAOnInputs(
 LHAInputData &getSMInput()
 {
     using namespace mty::sm_input;
-    static bool firstCall = true;
+    static bool         firstCall = true;
     static LHAInputData smInputs;
     if (firstCall) {
         smInputs.nameBlock = "SMINPUTS";
         smInputs.push_back({1, alpha_em, false});
-        smInputs.push_back({2, G_F,      false});
-        smInputs.push_back({3, alpha_s,  false});
-        smInputs.push_back({4, M_Z,      false});
-        smInputs.push_back({5, m_b,      false});
-        smInputs.push_back({6, m_t,      false});
-        smInputs.push_back({7, m_tau,    false});
+        smInputs.push_back({2, G_F, false});
+        smInputs.push_back({3, alpha_s, false});
+        smInputs.push_back({4, M_Z, false});
+        smInputs.push_back({5, m_b, false});
+        smInputs.push_back({6, m_t, false});
+        smInputs.push_back({7, m_tau, false});
         firstCall = false;
     }
 
@@ -141,30 +134,30 @@ LHAInputData getMINPARInput(int model)
     using namespace mty::mssm_input;
     LHAInputData minpar;
     minpar.nameBlock = "MINPAR";
-    switch(model) {
+    switch (model) {
     case 1: // mSUGRA
-        minpar.push_back({1, m_0,    false}); 
-        minpar.push_back({2, m_1,    false}); 
-        minpar.push_back({3, beta,   false}); 
-        minpar.push_back({4, sgn_mu, false}); 
-        minpar.push_back({5, A_0,    false}); 
+        minpar.push_back({1, m_0, false});
+        minpar.push_back({2, m_1, false});
+        minpar.push_back({3, beta, false});
+        minpar.push_back({4, sgn_mu, false});
+        minpar.push_back({5, A_0, false});
         break;
     case 2: // mGMSB
-        minpar.push_back({1, Lambda, false}); 
-        minpar.push_back({2, Mmess,  false}); 
-        minpar.push_back({3, beta,   false}); 
-        minpar.push_back({4, sgn_mu, false}); 
-        minpar.push_back({5, N_5,    false}); 
-        minpar.push_back({6, cgrav,  false}); 
+        minpar.push_back({1, Lambda, false});
+        minpar.push_back({2, Mmess, false});
+        minpar.push_back({3, beta, false});
+        minpar.push_back({4, sgn_mu, false});
+        minpar.push_back({5, N_5, false});
+        minpar.push_back({6, cgrav, false});
         break;
     case 3: // mAMSB
-        minpar.push_back({1, m_0,    false}); 
-        minpar.push_back({2, m_3,    false}); 
-        minpar.push_back({3, beta,   false}); 
-        minpar.push_back({4, sgn_mu, false}); 
+        minpar.push_back({1, m_0, false});
+        minpar.push_back({2, m_3, false});
+        minpar.push_back({3, beta, false});
+        minpar.push_back({4, sgn_mu, false});
         break;
     default: // Other models
-        minpar.push_back({3, beta,   false}); 
+        minpar.push_back({3, beta, false});
     }
 
     return minpar;
@@ -216,10 +209,7 @@ LHAInputData getEXTPARInput()
     return extpar;
 }
 
-LHAInputData getMatrixInput(
-        csl::Expr              &matrix, 
-        std::string const &name
-        )
+LHAInputData getMatrixInput(csl::Expr &matrix, std::string const &name)
 {
     LHAInputData input;
     input.nameBlock = name;
@@ -227,10 +217,10 @@ LHAInputData getMatrixInput(
     return input;
 }
 
-std::vector<LHAInputData> &getMSSMInput(int model) 
+std::vector<LHAInputData> &getMSSMInput(int model)
 {
     using namespace mty::mssm_input;
-    static bool firstCall = true;
+    static bool                      firstCall = true;
     static std::vector<LHAInputData> mssmInputs;
     if (firstCall) {
         firstCall = false;
@@ -249,4 +239,4 @@ std::vector<LHAInputData> &getMSSMInput(int model)
     return mssmInputs;
 }
 
-} // End of namespace lha
+} // namespace mty::lha

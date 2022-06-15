@@ -1,30 +1,25 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "edgeform.h"
-#include "ui_edgeform.h"
-#include "edge.h"
 #include "diagramrenderer.h"
+#include "edge.h"
+#include "ui_edgeform.h"
 
-EdgeForm::EdgeForm(
-        Edge *t_edge,
-        DiagramRenderer *parent) :
-    QWidget(parent),
-    ui(new Ui::EdgeForm),
-    edge(t_edge),
-    renderer(parent)
+EdgeForm::EdgeForm(Edge *t_edge, DiagramRenderer *parent)
+    : QWidget(parent), ui(new Ui::EdgeForm), edge(t_edge), renderer(parent)
 {
     ui->setupUi(this);
 
@@ -33,43 +28,41 @@ EdgeForm::EdgeForm(
     QString qss = QString("background-color: %1").arg(edge->getColor().name());
     ui->colorButton->setStyleSheet(qss);
     ui->colorButton->update();
-    connect(ui->colorButton, SIGNAL(pressed()),
-            this,            SLOT(changeColor()));
+    connect(ui->colorButton, SIGNAL(pressed()), this, SLOT(changeColor()));
 
     ui->lineName->setText(edge->getName());
-    connect(ui->lineName, SIGNAL(textChanged(QString const&)),
-            edge,         SLOT(setName(QString const&)));
+    connect(ui->lineName,
+            SIGNAL(textChanged(QString const &)),
+            edge,
+            SLOT(setName(QString const &)));
 
     ui->checkFlip->setChecked(edge->isFlipped());
-    connect(ui->checkFlip, SIGNAL(stateChanged(int)),
-            this,          SLOT(setFlipped(int)));
+    connect(
+        ui->checkFlip, SIGNAL(stateChanged(int)), this, SLOT(setFlipped(int)));
 
     ui->spinlineWidth->setValue(edge->getLineWidth());
-    connect(ui->spinlineWidth, SIGNAL(valueChanged(int)),
-            edge,              SLOT(setLineWidth(int)));
+    connect(ui->spinlineWidth,
+            SIGNAL(valueChanged(int)),
+            edge,
+            SLOT(setLineWidth(int)));
 
-    QList<QString> files =
-    {
-        ":/ressources/images/Scalar.png",
-        ":/ressources/images/Charged_Scalar.png",
-        ":/ressources/images/Anti_Charged_Scalar.png",
-        ":/ressources/images/Fermion.png",
-        ":/ressources/images/Anti_Fermion.png",
-        ":/ressources/images/Majorana.png",
-        ":/ressources/images/Vector.png",
-        ":/ressources/images/Gluon.png",
-        ":/ressources/images/Ghost.png",
-        ":/ressources/images/Anti_Ghost.png",
-        ":/ressources/images/Gaugino.png",
-        ":/ressources/images/Anti_gaugino.png",
-        ":/ressources/images/Gluino.png",
-        ":/ressources/images/Anti_Gluino.png"
-    };
+    QList<QString> files = {":/ressources/images/Scalar.png",
+                            ":/ressources/images/Charged_Scalar.png",
+                            ":/ressources/images/Anti_Charged_Scalar.png",
+                            ":/ressources/images/Fermion.png",
+                            ":/ressources/images/Anti_Fermion.png",
+                            ":/ressources/images/Majorana.png",
+                            ":/ressources/images/Vector.png",
+                            ":/ressources/images/Gluon.png",
+                            ":/ressources/images/Ghost.png",
+                            ":/ressources/images/Anti_Ghost.png",
+                            ":/ressources/images/Gaugino.png",
+                            ":/ressources/images/Anti_gaugino.png",
+                            ":/ressources/images/Gluino.png",
+                            ":/ressources/images/Anti_Gluino.png"};
     ui->listType->setIconSize(QSize(150, 30));
-    ui->listType->horizontalHeader()->setSectionResizeMode(
-                QHeaderView::Fixed);
-    ui->listType->verticalHeader()->setSectionResizeMode(
-                QHeaderView::Fixed);
+    ui->listType->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    ui->listType->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     ui->listType->horizontalHeader()->setDefaultSectionSize(80);
     ui->listType->verticalHeader()->setDefaultSectionSize(30);
     ui->listType->horizontalHeader()->hide();
@@ -87,11 +80,13 @@ EdgeForm::EdgeForm(
             j = 1;
         }
     }
-    connect(ui->listType, SIGNAL(cellClicked(int, int)),
-            this,         SLOT(particleTypeChange(int, int)));
+    connect(ui->listType,
+            SIGNAL(cellClicked(int, int)),
+            this,
+            SLOT(particleTypeChange(int, int)));
 
-    connect(ui->pushButton, SIGNAL(clicked()),
-            renderer,       SLOT(closeEdgeForm()));
+    connect(
+        ui->pushButton, SIGNAL(clicked()), renderer, SLOT(closeEdgeForm()));
 }
 
 EdgeForm::~EdgeForm()
@@ -124,19 +119,7 @@ void EdgeForm::particleTypeChange(int row, int col)
                 ui->listType->item(i, j)->setSelected(false);
             }
         }
-    QList<int> types =
-    {
-        1,
-        2, -2,
-        3, -3,
-        4,
-        5,
-        6,
-        9 , -9,
-        7, -7,
-        8, -8
-    };
-    edge->setParticleType(
-                types[col* ui->listType->rowCount() + row]);
+    QList<int> types = {1, 2, -2, 3, -3, 4, 5, 6, 9, -9, 7, -7, 8, -8};
+    edge->setParticleType(types[col * ui->listType->rowCount() + row]);
     edge->update();
 }

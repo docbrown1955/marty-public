@@ -13,23 +13,22 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
- #include "fileData.h"
+#include "fileData.h"
 
 namespace mty::doc {
 
-FileData::FileData(
-        std::string_view t_headerName,
-        std::string_view t_sourceName
-        )
-    :headerName(t_headerName),
-    sourceName(t_sourceName),
-    m_indent(4, ' ')
-{}
-
-FileData::~FileData() 
+FileData::FileData(std::string_view t_headerName,
+                   std::string_view t_sourceName)
+    : headerName(t_headerName), sourceName(t_sourceName), m_indent(4, ' ')
 {
-    if (header) header.close();
-    if (source) source.close();
+}
+
+FileData::~FileData()
+{
+    if (header)
+        header.close();
+    if (source)
+        source.close();
 }
 
 void FileData::openStream()
@@ -49,26 +48,28 @@ void FileData::openStream()
     }
 }
 
-void FileData::setIndentSize(size_t s) 
+void FileData::setIndentSize(size_t s)
 {
     m_indent = std::string(s, ' ');
 }
 
-std::ostream &FileData::getStream(Mode mode) 
+std::ostream &FileData::getStream(Mode mode)
 {
     openStream();
-    switch(mode) {
-        case Header: return header;
-        case Source: return source;
-        case None: break;
+    switch (mode) {
+    case Header:
+        return header;
+    case Source:
+        return source;
+    case None:
+        break;
     }
     throw TypeError;
 }
 
-std::string const &FileData::indent() const 
-{ 
-    return m_indent; 
+std::string const &FileData::indent() const
+{
+    return m_indent;
 }
 
-
-}
+} // namespace mty::doc

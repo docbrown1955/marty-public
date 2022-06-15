@@ -17,7 +17,7 @@
  * @file exceptions.h
  * @brief Exceptions utilities.
  * @author Grégoire Uhlrich
- * @version 
+ * @version
  * @date 2021-05-06
  */
 #pragma once
@@ -26,26 +26,33 @@
 
 namespace sgl {
 
-    enum class Exception {
-        AbstractCall,
-        MathError,
-        TypeError,
-        IndexError,
-        ValueError,
-    };
+enum class Exception {
+    AbstractCall,
+    MathError,
+    TypeError,
+    IndexError,
+    ValueError,
+};
 
-    inline std::ostream &operator<<(
-            std::ostream &out,
-            Exception     ex
-            )
-    {
-        switch (ex) {
-            case Exception::AbstractCall: out << "AbstractCall"; break;
-            case Exception::MathError:    out << "MathError";    break;
-            case Exception::TypeError:    out << "TypeError";    break;
-            case Exception::IndexError:   out << "IndexError";   break;
-            case Exception::ValueError:   out << "ValueError";   break;
-        }
-        return out;
+inline std::ostream &operator<<(std::ostream &out, Exception ex)
+{
+    switch (ex) {
+    case Exception::AbstractCall:
+        out << "AbstractCall";
+        break;
+    case Exception::MathError:
+        out << "MathError";
+        break;
+    case Exception::TypeError:
+        out << "TypeError";
+        break;
+    case Exception::IndexError:
+        out << "IndexError";
+        break;
+    case Exception::ValueError:
+        out << "ValueError";
+        break;
     }
+    return out;
 }
+} // namespace sgl

@@ -1,28 +1,28 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "pseudoIntegral.h"
-#include "scopedProperty.h"
-#include "comparison.h"
 #include "algo.h"
+#include "comparison.h"
 #include "error.h"
-#include "interface.h"
-#include "replace.h"
 #include "indicial.h"
-#include "space.h"
+#include "interface.h"
 #include "options.h"
+#include "replace.h"
+#include "scopedProperty.h"
+#include "space.h"
 
 using namespace std;
 
@@ -34,38 +34,40 @@ namespace csl {
 /*************************************************/
 ///////////////////////////////////////////////////
 
-PseudoIntegral::PseudoIntegral(): argument(CSL_1)
-{}
-
-PseudoIntegral::PseudoIntegral(const csl::vector_expr& terms): PseudoIntegral()
+PseudoIntegral::PseudoIntegral() : argument(CSL_1)
 {
-    for (const auto& term : terms)
+}
+
+PseudoIntegral::PseudoIntegral(const csl::vector_expr &terms)
+    : PseudoIntegral()
+{
+    for (const auto &term : terms)
         addTerm(term);
 }
 
-PseudoIntegral::PseudoIntegral(const csl::vector_expr& t_integrals,
-        const Expr& t_argument)
-    :vectorIntegrals(t_integrals), argument(CSL_1)
+PseudoIntegral::PseudoIntegral(const csl::vector_expr &t_integrals,
+                               const Expr &            t_argument)
+    : vectorIntegrals(t_integrals), argument(CSL_1)
 {
     addTerm(t_argument);
 }
 
-void PseudoIntegral::testIntegralDep(const Expr& term) const
+void PseudoIntegral::testIntegralDep(const Expr &term) const
 {
-    CSL_ASSERT_SPEC(csl::AllOfNodes(term,
-                [](const Expr& el) {
-                  return el->getType() != csl::Type::VectorIntegral;
-                }),
-               CSLError::TypeError,
-               "Integral dependency encountered in sum."
-               + toString(term) + ".")
+    CSL_ASSERT_SPEC(
+        csl::AllOfNodes(term,
+                        [](const Expr &el) {
+                            return el->getType() != csl::Type::VectorIntegral;
+                        }),
+        CSLError::TypeError,
+        "Integral dependency encountered in sum." + toString(term) + ".")
 }
 
-void PseudoIntegral::addSingleTerm(const Expr& term)
+void PseudoIntegral::addSingleTerm(const Expr &term)
 {
     testIntegralDep(term);
     argumentVector.push_back(term);
-    argument = prod_s(argument, term, true);
+    argument        = prod_s(argument, term, true);
     argumentUpdated = false;
 }
 
@@ -73,12 +75,12 @@ Expr const &PseudoIntegral::getArgument() const
 {
     if (argumentUpdated)
         return argument;
-    argument = prod_s(argumentVector);
+    argument        = prod_s(argumentVector);
     argumentUpdated = true;
     return argument;
 }
 
-void PseudoIntegral::addSingleIntegral(const Expr& integral)
+void PseudoIntegral::addSingleIntegral(const Expr &integral)
 {
     Expr operand = integral->getOperand();
 
@@ -90,7 +92,7 @@ void PseudoIntegral::addSingleIntegral(const Expr& integral)
         addTerm(operand);
 }
 
-void PseudoIntegral::addTerm(const Expr& term)
+void PseudoIntegral::addTerm(const Expr &term)
 {
     if (term == CSL_0) {
         vectorIntegrals.clear();
@@ -101,7 +103,7 @@ void PseudoIntegral::addTerm(const Expr& term)
         addSingleIntegral(term);
     }
     else if (term->getType() == csl::Type::Prod) {
-        for (const auto& arg : *term) {
+        for (const auto &arg : *term) {
             if (arg->getType() == csl::Type::VectorIntegral)
                 addSingleIntegral(arg);
             else {
@@ -113,18 +115,18 @@ void PseudoIntegral::addTerm(const Expr& term)
         addSingleTerm(term);
 }
 
-bool PseudoIntegral::testBoundsInfinity(const Expr& inf, const Expr& sup) const
+bool PseudoIntegral::testBoundsInfinity(const Expr &inf, const Expr &sup) const
 {
     if (inf->getDim() == 0 and inf != -CSL_INF)
         return false;
-    else if (inf->getDim() > 0) 
+    else if (inf->getDim() > 0)
         for (int i = 0; i != inf->getNArgs(); ++i)
             if (not testBoundsInfinity(inf->getArgument(i), sup))
                 return false;
 
-    if (sup->getDim() == 0 and sup !=CSL_INF)
+    if (sup->getDim() == 0 and sup != CSL_INF)
         return false;
-    else if (sup->getDim() > 0) 
+    else if (sup->getDim() > 0)
         for (int i = 0; i != sup->getNArgs(); ++i)
             if (not testBoundsInfinity(inf, sup->getArgument(i)))
                 return false;
@@ -132,38 +134,36 @@ bool PseudoIntegral::testBoundsInfinity(const Expr& inf, const Expr& sup) const
     return true;
 }
 
-void suppressTerm(Expr& init, Expr const& term)
+void suppressTerm(Expr &init, Expr const &term)
 {
     if (term->getType() == csl::Type::Prod) {
-        for (const auto& t : *term)
+        for (const auto &t : *term)
             suppressTerm(init, t);
         return;
     }
-    csl::ForEachNode(init, [&](Expr& el)
-    {
+    csl::ForEachNode(init, [&](Expr &el) {
         if (*el == term.get())
             el = CSL_1;
     });
 }
 
-bool PseudoIntegral::evaluateDelta(
-        int index,
-        Expr& res, 
-        std::vector<Expr*>& dependencies) const
+bool PseudoIntegral::evaluateDelta(int                  index,
+                                   Expr &               res,
+                                   std::vector<Expr *> &dependencies) const
 {
-    Expr integ = vectorIntegrals[index];
-    Expr inf(integ->getInfBoundary());
-    Expr sup(integ->getSupBoundary());
-    Expr variable(integ->getVariable());
-    AbstractParent& indicialVariable = *integ->getParent();
+    Expr            integ = vectorIntegrals[index];
+    Expr            inf(integ->getInfBoundary());
+    Expr            sup(integ->getSupBoundary());
+    Expr            variable(integ->getVariable());
+    AbstractParent &indicialVariable = *integ->getParent();
     if (indicialVariable.getSpace().size() != 1)
         callError(cslError::UndefinedBehaviour,
-                "TensorParent\"" + string(indicialVariable.getName())
-                + "\" variable of a VectorIntegral may be "
-                + "1-dimensionnal only.");
+                  "TensorParent\"" + string(indicialVariable.getName())
+                      + "\" variable of a VectorIntegral may be "
+                      + "1-dimensionnal only.");
 
-    const Space* spaceVariable = indicialVariable.getSpace()[0];
-    Index fooIndex = spaceVariable->generateIndex("foo");
+    const Space *spaceVariable = indicialVariable.getSpace()[0];
+    Index        fooIndex      = spaceVariable->generateIndex("foo");
     fooIndex.setFree(false);
 
     if (not testBoundsInfinity(inf, sup))
@@ -171,25 +171,26 @@ bool PseudoIntegral::evaluateDelta(
     if (dependencies.size() == 1) {
         if ((**dependencies[0]).getType() != csl::Type::DiracDelta)
             return false;
-        if ((**dependencies[0]).dependsExplicitlyOn(integ->getParent().get())) {
-            Expr copyArg = (**dependencies[0]).copy();
+        if ((**dependencies[0])
+                .dependsExplicitlyOn(integ->getParent().get())) {
+            Expr copyArg       = (**dependencies[0]).copy();
             (*dependencies[0]) = CSL_1;
-            res = copyArg->applyDiracDelta(
-                    argument,
-                    indicialVariable(fooIndex));
+            res                = copyArg->applyDiracDelta(argument,
+                                           indicialVariable(fooIndex));
             return true;
         }
         return false;
     }
     for (size_t i = 0; i != dependencies.size(); ++i) {
-        Expr& arg = (*dependencies[i]);
+        Expr &arg = (*dependencies[i]);
         if (arg->getType() != csl::Type::DiracDelta)
             continue;
         if (arg->getArgument()->dependsExplicitlyOn(
-                    integ->getParent().get())) {
+                integ->getParent().get())) {
             Expr copyArg = arg->copy();
-            arg = CSL_1;
-            res = copyArg->applyDiracDelta(argument, indicialVariable(fooIndex));
+            arg          = CSL_1;
+            res          = copyArg->applyDiracDelta(argument,
+                                           indicialVariable(fooIndex));
             return true;
         }
     }
@@ -197,42 +198,36 @@ bool PseudoIntegral::evaluateDelta(
 }
 
 bool PseudoIntegral::evaluateExpProduct(
-        int index,
-        Expr& res,
-        std::vector<Expr*>& dependencies) const
+    int index, Expr &res, std::vector<Expr *> &dependencies) const
 {
-    Expr integ = vectorIntegrals[index];
-    Expr inf(integ->getInfBoundary());
-    Expr sup(integ->getSupBoundary());
-    Expr variable(integ->getVariable());
-    AbstractParent& indicialVariable = *integ->getParent();
+    Expr            integ = vectorIntegrals[index];
+    Expr            inf(integ->getInfBoundary());
+    Expr            sup(integ->getSupBoundary());
+    Expr            variable(integ->getVariable());
+    AbstractParent &indicialVariable = *integ->getParent();
     if (indicialVariable.getSpace().size() != 1)
         callError(cslError::UndefinedBehaviour,
-                "TensorParent\"" + string(indicialVariable.getName())
-                + "\" variable of a VectorIntegral may be "
-                + "1-dimensionnal only.");
+                  "TensorParent\"" + string(indicialVariable.getName())
+                      + "\" variable of a VectorIntegral may be "
+                      + "1-dimensionnal only.");
 
-    const Space* spaceVariable = indicialVariable.getSpace()[0];
-    Index fooIndex = spaceVariable->generateIndex("foo");
+    const Space *spaceVariable = indicialVariable.getSpace()[0];
+    Index        fooIndex      = spaceVariable->generateIndex("foo");
     fooIndex.setFree(false);
 
     Expr foo = getExponentialDependency(dependencies);
     if (foo == CSL_0)
         return false;
-    Prod case1({CSL_I,
-                indicialVariable(fooIndex),
-                Comparator::dummy(1)}, 1);
-    Prod case2({CSL_M_1,
-                CSL_I,
-                indicialVariable(fooIndex),
-                Comparator::dummy(1)}, 1);
+    Prod case1({CSL_I, indicialVariable(fooIndex), Comparator::dummy(1)}, 1);
+    Prod case2(
+        {CSL_M_1, CSL_I, indicialVariable(fooIndex), Comparator::dummy(1)}, 1);
     if (Comparator::dummyComparison(foo.get(), &case1)
-            or Comparator::dummyComparison(foo.get(), &case2)) {
-        //res = 2*PI*csl::make_shared<DiracDelta>(
+        or Comparator::dummyComparison(foo.get(), &case2)) {
+        // res = 2*PI*csl::make_shared<DiracDelta>(
         //        foo->suppressTerm(variable)->suppressTerm(I));
         res = argument;
         ScopedProperty p(&csl::option::freezeMerge, true);
-        for (Expr* dep : dependencies)
+        for (Expr *dep : dependencies)
             *dep = CSL_1;
         // if (dep->getType() != csl::Type::Prod)
         //     res = res->suppressTerm(dep.get());
@@ -241,34 +236,31 @@ bool PseudoIntegral::evaluateExpProduct(
         //         res = res->suppressTerm(arg.get());
         // }
         Expr term1 = (*integ->getParent())(fooIndex);
-        res = prod_s(res,
-                csl::make_shared<DiracDelta>(
+        res        = prod_s(
+            res,
+            csl::make_shared<DiracDelta>(
                 foo->suppressTerm(term1.get())->suppressTerm(CSL_I.get())),
-                true);
-                //->expand(true));
+            true);
+        //->expand(true));
         return true;
     }
     return false;
 }
 
 void PseudoIntegral::getRecursiveIntegralDependency(
-        Expr& operand,
-        const Expr& integ,
-        std::vector<Expr*>& dependencies)
+    Expr &operand, const Expr &integ, std::vector<Expr *> &dependencies)
 {
     if (not operand->dependsOn(integ->getParent().get())) {
         return;
     }
     Expr dep = CSL_1;
-    switch(operand->getType()) {
-        case csl::Type::Prod:
-        for (auto& arg : *operand)
-            getRecursiveIntegralDependency(arg,
-                                           integ,
-                                           dependencies);
+    switch (operand->getType()) {
+    case csl::Type::Prod:
+        for (auto &arg : *operand)
+            getRecursiveIntegralDependency(arg, integ, dependencies);
         break;
 
-        default:
+    default:
         dependencies.push_back(&operand);
     }
 }
@@ -283,14 +275,14 @@ Expr PseudoIntegral::getExpression() const
 }
 
 Expr PseudoIntegral::getExponentialDependency(
-        std::vector<Expr*> const& dep) const
+    std::vector<Expr *> const &dep) const
 {
     csl::vector_expr foo;
     foo.reserve(dep.size());
-    for (Expr* arg : dep) {
+    for (Expr *arg : dep) {
         if ((**arg).getType() != csl::Type::Exp
-                and ((**arg).getType() != csl::Type::Pow
-                    or (**arg).getArgument() != CSL_E))
+            and ((**arg).getType() != csl::Type::Pow
+                 or (**arg).getArgument() != CSL_E))
             return CSL_0;
         foo.push_back((**arg).getArgument());
     }
@@ -302,7 +294,7 @@ void PseudoIntegral::expandExponentials()
 {
     if (argument->getType() == csl::Type::Exp)
         Expand(argument, true);
-    else if (argument->getType() == csl::Type::Prod){
+    else if (argument->getType() == csl::Type::Prod) {
         bool changed = false;
         for (int i = 0; i != argument->getNArgs(); ++i)
             if (argument->getArgument(i)->getType() == csl::Type::Exp) {
@@ -323,7 +315,7 @@ Expr PseudoIntegral::evaluate()
     if (argument->getType() == csl::Type::Sum) {
         std::vector<Expr> res;
         res.reserve(argument->size());
-        for (const auto& arg : *argument)
+        for (const auto &arg : *argument)
             res.push_back(PseudoIntegral(vectorIntegrals, arg).evaluate());
         vectorIntegrals.clear();
         argument = sum_s(res);
@@ -332,20 +324,17 @@ Expr PseudoIntegral::evaluate()
     }
     expandExponentials();
     for (size_t i = 0; i != vectorIntegrals.size(); ++i) {
-        Expr integ = vectorIntegrals[i];
-        std::vector<Expr*> dependencies;
+        Expr                integ = vectorIntegrals[i];
+        std::vector<Expr *> dependencies;
         dependencies.reserve(5);
-        getRecursiveIntegralDependency(
-                argument,
-                integ,
-                dependencies);
+        getRecursiveIntegralDependency(argument, integ, dependencies);
         if (dependencies.empty()) {
             continue;
         }
-        if (evaluateDelta(i,res,dependencies) 
-                or evaluateExpProduct(i,res,dependencies)) {
+        if (evaluateDelta(i, res, dependencies)
+            or evaluateExpProduct(i, res, dependencies)) {
             argument = res;
-            vectorIntegrals.erase(vectorIntegrals.begin()+i);
+            vectorIntegrals.erase(vectorIntegrals.begin() + i);
             --i;
             changed = true;
         }
@@ -356,7 +345,7 @@ Expr PseudoIntegral::evaluate()
     return getExpression();
 }
 
-Expr PseudoIntegral::applyOn(const Expr& expr) const
+Expr PseudoIntegral::applyOn(const Expr &expr) const
 {
     if (expr->getType() == csl::Type::Sum) {
         csl::vector_expr res(expr->size());
@@ -365,21 +354,18 @@ Expr PseudoIntegral::applyOn(const Expr& expr) const
         return sum_s(res);
     }
     if (expr->getType() == csl::Type::Prod) {
-        for (const auto& term : *expr)
-            if (term->getType() == csl::Type::Sum 
-                    and csl::AnyOfNodes(
-                    term,
-                    [](const Expr& el) {
+        for (const auto &term : *expr)
+            if (term->getType() == csl::Type::Sum
+                and csl::AnyOfNodes(term, [](const Expr &el) {
                         return el->getType() == csl::Type::VectorIntegral;
-                    }))
-            {
+                    })) {
                 Expr expanded = Expanded(
-                        prod_s(prod_s(argumentVector, true), expr, true));
+                    prod_s(prod_s(argumentVector, true), expr, true));
                 csl::vector_expr res(expanded->size());
                 for (size_t i = 0; i != res.size(); ++i)
-                    res[i] = Evaluated(PseudoIntegral(
-                                vectorIntegrals,
-                                (*expanded)[i]).evaluate());
+                    res[i] = Evaluated(
+                        PseudoIntegral(vectorIntegrals, (*expanded)[i])
+                            .evaluate());
                 return sum_s(res);
             }
     }
@@ -396,40 +382,36 @@ Expr PseudoIntegral::applyOn(const Expr& expr) const
 ///////////////////////////////////////////////////
 
 AbstractIntegral::AbstractIntegral()
-    :Operator<AbstractFunc>(),
-    inf(-CSL_INF), 
-    sup(CSL_INF)
+    : Operator<AbstractFunc>(), inf(-CSL_INF), sup(CSL_INF)
 {
     argument = CSL_1;
 }
 
-AbstractIntegral::AbstractIntegral(const Expr& operand)
-    :AbstractIntegral()
+AbstractIntegral::AbstractIntegral(const Expr &operand) : AbstractIntegral()
 {
     argument = operand;
 }
 
-AbstractIntegral::AbstractIntegral(const Expr& operand,
-                                   bool        t_empty)
-    :AbstractIntegral(operand)
+AbstractIntegral::AbstractIntegral(const Expr &operand, bool t_empty)
+    : AbstractIntegral(operand)
 {
     empty = t_empty;
 }
 
-AbstractIntegral::AbstractIntegral(const Expr& operand,
-                                   const Expr& t_inf,
-                                   const Expr& t_sup)
-    :AbstractIntegral(operand)
+AbstractIntegral::AbstractIntegral(const Expr &operand,
+                                   const Expr &t_inf,
+                                   const Expr &t_sup)
+    : AbstractIntegral(operand)
 {
     inf = t_inf;
     sup = t_sup;
 }
 
-AbstractIntegral::AbstractIntegral(const Expr& operand,
+AbstractIntegral::AbstractIntegral(const Expr &operand,
                                    bool        t_empty,
-                                   const Expr& t_inf,
-                                   const Expr& t_sup)
-    :AbstractIntegral(operand, t_empty)
+                                   const Expr &t_inf,
+                                   const Expr &t_sup)
+    : AbstractIntegral(operand, t_empty)
 {
     inf = t_inf;
     sup = t_sup;
@@ -460,7 +442,7 @@ void AbstractIntegral::setInfBoundary(Expr const &t_inf)
     inf = t_inf;
 }
 
-void AbstractIntegral::setOperand(const Expr& t_operand)
+void AbstractIntegral::setOperand(const Expr &t_operand)
 {
     argument = t_operand;
 }
@@ -469,13 +451,11 @@ Expr AbstractIntegral::suppressTerm(Expr_info expr) const
 {
     Expr res = Copy(this);
     res->setOperand(getOperand()->suppressTerm(expr));
-    
+
     return res;
 }
 
-optional<Expr> AbstractIntegral::evaluate(
-        csl::eval::mode user_mode
-        ) const
+optional<Expr> AbstractIntegral::evaluate(csl::eval::mode user_mode) const
 {
     return AbstractFunc::evaluate(user_mode);
 }
@@ -485,34 +465,29 @@ optional<Expr> AbstractIntegral::derive(Expr_info) const
     // if (derivative_s(expr,getVariable()) != CSL_0) {
     //     callError(cslError::UndefinedBehaviour,
     //         "AbstractIntegral::derive(Expr_info expr)",
-    //         "\"deriving an integral whose variable depends on the argument\"");
+    //         "\"deriving an integral whose variable depends on the
+    //         argument\"");
     // }
     return AbstractFunc::evaluate();
 }
 
-bool AbstractIntegral::dependsOn(Expr_info expr) const 
+bool AbstractIntegral::dependsOn(Expr_info expr) const
 {
-    return AbstractFunc::dependsOn(expr)
-        or getVariable()->dependsOn(expr)
-        or inf->dependsOn(expr)
-        or sup->dependsOn(expr);
+    return AbstractFunc::dependsOn(expr) or getVariable()->dependsOn(expr)
+           or inf->dependsOn(expr) or sup->dependsOn(expr);
 }
 
-bool AbstractIntegral::dependsOn(const AbstractParent* parent) const 
+bool AbstractIntegral::dependsOn(const AbstractParent *parent) const
 {
-    return AbstractFunc::dependsOn(parent)
-        or getVariable()->dependsOn(parent)
-        or inf->dependsOn(parent)
-        or sup->dependsOn(parent);
+    return AbstractFunc::dependsOn(parent) or getVariable()->dependsOn(parent)
+           or inf->dependsOn(parent) or sup->dependsOn(parent);
 }
 
-
-bool AbstractIntegral::dependsExplicitlyOn(Expr_info expr) const 
+bool AbstractIntegral::dependsExplicitlyOn(Expr_info expr) const
 {
     return AbstractFunc::dependsExplicitlyOn(expr)
-        or getVariable()->dependsExplicitlyOn(expr)
-        or inf->dependsExplicitlyOn(expr)
-        or sup->dependsExplicitlyOn(expr);
+           or getVariable()->dependsExplicitlyOn(expr)
+           or inf->dependsExplicitlyOn(expr) or sup->dependsExplicitlyOn(expr);
 }
 
 bool AbstractIntegral::operatorAppliesOn(Expr_info expr) const
@@ -526,48 +501,44 @@ bool AbstractIntegral::operatorAppliesOn(Expr_info expr) const
 /*************************************************/
 ///////////////////////////////////////////////////
 
-ScalarIntegral::ScalarIntegral()
-    :AbstractIntegral()
+ScalarIntegral::ScalarIntegral() : AbstractIntegral()
 {
-
 }
 
-ScalarIntegral::ScalarIntegral(const Expr& t_variable)
-    :AbstractIntegral()
+ScalarIntegral::ScalarIntegral(const Expr &t_variable) : AbstractIntegral()
 {
     setVariable(t_variable);
 }
 
-ScalarIntegral::ScalarIntegral(const Expr& operand,
-                               const Expr& t_variable)
-    :AbstractIntegral(operand)
+ScalarIntegral::ScalarIntegral(const Expr &operand, const Expr &t_variable)
+    : AbstractIntegral(operand)
 {
     setVariable(t_variable);
 }
 
-ScalarIntegral::ScalarIntegral(const Expr& t_variable,
-                               const Expr& t_inf,     
-                               const Expr& t_sup)  
-    :AbstractIntegral(CSL_1, t_inf, t_sup)
+ScalarIntegral::ScalarIntegral(const Expr &t_variable,
+                               const Expr &t_inf,
+                               const Expr &t_sup)
+    : AbstractIntegral(CSL_1, t_inf, t_sup)
 {
     setVariable(t_variable);
 }
 
-ScalarIntegral::ScalarIntegral(const Expr& operand,
-                               const Expr& t_variable,
-                               const Expr& t_inf,
-                               const Expr& t_sup)
-    :AbstractIntegral(operand, t_inf, t_sup)
+ScalarIntegral::ScalarIntegral(const Expr &operand,
+                               const Expr &t_variable,
+                               const Expr &t_inf,
+                               const Expr &t_sup)
+    : AbstractIntegral(operand, t_inf, t_sup)
 {
     setVariable(t_variable);
 }
 
-ScalarIntegral::ScalarIntegral(const Expr& operand,
-                               const Expr& t_variable,
+ScalarIntegral::ScalarIntegral(const Expr &operand,
+                               const Expr &t_variable,
                                bool        t_empty,
-                               const Expr& t_inf,
-                               const Expr& t_sup)
-    :AbstractIntegral(operand, t_empty, t_inf, t_sup)
+                               const Expr &t_inf,
+                               const Expr &t_sup)
+    : AbstractIntegral(operand, t_empty, t_inf, t_sup)
 {
     setVariable(t_variable);
 }
@@ -580,16 +551,13 @@ Expr ScalarIntegral::getVariable() const
 void ScalarIntegral::setVariable(Expr const &t_variable)
 {
     CSL_ASSERT_SPEC(t_variable->getType() == csl::Type::Variable,
-            CSLError::TypeError,
-            "Expecting a variable in scalar integral, " + toString(t_variable)
-            + " given.")
+                    CSLError::TypeError,
+                    "Expecting a variable in scalar integral, "
+                        + toString(t_variable) + " given.")
     variable = t_variable;
 }
 
-void ScalarIntegral::print(
-        int mode,
-        std::ostream& out,
-        bool) const
+void ScalarIntegral::print(int mode, std::ostream &out, bool) const
 {
     out << "int{";
     out << variable->getName();
@@ -608,10 +576,7 @@ void ScalarIntegral::print(
         out << endl;
 }
 
-void ScalarIntegral::printCode(
-        int,
-        std::ostream &out
-        ) const
+void ScalarIntegral::printCode(int, std::ostream &out) const
 {
     out << "csl::scalarintegral_s(";
     argument->printCode(1, out);
@@ -651,40 +616,31 @@ string ScalarIntegral::printLaTeX(int mode) const
 
 unique_Expr ScalarIntegral::copy_unique() const
 {
-    return make_unique<ScalarIntegral>(argument,
-                                       variable,
-                                       empty,
-                                       inf,
-                                       sup);
+    return make_unique<ScalarIntegral>(argument, variable, empty, inf, sup);
 }
 
 Expr ScalarIntegral::deepCopy() const
 {
     return csl::make_shared<ScalarIntegral>(argument->deepCopy(),
-                                       variable->deepCopy(),
-                                       empty,
-                                       inf->deepCopy(),
-                                       sup->deepCopy());
+                                            variable->deepCopy(),
+                                            empty,
+                                            inf->deepCopy(),
+                                            sup->deepCopy());
 }
 
 Expr ScalarIntegral::refresh() const
 {
-    return scalarintegral_s(argument,
-                           variable,
-                           empty,
-                           inf,
-                           sup);
+    return scalarintegral_s(argument, variable, empty, inf, sup);
 }
 
 Expr ScalarIntegral::deepRefresh() const
 {
     return scalarintegral_s(argument->deepRefresh(),
-                           variable->deepRefresh(),
-                           empty,
-                           inf->deepRefresh(),
-                           sup->deepRefresh());
+                            variable->deepRefresh(),
+                            empty,
+                            inf->deepRefresh(),
+                            sup->deepRefresh());
 }
-
 
 bool ScalarIntegral::operator==(Expr_info other) const
 {
@@ -692,11 +648,10 @@ bool ScalarIntegral::operator==(Expr_info other) const
         return test;
     if (other->getType() != csl::Type::ScalarIntegral)
         return false;
-    return (argument     == other->getArgument()
-            and variable == other->getVariable()
-            and empty    == other->isEmpty()
-            and inf      == other->getInfBoundary()
-            and sup      == other->getSupBoundary());
+    return (argument == other->getArgument()
+            and variable == other->getVariable() and empty == other->isEmpty()
+            and inf == other->getInfBoundary()
+            and sup == other->getSupBoundary());
 }
 
 ///////////////////////////////////////////////////
@@ -705,58 +660,49 @@ bool ScalarIntegral::operator==(Expr_info other) const
 /*************************************************/
 ///////////////////////////////////////////////////
 
-VectorIntegral::VectorIntegral()
-    :AbstractIntegral()
+VectorIntegral::VectorIntegral() : AbstractIntegral()
 {
-
 }
 
-VectorIntegral::VectorIntegral(const Tensor& t_variables)
-    :AbstractIntegral(), variables(t_variables)
+VectorIntegral::VectorIntegral(const Tensor &t_variables)
+    : AbstractIntegral(), variables(t_variables)
 {
-
 }
 
-VectorIntegral::VectorIntegral(const Expr&    operand,
-                               const Tensor& t_variables)
-    :AbstractIntegral(operand), variables(t_variables)
+VectorIntegral::VectorIntegral(const Expr &operand, const Tensor &t_variables)
+    : AbstractIntegral(operand), variables(t_variables)
 {
-
 }
 
-VectorIntegral::VectorIntegral(const Expr&     operand,
-                               const Tensor&  t_variables,
-                               bool            t_empty)
-    :AbstractIntegral(operand, t_empty), variables(t_variables)
+VectorIntegral::VectorIntegral(const Expr &  operand,
+                               const Tensor &t_variables,
+                               bool          t_empty)
+    : AbstractIntegral(operand, t_empty), variables(t_variables)
 {
-    
 }
 
-VectorIntegral::VectorIntegral(const Expr&     operand,
-                               const Tensor&  t_variables,
-                               const Expr&     t_inf,
-                               const Expr&     t_sup)
-    :AbstractIntegral(operand, t_inf, t_sup), variables(t_variables)
+VectorIntegral::VectorIntegral(const Expr &  operand,
+                               const Tensor &t_variables,
+                               const Expr &  t_inf,
+                               const Expr &  t_sup)
+    : AbstractIntegral(operand, t_inf, t_sup), variables(t_variables)
 {
-
 }
 
-VectorIntegral::VectorIntegral(const Tensor&  t_variables,
-                               const Expr&     t_inf,
-                               const Expr&     t_sup)
-    :VectorIntegral(CSL_1, t_variables, t_inf, t_sup)
+VectorIntegral::VectorIntegral(const Tensor &t_variables,
+                               const Expr &  t_inf,
+                               const Expr &  t_sup)
+    : VectorIntegral(CSL_1, t_variables, t_inf, t_sup)
 {
-
 }
 
-VectorIntegral::VectorIntegral(const Expr&     operand,
-                               const Tensor&   t_variables,
-                               bool            t_empty,
-                               const Expr&     t_inf,
-                               const Expr&     t_sup)
-    :AbstractIntegral(operand, t_empty, t_inf, t_sup), variables(t_variables)
+VectorIntegral::VectorIntegral(const Expr &  operand,
+                               const Tensor &t_variables,
+                               bool          t_empty,
+                               const Expr &  t_inf,
+                               const Expr &  t_sup)
+    : AbstractIntegral(operand, t_empty, t_inf, t_sup), variables(t_variables)
 {
-
 }
 
 Expr VectorIntegral::getVariable() const
@@ -774,26 +720,22 @@ Parent_info VectorIntegral::getParent_info() const
     return variables.get();
 }
 
-void VectorIntegral::setParent(const Parent& t_variable)
+void VectorIntegral::setParent(const Parent &t_variable)
 {
     if (t_variable->getPrimaryType() != cslParent::Indicial)
-        callError(cslError::UndefinedBehaviour,
-                "VectorIntegral::setParent()");
+        callError(cslError::UndefinedBehaviour, "VectorIntegral::setParent()");
     Parent old_variable = variables;
-    variables = std::dynamic_pointer_cast<TensorParent>(t_variable);
+    variables           = std::dynamic_pointer_cast<TensorParent>(t_variable);
     Replace(argument, old_variable, variables);
     DeepRefresh(argument);
 }
 
-void VectorIntegral::print(
-        int mode,
-        std::ostream& out,
-        bool) const
+void VectorIntegral::print(int mode, std::ostream &out, bool) const
 {
     out << "int{";
     out << variables->getName() << "-" << variables->getSpace()[0]->getDim()
         << "d";
-    if (inf != -CSL_INF or sup !=CSL_INF) {
+    if (inf != -CSL_INF or sup != CSL_INF) {
         out << ", ";
         inf->print(1, out);
         out << ", ";
@@ -810,10 +752,7 @@ void VectorIntegral::print(
         out << endl;
 }
 
-void VectorIntegral::printCode(
-        int,
-        std::ostream &out
-        ) const
+void VectorIntegral::printCode(int, std::ostream &out) const
 {
     out << "csl::vectorintegral_s(";
     argument->printCode(1, out);
@@ -832,7 +771,7 @@ string VectorIntegral::printLaTeX(int mode) const
 {
     ostringstream sout;
     sout << "int";
-    if (inf != -CSL_INF or sup !=CSL_INF) {
+    if (inf != -CSL_INF or sup != CSL_INF) {
         sout << "_{";
         sout << inf->printLaTeX(1);
         sout << "}^{";
@@ -853,40 +792,31 @@ string VectorIntegral::printLaTeX(int mode) const
 
 unique_Expr VectorIntegral::copy_unique() const
 {
-    return make_unique<VectorIntegral>(argument,
-                                       variables,
-                                       empty,
-                                       inf,
-                                       sup);
+    return make_unique<VectorIntegral>(argument, variables, empty, inf, sup);
 }
 
 Expr VectorIntegral::deepCopy() const
 {
     return csl::make_shared<VectorIntegral>(argument->deepCopy(),
-                                       variables,
-                                       empty,
-                                       inf->deepCopy(),
-                                       sup->deepCopy());
+                                            variables,
+                                            empty,
+                                            inf->deepCopy(),
+                                            sup->deepCopy());
 }
 
 Expr VectorIntegral::refresh() const
 {
-    return vectorintegral_s(argument,
-                           variables,
-                           empty,
-                           inf,
-                           sup);
+    return vectorintegral_s(argument, variables, empty, inf, sup);
 }
 
 Expr VectorIntegral::deepRefresh() const
 {
     return vectorintegral_s(DeepRefreshed(argument),
-                           variables,
-                           empty,
-                           DeepRefreshed(inf),
-                           DeepRefreshed(sup));
+                            variables,
+                            empty,
+                            DeepRefreshed(inf),
+                            DeepRefreshed(sup));
 }
-
 
 bool VectorIntegral::isIndexed() const
 {
@@ -905,11 +835,9 @@ IndexStructure VectorIntegral::getIndexStructure() const
     return IndexStructure();
 }
 
-bool VectorIntegral::compareWithDummy(
-        Expr_info other,
-        map<Index,Index>& constraints,
-        bool keepAllCosntraints
-        ) const
+bool VectorIntegral::compareWithDummy(Expr_info          other,
+                                      map<Index, Index> &constraints,
+                                      bool keepAllCosntraints) const
 {
     if (not isIndexed())
         return *this == other;
@@ -917,38 +845,30 @@ bool VectorIntegral::compareWithDummy(
         return test;
     if (other->getType() != csl::Type::VectorIntegral)
         return false;
-    if (Comparator::getDummyVecIntComparisonActive()
-            and not empty 
-            and not other->isEmpty()
-            and variables != other->getParent()) {
+    if (Comparator::getDummyVecIntComparisonActive() and not empty
+        and not other->isEmpty() and variables != other->getParent()) {
         Expr otherModified = DeepCopy(other);
         otherModified->setParent(variables);
         if (*this == otherModified.get())
             return true;
-        if (not ((-inf)->expand() == sup)) {
+        if (not((-inf)->expand() == sup)) {
             return false;
         }
-        // Trying to invert the variable if the integral domain is 
+        // Trying to invert the variable if the integral domain is
         // symmetric around 0.
         Index ind = variables->getSpace()[0]->generateIndex();
-        Replace(otherModified,
-                (*variables)(ind),
-                -(*variables)(ind));
-        auto res = compareWithDummy(otherModified.get(),
-                                constraints,
-                                keepAllCosntraints);
+        Replace(otherModified, (*variables)(ind), -(*variables)(ind));
+        auto res = compareWithDummy(
+            otherModified.get(), constraints, keepAllCosntraints);
         return res;
     }
 
-    
-    bool res =  (
-            argument->compareWithDummy(other->getArgument().get(),
-                                       constraints,
-                                       keepAllCosntraints)
-            and variables == other->getParent()
-            and empty     == other->isEmpty()
-            and inf       == other->getInfBoundary()
-            and sup       == other->getSupBoundary());
+    bool res
+        = (argument->compareWithDummy(
+               other->getArgument().get(), constraints, keepAllCosntraints)
+           and variables == other->getParent() and empty == other->isEmpty()
+           and inf == other->getInfBoundary()
+           and sup == other->getSupBoundary());
 
     return res;
 }
@@ -959,9 +879,8 @@ bool VectorIntegral::operator==(Expr_info other) const
         return test;
     if (other->getType() != csl::Type::VectorIntegral)
         return false;
-    if (Comparator::getDummyVecIntComparisonActive()
-            and not empty 
-            and not other->isEmpty()) {
+    if (Comparator::getDummyVecIntComparisonActive() and not empty
+        and not other->isEmpty()) {
         Comparator::setDummyVecIntComparisonActive(false);
         Expr otherModified = DeepCopy(other);
         if (variables != other->getParent())
@@ -970,27 +889,23 @@ bool VectorIntegral::operator==(Expr_info other) const
             Comparator::setDummyVecIntComparisonActive(true);
             return true;
         }
-        if (not (Expanded(-inf) == sup)) {
+        if (not(Expanded(-inf) == sup)) {
             Comparator::setDummyVecIntComparisonActive(true);
             return false;
         }
-        // Trying to invert the variable if the integral domain is 
+        // Trying to invert the variable if the integral domain is
         // symmetric around 0.
         Index ind = variables->getSpace()[0]->generateIndex();
-        Replace(otherModified,
-                (*variables)(ind),
-                -(*variables)(ind));
+        Replace(otherModified, (*variables)(ind), -(*variables)(ind));
         bool res = (*this == otherModified.get());
         Comparator::setDummyVecIntComparisonActive(true);
         return res;
     }
-    
-    bool res =  (
-            argument      == other->getArgument()
-            and variables == other->getParent()
-            and empty     == other->isEmpty()
-            and inf       == other->getInfBoundary()
-            and sup       == other->getSupBoundary());
+
+    bool res
+        = (argument == other->getArgument() and variables == other->getParent()
+           and empty == other->isEmpty() and inf == other->getInfBoundary()
+           and sup == other->getSupBoundary());
 
     return res;
 }
@@ -1001,22 +916,20 @@ bool VectorIntegral::operator==(Expr_info other) const
 /*************************************************/
 ///////////////////////////////////////////////////
 
-void MakeScalarIntegral(Expr& init)
+void MakeScalarIntegral(Expr &init)
 {
     Expr operand  = init->getOperand();
     Expr variable = init->getVariable();
     if (init->isEmpty()) {
-        if (operand != CSL_1 
-                and not operand->dependsOn(variable.get())) {
+        if (operand != CSL_1 and not operand->dependsOn(variable.get())) {
             init = CSL_0;
             return;
         }
     }
-    else
-        if (not operand->dependsOn(variable.get())) {
-            init = CSL_0;
-            return;
-        }
+    else if (not operand->dependsOn(variable.get())) {
+        init = CSL_0;
+        return;
+    }
     init->setOperand(CSL_1);
     if (operand == CSL_0) {
         init = CSL_0;
@@ -1024,9 +937,9 @@ void MakeScalarIntegral(Expr& init)
     }
     else if (operand->getType() == csl::Type::Sum) {
         csl::vector_expr args = operand->getVectorArgument();
-        for (auto& arg : args) {
+        for (auto &arg : args) {
             Expr foo = Copy(init);
-            arg = foo->applyOperator(arg);
+            arg      = foo->applyOperator(arg);
         }
         init = sum_s(args);
         return;
@@ -1035,7 +948,7 @@ void MakeScalarIntegral(Expr& init)
         init = init->applyOperator(operand);
 }
 
-void MakeIntegral(Expr& init)
+void MakeIntegral(Expr &init)
 {
     if (init->getType() != csl::Type::VectorIntegral) {
         MakeScalarIntegral(init);
@@ -1044,17 +957,16 @@ void MakeIntegral(Expr& init)
     Expr operand  = init->getOperand();
     Expr variable = init->getVariable();
     if (init->isEmpty()) {
-        if (operand != CSL_1 
-                and not operand->dependsOn(init->getParent_info())) {
+        if (operand != CSL_1
+            and not operand->dependsOn(init->getParent_info())) {
             init = CSL_0;
             return;
         }
     }
-    else
-        if (not operand->dependsOn(init->getParent_info())) {
-            init = CSL_0;
-            return;
-        }
+    else if (not operand->dependsOn(init->getParent_info())) {
+        init = CSL_0;
+        return;
+    }
     init->setOperand(CSL_1);
     if (operand == CSL_0) {
         init = CSL_0;
@@ -1062,9 +974,9 @@ void MakeIntegral(Expr& init)
     }
     else if (operand->getType() == csl::Type::Sum) {
         csl::vector_expr args = operand->getVectorArgument();
-        for (auto& arg : args) {
+        for (auto &arg : args) {
             Expr foo = Copy(init);
-            arg = foo->applyOperator(arg);
+            arg      = foo->applyOperator(arg);
         }
         init = sum_s(args);
         return;
@@ -1073,7 +985,8 @@ void MakeIntegral(Expr& init)
         init = init->applyOperator(operand);
 }
 
-Expr vectorintegral_s(const Tensor& variables) {
+Expr vectorintegral_s(const Tensor &variables)
+{
     Expr res = csl::make_shared<VectorIntegral>(variables);
     return res;
 }

@@ -1,28 +1,28 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "abstract.h"
-#include "utils.h"
+#include "comparison.h"
+#include "indicial.h"
+#include "librarydependency.h"
 #include "literal.h"
 #include "numerical.h"
 #include "operations.h"
-#include "indicial.h"
-#include "simplification.h"
 #include "options.h"
-#include "comparison.h"
-#include "librarydependency.h"
+#include "simplification.h"
+#include "utils.h"
 using namespace std;
 
 namespace csl {
@@ -54,9 +54,8 @@ size_t Abstract::memoryOverhead() const
     return 0;
 }
 
-void Abstract::setName(const string&)
+void Abstract::setName(const string &)
 {
-
 }
 
 void Abstract::setCommutable(bool)
@@ -65,7 +64,7 @@ void Abstract::setCommutable(bool)
     CALL_SMERROR(CSLError::AbstractCallError);
 }
 
-int Abstract::getDim() const 
+int Abstract::getDim() const
 {
     return 0;
 }
@@ -84,18 +83,15 @@ bool Abstract::getAllDependencies() const
     return false;
 }
 
-const vector<Equation*>& Abstract::getProperties() const
+const vector<Equation *> &Abstract::getProperties() const
 {
-    static std::vector<Equation*> empty;
+    static std::vector<Equation *> empty;
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
     return empty;
 }
 
-void Abstract::printCode(
-        int,
-        std::ostream &
-        ) const
+void Abstract::printCode(int, std::ostream &) const
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
@@ -112,10 +108,14 @@ std::string Abstract::regularName(std::string_view name)
         return "_";
     std::string reg(name);
     for (char &c : reg) {
-        if (c >= 'a' and c <= 'z') continue;
-        if (c >= 'A' and c <= 'Z') continue;
-        if (c >= '0' and c <= '9') continue;
-        if (c == '_') continue;
+        if (c >= 'a' and c <= 'z')
+            continue;
+        if (c >= 'A' and c <= 'Z')
+            continue;
+        if (c >= '0' and c <= '9')
+            continue;
+        if (c == '_')
+            continue;
         if (c == '+')
             c = 'p';
         else if (c == '-')
@@ -140,32 +140,33 @@ std::string Abstract::regularLiteral(std::string_view name)
     std::string reg(name);
     for (size_t i = 0; i != reg.size(); ++i)
         if (reg[i] == '\\') {
-            reg.insert(reg.begin()+i, '\\');
+            reg.insert(reg.begin() + i, '\\');
             ++i;
         }
     return reg;
 }
 
-void Abstract::printProp(std::ostream&) const
+void Abstract::printProp(std::ostream &) const
 {
-
 }
 
 void Abstract::printExplicit(int mode) const
 {
-    cout<<"EXPLICIT PRINT OF "; print(mode);
-    cout<<"type="<<getType()<<" : ";
+    cout << "EXPLICIT PRINT OF ";
+    print(mode);
+    cout << "type=" << getType() << " : ";
     print(1);
-    cout<<" ;\n";
+    cout << " ;\n";
     if (getNArgs() > 0)
-        for (int i=0; i<getNArgs(); i++)
+        for (int i = 0; i < getNArgs(); i++)
             getArgument(i)->printExplicit(mode);
 
-    cout<<endl;
-    cout<<"END OF EXPLICIT PRINT OF "; print(mode);
+    cout << endl;
+    cout << "END OF EXPLICIT PRINT OF ";
+    print(mode);
 }
 
-string Abstract::printLaTeX(int) const 
+string Abstract::printLaTeX(int) const
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
@@ -196,7 +197,7 @@ long long int Abstract::getDenom() const
 
 int Abstract::getNArgs(int) const
 {
-    //cout<<"Warning: function getNArgs of Abstract called. Should not be.\n";
+    // cout<<"Warning: function getNArgs of Abstract called. Should not be.\n";
     return 0;
 }
 
@@ -216,7 +217,6 @@ Index Abstract::getIndex(int) const
 
 void Abstract::resetIndexStructure()
 {
-    
 }
 
 IndexStructure Abstract::getIndexStructure() const
@@ -224,10 +224,10 @@ IndexStructure Abstract::getIndexStructure() const
     return IndexStructure();
 }
 
-IndexStructure Abstract::getIndexStructure(csl::Space const * space) const
+IndexStructure Abstract::getIndexStructure(csl::Space const *space) const
 {
     csl::IndexStructure structure = getIndexStructure();
-    for (size_t i = 0; i != structure.size(); ++i) 
+    for (size_t i = 0; i != structure.size(); ++i)
         if (structure[i].getSpace() != space) {
             structure.erase(structure.begin() + i);
             --i;
@@ -235,7 +235,7 @@ IndexStructure Abstract::getIndexStructure(csl::Space const * space) const
     return structure;
 }
 
-const IndexStructure& Abstract::getIndexStructureView() const
+const IndexStructure &Abstract::getIndexStructureView() const
 {
     static IndexStructure empty;
     print();
@@ -243,7 +243,7 @@ const IndexStructure& Abstract::getIndexStructureView() const
     return empty;
 }
 
-IndexStructure& Abstract::getIndexStructureView()
+IndexStructure &Abstract::getIndexStructureView()
 {
     static IndexStructure empty;
     print();
@@ -266,51 +266,44 @@ Parent_info Abstract::getParent_info() const
     return nullptr;
 }
 
-Tensor Abstract::getPoint() const 
+Tensor Abstract::getPoint() const
 {
     return nullptr;
 }
 
-void Abstract::setParent(const Parent&)
+void Abstract::setParent(const Parent &)
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
 }
 
-optional<Expr> Abstract::replaceIndex(
-        const Index&,
-        const Index&,
-        bool) const
+optional<Expr> Abstract::replaceIndex(const Index &, const Index &, bool) const
 {
     return nullopt;
 }
 
-optional<Expr> Abstract::replaceIndices(
-        std::vector<csl::Index> const&,
-        std::vector<csl::Index> const&,
-        bool,
-        bool) const
+optional<Expr> Abstract::replaceIndices(std::vector<csl::Index> const &,
+                                        std::vector<csl::Index> const &,
+                                        bool,
+                                        bool) const
 {
     return nullopt;
 }
 
- void Abstract::replaceIndexInPlace(
-     Index const &,
-     Index const &)
+void Abstract::replaceIndexInPlace(Index const &, Index const &)
 {
-
 }
 
-optional<Expr> Abstract::contractIndex(const Index& index) const
+optional<Expr> Abstract::contractIndex(const Index &index) const
 {
     Index dummyIndex = index;
     dummyIndex.setFree(false);
     return replaceIndex(index, dummyIndex);
 }
 
-csl::vector_expr Abstract::breakSpace(
-        const Space*                brokenSpace,
-        const vector<const Space*>& newSpace) const
+csl::vector_expr
+Abstract::breakSpace(const Space *                brokenSpace,
+                     const vector<const Space *> &newSpace) const
 {
     vector<string> names(newSpace.size());
     for (size_t i = 0; i != names.size(); ++i)
@@ -319,63 +312,59 @@ csl::vector_expr Abstract::breakSpace(
     return breakSpace(brokenSpace, newSpace, names);
 }
 
-csl::vector_expr Abstract::breakSpace(
-        const Space*,
-        const vector<const Space*>&,
-        const vector<string>&
-        ) const
+csl::vector_expr Abstract::breakSpace(const Space *,
+                                      const vector<const Space *> &,
+                                      const vector<string> &) const
 {
     return csl::vector_expr();
 }
 
-void Abstract::setIndexStructure(const IndexStructure&)
+void Abstract::setIndexStructure(const IndexStructure &)
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
 }
 
-void Abstract::setPoint(const Tensor&)
+void Abstract::setPoint(const Tensor &)
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
 }
 
-bool Abstract::checkIndexStructure(const vector<Index>& t_index) const
+bool Abstract::checkIndexStructure(const vector<Index> &t_index) const
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
-    return (t_index.size()==0);
+    return (t_index.size() == 0);
 }
 
-bool Abstract::checkIndexStructure(const initializer_list<Index>& index) const
+bool Abstract::checkIndexStructure(const initializer_list<Index> &index) const
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
-    return (index.size()==0);
+    return (index.size() == 0);
 }
 
-bool Abstract::compareWithDummy(Expr_info expr, 
-        map<Index,Index>&,
-        bool) const
+bool Abstract::compareWithDummy(Expr_info expr,
+                                map<Index, Index> &,
+                                bool) const
 {
     return (*this == expr);
 }
 
-bool Abstract::compareWithDummy(Expr_info expr,
-                                bool keepAllCosntraints) const
+bool Abstract::compareWithDummy(Expr_info expr, bool keepAllCosntraints) const
 {
     std::map<Index, Index> m;
     return compareWithDummy(expr, m, keepAllCosntraints);
 }
 
-
-void Abstract::addProperty(Equation*)
+void Abstract::addProperty(Equation *)
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
 }
 
-void Abstract::removeProperty(Equation*)
+void Abstract::removeProperty(Equation *)
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
@@ -426,7 +415,7 @@ csl::vector_expr Abstract::getPermutations(bool) const
     return {};
 }
 
-set<pair<int,int> > Abstract::getContractedPair() const
+set<pair<int, int>> Abstract::getContractedPair() const
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
@@ -435,10 +424,10 @@ set<pair<int,int> > Abstract::getContractedPair() const
 
 vector<int> Abstract::getShape() const
 {
-    return vector<int>(1,1);
+    return vector<int>(1, 1);
 }
 
-const csl::vector_expr& Abstract::getVectorArgument() const
+const csl::vector_expr &Abstract::getVectorArgument() const
 {
     static const csl::vector_expr empty;
     print();
@@ -495,56 +484,64 @@ Expr const &Abstract::getArgument(int) const
 
 static Expr undef = CSL_UNDEF;
 
-Expr& Abstract::getArgument(int)
+Expr &Abstract::getArgument(int)
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
     return undef;
 }
 
-Expr const &Abstract::getArgument(const vector<int>&) const
+Expr const &Abstract::getArgument(const vector<int> &) const
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
     return CSL_UNDEF;
 }
 
-Expr& Abstract::getArgument(const vector<int>&)
+Expr &Abstract::getArgument(const vector<int> &)
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
     return undef;
 }
 
-bool Abstract::isBuildingBlock() const {
+bool Abstract::isBuildingBlock() const
+{
     return false;
 }
 
-int Abstract::getOrderOf(Expr_info expr) const {
+int Abstract::getOrderOf(Expr_info expr) const
+{
     return (*this == expr);
 }
 
-bool Abstract::isArbitrary() const {
+bool Abstract::isArbitrary() const
+{
     return false;
 }
 
-bool Abstract::isIndexed() const {
+bool Abstract::isIndexed() const
+{
     return false;
 }
 
-bool Abstract::isReal() const {
+bool Abstract::isReal() const
+{
     return true;
 }
 
-bool Abstract::isPurelyImaginary() const {
+bool Abstract::isPurelyImaginary() const
+{
     return false;
 }
 
-bool Abstract::isComplexConjugate() const {
+bool Abstract::isComplexConjugate() const
+{
     return false;
 }
 
-bool Abstract::isHermitianConjugate() const {
+bool Abstract::isHermitianConjugate() const
+{
     return false;
 }
 
@@ -557,19 +554,18 @@ csl::ComplexProperty Abstract::getComplexProperty() const
 
 void Abstract::setComplexProperty(csl::ComplexProperty)
 {
-
 }
 
 void Abstract::setConjugated(bool)
 {
-
 }
 
-bool Abstract::isInteger() const {
+bool Abstract::isInteger() const
+{
     return false;
 }
 
-long double Abstract::getValue() const 
+long double Abstract::getValue() const
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
@@ -601,24 +597,22 @@ csl::vector_expr Abstract::getFactors() const
     return csl::vector_expr(0);
 }
 
-std::optional<Expr> Abstract::getTerm() const 
+std::optional<Expr> Abstract::getTerm() const
 {
     return nullopt;
 }
 
-void Abstract::getExponents(
-        std::vector<Expr> const &factors,
-        std::vector<Expr>       &exponents
-        ) const
+void Abstract::getExponents(std::vector<Expr> const &factors,
+                            std::vector<Expr> &      exponents) const
 {
-    for (size_t i = 0; i != factors.size(); ++i) 
+    for (size_t i = 0; i != factors.size(); ++i)
         if (*this == factors[i].get()) {
             exponents[i] = CSL_1;
             return;
         }
 }
 
-int Abstract::getOrder() const 
+int Abstract::getOrder() const
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
@@ -684,35 +678,31 @@ optional<Expr> Abstract::getComplexConjugate() const
     return nullopt;
 }
 
-Expr& Abstract::applySelfStructureOn(Expr&) const
+Expr &Abstract::applySelfStructureOn(Expr &) const
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
     return undef;
 }
 
-optional<Expr> Abstract::getTransposed(
-        const Space*,
-        bool) const
+optional<Expr> Abstract::getTransposed(const Space *, bool) const
 {
     return nullopt;
 }
 
-optional<Expr> Abstract::getTransposed(
-        const vector<const Space*>&,
-        bool) const
+optional<Expr> Abstract::getTransposed(const vector<const Space *> &,
+                                       bool) const
 {
     return nullopt;
 }
 
-optional<Expr> Abstract::getHermitianConjugate(
-        const Space*) const
+optional<Expr> Abstract::getHermitianConjugate(const Space *) const
 {
     return getComplexConjugate();
 }
 
-optional<Expr> Abstract::getHermitianConjugate(
-        const vector<const Space*>&) const
+optional<Expr>
+Abstract::getHermitianConjugate(const vector<const Space *> &) const
 {
     return getComplexConjugate();
 }
@@ -732,7 +722,7 @@ Expr Abstract::deepRefresh() const
     return refresh();
 }
 
-void Abstract::insert(const Expr&, bool)
+void Abstract::insert(const Expr &, bool)
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
@@ -747,10 +737,9 @@ optional<Expr> Abstract::expand(bool, bool) const
 {
     return nullopt;
 }
-optional<Expr> Abstract::expand_if(
-        std::function<bool(Expr const&)> const&,
-        bool,
-        bool) const
+optional<Expr> Abstract::expand_if(std::function<bool(Expr const &)> const &,
+                                   bool,
+                                   bool) const
 {
     return nullopt;
 }
@@ -763,10 +752,7 @@ optional<Expr> Abstract::factor(Expr_info, bool) const
     return nullopt;
 }
 
-optional<Expr> Abstract::collect(
-        std::vector<Expr> const &,
-        bool                     
-        ) const
+optional<Expr> Abstract::collect(std::vector<Expr> const &, bool) const
 {
     return nullopt;
 }
@@ -781,10 +767,8 @@ Expr Abstract::suppressTerm(Expr_info) const
     return float_s(1);
 }
 
-std::optional<Expr> Abstract::suppressExponent(
-        Expr const &factor,
-        Expr const &exponent
-        ) const
+std::optional<Expr> Abstract::suppressExponent(Expr const &factor,
+                                               Expr const &exponent) const
 {
     if (*this == factor.get() and exponent == CSL_1)
         return CSL_1;
@@ -815,25 +799,25 @@ void Abstract::setAllDependencies(bool)
     CALL_SMERROR(CSLError::AbstractCallError);
 }
 
-void Abstract::addDependency(Expr const&)
+void Abstract::addDependency(Expr const &)
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
 }
 
-void Abstract::removeDependency(Expr const&)
+void Abstract::removeDependency(Expr const &)
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
 }
 
-void Abstract::setArgument(const Expr&, int)
+void Abstract::setArgument(const Expr &, int)
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
 }
 
-void Abstract::setArgument(const Expr&, const vector<int>&)
+void Abstract::setArgument(const Expr &, const vector<int> &)
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
@@ -845,18 +829,18 @@ void Abstract::setEmpty(bool)
     CALL_SMERROR(CSLError::AbstractCallError);
 }
 
-void Abstract::setOperandPrivate(const Expr&, bool)
+void Abstract::setOperandPrivate(const Expr &, bool)
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
 }
 
-void Abstract::setOperand(const Expr&)
+void Abstract::setOperand(const Expr &)
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
 }
-void Abstract::setVectorArgument(const csl::vector_expr&)
+void Abstract::setVectorArgument(const csl::vector_expr &)
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
@@ -875,28 +859,28 @@ long double Abstract::evaluateScalar() const
     return std::nanl("1");
 }
 
-Expr Abstract::addition_own(const Expr&) const
+Expr Abstract::addition_own(const Expr &) const
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
     return CSL_0;
 }
 
-Expr Abstract::multiplication_own(const Expr&, bool) const
+Expr Abstract::multiplication_own(const Expr &, bool) const
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
     return CSL_0;
 }
 
-Expr Abstract::division_own(const Expr&) const
+Expr Abstract::division_own(const Expr &) const
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
     return CSL_0;
 }
 
-Expr Abstract::exponentiation_own(const Expr&) const
+Expr Abstract::exponentiation_own(const Expr &) const
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
@@ -928,9 +912,8 @@ bool Abstract::commutesWith(Expr_info, int sign) const
     return sign == -1;
 }
 
-optional<Expr> Abstract::findSubExpression(
-        Expr_info subExpression,
-        const Expr& newExpression) const
+optional<Expr> Abstract::findSubExpression(Expr_info   subExpression,
+                                           const Expr &newExpression) const
 {
     if (operator==(subExpression))
         return newExpression;
@@ -947,10 +930,10 @@ Expr Abstract::getVariable() const
     return CSL_0;
 }
 
-optional<Expr> Abstract::getPolynomialTerm(
-        Expr_info t_variable, int order) const
+optional<Expr> Abstract::getPolynomialTerm(Expr_info t_variable,
+                                           int       order) const
 {
-    if (order==1 and *this==t_variable)
+    if (order == 1 and *this == t_variable)
         return CSL_1;
     if (order == 0)
         return nullopt;
@@ -987,16 +970,16 @@ bool Abstract::operator!=(double t_value) const
 
 bool Abstract::operator==(int t_value) const
 {
-    return Abstract::operator==((double)t_value);
+    return Abstract::operator==((double) t_value);
 }
 
 bool Abstract::operator==(double t_value) const
 {
     if (getPrimaryType() == csl::PrimaryType::Numerical)
         return evaluateScalar() == t_value;
-    if (getPrimaryType() == csl::PrimaryType::Literal and
-            (getType() == csl::Type::Variable or
-             getType() == csl::Type::Constant))
+    if (getPrimaryType() == csl::PrimaryType::Literal
+        and (getType() == csl::Type::Variable
+             or getType() == csl::Type::Constant))
         return evaluateScalar() == t_value;
     return false;
 }
@@ -1007,7 +990,7 @@ Expr const &Abstract::operator[](int) const
     CALL_SMERROR(CSLError::AbstractCallError);
     return CSL_UNDEF;
 }
-Expr& Abstract::operator[](int)
+Expr &Abstract::operator[](int)
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
@@ -1019,13 +1002,12 @@ csl::vector_expr Abstract::getAlternateForms() const
     return csl::vector_expr();
 }
 
-Expr Abstract::applyOperator(const Expr&, bool) const
+Expr Abstract::applyOperator(const Expr &, bool) const
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
     return CSL_UNDEF;
 }
-
 
 bool Abstract::matchShape(Expr_info expr, bool exact) const
 {
@@ -1034,12 +1016,12 @@ bool Abstract::matchShape(Expr_info expr, bool exact) const
     return (not exact or expr->getDim() == 0);
 }
 
-bool Abstract::hasContractionProperty(Expr_info) const 
+bool Abstract::hasContractionProperty(Expr_info) const
 {
     return false;
 }
 
-bool Abstract::hasChainContractionProperty() const 
+bool Abstract::hasChainContractionProperty() const
 {
     return false;
 }
@@ -1058,21 +1040,21 @@ Expr Abstract::contraction(Expr_info) const
     return CSL_UNDEF;
 }
 
-Expr Abstract::contraction(const csl::vector_expr&) const
+Expr Abstract::contraction(const csl::vector_expr &) const
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
     return CSL_UNDEF;
 }
 
-Expr Abstract::tensordot(const Expr&) const
+Expr Abstract::tensordot(const Expr &) const
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
     return nullptr;
 }
 
-Expr Abstract::dot(const Expr&) const
+Expr Abstract::dot(const Expr &) const
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
@@ -1114,14 +1096,14 @@ Expr Abstract::getSubVectorial(int, int) const
     return nullptr;
 }
 
-Expr Abstract::getSubVectorial(const vector<int>&) const
+Expr Abstract::getSubVectorial(const vector<int> &) const
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
     return nullptr;
 }
 
-Expr Abstract::getSubVectorial(const vector<vector<int>>& keepIndices) const
+Expr Abstract::getSubVectorial(const vector<vector<int>> &keepIndices) const
 {
     if (keepIndices.empty())
         return copy();
@@ -1131,8 +1113,8 @@ Expr Abstract::getSubVectorial(const vector<vector<int>>& keepIndices) const
 }
 
 Expr Abstract::getSubVectorial(
-        std::vector<std::vector<int>>::const_iterator begin,
-        std::vector<std::vector<int>>::const_iterator end) const
+    std::vector<std::vector<int>>::const_iterator begin,
+    std::vector<std::vector<int>>::const_iterator end) const
 {
     if (begin == end)
         return copy();
@@ -1140,7 +1122,6 @@ Expr Abstract::getSubVectorial(
     CALL_SMERROR(CSLError::AbstractCallError);
     return CSL_UNDEF;
 }
-
 
 Expr Abstract::determinant() const
 {
@@ -1231,7 +1212,7 @@ Expr Abstract::getSupBoundary() const
     return CSL_UNDEF;
 }
 
-Expr Abstract::applyDiracDelta(const Expr&, const Expr&) const
+Expr Abstract::applyDiracDelta(const Expr &, const Expr &) const
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
@@ -1240,34 +1221,42 @@ Expr Abstract::applyDiracDelta(const Expr&, const Expr&) const
 
 int Abstract::testDummy(Expr_info expr) const
 {
-    if (Comparator::getDummyComparisonActive()
-            and expr->isArbitrary())
+    if (Comparator::getDummyComparisonActive() and expr->isArbitrary())
         return *expr == *this;
 
     return -1;
 }
 
-Expr::Expr(int value)
-    :Expr(csl::int_s(value)) {}
-Expr::Expr(long int value)
-    :Expr(csl::int_s(value)) {}
-Expr::Expr(long long int value)
-    :Expr(csl::int_s(value)) {}
-Expr::Expr(unsigned int value)
-    :Expr(csl::int_s(value)) {}
-Expr::Expr(unsigned long int value)
-    :Expr(csl::int_s(value)) {}
-Expr::Expr(unsigned long long int value)
-    :Expr(csl::int_s(value)) {}
+Expr::Expr(int value) : Expr(csl::int_s(value))
+{
+}
+Expr::Expr(long int value) : Expr(csl::int_s(value))
+{
+}
+Expr::Expr(long long int value) : Expr(csl::int_s(value))
+{
+}
+Expr::Expr(unsigned int value) : Expr(csl::int_s(value))
+{
+}
+Expr::Expr(unsigned long int value) : Expr(csl::int_s(value))
+{
+}
+Expr::Expr(unsigned long long int value) : Expr(csl::int_s(value))
+{
+}
 
-Expr::Expr(float value)
-    :Expr(csl::autonumber_s(value)) {}
-Expr::Expr(double value)
-    :Expr(csl::autonumber_s(value)) {}
-Expr::Expr(long double value)
-    :Expr(csl::autonumber_s(value)) {}
+Expr::Expr(float value) : Expr(csl::autonumber_s(value))
+{
+}
+Expr::Expr(double value) : Expr(csl::autonumber_s(value))
+{
+}
+Expr::Expr(long double value) : Expr(csl::autonumber_s(value))
+{
+}
 
-std::ostream& operator<<(std::ostream& fout, const Expr& obj)
+std::ostream &operator<<(std::ostream &fout, const Expr &obj)
 {
     obj->print(1, fout);
     return fout;
@@ -1279,153 +1268,162 @@ std::ostream& operator<<(std::ostream& fout, const Expr& obj)
 /*************************************************/
 ///////////////////////////////////////////////////
 
-//Expr operator+(double a, const Expr& b)
+// Expr operator+(double a, const Expr& b)
 //{
 //    return csl::sum_s(csl::autonumber_s(a), b);
 //}
-//Expr operator+(const Expr& a, double b)
+// Expr operator+(const Expr& a, double b)
 //{
 //    return csl::sum_s(a, csl::autonumber_s(b));
 //}
-//Expr operator+(int a, const Expr& b)
+// Expr operator+(int a, const Expr& b)
 //{
 //    return csl::sum_s(csl::autonumber_s(a), b);
 //}
-//Expr operator+(const Expr& a, int b)
+// Expr operator+(const Expr& a, int b)
 //{
 //    return csl::sum_s(a, csl::autonumber_s(b));
 //}
-Expr operator+(const Expr& a, const Expr& b)
+Expr operator+(const Expr &a, const Expr &b)
 {
-    return csl::sum_s(a,b);
+    return csl::sum_s(a, b);
 }
 
-Expr operator-(const Expr& a)
+Expr operator-(const Expr &a)
 {
     if (a == CSL_1)
         return CSL_M_1;
     if (a == CSL_M_1)
         return CSL_1;
     if (a->getType() == csl::Type::Sum)
-        return csl::Expanded(csl::prod_s(CSL_M_1,a));
+        return csl::Expanded(csl::prod_s(CSL_M_1, a));
     return csl::prod_s(CSL_M_1, a);
 }
 
-//Expr operator-(double a, const Expr& b)
+// Expr operator-(double a, const Expr& b)
 //{
 //    return csl::minus_(csl::autonumber_s(a), b);
 //}
-//Expr operator-(const Expr& a, double b)
+// Expr operator-(const Expr& a, double b)
 //{
 //    return csl::minus_(a, csl::autonumber_s(b));
 //}
-//Expr operator-(int a, const Expr& b)
+// Expr operator-(int a, const Expr& b)
 //{
 //    return csl::minus_(csl::autonumber_s(a), b);
 //}
-//Expr operator-(const Expr& a, int b)
+// Expr operator-(const Expr& a, int b)
 //{
 //    return csl::minus_(a, csl::autonumber_s(b));
 //}
-Expr operator-(const Expr& a, const Expr& b)
+Expr operator-(const Expr &a, const Expr &b)
 {
-    return csl::minus_(a,b);
+    return csl::minus_(a, b);
 }
 
-//Expr operator*(double a, const Expr& b)
+// Expr operator*(double a, const Expr& b)
 //{
 //    return csl::prod_s(csl::autonumber_s(a), b);
 //}
-//Expr operator*(const Expr& a, double b)
+// Expr operator*(const Expr& a, double b)
 //{
 //    return csl::prod_s(a, csl::autonumber_s(b));
 //}
-//Expr operator*(int a, const Expr& b)
+// Expr operator*(int a, const Expr& b)
 //{
 //    return csl::prod_s(csl::autonumber_s(a), b);
 //}
-//Expr operator*(const Expr& a, int b)
+// Expr operator*(const Expr& a, int b)
 //{
 //    return csl::prod_s(a, csl::autonumber_s(b));
 //}
-Expr operator*(const Expr& a, const Expr& b)
+Expr operator*(const Expr &a, const Expr &b)
 {
-    return csl::prod_s(a,b);
+    return csl::prod_s(a, b);
 }
 
-//Expr operator/(double a, const Expr& b)
+// Expr operator/(double a, const Expr& b)
 //{
 //    return csl::fraction_s(csl::autonumber_s(a), b);
 //}
-//Expr operator/(const Expr& a, double b)
+// Expr operator/(const Expr& a, double b)
 //{
 //    return csl::fraction_s(a, csl::autonumber_s(b));
 //}
-//Expr operator/(int a, const Expr& b)
+// Expr operator/(int a, const Expr& b)
 //{
 //    return csl::fraction_s(csl::autonumber_s(a), b);
 //}
-//Expr operator/(const Expr& a, int b)
+// Expr operator/(const Expr& a, int b)
 //{
 //    return csl::fraction_s(a, csl::autonumber_s(b));
 //}
-Expr operator/(const Expr& a, const Expr& b)
+Expr operator/(const Expr &a, const Expr &b)
 {
-    return csl::fraction_s(a,b);
+    return csl::fraction_s(a, b);
 }
 
-//Expr operator^(double a, const Expr& b)
+// Expr operator^(double a, const Expr& b)
 //{
 //    return csl::pow_s(csl::autonumber_s(a), b);
 //}
-//Expr operator^(const Expr& a, double b)
+// Expr operator^(const Expr& a, double b)
 //{
 //    return csl::pow_s(a, csl::autonumber_s(b));
 //}
-//Expr operator^(int a, const Expr& b)
+// Expr operator^(int a, const Expr& b)
 //{
 //    return csl::pow_s(csl::autonumber_s(a), b);
 //}
-//Expr operator^(const Expr& a, int b)
+// Expr operator^(const Expr& a, int b)
 //{
 //    return csl::pow_s(a, csl::autonumber_s(b));
 //}
-//Expr operator^(const Expr& a, const Expr& b)
+// Expr operator^(const Expr& a, const Expr& b)
 //{
 //    return csl::pow_s(a,b);
 //}
 
-bool operator==(const Expr& a, const Expr& b) {
-    return (a.get() == b.get()) or (*a==b);
+bool operator==(const Expr &a, const Expr &b)
+{
+    return (a.get() == b.get()) or (*a == b);
 }
-bool operator==(const Expr& a, int b) {
-    return (*a==b);
+bool operator==(const Expr &a, int b)
+{
+    return (*a == b);
 }
-bool operator!=(const Expr& a, const Expr& b) {
-    return (*a!=b);
+bool operator!=(const Expr &a, const Expr &b)
+{
+    return (*a != b);
 }
-bool operator!=(const Expr& a, int b) {
-    return (*a!=b);
+bool operator!=(const Expr &a, int b)
+{
+    return (*a != b);
 }
-bool operator!=(const Expr& a, double b) {
-    return (*a!=b);
+bool operator!=(const Expr &a, double b)
+{
+    return (*a != b);
 }
-bool operator>=(const Expr& a, const Expr& b) {
-    return not (a < b);
+bool operator>=(const Expr &a, const Expr &b)
+{
+    return not(a < b);
 }
-bool operator<=(const Expr& a, const Expr& b) {
-    return not (a > b);
+bool operator<=(const Expr &a, const Expr &b)
+{
+    return not(a > b);
 }
-bool operator>(const Expr& a, const Expr& b) {
+bool operator>(const Expr &a, const Expr &b)
+{
     return (b < a);
 }
 
-bool operator<(const Expr& a, const Expr& b) {
+bool operator<(const Expr &a, const Expr &b)
+{
     if (not csl::option::fullComparison) {
         auto typeA = a->getType();
         auto typeB = b->getType();
         if (typeA == typeB)
-         return *a < b.get();
+            return *a < b.get();
         return typeA < typeB;
     }
     else

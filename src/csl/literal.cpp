@@ -1,32 +1,31 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
-#include "librarygenerator.h"
 #include "literal.h"
-#include "utils.h"
-#include "error.h"
+#include "abreviation.h"
+#include "commutation.h"
 #include "comparison.h"
 #include "equation.h"
-#include "commutation.h"
+#include "error.h"
+#include "librarygenerator.h"
 #include "operations.h"
-#include "abreviation.h"
+#include "utils.h"
 
 using namespace std;
 
 namespace csl {
-
 
 ///////////////////////////////////////////////////
 /*************************************************/
@@ -44,23 +43,23 @@ std::vector<Parent> AbstractLiteral::getSubSymbols() const
     return {};
 }
 
-const vector<Equation*>& AbstractLiteral::getProperties() const
+const vector<Equation *> &AbstractLiteral::getProperties() const
 {
     return props;
 }
 
-void AbstractLiteral::addProperty(Equation* property)
+void AbstractLiteral::addProperty(Equation *property)
 {
-    for (const auto& p : props)
-        if (p == property) 
+    for (const auto &p : props)
+        if (p == property)
             return;
     props.push_back(property);
 }
 
-void AbstractLiteral::removeProperty(Equation* property)
+void AbstractLiteral::removeProperty(Equation *property)
 {
-    for (auto p_iter=props.begin(); p_iter!=props.end(); ++p_iter)
-        if (*p_iter == property)  {
+    for (auto p_iter = props.begin(); p_iter != props.end(); ++p_iter)
+        if (*p_iter == property) {
             props.erase(p_iter);
             break;
         }
@@ -72,10 +71,12 @@ void AbstractLiteral::removeProperty(Equation* property)
 /*************************************************/
 ///////////////////////////////////////////////////
 
-csl::PrimaryType Constant::getPrimaryType() const {
+csl::PrimaryType Constant::getPrimaryType() const
+{
     return csl::PrimaryType::Literal;
 }
-csl::Type Constant::getType() const {
+csl::Type Constant::getType() const
+{
     return csl::Type::Constant;
 }
 
@@ -94,7 +95,8 @@ bool Constant::getCommutable() const
     return parent->getCommutable();
 }
 
-bool Constant::getValued() const {
+bool Constant::getValued() const
+{
     return parent->isValued();
 }
 
@@ -112,12 +114,12 @@ bool Constant::dependsOn(Expr_info expr) const
     return expr->getParent_info() == parent.get();
 }
 
-Parent Constant::getParent() const 
+Parent Constant::getParent() const
 {
     return parent;
 }
 
-Parent_info Constant::getParent_info() const 
+Parent_info Constant::getParent_info() const
 {
     return parent.get();
 }
@@ -142,7 +144,7 @@ void Constant::setValue(Expr const &t_value)
     parent->setValue(t_value);
 }
 
-void Constant::setName(const string& name)
+void Constant::setName(const string &name)
 {
     parent->setName(name);
 }
@@ -152,10 +154,7 @@ void Constant::setCommutable(bool commutable)
     parent->setCommutable(commutable);
 }
 
-void Constant::print(
-        int mode,
-        std::ostream& out,
-        bool lib) const
+void Constant::print(int mode, std::ostream &out, bool lib) const
 {
     const bool conj = isComplexConjugate() and lib;
     if (conj and LibraryGenerator::isQuadruplePrecision()) {
@@ -166,7 +165,7 @@ void Constant::print(
     }
     std::string name(parent->getName());
     if (lib)
-        for (char& c : name)
+        for (char &c : name)
             if (c == '\\')
                 c = '_';
     if (mode == 0)
@@ -179,10 +178,7 @@ void Constant::print(
         printProp(out);
 }
 
-void Constant::printCode(
-        int,
-        std::ostream &out
-        ) const
+void Constant::printCode(int, std::ostream &out) const
 {
     if (*this == CSL_PI.get()) {
         out << "CSL_PI";
@@ -203,19 +199,19 @@ void Constant::printCode(
     if (not conjugated)
         out << regularName(parent->getName());
     else
-        out << "csl::GetComplexConjugate(" 
-            << regularName(parent->getName()) << ")";
+        out << "csl::GetComplexConjugate(" << regularName(parent->getName())
+            << ")";
 }
 
 string Constant::printLaTeX(int mode) const
 {
-    ostringstream sout; 
+    ostringstream sout;
     if (mode == 0 and parent->isValued())
-        sout<<parent->getLatexName()<<" = "<<parent->getValue()<<endl;
+        sout << parent->getLatexName() << " = " << parent->getValue() << endl;
     else if (mode == 0)
-        sout<<parent->getLatexName()<<endl;
+        sout << parent->getLatexName() << endl;
     else
-        sout<<parent->getLatexName();
+        sout << parent->getLatexName();
 
     return sout.str();
 }
@@ -224,9 +220,10 @@ std::vector<Parent> Constant::getSubSymbols() const
 {
     auto const &pointed = *parent;
     if (typeid(pointed) == typeid(Abbreviation<ConstantParent>)) {
-        std::vector<Parent> dep = dynamic_cast<
-            Abbreviation<ConstantParent> const*>(
-                parent.get())->getEncapsulated()->getSubSymbols();
+        std::vector<Parent> dep
+            = dynamic_cast<Abbreviation<ConstantParent> const *>(parent.get())
+                  ->getEncapsulated()
+                  ->getSubSymbols();
         dep.push_back(parent);
         return dep;
     }
@@ -241,15 +238,12 @@ long double Constant::evaluateScalar() const
     return parent->getValue()->evaluateScalar();
 }
 
-optional<Expr> Constant::evaluate(
-        csl::eval::mode user_mode
-        ) const
+optional<Expr> Constant::evaluate(csl::eval::mode user_mode) const
 {
-    if (auto parentEval = parent->evaluate(this, user_mode);
-            parentEval)
+    if (auto parentEval = parent->evaluate(this, user_mode); parentEval)
         return parentEval;
     if (parent->isValued()
-            and eval::isContained(user_mode, csl::eval::literal)) {
+        and eval::isContained(user_mode, csl::eval::literal)) {
         Expr value = parent->getValue();
         if (conjugated)
             return GetComplexConjugate(value);
@@ -261,9 +255,9 @@ optional<Expr> Constant::evaluate(
 
 int Constant::getParity(Expr_info t_variable) const
 {
-    if (*this == t_variable) 
+    if (*this == t_variable)
         return -1;
-    else 
+    else
         return 1;
 }
 
@@ -275,7 +269,7 @@ unique_Expr Constant::copy_unique() const
     return newConstant;
 }
 
-void Constant::operator=(double t_value) 
+void Constant::operator=(double t_value)
 {
     setValue(t_value);
 }
@@ -286,7 +280,7 @@ bool Constant::operator==(Expr_info expr) const
         if (int test = testDummy(expr); test != -1)
             return test;
     }
-    if (expr->getType() != csl::Type::Constant) 
+    if (expr->getType() != csl::Type::Constant)
         return false;
     if (not Complexified::operator==(expr))
         return false;
@@ -296,7 +290,7 @@ bool Constant::operator==(Expr_info expr) const
 
 optional<Expr> Constant::derive(Expr_info expr) const
 {
-    if (*this == expr) 
+    if (*this == expr)
         return CSL_1;
     return CSL_0;
 }
@@ -307,10 +301,12 @@ optional<Expr> Constant::derive(Expr_info expr) const
 /*************************************************/
 ///////////////////////////////////////////////////
 
-csl::PrimaryType Variable::getPrimaryType() const {
+csl::PrimaryType Variable::getPrimaryType() const
+{
     return csl::PrimaryType::Literal;
 }
-csl::Type Variable::getType() const {
+csl::Type Variable::getType() const
+{
     return csl::Type::Variable;
 }
 
@@ -359,7 +355,7 @@ void Variable::setComplexProperty(csl::ComplexProperty prop)
     parent->setComplexProperty(prop);
 }
 
-void Variable::setName(const string& name)
+void Variable::setName(const string &name)
 {
     parent->setName(name);
 }
@@ -369,12 +365,12 @@ void Variable::setCommutable(bool commutable)
     parent->setCommutable(commutable);
 }
 
-Parent Variable::getParent() const 
+Parent Variable::getParent() const
 {
     return parent;
 }
 
-Parent_info Variable::getParent_info() const 
+Parent_info Variable::getParent_info() const
 {
     return parent.get();
 }
@@ -399,10 +395,7 @@ void Variable::setValue(Expr const &t_value)
     parent->setValue(t_value);
 }
 
-void Variable::print(
-        int mode,
-        std::ostream& out,
-        bool lib) const
+void Variable::print(int mode, std::ostream &out, bool lib) const
 {
     const bool conj = isComplexConjugate() and lib;
     if (conj) {
@@ -410,7 +403,7 @@ void Variable::print(
     }
     std::string name(parent->getName());
     if (lib)
-        for (char& c : name)
+        for (char &c : name)
             if (c == '\\')
                 c = '_';
     if (mode == 0)
@@ -423,27 +416,24 @@ void Variable::print(
         printProp(out);
 }
 
-void Variable::printCode(
-        int,
-        std::ostream &out
-        ) const
+void Variable::printCode(int, std::ostream &out) const
 {
     if (not conjugated)
         out << regularName(parent->getName());
     else
-        out << "csl::GetComplexConjugate(" 
-            << regularName(parent->getName()) << ")";
+        out << "csl::GetComplexConjugate(" << regularName(parent->getName())
+            << ")";
 }
 
 string Variable::printLaTeX(int mode) const
 {
-    ostringstream sout; 
-    if (mode == 0 and getValued()) 
-        sout<<getLatexName()<<" = "<<getValue()<<endl;
-    else if (mode == 0) 
-        sout<<getLatexName()<<endl;
-    else 
-        sout<<getLatexName();
+    ostringstream sout;
+    if (mode == 0 and getValued())
+        sout << getLatexName() << " = " << getValue() << endl;
+    else if (mode == 0)
+        sout << getLatexName() << endl;
+    else
+        sout << getLatexName();
 
     return sout.str();
 }
@@ -452,9 +442,10 @@ std::vector<Parent> Variable::getSubSymbols() const
 {
     auto const &pointed = *parent;
     if (typeid(pointed) == typeid(Abbreviation<VariableParent>)) {
-        std::vector<Parent> dep = dynamic_cast<
-            Abbreviation<VariableParent> const*>(
-                parent.get())->getEncapsulated()->getSubSymbols();
+        std::vector<Parent> dep
+            = dynamic_cast<Abbreviation<VariableParent> const *>(parent.get())
+                  ->getEncapsulated()
+                  ->getSubSymbols();
         dep.push_back(parent);
         return dep;
     }
@@ -463,23 +454,17 @@ std::vector<Parent> Variable::getSubSymbols() const
 
 long double Variable::evaluateScalar() const
 {
-    CSL_ASSERT_SPEC(
-            getValued(), 
-            CSLError::ValueError, 
-            "variable not valued.");
+    CSL_ASSERT_SPEC(getValued(), CSLError::ValueError, "variable not valued.");
 
-   return getValue();
+    return getValue();
 }
 
-optional<Expr> Variable::evaluate(
-        csl::eval::mode user_mode
-        ) const
+optional<Expr> Variable::evaluate(csl::eval::mode user_mode) const
 {
-    if (auto parentEval = parent->evaluate(this, user_mode);
-            parentEval)
+    if (auto parentEval = parent->evaluate(this, user_mode); parentEval)
         return parentEval;
     if (parent->isValued()
-            and eval::isContained(user_mode, csl::eval::literal)) {
+        and eval::isContained(user_mode, csl::eval::literal)) {
         Expr value = parent->getValue();
         if (conjugated)
             return GetComplexConjugate(value);
@@ -518,12 +503,12 @@ void Variable::setAllDependencies(bool t_allDependencies)
     parent->setAllDependencies(t_allDependencies);
 }
 
-void Variable::addDependency(Expr const& expr)
+void Variable::addDependency(Expr const &expr)
 {
     parent->addDependency(expr.get());
 }
 
-void Variable::removeDependency(Expr const& expr)
+void Variable::removeDependency(Expr const &expr)
 {
     parent->removeDependency(expr.get());
 }
@@ -550,7 +535,7 @@ bool Variable::operator==(Expr_info expr) const
 optional<Expr> Variable::derive(Expr_info expr) const
 {
     // dx/dx = 1
-    if (operator==(expr)) 
+    if (operator==(expr))
         return CSL_1;
     // If elementary: dx/dy=0
     else if (not parent->isElementary() and dependsOn(expr))
@@ -576,7 +561,7 @@ Expr Imaginary::getImaginaryPart() const
 }
 
 optional<Expr> Imaginary::getComplexModulus() const
-{ 
+{
     return CSL_1;
 }
 
@@ -585,41 +570,34 @@ optional<Expr> Imaginary::getComplexArgument() const
     return CSL_PI / CSL_2;
 }
 
-void Imaginary::print(
-        int mode,
-        std::ostream& out,
-        bool) const
+void Imaginary::print(int mode, std::ostream &out, bool) const
 {
-    if (mode == 0) 
-        out<<"i"<<endl;
-    else 
-        out<<"i";
+    if (mode == 0)
+        out << "i" << endl;
+    else
+        out << "i";
     printProp(out);
 }
 
-void Imaginary::printCode(
-        int,
-        std::ostream &out
-        ) const
+void Imaginary::printCode(int, std::ostream &out) const
 {
     out << "CSL_I";
 }
 
-string Imaginary::printLaTeX(int) const {
+string Imaginary::printLaTeX(int) const
+{
     return "i";
 }
 
 long double Imaginary::evaluateScalar() const
 {
-    cout<<"Warning: evaluating scalar (real)";
-    cout<<"of complex expr! replacing i by 0.\n";
+    cout << "Warning: evaluating scalar (real)";
+    cout << "of complex expr! replacing i by 0.\n";
     return 0;
 }
 
-optional<Expr> Imaginary::evaluate(
-        csl::eval::mode user_mode
-        ) const
-{ 
+optional<Expr> Imaginary::evaluate(csl::eval::mode user_mode) const
+{
     if (eval::isContained(user_mode, eval::numerical))
         return csl::complex_s(CSL_0, CSL_1);
     return CSL_I;
@@ -655,51 +633,42 @@ void IntFactorial::setValue(long double t_value)
 {
     if (round(value) == value)
         value = t_value;
-    else 
-        CALL_SMERROR_SPEC(
-                CSLError::ValueError,
-                "floating value in IntFactorial.");
+    else
+        CALL_SMERROR_SPEC(CSLError::ValueError,
+                          "floating value in IntFactorial.");
 }
 
-void IntFactorial::print(
-        int mode,
-        std::ostream& out,
-        bool) const
+void IntFactorial::print(int mode, std::ostream &out, bool) const
 {
-    if (mode == 0) 
-        out<<"IntFactorial: "<<value<<"!"<<endl;
-    else 
-        out<<value<<"!";
+    if (mode == 0)
+        out << "IntFactorial: " << value << "!" << endl;
+    else
+        out << value << "!";
     printProp(out);
 }
 
-void IntFactorial::printCode(
-        int,
-        std::ostream& out
-        ) const
+void IntFactorial::printCode(int, std::ostream &out) const
 {
     out << "csl::intfactorial_s(" << value << ")";
 }
 
 string IntFactorial::printLaTeX(int mode) const
 {
-    ostringstream sout; 
-    if (mode == 0) 
-        sout<<value<<"!"<<endl;
-    else 
-        sout<<value<<"!";
+    ostringstream sout;
+    if (mode == 0)
+        sout << value << "!" << endl;
+    else
+        sout << value << "!";
 
     return sout.str();
 }
 
 long double IntFactorial::evaluateScalar() const
 {
-    return (double)factorial(value);
+    return (double) factorial(value);
 }
 
-optional<Expr> IntFactorial::evaluate(
-        csl::eval::mode
-        )const
+optional<Expr> IntFactorial::evaluate(csl::eval::mode) const
 {
     return int_s(factorial(value));
 }
@@ -714,7 +683,8 @@ Expr IntFactorial::refresh() const
     return intfactorial_s(value);
 }
 
-void IntFactorial::operator=(int t_value) {
+void IntFactorial::operator=(int t_value)
+{
     value = t_value;
 }
 
@@ -724,10 +694,10 @@ bool IntFactorial::operator==(Expr_info expr) const
         if (int test = testDummy(expr); test != -1)
             return test;
     }
-    if (expr->getType() != csl::Type::IntFactorial) 
+    if (expr->getType() != csl::Type::IntFactorial)
         return 0;
 
-    return value==expr->getValue();
+    return value == expr->getValue();
 }
 
 optional<Expr> IntFactorial::derive(Expr_info) const
@@ -737,39 +707,28 @@ optional<Expr> IntFactorial::derive(Expr_info) const
 
 Expr intfactorial_s(int value)
 {
-    if (value < 0) 
-        return prod_s(pow_s(CSL_M_1,
-                           int_s(abs(value))),
+    if (value < 0)
+        return prod_s(pow_s(CSL_M_1, int_s(abs(value))),
                       intfactorial_s(-value));
-    if (value == 0 or value == 1) 
+    if (value == 0 or value == 1)
         return CSL_1;
-    if (value == 2) 
+    if (value == 2)
         return CSL_2;
     return csl::make_shared<IntFactorial>(value);
 }
 
-Expr constant_s(string               const& name,
-               csl::ComplexProperty prop) {
-    shared_ptr<ConstantParent> parent
-        = csl::make_shared<ConstantParent>(name);
+Expr constant_s(string const &name, csl::ComplexProperty prop)
+{
+    shared_ptr<ConstantParent> parent = csl::make_shared<ConstantParent>(name);
     parent->setComplexProperty(prop);
 
     return csl::make_shared<Constant, alloc_constant>(parent);
 }
 
-Expr constant_s(string               const& name,
-               long double                 value,
-               csl::ComplexProperty prop) {
-    shared_ptr<ConstantParent> parent
-        = csl::make_shared<ConstantParent>(name, value);
-    parent->setComplexProperty(prop);
-
-    return csl::make_shared<Constant, alloc_constant>(parent);
-}
-
-Expr constant_s(string               const& name,
-               Expr                 const& value,
-               csl::ComplexProperty prop) {
+Expr constant_s(string const &       name,
+                long double          value,
+                csl::ComplexProperty prop)
+{
     shared_ptr<ConstantParent> parent
         = csl::make_shared<ConstantParent>(name, value);
     parent->setComplexProperty(prop);
@@ -777,19 +736,29 @@ Expr constant_s(string               const& name,
     return csl::make_shared<Constant, alloc_constant>(parent);
 }
 
-Expr variable_s(string               const& name,
-          csl::ComplexProperty prop) {
-    shared_ptr<VariableParent> parent
-        = csl::make_shared<VariableParent>(name);
+Expr constant_s(string const &       name,
+                Expr const &         value,
+                csl::ComplexProperty prop)
+{
+    shared_ptr<ConstantParent> parent
+        = csl::make_shared<ConstantParent>(name, value);
+    parent->setComplexProperty(prop);
+
+    return csl::make_shared<Constant, alloc_constant>(parent);
+}
+
+Expr variable_s(string const &name, csl::ComplexProperty prop)
+{
+    shared_ptr<VariableParent> parent = csl::make_shared<VariableParent>(name);
     parent->setComplexProperty(prop);
 
     return csl::make_shared<Variable, alloc_variable>(parent);
 }
 
-Expr variable_s(
-          string               const& name,
-          long double                 value,
-          csl::ComplexProperty prop) {
+Expr variable_s(string const &       name,
+                long double          value,
+                csl::ComplexProperty prop)
+{
     shared_ptr<VariableParent> parent
         = csl::make_shared<VariableParent>(name, value);
     parent->setComplexProperty(prop);
@@ -797,10 +766,10 @@ Expr variable_s(
     return csl::make_shared<Variable, alloc_variable>(parent);
 }
 
-Expr variable_s(
-          string               const& name,
-          Expr                 const& value,
-          csl::ComplexProperty prop) {
+Expr variable_s(string const &       name,
+                Expr const &         value,
+                csl::ComplexProperty prop)
+{
     shared_ptr<VariableParent> parent
         = csl::make_shared<VariableParent>(name, value);
     parent->setComplexProperty(prop);

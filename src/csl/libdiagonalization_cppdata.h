@@ -1,23 +1,23 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 /*!
- * @file 
+ * @file
  * @author Grégoire Uhlrich
  * @version 1.3
- 
+
  * \brief
  */
 #pragma once
@@ -26,7 +26,8 @@
 
 namespace csl {
 
-void print_libdiagonalization_cppdata(std::ostream &out) {
+void print_libdiagonalization_cppdata(std::ostream &out)
+{
     out << "#include <cassert>\n";
     out << "#include \"libdiagonalization.h\"\n";
     out << "#include <gsl/gsl_complex.h>\n";
@@ -62,12 +63,14 @@ void print_libdiagonalization_cppdata(std::ostream &out) {
     out << "\n";
     out << "    std::vector<complex> const &t = diag.transfer();\n";
     out << "    size_t i = 0;\n";
-    out << "    for (auto iter = transfer.begin(); iter != transfer.end(); ++iter)\n";
+    out << "    for (auto iter = transfer.begin(); iter != transfer.end(); "
+           "++iter)\n";
     out << "        **iter = t[i++];\n";
     out << "\n";
     out << "    i = 0;\n";
     out << "    std::vector<real> const &m = diag.mass();\n";
-    out << "    for (auto iter = masses.begin(); iter != masses.end(); ++iter)\n";
+    out << "    for (auto iter = masses.begin(); iter != masses.end(); "
+           "++iter)\n";
     out << "        **iter = m[i++];\n";
     out << "}\n";
     out << "\n";
@@ -82,17 +85,20 @@ void print_libdiagonalization_cppdata(std::ostream &out) {
     out << "\n";
     out << "    std::vector<complex> const &t = diag.transfer();\n";
     out << "    size_t i = 0;\n";
-    out << "    for (auto iter = transfer.begin(); iter != transfer.end(); ++iter)\n";
+    out << "    for (auto iter = transfer.begin(); iter != transfer.end(); "
+           "++iter)\n";
     out << "        **iter = t[i++];\n";
     out << "\n";
     out << "    i = 0;\n";
     out << "    std::vector<complex> const &t2 = diag.transfer2();\n";
-    out << "    for (auto iter = transfer2.begin(); iter != transfer2.end(); ++iter)\n";
+    out << "    for (auto iter = transfer2.begin(); iter != transfer2.end(); "
+           "++iter)\n";
     out << "        **iter = t2[i++];\n";
     out << "\n";
     out << "    i = 0;\n";
     out << "    std::vector<real> const &m = diag.mass();\n";
-    out << "    for (auto iter = masses.begin(); iter != masses.end(); ++iter)\n";
+    out << "    for (auto iter = masses.begin(); iter != masses.end(); "
+           "++iter)\n";
     out << "        **iter = m[i++];\n";
     out << "}\n";
     out << "\n";
@@ -108,13 +114,15 @@ void print_libdiagonalization_cppdata(std::ostream &out) {
     out << "    assert(m_N * m_N == massMatrix.size());\n";
     out << "}\n";
     out << "\n";
-    out << "std::vector<Diagonalizer::complex> const &Diagonalizer::transfer()\n";
+    out << "std::vector<Diagonalizer::complex> const "
+           "&Diagonalizer::transfer()\n";
     out << "{\n";
     out << "    updateDiagonalization();\n";
     out << "    return m_transfer;\n";
     out << "}\n";
     out << "\n";
-    out << "std::vector<Diagonalizer::complex> const &Diagonalizer::transfer2()\n";
+    out << "std::vector<Diagonalizer::complex> const "
+           "&Diagonalizer::transfer2()\n";
     out << "{\n";
     out << "    updateDiagonalization();\n";
     out << "    assert(m_bidiag);\n";
@@ -156,24 +164,31 @@ void print_libdiagonalization_cppdata(std::ostream &out) {
     out << "{\n";
     out << "    transfer = std::vector<complex>(m_N*m_N, 0);\n";
     out << "    mass = std::vector<real>(m_N, 0);\n";
-    out << "    gsl_eigen_hermv_workspace* workspace = gsl_eigen_hermv_alloc(m_N);\n";
+    out << "    gsl_eigen_hermv_workspace* workspace = "
+           "gsl_eigen_hermv_alloc(m_N);\n";
     out << "\n";
     out << "    if (!bidiagonalization) {\n";
-    out << "        // Symmetrize the mass matrix (if it has not been done yet)\n";
+    out << "        // Symmetrize the mass matrix (if it has not been done "
+           "yet)\n";
     out << "        const size_t N = std::sqrt(massMatrix.size());\n";
     out << "        for (size_t i = 0; i != N; ++i)\n";
     out << "            for (size_t j = i+1; j < N; ++j) {\n";
     out << "                massMatrix[index(i, j)] = \n";
-    out << "                    (massMatrix[index(i, j)] + massMatrix[index(j, i)]) / 2.;\n";
-    out << "                massMatrix[index(j, i)] = massMatrix[index(i, j)];\n";
+    out << "                    (massMatrix[index(i, j)] + "
+           "massMatrix[index(j, i)]) / 2.;\n";
+    out << "                massMatrix[index(j, i)] = massMatrix[index(i, "
+           "j)];\n";
     out << "            }\n";
     out << "    }\n";
-    out << "    gsl_matrix_complex* init_gsl     = getGSLMassMatrix(massMatrix);\n";
+    out << "    gsl_matrix_complex* init_gsl     = "
+           "getGSLMassMatrix(massMatrix);\n";
     out << "    gsl_vector*         eigenValues  = gsl_vector_alloc(m_N);\n";
-    out << "    gsl_matrix_complex* transfer_gsl = gsl_matrix_complex_alloc(m_N, m_N);\n";
+    out << "    gsl_matrix_complex* transfer_gsl = "
+           "gsl_matrix_complex_alloc(m_N, m_N);\n";
     out << "\n";
     out << "    // Diagonalization\n";
-    out << "    gsl_eigen_hermv(init_gsl, eigenValues, transfer_gsl, workspace);\n";
+    out << "    gsl_eigen_hermv(init_gsl, eigenValues, transfer_gsl, "
+           "workspace);\n";
     out << "\n";
     out << "    // Gathering results\n";
     out << "    loadGSLMatrix(transfer_gsl, transfer);\n";
@@ -195,7 +210,8 @@ void print_libdiagonalization_cppdata(std::ostream &out) {
     out << "{\n";
     out << "    const size_t N = mass.size();\n";
     out << "    for (size_t k = 0; k != N; ++k) {\n";
-    out << "        std::swap(transfer[index(k, i)], transfer[index(k, j)]);\n";
+    out << "        std::swap(transfer[index(k, i)], transfer[index(k, "
+           "j)]);\n";
     out << "    }\n";
     out << "}\n";
     out << "\n";
@@ -256,12 +272,14 @@ void print_libdiagonalization_cppdata(std::ostream &out) {
     out << "    sort(m_transfer, mass2);\n";
     out << "\n";
     out << "    for (size_t i = 0; i != m_N; ++i) {\n";
-    out << "        assert(ABS(m_mass[i] - mass2[i]) / ((m_mass[i] == 0) ? 1 : m_mass[i])\n";
+    out << "        assert(ABS(m_mass[i] - mass2[i]) / ((m_mass[i] == 0) ? 1 "
+           ": m_mass[i])\n";
     out << "                        < precision);\n";
     out << "        m_mass[i] = SQRT(m_mass[i]);\n";
     out << "    }\n";
     out << "\n";
-    out << "    auto diagMass = dot(dot(hermitian(m_transfer2), m_data), m_transfer);\n";
+    out << "    auto diagMass = dot(dot(hermitian(m_transfer2), m_data), "
+           "m_transfer);\n";
     out << "    for (size_t i = 0; i != m_N; ++i) \n";
     out << "        if (REAL(diagMass[index(i, i)]*m_mass[i]) < 0) \n";
     out << "            for (size_t j = 0; j != m_N; ++j)\n";
@@ -275,14 +293,17 @@ void print_libdiagonalization_cppdata(std::ostream &out) {
     out << "        std::vector<complex> const &massMatrix\n";
     out << "        ) const \n";
     out << "{\n";
-    out << "    gsl_matrix_complex *matrix = gsl_matrix_complex_alloc(m_N, m_N);\n";
+    out << "    gsl_matrix_complex *matrix = gsl_matrix_complex_alloc(m_N, "
+           "m_N);\n";
     out << "    for (size_t i = 0; i != m_N; ++i)\n";
     out << "        for (size_t j = 0; j != m_N; ++j)\n";
     out << "            gsl_matrix_complex_set(\n";
     out << "                    matrix, \n";
     out << "                    i, j, \n";
-    out << "                    gsl_complex_rect(REAL(massMatrix[index(i, j)]),\n";
-    out << "                                     IMAG(massMatrix[index(i, j)]))\n";
+    out << "                    gsl_complex_rect(REAL(massMatrix[index(i, "
+           "j)]),\n";
+    out << "                                     IMAG(massMatrix[index(i, "
+           "j)]))\n";
     out << "                    );\n";
     out << "\n";
     out << "    return matrix;\n";
@@ -296,7 +317,8 @@ void print_libdiagonalization_cppdata(std::ostream &out) {
     out << "    target = std::vector<complex>(m_N * m_N);\n";
     out << "    for (size_t i = 0; i != m_N; ++i)\n";
     out << "        for (size_t j = 0; j != m_N; ++j) {\n";
-    out << "            auto gslcomplex = gsl_matrix_complex_get(matrix, i, j);\n";
+    out << "            auto gslcomplex = gsl_matrix_complex_get(matrix, i, "
+           "j);\n";
     out << "            target[index(i, j)] = {GSL_REAL(gslcomplex),\n";
     out << "                                   GSL_IMAG(gslcomplex)};\n";
     out << "        }\n";
@@ -345,7 +367,8 @@ void print_libdiagonalization_cppdata(std::ostream &out) {
     out << "        for (size_t j = 0; j != m_N; ++j) {\n";
     out << "            C[index(i, j)] = 0;\n";
     out << "            for (size_t k = 0; k != m_N; ++k)\n";
-    out << "                C[index(i, j)] += A[index(i, k)] * B[index(k, j)];\n";
+    out << "                C[index(i, j)] += A[index(i, k)] * B[index(k, "
+           "j)];\n";
     out << "        }\n";
     out << "    return C;\n";
     out << "}\n";

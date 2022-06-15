@@ -1,21 +1,21 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * @file diagramrenderer.h
- * @brief 
+ * @brief
  * @author Grégoire Uhlrich
  * @version 1.3
  * @date 2020-11-05
@@ -23,13 +23,13 @@
 #ifndef DIAGRAMRENDERER_H
 #define DIAGRAMRENDERER_H
 
-#include <QScrollArea>
-#include <QList>
-#include <QGridLayout>
-#include <QTableWidget>
-#include "diagramwidget.h"
 #include "diagram.h"
+#include "diagramwidget.h"
 #include "grid.h"
+#include <QGridLayout>
+#include <QList>
+#include <QScrollArea>
+#include <QTableWidget>
 
 namespace Ui {
 class DiagramRenderer;
@@ -37,36 +37,32 @@ class DiagramRenderer;
 
 class EdgeForm;
 class NodeForm;
-class DiagramRenderer : public QWidget
-{
+class DiagramRenderer : public QWidget {
     Q_OBJECT
 
     friend class MainWidget;
 
-    enum Mode {
-        DiagramMode,
-        SessionMode
-    };
+    enum Mode { DiagramMode, SessionMode };
 
-public:
-
+  public:
     static inline qint32 maxNDiagrams = 100;
 
-private:
+  private:
     explicit DiagramRenderer(QWidget *parent = nullptr);
-public:
-    explicit DiagramRenderer(
-            QString const &nameFile,
-            QWidget       *parent = nullptr);
+
+  public:
+    explicit DiagramRenderer(QString const &nameFile,
+                             QWidget *      parent = nullptr);
     ~DiagramRenderer() override;
 
-public slots:
+  public slots:
 
     void clearScene();
     void clear();
     void init();
 
-    latexcompiler *getLatexCompiler() const {
+    latexcompiler *getLatexCompiler() const
+    {
         return compiler;
     }
 
@@ -88,10 +84,12 @@ public slots:
     // Function not ready to be used
     void setDiagramSet(qint32 first, qint32 last);
 
-    bool hasEdgeForm() {
+    bool hasEdgeForm()
+    {
         return edgeForm;
     }
-    bool hasNodeForm() {
+    bool hasNodeForm()
+    {
         return nodeForm;
     }
     void closeEdgeForm();
@@ -102,8 +100,7 @@ public slots:
 
     void keyPressEvent(QKeyEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
-    void readFile(
-            QString const &nameFile);
+    void readFile(QString const &nameFile);
     void refreshLinks();
     void loadDiagrams(size_t first);
     void addDiagram();
@@ -126,8 +123,7 @@ public slots:
     std::pair<size_t, size_t> nextPage();
     std::pair<size_t, size_t> setPage(size_t t_page);
 
-signals:
-
+  signals:
 
     void diagramMode();
     void sessionMode();
@@ -136,44 +132,42 @@ signals:
 
     void modif();
 
-protected:
-
-    std::pair<Diagram*, DiagramWidget*>
-        generateDiagram(qint32 iRow, qint32 iCol);
-    std::pair<Diagram*, DiagramWidget*> newDiagram();
+  protected:
+    std::pair<Diagram *, DiagramWidget *> generateDiagram(qint32 iRow,
+                                                          qint32 iCol);
+    std::pair<Diagram *, DiagramWidget *> newDiagram();
 
     size_t maxDiagramNumber(size_t first);
 
-private:
-
+  private:
     Ui::DiagramRenderer *m_ui;
-    QHBoxLayout *hlayout;
-    Mode mode;
-    qint32          nColumns;
-    qint32          cellSize;
-    qint32          minWidth;
-    qint32          minHeight;
-    qint32          firstDiag;
-    qint32          lastDiag;
+    QHBoxLayout *        hlayout;
+    Mode                 mode;
+    qint32               nColumns;
+    qint32               cellSize;
+    qint32               minWidth;
+    qint32               minHeight;
+    qint32               firstDiag;
+    qint32               lastDiag;
 
-    constexpr static size_t pageSize = 64;
-    size_t                  pageNumber;
-    size_t                  nextDiagram;
+    constexpr static size_t          pageSize = 64;
+    size_t                           pageNumber;
+    size_t                           nextDiagram;
     std::vector<drawer::LatexLinker> links;
-    QList<Diagram*>       allDiagrams;
-    QList<Diagram*>       diagrams;
-    QList<std::pair<int, int>> selectedDiagrams;
-    qint32                indexDiagram;
-    QList<qint32>         clipBoardDiagram;
-    latexcompiler        *compiler;
-    DiagramWidget        *diag;
-    QTableWidget         *table;
-    QGraphicsScene       *scene;
-    EdgeForm             *edgeForm;
-    NodeForm             *nodeForm;
-    qreal                 zoomValue;
-    Grid                  grid;
-    bool                  displayGridValue;
+    QList<Diagram *>                 allDiagrams;
+    QList<Diagram *>                 diagrams;
+    QList<std::pair<int, int>>       selectedDiagrams;
+    qint32                           indexDiagram;
+    QList<qint32>                    clipBoardDiagram;
+    latexcompiler *                  compiler;
+    DiagramWidget *                  diag;
+    QTableWidget *                   table;
+    QGraphicsScene *                 scene;
+    EdgeForm *                       edgeForm;
+    NodeForm *                       nodeForm;
+    qreal                            zoomValue;
+    Grid                             grid;
+    bool                             displayGridValue;
 };
 
 #endif // DIAGRAMRENDERER_H

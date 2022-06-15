@@ -1,15 +1,15 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
@@ -26,14 +26,11 @@ namespace mty {
 // Constructors
 ///////////////////////////////////////////////////
 
-InteractionTerm::InteractionTerm(csl::Expr const& t_term,
-                                 bool        copy)
+InteractionTerm::InteractionTerm(csl::Expr const &t_term, bool copy)
 {
     term = (copy) ? DeepCopy(t_term) : t_term;
-    DeepExpandIf(term, [&](csl::Expr const &sum)
-    {
-        return AnyOfLeafs(sum, [&](csl::Expr const &sub)
-        {
+    DeepExpandIf(term, [&](csl::Expr const &sum) {
+        return AnyOfLeafs(sum, [&](csl::Expr const &sub) {
             return IsOfType<QuantumField>(sub);
         });
     });
@@ -45,12 +42,9 @@ InteractionTerm::InteractionTerm(csl::Expr const& t_term,
     gatherFactorsAndSymmetries();
 }
 
-InteractionTerm::InteractionTerm(
-        csl::Expr                 const& t_term,
-        vector<QuantumField> const& t_content)
-    :term(DeepCopy(t_term)),
-    content(t_content),
-    forcedContent(true)
+InteractionTerm::InteractionTerm(csl::Expr const &           t_term,
+                                 vector<QuantumField> const &t_content)
+    : term(DeepCopy(t_term)), content(t_content), forcedContent(true)
 {
     factors.reserve(10);
     permutations.reserve(10);
@@ -58,10 +52,9 @@ InteractionTerm::InteractionTerm(
     gatherFactorsAndSymmetries();
 }
 
-InteractionTerm::InteractionTerm(InteractionTerm const& other)
-    :InteractionTerm(other.getFullExpression(), false)
+InteractionTerm::InteractionTerm(InteractionTerm const &other)
+    : InteractionTerm(other.getFullExpression(), false)
 {
-
 }
 
 InteractionTerm InteractionTerm::copy() const
@@ -71,7 +64,7 @@ InteractionTerm InteractionTerm::copy() const
     return InteractionTerm(expr, false);
 }
 
-InteractionTerm& InteractionTerm::operator=(InteractionTerm const& other)
+InteractionTerm &InteractionTerm::operator=(InteractionTerm const &other)
 {
     clear();
     term = other.getFullExpression();
@@ -82,19 +75,17 @@ InteractionTerm& InteractionTerm::operator=(InteractionTerm const& other)
 
 void abbreviantLINT(csl::Expr &prod)
 {
-    auto mayBeAbbreviate = [&](csl::Expr const &expr)
-    {
+    auto mayBeAbbreviate = [&](csl::Expr const &expr) {
         if (csl::IsNumerical(expr) or csl::IsIndexed(expr))
             return false;
-        return csl::AllOfLeafs(expr, [&](csl::Expr const &sub)
-        {
+        return csl::AllOfLeafs(expr, [&](csl::Expr const &sub) {
             return (!IsOfType<QuantumField>(sub));
         });
     };
 
     std::vector<size_t> abbreviate;
     abbreviate.reserve(prod->size());
-    for (size_t i = 0; i != prod->size(); ++i) 
+    for (size_t i = 0; i != prod->size(); ++i)
         if (mayBeAbbreviate(prod[i]))
             abbreviate.push_back(i);
 
@@ -106,17 +97,13 @@ void abbreviantLINT(csl::Expr &prod)
             prod[i] = CSL_1;
         }
         prod[abbreviate[0]] = csl::Abbrev::makeAbbreviation(
-                "L_term",
-                csl::prod_s(abbreviation, true)
-                );
+            "L_term", csl::prod_s(abbreviation, true));
         csl::Refresh(prod);
     }
 }
 
-void InteractionTerm::fillContent(
-        csl::Expr const &prod,
-        std::vector<mty::QuantumField> &fields
-        )
+void InteractionTerm::fillContent(csl::Expr const &               prod,
+                                  std::vector<mty::QuantumField> &fields)
 {
     InteractionTerm term;
     term.term = prod;
@@ -126,29 +113,25 @@ void InteractionTerm::fillContent(
         fields.push_back(std::move(f));
 }
 
-vector<InteractionTerm::TermType> 
-    InteractionTerm::createAndDispatch(
-        csl::Expr const& expression
-        )
+vector<InteractionTerm::TermType>
+InteractionTerm::createAndDispatch(csl::Expr const &expression)
 {
     csl::Expr abbreviated = expression;
-    csl::Expr expanded = DeepExpandedIf_lock(abbreviated, [&](csl::Expr const &sum)
-    {
-        return AnyOfLeafs(sum, [&](csl::Expr const &sub)
-        {
-            return sub->isIndexed()
-                or IsOfType<QuantumField>(sub);
-        });
-    });
+    csl::Expr expanded
+        = DeepExpandedIf_lock(abbreviated, [&](csl::Expr const &sum) {
+              return AnyOfLeafs(sum, [&](csl::Expr const &sub) {
+                  return sub->isIndexed() or IsOfType<QuantumField>(sub);
+              });
+          });
     if (expanded->getType() != csl::Type::Sum) {
-            TermType interac = std::make_shared<InteractionTerm>(expanded);
-            if (interac->content.empty())
-                return vector<TermType>();
-            return vector<TermType>(1, interac);
-        }
+        TermType interac = std::make_shared<InteractionTerm>(expanded);
+        if (interac->content.empty())
+            return vector<TermType>();
+        return vector<TermType>(1, interac);
+    }
 
     std::vector<std::vector<mty::QuantumField>> contents(expanded->size());
-    std::vector<csl::Expr> fieldProducts(contents.size());
+    std::vector<csl::Expr>                      fieldProducts(contents.size());
     for (size_t i = 0; i != contents.size(); ++i) {
         fillContent(expanded[i], contents[i]);
     }
@@ -158,7 +141,7 @@ vector<InteractionTerm::TermType>
     vector<TermType> interac;
     interac.reserve(expanded->size());
     while (!indicesLeft.empty()) {
-        std::vector<csl::Expr> terms {expanded[indicesLeft[0]]};
+        std::vector<csl::Expr> terms{expanded[indicesLeft[0]]};
         for (size_t j = 1; j != indicesLeft.size(); ++j) {
             if (areSimilarContent(contents[indicesLeft[0]],
                                   contents[indicesLeft[j]])) {
@@ -168,20 +151,18 @@ vector<InteractionTerm::TermType>
             }
         }
         csl::Expr term = csl::sum_s(terms, true);
-        interac.push_back(
-                std::make_shared<InteractionTerm>(term, false)
-                );
+        interac.push_back(std::make_shared<InteractionTerm>(term, false));
         indicesLeft.erase(indicesLeft.begin());
     }
     return interac;
     std::vector<size_t> toRefresh;
     interac.reserve(expanded->size());
-    for (auto& term : *expanded) {
+    for (auto &term : *expanded) {
         TermType foo = std::make_shared<InteractionTerm>(term);
         if (foo->content.empty())
             continue;
         bool found = false;
-        for (size_t i = 0; i != interac.size(); ++i) 
+        for (size_t i = 0; i != interac.size(); ++i)
             if (foo->hasSameContent(*interac[i])) {
                 found = true;
                 interac[i]->term += term;
@@ -192,8 +173,8 @@ vector<InteractionTerm::TermType>
             interac.push_back(std::make_shared<InteractionTerm>(term));
         }
     }
-    //csl::Abbrev::enableGenericEvaluation("L_term");
-    //for (auto &i : interac)
+    // csl::Abbrev::enableGenericEvaluation("L_term");
+    // for (auto &i : interac)
     //    i = std::make_shared<InteractionTerm>(
     //            csl::Evaluated(i->getTerm())
     //            );
@@ -227,19 +208,18 @@ void InteractionTerm::clear()
     permutations.clear();
 }
 
-bool InteractionTerm::hasSameContent(InteractionTerm const& other) const
+bool InteractionTerm::hasSameContent(InteractionTerm const &other) const
 {
     return hasSameContent(other.content);
 }
 
 bool InteractionTerm::hasSameContent(
-        std::vector<mty::QuantumField> const &fields
-        ) const
+    std::vector<mty::QuantumField> const &fields) const
 {
     return areSimilarContent(content, fields);
 }
 
-csl::Expr InteractionTerm::getTerm() const 
+csl::Expr InteractionTerm::getTerm() const
 {
     return term;
 }
@@ -257,13 +237,14 @@ csl::Expr InteractionTerm::getTotalFactor() const
 csl::Expr InteractionTerm::getMass() const
 {
     HEPAssert(content.size() == 2,
-            mty::error::TypeError,
-            "Cannot obtain a mass from the non-mass term " + toString(*this))
-    csl::Expr mass = csl::DeepCopy(globalFactor);
+              mty::error::TypeError,
+              "Cannot obtain a mass from the non-mass term " + toString(*this))
+        csl::Expr mass
+        = csl::DeepCopy(globalFactor);
     csl::ForEachLeaf(mass, [&](csl::Expr &sub) {
         if (csl::IsIndicialTensor(sub) && mty::dirac4.isCMatrix(sub)) {
-            if (sub->getIndexStructureView()[0] 
-                    == content[0].getIndexStructureView().back()) {
+            if (sub->getIndexStructureView()[0]
+                == content[0].getIndexStructureView().back()) {
                 sub = CSL_1;
             }
             else {
@@ -283,12 +264,12 @@ csl::Expr InteractionTerm::getMass() const
     return mass;
 }
 
-vector<QuantumField>& InteractionTerm::getContent()
+vector<QuantumField> &InteractionTerm::getContent()
 {
     return content;
 }
 
-vector<QuantumField> const& InteractionTerm::getContent() const
+vector<QuantumField> const &InteractionTerm::getContent() const
 {
     return content;
 }
@@ -297,38 +278,36 @@ vector<Particle> InteractionTerm::getParticles() const
 {
     vector<Particle> particles;
     particles.reserve(content.size());
-    for (const auto& field : content)
-        particles.push_back(dynamic_pointer_cast<QuantumFieldParent>
-                (field.getParent()));
+    for (const auto &field : content)
+        particles.push_back(
+            dynamic_pointer_cast<QuantumFieldParent>(field.getParent()));
 
     return particles;
 }
 
-size_t InteractionTerm::count(QuantumFieldParent* particle) const
+size_t InteractionTerm::count(QuantumFieldParent *particle) const
 {
     size_t count = 0;
-    for (const auto& field : content)
+    for (const auto &field : content)
         if (field.getParent_info() == particle)
             ++count;
 
     return count;
 }
 
-size_t InteractionTerm::getExponent(csl::Expr const& parameter) const 
+size_t InteractionTerm::getExponent(csl::Expr const &parameter) const
 {
     size_t count = 0;
-    csl::AnyOfLeafs(globalFactor, [&count, &parameter](csl::Expr const& el) 
-    {
+    csl::AnyOfLeafs(globalFactor, [&count, &parameter](csl::Expr const &el) {
         if (el == parameter) {
-          ++count;
-          return true;
+            ++count;
+            return true;
         }
         else if (el->getType() == csl::Type::Pow) {
-          if (el->getArgument(0) == el
-                  and el->getArgument(1)->isInteger()) {
-            count += el->getArgument(1)->evaluateScalar();
-            return true;
-          }
+            if (el->getArgument(0) == el and el->getArgument(1)->isInteger()) {
+                count += el->getArgument(1)->evaluateScalar();
+                return true;
+            }
         }
         return false;
     });
@@ -336,23 +315,25 @@ size_t InteractionTerm::getExponent(csl::Expr const& parameter) const
     return count;
 }
 
-vector<QuantumFieldParent*> InteractionTerm::getParticlesInfo() const
+vector<QuantumFieldParent *> InteractionTerm::getParticlesInfo() const
 {
-    vector<QuantumFieldParent*> particles;
+    vector<QuantumFieldParent *> particles;
     particles.reserve(content.size());
-    for (const auto& field : content)
-        particles.push_back(dynamic_cast<QuantumFieldParent*>
-                (field.getParent().get()));
+    for (const auto &field : content)
+        particles.push_back(
+            dynamic_cast<QuantumFieldParent *>(field.getParent().get()));
 
     return particles;
 }
 
-csl::Expr InteractionTerm::applyFactorAndSymmetriesOn(csl::Expr const& init) const
+csl::Expr
+InteractionTerm::applyFactorAndSymmetriesOn(csl::Expr const &init) const
 {
     std::map<csl::Index, csl::Index> constraints;
-    csl::Expr global = prod_s(DeepCopy(globalFactor),
-                        applyPermutation(globalPermutation, init, constraints),
-                        true);
+    csl::Expr                        global
+        = prod_s(DeepCopy(globalFactor),
+                 applyPermutation(globalPermutation, init, constraints),
+                 true);
     if (init->getType() == csl::Type::Sum)
         Expand(global);
     if (factors.empty()) {
@@ -362,9 +343,10 @@ csl::Expr InteractionTerm::applyFactorAndSymmetriesOn(csl::Expr const& init) con
 
     csl::vector_expr terms(factors.size());
     for (size_t i = 0; i != factors.size(); ++i) {
-        terms[i] = prod_s(DeepCopy(factors[i]),
-                         applyPermutation(permutations[i], global, constraints),
-                         true);
+        terms[i]
+            = prod_s(DeepCopy(factors[i]),
+                     applyPermutation(permutations[i], global, constraints),
+                     true);
         // terms[i] = Expanded(DeepRefreshed(terms[i]));
     }
     csl::Expr res = sum_s(terms, true);
@@ -379,39 +361,37 @@ csl::Tensor InteractionTerm::getPoint() const
     return content[0].getPoint();
 }
 
-void InteractionTerm::setPoint(csl::Tensor const& point)
+void InteractionTerm::setPoint(csl::Tensor const &point)
 {
     if (getPoint().get() == point.get())
         return;
-    term = Replaced(term,
-                   getPoint(),
-                   point);
-    for (auto& field : content)
+    term = Replaced(term, getPoint(), point);
+    for (auto &field : content)
         field.setPoint(point);
 }
 
-bool InteractionTerm::contains(const QuantumFieldParent* f) const
+bool InteractionTerm::contains(const QuantumFieldParent *f) const
 {
-    for (const auto& field : content)
+    for (const auto &field : content)
         if (field.getQuantumParent()->contains(f))
             return true;
 
     return false;
 }
 
-bool InteractionTerm::containsWeakly(const QuantumFieldParent* f) const
+bool InteractionTerm::containsWeakly(const QuantumFieldParent *f) const
 {
-    for (const auto& field : content)
+    for (const auto &field : content)
         if (field.getQuantumParent()->contains(f)
-                || f->contains(field.getQuantumParent()))
+            || f->contains(field.getQuantumParent()))
             return true;
 
     return false;
 }
 
-bool InteractionTerm::containsExactly(const QuantumFieldParent* f) const
+bool InteractionTerm::containsExactly(const QuantumFieldParent *f) const
 {
-    for (const auto& field : content)
+    for (const auto &field : content)
         if (field.getParent_info() == f)
             return true;
 
@@ -421,21 +401,19 @@ bool InteractionTerm::containsExactly(const QuantumFieldParent* f) const
 csl::Expr InteractionTerm::getFieldProduct() const
 {
     csl::vector_expr terms(content.size());
-    std::transform(
-            content.begin(),
-            content.end(),
-            terms.begin(),
-            [](QuantumField const& t_field){
-                 QuantumField field = t_field;
-                 csl::IndexStructure structure 
-                      = field.getDerivativeStructure();
-                 field.setDerivativeStructure(csl::IndexStructure());
-                 csl::Expr res = field.copy();
-                 for (const auto& index : structure)
-                     res = partialMinko(index,
-                                        field.getPoint()) * res;
-                 return res;
-            });
+    std::transform(content.begin(),
+                   content.end(),
+                   terms.begin(),
+                   [](QuantumField const &t_field) {
+                       QuantumField        field = t_field;
+                       csl::IndexStructure structure
+                           = field.getDerivativeStructure();
+                       field.setDerivativeStructure(csl::IndexStructure());
+                       csl::Expr res = field.copy();
+                       for (const auto &index : structure)
+                           res = partialMinko(index, field.getPoint()) * res;
+                       return res;
+                   });
 
     return prod_s(terms);
 }
@@ -443,7 +421,7 @@ csl::Expr InteractionTerm::getFieldProduct() const
 csl::Expr InteractionTerm::getFullExpression() const
 {
     csl::Expr res = applyFactorAndSymmetriesOn(getFieldProduct());
-    res = DeepRefreshed(res);
+    res           = DeepRefreshed(res);
     if (csl::Abbrev::getFreeStructure(res->getIndexStructure()).size() > 0) {
         std::cerr << "Term : " << getTerm() << '\n';
         std::cerr << "Res  : " << res << '\n';
@@ -452,14 +430,14 @@ csl::Expr InteractionTerm::getFullExpression() const
     return res;
 }
 
-bool InteractionTerm::operator==(const InteractionTerm& other) const
+bool InteractionTerm::operator==(const InteractionTerm &other) const
 {
     if (not hasSameContent(other))
         return false;
     return term == other.term;
 }
 
-bool InteractionTerm::operator==(const csl::Expr& other) const
+bool InteractionTerm::operator==(const csl::Expr &other) const
 {
     return term == other;
 }
@@ -477,50 +455,44 @@ void InteractionTerm::gatherFieldContent()
     }
 }
 
-bool InteractionTerm::gatherFieldContent(
-        csl::Expr               const& expr,
-        size_t                    multiplicity,
-        csl::IndexStructure const& structure)
+bool InteractionTerm::gatherFieldContent(csl::Expr const &expr,
+                                         size_t           multiplicity,
+                                         csl::IndexStructure const &structure)
 {
-    switch(expr->getType()) {
+    switch (expr->getType()) {
 
-        case csl::Type::Prod:
-        {
+    case csl::Type::Prod: {
         bool gathered = false;
-        for (const auto& arg : *expr) {
+        for (const auto &arg : *expr) {
             if (gatherFieldContent(arg, multiplicity, structure))
                 gathered = true;
         }
         return gathered;
-        }
+    }
 
-        case csl::Type::Pow:
-        {
+    case csl::Type::Pow: {
         bool gathered = gatherFieldContent(
-                expr->getArgument(0),
-                multiplicity*expr->getArgument(1)->evaluateScalar(),
-                structure);
+            expr->getArgument(0),
+            multiplicity * expr->getArgument(1)->evaluateScalar(),
+            structure);
         if (gathered) {
             HEPAssert(expr->getArgument(1)->isInteger()
-                    and expr->getArgument(1)->evaluateScalar() > 0,
-                    mty::error::ValueError,
-                    "Power of fields allowed only with" + 
-                    static_cast<string>(" positive integer power."));
+                          and expr->getArgument(1)->evaluateScalar() > 0,
+                      mty::error::ValueError,
+                      "Power of fields allowed only with"
+                          + static_cast<string>(" positive integer power."));
         }
         return gathered;
-        }
+    }
 
-        case csl::Type::TensorFieldElement:
+    case csl::Type::TensorFieldElement:
         if (IsOfType<QuantumField>(expr)) {
-            auto [copyField, copyStructure] = buildContent(
-                    ConvertTo<QuantumField>(expr),
-                    structure);
+            auto [copyField, copyStructure]
+                = buildContent(ConvertTo<QuantumField>(expr), structure);
             recallIndices(globalPermutation,
                           expr->getIndexStructureView(),
                           copyField->getIndexStructureView());
-            recallIndices(globalPermutation,
-                          structure,
-                          copyStructure);
+            recallIndices(globalPermutation, structure, copyStructure);
             QuantumField staticField = ConvertTo<QuantumField>(copyField);
             staticField.setDerivativeStructure(copyStructure);
             for (size_t i = 0; i != multiplicity; ++i) {
@@ -531,22 +503,22 @@ bool InteractionTerm::gatherFieldContent(
         return false;
         break;
 
-        case csl::Type::TDerivativeElement:
-        return gatherFieldContent(
-                expr->getOperand(),
-                multiplicity,
-                structure + expr->getIndexStructureView()[0]);
+    case csl::Type::TDerivativeElement:
+        return gatherFieldContent(expr->getOperand(),
+                                  multiplicity,
+                                  structure
+                                      + expr->getIndexStructureView()[0]);
 
-        default:
+    default:
         return false;
     }
 }
 
-bool InteractionTerm::containsQuantumField(csl::Expr const& expr)
+bool InteractionTerm::containsQuantumField(csl::Expr const &expr)
 {
     if (IsOfType<QuantumField>(expr))
         return true;
-    else if (expr->size() > 0){
+    else if (expr->size() > 0) {
         for (size_t i = 0; i != expr->size(); ++i)
             if (containsQuantumField(expr->getArgument(i)))
                 return true;
@@ -557,12 +529,12 @@ bool InteractionTerm::containsQuantumField(csl::Expr const& expr)
     return false;
 }
 
-pair<csl::Expr, csl::IndexStructure> InteractionTerm::buildContent(
-        QuantumField              field,
-        csl::IndexStructure const& structure)
+pair<csl::Expr, csl::IndexStructure>
+InteractionTerm::buildContent(QuantumField               field,
+                              csl::IndexStructure const &structure)
 {
     if (not forcedContent) {
-        csl::Expr copyField = field.copy();
+        csl::Expr           copyField     = field.copy();
         csl::IndexStructure copyStructure = structure;
         copyField->resetIndexStructure();
         copyStructure.reset();
@@ -574,7 +546,7 @@ pair<csl::Expr, csl::IndexStructure> InteractionTerm::buildContent(
     for (auto iter = content.begin(); iter != content.end(); ++iter)
         if (areSimilarField(field, *iter)) {
             csl::IndexStructure derivStruct = iter->getDerivativeStructure();
-            csl::Expr exprField = iter->copy();
+            csl::Expr           exprField   = iter->copy();
             content.erase(iter);
             return make_pair(exprField, derivStruct);
         }
@@ -583,27 +555,28 @@ pair<csl::Expr, csl::IndexStructure> InteractionTerm::buildContent(
     field.print();
     cout << field.getDerivativeStructure() << endl;
 
-    for (const auto& c : content) {
+    for (const auto &c : content) {
         c.print();
         cout << c.getDerivativeStructure() << endl;
     }
 
     CallHEPError(mty::error::RuntimeError,
-            static_cast<string>("Corresponding field content not found in ")
-            + "InteractionTerm::buildContent()");
+                 static_cast<string>("Corresponding field content not found "
+                                     "in ")
+                     + "InteractionTerm::buildContent()");
 
     return make_pair(nullptr, csl::IndexStructure());
 }
 
-void InteractionTerm::recallIndices(permutation             & perm,
-                                    csl::IndexStructure const& old,
-                                    csl::IndexStructure const& structure)
+void InteractionTerm::recallIndices(permutation &              perm,
+                                    csl::IndexStructure const &old,
+                                    csl::IndexStructure const &structure)
 
 {
     HEPAssert(old.size() == structure.size(),
-            mty::error::ValueError,
-            "Size of IndexStructure mismatch: " + toString(old.size())
-            + " and " + toString(structure) + ".");
+              mty::error::ValueError,
+              "Size of IndexStructure mismatch: " + toString(old.size())
+                  + " and " + toString(structure) + ".");
     for (size_t i = 0; i != old.size(); ++i) {
         perm.push_back(make_pair(structure[i], old[i]));
     }
@@ -612,68 +585,57 @@ void InteractionTerm::recallIndices(permutation             & perm,
 void InteractionTerm::gatherFactorsAndSymmetries()
 {
     if (term->getType() == csl::Type::Prod) {
-        for (const auto& arg : *term)
+        for (const auto &arg : *term)
             if (not containsQuantumField(arg))
                 globalFactor = globalFactor * arg;
     }
-    if (term->getType() == csl::Type::Sum
-            and containsQuantumField(term))
+    if (term->getType() == csl::Type::Sum and containsQuantumField(term))
         gatherSymmetries(term);
     else if (term->getType() == csl::Type::Prod) {
-        for (const auto& arg : *term)
+        for (const auto &arg : *term)
             if (arg->getType() == csl::Type::Sum
-                    and containsQuantumField(arg)) {
+                and containsQuantumField(arg)) {
                 gatherSymmetries(arg);
                 break;
             }
     }
     if (abbreviateFactors) {
-        csl::ForEachNode(globalFactor, [&](csl::Expr &sub)
-        {
+        csl::ForEachNode(globalFactor, [&](csl::Expr &sub) {
             if (csl::IsProd(sub))
                 abbreviantLINT(sub);
             else if (csl::IsSum(sub)) {
-                if (csl::AnyOfLeafs(sub, [&](csl::Expr const &term)
-                    {
+                if (csl::AnyOfLeafs(sub, [&](csl::Expr const &term) {
                         return IsOfType<QuantumField>(term)
-                            or csl::IsIndexed(term);
+                               or csl::IsIndexed(term);
                     }))
                     return;
                 sub = sub->getNumericalFactor()
-                    * csl::Abbrev::makeAbbreviation(
-                        "L_term",
-                        csl::Refreshed(csl::GetTerm(sub))
-                        );
+                      * csl::Abbrev::makeAbbreviation(
+                          "L_term", csl::Refreshed(csl::GetTerm(sub)));
             }
         });
         for (auto &f : factors)
-            csl::ForEachNode(f, [&](csl::Expr &sub)
-            {
+            csl::ForEachNode(f, [&](csl::Expr &sub) {
                 if (csl::IsProd(sub))
                     abbreviantLINT(sub);
                 else if (csl::IsSum(sub)) {
-                    if (csl::AnyOfLeafs(sub, [&](csl::Expr const &term)
-                        {
+                    if (csl::AnyOfLeafs(sub, [&](csl::Expr const &term) {
                             return IsOfType<QuantumField>(term)
-                                or csl::IsIndexed(term);
+                                   or csl::IsIndexed(term);
                         }))
                         return;
                     sub = sub->getNumericalFactor()
-                        * csl::Abbrev::makeAbbreviation(
-                            "L_term",
-                            csl::Refreshed(csl::GetTerm(sub))
-                            );
+                          * csl::Abbrev::makeAbbreviation(
+                              "L_term", csl::Refreshed(csl::GetTerm(sub)));
                 }
             });
     }
     for (size_t i = 0; i != factors.size(); ++i) {
-        for (size_t j = i+1; j < factors.size(); ++j)
-            if (std::is_permutation(
-                        permutations[i].begin(),
-                        permutations[i].end(),
-                        permutations[j].begin(),
-                        permutations[j].end()
-                        )) {
+        for (size_t j = i + 1; j < factors.size(); ++j)
+            if (std::is_permutation(permutations[i].begin(),
+                                    permutations[i].end(),
+                                    permutations[j].begin(),
+                                    permutations[j].end())) {
                 factors[i] += factors[j];
                 factors.erase(factors.begin() + j);
                 permutations.erase(permutations.begin() + j);
@@ -682,41 +644,37 @@ void InteractionTerm::gatherFactorsAndSymmetries()
     }
 }
 
-void InteractionTerm::gatherSymmetries(csl::Expr const& sum)
+void InteractionTerm::gatherSymmetries(csl::Expr const &sum)
 {
     if (sum->empty())
         return;
-    csl::Expr arg = sum->getArgument(0);
-    InteractionTerm worker(arg, false);
+    csl::Expr             arg = sum->getArgument(0);
+    InteractionTerm       worker(arg, false);
     vector<QuantumField> &newContent = worker.content;
-    content.insert(content.end(),
-                   newContent.begin(),
-                   newContent.end());
+    content.insert(content.end(), newContent.begin(), newContent.end());
     factors.push_back(std::move(worker.globalFactor));
     permutations.push_back(std::move(worker.globalPermutation));
 
     for (size_t i = 1; i != sum->size(); ++i) {
-        csl::Expr arg = sum->getArgument(i);
+        csl::Expr       arg = sum->getArgument(i);
         InteractionTerm worker(arg, newContent);
         factors.push_back(std::move(worker.globalFactor));
         permutations.push_back(std::move(worker.globalPermutation));
     }
 }
 
-bool InteractionTerm::areSimilarField(QuantumField const& A,
-                                      QuantumField const& B)
+bool InteractionTerm::areSimilarField(QuantumField const &A,
+                                      QuantumField const &B)
 {
     return (A.getParent_info() == B.getParent_info()
-        and (A.getComplexProperty() == csl::ComplexProperty::Real
-               or A.getConjugated() == B.getConjugated())
-        and A.getDerivativeStructure().size()
-            == B.getDerivativeStructure().size());
+            and (A.getComplexProperty() == csl::ComplexProperty::Real
+                 or A.getConjugated() == B.getConjugated())
+            and A.getDerivativeStructure().size()
+                    == B.getDerivativeStructure().size());
 }
 
-bool InteractionTerm::areSimilarContent(
-        std::vector<QuantumField> const &A,
-        std::vector<QuantumField> const &B
-        )
+bool InteractionTerm::areSimilarContent(std::vector<QuantumField> const &A,
+                                        std::vector<QuantumField> const &B)
 {
     const size_t szA = A.size();
     if (szA != B.size())
@@ -727,7 +685,7 @@ bool InteractionTerm::areSimilarContent(
 
     for (size_t i = 0; i != szA; ++i) {
         const auto &fieldA = A[i];
-        bool match = false;
+        bool        match  = false;
         for (size_t k = 0; k != indicesLeft.size(); ++k) {
             const auto &fieldB = B[indicesLeft[k]];
             if (areSimilarField(fieldA, fieldB)) {
@@ -747,23 +705,22 @@ bool InteractionTerm::areSimilarContent(
 }
 
 csl::Expr InteractionTerm::applyPermutation(
-        permutation const& perm,
-        csl::Expr        const& init,
-        std::map<csl::Index, csl::Index>& constraints)
+    permutation const &               perm,
+    csl::Expr const &                 init,
+    std::map<csl::Index, csl::Index> &constraints)
 
 {
-    auto getIndex = [](csl::Index const& init,
-                       std::map<csl::Index, csl::Index>& constraints)
-    {
-        for (const auto& [A, B] : constraints)
+    auto getIndex = [](csl::Index const &                init,
+                       std::map<csl::Index, csl::Index> &constraints) {
+        for (const auto &[A, B] : constraints)
             if (A == init) {
                 auto newIndex = B;
                 newIndex.setSign(init.getSign());
                 newIndex.setFree(init.getFree());
-                return init;// return newIndex;
+                return init; // return newIndex;
             }
         constraints[init] = init.rename();
-        auto newIndex = constraints[init];
+        auto newIndex     = constraints[init];
         newIndex.setSign(init.getSign());
         newIndex.setFree(init.getFree());
         return init; // return newIndex;
@@ -771,28 +728,24 @@ csl::Expr InteractionTerm::applyPermutation(
     if (perm.empty())
         return init;
     csl::Expr res = init->copy();
-    csl::ForEachNode(res, [&](csl::Expr &sub)
-    {
-        for (const auto& replacement : perm)
-            Replace(
-                    sub,
+    csl::ForEachNode(res, [&](csl::Expr &sub) {
+        for (const auto &replacement : perm)
+            Replace(sub,
                     replacement.first,
                     getIndex(replacement.second, constraints),
-                    false
-                    );
+                    false);
     });
 
     return res;
 }
 
-ostream& operator<<(ostream              & out,
-                    InteractionTerm const& term)
+ostream &operator<<(ostream &out, InteractionTerm const &term)
 {
     out << "Initial term : ";
     term.term->print();
     out << "Content:\n";
-    for (const auto& field : term.content) {
-        field.print(1); 
+    for (const auto &field : term.content) {
+        field.print(1);
         out << " " << field.getDerivativeStructure();
         out << endl;
     }
@@ -800,16 +753,16 @@ ostream& operator<<(ostream              & out,
     term.globalFactor->print();
 
     out << "global perm : ";
-    for (const auto& pair : term.globalPermutation)
-        out << "( "<< pair.first << " , " << pair.second << " )  ";
+    for (const auto &pair : term.globalPermutation)
+        out << "( " << pair.first << " , " << pair.second << " )  ";
     out << endl;
 
-    out << term.factors.size() << " terms:"<< endl;
+    out << term.factors.size() << " terms:" << endl;
     for (size_t i = 0; i != term.factors.size(); ++i) {
         out << "Term " << i << ": \n";
         term.factors[i]->print();
-        for (const auto& pair : term.permutations[i])
-            out << "( "<< pair.first << " , " << pair.second << " )  ";
+        for (const auto &pair : term.permutations[i])
+            out << "( " << pair.first << " , " << pair.second << " )  ";
         out << endl;
     }
 

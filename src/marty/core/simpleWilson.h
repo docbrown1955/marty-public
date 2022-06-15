@@ -3,11 +3,11 @@
 #include <utility>
 
 namespace csl {
-    class Expr;
+class Expr;
 }
 
 namespace mty {
 
-    std::pair<csl::Expr, csl::Expr> calculate_C9_C10();
+std::pair<csl::Expr, csl::Expr> calculate_C9_C10();
 
 }

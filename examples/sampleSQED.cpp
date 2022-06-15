@@ -3,7 +3,8 @@
 using namespace csl;
 using namespace mty;
 
-int main() {
+int main()
+{
 
     Model sQED("models/files/sQED.json");
 
@@ -22,11 +23,11 @@ int main() {
     Show(rules);
 
     mty::option::amputateExternalLegs = true;
-    auto res = sQED.computeAmplitude(
-                Order::TreeLevel,
-                {Incoming(phi),    Incoming(AntiPart(phi)),
-                 Outgoing(photon), Outgoing(photon)}
-                );
+    auto res                          = sQED.computeAmplitude(Order::TreeLevel,
+                                     {Incoming(phi),
+                                      Incoming(AntiPart(phi)),
+                                      Outgoing(photon),
+                                      Outgoing(photon)});
 
     Display(res);
     Show(res);

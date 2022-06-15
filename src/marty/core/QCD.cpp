@@ -13,31 +13,30 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
- #include "QCD.h"
+#include "QCD.h"
 #include "mrtInterface.h"
 
 namespace mty {
 
-Particle colorTriplet(Model& QCD, std::string const& name)
+Particle colorTriplet(Model &QCD, std::string const &name)
 {
     Particle part = diracfermion_s(name, QCD);
-    SetMass(part, "m_"+name);
+    SetMass(part, "m_" + name);
     SetGroupRep(part, "SU3_c", {1, 0});
     AddParticle(QCD, part);
     return part;
 }
 
-Particle colorSextet(Model& QCD, std::string const& name)
+Particle colorSextet(Model &QCD, std::string const &name)
 {
     Particle part = diracfermion_s(name, QCD);
-    SetMass(part, "m_"+name);
+    SetMass(part, "m_" + name);
     SetGroupRep(part, "SU3_c", {2, 0});
     AddParticle(QCD, part);
     return part;
 }
 
-QCD_Model::QCD_Model()
-    :Model()
+QCD_Model::QCD_Model() : Model()
 {
     addGaugedGroup(group::Type::SU, "C", 3, csl::constant_s("g"));
     init();
@@ -52,4 +51,4 @@ QCD_Model::QCD_Model()
     computeFeynmanRules();
 }
 
-}
+} // namespace mty

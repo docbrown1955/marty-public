@@ -1,21 +1,21 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * @file diagram.h
- * @brief 
+ * @brief
  * @author Grégoire Uhlrich
  * @version 1.3
  * @date 2020-11-05
@@ -23,12 +23,12 @@
 #ifndef DIAGRAM_H
 #define DIAGRAM_H
 
-#include <QGraphicsView>
-#include <QGraphicsProxyWidget>
-#include <QInputDialog>
-#include "planargraph.h"
 #include "latexLink.h"
 #include "latexcompiler.h"
+#include "planargraph.h"
+#include <QGraphicsProxyWidget>
+#include <QGraphicsView>
+#include <QInputDialog>
 
 class MainWindow;
 class QLabel;
@@ -49,8 +49,7 @@ enum InteractiveMode {
 
 class Proxy;
 class DiagramRenderer;
-class Diagram: public QObject
-{
+class Diagram : public QObject {
 
     Q_OBJECT
 
@@ -61,56 +60,37 @@ class Diagram: public QObject
     friend class Edge;
     friend class Node;
 
-public:
-    Diagram(QGraphicsScene *t_scene,
-            qint32 t_X0,
-            qint32 t_Y0,
+  public:
+    Diagram(QGraphicsScene * t_scene,
+            qint32           t_X0,
+            qint32           t_Y0,
             DiagramRenderer *t_renderer);
-
 
     ~Diagram() override;
 
-    QString getName() const { return name; }
+    QString getName() const
+    {
+        return name;
+    }
 
     void setActiveWidget(DiagramWidget *t_widget);
 
     InteractiveMode getInteractiveMode() const;
-    void save(
-            std::string const&fileName
-            ) const;
-    void exportSelfPNG(QString const &fileName);
-    void exportPNG(
-            std::string const&fileName
-            ) const;
-    void exportPDF(
-            std::string const&fileName
-            ) const;
-    std::string getLatexSource() const;
+    void            save(std::string const &fileName) const;
+    void            exportSelfPNG(QString const &fileName);
+    void            exportPNG(std::string const &fileName) const;
+    void            exportPDF(std::string const &fileName) const;
+    std::string     getLatexSource() const;
 
-    void loadGraph(
-            drawer::Graph  const&t_graph
-            );
-    void loadLinker(
-            drawer::LatexLinker const& t_link
-            );
-    void itemMoved();
-    void clear();
-    void setOutputPath(
-            std::string const& path
-            );
-    void setFile(
-            std::string const&t_fileName
-            );
-    void setExportFile(
-            std::string const&t_fileName
-            );
-    void forceNodeOnGrid(
-            bool value
-            );
-    void testRoundValues(
-            qreal& x,
-            qreal& y
-            );
+    void   loadGraph(drawer::Graph const &t_graph);
+    void   loadLinker(drawer::LatexLinker const &t_link);
+    void   itemMoved();
+    void   clear();
+    void   setOutputPath(std::string const &path);
+    void   setFile(std::string const &t_fileName);
+    void   setExportFile(std::string const &t_fileName);
+    void   forceNodeOnGrid(bool value);
+    void   testRoundValues(qreal &x, qreal &y);
     QRectF getBounds() const;
 
     void insertionMode();
@@ -119,9 +99,12 @@ public:
 
     void modificationDone();
 
-public slots:
+  public slots:
 
-    void setName(QString const &t_name) { name = t_name; }
+    void setName(QString const &t_name)
+    {
+        name = t_name;
+    }
     void setGridSize(qint32 t_gridSize);
     void showNodes(bool);
     void reinitGraph();
@@ -134,30 +117,21 @@ public slots:
     void rotateTo(int angle);
     void moveTo(qint32 X0_new, qint32 Y0_new);
 
-    size_t getPosNode(Node const*node) const;
-    std::pair<size_t, size_t> getPosEdge(Edge const*edge) const;
+    size_t                    getPosNode(Node const *node) const;
+    std::pair<size_t, size_t> getPosEdge(Edge const *edge) const;
 
-    void addNode(qreal x = 0,
-                 qreal y = 0);
+    void addNode(qreal x = 0, qreal y = 0);
     void addNode(QPointF point);
-    void addEdge(size_t i,
-                 size_t j);
-    void addEdge(Node *A,
-                 Node *B);
+    void addEdge(size_t i, size_t j);
+    void addEdge(Node *A, Node *B);
 
     Proxy *generateLabel(QString const &text) const;
-    void addLabel(
-            Proxy        * label,
-            QPointF const& pos);
-    void addNodeLabel(
-            Node *node,
-            QString const &text
-            );
-    void addEdgeLabel(
-            Edge *edge,
-            drawer::LatexLinker::Edge const &lEdge,
-            QString const &text);
-    void proxyDoubleClicked(Proxy *);
+    void   addLabel(Proxy *label, QPointF const &pos);
+    void   addNodeLabel(Node *node, QString const &text);
+    void   addEdgeLabel(Edge *                           edge,
+                        drawer::LatexLinker::Edge const &lEdge,
+                        QString const &                  text);
+    void   proxyDoubleClicked(Proxy *);
 
     void removeEdge(Edge *edge);
     void removeNode(size_t i);
@@ -165,64 +139,55 @@ public slots:
     void removeSelectedNodes();
     void removeSelectedEdges();
 
-    void setEdgeName(Edge    const *edge,
-                     QString const &name);
-    void setNodeName(Node    const *node,
-                     QString const &name);
-    void setEdgeType(Edge          const *edge,
-                     drawer::ParticleType type,
-                     bool                 sign = true);
+    void setEdgeName(Edge const *edge, QString const &name);
+    void setNodeName(Node const *node, QString const &name);
+    void
+    setEdgeType(Edge const *edge, drawer::ParticleType type, bool sign = true);
 
     void refreshLinker();
     void refresh();
 
-    void labelReady(std::string const&);
+    void labelReady(std::string const &);
 
-protected:
-    Node* buildNode(qreal x = 0,
-                    qreal y = 0);
-    Edge* buildEdge(Node *first,
-                    Node *second);
-    void deleteNode(Node *&node);
-    void deleteEdge(Edge *&edge);
+  protected:
+    Node *buildNode(qreal x = 0, qreal y = 0);
+    Edge *buildEdge(Node *first, Node *second);
+    void  deleteNode(Node *&node);
+    void  deleteEdge(Edge *&edge);
 
-    QPointF getNodeLabelPos(
-            Node const *node,
-            Proxy const *label
-            ) const;
-    QPointF getEdgeLabelPos(
-            Edge                      const *edge,
-            drawer::LatexLinker::Edge const &lEdge,
-            Proxy                     const *label
-            ) const;
+    QPointF getNodeLabelPos(Node const *node, Proxy const *label) const;
+    QPointF getEdgeLabelPos(Edge const *                     edge,
+                            drawer::LatexLinker::Edge const &lEdge,
+                            Proxy const *                    label) const;
 
     drawer::Graph getScaledGraph() const;
-    void setFocusOn(size_t pos);
-    void move(qreal x, qreal y);
-    void keyPressEvent(QKeyEvent *event) ;
-    void keyReleaseEvent(QKeyEvent *event) ;
-    QPointF getCursorPos() const;
-    void mouseMoveEvent(QMouseEvent *event) ;
-    void mousePressEvent(QMouseEvent *event) ;
-    void mouseReleaseEvent(QMouseEvent *event) ;
-    void mouseDoubleClickEvent(QMouseEvent *event) ;
-    void wheelEvent(QWheelEvent *event) ;
+    void          setFocusOn(size_t pos);
+    void          move(qreal x, qreal y);
+    void          keyPressEvent(QKeyEvent *event);
+    void          keyReleaseEvent(QKeyEvent *event);
+    QPointF       getCursorPos() const;
+    void          mouseMoveEvent(QMouseEvent *event);
+    void          mousePressEvent(QMouseEvent *event);
+    void          mouseReleaseEvent(QMouseEvent *event);
+    void          mouseDoubleClickEvent(QMouseEvent *event);
+    void          wheelEvent(QWheelEvent *event);
 
-public:
-    static constexpr    qreal       scaleForGraph = 100;
-private:
+  public:
+    static constexpr qreal scaleForGraph = 100;
+
+  private:
     inline static const std::string defaultFileName = "None";
 
-    DiagramRenderer *renderer;
-    DiagramWidget *widget;
+    DiagramRenderer *           renderer;
+    DiagramWidget *             widget;
     drawer::Graph               graph;
-    mutable latexcompiler      *latexComp;
+    mutable latexcompiler *     latexComp;
     mutable drawer::LatexLinker link;
-    Node                       *cursor;
-    Edge                       *draggedEdge;
-    std::vector<Node*>          nodes;
-    std::vector<Edge*>          edges;
-    QGraphicsScene             *scene;
+    Node *                      cursor;
+    Edge *                      draggedEdge;
+    std::vector<Node *>         nodes;
+    std::vector<Edge *>         edges;
+    QGraphicsScene *            scene;
     qint32                      X0;
     qint32                      Y0;
     qint32                      LX;
@@ -241,20 +206,18 @@ private:
     bool            updatingGraph;
 };
 
-class Proxy: public QGraphicsProxyWidget {
+class Proxy : public QGraphicsProxyWidget {
 
     Q_OBJECT
 
-public:
-
-    Proxy(DiagramWidget *t_widget)
-        :QGraphicsProxyWidget(),
-        widget(t_widget)
+  public:
+    Proxy(DiagramWidget *t_widget) : QGraphicsProxyWidget(), widget(t_widget)
     {
-
     }
 
-    ~Proxy() override {}
+    ~Proxy() override
+    {
+    }
 
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override
     {
@@ -278,12 +241,12 @@ public:
 
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) override;
 
-signals:
+  signals:
 
     void doubleClicked(Proxy *);
-public:
 
-    QString data;
+  public:
+    QString        data;
     DiagramWidget *widget;
 };
 

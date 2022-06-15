@@ -1,31 +1,32 @@
 #ifndef PDFSETUPDIALOG_H
 #define PDFSETUPDIALOG_H
 
-#include <QDialog>
-#include "pdfoption.h"
 #include "mainwidget.h"
+#include "pdfoption.h"
+#include <QDialog>
 
 namespace Ui {
 class PDFSetupDialog;
 }
 
-class PDFSetupDialog : public QDialog
-{
+class PDFSetupDialog : public QDialog {
     Q_OBJECT
 
-public:
+  public:
     explicit PDFSetupDialog(MainWidget *parent = nullptr);
     ~PDFSetupDialog();
 
-    PDFOption getOptions() const {
+    PDFOption getOptions() const
+    {
         return options;
     }
 
-    QString getSaveFile() const {
+    QString getSaveFile() const
+    {
         return saveFile;
     }
 
-public slots:
+  public slots:
 
     void accept() override;
     void reject() override;
@@ -42,15 +43,14 @@ public slots:
 
     void enableNumbers(bool);
 
-protected:
-
+  protected:
     void loadOptions();
 
-    int fromRatio(float ratio);
+    int  fromRatio(float ratio);
     void setRatio(int value, float &target);
 
-private:
-    MainWidget         *mainWidget;
+  private:
+    MainWidget *        mainWidget;
     Ui::PDFSetupDialog *ui;
     PDFOption           options;
     QString             saveFile;

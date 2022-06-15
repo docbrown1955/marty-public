@@ -15,10 +15,10 @@
 
 /**
  * @file tensorset.h
- * @brief CSL data for a Dirac space allowing to convert expressions from and to
- * CSL.
+ * @brief CSL data for a Dirac space allowing to convert expressions from and
+ * to CSL.
  * @author Grégoire Uhlrich
- * @version 
+ * @version
  * @date 2021-05-06
  */
 #pragma once
@@ -27,16 +27,14 @@
 
 namespace sgl {
 
-    struct TensorSet {
-        csl::Tensor gamma_chir;
-        csl::Tensor C;
-        csl::Tensor P_L;
-        csl::Tensor P_R;
-        std::map<size_t, csl::Tensor> gamma;
-    };
+struct TensorSet {
+    csl::Tensor                   gamma_chir;
+    csl::Tensor                   C;
+    csl::Tensor                   P_L;
+    csl::Tensor                   P_R;
+    std::map<size_t, csl::Tensor> gamma;
+};
 
-    TensorSet buildTensorSet(
-            csl::Space const *minkoSpace,
-            csl::Space const *diracSpace
-            );
-}
+TensorSet buildTensorSet(csl::Space const *minkoSpace,
+                         csl::Space const *diracSpace);
+} // namespace sgl

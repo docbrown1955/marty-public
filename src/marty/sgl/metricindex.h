@@ -17,7 +17,7 @@
  * @file metricindex.h
  * @brief sgl::MetricIndex, symbolic Minkowski metric in SGL.
  * @author Grégoire Uhlrich
- * @version 
+ * @version
  * @date 2021-05-06
  */
 #pragma once
@@ -26,30 +26,26 @@
 
 namespace sgl {
 
-    class MetricIndex: public AbstractGeneralizedIndex {
+class MetricIndex : public AbstractGeneralizedIndex {
 
-    public:
+  public:
+    MetricIndex(csl::Index const &a, csl::Index const &b);
 
-        MetricIndex(
-                csl::Index const &a,
-                csl::Index const &b
-                );
+    bool isZero() const override;
 
-        bool isZero() const override;
+    GExpr copy() const override;
+    GExpr refresh() const override;
 
-        GExpr copy() const override;
-        GExpr refresh() const override;
+    csl::Expr toCSL(TensorSet const &) const override;
 
-        csl::Expr toCSL(TensorSet const&) const override;
+    csl::Expr getFactor() const override;
+    GExpr     getTerm() const override;
 
-        csl::Expr getFactor() const override;
-        GExpr getTerm() const override;
+    bool  hasPropertyWith(GExpr const &other) const override;
+    GExpr propertyWith(GExpr const &other) const override;
 
-        bool hasPropertyWith(GExpr const &other) const override;
-        GExpr propertyWith(GExpr const &other) const override;
+    void print(std::ostream &out = std::cout) const override;
+};
 
-        void print(std::ostream &out = std::cout) const override;
-    };
-
-    GExpr metricindex_s(csl::Index const &a, csl::Index const &b);
-}
+GExpr metricindex_s(csl::Index const &a, csl::Index const &b);
+} // namespace sgl

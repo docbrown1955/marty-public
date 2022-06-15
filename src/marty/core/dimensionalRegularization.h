@@ -15,7 +15,7 @@
 
 /**
  * @file dimensionalRegularization.h
- * @brief Contains the mty::addLocalTerms() function and its dependencies to 
+ * @brief Contains the mty::addLocalTerms() function and its dependencies to
  * apply dimensional regularization in amplitudes.
  * @author Grégoire Uhlrich
  * @version 1.3
@@ -24,11 +24,11 @@
 #pragma once
 
 namespace csl {
-    class Expr;
+class Expr;
 }
 
 namespace mty::simpli {
 
-    void addLocalTerms(csl::Expr &res);
+void addLocalTerms(csl::Expr &res);
 
 }

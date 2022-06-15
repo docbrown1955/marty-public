@@ -17,7 +17,7 @@
  * @file sglinterface.h
  * @brief Interface functions.
  * @author Grégoire Uhlrich
- * @version 
+ * @version
  * @date 2021-05-06
  */
 #pragma once
@@ -26,6 +26,6 @@
 
 namespace sgl {
 
-    GExpr DeepCopy(GExpr const &expr);
-    GExpr DeepRefreshed(GExpr const &expr);
-}
+GExpr DeepCopy(GExpr const &expr);
+GExpr DeepRefreshed(GExpr const &expr);
+} // namespace sgl

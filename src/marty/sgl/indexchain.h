@@ -18,290 +18,246 @@
  * @brief sgl::IndexChain, main symbolic object of SGL representing a chain of
  * gamma-matrices objects.
  * @author Grégoire Uhlrich
- * @version 
+ * @version
  * @date 2021-05-06
  */
 #pragma once
 
-#include <string>
-#include <map>
+#include "cslexpr.h"
 #include "gammaindex.h"
 #include "momentumindex.h"
 #include "sglfield.h"
-#include "cslexpr.h"
+#include <map>
+#include <string>
 
 namespace sgl {
 
-    class IndexChain: public AbstractMultiFunction {
+class IndexChain : public AbstractMultiFunction {
 
-    public:
+  public:
+    // static inline bool applyMatrixOrdering = false;
 
-        // static inline bool applyMatrixOrdering = false;
+    IndexChain()                   = default;
+    IndexChain(IndexChain const &) = default;
 
-        IndexChain() = default;
-        IndexChain(IndexChain const &) = default;
+    IndexChain(Field const &psi);
 
-        IndexChain(Field const &psi);
+    IndexChain(csl::Index const &t_a, csl::Index const &t_b);
 
-        IndexChain(
-                csl::Index const &t_a,
-                csl::Index const &t_b
-                );
+    IndexChain(GExpr const &mu, csl::Index const &t_a, csl::Index const &t_b);
 
-        IndexChain(
-                GExpr      const &mu,
-                csl::Index const &t_a,
-                csl::Index const &t_b
-                );
+    IndexChain(std::vector<GExpr> const &mu,
+               csl::Index const &        t_a,
+               csl::Index const &        t_b);
 
-        IndexChain(
-                std::vector<GExpr> const &mu,
-                csl::Index         const &t_a,
-                csl::Index         const &t_b
-                );
+    IndexChain(Field const &t_a, csl::Index const &t_b);
 
-        IndexChain(
-                Field      const &t_a,
-                csl::Index const &t_b
-                );
+    IndexChain(GExpr const &mu, Field const &t_a, csl::Index const &t_b);
 
-        IndexChain(
-                GExpr      const &mu,
-                Field      const &t_a,
-                csl::Index const &t_b
-                );
+    IndexChain(std::vector<GExpr> const &mu,
+               Field const &             t_a,
+               csl::Index const &        t_b);
 
-        IndexChain(
-                std::vector<GExpr> const &mu,
-                Field              const &t_a,
-                csl::Index         const &t_b
-                );
+    IndexChain(csl::Index const &t_a, Field const &t_b);
 
-        IndexChain(
-                csl::Index const &t_a,
-                Field      const &t_b
-                );
+    IndexChain(GExpr const &mu, csl::Index const &t_a, Field const &t_b);
 
-        IndexChain(
-                GExpr      const &mu,
-                csl::Index const &t_a,
-                Field      const &t_b
-                );
+    IndexChain(std::vector<GExpr> const &mu,
+               csl::Index const &        t_a,
+               Field const &             t_b);
 
-        IndexChain(
-                std::vector<GExpr> const &mu,
-                csl::Index         const &t_a,
-                Field              const &t_b
-                );
+    IndexChain(Field const &t_a, Field const &t_b);
 
-        IndexChain(
-                Field      const &t_a,
-                Field      const &t_b
-                );
+    IndexChain(GExpr const &mu, Field const &t_a, Field const &t_b);
 
-        IndexChain(
-                GExpr const &mu,
-                Field const &t_a,
-                Field const &t_b
-                );
+    IndexChain(std::vector<GExpr> const &mu,
+               Field const &             t_a,
+               Field const &             t_b);
 
-        IndexChain(
-                std::vector<GExpr> const &mu,
-                Field              const &t_a,
-                Field              const &t_b
-                );
+    bool isZero() const override;
 
-        bool isZero() const override;
+    csl::Expr getFactor() const override;
+    GExpr     getTerm() const override;
 
-        csl::Expr getFactor() const override;
-        GExpr getTerm() const override;
-
-        std::shared_ptr<Field> getPsiL() const {
-            return psiL;
-        }
-        std::shared_ptr<Field> getPsiR() const {
-            return psiR;
-        }
-        std::pair<csl::Index, csl::Index> getBorderIndices() const {
-            return {a, b};
-        }
-
-        bool isHappy() const;
-
-        bool isReversed() const;
-
-        bool isFierzFixed()    const { return fierzFixed; }
-        void setFixFierz(bool value) { fierzFixed = value; }
-
-        bool hasCommonIndex(IndexChain const &other) const;
-        GExpr mergeChain(IndexChain const &other) const;
-        GExpr mergeConjugateChain(IndexChain const &other) const;
-        bool hasPropertyWith(GExpr const &other) const override;
-        GExpr propertyWith(GExpr const &other) const override;
-
-        bool contains(csl::Index const &) const override;
-        void replace(csl::Index const&, csl::Index const&) override;
-
-        GExpr copy() const override;
-        GExpr refresh() const override;
-
-        csl::Expr toCSL(TensorSet const &tensors) const override;
-
-        std::pair<GExpr, IndexChain> cut(
-                size_t pos, 
-                size_t len = 1
-                ) const;
-
-        void erase(size_t pos, size_t len);
-
-        GExpr applyEOM(MomentumIndex const &p) const;
-
-        GExpr simplify() override;
-
-        GExpr calculateTrace() const;
-        GExpr calculateStandardTrace() const;
-        GExpr calculateChiralTrace() const;
-
-        std::optional<GExpr> reduceStep() const;
-
-        std::optional<GExpr> reduceMomenta(
-                MomentumIndex const &p1,
-                MomentumIndex const &p2
-                ) const;
-
-        static GExpr trace(
-                IndexChain A,
-                IndexChain C,
-                IndexChain B,
-                IndexChain D
-                );
-
-        GExpr applyGeneralFierz(
-                IndexChain const &other,
-                bool              chiral = true
-                ) const;
-        GExpr applyGeneralFierzTwice(
-                IndexChain const &other,
-                bool              chiral = true
-                ) const;
-
-        void print(std::ostream &out) const override;
-
-        bool isTrace() const { return a == b && !(psiL || psiR); }
-
-        std::optional<GExpr> checkGammaAndConjugation() const;
-
-        static csl::Index easyIndex(int i) {
-            if (auto pos = m_easyIndex.find(i); pos != m_easyIndex.end())
-                return pos->second;
-            m_easyIndex[i] = diracSpace->generateIndex();
-            return m_easyIndex[i];
-        }
-
-        GExpr identityFactor(GammaIndex const &other) const;
-        GExpr factor(GammaIndex const &A, GammaIndex const &B) const;
-        GExpr getContributionTo(IndexChain const &other) const;
-
-        std::pair<int, IndexChain> conjugated() const;
-
-        friend GExpr momentumGammaContraction(
-                sgl::IndexChain const&, csl::Tensor,
-                csl::Index const&, csl::Index const&, size_t, size_t
-                );
-
-        GExpr moveIndex(size_t init, size_t target) const;
-
-    private:
-
-        bool hasContraction(size_t i, size_t j) const;
-        std::optional<std::pair<size_t, size_t>> firstMove() const;
-        std::optional<std::pair<size_t, size_t>> lastMove() const;
-
-        GExpr contraction(size_t i) const;
-
-    public:
-
-        static bool isDelta(GExpr const &gamma) {
-            return dynamic_cast<GammaIndex const*>(gamma.get())->isDelta();
-        }
-        static bool isGammaMu(GExpr const &gamma) {
-            return dynamic_cast<GammaIndex const*>(gamma.get())->isGammaMu();
-        }
-        static bool isSigma(GExpr const &gamma) {
-            return dynamic_cast<GammaIndex const*>(gamma.get())->isSigma();
-        }
-        static bool isChiral(GExpr const &gamma) {
-            return isGamma5(gamma) || isP_L(gamma) || isP_R(gamma);
-        }
-        static bool isGamma5(GExpr const &gamma) {
-            return dynamic_cast<GammaIndex const*>(gamma.get())->isGamma5();
-        }
-        static bool isProjector(GExpr const &gamma) {
-            return isP_L(gamma) || isP_R(gamma);
-        }
-        static bool isP_L(GExpr const &gamma) {
-            return dynamic_cast<GammaIndex const*>(gamma.get())->isP_L();
-        }
-        static bool isP_R(GExpr const &gamma) {
-            return dynamic_cast<GammaIndex const*>(gamma.get())->isP_R();
-        }
-        static bool isC(GExpr const &gamma) {
-            return dynamic_cast<GammaIndex const*>(gamma.get())->isC();
-        }
-
-        static GExpr CMatrix();
-        static GExpr Id();
-        static GExpr gamma5();
-        static GExpr P_L();
-        static GExpr P_R();
-
-    private:
-
-        csl::Index a;
-        csl::Index b;
-        std::shared_ptr<Field> psiL { nullptr };
-        std::shared_ptr<Field> psiR { nullptr };
-        bool fierzFixed = false;
-    };
-
-    template<class ...Args>
-    GExpr indexchain_s(Args &&...args) {
-        auto chain = std::make_shared<IndexChain>(std::forward<Args>(args)...);
-        if (chain->isZero()) 
-            return cslexpr_s(CSL_0);
-        auto factor = chain->getFactor();
-        if (factor != CSL_1) {
-            auto term = std::dynamic_pointer_cast<IndexChain>(chain->getTerm());
-            auto opt_chain = term->checkGammaAndConjugation();
-            return factor * opt_chain.value_or(term);
-        }
-        return chain->checkGammaAndConjugation().value_or(chain);
+    std::shared_ptr<Field> getPsiL() const
+    {
+        return psiL;
+    }
+    std::shared_ptr<Field> getPsiR() const
+    {
+        return psiR;
+    }
+    std::pair<csl::Index, csl::Index> getBorderIndices() const
+    {
+        return {a, b};
     }
 
-    template<class ...Args>
-    GExpr indexchain_s(
-            std::initializer_list<GExpr> gammas,
-            Args &&...args) {
-        return indexchain_s(
-                std::vector<GExpr>(gammas.begin(), gammas.end()),
-                std::forward<Args>(args)...
-                );
+    bool isHappy() const;
+
+    bool isReversed() const;
+
+    bool isFierzFixed() const
+    {
+        return fierzFixed;
+    }
+    void setFixFierz(bool value)
+    {
+        fierzFixed = value;
     }
 
-    GExpr indexchain_s(
-            int a,
-            int b
-            );
+    bool  hasCommonIndex(IndexChain const &other) const;
+    GExpr mergeChain(IndexChain const &other) const;
+    GExpr mergeConjugateChain(IndexChain const &other) const;
+    bool  hasPropertyWith(GExpr const &other) const override;
+    GExpr propertyWith(GExpr const &other) const override;
 
-    GExpr indexchain_s(
-            const char mu[],
-            int a,
-            int b
-            );
+    bool contains(csl::Index const &) const override;
+    void replace(csl::Index const &, csl::Index const &) override;
 
-    GExpr indexchain_s(
-            std::vector<std::string> const &mu,
-            int a,
-            int b
-            );
+    GExpr copy() const override;
+    GExpr refresh() const override;
+
+    csl::Expr toCSL(TensorSet const &tensors) const override;
+
+    std::pair<GExpr, IndexChain> cut(size_t pos, size_t len = 1) const;
+
+    void erase(size_t pos, size_t len);
+
+    GExpr applyEOM(MomentumIndex const &p) const;
+
+    GExpr simplify() override;
+
+    GExpr calculateTrace() const;
+    GExpr calculateStandardTrace() const;
+    GExpr calculateChiralTrace() const;
+
+    std::optional<GExpr> reduceStep() const;
+
+    std::optional<GExpr> reduceMomenta(MomentumIndex const &p1,
+                                       MomentumIndex const &p2) const;
+
+    static GExpr trace(IndexChain A, IndexChain C, IndexChain B, IndexChain D);
+
+    GExpr applyGeneralFierz(IndexChain const &other, bool chiral = true) const;
+    GExpr applyGeneralFierzTwice(IndexChain const &other,
+                                 bool              chiral = true) const;
+
+    void print(std::ostream &out) const override;
+
+    bool isTrace() const
+    {
+        return a == b && !(psiL || psiR);
+    }
+
+    std::optional<GExpr> checkGammaAndConjugation() const;
+
+    static csl::Index easyIndex(int i)
+    {
+        if (auto pos = m_easyIndex.find(i); pos != m_easyIndex.end())
+            return pos->second;
+        m_easyIndex[i] = diracSpace->generateIndex();
+        return m_easyIndex[i];
+    }
+
+    GExpr identityFactor(GammaIndex const &other) const;
+    GExpr factor(GammaIndex const &A, GammaIndex const &B) const;
+    GExpr getContributionTo(IndexChain const &other) const;
+
+    std::pair<int, IndexChain> conjugated() const;
+
+    friend GExpr momentumGammaContraction(sgl::IndexChain const &,
+                                          csl::Tensor,
+                                          csl::Index const &,
+                                          csl::Index const &,
+                                          size_t,
+                                          size_t);
+
+    GExpr moveIndex(size_t init, size_t target) const;
+
+  private:
+    bool hasContraction(size_t i, size_t j) const;
+    std::optional<std::pair<size_t, size_t>> firstMove() const;
+    std::optional<std::pair<size_t, size_t>> lastMove() const;
+
+    GExpr contraction(size_t i) const;
+
+  public:
+    static bool isDelta(GExpr const &gamma)
+    {
+        return dynamic_cast<GammaIndex const *>(gamma.get())->isDelta();
+    }
+    static bool isGammaMu(GExpr const &gamma)
+    {
+        return dynamic_cast<GammaIndex const *>(gamma.get())->isGammaMu();
+    }
+    static bool isSigma(GExpr const &gamma)
+    {
+        return dynamic_cast<GammaIndex const *>(gamma.get())->isSigma();
+    }
+    static bool isChiral(GExpr const &gamma)
+    {
+        return isGamma5(gamma) || isP_L(gamma) || isP_R(gamma);
+    }
+    static bool isGamma5(GExpr const &gamma)
+    {
+        return dynamic_cast<GammaIndex const *>(gamma.get())->isGamma5();
+    }
+    static bool isProjector(GExpr const &gamma)
+    {
+        return isP_L(gamma) || isP_R(gamma);
+    }
+    static bool isP_L(GExpr const &gamma)
+    {
+        return dynamic_cast<GammaIndex const *>(gamma.get())->isP_L();
+    }
+    static bool isP_R(GExpr const &gamma)
+    {
+        return dynamic_cast<GammaIndex const *>(gamma.get())->isP_R();
+    }
+    static bool isC(GExpr const &gamma)
+    {
+        return dynamic_cast<GammaIndex const *>(gamma.get())->isC();
+    }
+
+    static GExpr CMatrix();
+    static GExpr Id();
+    static GExpr gamma5();
+    static GExpr P_L();
+    static GExpr P_R();
+
+  private:
+    csl::Index             a;
+    csl::Index             b;
+    std::shared_ptr<Field> psiL{nullptr};
+    std::shared_ptr<Field> psiR{nullptr};
+    bool                   fierzFixed = false;
+};
+
+template <class... Args>
+GExpr indexchain_s(Args &&... args)
+{
+    auto chain = std::make_shared<IndexChain>(std::forward<Args>(args)...);
+    if (chain->isZero())
+        return cslexpr_s(CSL_0);
+    auto factor = chain->getFactor();
+    if (factor != CSL_1) {
+        auto term = std::dynamic_pointer_cast<IndexChain>(chain->getTerm());
+        auto opt_chain = term->checkGammaAndConjugation();
+        return factor * opt_chain.value_or(term);
+    }
+    return chain->checkGammaAndConjugation().value_or(chain);
 }
+
+template <class... Args>
+GExpr indexchain_s(std::initializer_list<GExpr> gammas, Args &&... args)
+{
+    return indexchain_s(std::vector<GExpr>(gammas.begin(), gammas.end()),
+                        std::forward<Args>(args)...);
+}
+
+GExpr indexchain_s(int a, int b);
+
+GExpr indexchain_s(const char mu[], int a, int b);
+
+GExpr indexchain_s(std::vector<std::string> const &mu, int a, int b);
+} // namespace sgl

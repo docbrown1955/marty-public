@@ -22,36 +22,24 @@
  */
 #pragma once
 
-#include <string>
-#include <vector>
-#include <string_view>
-#include <iostream>
 #include <fstream>
 #include <functional>
+#include <iostream>
+#include <string>
+#include <string_view>
+#include <vector>
 
 namespace mty::doc {
 
 class FileData {
 
-public:
+  public:
+    enum Mode { None, Header, Source };
 
-    enum Mode {
-        None,
-        Header,
-        Source
-    };
-
-    enum Error {
-        TypeError,
-        IOErrorHeader,
-        IOErrorSource
-    };
+    enum Error { TypeError, IOErrorHeader, IOErrorSource };
 
     FileData();
-    FileData(
-            std::string_view headerName,
-            std::string_view sourceName
-            );
+    FileData(std::string_view headerName, std::string_view sourceName);
 
     FileData(FileData const &other) = delete;
     FileData &operator=(FileData const &other) = delete;
@@ -60,14 +48,16 @@ public:
 
     void openStream();
 
-    size_t getIndentSize() const { return m_indent.size(); }
+    size_t getIndentSize() const
+    {
+        return m_indent.size();
+    }
     std::string const &indent() const;
-    void setIndentSize(size_t s);
+    void               setIndentSize(size_t s);
 
     std::ostream &getStream(Mode mode);
 
-private:
-
+  private:
     Mode          mode;
     std::ofstream header;
     std::ofstream source;
@@ -76,4 +66,4 @@ private:
     std::string   m_indent;
 };
 
-}
+} // namespace mty::doc

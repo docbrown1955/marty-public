@@ -17,7 +17,7 @@
  * @file generalizedindex.h
  * @brief Base class for indexed obejcts in SGL.
  * @author Grégoire Uhlrich
- * @version 
+ * @version
  * @date 2021-05-06
  */
 #pragma once
@@ -26,29 +26,29 @@
 
 namespace sgl {
 
-    class AbstractGeneralizedIndex: public AbstractLiteral {
+class AbstractGeneralizedIndex : public AbstractLiteral {
 
-    public:
+  public:
+    AbstractGeneralizedIndex() = default;
+    AbstractGeneralizedIndex(csl::Index const &t_index);
+    AbstractGeneralizedIndex(std::vector<csl::Index> const &t_indices);
 
-        AbstractGeneralizedIndex() = default;
-        AbstractGeneralizedIndex(csl::Index const &t_index);
-        AbstractGeneralizedIndex(std::vector<csl::Index> const &t_indices);
+    bool hasSelfContraction() const;
+    void printIndices(std::ostream &out, char sep) const;
 
-        bool hasSelfContraction() const;
-        void printIndices(std::ostream &out, char sep) const;
+    std::vector<csl::Index> const &indices() const override
+    {
+        return m_indices;
+    }
+    std::vector<csl::Index> &indices() override
+    {
+        return m_indices;
+    }
 
-        std::vector<csl::Index> const &indices() const override {
-            return m_indices; 
-        }
-        std::vector<csl::Index> &indices() override {
-            return m_indices; 
-        }
+    bool contains(csl::Index const &index) const override;
+    void replace(csl::Index const &i, csl::Index const &j) override;
 
-        bool contains(csl::Index const &index) const override;
-        void replace(csl::Index const &i, csl::Index const &j) override;
-
-    protected:
-
-        std::vector<csl::Index> m_indices;
-    };
-}
+  protected:
+    std::vector<csl::Index> m_indices;
+};
+} // namespace sgl

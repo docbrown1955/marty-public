@@ -1,65 +1,62 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "node.h"
-#include "edge.h"
-#include "diagramwidget.h"
 #include "diagramrenderer.h"
-#include <iostream>
-#include <cmath>
+#include "diagramwidget.h"
+#include "edge.h"
+#include <QColorDialog>
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
+#include <QInputDialog>
+#include <QMenu>
 #include <QPainter>
 #include <QStyleOption>
-#include <QMenu>
-#include <QInputDialog>
-#include <QColorDialog>
+#include <cmath>
+#include <iostream>
 
 bool isPunctual(int type)
 {
     return type == int(drawer::LatexLinker::NodeType::None)
-            or type == int(drawer::LatexLinker::NodeType::Cross);
+           or type == int(drawer::LatexLinker::NodeType::Cross);
 }
-std::pair<QPointF, QPointF> Node::getEffectiveNodes(
-        Node *first,
-        Node *second
-        )
+std::pair<QPointF, QPointF> Node::getEffectiveNodes(Node *first, Node *second)
 {
-    QPointF dir = second->pos() - first->pos();
-    qreal length = std::sqrt(dir.x()*dir.x() + dir.y()*dir.y());
+    QPointF dir    = second->pos() - first->pos();
+    qreal   length = std::sqrt(dir.x() * dir.x() + dir.y() * dir.y());
     if (length != 0.)
         dir /= length;
 
     std::pair<QPointF, QPointF> res;
-    res.first = (isPunctual(first->getNodeType())) ?
-                first->pos()
-              :first->pos() + dir * first->getNodeSize() / 2;
-    res.second = (isPunctual(second->getNodeType())) ?
-                second->pos()
-              :second->pos() - dir * second->getNodeSize() / 2;
+    res.first = (isPunctual(first->getNodeType()))
+                    ? first->pos()
+                    : first->pos() + dir * first->getNodeSize() / 2;
+    res.second = (isPunctual(second->getNodeType()))
+                     ? second->pos()
+                     : second->pos() - dir * second->getNodeSize() / 2;
 
     return res;
 }
 
 Node::Node(Diagram *diag)
-     :graph(diag),
-     color(Qt::black),
-     nodeSize(size),
-     nodeType(0),
-     graphFocus(false),
-     displayNode(true)
+    : graph(diag),
+      color(Qt::black),
+      nodeSize(size),
+      nodeType(0),
+      graphFocus(false),
+      displayNode(true)
 {
     setFlag(ItemIsMovable);
     setFlag(ItemSendsGeometryChanges);
@@ -72,7 +69,8 @@ Node::Node(Diagram *diag)
     oldPos = pos();
 }
 
-QString Node::getName() const {
+QString Node::getName() const
+{
     return (label) ? label->data : "";
 }
 
@@ -106,7 +104,7 @@ void Node::setOperator(bool t_op)
         nodeType = int(drawer::LatexLinker::NodeType::None);
 }
 
-void Node::setName(QString const&name)
+void Node::setName(QString const &name)
 {
     if (name == "") {
         scene()->removeItem(label);
@@ -138,10 +136,7 @@ void Node::changeNode(QAction *action)
 
 void Node::changeColor()
 {
-    QColor c = QColorDialog::getColor(
-                Qt::black,
-                widget,
-                "Pick a color");
+    QColor c = QColorDialog::getColor(Qt::black, widget, "Pick a color");
     if (c.isValid()) {
         color = c;
         update();
@@ -151,15 +146,14 @@ void Node::changeColor()
 
 void Node::changeName()
 {
-    bool accepted;
-    QString name = (label) ? label->data : "";
-    QString t_name = QInputDialog::getText(
-                widget,
-                "Change edge name",
-                "Name (latex): ",
-                QLineEdit::Normal,
-                name,
-                &accepted);
+    bool    accepted;
+    QString name   = (label) ? label->data : "";
+    QString t_name = QInputDialog::getText(widget,
+                                           "Change edge name",
+                                           "Name (latex): ",
+                                           QLineEdit::Normal,
+                                           name,
+                                           &accepted);
     if (accepted) {
         setName(t_name);
         graph->renderer->modificationDone();
@@ -185,28 +179,27 @@ void Node::updateEdge()
 QRectF Node::boundingRect() const
 {
     qreal adjust = 2;
-    int s = (nodeType == int(drawer::LatexLinker::NodeType::None)) ?
-                size : std::max(size, nodeSize);
-    return QRectF( -s/2 - adjust,
-                   -s/2 - adjust,
-                    s   + adjust,
-                    s   + adjust);
+    int   s      = (nodeType == int(drawer::LatexLinker::NodeType::None))
+                ? size
+                : std::max(size, nodeSize);
+    return QRectF(-s / 2 - adjust, -s / 2 - adjust, s + adjust, s + adjust);
 }
 
 QPainterPath Node::shape() const
 {
     QPainterPath path;
-    int s = (nodeType == int(drawer::LatexLinker::NodeType::None)) ?
-                size : std::max(size, nodeSize);
-    path.addEllipse(-s/2, -s/2, s, s);
+    int          s = (nodeType == int(drawer::LatexLinker::NodeType::None))
+                ? size
+                : std::max(size, nodeSize);
+    path.addEllipse(-s / 2, -s / 2, s, s);
     return path;
 }
 
 void Node::paint(QPainter *painter,
-                 QStyleOptionGraphicsItem const*,
+                 QStyleOptionGraphicsItem const *,
                  QWidget *)
 {
-    switch(nodeType) {
+    switch (nodeType) {
     case int(drawer::LatexLinker::NodeType::Cross):
         paintCross(painter);
         break;
@@ -223,18 +216,18 @@ void Node::paint(QPainter *painter,
         break;
     }
     if (displayNode) {
-        auto c = (!graphFocus) ? QColor("#0F3FE2") : Qt::red;
+        auto   c = (!graphFocus) ? QColor("#0F3FE2") : Qt::red;
         QBrush brush(c);
         painter->setBrush(brush);
         painter->setPen(QPen(Qt::black, 0));
-        painter->drawEllipse(-size/2, -size/2, size, size);
+        painter->drawEllipse(-size / 2, -size / 2, size, size);
     }
 }
 
 void Node::paintCircle(QPainter *painter)
 {
     painter->setPen(QPen(color, 3));
-    painter->drawEllipse(-nodeSize/2, -nodeSize/2, nodeSize, nodeSize);
+    painter->drawEllipse(-nodeSize / 2, -nodeSize / 2, nodeSize, nodeSize);
 }
 
 void Node::paintDisk(QPainter *painter)
@@ -242,7 +235,7 @@ void Node::paintDisk(QPainter *painter)
     painter->setPen(QPen(color, 3));
     QBrush brush(color);
     painter->setBrush(brush);
-    painter->drawEllipse(-nodeSize/2, -nodeSize/2, nodeSize, nodeSize);
+    painter->drawEllipse(-nodeSize / 2, -nodeSize / 2, nodeSize, nodeSize);
 }
 
 void Node::paintCross(QPainter *painter)
@@ -256,18 +249,18 @@ void Node::paintCross(QPainter *painter)
 void Node::paintHatch(QPainter *painter)
 {
     painter->setPen(QPen(color, 3));
-    int R = nodeSize / 2;
-    int maxi = int(std::floor(std::sqrt(2) * R));
-    int x0min = -maxi;
-    int x0max = maxi;
-    double step = 7;
+    int    R     = nodeSize / 2;
+    int    maxi  = int(std::floor(std::sqrt(2) * R));
+    int    x0min = -maxi;
+    int    x0max = maxi;
+    double step  = 7;
     for (double x0 = x0min; x0 <= x0max; x0 += step) {
         double offset = x0 / 2.;
-        double value  = R/2 * std::sqrt(2 - (x0*x0 / (R*R)));
-        int xm = int(offset - value);
-        int xp = int(offset + value);
-        int ym = int(-offset - value);
-        int yp = int(-offset + value);
+        double value  = R / 2 * std::sqrt(2 - (x0 * x0 / (R * R)));
+        int    xm     = int(offset - value);
+        int    xp     = int(offset + value);
+        int    ym     = int(-offset - value);
+        int    yp     = int(-offset + value);
         painter->drawLine(xm, ym, xp, yp);
     }
 }
@@ -288,8 +281,7 @@ void Node::update()
     updateEdge();
 }
 
-QVariant Node::itemChange(GraphicsItemChange change,
-                          QVariant     const&value)
+QVariant Node::itemChange(GraphicsItemChange change, QVariant const &value)
 {
     switch (change) {
     case ItemPositionHasChanged:
@@ -315,9 +307,9 @@ void Node::mousePressEvent(QGraphicsSceneMouseEvent *event)
         menu->addAction("Change color");
         menu->addAction("Edit node");
         connect(menu,
-                SIGNAL(triggered(QAction*)),
+                SIGNAL(triggered(QAction *)),
                 this,
-                SLOT(changeNode(QAction*)));
+                SLOT(changeNode(QAction *)));
         menu->exec(QCursor::pos());
     }
     graph->setFocus(this);
@@ -348,7 +340,7 @@ void Node::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     update();
 }
 
-void Node::mouseDoubleClickEvent(QGraphicsSceneMouseEvent */*event*/)
+void Node::mouseDoubleClickEvent(QGraphicsSceneMouseEvent * /*event*/)
 {
     unFocusInGraph();
     doubleClicked = 1;
@@ -356,7 +348,6 @@ void Node::mouseDoubleClickEvent(QGraphicsSceneMouseEvent */*event*/)
     graph->renderer->openNodeForm(this);
     setAcceptDrops(false);
 }
-
 
 void Node::dropEvent(QGraphicsSceneDragDropEvent *event)
 {

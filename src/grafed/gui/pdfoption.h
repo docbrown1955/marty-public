@@ -24,10 +24,12 @@ struct PDFOption {
     /*! Ratio for the vertical margin (with respect to the page height). */
     float verticalMarginRatio = 0.05;
 
-    /*! Ratio for the horizontal spacing between daigrams (with respect to the page width). */
+    /*! Ratio for the horizontal spacing between daigrams (with respect to the
+     * page width). */
     float horizontalSpacingRatio = 0.05;
 
-    /*! Ratio for the vertical spacing between daigrams (with respect to the page height). */
+    /*! Ratio for the vertical spacing between daigrams (with respect to the
+     * page height). */
     float verticalSpacingRatio = 0.05;
 
     /*! Width of the pdf page if a PDF printer has been defined. */
@@ -40,29 +42,31 @@ struct PDFOption {
     bool showNumbers = true;
 
     /*! Returns the PDF printer of the option (can be nullptr). */
-    QPdfWriter const *getPDFWriter() const {
+    QPdfWriter const *getPDFWriter() const
+    {
         return writer;
     }
 
     /*! Returns the PDF printer of the option (can be nullptr). */
-    QPdfWriter *getPDFWriter() {
+    QPdfWriter *getPDFWriter()
+    {
         return writer;
     }
 
-    /*! Sets the PDF printer, together with the width and height of the page. */
-    void setPDFWriter(QPdfWriter *printer) {
+    /*! Sets the PDF printer, together with the width and height of the page.
+     */
+    void setPDFWriter(QPdfWriter *printer)
+    {
         writer = printer;
         if (writer) {
-            width = writer->width();
+            width  = writer->width();
             height = writer->height();
         }
     }
 
-private:
-
+  private:
     /*! PDF printer. */
     QPdfWriter *writer = nullptr;
 };
-
 
 #endif // PDFOPTION_H

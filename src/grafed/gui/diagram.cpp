@@ -1,70 +1,63 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "diagram.h"
+#include "border.h"
+#include "diagramrenderer.h"
+#include "diagramwidget.h"
+#include "edge.h"
+#include "grid.h"
 #include "htmlconverter.h"
 #include "latexcompiler.h"
-#include "diagramwidget.h"
-#include "diagramrenderer.h"
 #include "node.h"
-#include "edge.h"
 #include "planargraph.h"
-#include <cmath>
-#include <sstream>
-#include <QVector>
-#include <QGuiApplication>
-#include <QGraphicsTextItem>
-#include <QLabel>
-#include <QLineEdit>
-#include <QKeyEvent>
+#include <QCursor>
 #include <QFont>
 #include <QFontDatabase>
-#include <QPalette>
-#include <QCursor>
+#include <QGraphicsTextItem>
+#include <QGuiApplication>
 #include <QInputDialog>
+#include <QKeyEvent>
+#include <QLabel>
+#include <QLineEdit>
+#include <QPalette>
 #include <QTime>
-#include "grid.h"
-#include "border.h"
-
+#include <QVector>
+#include <cmath>
+#include <sstream>
 
 QColor toQColor(drawer::LatexLinker::Color color)
 {
-    return QColor(
-                static_cast<int>(color.R),
-                static_cast<int>(color.G),
-                static_cast<int>(color.B),
-                static_cast<int>(color.A)
-                );
+    return QColor(static_cast<int>(color.R),
+                  static_cast<int>(color.G),
+                  static_cast<int>(color.B),
+                  static_cast<int>(color.A));
 }
 
 drawer::LatexLinker::Color fromQColor(QColor color)
 {
-    return {
-        static_cast<unsigned char>(color.red()),
-        static_cast<unsigned char>(color.green()),
-        static_cast<unsigned char>(color.blue()),
-        static_cast<unsigned char>(color.alpha())
-    };
+    return {static_cast<unsigned char>(color.red()),
+            static_cast<unsigned char>(color.green()),
+            static_cast<unsigned char>(color.blue()),
+            static_cast<unsigned char>(color.alpha())};
 }
 
-
-Diagram::Diagram(
-        QGraphicsScene *t_scene,
-        qint32 t_X0,
-        qint32 t_Y0,
-        DiagramRenderer *t_renderer)
+Diagram::Diagram(QGraphicsScene * t_scene,
+                 qint32           t_X0,
+                 qint32           t_Y0,
+                 DiagramRenderer *t_renderer)
     : renderer(t_renderer),
       cursor(nullptr),
       draggedEdge(nullptr),
@@ -84,8 +77,10 @@ Diagram::Diagram(
     // setMinimumSize(400, 400);
     drawer::Graph graph;
     latexComp = t_renderer->getLatexCompiler();
-    connect(latexComp, SIGNAL(labelReady(std::string const&)),
-            this,      SLOT(labelReady(std::string const&)));
+    connect(latexComp,
+            SIGNAL(labelReady(std::string const &)),
+            this,
+            SLOT(labelReady(std::string const &)));
     auto link_to_load = drawer::LatexLinker(graph);
     loadLinker(link_to_load);
     updateGraph();
@@ -120,7 +115,7 @@ InteractiveMode Diagram::getInteractiveMode() const
     return mode;
 }
 
-void Diagram::loadGraph(drawer::Graph const&t_graph)
+void Diagram::loadGraph(drawer::Graph const &t_graph)
 {
     clear();
     graph = t_graph;
@@ -130,66 +125,64 @@ void Diagram::loadGraph(drawer::Graph const&t_graph)
     nodes.clear();
     nodes.resize(graph.size());
     for (size_t i = 0; i != graph.size(); ++i) {
-        nodes[i] = buildNode(graph.getNodes()[i].x,
-                             graph.getNodes()[i].y);
+        nodes[i] = buildNode(graph.getNodes()[i].x, graph.getNodes()[i].y);
     }
-    auto& adj = graph.getAdjacency();
+    auto &adj = graph.getAdjacency();
     for (size_t i = 0; i != graph.size(); ++i)
-        for (size_t j = i+1; j < graph.size(); ++j)
-            for(int k = 0; k < adj(i, j); ++k)
+        for (size_t j = i + 1; j < graph.size(); ++j)
+            for (int k = 0; k < adj(i, j); ++k)
                 edges.push_back(buildEdge(nodes[i], nodes[j]));
-    //updateGraph();
+    // updateGraph();
     graph.move(X0, Y0);
     nodeMoved();
 }
 
-QPointF Diagram::getNodeLabelPos(
-        Node const *node,
-        Proxy const *label
-        ) const
+QPointF Diagram::getNodeLabelPos(Node const *node, Proxy const *label) const
 {
-    qreal r = 20 + ((node->getNodeType() == 0) ? 0. : node->getNodeSize()/2.);
+    qreal r
+        = 20 + ((node->getNodeType() == 0) ? 0. : node->getNodeSize() / 2.);
     for (size_t j = 0; j != edges.size(); ++j) {
-        auto& edge = edges[j];
+        auto &edge = edges[j];
         if (edge->isConnectedTo(node)) {
-            auto first = edge->getFirst();
-            auto second = edge->getSecond();
-            QPointF dir = (first == node) ?
-                        (first->pos() - second->pos())
-                      : (second->pos() - first->pos());
-            dir /= std::sqrt(dir.x()*dir.x() + dir.y()*dir.y());
-            qreal width = label->rect().width();
+            auto    first  = edge->getFirst();
+            auto    second = edge->getSecond();
+            QPointF dir    = (first == node) ? (first->pos() - second->pos())
+                                          : (second->pos() - first->pos());
+            dir /= std::sqrt(dir.x() * dir.x() + dir.y() * dir.y());
+            qreal width  = label->rect().width();
             qreal heigth = label->rect().height();
-            //width = std::max(width, heigth);
-            qreal d = 2*r + heigth;
-            qreal l = width;
+            // width = std::max(width, heigth);
+            qreal d     = 2 * r + heigth;
+            qreal l     = width;
             qreal alpha = std::atan2(-dir.x(), -dir.y());
             if (std::abs(alpha) > std::abs(std::atan2(l, d))
-                    and std::abs(M_PI-alpha) > std::abs(std::atan2(l, d))
-                    and std::abs(M_PI+alpha) > std::abs(std::atan2(l, d))) {
-                int s = (alpha > 0 and alpha < M_PI) ? 1 : -1;
-                qreal theta = alpha - s*std::asin(l/d * std::cos(alpha));
-                dir = QPointF{
-                    -l/2 * s - r * std::sin(theta) - width/2,
-                             - d/2 * std::cos(theta) - heigth/2
-                };
+                and std::abs(M_PI - alpha) > std::abs(std::atan2(l, d))
+                and std::abs(M_PI + alpha) > std::abs(std::atan2(l, d))) {
+                int   s     = (alpha > 0 and alpha < M_PI) ? 1 : -1;
+                qreal theta = alpha - s * std::asin(l / d * std::cos(alpha));
+                dir = QPointF{-l / 2 * s - r * std::sin(theta) - width / 2,
+                              -d / 2 * std::cos(theta) - heigth / 2};
                 return node->pos() + dir;
             }
             else {
-                if (alpha < M_PI/2 and alpha > -M_PI/2) {
+                if (alpha < M_PI / 2 and alpha > -M_PI / 2) {
                     qreal y = -d / 2;
                     qreal x = y * std::tan(alpha);
-                    return node->pos() + QPointF{x - width/2, y - heigth/2};
+                    return node->pos()
+                           + QPointF{x - width / 2, y - heigth / 2};
                 }
                 else {
                     qreal y = d / 2;
                     qreal x = y * std::tan(alpha);
-                    return node->pos() + QPointF{x - width/2, y - heigth/2};
+                    return node->pos()
+                           + QPointF{x - width / 2, y - heigth / 2};
                 }
             }
         }
     }
-    return node->pos() - QPointF{-r/3-label->rect().width()/2, -label->rect().height()/2};
+    return node->pos()
+           - QPointF{-r / 3 - label->rect().width() / 2,
+                     -label->rect().height() / 2};
 }
 
 QPointF angle(QPointF X, qreal theta)
@@ -199,82 +192,82 @@ QPointF angle(QPointF X, qreal theta)
     return QPointF{c * X.x() - s * X.y(), c * X.y() + s * X.x()};
 }
 
-QPointF Diagram::getEdgeLabelPos(
-        Edge                      const *edge,
-        drawer::LatexLinker::Edge const &lEdge,
-        Proxy                     const *label
-        ) const
+QPointF Diagram::getEdgeLabelPos(Edge const *                     edge,
+                                 drawer::LatexLinker::Edge const &lEdge,
+                                 Proxy const *                    label) const
 {
     qreal r = 20;
 
-    size_t i = lEdge.i;
-    size_t j = lEdge.j;
-    QPointF dir = (nodes[j]->pos() - nodes[i]->pos());
-    qreal dist = std::sqrt(dir.x()*dir.x() + dir.y()*dir.y());
+    size_t  i    = lEdge.i;
+    size_t  j    = lEdge.j;
+    QPointF dir  = (nodes[j]->pos() - nodes[i]->pos());
+    qreal   dist = std::sqrt(dir.x() * dir.x() + dir.y() * dir.y());
     dir /= dist;
     auto posI = nodes[i]->pos();
     if (nodes[i]->getNodeType() != 0) {
-        posI += dir * nodes[i]->getNodeSize()/2;
+        posI += dir * nodes[i]->getNodeSize() / 2;
     }
     auto posJ = nodes[j]->pos();
     if (nodes[j]->getNodeType() != 0) {
-        posJ -= dir * nodes[j]->getNodeSize()/2;
+        posJ -= dir * nodes[j]->getNodeSize() / 2;
     }
     QPointF mean = (posI + posJ) / 2;
     QPointF perpdir{-dir.y(), +dir.x()};
     if (std::fabs(lEdge.curve) > 0.005) {
-        double L = edge->length();
-        double c = edge->getCurve();// * edge->length();
-        double offset = -L*(1-std::sqrt(1-c*c/4))/c;
+        double L      = edge->length();
+        double c      = edge->getCurve(); // * edge->length();
+        double offset = -L * (1 - std::sqrt(1 - c * c / 4)) / c;
         mean += offset * perpdir;
     }
     qreal xref;
     qreal yref;
-    qreal width = label->rect().width();
+    qreal width  = label->rect().width();
     qreal height = label->rect().height();
-    qreal theta = std::atan2(-dir.y(), dir.x());
+    qreal theta  = std::atan2(-dir.y(), dir.x());
     if (lEdge.flipped)
         theta = M_PI + theta;
-    if (theta > 2*M_PI)
-        theta -= 2*M_PI;
+    if (theta > 2 * M_PI)
+        theta -= 2 * M_PI;
     if (theta < 0)
-        theta += 2*M_PI;
+        theta += 2 * M_PI;
     if (theta < M_PI / 2) {
-        xref = -width/2;
+        xref = -width / 2;
         yref = height / 2;
     }
     else if (theta < M_PI) {
-        xref = -width/2;
+        xref = -width / 2;
         yref = -height / 2;
     }
     else if (theta < 3 * M_PI / 2) {
-        xref = width/2;
+        xref = width / 2;
         yref = -height / 2;
     }
     else {
-        xref = width/2;
+        xref = width / 2;
         yref = height / 2;
     }
-    qreal R = r+height/2;
+    qreal R = r + height / 2;
     // int s = (lEdge.flipped) ? -1 : 1;
-    QPointF res = mean + angle(QPointF{
-                                   QPointF{0, -R}
-                                   + angle({-width/2, -height/2}, theta)
-                                   + QPointF{0, height /2 - (std::cos(theta)*yref - std::sin(theta)*xref)}
-                               },
-                               -theta);
+    QPointF res = mean
+                  + angle(QPointF{QPointF{0, -R}
+                                  + angle({-width / 2, -height / 2}, theta)
+                                  + QPointF{0,
+                                            height / 2
+                                                - (std::cos(theta) * yref
+                                                   - std::sin(theta) * xref)}},
+                          -theta);
     return res;
 }
 
-void Diagram::loadLinker(drawer::LatexLinker const&t_linker)
+void Diagram::loadLinker(drawer::LatexLinker const &t_linker)
 {
     name = t_linker.getName().c_str();
     loadGraph(t_linker.getGraph());
-    std::vector<drawer::LatexLinker::Edge> const& linkEdges
-            = t_linker.getEdges();
-    std::vector<drawer::LatexLinker::Node> const& linkNodes
-            = t_linker.getNodes();
-    std::vector<Edge*> edgesLeft(edges);
+    std::vector<drawer::LatexLinker::Edge> const &linkEdges
+        = t_linker.getEdges();
+    std::vector<drawer::LatexLinker::Node> const &linkNodes
+        = t_linker.getNodes();
+    std::vector<Edge *> edgesLeft(edges);
     for (size_t i = 0; i != linkNodes.size(); ++i) {
         std::string nameVertex = linkNodes[i].name;
         nodes[i]->setNodeType(int(linkNodes[i].type));
@@ -285,15 +278,15 @@ void Diagram::loadLinker(drawer::LatexLinker const&t_linker)
             addNodeLabel(nodes[i], nameVertex.c_str());
         }
     }
-    for (const auto& lEdge : linkEdges) {
+    for (const auto &lEdge : linkEdges) {
         size_t i = lEdge.i;
         size_t j = lEdge.j;
         for (size_t k = 0; k != edgesLeft.size(); ++k) {
             auto edge = edgesLeft[k];
             if (edge->isConnectedTo(nodes[i])
-                    and edge->isConnectedTo(nodes[j])) {
+                and edge->isConnectedTo(nodes[j])) {
                 qint32 particleType = qint32(lEdge.type);
-                qint32 sign = lEdge.sign;
+                qint32 sign         = lEdge.sign;
                 edge->setParticleType((sign) ? particleType : -particleType);
                 edge->setCurve(lEdge.curve);
                 edge->setFlipped(lEdge.flipped);
@@ -348,7 +341,7 @@ void Diagram::forceNodeOnGrid(bool value)
     nodesOnGrid = value;
 }
 
-void Diagram::save(std::string const&fileName) const
+void Diagram::save(std::string const &fileName) const
 {
     getScaledGraph().write(outputPath + "/" + fileName);
 }
@@ -374,7 +367,7 @@ void Diagram::exportSelfPNG(const QString &fileName)
 {
     resetFocus();
     showNodes(false);
-    QRectF bounds = getBounds();
+    QRectF bounds  = getBounds();
     QRectF oldRect = scene->sceneRect();
     scene->setSceneRect(bounds);
     QImage image(scene->sceneRect().size().toSize(), QImage::Format_ARGB32);
@@ -389,13 +382,13 @@ void Diagram::exportSelfPNG(const QString &fileName)
     showNodes(true);
 }
 
-void Diagram::exportPNG(std::string const& fileName) const
+void Diagram::exportPNG(std::string const &fileName) const
 {
     link.setGraph(getScaledGraph());
     link.exportPNG(fileName, outputPath);
 }
 
-void Diagram::exportPDF(std::string const& fileName) const
+void Diagram::exportPDF(std::string const &fileName) const
 {
     link.setGraph(getScaledGraph());
     link.exportPDF(fileName, outputPath);
@@ -436,20 +429,18 @@ void Diagram::selectionMode()
     }
 }
 
-Node* Diagram::buildNode(qreal x,
-                         qreal y)
+Node *Diagram::buildNode(qreal x, qreal y)
 {
     Node *node = new Node(this);
     node->setDiagramWidget(widget);
-    node->setPos(X0+x, Y0+y);
+    node->setPos(X0 + x, Y0 + y);
     connect(node, SIGNAL(xChanged()), this, SLOT(nodeMoved()));
     connect(node, SIGNAL(yChanged()), this, SLOT(nodeMoved()));
     scene->addItem(node);
     return node;
 }
 
-Edge* Diagram::buildEdge(Node *first,
-                         Node *second)
+Edge *Diagram::buildEdge(Node *first, Node *second)
 {
     Edge *edge = new Edge(this, first, second);
     edge->setDiagramWidget(widget);
@@ -495,14 +486,13 @@ void Diagram::setFocusOn(size_t pos)
 void Diagram::resetFocus()
 {
     focusNode = false;
-    for (auto& n : nodes)
+    for (auto &n : nodes)
         n->unFocusInGraph();
-    for (auto& e : edges)
+    for (auto &e : edges)
         e->unFocusInGraph();
 }
 
-void Diagram::testRoundValues(qreal &x,
-                              qreal &y)
+void Diagram::testRoundValues(qreal &x, qreal &y)
 {
     if (not nodesOnGrid or mode == SelectionMode)
         return;
@@ -512,7 +502,7 @@ void Diagram::testRoundValues(qreal &x,
 
 void Diagram::addNode(qreal x, qreal y)
 {
-    testRoundValues(x ,y);
+    testRoundValues(x, y);
     graph.addNode(x, y);
     link.addNode();
     link.setGraph(graph);
@@ -548,7 +538,7 @@ void Diagram::addEdge(Node *A, Node *B)
     for (size_t k = 0; k != nodes.size(); ++k)
         if (nodes[k] == A)
             i = k;
-    else if (nodes[k] == B)
+        else if (nodes[k] == B)
             j = k;
     if (i >= nodes.size()) {
         std::cerr << "Node " << A << " not found in graph!\n";
@@ -594,13 +584,13 @@ Proxy *Diagram::generateLabel(QString const &text) const
 {
     if (1) { // !text.isEmpty()) {
 #ifdef NO_LATEX_LABEL
-        QString html = HTMLConverter::fromLatex(text);
+        QString html  = HTMLConverter::fromLatex(text);
         QLabel *label = new QLabel;
         label->setFont(font);
         label->setTextFormat(Qt::RichText);
         label->setText(html);
 #else
-        QLabel *label = new QLabel;
+        QLabel *label  = new QLabel;
         QPixmap pixmap = latexComp->getLabel(text);
         label->setPixmap(pixmap);
 #endif
@@ -618,17 +608,17 @@ Proxy *Diagram::generateLabel(QString const &text) const
         // proxy->setAcceptDrops(true);
         proxy->setZValue(Node::zValue + 1);
         proxy->setWidget(label);
-        connect(proxy, SIGNAL(doubleClicked(Proxy *)),
-                this,  SLOT(proxyDoubleClicked(Proxy*)));
+        connect(proxy,
+                SIGNAL(doubleClicked(Proxy *)),
+                this,
+                SLOT(proxyDoubleClicked(Proxy *)));
         proxy->data = text;
         return proxy;
     }
-    //return nullptr;
+    // return nullptr;
 }
 
-void Diagram::addLabel(
-        Proxy         *label,
-        QPointF const &pos)
+void Diagram::addLabel(Proxy *label, QPointF const &pos)
 {
     if (label) {
         label->setPos(pos);
@@ -636,14 +626,14 @@ void Diagram::addLabel(
     }
 }
 
-void Diagram::addNodeLabel(
-        Node *node,
-        QString const &text)
+void Diagram::addNodeLabel(Node *node, QString const &text)
 {
     Proxy *label;
     if (node->label and text != node->label->data) {
-        disconnect(node->label, SIGNAL(doubleClicked(Proxy *)),
-                   this     ,   SLOT(proxyDoubleClicked(Proxy*)));
+        disconnect(node->label,
+                   SIGNAL(doubleClicked(Proxy *)),
+                   this,
+                   SLOT(proxyDoubleClicked(Proxy *)));
         delete node->label;
         label = generateLabel(text);
         if (!label)
@@ -653,7 +643,7 @@ void Diagram::addNodeLabel(
         node->label = label;
     }
     else if (node->label) {
-        label = node->label;
+        label       = node->label;
         QPointF pos = getNodeLabelPos(node, label);
         label->setPos(pos);
     }
@@ -667,18 +657,19 @@ void Diagram::addNodeLabel(
     }
 }
 
-void Diagram::addEdgeLabel(
-        Edge *edge,
-        drawer::LatexLinker::Edge const &lEdge,
-        QString const &text)
+void Diagram::addEdgeLabel(Edge *                           edge,
+                           drawer::LatexLinker::Edge const &lEdge,
+                           QString const &                  text)
 {
     Proxy *label;
     if (edge->label and edge->label->data != text) {
-        disconnect(edge->label, SIGNAL(doubleClicked(Proxy *)),
-                   this     ,   SLOT(proxyDoubleClicked(Proxy*)));
+        disconnect(edge->label,
+                   SIGNAL(doubleClicked(Proxy *)),
+                   this,
+                   SLOT(proxyDoubleClicked(Proxy *)));
         delete edge->label;
         edge->label = nullptr;
-        label = generateLabel(text);
+        label       = generateLabel(text);
         if (!label)
             return;
         QPointF pos = getEdgeLabelPos(edge, lEdge, label);
@@ -686,7 +677,7 @@ void Diagram::addEdgeLabel(
         edge->label = label;
     }
     else if (edge->label) {
-        label = edge->label;
+        label       = edge->label;
         QPointF pos = getEdgeLabelPos(edge, lEdge, label);
         label->setPos(pos);
     }
@@ -739,7 +730,7 @@ void Diagram::removeEdge(Edge *edge)
     link.setGraph(graph);
 }
 
-size_t Diagram::getPosNode(Node const* node) const
+size_t Diagram::getPosNode(Node const *node) const
 {
     for (size_t i = 0; i != nodes.size(); ++i)
         if (nodes[i] == node)
@@ -748,7 +739,7 @@ size_t Diagram::getPosNode(Node const* node) const
     return 0;
 }
 
-std::pair<size_t, size_t> Diagram::getPosEdge(Edge const*edge) const
+std::pair<size_t, size_t> Diagram::getPosEdge(Edge const *edge) const
 {
     size_t i = size_t(-1);
     size_t j = size_t(-1);
@@ -790,31 +781,28 @@ void Diagram::removeSelectedEdges()
     for (size_t i = 0; i != edges.size(); ++i)
         if (edges[i]->hasFocusInGraph()) {
             removeEdge(edges[i]);
-            edges.erase(edges.begin()  + int(i));
+            edges.erase(edges.begin() + int(i));
             --i;
             modificationDone();
         }
 }
 
-
-void Diagram::setNodeName(Node    const*node,
-                              QString const&name)
+void Diagram::setNodeName(Node const *node, QString const &name)
 {
-    auto i = getPosNode(node);
+    auto i   = getPosNode(node);
     auto str = name.toStdString();
     link.setVertexName(i, str);
 }
 
-void Diagram::setEdgeName(Edge    const*edge,
-                              QString const&name)
+void Diagram::setEdgeName(Edge const *edge, QString const &name)
 {
     auto [i, j] = getPosEdge(edge);
     link.setEdgeName(i, j, name.toStdString());
 }
 
-void Diagram::setEdgeType(Edge const          *edge,
-                              drawer::ParticleType type,
-                              bool                 sign)
+void Diagram::setEdgeType(Edge const *         edge,
+                          drawer::ParticleType type,
+                          bool                 sign)
 {
     auto [i, j] = getPosEdge(edge);
     link.replaceParticlesType(i, j, type, sign);
@@ -841,8 +829,8 @@ void Diagram::move(qreal x, qreal y)
 void Diagram::keyPressEvent(QKeyEvent *event)
 {
     // const double dtheta = M_PI / 200;
-    const double dl     = 1;
-    bool graphUpdated = false;
+    const double dl           = 1;
+    bool         graphUpdated = false;
     switch (event->key()) {
     case Qt::Key_Left:
         move(-dl, 0);
@@ -869,11 +857,11 @@ void Diagram::keyPressEvent(QKeyEvent *event)
         updateGraph();
 }
 
-void Diagram::keyReleaseEvent(QKeyEvent */*event*/)
+void Diagram::keyReleaseEvent(QKeyEvent * /*event*/)
 {
 }
 
-void Diagram::mouseMoveEvent(QMouseEvent */*event*/)
+void Diagram::mouseMoveEvent(QMouseEvent * /*event*/)
 {
     QPointF cursorpos = widget->getCursorPos();
     if (cursor) {
@@ -888,7 +876,7 @@ void Diagram::mousePressEvent(QMouseEvent *event)
         addNode(cursorpos);
     }
     else if (mode == InsertionMode and event->button() == Qt::LeftButton) {
-        for (const auto& n : nodes)
+        for (const auto &n : nodes)
             if (n->isUnderMouse()) {
                 n->focusInGraph();
                 cursor = buildNode();
@@ -899,9 +887,9 @@ void Diagram::mousePressEvent(QMouseEvent *event)
             }
     }
     if (mode != SelectionMode) {
-        for (auto& e : edges)
+        for (auto &e : edges)
             e->release();
-        for (auto& n : nodes)
+        for (auto &n : nodes)
             n->unFocusInGraph();
     }
 }
@@ -919,7 +907,7 @@ void Diagram::mouseReleaseEvent(QMouseEvent *event)
                     }
                     break;
                 }
-            for (const auto& n : nodes)
+            for (const auto &n : nodes)
                 n->unFocusInGraph();
             deleteEdge(draggedEdge);
             deleteNode(cursor);
@@ -927,18 +915,17 @@ void Diagram::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
-void Diagram::mouseDoubleClickEvent(QMouseEvent */*event*/)
+void Diagram::mouseDoubleClickEvent(QMouseEvent * /*event*/)
 {
-
 }
 
 void Diagram::wheelEvent(QWheelEvent *event)
 {
 #if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
-    for (auto& e :edges)
+    for (auto &e : edges)
         e->wheelEventCustom(event->delta());
 #else
-    for (auto& e :edges)
+    for (auto &e : edges)
         e->wheelEventCustom(event->angleDelta().y());
 #endif
 }
@@ -946,11 +933,11 @@ void Diagram::wheelEvent(QWheelEvent *event)
 void Diagram::showNodes(bool show)
 {
     if (show) {
-        for (const auto& n : nodes)
+        for (const auto &n : nodes)
             n->show();
     }
     else {
-        for (const auto& n : nodes)
+        for (const auto &n : nodes)
             n->hide();
     }
 }
@@ -969,8 +956,7 @@ void Diagram::updateGraph()
 {
     updatingGraph = true;
     for (size_t i = 0; i != nodes.size(); ++i)
-        nodes[i]->setPos(graph.getNodes()[i].x,
-                         graph.getNodes()[i].y);
+        nodes[i]->setPos(graph.getNodes()[i].x, graph.getNodes()[i].y);
     updatingGraph = false;
 }
 
@@ -1012,7 +998,7 @@ void Diagram::moveTo(qint32 X0_new, qint32 Y0_new)
     modificationDone();
 }
 
-void Diagram::setFocus(Node const*focused)
+void Diagram::setFocus(Node const *focused)
 {
     for (size_t i = 0; i != nodes.size(); ++i)
         if (nodes[i] == focused) {
@@ -1028,30 +1014,29 @@ void Diagram::refreshLinker()
     link.getGraph().center();
     std::vector<drawer::LatexLinker::Node> &lNodes = link.getNodes();
     for (size_t i = 0; i != nodes.size(); ++i) {
-        std::string name = (nodes[i]->label) ?
-                    nodes[i]->label->data.toStdString() : "";
+        std::string name
+            = (nodes[i]->label) ? nodes[i]->label->data.toStdString() : "";
         link.setVertexName(i, name);
-        lNodes[i].type = drawer::LatexLinker::NodeType(nodes[i]->getNodeType());
+        lNodes[i].type
+            = drawer::LatexLinker::NodeType(nodes[i]->getNodeType());
         if (nodes[i]->getNodeSize() != Node::size)
             lNodes[i].size = nodes[i]->getNodeSize();
         lNodes[i].color = fromQColor(nodes[i]->getColor());
     }
     for (size_t k = 0; k != edges.size(); ++k) {
         auto [i, j] = getPosEdge(edges[k]);
-        std::string name = (edges[k]->label) ?
-                edges[k]->label->data.toStdString() : "";
+        std::string name
+            = (edges[k]->label) ? edges[k]->label->data.toStdString() : "";
         link.setParticlesType(
-                i,
-                j,
-                static_cast<drawer::ParticleType>(
-                    edges[k]->getParticleType()),
-                name,
-                edges[k]->getSign(),
-                edges[k]->getCurve()/2,
-                edges[k]->isFlipped(),
-                fromQColor(edges[k]->getColor()),
-                edges[k]->getLineWidth()
-                );
+            i,
+            j,
+            static_cast<drawer::ParticleType>(edges[k]->getParticleType()),
+            name,
+            edges[k]->getSign(),
+            edges[k]->getCurve() / 2,
+            edges[k]->isFlipped(),
+            fromQColor(edges[k]->getColor()),
+            edges[k]->getLineWidth());
     }
 }
 
@@ -1069,7 +1054,7 @@ void Diagram::refresh()
     }
 }
 
-void Proxy::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* /* event */)
+void Proxy::mouseDoubleClickEvent(QGraphicsSceneMouseEvent * /* event */)
 {
     emit doubleClicked(this);
 }

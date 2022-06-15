@@ -5,7 +5,6 @@ this file is part of LoopTools
 last modified 28 Aug 20 th
 #endif
 
-
 #ifndef LOOPTOOLS_H
 #define LOOPTOOLS_H
 
@@ -220,24 +219,24 @@ last modified 28 Aug 20 th
 #define ee4444 256
 #define Nee 258
 
-#define KeyA0 2**0
-#define KeyBget 2**2
-#define KeyC0 2**4
-#define KeyD0 2**6
-#define KeyD0C 2**8
-#define KeyE0 2**10
-#define KeyEget 2**12
-#define KeyEgetC 2**14
+#define KeyA0 2 * *0
+#define KeyBget 2 * *2
+#define KeyC0 2 * *4
+#define KeyD0 2 * *6
+#define KeyD0C 2 * *8
+#define KeyE0 2 * *10
+#define KeyEget 2 * *12
+#define KeyEgetC 2 * *14
 #define KeyAll 21845
 
-#define DebugA 2**0
-#define DebugB 2**1
-#define DebugC 2**2
-#define DebugD 2**3
-#define DebugE 2**4
+#define DebugA 2 * *0
+#define DebugB 2 * *1
+#define DebugC 2 * *2
+#define DebugD 2 * *3
+#define DebugE 2 * *4
 #define DebugAll 31
 
-#define memindex integer*8
+#define memindex integer * 8
 #ifndef ComplexType
 #define ComplexType double complex
 #endif
@@ -245,59 +244,46 @@ last modified 28 Aug 20 th
 #define RealType double precision
 #endif
 
-#define Aval(id,p) cache(p+id,1)
-#define AvalC(id,p) cache(p+id,2)
-#define Bval(id,p) cache(p+id,3)
-#define BvalC(id,p) cache(p+id,4)
-#define Cval(id,p) cache(p+id,5)
-#define CvalC(id,p) cache(p+id,6)
-#define Dval(id,p) cache(p+id,7)
-#define DvalC(id,p) cache(p+id,8)
-#define Eval(id,p) cache(p+id,9)
-#define EvalC(id,p) cache(p+id,10)
+#define Aval(id, p) cache(p + id, 1)
+#define AvalC(id, p) cache(p + id, 2)
+#define Bval(id, p) cache(p + id, 3)
+#define BvalC(id, p) cache(p + id, 4)
+#define Cval(id, p) cache(p + id, 5)
+#define CvalC(id, p) cache(p + id, 6)
+#define Dval(id, p) cache(p + id, 7)
+#define DvalC(id, p) cache(p + id, 8)
+#define Eval(id, p) cache(p + id, 9)
+#define EvalC(id, p) cache(p + id, 10)
 
 #define Ccache 0
 #define Dcache 0
 
 #endif
 
-	integer ncaches
-	parameter (ncaches = 10)
+integer ncaches parameter(ncaches = 10)
 
-	ComplexType cache(2,ncaches)
-	common /ltvars/ cache
+        ComplexType cache(2, ncaches) common
+    / ltvars
+    / cache
 
-	ComplexType A0i, A0iC, A0, A0C, A00, A00C, B0i, B0iC
-	ComplexType B0, B1, B00, B11, B001, B111
-	ComplexType B0C, B1C, B00C, B11C, B001C, B111C
-	ComplexType DB0, DB1, DB00, DB11, DB001
-	ComplexType DB0C, DB1C, DB00C, DB11C, DB001C
-	ComplexType C0, C0C, C0i, C0iC
-	ComplexType D0, D0C, D0i, D0iC
-	ComplexType E0, E0C, E0i, E0iC
-	ComplexType Li2, Li2C, Li2omx, Li2omxC
-	memindex Aget, AgetC, Bget, BgetC, Cget, CgetC
-	memindex Dget, DgetC, Eget, EgetC
-	RealType getmudim, getdelta, getlambda, getminmass
-	RealType getmaxdev
-	integer getepsi, getwarndigits, geterrdigits
-	integer getversionkey, getdebugkey
-	integer getcachelast
+    ComplexType A0i,
+    A0iC, A0, A0C, A00, A00C, B0i, B0iC ComplexType B0, B1, B00, B11, B001,
+    B111 ComplexType B0C, B1C, B00C, B11C, B001C, B111C ComplexType DB0, DB1,
+    DB00, DB11, DB001 ComplexType DB0C, DB1C, DB00C, DB11C,
+    DB001C ComplexType C0, C0C, C0i, C0iC ComplexType D0, D0C, D0i,
+    D0iC ComplexType E0, E0C, E0i, E0iC ComplexType Li2, Li2C, Li2omx,
+    Li2omxC memindex Aget, AgetC, Bget, BgetC, Cget, CgetC memindex Dget,
+    DgetC, Eget, EgetC RealType getmudim, getdelta, getlambda,
+    getminmass RealType getmaxdev integer getepsi, getwarndigits,
+    geterrdigits integer getversionkey,
+    getdebugkey integer getcachelast
 
-	external A0i, A0iC, A0, A0C, A00, A00C, B0i, B0iC
-	external B0, B1, B00, B11, B001, B111
-	external B0C, B1C, B00C, B11C, B001C, B111C
-	external DB0, DB1, DB00, DB11, DB001
-	external DB0C, DB1C, DB00C, DB11C, DB001C
-	external C0, C0C, C0i, C0iC
-	external D0, D0C, D0i, D0iC
-	external E0, E0C, E0i, E0iC
-	external Li2, Li2C, Li2omx, Li2omxC
-	external Aget, AgetC, Bget, BgetC, Cget, CgetC
-	external Dget, DgetC, Eget, EgetC
-	external getmudim, getdelta, getlambda, getminmass
-	external getmaxdev
-	external getepsi, getwarndigits, geterrdigits
-	external getversionkey, getdebugkey
-	external getcachelast
-
+    external A0i,
+    A0iC, A0, A0C, A00, A00C, B0i, B0iC external B0, B1, B00, B11, B001,
+    B111 external B0C, B1C, B00C, B11C, B001C, B111C external DB0, DB1, DB00,
+    DB11, DB001 external DB0C, DB1C, DB00C, DB11C, DB001C external C0, C0C,
+    C0i, C0iC external D0, D0C, D0i, D0iC external E0, E0C, E0i,
+    E0iC external Li2, Li2C, Li2omx, Li2omxC external Aget, AgetC, Bget, BgetC,
+    Cget, CgetC external Dget, DgetC, Eget, EgetC external getmudim, getdelta,
+    getlambda, getminmass external getmaxdev external getepsi, getwarndigits,
+    geterrdigits external getversionkey, getdebugkey external getcachelast

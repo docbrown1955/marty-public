@@ -1,45 +1,43 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "diagramwidget.h"
+#include "edge.h"
 #include "htmlconverter.h"
 #include "node.h"
-#include "edge.h"
 #include "planargraph.h"
-#include <cmath>
-#include <sstream>
-#include <QVector>
-#include <QGuiApplication>
-#include <QGraphicsTextItem>
-#include <QLabel>
-#include <QLineEdit>
-#include <QKeyEvent>
+#include <QCursor>
 #include <QFont>
 #include <QFontDatabase>
-#include <QPalette>
-#include <QCursor>
+#include <QGraphicsTextItem>
+#include <QGuiApplication>
 #include <QInputDialog>
+#include <QKeyEvent>
+#include <QLabel>
+#include <QLineEdit>
+#include <QPalette>
 #include <QTime>
+#include <QVector>
+#include <cmath>
+#include <sstream>
 
-
-DiagramWidget::DiagramWidget(
-        QGraphicsScene *t_scene,
-        qint32 t_X0,
-        qint32 t_Y0,
-        QWidget *parent,
-        Diagram *t_diagram)
+DiagramWidget::DiagramWidget(QGraphicsScene *t_scene,
+                             qint32          t_X0,
+                             qint32          t_Y0,
+                             QWidget *       parent,
+                             Diagram *       t_diagram)
     : QGraphicsView(parent),
       diagram(t_diagram),
       diagramEnabled(true),
@@ -51,7 +49,7 @@ DiagramWidget::DiagramWidget(
     scene = t_scene;
     setUpScene();
     setScene(scene);
-    setSceneRect(X0 - LX/2, Y0 - LY/2, LX, LY);
+    setSceneRect(X0 - LX / 2, Y0 - LY / 2, LX, LY);
     setCacheMode(CacheBackground);
     setViewportUpdateMode(BoundingRectViewportUpdate);
     setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
@@ -60,42 +58,38 @@ DiagramWidget::DiagramWidget(
 
 DiagramWidget::~DiagramWidget()
 {
-
 }
-
 
 void DiagramWidget::setUpScene()
 {
-    const qint32 xmin = -LX/2;
-    const qint32 xmax = LX/2;
-    const qint32 ymin = -LX/2;
-    const qint32 ymax = LY/2;
+    const qint32 xmin = -LX / 2;
+    const qint32 xmax = LX / 2;
+    const qint32 ymin = -LX / 2;
+    const qint32 ymax = LY / 2;
     scene->setItemIndexMethod(QGraphicsScene::NoIndex);
-    scene->setSceneRect(X0+xmin, Y0+ymin, xmax-xmin, ymax-ymin);
+    scene->setSceneRect(X0 + xmin, Y0 + ymin, xmax - xmin, ymax - ymin);
     setScene(scene);
 }
 
 void DiagramWidget::centerScene()
 {
-    double xmin = diagram->graph.xMin();
-    double xmax = diagram->graph.xMax();
-    double ymin = diagram->graph.yMin();
-    double ymax = diagram->graph.yMax();
-    double lx = xmax - xmin;
-    double ly = ymax - ymin;
-    double xoffset = 0.1*lx;
-    double yoffset = 0.1*ly;
-    lx += 2*xoffset;
-    ly += 2*yoffset;
-    QRectF rect(X0+xmin-xoffset, Y0+ymin-yoffset, lx, ly);
+    double xmin    = diagram->graph.xMin();
+    double xmax    = diagram->graph.xMax();
+    double ymin    = diagram->graph.yMin();
+    double ymax    = diagram->graph.yMax();
+    double lx      = xmax - xmin;
+    double ly      = ymax - ymin;
+    double xoffset = 0.1 * lx;
+    double yoffset = 0.1 * ly;
+    lx += 2 * xoffset;
+    ly += 2 * yoffset;
+    QRectF rect(X0 + xmin - xoffset, Y0 + ymin - yoffset, lx, ly);
     scene->setSceneRect(rect);
 }
 
 void DiagramWidget::addLabel()
 {
-
 }
-
 
 void DiagramWidget::keyPressEvent(QKeyEvent *event)
 {
@@ -164,7 +158,10 @@ void DiagramWidget::wheelEvent(QWheelEvent *event)
 
 void DiagramWidget::scaleView(qreal scaleFactor)
 {
-    qreal factor = transform().scale(scaleFactor, scaleFactor).mapRect(QRectF(0, 0, 1, 1)).width();
+    qreal factor = transform()
+                       .scale(scaleFactor, scaleFactor)
+                       .mapRect(QRectF(0, 0, 1, 1))
+                       .width();
     if (factor < 0.07 || factor > 100)
         return;
 

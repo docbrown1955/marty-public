@@ -1,52 +1,49 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "quantumFieldTheory.h"
-#include "quantumField.h"
 #include "fermionicField.h"
-#include "polarization.h"
-#include "propagator.h"
 #include "mrtError.h"
 #include "mrtOptions.h"
+#include "polarization.h"
+#include "propagator.h"
+#include "quantumField.h"
 
 using namespace std;
 using namespace csl;
 
 namespace mty {
 
-csl::Expr ScalarKineticTerm(
-        QuantumFieldParent& field,
-        csl::Tensor      & X)
+csl::Expr ScalarKineticTerm(QuantumFieldParent &field, csl::Tensor &X)
 {
-    Gauge *gauge = field.getGauge();
-    Index mu = Minkowski.generateIndex();
-    csl::Expr partialUp   = partialMinko(+mu, X);
-    csl::Expr partialDown = partialMinko(mu, X);
-    vector<Index> indices = field.getFlavorIndex();
-    vector<Index> gaugeIndices = field.getGaugeIndex();
-    vector<const Space*> gaugeSpaces(gaugeIndices.size());
+    Gauge *               gauge        = field.getGauge();
+    Index                 mu           = Minkowski.generateIndex();
+    csl::Expr             partialUp    = partialMinko(+mu, X);
+    csl::Expr             partialDown  = partialMinko(mu, X);
+    vector<Index>         indices      = field.getFlavorIndex();
+    vector<Index>         gaugeIndices = field.getGaugeIndex();
+    vector<const Space *> gaugeSpaces(gaugeIndices.size());
     for (size_t i = 0; i != gaugeSpaces.size(); ++i)
         gaugeSpaces[i] = gaugeIndices[i].getSpace();
     indices.insert(indices.end(), gaugeIndices.begin(), gaugeIndices.end());
-    
+
     csl::Expr expr = field(indices, X);
-    csl::Expr kineticTerm = 
-        GetHermitianConjugate(
-                gauge->covariantDerivative(Copy(expr), mu),
-                gaugeSpaces)
-       * gauge->covariantDerivative(Copy(expr), +mu);
+    csl::Expr kineticTerm
+        = GetHermitianConjugate(gauge->covariantDerivative(Copy(expr), mu),
+                                gaugeSpaces)
+          * gauge->covariantDerivative(Copy(expr), +mu);
     if (field.isSelfConjugate())
         // 1/2 *d^mu(phi)d_mu(phi)
         kineticTerm = CSL_HALF * kineticTerm;
@@ -54,56 +51,51 @@ csl::Expr ScalarKineticTerm(
     return kineticTerm;
 }
 
-csl::Expr FermionKineticTerm(
-        QuantumFieldParent& field,
-        csl::Tensor      & X)
+csl::Expr FermionKineticTerm(QuantumFieldParent &field, csl::Tensor &X)
 {
-    Gauge *gauge = field.getGauge();
-    Index mu = Minkowski.generateIndex();
-    csl::Expr partialUp   = partialMinko(+mu, X);
-    csl::Expr partialDown = partialMinko(mu, X);
-    vector<Index> indices = field.getFlavorIndex();
-    vector<Index> gaugeIndices = field.getGaugeIndex();
-    vector<const Space*> gaugeSpaces(gaugeIndices.size());
+    Gauge *               gauge        = field.getGauge();
+    Index                 mu           = Minkowski.generateIndex();
+    csl::Expr             partialUp    = partialMinko(+mu, X);
+    csl::Expr             partialDown  = partialMinko(mu, X);
+    vector<Index>         indices      = field.getFlavorIndex();
+    vector<Index>         gaugeIndices = field.getGaugeIndex();
+    vector<const Space *> gaugeSpaces(gaugeIndices.size());
     for (size_t i = 0; i != gaugeSpaces.size(); ++i)
         gaugeSpaces[i] = gaugeIndices[i].getSpace();
     indices.insert(indices.end(), gaugeIndices.begin(), gaugeIndices.end());
-    
 
     vector<Index> psiDaggerIndex = indices;
     vector<Index> psiIndex       = indices;
-    Index alpha = dirac4.generateIndex();
-    Index gamm  = dirac4.generateIndex();
+    Index         alpha          = dirac4.generateIndex();
+    Index         gamm           = dirac4.generateIndex();
     psiIndex.push_back(gamm);
     psiDaggerIndex.push_back(alpha);
     csl::Expr factor = CSL_1;
-    if (field.isSelfConjugate() 
-            and field.getParticleType() == ParticleType::DiracFermion)
+    if (field.isSelfConjugate()
+        and field.getParticleType() == ParticleType::DiracFermion)
         factor = CSL_HALF;
-    csl::Expr kineticTerm = factor * GetComplexConjugate(field(psiDaggerIndex, X))
-        * CSL_I * gauge->covariantDerivative(field, mu, psiIndex, X)
-                   * dirac4.gamma({+mu, alpha, gamm});
+    csl::Expr kineticTerm
+        = factor * GetComplexConjugate(field(psiDaggerIndex, X)) * CSL_I
+          * gauge->covariantDerivative(field, mu, psiIndex, X)
+          * dirac4.gamma({+mu, alpha, gamm});
 
     return kineticTerm;
 }
 
-csl::Expr VectorKineticTerm(
-        QuantumFieldParent& field,
-        csl::Tensor      & X)
+csl::Expr VectorKineticTerm(QuantumFieldParent &field, csl::Tensor &X)
 {
-    Gauge *gauge = field.getGauge();
-    Index mu = Minkowski.generateIndex();
-    csl::Expr partialUp   = partialMinko(+mu, X);
-    csl::Expr partialDown = partialMinko(mu, X);
-    vector<Index> indices = field.getFlavorIndex();
-    vector<Index> gaugeIndices = field.getGaugeIndex();
-    vector<const Space*> gaugeSpaces(gaugeIndices.size());
+    Gauge *               gauge        = field.getGauge();
+    Index                 mu           = Minkowski.generateIndex();
+    csl::Expr             partialUp    = partialMinko(+mu, X);
+    csl::Expr             partialDown  = partialMinko(mu, X);
+    vector<Index>         indices      = field.getFlavorIndex();
+    vector<Index>         gaugeIndices = field.getGaugeIndex();
+    vector<const Space *> gaugeSpaces(gaugeIndices.size());
     for (size_t i = 0; i != gaugeSpaces.size(); ++i)
         gaugeSpaces[i] = gaugeIndices[i].getSpace();
     indices.insert(indices.end(), gaugeIndices.begin(), gaugeIndices.end());
-    
 
-    Index nu = Minkowski.generateIndex();
+    Index         nu  = Minkowski.generateIndex();
     vector<Index> _mu = indices;
     _mu.push_back(mu);
     vector<Index> _pmu = indices;
@@ -117,40 +109,37 @@ csl::Expr VectorKineticTerm(
         factor = CSL_1 / 4;
     else
         factor = CSL_1 / 2;
-    csl::Expr kineticTerm = - factor *
-        GetComplexConjugate((gauge->covariantDerivative(field, mu,  _nu,  X)))
-      * (gauge->covariantDerivative(field, +mu, _pnu, X));
+    csl::Expr kineticTerm
+        = -factor
+          * GetComplexConjugate(
+              (gauge->covariantDerivative(field, mu, _nu, X)))
+          * (gauge->covariantDerivative(field, +mu, _pnu, X));
     factor = (field.isSelfConjugate()) ? CSL_HALF : CSL_1;
 
     return kineticTerm;
 }
 
-csl::Expr GhostKineticTerm(
-        QuantumFieldParent& field,
-        csl::Tensor      & X)
+csl::Expr GhostKineticTerm(QuantumFieldParent &field, csl::Tensor &X)
 {
-    Gauge *gauge = field.getGauge();
-    Index mu = Minkowski.generateIndex();
-    csl::Expr partialUp   = partialMinko(+mu, X);
-    csl::Expr partialDown = partialMinko(mu, X);
-    vector<Index> indices = field.getFlavorIndex();
-    vector<Index> gaugeIndices = field.getGaugeIndex();
-    vector<const Space*> gaugeSpaces(gaugeIndices.size());
+    Gauge *               gauge        = field.getGauge();
+    Index                 mu           = Minkowski.generateIndex();
+    csl::Expr             partialUp    = partialMinko(+mu, X);
+    csl::Expr             partialDown  = partialMinko(mu, X);
+    vector<Index>         indices      = field.getFlavorIndex();
+    vector<Index>         gaugeIndices = field.getGaugeIndex();
+    vector<const Space *> gaugeSpaces(gaugeIndices.size());
     for (size_t i = 0; i != gaugeSpaces.size(); ++i)
         gaugeSpaces[i] = gaugeIndices[i].getSpace();
     indices.insert(indices.end(), gaugeIndices.begin(), gaugeIndices.end());
-    
-    csl::Expr expr = field(indices, X);
-    csl::Expr kineticTerm = 
-        GetComplexConjugate(partialMinko(mu, X) * expr)
-       * gauge->covariantDerivative(Copy(expr), +mu);
+
+    csl::Expr expr        = field(indices, X);
+    csl::Expr kineticTerm = GetComplexConjugate(partialMinko(mu, X) * expr)
+                            * gauge->covariantDerivative(Copy(expr), +mu);
 
     return kineticTerm;
 }
 
-csl::Expr ExponentialFactor(csl::Tensor    & X,
-                       csl::Tensor    & Y,
-                       csl::Tensor    & P)
+csl::Expr ExponentialFactor(csl::Tensor &X, csl::Tensor &Y, csl::Tensor &P)
 {
     csl::Index mu = P->getSpace()[0]->generateIndex();
     return csl::exp_s(csl::prod_s({CSL_I, P(+mu), (Y(mu) - X(mu))}));
@@ -163,14 +152,15 @@ static bool ReplaceXiGauge_impl(csl::Expr &expr)
         if (sub->getName()[0] == 'x' && sub->getName()[1] == 'i') {
             csl::Expr value = csl::Evaluated(sub, csl::eval::literal);
             if (value != CSL_UNDEF) {
-                sub = value;
+                sub   = value;
                 found = true;
             }
         }
         else if (csl::Abbrev::isAnAbbreviation(sub)) {
-            csl::Expr encaps = csl::DeepCopy(sub->getParent()->getEncapsulated());
+            csl::Expr encaps
+                = csl::DeepCopy(sub->getParent()->getEncapsulated());
             if (ReplaceXiGauge_impl(encaps)) {
-                sub = csl::Abbrev::makeAbbreviation(encaps);
+                sub   = csl::Abbrev::makeAbbreviation(encaps);
                 found = true;
             }
         }
@@ -180,18 +170,18 @@ static bool ReplaceXiGauge_impl(csl::Expr &expr)
 
 csl::Expr ReplaceXiGauge(csl::Expr const &init)
 {
-    csl::Expr res = csl::DeepCopy(init);
-    bool found = ReplaceXiGauge_impl(res);
+    csl::Expr res   = csl::DeepCopy(init);
+    bool      found = ReplaceXiGauge_impl(res);
     if (found) {
         return csl::DeepRefreshed(res);
     }
     return res;
 }
 
-csl::Expr StandardDenominator(csl::Tensor    & P,
-                         csl::Expr       const& mass,
-                         csl::Expr       const& width,
-                         bool              external)
+csl::Expr StandardDenominator(csl::Tensor &    P,
+                              csl::Expr const &mass,
+                              csl::Expr const &width,
+                              bool             external)
 {
     if (external)
         return CSL_M_1;
@@ -199,39 +189,34 @@ csl::Expr StandardDenominator(csl::Tensor    & P,
     return propagator_s(P(mu), mass, width);
 }
 
-csl::Expr StandardDenominator(csl::Tensor    & P,
-                         csl::Expr       const& mass,
-                         bool              external)
+csl::Expr
+StandardDenominator(csl::Tensor &P, csl::Expr const &mass, bool external)
 {
     if (external)
         return CSL_M_1;
     return StandardDenominator(P, mass, CSL_0);
 }
 
-csl::Expr NullPropagator(
-        QuantumField const&,
-        QuantumField const&,
-        csl::Tensor      &,
-        bool)
+csl::Expr
+NullPropagator(QuantumField const &, QuantumField const &, csl::Tensor &, bool)
 {
     return CSL_0;
 }
 
-csl::Expr ScalarPropagator(
-        QuantumField const& A,
-        QuantumField const& B,
-        csl::Tensor      & P,
-        bool                external)
+csl::Expr ScalarPropagator(QuantumField const &A,
+                           QuantumField const &B,
+                           csl::Tensor &       P,
+                           bool                external)
 {
-    csl::IndexStructure const& structA = A.getIndexStructureView();
-    csl::IndexStructure const& structB = B.getIndexStructureView();
-    csl::Tensor        pointA  = A.getPoint();
-    csl::Tensor        pointB  = B.getPoint();
+    csl::IndexStructure const &structA = A.getIndexStructureView();
+    csl::IndexStructure const &structB = B.getIndexStructureView();
+    csl::Tensor                pointA  = A.getPoint();
+    csl::Tensor                pointB  = B.getPoint();
 
     csl::vector_expr deltaFactor(structA.size());
     for (size_t i = 0; i != structA.size(); ++i) {
-        csl::Space const* space = structA[i].getSpace();
-        deltaFactor[i] = space->getDelta()({structA[i], structB[i]});
+        csl::Space const *space = structA[i].getSpace();
+        deltaFactor[i]          = space->getDelta()({structA[i], structB[i]});
     }
 
     csl::Expr mass = A.getMass();
@@ -239,45 +224,40 @@ csl::Expr ScalarPropagator(
         mass = ReplaceXiGauge(mass);
     }
 
-    return csl::prod_s({
-        CSL_I, 
-        csl::prod_s(deltaFactor, true),
-        ExponentialFactor(pointA, pointB, P),
-        StandardDenominator(P, mass, A.getWidth(), external)
-    });
+    return csl::prod_s({CSL_I,
+                        csl::prod_s(deltaFactor, true),
+                        ExponentialFactor(pointA, pointB, P),
+                        StandardDenominator(P, mass, A.getWidth(), external)});
 }
 
-csl::Expr FermionPropagator(
-        QuantumField const& A,
-        QuantumField const& B,
-        csl::Tensor      & P,
-        bool                external)
+csl::Expr FermionPropagator(QuantumField const &A,
+                            QuantumField const &B,
+                            csl::Tensor &       P,
+                            bool                external)
 {
     if (A.isComplexConjugate() && !B.isComplexConjugate())
         return -FermionPropagator(B, A, P, external);
-    csl::IndexStructure const& structA = A.getIndexStructureView();
-    csl::IndexStructure const& structB = B.getIndexStructureView();
-    csl::Tensor        pointA  = A.getPoint();
-    csl::Tensor        pointB  = B.getPoint();
+    csl::IndexStructure const &structA = A.getIndexStructureView();
+    csl::IndexStructure const &structB = B.getIndexStructureView();
+    csl::Tensor                pointA  = A.getPoint();
+    csl::Tensor                pointB  = B.getPoint();
 
-    csl::vector_expr deltaFactor(structA.size()-1);
-    for (size_t i = 0; i != structA.size()-1; ++i) {
-        csl::Space const* space = structA[i].getSpace();
-        deltaFactor[i] = space->getDelta()({structA[i], structB[i]});
+    csl::vector_expr deltaFactor(structA.size() - 1);
+    for (size_t i = 0; i != structA.size() - 1; ++i) {
+        csl::Space const *space = structA[i].getSpace();
+        deltaFactor[i]          = space->getDelta()({structA[i], structB[i]});
     }
-    csl::Index alpha = structA[structA.size()-1];
-    csl::Index beta  = structB[structB.size()-1];
-    const DiracSpace* diracSpace 
-        = dynamic_cast<const DiracSpace*>(alpha.getSpace());
+    csl::Index        alpha = structA[structA.size() - 1];
+    csl::Index        beta  = structB[structB.size() - 1];
+    const DiracSpace *diracSpace
+        = dynamic_cast<const DiracSpace *>(alpha.getSpace());
 
-    if (!mty::option::enableAntiChiralProps
-            and A.isChiral()
-            and B.isChiral()
-            and A.getChirality() != B.getChirality())
+    if (!mty::option::enableAntiChiralProps and A.isChiral() and B.isChiral()
+        and A.getChirality() != B.getChirality())
         return CSL_0;
 
     csl::Expr projectors = CSL_1;
-    auto chirA = A.getChirality();
+    auto      chirA      = A.getChirality();
     if (A.isComplexConjugate() xor A.isExternal())
         chirA = !chirA;
     Chirality chirB = B.getChirality();
@@ -308,206 +288,197 @@ csl::Expr FermionPropagator(
         return CSL_0;
 
     if (A.isComplexConjugate()) {
-        Index gam = alpha.rename();
+        Index gam  = alpha.rename();
         projectors = projectors * -dirac4.C_matrix({alpha, gam});
-        alpha = gam;
+        alpha      = gam;
     }
     if (!B.isComplexConjugate()) {
-        Index gam = beta.rename();
+        Index gam  = beta.rename();
         projectors = projectors * -dirac4.C_matrix({gam, beta});
-        beta = gam;
+        beta       = gam;
     }
 
     csl::Tensor delta = diracSpace->getDelta();
-    csl::Expr m = (A.isChiral() and B.isChiral() and chirA != chirB) ? 
-        CSL_0 : A.getMass() * delta({alpha, beta});
-    csl::Expr p = (A.isChiral() and B.isChiral() and chirA == chirB) ?
-        CSL_0 : slashed_s(P, alpha, beta, diracSpace);
-    csl::Expr diracStructure = (external) ?  delta({alpha, beta}) : (p + m);
+    csl::Expr   m     = (A.isChiral() and B.isChiral() and chirA != chirB)
+                      ? CSL_0
+                      : A.getMass() * delta({alpha, beta});
+    csl::Expr p = (A.isChiral() and B.isChiral() and chirA == chirB)
+                      ? CSL_0
+                      : slashed_s(P, alpha, beta, diracSpace);
+    csl::Expr diracStructure = (external) ? delta({alpha, beta}) : (p + m);
 
-    return csl::prod_s({
-        CSL_I, 
-        projectors,
-        csl::prod_s(deltaFactor),
-        diracStructure,
-        ExponentialFactor(pointA, pointB, P),
-        StandardDenominator(P, A.getMass(), A.getWidth(), external)
-    });
+    return csl::prod_s(
+        {CSL_I,
+         projectors,
+         csl::prod_s(deltaFactor),
+         diracStructure,
+         ExponentialFactor(pointA, pointB, P),
+         StandardDenominator(P, A.getMass(), A.getWidth(), external)});
 }
 
-csl::Expr VectorPropagator(
-        QuantumField const& A,
-        QuantumField const& B,
-        csl::Tensor      & P,
-        bool                external)
+csl::Expr VectorPropagator(QuantumField const &A,
+                           QuantumField const &B,
+                           csl::Tensor &       P,
+                           bool                external)
 {
-    csl::IndexStructure const& structA = A.getIndexStructureView();
-    csl::IndexStructure const& structB = B.getIndexStructureView();
-    csl::Tensor        pointA  = A.getPoint();
-    csl::Tensor        pointB  = B.getPoint();
+    csl::IndexStructure const &structA = A.getIndexStructureView();
+    csl::IndexStructure const &structB = B.getIndexStructureView();
+    csl::Tensor                pointA  = A.getPoint();
+    csl::Tensor                pointB  = B.getPoint();
 
-    csl::vector_expr deltaFactor(structA.size()-1);
-    for (size_t i = 0; i != structA.size()-1; ++i) {
-        csl::Space const* space = structA[i].getSpace();
-        deltaFactor[i] = space->getDelta()({structA[i], structB[i]});
+    csl::vector_expr deltaFactor(structA.size() - 1);
+    for (size_t i = 0; i != structA.size() - 1; ++i) {
+        csl::Space const *space = structA[i].getSpace();
+        deltaFactor[i]          = space->getDelta()({structA[i], structB[i]});
     }
 
-    csl::Index mu = structA[structA.size()-1];
-    csl::Index nu = structB[structB.size()-1];
-    csl::Index rho = mu.getSpace()->generateIndex();
-    csl::Tensor g = mu.getSpace()->getMetric();
-    csl::Expr prop_mu_nu = g({mu, nu});
-    csl::Expr m = A.getMass();
+    csl::Index  mu         = structA[structA.size() - 1];
+    csl::Index  nu         = structB[structB.size() - 1];
+    csl::Index  rho        = mu.getSpace()->generateIndex();
+    csl::Tensor g          = mu.getSpace()->getMetric();
+    csl::Expr   prop_mu_nu = g({mu, nu});
+    csl::Expr   m          = A.getMass();
     if (not external) {
         csl::Expr xi = ReplaceXiGauge(A.getXiGauge());
         csl::Expr side;
         if (xi == CSL_INF)
-            side = P(mu)*P(nu) / (m*m);
+            side = P(mu) * P(nu) / (m * m);
         else
-            side = (1 - xi) * (P(mu)*P(nu)) 
-                 * propagator_s(P(mu), m * sqrt_s(xi));
+            side = (1 - xi) * (P(mu) * P(nu))
+                   * propagator_s(P(mu), m * sqrt_s(xi));
         prop_mu_nu = prop_mu_nu - side;
     }
-    return csl::prod_s({
-        -CSL_I, 
-        csl::prod_s(deltaFactor),
-        prop_mu_nu,
-        ExponentialFactor(pointA, pointB, P),
-        StandardDenominator(P, A.getMass(), A.getWidth(), external)
-    });
+    return csl::prod_s(
+        {-CSL_I,
+         csl::prod_s(deltaFactor),
+         prop_mu_nu,
+         ExponentialFactor(pointA, pointB, P),
+         StandardDenominator(P, A.getMass(), A.getWidth(), external)});
 }
 
-csl::Expr FieldStrengthPropagator(
-        QuantumField const& A,
-        QuantumField const& B,
-        csl::Tensor      & P,
-        bool                external)
+csl::Expr FieldStrengthPropagator(QuantumField const &A,
+                                  QuantumField const &B,
+                                  csl::Tensor &       P,
+                                  bool                external)
 {
     // <A_mu F_nu,rho^(*)> or <F_mu,nu A_rho^(*)>
-    csl::IndexStructure structA = A.getIndexStructureView();
-    csl::IndexStructure structB = B.getIndexStructureView();
-    csl::Tensor        pointA  = A.getPoint();
-    csl::Tensor        pointB  = B.getPoint();
-    bool fieldStrengthFirst = structA.size() > structB.size();
-    csl::Expr sign = CSL_1;
+    csl::IndexStructure structA            = A.getIndexStructureView();
+    csl::IndexStructure structB            = B.getIndexStructureView();
+    csl::Tensor         pointA             = A.getPoint();
+    csl::Tensor         pointB             = B.getPoint();
+    bool                fieldStrengthFirst = structA.size() > structB.size();
+    csl::Expr           sign               = CSL_1;
     if (fieldStrengthFirst) {
         sign = CSL_M_1;
         std::swap(structA, structB);
     }
 
-    csl::vector_expr deltaFactor(structA.size()-1);
-    for (size_t i = 0; i != structA.size()-1; ++i) {
-        csl::Space const* space = structA[i].getSpace();
-        deltaFactor[i] = space->getDelta()({structA[i], structB[i]});
+    csl::vector_expr deltaFactor(structA.size() - 1);
+    for (size_t i = 0; i != structA.size() - 1; ++i) {
+        csl::Space const *space = structA[i].getSpace();
+        deltaFactor[i]          = space->getDelta()({structA[i], structB[i]});
     }
 
     // Prop for struct A_mu F_nu,rho
-    csl::Index mu  = structA[structA.size()-1];
-    csl::Index nu  = structB[structB.size()-2];
-    csl::Index rho = structB[structB.size()-1];
-    csl::Index sigma = mu.getSpace()->generateIndex();
-    csl::Tensor g = mu.getSpace()->getMetric();
-    csl::Expr prop_mu_nu = g({mu, rho})*P(nu) - g({mu, nu})*P(rho);
-    csl::Expr m = A.getMass();
+    csl::Index  mu         = structA[structA.size() - 1];
+    csl::Index  nu         = structB[structB.size() - 2];
+    csl::Index  rho        = structB[structB.size() - 1];
+    csl::Index  sigma      = mu.getSpace()->generateIndex();
+    csl::Tensor g          = mu.getSpace()->getMetric();
+    csl::Expr   prop_mu_nu = g({mu, rho}) * P(nu) - g({mu, nu}) * P(rho);
+    csl::Expr   m          = A.getMass();
 
-    return csl::prod_s({sign, 
-        csl::prod_s(deltaFactor, true),
-        prop_mu_nu,
-        ExponentialFactor(pointA, pointB, P),
-        StandardDenominator(P, A.getMass(), A.getWidth(), external)
-        });
+    return csl::prod_s(
+        {sign,
+         csl::prod_s(deltaFactor, true),
+         prop_mu_nu,
+         ExponentialFactor(pointA, pointB, P),
+         StandardDenominator(P, A.getMass(), A.getWidth(), external)});
 }
 
-csl::Expr FieldStrengthSquaredPropagator(
-        QuantumField const& A,
-        QuantumField const& B,
-        csl::Tensor      & P,
-        bool                external)
+csl::Expr FieldStrengthSquaredPropagator(QuantumField const &A,
+                                         QuantumField const &B,
+                                         csl::Tensor &       P,
+                                         bool                external)
 {
-    csl::IndexStructure const& structA = A.getIndexStructureView();
-    csl::IndexStructure const& structB = B.getIndexStructureView();
-    csl::Tensor        pointA  = A.getPoint();
-    csl::Tensor        pointB  = B.getPoint();
+    csl::IndexStructure const &structA = A.getIndexStructureView();
+    csl::IndexStructure const &structB = B.getIndexStructureView();
+    csl::Tensor                pointA  = A.getPoint();
+    csl::Tensor                pointB  = B.getPoint();
 
-    csl::vector_expr deltaFactor(structA.size()-2);
-    for (size_t i = 0; i != structA.size()-2; ++i) {
-        csl::Space const* space = structA[i].getSpace();
-        deltaFactor[i] = space->getDelta()({structA[i], structB[i]});
+    csl::vector_expr deltaFactor(structA.size() - 2);
+    for (size_t i = 0; i != structA.size() - 2; ++i) {
+        csl::Space const *space = structA[i].getSpace();
+        deltaFactor[i]          = space->getDelta()({structA[i], structB[i]});
     }
 
     // Prop for struct F_mu,nu F_rho,sigma
-    csl::Index mu  = structA[structA.size()-2];
-    csl::Index nu  = structA[structB.size()-1];
-    csl::Index rho   = structB[structB.size()-2];
-    csl::Index sigma = structB[structB.size()-1];
-    csl::Tensor g = mu.getSpace()->getMetric();
+    csl::Index  mu    = structA[structA.size() - 2];
+    csl::Index  nu    = structA[structB.size() - 1];
+    csl::Index  rho   = structB[structB.size() - 2];
+    csl::Index  sigma = structB[structB.size() - 1];
+    csl::Tensor g     = mu.getSpace()->getMetric();
 
-    csl::Expr prop_mu_nu = g({mu, sigma})*P(nu)*P(rho)
-                    - g({mu, rho})*P(nu)*P(sigma)
-                    + g({nu, rho})*P(mu)*P(sigma)
-                    - g({nu, sigma})*P(mu)*P(rho);
+    csl::Expr prop_mu_nu
+        = g({mu, sigma}) * P(nu) * P(rho) - g({mu, rho}) * P(nu) * P(sigma)
+          + g({nu, rho}) * P(mu) * P(sigma) - g({nu, sigma}) * P(mu) * P(rho);
     csl::Expr m = A.getMass();
 
-    return csl::prod_s({
-        CSL_I, 
-        csl::prod_s(deltaFactor, true),
-        prop_mu_nu,
-        ExponentialFactor(pointA, pointB, P),
-        StandardDenominator(P, A.getMass(), A.getWidth(), external)
-        });
+    return csl::prod_s(
+        {CSL_I,
+         csl::prod_s(deltaFactor, true),
+         prop_mu_nu,
+         ExponentialFactor(pointA, pointB, P),
+         StandardDenominator(P, A.getMass(), A.getWidth(), external)});
 }
 
-csl::Expr IntegratedScalarPropagator(
-        QuantumField const& A,
-        QuantumField const& B,
-        csl::Tensor      & P,
-        bool)
+csl::Expr IntegratedScalarPropagator(QuantumField const &A,
+                                     QuantumField const &B,
+                                     csl::Tensor &       P,
+                                     bool)
 {
-    csl::IndexStructure const& structA = A.getIndexStructureView();
-    csl::IndexStructure const& structB = B.getIndexStructureView();
-    csl::Tensor        pointA  = A.getPoint();
-    csl::Tensor        pointB  = B.getPoint();
+    csl::IndexStructure const &structA = A.getIndexStructureView();
+    csl::IndexStructure const &structB = B.getIndexStructureView();
+    csl::Tensor                pointA  = A.getPoint();
+    csl::Tensor                pointB  = B.getPoint();
 
     csl::vector_expr deltaFactor(structA.size());
     for (size_t i = 0; i != structA.size(); ++i) {
-        csl::Space const* space = structA[i].getSpace();
-        deltaFactor[i] = space->getDelta()({structA[i], structB[i]});
+        csl::Space const *space = structA[i].getSpace();
+        deltaFactor[i]          = space->getDelta()({structA[i], structB[i]});
     }
     csl::Expr mass = ReplaceXiGauge(A.getMass());
 
-    return
-        -CSL_I 
-        * csl::prod_s(deltaFactor, true)
-        * ExponentialFactor(pointA, pointB, P)
-        / ((mass + A.getWidth()) * (mass - A.getWidth()));
+    return -CSL_I * csl::prod_s(deltaFactor, true)
+           * ExponentialFactor(pointA, pointB, P)
+           / ((mass + A.getWidth()) * (mass - A.getWidth()));
 }
 
-csl::Expr IntegratedFermionPropagator(
-        QuantumField const& A,
-        QuantumField const& B,
-        csl::Tensor      & P,
-        bool                external)
+csl::Expr IntegratedFermionPropagator(QuantumField const &A,
+                                      QuantumField const &B,
+                                      csl::Tensor &       P,
+                                      bool                external)
 {
     if (!A.isSelfConjugate() && A.isComplexConjugate())
         return -IntegratedFermionPropagator(B, A, P, external);
-    csl::IndexStructure const& structA = A.getIndexStructureView();
-    csl::IndexStructure const& structB = B.getIndexStructureView();
-    csl::Tensor        pointA  = A.getPoint();
-    csl::Tensor        pointB  = B.getPoint();
+    csl::IndexStructure const &structA = A.getIndexStructureView();
+    csl::IndexStructure const &structB = B.getIndexStructureView();
+    csl::Tensor                pointA  = A.getPoint();
+    csl::Tensor                pointB  = B.getPoint();
     bool reverted = A.isComplexConjugate() and !B.isComplexConjugate();
     if (reverted) {
         std::swap(pointA, pointB);
     }
 
-    csl::vector_expr deltaFactor(structA.size()-1);
-    for (size_t i = 0; i != structA.size()-1; ++i) {
-        csl::Space const* space = structA[i].getSpace();
-        deltaFactor[i] = space->getDelta()({structA[i], structB[i]});
+    csl::vector_expr deltaFactor(structA.size() - 1);
+    for (size_t i = 0; i != structA.size() - 1; ++i) {
+        csl::Space const *space = structA[i].getSpace();
+        deltaFactor[i]          = space->getDelta()({structA[i], structB[i]});
     }
-    csl::Index alpha = structA[structA.size()-1];
-    csl::Index beta  = structB[structB.size()-1];
-    const DiracSpace* diracSpace 
-        = dynamic_cast<const DiracSpace*>(alpha.getSpace());
+    csl::Index        alpha = structA[structA.size() - 1];
+    csl::Index        beta  = structB[structB.size() - 1];
+    const DiracSpace *diracSpace
+        = dynamic_cast<const DiracSpace *>(alpha.getSpace());
 
     csl::Expr projectors = CSL_1;
     if (A.isChiral()) {
@@ -539,167 +510,147 @@ csl::Expr IntegratedFermionPropagator(
     if (A.isComplexConjugate() == B.isComplexConjugate()) {
         // Majorana
         if (A.isComplexConjugate()) {
-            //Psi^star Psi^star
+            // Psi^star Psi^star
             csl::Index gam = diracSpace->generateIndex();
-            projectors = projectors * diracSpace->C_matrix({alpha, gam});
-            alpha = gam;
+            projectors     = projectors * diracSpace->C_matrix({alpha, gam});
+            alpha          = gam;
         }
         else {
-            //Psi Psi
+            // Psi Psi
             csl::Index gam = diracSpace->generateIndex();
-            projectors = projectors * diracSpace->C_matrix({gam, beta});
-            beta = gam;
+            projectors     = projectors * diracSpace->C_matrix({gam, beta});
+            beta           = gam;
         }
     }
     if (A.isComplexConjugate()) {
-        Index gam = alpha.rename();
+        Index gam  = alpha.rename();
         projectors = projectors * -dirac4.C_matrix({alpha, gam});
-        alpha = gam;
+        alpha      = gam;
     }
     if (!B.isComplexConjugate()) {
-        Index gam = beta.rename();
+        Index gam  = beta.rename();
         projectors = projectors * -dirac4.C_matrix({gam, beta});
-        beta = gam;
+        beta       = gam;
     }
-
 
     csl::Tensor delta = diracSpace->getDelta();
-    csl::Expr m = (A.isChiral() 
-            and A.getChirality() == B.getChirality()) ? 
-        CSL_0 : A.getMass() * delta({alpha, beta});
-    csl::Expr p = (A.isChiral() 
-            and B.isChiral() 
-            and A.getChirality() != B.getChirality()) ?
-        CSL_0 : slashed_s(P, alpha, beta, diracSpace);
-    csl::Expr diracStructure = (external) ?  delta({alpha, beta})
-        : (p + m);
+    csl::Expr   m     = (A.isChiral() and A.getChirality() == B.getChirality())
+                      ? CSL_0
+                      : A.getMass() * delta({alpha, beta});
+    csl::Expr p = (A.isChiral() and B.isChiral()
+                   and A.getChirality() != B.getChirality())
+                      ? CSL_0
+                      : slashed_s(P, alpha, beta, diracSpace);
+    csl::Expr diracStructure = (external) ? delta({alpha, beta}) : (p + m);
 
     Expr sign = (reverted and !external) ? -1 : 1;
-    return 
-        - sign * CSL_I 
-        * projectors
-        * csl::prod_s(deltaFactor)
-        * diracStructure
-        * ExponentialFactor(pointA, pointB, P)
-        / ((A.getMass() + A.getWidth()) * (A.getMass() - A.getWidth()));
+    return -sign * CSL_I * projectors * csl::prod_s(deltaFactor)
+           * diracStructure * ExponentialFactor(pointA, pointB, P)
+           / ((A.getMass() + A.getWidth()) * (A.getMass() - A.getWidth()));
 }
 
-csl::Expr IntegratedVectorPropagator(
-        QuantumField const& A,
-        QuantumField const& B,
-        csl::Tensor      & P,
-        bool)
+csl::Expr IntegratedVectorPropagator(QuantumField const &A,
+                                     QuantumField const &B,
+                                     csl::Tensor &       P,
+                                     bool)
 {
-    csl::IndexStructure const& structA = A.getIndexStructureView();
-    csl::IndexStructure const& structB = B.getIndexStructureView();
-    csl::Tensor        pointA  = A.getPoint();
-    csl::Tensor        pointB  = B.getPoint();
+    csl::IndexStructure const &structA = A.getIndexStructureView();
+    csl::IndexStructure const &structB = B.getIndexStructureView();
+    csl::Tensor                pointA  = A.getPoint();
+    csl::Tensor                pointB  = B.getPoint();
 
-    csl::vector_expr deltaFactor(structA.size()-1);
-    for (size_t i = 0; i != structA.size()-1; ++i) {
-        csl::Space const* space = structA[i].getSpace();
-        deltaFactor[i] = space->getDelta()({structA[i], structB[i]});
+    csl::vector_expr deltaFactor(structA.size() - 1);
+    for (size_t i = 0; i != structA.size() - 1; ++i) {
+        csl::Space const *space = structA[i].getSpace();
+        deltaFactor[i]          = space->getDelta()({structA[i], structB[i]});
     }
 
-    csl::Index mu = structA[structA.size()-1];
-    csl::Index nu = structB[structB.size()-1];
-    csl::Index rho = mu.getSpace()->generateIndex();
-    csl::Tensor g = mu.getSpace()->getMetric();
-    csl::Expr prop_mu_nu = g({mu, nu});
+    csl::Index  mu         = structA[structA.size() - 1];
+    csl::Index  nu         = structB[structB.size() - 1];
+    csl::Index  rho        = mu.getSpace()->generateIndex();
+    csl::Tensor g          = mu.getSpace()->getMetric();
+    csl::Expr   prop_mu_nu = g({mu, nu});
 
-    return 
-        CSL_I 
-        * csl::prod_s(deltaFactor)
-        * prop_mu_nu
-        * ExponentialFactor(pointA, pointB, P)
-        / ((A.getMass() + A.getWidth()) * (A.getMass() - A.getWidth()));
+    return CSL_I * csl::prod_s(deltaFactor) * prop_mu_nu
+           * ExponentialFactor(pointA, pointB, P)
+           / ((A.getMass() + A.getWidth()) * (A.getMass() - A.getWidth()));
 }
 
-csl::Expr IntegratedFieldStrengthPropagator(
-        QuantumField const& A,
-        QuantumField const& B,
-        csl::Tensor      & P,
-        bool)
+csl::Expr IntegratedFieldStrengthPropagator(QuantumField const &A,
+                                            QuantumField const &B,
+                                            csl::Tensor &       P,
+                                            bool)
 {
     // <A_mu F_nu,rho^(*)> or <F_mu,nu A_rho^(*)>
-    csl::IndexStructure structA = A.getIndexStructureView();
-    csl::IndexStructure structB = B.getIndexStructureView();
-    csl::Tensor        pointA  = A.getPoint();
-    csl::Tensor        pointB  = B.getPoint();
-    bool fieldStrengthFirst = structA.size() > structB.size();
-    csl::Expr sign = CSL_1;
+    csl::IndexStructure structA            = A.getIndexStructureView();
+    csl::IndexStructure structB            = B.getIndexStructureView();
+    csl::Tensor         pointA             = A.getPoint();
+    csl::Tensor         pointB             = B.getPoint();
+    bool                fieldStrengthFirst = structA.size() > structB.size();
+    csl::Expr           sign               = CSL_1;
     if (fieldStrengthFirst) {
         sign = CSL_M_1;
         std::swap(structA, structB);
     }
 
-    csl::vector_expr deltaFactor(structA.size()-1);
-    for (size_t i = 0; i != structA.size()-1; ++i) {
-        csl::Space const* space = structA[i].getSpace();
-        deltaFactor[i] = space->getDelta()({structA[i], structB[i]});
+    csl::vector_expr deltaFactor(structA.size() - 1);
+    for (size_t i = 0; i != structA.size() - 1; ++i) {
+        csl::Space const *space = structA[i].getSpace();
+        deltaFactor[i]          = space->getDelta()({structA[i], structB[i]});
     }
 
     // Prop for struct A_mu F_nu,rho
-    csl::Index mu  = structA[structA.size()-1];
-    csl::Index nu  = structB[structB.size()-2];
-    csl::Index rho = structB[structB.size()-1];
-    csl::Index sigma = mu.getSpace()->generateIndex();
-    csl::Tensor g = mu.getSpace()->getMetric();
-    csl::Expr prop_mu_nu = g({mu, rho})*P(nu) - g({mu, nu})*P(rho);
+    csl::Index  mu         = structA[structA.size() - 1];
+    csl::Index  nu         = structB[structB.size() - 2];
+    csl::Index  rho        = structB[structB.size() - 1];
+    csl::Index  sigma      = mu.getSpace()->generateIndex();
+    csl::Tensor g          = mu.getSpace()->getMetric();
+    csl::Expr   prop_mu_nu = g({mu, rho}) * P(nu) - g({mu, nu}) * P(rho);
 
-    return - sign 
-        * csl::prod_s(deltaFactor, true)
-        * prop_mu_nu
-        * ExponentialFactor(pointA, pointB, P)
-        / ((A.getMass() + A.getWidth()) * (A.getMass() - A.getWidth()));
+    return -sign * csl::prod_s(deltaFactor, true) * prop_mu_nu
+           * ExponentialFactor(pointA, pointB, P)
+           / ((A.getMass() + A.getWidth()) * (A.getMass() - A.getWidth()));
 }
 
-csl::Expr IntegratedFieldStrengthSquaredPropagator(
-        QuantumField const& A,
-        QuantumField const& B,
-        csl::Tensor      & P,
-        bool)
+csl::Expr IntegratedFieldStrengthSquaredPropagator(QuantumField const &A,
+                                                   QuantumField const &B,
+                                                   csl::Tensor &       P,
+                                                   bool)
 {
-    csl::IndexStructure const& structA = A.getIndexStructureView();
-    csl::IndexStructure const& structB = B.getIndexStructureView();
-    csl::Tensor        pointA  = A.getPoint();
-    csl::Tensor        pointB  = B.getPoint();
+    csl::IndexStructure const &structA = A.getIndexStructureView();
+    csl::IndexStructure const &structB = B.getIndexStructureView();
+    csl::Tensor                pointA  = A.getPoint();
+    csl::Tensor                pointB  = B.getPoint();
 
-    csl::vector_expr deltaFactor(structA.size()-2);
-    for (size_t i = 0; i != structA.size()-2; ++i) {
-        csl::Space const* space = structA[i].getSpace();
-        deltaFactor[i] = space->getDelta()({structA[i], structB[i]});
+    csl::vector_expr deltaFactor(structA.size() - 2);
+    for (size_t i = 0; i != structA.size() - 2; ++i) {
+        csl::Space const *space = structA[i].getSpace();
+        deltaFactor[i]          = space->getDelta()({structA[i], structB[i]});
     }
 
     // Prop for struct F_mu,nu F_rho,sigma
-    csl::Index mu  = structA[structA.size()-2];
-    csl::Index nu  = structA[structB.size()-1];
-    csl::Index rho   = structB[structB.size()-2];
-    csl::Index sigma = structB[structB.size()-1];
-    csl::Tensor g = mu.getSpace()->getMetric();
+    csl::Index  mu    = structA[structA.size() - 2];
+    csl::Index  nu    = structA[structB.size() - 1];
+    csl::Index  rho   = structB[structB.size() - 2];
+    csl::Index  sigma = structB[structB.size() - 1];
+    csl::Tensor g     = mu.getSpace()->getMetric();
 
-    csl::Expr prop_mu_nu = g({mu, sigma})*P(nu)*P(rho)
-                    - g({mu, rho})*P(nu)*P(sigma)
-                    + g({nu, rho})*P(mu)*P(sigma)
-                    - g({nu, sigma})*P(mu)*P(rho);
-    return 
-        - CSL_I 
-        * csl::prod_s(deltaFactor, true)
-        * prop_mu_nu
-        * ExponentialFactor(pointA, pointB, P)
-        / ((A.getMass() + A.getWidth()) * (A.getMass() - A.getWidth()));
+    csl::Expr prop_mu_nu
+        = g({mu, sigma}) * P(nu) * P(rho) - g({mu, rho}) * P(nu) * P(sigma)
+          + g({nu, rho}) * P(mu) * P(sigma) - g({nu, sigma}) * P(mu) * P(rho);
+    return -CSL_I * csl::prod_s(deltaFactor, true) * prop_mu_nu
+           * ExponentialFactor(pointA, pointB, P)
+           / ((A.getMass() + A.getWidth()) * (A.getMass() - A.getWidth()));
 }
 
-csl::Expr ExternalLeg(
-        QuantumField   const& field,
-        const csl::Tensor&    impulsion,
-        bool                  ruleMode,
-        bool                  lock
-        )
+csl::Expr ExternalLeg(QuantumField const &field,
+                      const csl::Tensor & impulsion,
+                      bool                ruleMode,
+                      bool                lock)
 {
     HEPAssert(field.isExternal(),
-            mty::error::ValueError,
-            "Trying to get LSZ insertion from non external field.");
+              mty::error::ValueError,
+              "Trying to get LSZ insertion from non external field.");
     return ExternalLeg(*field.getQuantumParent(),
                        impulsion,
                        field.getPoint(),
@@ -712,34 +663,33 @@ csl::Expr ExternalLeg(
                        lock);
 }
 
-csl::Expr ExternalLeg(QuantumFieldParent & field,
-                 csl::Tensor          P,
-                 csl::Tensor          X,
-                 vector<Index>        indices,
-                 bool                 particle,
-                 bool                 incoming,
-                 bool                 onshell,
-                 PartnerShip   const &partnerShip,
-                 bool                 ruleMode,
-                 bool                 lockConjugation
-                 )
+csl::Expr ExternalLeg(QuantumFieldParent &field,
+                      csl::Tensor         P,
+                      csl::Tensor         X,
+                      vector<Index>       indices,
+                      bool                particle,
+                      bool                incoming,
+                      bool                onshell,
+                      PartnerShip const & partnerShip,
+                      bool                ruleMode,
+                      bool                lockConjugation)
 {
     const int spinDim = field.getSpinDimension();
 
-    Index rho = Minkowski.generateIndex();
-    csl::Expr expSign   = (incoming) ? -CSL_1 : CSL_1;
-    csl::Expr common = CSL_I * csl::vectorintegral_s(X)
-        * csl::exp_s(expSign * CSL_I * X(rho) * P(+rho));
+    Index     rho     = Minkowski.generateIndex();
+    csl::Expr expSign = (incoming) ? -CSL_1 : CSL_1;
+    csl::Expr common  = CSL_I * csl::vectorintegral_s(X)
+                       * csl::exp_s(expSign * CSL_I * X(rho) * P(+rho));
     if (spinDim == 3)
         common = -common;
     if (ruleMode || mty::option::amputateExternalLegs)
         return common;
     Index lambda = Euclid_R2.generateIndex();
-    for (auto& i : indices)
+    for (auto &i : indices)
         if (i.getSpace()->getSignedIndex())
             i.flipSign();
     csl::Expr polarTensor = field(lambda, indices, P);
-    auto ptr = ConvertToPtr<PolarizationField>(polarTensor);
+    auto      ptr         = ConvertToPtr<PolarizationField>(polarTensor);
     if (lockConjugation)
         ptr->setConjugationLock(true);
     ptr->setExternal(true);
@@ -751,49 +701,41 @@ csl::Expr ExternalLeg(QuantumFieldParent & field,
     return polarTensor * common;
 }
 
-csl::Expr MajoranaMassTerm(
-        csl::Expr         const &mass, 
-        QuantumFieldParent *field)
+csl::Expr MajoranaMassTerm(csl::Expr const &mass, QuantumFieldParent *field)
 {
     vector<Index> index1 = field->getFullSetOfIndices();
     vector<Index> index2 = index1;
-    auto a = index1.back();
-    auto b = a.rename();
-    index2.back() = b;
-    auto C = dirac4.C_matrix({a, b});
-    csl::Expr psi     = (*field)(index1);
-    csl::Expr psi_bar = GetComplexConjugate((*field)(index1));
-    return -CSL_HALF * mass * (
-            (*field)(index1)*C*(*field)(index2)
-            + csl::GetComplexConjugate((*field)(index1))
-                *C*csl::GetComplexConjugate((*field)(index2))
-            );
+    auto          a      = index1.back();
+    auto          b      = a.rename();
+    index2.back()        = b;
+    auto      C          = dirac4.C_matrix({a, b});
+    csl::Expr psi        = (*field)(index1);
+    csl::Expr psi_bar    = GetComplexConjugate((*field)(index1));
+    return -CSL_HALF * mass
+           * ((*field)(index1) *C * (*field)(index2)
+              + csl::GetComplexConjugate((*field)(index1)) * C
+                    * csl::GetComplexConjugate((*field)(index2)));
 }
 
-csl::Expr MajoranaMassTerm(
-        csl::Expr         const &mass, 
-        QuantumFieldParent *fieldL,
-        QuantumFieldParent *fieldR)
+csl::Expr MajoranaMassTerm(csl::Expr const &   mass,
+                           QuantumFieldParent *fieldL,
+                           QuantumFieldParent *fieldR)
 {
     if (&fieldL == &fieldR)
         return MajoranaMassTerm(mass, fieldL);
     vector<Index> index1 = fieldL->getFullSetOfIndices();
     vector<Index> index2 = index1;
-    auto a = index1.back();
-    auto b = a.rename();
-    index2.back() = b;
-    auto C = dirac4.C_matrix({a, b});
-    return - mass * (
-            (*fieldR)(index1)*C*(*fieldL)(index2)
-            + csl::GetComplexConjugate((*fieldL)(index1))
-                *C*csl::GetComplexConjugate((*fieldR)(index2))
-            );
+    auto          a      = index1.back();
+    auto          b      = a.rename();
+    index2.back()        = b;
+    auto C               = dirac4.C_matrix({a, b});
+    return -mass
+           * ((*fieldR)(index1) *C * (*fieldL)(index2)
+              + csl::GetComplexConjugate((*fieldL)(index1)) * C
+                    * csl::GetComplexConjugate((*fieldR)(index2)));
 }
 
-csl::Expr MassTerm(
-        csl::Expr const    &mass,
-        QuantumFieldParent *field
-        )
+csl::Expr MassTerm(csl::Expr const &mass, QuantumFieldParent *field)
 {
     if (mass == CSL_0)
         return CSL_0;
@@ -807,25 +749,25 @@ csl::Expr MassTerm(
     return MassTerm(mass, field, field);
 }
 
-csl::Expr MassTerm(
-        csl::Expr const&         mass,
-              QuantumFieldParent* fieldL,
-              QuantumFieldParent* fieldR)
+csl::Expr MassTerm(csl::Expr const &   mass,
+                   QuantumFieldParent *fieldL,
+                   QuantumFieldParent *fieldR)
 {
     if (mass == CSL_0)
         return CSL_0;
-    if (!(fieldL->getGaugeIrrep()*fieldR->getGaugeIrrep().getConjugatedRep())
-            .containsTrivialRep()) {
+    if (!(fieldL->getGaugeIrrep() * fieldR->getGaugeIrrep().getConjugatedRep())
+             .containsTrivialRep()) {
         return MajoranaMassTerm(mass, fieldL, fieldR);
     }
-    if (fieldL->getChirality() != Chirality::None 
-            && fieldR->getChirality() != Chirality::None
-            && fieldL->getChirality() == fieldR->getChirality()) {
+    if (fieldL->getChirality() != Chirality::None
+        && fieldR->getChirality() != Chirality::None
+        && fieldL->getChirality() == fieldR->getChirality()) {
         return MajoranaMassTerm(mass, fieldL, fieldR);
     }
-    csl::Expr factor = 
-        (fieldL->isSelfConjugate() and !IsOfType<WeylFermion>(fieldL)) ? 
-        CSL_HALF : CSL_1;
+    csl::Expr factor
+        = (fieldL->isSelfConjugate() and !IsOfType<WeylFermion>(fieldL))
+              ? CSL_HALF
+              : CSL_1;
     if (fieldL->isBosonic())
         factor = factor * mass * mass;
     else
@@ -834,11 +776,11 @@ csl::Expr MassTerm(
         factor *= -1;
     vector<Index> index1 = fieldL->getFullSetOfIndices();
     vector<Index> index2(index1);
-    for (auto& i : index2)
+    for (auto &i : index2)
         i = i.getFlipped();
 
-    auto massTerm = -factor * 
-            GetComplexConjugate((*fieldL)(index1))*(*fieldR)(index2);
+    auto massTerm
+        = -factor * GetComplexConjugate((*fieldL)(index1)) * (*fieldR)(index2);
     if (fieldL == fieldR) {
         return massTerm;
     }
@@ -847,4 +789,4 @@ csl::Expr MassTerm(
     }
 }
 
-}
+} // namespace mty

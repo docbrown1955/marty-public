@@ -17,7 +17,7 @@
  * @file typecast.h
  * @brief RTTI utilities for SGL (run-time type information).
  * @author Grégoire Uhlrich
- * @version 
+ * @version
  * @date 2021-05-06
  */
 #pragma once
@@ -26,15 +26,15 @@
 
 namespace sgl {
 
-    template<class Type>
-    bool IsType(GExpr const &expr)
-    {
-        return dynamic_cast<Type const*>(expr.get());
-    }
-
-    template<class Type>
-    std::shared_ptr<Type> ConvertTo(GExpr const &expr)
-    {
-        return std::dynamic_pointer_cast<Type>(expr);
-    }
+template <class Type>
+bool IsType(GExpr const &expr)
+{
+    return dynamic_cast<Type const *>(expr.get());
 }
+
+template <class Type>
+std::shared_ptr<Type> ConvertTo(GExpr const &expr)
+{
+    return std::dynamic_pointer_cast<Type>(expr);
+}
+} // namespace sgl

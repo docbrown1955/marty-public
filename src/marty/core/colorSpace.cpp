@@ -1,37 +1,37 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "colorSpace.h"
+#include "bernoulli.h"
 #include "gaugedGroup.h"
 #include "groupIndices.h"
-#include "traceIdentities.h"
-#include "bernoulli.h"
 #include "mrtUtils.h"
+#include "traceIdentities.h"
 
 using namespace std;
 using namespace csl;
 
 namespace color {
 
-template<class Container>
+template <class Container>
 size_t cycleIndex(size_t i, Container const &container)
 {
     return (i < container.size()) ? i : i - container.size();
 }
 
-template<class Container>
+template <class Container>
 size_t distance(size_t i, size_t j, Container const &container)
 {
     if (j < i)
@@ -41,7 +41,7 @@ size_t distance(size_t i, size_t j, Container const &container)
     return std::min(j - i, i + container.size() - j);
 }
 
-template<class Container>
+template <class Container>
 bool direction(size_t from, size_t to, Container const &container)
 {
     if (from < to)
@@ -49,9 +49,7 @@ bool direction(size_t from, size_t to, Container const &container)
     return (to + container.size() - from) <= distance(from, to, container);
 }
 
-std::ostream &operator<<(
-        std::ostream &out,
-        TraceIndices const &trace)
+std::ostream &operator<<(std::ostream &out, TraceIndices const &trace)
 {
     out << trace.factor << " * [ ";
     for (size_t i = 0; i != trace.size(); ++i) {
@@ -64,13 +62,11 @@ std::ostream &operator<<(
     return out;
 }
 
-ColorSpace::ColorSpace(const mty::SemiSimpleGroup*  t_group,
-                       const string&                t_name,
-                       int                          t_dim,
-                       bool                         adjoint)
-    :csl::Space(t_name, t_dim),
-    group(t_group),
-    algebra(t_group->getAlgebra())
+ColorSpace::ColorSpace(const mty::SemiSimpleGroup *t_group,
+                       const string &              t_name,
+                       int                         t_dim,
+                       bool                        adjoint)
+    : csl::Space(t_name, t_dim), group(t_group), algebra(t_group->getAlgebra())
 {
     if (adjoint)
         defaultIndexNames = {"A", "B", "C", "D", "E", "F", "G", "H"};
@@ -79,13 +75,9 @@ ColorSpace::ColorSpace(const mty::SemiSimpleGroup*  t_group,
     defaultName = defaultIndexNames.begin();
 
     mty::group::Type type = t_group->getType();
-    if (type == mty::group::Type::Sp
-            or type == mty::group::Type::E7) {
-        metric = csl::make_shared<MetricParent>(this, "f");
-        inverseMetric = csl::make_shared<MetricParent>(
-                this,
-                "f"
-                );
+    if (type == mty::group::Type::Sp or type == mty::group::Type::E7) {
+        metric        = csl::make_shared<MetricParent>(this, "f");
+        inverseMetric = csl::make_shared<MetricParent>(this, "f");
         metric->setFullyAntiSymmetric();
         inverseMetric->setFullyAntiSymmetric();
     }
@@ -103,23 +95,18 @@ std::string ColorSpace::getName() const
     return colorName;
 }
 
-void ColorSpace::printCode(
-        std::ostream &out,
-        int           indentSize
-        ) const
+void ColorSpace::printCode(std::ostream &out, int indentSize) const
 {
     std::string indent(indentSize, ' ');
     out << indent << getName();
 }
 
-void ColorSpace::printDefinition(
-        std::ostream &out,
-        int           indentSize,
-        bool          header
-        ) const
+void ColorSpace::printDefinition(std::ostream &out,
+                                 int           indentSize,
+                                 bool          header) const
 {
     std::string indent(indentSize, ' ');
-    auto keyword = (header) ? "inline " : "";
+    auto        keyword = (header) ? "inline " : "";
     out << indent << keyword << "csl::Space const *" << getName();
     out << " = " << csl::Abstract::regularName(group->getName())
         << "->getGroup()->getVectorSpace(";
@@ -130,7 +117,6 @@ void ColorSpace::printDefinition(
         out << l << ", ";
     out << "}));\n";
 }
-
 
 csl::Tensor ColorSpace::getF() const
 {
@@ -156,12 +142,11 @@ csl::Tensor ColorSpace::getDTilde() const
     return nullptr;
 }
 
-bool ColorSpace::hasSpecialTraceProperty(
-        const csl::vector_expr& tensors) const
+bool ColorSpace::hasSpecialTraceProperty(const csl::vector_expr &tensors) const
 {
     if (tensors.size() < 3 or tensors.size() > 12)
         return false;
-    for (const auto& tensor : tensors)
+    for (const auto &tensor : tensors)
         if (!isInstance(tensor))
             return false;
 
@@ -171,17 +156,15 @@ bool ColorSpace::hasSpecialTraceProperty(
 csl::Expr ColorSpace::calculateTrace(csl::vector_expr tensors) const
 {
     HEPAssert(tensors.size() <= 12,
-            mty::error::RuntimeError,
-            "Should not encounter more than 12 tensors in a trace.");
+              mty::error::RuntimeError,
+              "Should not encounter more than 12 tensors in a trace.");
     // tensors.size() >= 3
     mty::Irrep irrep = group->highestWeightRep(group->getHighestWeight(this));
-    std::vector<csl::Index> indices = exprToIndices(tensors);
+    std::vector<csl::Index>   indices    = exprToIndices(tensors);
     std::vector<TraceIndices> contracted = contractIndices(indices, irrep);
     mergeTraces(contracted);
-    applyModifier(contracted, [&](TraceIndices const &init)
-    {
-        return symmetrize(init);
-    });
+    applyModifier(contracted,
+                  [&](TraceIndices const &init) { return symmetrize(init); });
     mergeTraces(contracted);
     std::vector<csl::Expr> terms;
     terms.reserve(contracted.size());
@@ -191,10 +174,7 @@ csl::Expr ColorSpace::calculateTrace(csl::vector_expr tensors) const
     return csl::Expanded(csl::sum_s(terms), true);
 }
 
-void ColorSpace::applyE(
-        size_t                     j,
-        std::vector<TraceIndices> &terms
-        ) const
+void ColorSpace::applyE(size_t j, std::vector<TraceIndices> &terms) const
 {
     csl::Tensor f = getF();
     if (terms.empty())
@@ -204,66 +184,63 @@ void ColorSpace::applyE(
             ++term.symmetry;
         return;
     }
-    size_t n = terms[0].symmetry;
+    size_t                    n = terms[0].symmetry;
     std::vector<TraceIndices> res;
     res.reserve(n * terms.size());
     for (size_t i = 0; i < n; ++i) {
         for (const auto &term : terms) {
             TraceIndices newTerm(term);
-            csl::Index A = newTerm[i];
-            csl::Index B = newTerm[n];
-            csl::Index C = A.rename();
-            newTerm[n] = C;
+            csl::Index   A = newTerm[i];
+            csl::Index   B = newTerm[n];
+            csl::Index   C = A.rename();
+            newTerm[n]     = C;
             newTerm.erase(newTerm.begin() + i);
             newTerm.factor *= CSL_I * f({A, B, C});
             --newTerm.symmetry;
             res.push_back(std::move(newTerm));
         }
     }
-    
+
     if (j > 0)
         applyE(j - 1, res);
     terms = std::move(res);
 }
 
-std::vector<TraceIndices> ColorSpace::symmetrize(
-        TraceIndices const &init
-        ) const
+std::vector<TraceIndices>
+ColorSpace::symmetrize(TraceIndices const &init) const
 {
     if (init.isSymmetrized()) {
         return {};
     }
     // std::cout << "Symmetrizing" << std::endl;
     // std::cout << init << std::endl;
-    size_t n = init.symmetry;
+    size_t                    n = init.symmetry;
     std::vector<TraceIndices> res;
     res.push_back(init);
     ++res[0].symmetry;
     for (size_t j = 1; j <= n; ++j) {
-        csl::Expr factor = 
-            csl::pow_s(-1, j) / csl::factorial(j) * mty::bernoulliNumber(j);
+        csl::Expr factor
+            = csl::pow_s(-1, j) / csl::factorial(j) * mty::bernoulliNumber(j);
         if (factor == CSL_0)
             continue;
         std::vector<TraceIndices> EApplied({init});
         EApplied[0].factor *= factor;
         applyE(j, EApplied);
-        //std::cout << "AFTER E_" << j << " applied: " << std::endl;
-        //for (const auto &t : EApplied)
+        // std::cout << "AFTER E_" << j << " applied: " << std::endl;
+        // for (const auto &t : EApplied)
         //    std::cout << t << std::endl;
-        //std::cout << "END" << std::endl;
-        res.insert(
-                res.end(),
-                std::make_move_iterator(EApplied.begin()),
-                std::make_move_iterator(EApplied.end()));
+        // std::cout << "END" << std::endl;
+        res.insert(res.end(),
+                   std::make_move_iterator(EApplied.begin()),
+                   std::make_move_iterator(EApplied.end()));
     }
 
     return res;
 }
 
-csl::Expr ColorSpace::applySingleTraceIdentity(
-        TraceIndices const &trace,
-        mty::TraceIdentity const &id
-        ) const
+csl::Expr
+ColorSpace::applySingleTraceIdentity(TraceIndices const &      trace,
+                                     mty::TraceIdentity const &id) const
 {
     std::vector<csl::Expr> terms;
     terms.reserve(id.size());
@@ -284,9 +261,8 @@ csl::Expr ColorSpace::applySingleTraceIdentity(
 }
 
 csl::Expr ColorSpace::applyTraceIdentity(
-        TraceIndices const &trace,
-        std::vector<mty::TraceIdentity> const &identities
-        ) const
+    TraceIndices const &                   trace,
+    std::vector<mty::TraceIdentity> const &identities) const
 {
     std::vector<csl::Expr> terms;
     terms.reserve(identities.size());
@@ -295,35 +271,28 @@ csl::Expr ColorSpace::applyTraceIdentity(
     return csl::sum_s(terms);
 }
 
-csl::Expr ColorSpace::symmetrizedTrace(
-        TraceIndices const &trace) const
+csl::Expr ColorSpace::symmetrizedTrace(TraceIndices const &trace) const
 {
     mty::Irrep irrep = group->highestWeightRep(group->getHighestWeight(this));
-    csl::Expr index = group->getAlgebra()->getIndex(
-            irrep,
-            trace.indices.size());
+    csl::Expr  index
+        = group->getAlgebra()->getIndex(irrep, trace.indices.size());
     if (index != CSL_0) {
-        csl::Tensor d = getD(trace.indices.size()); 
-            // = getSymmetricTensor(irrep, indices.size())
+        csl::Tensor d = getD(trace.indices.size());
+        // = getSymmetricTensor(irrep, indices.size())
         if (algebra->getType() == mty::algebra::Type::D
-                and (int)(trace.size()) == algebra->getOrderL() / 2) {
+            and (int)(trace.size()) == algebra->getOrderL() / 2) {
             csl::Tensor d_tilde = getDTilde();
-            csl::Expr i_tilde = getLastEvenSOIndex(
-                    irrep.getHighestWeight(),
-                    trace.indices.size()
-                    );
-            return csl::prod_s({trace.factor, index,  d(trace.indices)})
-                + csl::prod_s({trace.factor, i_tilde, d_tilde(trace.indices)});
+            csl::Expr   i_tilde = getLastEvenSOIndex(irrep.getHighestWeight(),
+                                                   trace.indices.size());
+            return csl::prod_s({trace.factor, index, d(trace.indices)})
+                   + csl::prod_s(
+                       {trace.factor, i_tilde, d_tilde(trace.indices)});
         }
-        return csl::prod_s({trace.factor, index,  d(trace.indices)});
+        return csl::prod_s({trace.factor, index, d(trace.indices)});
     }
     else {
-        std::vector<mty::TraceIdentity> traceIdentity
-            = mty::traceIdentity(
-                    algebra->getType(), 
-                    algebra->getOrderL(), 
-                    trace.indices.size()
-                    );
+        std::vector<mty::TraceIdentity> traceIdentity = mty::traceIdentity(
+            algebra->getType(), algebra->getOrderL(), trace.indices.size());
         if (traceIdentity.empty())
             return CSL_0;
         return applyTraceIdentity(trace, traceIdentity);
@@ -331,10 +300,7 @@ csl::Expr ColorSpace::symmetrizedTrace(
     return CSL_0;
 }
 
-bool areSameTraces(
-        TraceIndices const &A,
-        TraceIndices const &B
-        )
+bool areSameTraces(TraceIndices const &A, TraceIndices const &B)
 {
     if (A.size() != B.size())
         return false;
@@ -343,7 +309,7 @@ bool areSameTraces(
             bool same = true;
             for (size_t k = 0; k != A.size(); ++k)
                 if (A[cycleIndex(i + k, A.indices)]
-                        != B[cycleIndex(j + k, B.indices)]) {
+                    != B[cycleIndex(j + k, B.indices)]) {
                     same = false;
                     break;
                 }
@@ -356,7 +322,7 @@ bool areSameTraces(
 void ColorSpace::mergeTraces(std::vector<TraceIndices> &traces) const
 {
     for (size_t i = 0; i != traces.size(); ++i)
-        for (size_t j = i+1; j < traces.size(); ++j)
+        for (size_t j = i + 1; j < traces.size(); ++j)
             if (areSameTraces(traces[i], traces[j])) {
                 traces[i].factor += traces[j].factor;
                 traces.erase(traces.begin() + j);
@@ -364,29 +330,27 @@ void ColorSpace::mergeTraces(std::vector<TraceIndices> &traces) const
             }
 }
 
-bool ColorSpace::contractCloseIndices(
-        TraceIndices &indices,
-        csl::Expr   const &CR,
-        csl::Expr   const &CA
-        ) const
+bool ColorSpace::contractCloseIndices(TraceIndices &   indices,
+                                      csl::Expr const &CR,
+                                      csl::Expr const &CA) const
 {
     bool contracted = false;
     for (size_t i = 0; i != indices.size(); ++i) {
-        size_t j = cycleIndex(i+1, indices);
+        size_t j = cycleIndex(i + 1, indices);
         if (indices[i] == indices[j]) {
             indices.factor *= CR;
             indices.erase(indices.begin() + std::max(i, j));
             indices.erase(indices.begin() + std::min(i, j));
-            i = -1;
+            i          = -1;
             contracted = true;
             continue;
         }
-        j = cycleIndex(i+2, indices);
+        j = cycleIndex(i + 2, indices);
         if (indices[i] == indices[j]) {
             indices.factor *= CR - CA / 2;
             indices.erase(indices.begin() + std::max(i, j));
             indices.erase(indices.begin() + std::min(i, j));
-            i = -1;
+            i          = -1;
             contracted = true;
             continue;
         }
@@ -394,29 +358,27 @@ bool ColorSpace::contractCloseIndices(
     return contracted;
 }
 
-std::vector<TraceIndices> ColorSpace::commuteTo(
-        TraceIndices const &indices,
-        size_t              initPos,
-        size_t              targetPos
-        ) const
+std::vector<TraceIndices> ColorSpace::commuteTo(TraceIndices const &indices,
+                                                size_t              initPos,
+                                                size_t targetPos) const
 {
-    csl::Tensor f = getF();// = group->getAdjointRep()
-    csl::Index B = indices[initPos];
-    csl::Index C = group->getVectorSpace(group->getAdjointRep())
-        ->generateIndex();
+    csl::Tensor f = getF(); // = group->getAdjointRep()
+    csl::Index  B = indices[initPos];
+    csl::Index  C
+        = group->getVectorSpace(group->getAdjointRep())->generateIndex();
     size_t n = distance(initPos, targetPos, indices) - 1;
     if (n == 0)
         return {indices};
-    bool dir = direction(initPos, targetPos, indices);
-    int increment = (dir) ? 1 : -1;
-    csl::Expr factor = (dir) ? -CSL_I : CSL_I;
+    bool                      dir = direction(initPos, targetPos, indices);
+    int                       increment = (dir) ? 1 : -1;
+    csl::Expr                 factor    = (dir) ? -CSL_I : CSL_I;
     std::vector<TraceIndices> newIndices;
     newIndices.reserve(1 + n);
     newIndices.emplace_back(indices);
     std::swap(newIndices[0][initPos],
-              newIndices[0][cycleIndex(targetPos-increment, indices)]);
+              newIndices[0][cycleIndex(targetPos - increment, indices)]);
     for (size_t i = 0; i != n; ++i) {
-        size_t pos = cycleIndex(initPos + (i+1)*increment, indices);
+        size_t pos = cycleIndex(initPos + (i + 1) * increment, indices);
         newIndices.emplace_back(indices);
         csl::Index A = indices[pos];
         newIndices.back().factor *= factor * f({A, B, C});
@@ -427,12 +389,10 @@ std::vector<TraceIndices> ColorSpace::commuteTo(
     return newIndices;
 }
 
-bool ColorSpace::applyModifier(
-        std::vector<TraceIndices> &indices,
-        Modifier            const &f
-        ) const
+bool ColorSpace::applyModifier(std::vector<TraceIndices> &indices,
+                               Modifier const &           f) const
 {
-    bool contracted = false;
+    bool                      contracted = false;
     std::vector<TraceIndices> res;
     res.reserve(indices.size());
     do {
@@ -444,11 +404,9 @@ bool ColorSpace::applyModifier(
                 res.push_back(std::move(index));
             else {
                 contracted = true;
-                newIndices.insert(
-                        newIndices.end(),
-                        std::make_move_iterator(interm.begin()),
-                        std::make_move_iterator(interm.end())
-                        );
+                newIndices.insert(newIndices.end(),
+                                  std::make_move_iterator(interm.begin()),
+                                  std::make_move_iterator(interm.end()));
             }
         }
         indices = std::move(newIndices);
@@ -458,14 +416,14 @@ bool ColorSpace::applyModifier(
     return contracted;
 }
 
-std::vector<TraceIndices> ColorSpace::contractFarIndices(
-        TraceIndices const &indices,
-        csl::Expr         const &CR,
-        csl::Expr         const &CA) const
+std::vector<TraceIndices>
+ColorSpace::contractFarIndices(TraceIndices const &indices,
+                               csl::Expr const &   CR,
+                               csl::Expr const &   CA) const
 {
-    for (size_t i = 0; i != indices.size(); ++i) 
-        for (size_t j = i+3; j < indices.size(); ++j) 
-            if (i == j)  {
+    for (size_t i = 0; i != indices.size(); ++i)
+        for (size_t j = i + 3; j < indices.size(); ++j)
+            if (i == j) {
                 std::vector<TraceIndices> newIndices
                     = commuteTo(indices, j, i);
                 contractCloseIndices(newIndices[0], CR, CA);
@@ -475,22 +433,18 @@ std::vector<TraceIndices> ColorSpace::contractFarIndices(
 }
 
 std::vector<TraceIndices> ColorSpace::contractStructureConstants(
-        TraceIndices const &indices,
-        csl::Expr         const &,
-        csl::Expr         const &CA) const
+    TraceIndices const &indices, csl::Expr const &, csl::Expr const &CA) const
 {
-    csl::Index A, B, C;
-    csl::Tensor f = getF();//
-    csl::VisitEachLeaf(indices.factor, [&](csl::Expr const &sub)
-    {
-        if (csl::IsIndicialTensor(sub)
-                and sub->getParent_info() == f.get()) {
+    csl::Index  A, B, C;
+    csl::Tensor f = getF(); //
+    csl::VisitEachLeaf(indices.factor, [&](csl::Expr const &sub) {
+        if (csl::IsIndicialTensor(sub) and sub->getParent_info() == f.get()) {
             A = sub->getIndexStructureView()[0];
             B = sub->getIndexStructureView()[1];
             C = sub->getIndexStructureView()[2];
         }
     });
-    for (size_t i = 0; i != indices.size(); ++i)  {
+    for (size_t i = 0; i != indices.size(); ++i) {
         csl::Index first;
         csl::Index second;
         if (indices[i] == A) {
@@ -505,9 +459,9 @@ std::vector<TraceIndices> ColorSpace::contractStructureConstants(
             first  = A;
             second = B;
         }
-        for (size_t j = i+1; j < indices.size(); ++j) 
-            if (indices[j] == first or indices[j] == second)  {
-                bool dir = direction(j, i, indices);
+        for (size_t j = i + 1; j < indices.size(); ++j)
+            if (indices[j] == first or indices[j] == second) {
+                bool                      dir = direction(j, i, indices);
                 std::vector<TraceIndices> newIndices
                     = commuteTo(indices, j, i);
                 csl::Expr factor;
@@ -531,16 +485,14 @@ std::vector<TraceIndices> ColorSpace::contractStructureConstants(
                 newIndices[0].erase(newIndices[0].begin() + j);
                 bool transformed = false;
                 // Replacing fABC by +- iCA/2 in the factor
-                csl::Transform(newIndices[0].factor, [&](csl::Expr &sub)
-                {
-                    if (not transformed
-                            and csl::IsIndicialTensor(sub)
-                            and sub->getParent_info() == f.get()
-                            and sub->getIndexStructureView()[0] == A
-                            and sub->getIndexStructureView()[0] == B
-                            and sub->getIndexStructureView()[0] == C) {
+                csl::Transform(newIndices[0].factor, [&](csl::Expr &sub) {
+                    if (not transformed and csl::IsIndicialTensor(sub)
+                        and sub->getParent_info() == f.get()
+                        and sub->getIndexStructureView()[0] == A
+                        and sub->getIndexStructureView()[0] == B
+                        and sub->getIndexStructureView()[0] == C) {
                         transformed = true;
-                        sub = factor;
+                        sub         = factor;
                         return true;
                     }
                     return false;
@@ -551,44 +503,32 @@ std::vector<TraceIndices> ColorSpace::contractStructureConstants(
     return {};
 }
 
-bool ColorSpace::contractFarIndices(
-        std::vector<TraceIndices> &indices,
-        csl::Expr                const &CR,
-        csl::Expr                const &CA) const
+bool ColorSpace::contractFarIndices(std::vector<TraceIndices> &indices,
+                                    csl::Expr const &          CR,
+                                    csl::Expr const &          CA) const
 {
-    return applyModifier(
-            indices,
-            [&](TraceIndices const &index) {
-                return contractFarIndices(
-                    index, CR, CA
-                    );
-            });
-
+    return applyModifier(indices, [&](TraceIndices const &index) {
+        return contractFarIndices(index, CR, CA);
+    });
 }
 
-bool ColorSpace::contractStructureConstants(
-        std::vector<TraceIndices> &indices,
-        csl::Expr                const &CR,
-        csl::Expr                const &CA) const
+bool ColorSpace::contractStructureConstants(std::vector<TraceIndices> &indices,
+                                            csl::Expr const &          CR,
+                                            csl::Expr const &CA) const
 {
-    return applyModifier(
-            indices,
-            [&](TraceIndices const &index) {
-                return contractStructureConstants(
-                    index, CR, CA
-                    );
-            });
+    return applyModifier(indices, [&](TraceIndices const &index) {
+        return contractStructureConstants(index, CR, CA);
+    });
 }
 
-std::vector<TraceIndices> ColorSpace::contractIndices(
-        std::vector<csl::Index> const &t_indices,
-        mty::Irrep              const &irrep
-        ) const
+std::vector<TraceIndices>
+ColorSpace::contractIndices(std::vector<csl::Index> const &t_indices,
+                            mty::Irrep const &             irrep) const
 {
-    csl::Expr CR = group->getAlgebra()->getQuadraticCasimir(
-            irrep.getHighestWeight());
+    csl::Expr CR
+        = group->getAlgebra()->getQuadraticCasimir(irrep.getHighestWeight());
     csl::Expr CA = group->getAlgebra()->getQuadraticCasimir(
-            group->getAdjointRep().getHighestWeight());
+        group->getAdjointRep().getHighestWeight());
     std::vector<TraceIndices> indices(1, {CSL_1, t_indices});
     return indices;
     // A priori no need for the following as projectors are applied
@@ -609,27 +549,23 @@ bool ColorSpace::isInstance(csl::Expr const &tensor) const
     if (!csl::IsIndicialTensor(tensor))
         return false;
     auto spaces = tensor->getParent()->getSpace();
-    return spaces.size() == 3
-        and spaces[1] == this
-        and spaces[2] == this;
+    return spaces.size() == 3 and spaces[1] == this and spaces[2] == this;
 }
 
-std::vector<csl::Index> ColorSpace::exprToIndices(
-        std::vector<csl::Expr> const &tensors
-        ) const
+std::vector<csl::Index>
+ColorSpace::exprToIndices(std::vector<csl::Expr> const &tensors) const
 {
     // All tensors should be instances (isInstance() returns true)
-    auto index = [&](csl::Expr const &tensor, size_t i)
-    {
+    auto index = [&](csl::Expr const &tensor, size_t i) {
         return tensor->getIndexStructureView()[i];
     };
     std::vector<csl::Index> indices;
     indices.reserve(tensors.size());
     indices.push_back(index(tensors[0], 0));
-    csl::Index second = index(tensors[0], 2);
+    csl::Index          second = index(tensors[0], 2);
     std::vector<size_t> indicesLeft(tensors.size() - 1);
     for (size_t i = 0; i != indicesLeft.size(); ++i)
-        indicesLeft[i] = i+1;
+        indicesLeft[i] = i + 1;
     for (size_t i = 0; i != indicesLeft.size(); ++i) {
         if (index(tensors[indicesLeft[i]], 1) == second) {
             second = index(tensors[indicesLeft[i]], 2);
@@ -639,30 +575,29 @@ std::vector<csl::Index> ColorSpace::exprToIndices(
         }
     }
     HEPAssert(indicesLeft.empty(),
-            mty::error::RuntimeError,
-            "Could not properly recognize generator chain for trace.")
-    return indices;
+              mty::error::RuntimeError,
+              "Could not properly recognize generator chain for "
+              "trace.") return indices;
 }
 
-tuple<csl::Index, csl::Index, int> ColorSpace::getFreeIndices(
-        const csl::Expr& tensorA,
-        const csl::Expr& tensorB
-        ) const
+tuple<csl::Index, csl::Index, int>
+ColorSpace::getFreeIndices(const csl::Expr &tensorA,
+                           const csl::Expr &tensorB) const
 {
-    const csl::IndexStructure& structA = tensorA->getIndexStructureView();
+    const csl::IndexStructure &structA = tensorA->getIndexStructureView();
     if (structA[0].getSpace() == structA[1].getSpace())
         return getFreeIndicesAdjoint(tensorA, tensorB);
-    const csl::IndexStructure& structB = tensorB->getIndexStructureView();
+    const csl::IndexStructure &structB = tensorB->getIndexStructureView();
 
     int freeIndexA = -1;
     int freeIndexB = -1;
-    for (size_t i = 0; i != structA.size(); ++i) 
+    for (size_t i = 0; i != structA.size(); ++i)
         if (structA[i].getSpace() != this) {
             freeIndexA = i;
             break;
         }
 
-    for (size_t i = 0; i != structB.size(); ++i) 
+    for (size_t i = 0; i != structB.size(); ++i)
         if (structB[i].getSpace() != this) {
             freeIndexB = i;
             break;
@@ -671,14 +606,13 @@ tuple<csl::Index, csl::Index, int> ColorSpace::getFreeIndices(
     return make_tuple(structA[freeIndexA], structB[freeIndexB], 1);
 }
 
-tuple<csl::Index, csl::Index, int> ColorSpace::getFreeIndicesAdjoint(
-        const csl::Expr& tensorA,
-        const csl::Expr& tensorB
-        ) const
+tuple<csl::Index, csl::Index, int>
+ColorSpace::getFreeIndicesAdjoint(const csl::Expr &tensorA,
+                                  const csl::Expr &tensorB) const
 {
     csl::IndexStructure structA = tensorA->getIndexStructure();
     csl::IndexStructure structB = tensorB->getIndexStructure();
-    vector<size_t> left(structB.size());
+    vector<size_t>      left(structB.size());
     for (size_t i = 0; i != left.size(); ++i)
         left[i] = i;
 
@@ -719,4 +653,4 @@ tuple<csl::Index, csl::Index, int> ColorSpace::getFreeIndicesAdjoint(
     return make_tuple(structA[0], structB[0], sign);
 }
 
-}
+} // namespace color

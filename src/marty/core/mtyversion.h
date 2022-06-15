@@ -15,7 +15,7 @@
 
 /**
  * @file mtyversion.h
- * @brief Contains macros for MARTY's version in particular for doc brown's 
+ * @brief Contains macros for MARTY's version in particular for doc brown's
  * debugger.
  * @author Grégoire Uhlrich
  * @version 1.3

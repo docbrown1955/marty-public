@@ -1,40 +1,41 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 /*!
- * @file 
+ * @file
  * @author Grégoire Uhlrich
  * @version 1.3
- 
+
  * \brief
  */
 #ifndef FLOATFORMATTER_H_INCLUDED
 #define FLOATFORMATTER_H_INCLUDED
 
 #include <iostream>
+#include <map>
 #include <optional>
 #include <string>
-#include <map>
 
 namespace csl {
 
 class format {
 
-    public:
-
-    format() {}
+  public:
+    format()
+    {
+    }
 
     format(std::string t_format);
 
@@ -42,28 +43,25 @@ class format {
 
     int getMaxDigits() const;
 
-    private:
-
+  private:
     bool scientific = true;
 
-    int  maxDigits = 15;
+    int maxDigits = 15;
 };
 
 class Formatter {
 
-    public:
-
+  public:
     Formatter() = delete;
 
     static format getFormat();
 
-    static void setFormat(format const& t_f);
+    static void setFormat(format const &t_f);
 
-    private:
-
+  private:
     static std::optional<format> f;
 };
 
-}
+} // namespace csl
 
 #endif

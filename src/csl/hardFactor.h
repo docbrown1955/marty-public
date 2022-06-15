@@ -13,20 +13,17 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
- #pragma once
+#pragma once
 
 namespace csl {
 
 class Expr;
 
-bool HardFactorImplementation(
-        Expr &sum,
-        bool applyRecursively = true
-        );
+bool HardFactorImplementation(Expr &sum, bool applyRecursively = true);
 
 Expr HardFactored(Expr const &init);
 void HardFactor(Expr &init);
 Expr DeepHardFactored(Expr const &init);
 void DeepHardFactor(Expr &init);
 
-}
+} // namespace csl

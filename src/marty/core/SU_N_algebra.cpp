@@ -1,24 +1,23 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "SU_N_algebra.h"
 
-
 namespace gell_mann {
 
-csl::Expr generate_f_ABC() 
+csl::Expr generate_f_ABC()
 {
     csl::Expr f = csl::highdtensor_s({8, 8, 8}, CSL_0);
     f->setArgument(CSL_1, {0, 1, 2});
@@ -57,4 +56,4 @@ csl::Expr generate_d_ABC()
     return d->symmetrise();
 }
 
-}
+} // namespace gell_mann

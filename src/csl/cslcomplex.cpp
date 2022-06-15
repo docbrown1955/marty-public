@@ -1,15 +1,15 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
@@ -28,13 +28,12 @@ namespace csl {
 /*************************************************/
 ///////////////////////////////////////////////////
 
-RealPart::RealPart(): Operator<AbstractFunc>()
+RealPart::RealPart() : Operator<AbstractFunc>()
 {
     argument = CSL_1;
 }
 
-RealPart::RealPart(const Expr& t_argument)
-    :Operator<AbstractFunc>()
+RealPart::RealPart(const Expr &t_argument) : Operator<AbstractFunc>()
 {
     argument = t_argument;
 }
@@ -54,15 +53,12 @@ Expr RealPart::getOperand() const
     return argument;
 }
 
-void RealPart::setOperand(const Expr& arg)
+void RealPart::setOperand(const Expr &arg)
 {
     argument = arg;
 }
 
-void RealPart::print(
-        int mode,
-        std::ostream& out,
-        bool lib) const
+void RealPart::print(int mode, std::ostream &out, bool lib) const
 {
     if (lib) {
         out << "std::complex<long double>(";
@@ -96,9 +92,7 @@ LibDependency RealPart::getLibDependency() const
     return LibDependency::complex();
 }
 
-optional<Expr> RealPart::evaluate(
-        csl::eval::mode user_mode
-        )  const
+optional<Expr> RealPart::evaluate(csl::eval::mode user_mode) const
 {
     optional<Expr> newArg = argument->evaluate(user_mode);
     if (not newArg)
@@ -146,7 +140,6 @@ Expr RealPart::deepRefresh() const
     return res;
 }
 
-
 bool RealPart::isReal() const
 {
     return true;
@@ -157,7 +150,7 @@ bool RealPart::isPurelyImaginary() const
     return false;
 }
 
-optional<Expr> RealPart::getComplexConjugate()  const
+optional<Expr> RealPart::getComplexConjugate() const
 {
     return nullopt;
 }
@@ -169,16 +162,16 @@ bool RealPart::operator==(Expr_info other) const
     if (other->getType() != csl::Type::RealPart) {
         if (other->getType() != csl::Type::ImaginaryPart)
             return false;
-        return (other->getArgument() == CSL_I*argument);
+        return (other->getArgument() == CSL_I * argument);
     }
     return argument == other->getArgument();
 }
 
-Expr real_s(const Expr& expr)
+Expr real_s(const Expr &expr)
 {
-    if (expr->isReal()) 
+    if (expr->isReal())
         return expr;
-    if (expr->isPurelyImaginary()) 
+    if (expr->isPurelyImaginary())
         return CSL_0;
     return csl::make_shared<RealPart>()->applyOperator(expr);
 }
@@ -189,13 +182,12 @@ Expr real_s(const Expr& expr)
 /*************************************************/
 ///////////////////////////////////////////////////
 
-ImaginaryPart::ImaginaryPart(): Operator<AbstractFunc>()
+ImaginaryPart::ImaginaryPart() : Operator<AbstractFunc>()
 {
     argument = CSL_1;
 }
 
-ImaginaryPart::ImaginaryPart(const Expr& t_argument)
-    :Operator<AbstractFunc>()
+ImaginaryPart::ImaginaryPart(const Expr &t_argument) : Operator<AbstractFunc>()
 {
     argument = t_argument;
 }
@@ -215,15 +207,12 @@ Expr ImaginaryPart::getOperand() const
     return argument;
 }
 
-void ImaginaryPart::setOperand(const Expr& arg)
+void ImaginaryPart::setOperand(const Expr &arg)
 {
     argument = arg;
 }
 
-void ImaginaryPart::print(
-        int mode,
-        std::ostream& out,
-        bool lib) const
+void ImaginaryPart::print(int mode, std::ostream &out, bool lib) const
 {
     if (lib) {
         out << "std::complex<long double>(";
@@ -257,9 +246,7 @@ LibDependency ImaginaryPart::getLibDependency() const
     return LibDependency::complex();
 }
 
-optional<Expr> ImaginaryPart::evaluate(
-        csl::eval::mode user_mode
-        )  const
+optional<Expr> ImaginaryPart::evaluate(csl::eval::mode user_mode) const
 {
     optional<Expr> newArg = argument->evaluate(user_mode);
     if (not newArg)
@@ -307,7 +294,6 @@ Expr ImaginaryPart::deepRefresh() const
     return res;
 }
 
-
 bool ImaginaryPart::isReal() const
 {
     return true;
@@ -318,7 +304,7 @@ bool ImaginaryPart::isPurelyImaginary() const
     return false;
 }
 
-optional<Expr> ImaginaryPart::getComplexConjugate()  const
+optional<Expr> ImaginaryPart::getComplexConjugate() const
 {
     return nullopt;
 }
@@ -330,12 +316,12 @@ bool ImaginaryPart::operator==(Expr_info other) const
     if (other->getType() != csl::Type::ImaginaryPart) {
         if (other->getType() != csl::Type::RealPart)
             return false;
-        return (CSL_I*other->getArgument() == argument);
+        return (CSL_I * other->getArgument() == argument);
     }
     return argument == other->getArgument();
 }
 
-Expr imaginary_s(const Expr& expr)
+Expr imaginary_s(const Expr &expr)
 {
     if (expr->isPurelyImaginary())
         return expr;
@@ -344,9 +330,9 @@ Expr imaginary_s(const Expr& expr)
     return csl::make_shared<ImaginaryPart>()->applyOperator(expr);
 }
 
-Expr cconjugate_(const Expr& expr)
+Expr cconjugate_(const Expr &expr)
 {
-    return GetComplexConjugate(expr);    
+    return GetComplexConjugate(expr);
 }
 
 } // End of namespace csl

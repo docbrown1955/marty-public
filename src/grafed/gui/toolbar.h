@@ -1,23 +1,23 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 /*!
- * @file 
+ * @file
  * @author Grégoire Uhlrich
  * @version 1.3
- 
+
  * \brief
  */
 #ifndef TOOLBAR_H
@@ -29,23 +29,22 @@ namespace Ui {
 class ToolBar;
 }
 
-class ToolBar : public QWidget
-{
+class ToolBar : public QWidget {
     Q_OBJECT
 
     friend class MainWidget;
 
-public:
+  public:
     explicit ToolBar(QWidget *parent = nullptr);
     ~ToolBar();
 
-public slots:
+  public slots:
 
     void addChecked(bool);
     void selectChecked(bool);
     void removeChecked(bool);
 
-private:
+  private:
     Ui::ToolBar *ui;
 };
 

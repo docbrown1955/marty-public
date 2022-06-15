@@ -1,22 +1,22 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * @file spectrum.h
- * @brief File containing the Spectrum class, handling numerical diagonalization
- * for High-Energy physics models.
+ * @brief File containing the Spectrum class, handling numerical
+ * diagonalization for High-Energy physics models.
  * @author Grégoire Uhlrich
  * @version 1.3
  * @date 2020-08-31
@@ -36,33 +36,32 @@ struct MassBlock;
 /**
  * @brief Class handling numerical diagonalization for HEP models.
  *
- * @details For some mass mixings, the standard way to proceed in MARTY (when 
- * a simple diagonalization is not possible) is to create a symbolic mixing 
+ * @details For some mass mixings, the standard way to proceed in MARTY (when
+ * a simple diagonalization is not possible) is to create a symbolic mixing
  * matrix, fully general, that enters amplitudes. Calculations are done with
  * these mixings. If later one wants to specify numerically the initial mass
  * matrix, this class may diagonalize it and recover the mixing matrix from it.
- * Then, the actual (numerical) mixings may be applied on an expression (for 
- * example an amplitude or Wilson coefficient), replacing old masses by 
- * numerical eigenvalues and symbolic mixings by their values. 
+ * Then, the actual (numerical) mixings may be applied on an expression (for
+ * example an amplitude or Wilson coefficient), replacing old masses by
+ * numerical eigenvalues and symbolic mixings by their values.
  *
  * There is three parts when using this object. First: the initialization from
- * a MassBlock and mixing terms. It needs the initial mass matrix, and the 
- * mixing matrix that you instored to symbolically diagonalize it in full 
- * generality. Then, once all the matrix elements of the initial mass matrix 
- * have a numerical value you must call updateData() to initialize the 
- * numerical matrix. Finally, you may call applyOn() to apply this 
+ * a MassBlock and mixing terms. It needs the initial mass matrix, and the
+ * mixing matrix that you instored to symbolically diagonalize it in full
+ * generality. Then, once all the matrix elements of the initial mass matrix
+ * have a numerical value you must call updateData() to initialize the
+ * numerical matrix. Finally, you may call applyOn() to apply this
  * diagonalization to an expression (or several).
  *
- * Two types of diagonalization are possible. For a given quantum field 
+ * Two types of diagonalization are possible. For a given quantum field
  * \f$ \Phi \f$ (bosonic or fermionic), you may have something like
- * \f$ \Phi ^\dagger M \Phi \f$ in which case \f$ M \f$ is an hermitian 
+ * \f$ \Phi ^\dagger M \Phi \f$ in which case \f$ M \f$ is an hermitian
  * matrix as the Lagrangian must be real. A **standard diagonalization** must
  * then be performed, i.e.
  * \f[
  *      \Phi \mapsto \Phi ^\prime = U\Phi,\\
- *      \Phi ^\dagger \mapsto \Phi ^{\prime\dagger} = \Phi ^\dagger U^\dagger,\\
- *      UMU^\dagger \equiv D, \text{ the diagonal mass matrix. }
- * \f]
+ *      \Phi ^\dagger \mapsto \Phi ^{\prime\dagger} = \Phi ^\dagger
+ * U^\dagger,\\ UMU^\dagger \equiv D, \text{ the diagonal mass matrix. } \f]
  * Another possibility are terms of the form \f$ \Phi _L^\dagger M \Phi _R
  * + \Phi _R^\dagger M^\dagger \Phi_L \f$, with \f$ \Phi _L \f$ and
  * \f$ \Phi _R \f$ different fields. In that case, a **bi-diagonalization**
@@ -74,30 +73,29 @@ struct MassBlock;
  *      V^\dagger MM^\dagger V = D^2,\\
  *      U^\dagger M^\dagger M U = D^2\\
  * \f]
- * In this case there is actually two diagonalizations to perform, for 
- * \f$ MM^\dagger \f$ and \f$ M^\dagger M \f$. 
+ * In this case there is actually two diagonalizations to perform, for
+ * \f$ MM^\dagger \f$ and \f$ M^\dagger M \f$.
  *
  * @sa csl::Diagonalizer
  */
 class Spectrum {
 
-public:
-
+  public:
     /**
      * @brief Using for matrices in boost libraries.
      *
      * @tparam T Type of the value type in the matrix.
      */
-    template<class T>
-        using matrix    = boost::numeric::ublas::matrix<T>;
+    template <class T>
+    using matrix = boost::numeric::ublas::matrix<T>;
 
     /**
      * @brief Using for identity matrices in boost libraries.
      *
      * @tparam T Type of the value type in the matrix.
      */
-    template<class T>
-        using id_matrix = boost::numeric::ublas::identity_matrix<T>;
+    template <class T>
+    using id_matrix = boost::numeric::ublas::identity_matrix<T>;
     /**
      * @brief Type of floating point variable for numerical diagonalization.
      */
@@ -120,7 +118,7 @@ public:
          * @brief Actual term. Fields are removed, it should then be a purely
          * scalar factor.
          */
-        csl::Expr   term;
+        csl::Expr term;
     };
 
     /**
@@ -132,19 +130,17 @@ public:
      * @param t_mixing       Mixing introduced to symbolically diagonalize the
      * mass matrix (2D matrix as vector).
      */
-    Spectrum(
-            std::vector<mty::Particle>     const &t_particles,
-            std::vector<mty::Particle>     const &t_newParticles,
-            std::vector<csl::Expr>              const &terms,
-            std::vector<std::vector<csl::Expr>> const &t_mixing
-            );
+    Spectrum(std::vector<mty::Particle> const &         t_particles,
+             std::vector<mty::Particle> const &         t_newParticles,
+             std::vector<csl::Expr> const &             terms,
+             std::vector<std::vector<csl::Expr>> const &t_mixing);
 
     /**
      * @brief Constructor with 3 parameters, for standard diagonalization.
      *
-     * @details This constructor will not do anything apart from reading 
+     * @details This constructor will not do anything apart from reading
      * parameters. These parameters are considered to have already been treated
-     * by a Spectrum object. It us used in particular to re-build Spectrum 
+     * by a Spectrum object. It us used in particular to re-build Spectrum
      * object in a different program (Lagrangian code generation).
      *
      * @param t_newParticles New particles introduces after rotation.
@@ -154,13 +150,11 @@ public:
      * @param t_mixing       Mixing introduced to symbolically diagonalize the
      * mass matrix (2D matrix as vector) for right particles, if there is.
      */
-    Spectrum(
-            std::vector<mty::Particle>     const &t_newParticles,
-            std::vector<std::vector<csl::Expr>> const &t_mass,
-            std::vector<std::vector<csl::Expr>> const &t_mixing,
-            std::vector<std::vector<csl::Expr>> const &t_mixing2
-                = std::vector<std::vector<csl::Expr>>()
-            );
+    Spectrum(std::vector<mty::Particle> const &         t_newParticles,
+             std::vector<std::vector<csl::Expr>> const &t_mass,
+             std::vector<std::vector<csl::Expr>> const &t_mixing,
+             std::vector<std::vector<csl::Expr>> const &t_mixing2
+             = std::vector<std::vector<csl::Expr>>());
 
     /**
      * @brief Constructor with 6 parameters, for bi-diagonalization.
@@ -175,20 +169,18 @@ public:
      * @param mixingB  Mixing introduced to symbolically diagonalize the
      * mass matrix (2D matrix as vector) for right particles.
      */
-    Spectrum(
-            std::vector<mty::Particle> const &partA,
-            std::vector<mty::Particle> const &partB,
-            std::vector<mty::Particle> const &newPartA,
-            std::vector<mty::Particle> const &newPartB,
-            std::vector<csl::Expr>          const &terms,
-            std::vector<std::vector<csl::Expr>> const &mixingA,
-            std::vector<std::vector<csl::Expr>> const &mixingB
-            );
+    Spectrum(std::vector<mty::Particle> const &         partA,
+             std::vector<mty::Particle> const &         partB,
+             std::vector<mty::Particle> const &         newPartA,
+             std::vector<mty::Particle> const &         newPartB,
+             std::vector<csl::Expr> const &             terms,
+             std::vector<std::vector<csl::Expr>> const &mixingA,
+             std::vector<std::vector<csl::Expr>> const &mixingB);
 
     /**
      * @brief Default constructor.
      */
-    Spectrum()  = default;
+    Spectrum() = default;
     /**
      * @brief Default destructor.
      */
@@ -201,7 +193,7 @@ public:
     /**
      * @brief Default move constructor.
      */
-    Spectrum(Spectrum &&)      = default;
+    Spectrum(Spectrum &&) = default;
     /**
      * @brief Default copy assignement operator.
      */
@@ -209,34 +201,40 @@ public:
     /**
      * @brief Default move assignement operator.
      */
-    Spectrum &operator=(Spectrum &&)      = default;
+    Spectrum &operator=(Spectrum &&) = default;
 
-    std::vector<mty::Particle> const &getParticles() const {
+    std::vector<mty::Particle> const &getParticles() const
+    {
         return newFields;
     }
 
-    matrix<csl::Expr> const &getMassTerms() const {
+    matrix<csl::Expr> const &getMassTerms() const
+    {
         return mass;
     }
 
-    matrix<csl::Expr> const &getMixings() const {
+    matrix<csl::Expr> const &getMixings() const
+    {
         return mixing;
     }
 
-    matrix<csl::Expr> const &getMixings2() const {
+    matrix<csl::Expr> const &getMixings2() const
+    {
         return mixing2;
     }
 
     /**
      * @return \b replaceMasses.
      */
-    bool getReplaceMasses() const {
+    bool getReplaceMasses() const
+    {
         return replaceMasses;
     }
     /**
      * @return \b replaceMixings.
      */
-    bool getReplaceMixings() const {
+    bool getReplaceMixings() const
+    {
         return replaceMixings;
     }
 
@@ -245,7 +243,8 @@ public:
      *
      * @param t_replaceMasses New value for \b replaceMasses.
      */
-    void setReplaceMasses(bool t_replaceMasses) {
+    void setReplaceMasses(bool t_replaceMasses)
+    {
         replaceMasses = t_replaceMasses;
     }
     /**
@@ -253,7 +252,8 @@ public:
      *
      * @param t_replaceMixings New value for \b replaceMixings.
      */
-    void setReplaceMixings(bool t_replaceMixings) {
+    void setReplaceMixings(bool t_replaceMixings)
+    {
         replaceMasses = t_replaceMixings;
     }
 
@@ -267,7 +267,7 @@ public:
      * and finally apply the diagonalization on any expression you want using
      * applyOn().
      *
-     * @return \b True  if all masses and mixings have been computed 
+     * @return \b True  if all masses and mixings have been computed
      * numerically.
      * @return \b False else.
      *
@@ -279,46 +279,42 @@ public:
      * @brief Instantiates the Spectrum object with a mass terms and a mixing
      * matrix for standard diagonalization.
      *
-     * @details This function simply gathers all terms in \b terms to create 
-     * the mass matrix. The mixing matrix used to symbolically diagonalize the 
+     * @details This function simply gathers all terms in \b terms to create
+     * the mass matrix. The mixing matrix used to symbolically diagonalize the
      * fields must also be given.
      *
      * @param terms    Mass terms for the fields.
      * @param t_mixing Mixing matrix.
      */
-    void setBlock(
-            std::vector<csl::Expr>              const &terms,
-            std::vector<std::vector<csl::Expr>> const &t_mixing
-            );
+    void setBlock(std::vector<csl::Expr> const &             terms,
+                  std::vector<std::vector<csl::Expr>> const &t_mixing);
 
     /**
      * @brief Instantiates the Spectrum object with a mass terms and two mixing
      * matrices for bi-diagonalization.
      *
-     * @details This function simply gathers all terms in \b terms to create 
-     * the mass matrix. The mixing matrices used to symbolically diagonalize 
+     * @details This function simply gathers all terms in \b terms to create
+     * the mass matrix. The mixing matrices used to symbolically diagonalize
      * the fields must also be given.
      *
      * @param terms   Mass terms for the fields.
      * @param mixingA Mixing matrix of left fields.
      * @param mixingB Mixing matrix of right fields.
      */
-    void setBlock(
-            std::vector<csl::Expr>              const &terms,
-            std::vector<std::vector<csl::Expr>> const &mixingA,
-            std::vector<std::vector<csl::Expr>> const &mixingB
-            );
+    void setBlock(std::vector<csl::Expr> const &             terms,
+                  std::vector<std::vector<csl::Expr>> const &mixingA,
+                  std::vector<std::vector<csl::Expr>> const &mixingB);
     /**
-     * @brief Updates the mass matrix, if the elements have values (for example)
-     * after a lha file loading.
+     * @brief Updates the mass matrix, if the elements have values (for
+     * example) after a lha file loading.
      *
      * @details This function should be called once all the initial elements of
-     * the mass matrix have a defined value. 
+     * the mass matrix have a defined value.
      *
-     * To properly define a value, you must use the function 
-     * csl::Abstract::setValue() of the symbolic constants. For example with 
-     * a mass matrix \f$ \left(\begin{array}{cc}a && b \\ c && d 
-     * \end{array}\right),\f$ one must write 
+     * To properly define a value, you must use the function
+     * csl::Abstract::setValue() of the symbolic constants. For example with
+     * a mass matrix \f$ \left(\begin{array}{cc}a && b \\ c && d
+     * \end{array}\right),\f$ one must write
      * \code
      *          M[0][0]->setValue(523.5); // good
      * \endcode
@@ -336,26 +332,25 @@ public:
      * and mixings.
      *
      * @details This function should be called if updateData() has already been
-     * called and if all elements of the initial mass matrix have defined 
+     * called and if all elements of the initial mass matrix have defined
      * values.
      *
      * @param expr Expression on which the diagonalization is applied.
      */
     void applyOn(csl::Expr &expr) const;
     /**
-     * @brief Applies the diagonalization on a vector of expressions, replacing 
+     * @brief Applies the diagonalization on a vector of expressions, replacing
      * masses and mixings.
      *
      * @details This function should be called if updateData() has already been
-     * called and if all elements of the initial mass matrix have defined 
+     * called and if all elements of the initial mass matrix have defined
      * values.
      *
      * @param expr Expressions on which the diagonalization is applied.
      */
     void applyOn(std::vector<csl::Expr> &expr) const;
 
-protected:
-
+  protected:
     /**
      * @brief Returns the position of the field \b field in the list.
      *
@@ -373,32 +368,27 @@ protected:
      * @return The MatrixEl containing the position of the term in the matrix,
      * and the term itself.
      */
-    MatrixEl getMassFromTerm(
-            csl::Expr const &term
-            ) const;
+    MatrixEl getMassFromTerm(csl::Expr const &term) const;
 
     /**
      * @brief Replaces corresponding mixings / masses in an expression,
      * if the numerical diagonalization has been performed.
      *
-     * @details Is abbreviations are encountered, the content of the 
+     * @details Is abbreviations are encountered, the content of the
      * abbreviation os also looked up for the replacement.
      *
      * @param expr    Expression in which we apply the diagonalization.
      * @param oldExpr Old mixings / masses.
      * @param newExpr New mixings / masses.
      */
-    static
-    void replace(
-            csl::Expr                    &expr, 
-            std::vector<csl::Expr> const &oldExpr,
-            std::vector<csl::Expr> const &newExpr
-            );
+    static void replace(csl::Expr &                   expr,
+                        std::vector<csl::Expr> const &oldExpr,
+                        std::vector<csl::Expr> const &newExpr);
 
     /**
      * @brief Adds a mass term to the Spectrum from a MatrixEl object.
      *
-     * @param matrixEl Matrix element containing the term and its position in 
+     * @param matrixEl Matrix element containing the term and its position in
      * the mass matrix.
      */
     void addMassTerm(MatrixEl &&matrixEl);
@@ -427,20 +417,19 @@ protected:
      */
     void applyBidiagonalizationOn(csl::Expr &expr) const;
 
-protected:
-
+  protected:
     /**
-     * @brief Tells if this class is used for a standard diagonalization (false)
-     * or a bi-diagonalization (true). Default is false.
+     * @brief Tells if this class is used for a standard diagonalization
+     * (false) or a bi-diagonalization (true). Default is false.
      */
     bool bidiagonalization;
     /**
-     * @brief Tells if masses must be directly replaced by their numerical 
+     * @brief Tells if masses must be directly replaced by their numerical
      * values when applying diagonalization (default = true).
      */
     bool replaceMasses;
     /**
-     * @brief Tells if mixings must be directly replaced by their numerical 
+     * @brief Tells if mixings must be directly replaced by their numerical
      * values when applying diagonalization (default = true).
      */
     bool replaceMixings;
@@ -453,36 +442,36 @@ protected:
      */
     std::vector<mty::Particle> newFields;
     /**
-     * @brief Mass matrix. This object should contain only quantities with 
+     * @brief Mass matrix. This object should contain only quantities with
      * defined numerical when calling the diagonalization.
      */
-    matrix<csl::Expr>               mass;
+    matrix<csl::Expr> mass;
     /**
      * @brief Initial mixing matrix, contains the symbolic variables that enter
      * expressions before the diagonalization is done.
      */
-    matrix<csl::Expr>               mixing;
+    matrix<csl::Expr> mixing;
     /**
      * @brief Second mixing matrix, used for bi-diagonalization.
      */
-    matrix<csl::Expr>               mixing2;
+    matrix<csl::Expr> mixing2;
     /**
-     * @brief Numerical mass matrix, once values have been given and 
+     * @brief Numerical mass matrix, once values have been given and
      * updateData() has been called.
      */
-    csl::Expr                       massData;
+    csl::Expr massData;
     /**
      * @brief Diagonalized mass matrix if the diagonalization has been done.
      */
-    csl::Expr                       diagonal = nullptr;
+    csl::Expr diagonal = nullptr;
     /**
      * @brief Second transfer matrix used for bi-diagonalization.
      */
-    csl::Expr                       transfer = nullptr;
+    csl::Expr transfer = nullptr;
     /**
      * @brief Transfer matrix if the diagonalization has been done.
      */
-    csl::Expr                       transfer2 = nullptr;
+    csl::Expr transfer2 = nullptr;
 };
 
 } // End of namespace mty

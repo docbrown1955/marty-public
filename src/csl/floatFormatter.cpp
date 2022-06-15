@@ -1,15 +1,15 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
@@ -31,11 +31,11 @@ format::format(string t_format)
             scientific = false;
     }
     else {
-        if (t_format[t_format.size()-1] == 'e')
+        if (t_format[t_format.size() - 1] == 'e')
             scientific = true;
-        else if (t_format[t_format.size()-1] == 'f')
+        else if (t_format[t_format.size() - 1] == 'f')
             scientific = false;
-        t_format.erase(t_format.end()-1);
+        t_format.erase(t_format.end() - 1);
         if (t_format.size() > 0 and t_format[0] == '.')
             t_format.erase(t_format.begin());
         if (t_format.size() > 0) {
@@ -61,14 +61,14 @@ format Formatter::getFormat()
 {
     if (f) {
         format copy = f.value();
-        f = nullopt;
+        f           = nullopt;
         return copy;
     }
     return format();
 }
 
-void Formatter::setFormat(format const& t_f)
+void Formatter::setFormat(format const &t_f)
 {
     f = t_f;
 }
-}
+} // namespace csl

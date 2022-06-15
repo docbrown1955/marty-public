@@ -1,44 +1,41 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
-#include "scopedProperty.h"
 #include "comparison.h"
-#include "indicial.h"
-#include "utils.h"
 #include "index.h"
+#include "indicial.h"
+#include "scopedProperty.h"
+#include "utils.h"
 
 using namespace std;
 
 namespace csl {
 
-bool Comparator::dummyComparisonActive = false;
+bool Comparator::dummyComparisonActive       = false;
 bool Comparator::dummyVecIntComparisonActive = false;
-bool Comparator::freeIndexComparisonActive = false;
-//const std::string Comparator::dummyName() = "ARBITRARY";
-std::map<int,Expr> Comparator::arbitrary = std::map<int,Expr>();
-std::map<int,Expr> Comparator::correspondance
-            = std::map<int,Expr>();
-std::map<Index,Index> Comparator::indexCorrespondance
-            = std::map<Index,Index>();
+bool Comparator::freeIndexComparisonActive   = false;
+// const std::string Comparator::dummyName() = "ARBITRARY";
+std::map<int, Expr>    Comparator::arbitrary      = std::map<int, Expr>();
+std::map<int, Expr>    Comparator::correspondance = std::map<int, Expr>();
+std::map<Index, Index> Comparator::indexCorrespondance
+    = std::map<Index, Index>();
 
 Arbitrary::Arbitrary(int n, csl::Type t_type)
-    :AbstractLiteral(),
-    number(n),
-    name(Comparator::dummyName()),
-    type(t_type)
-{}
+    : AbstractLiteral(), number(n), name(Comparator::dummyName()), type(t_type)
+{
+}
 
 csl::PrimaryType Arbitrary::getPrimaryType() const
 {
@@ -65,14 +62,11 @@ long long int Arbitrary::getNum() const
     return number;
 }
 
-void Arbitrary::print(
-        int mode,
-        std::ostream& out,
-        bool) const
+void Arbitrary::print(int mode, std::ostream &out, bool) const
 {
-    out<<name;
+    out << name;
     if (mode > 0)
-        out<<endl;
+        out << endl;
 }
 
 string Arbitrary::printLaTeX(int) const
@@ -80,12 +74,9 @@ string Arbitrary::printLaTeX(int) const
     return name;
 }
 
-optional<Expr> Arbitrary::evaluate(
-        csl::eval::mode
-        ) const
+optional<Expr> Arbitrary::evaluate(csl::eval::mode) const
 {
-    callError(cslError::ArbitraryEvaluated,
-            "Arbitrary::valuate()");
+    callError(cslError::ArbitraryEvaluated, "Arbitrary::valuate()");
     return nullopt;
 }
 
@@ -136,8 +127,8 @@ bool Comparator::compare(Expr_info expr, Expr_info dummy)
     // Check for previous correspondance
     if (correspondance.find(number) == correspondance.end()) {
         // No correspondance here
-        if (dummy->getType() == csl::Type::NoType 
-                or dummy->getType() == expr->getType()) {
+        if (dummy->getType() == csl::Type::NoType
+            or dummy->getType() == expr->getType()) {
             correspondance[number] = expr->copy();
             return true;
         }
@@ -147,11 +138,10 @@ bool Comparator::compare(Expr_info expr, Expr_info dummy)
     return (expr->operator==(correspondance[number]));
 }
 
-bool Comparator::compare(const Index& A, const Index& B)
+bool Comparator::compare(const Index &A, const Index &B)
 {
-    if (not freeIndexComparisonActive
-            or A.getType() == cslIndex::Fixed
-            or B.getType() == cslIndex::Fixed)
+    if (not freeIndexComparisonActive or A.getType() == cslIndex::Fixed
+        or B.getType() == cslIndex::Fixed)
         return A == B;
     if (indexCorrespondance.find(A) == indexCorrespondance.end()) {
         if (indexCorrespondance.find(B) != indexCorrespondance.end())
@@ -162,10 +152,10 @@ bool Comparator::compare(const Index& A, const Index& B)
     else {
         csl::ScopedProperty prop(&freeIndexComparisonActive, false);
         if (indexCorrespondance[A] == B)
-        if (indexCorrespondance.find(B) == indexCorrespondance.end()) {
-            indexCorrespondance[B] = A;
-            return true;
-        }
+            if (indexCorrespondance.find(B) == indexCorrespondance.end()) {
+                indexCorrespondance[B] = A;
+                return true;
+            }
     }
 
     return false;
@@ -185,28 +175,28 @@ bool Comparator::compare(const Index& A, const Index& B)
     else {
         // Deactivating freeIndexComparison here in order to compare exactly.
         csl::ScopedProperty prop(&freeIndexComparisonActive, false);
-        if (indexCorrespondance[A] == B) 
+        if (indexCorrespondance[A] == B)
             if (indexCorrespondance.find(B) == indexCorrespondance.end()) {
                 indexCorrespondance[B] = A;
                 return true;
             }
     }
-    
+
     return false;
 }
 
 bool Comparator::dummyComparison(Expr_info expr, Expr_info dummyExpr)
 {
     // Function called by expr when comparing to dummyExpr.
-    dummyComparisonActive = true;
+    dummyComparisonActive     = true;
     freeIndexComparisonActive = true;
-    bool rep = expr->operator==(dummyExpr);
+    bool rep                  = expr->operator==(dummyExpr);
     clear();
 
     return rep;
 }
 
-bool Comparator::dummyComparison(Expr const& expr, Expr const& dummyExpr)
+bool Comparator::dummyComparison(Expr const &expr, Expr const &dummyExpr)
 {
     return dummyComparison(expr.get(), dummyExpr.get());
 }
@@ -214,7 +204,7 @@ bool Comparator::dummyComparison(Expr const& expr, Expr const& dummyExpr)
 bool Comparator::dummyVecIntComparison(Expr_info A, Expr_info B)
 {
     dummyVecIntComparisonActive = true;
-    bool rep = (A == B);
+    bool rep                    = (A == B);
     dummyVecIntComparisonActive = false;
     return rep;
 }
@@ -231,9 +221,9 @@ bool Comparator::freeIndexComparison(Expr_info A, Expr_info B)
 
 void Comparator::clear()
 {
-    arbitrary           .clear();
-    correspondance      .clear();
-    indexCorrespondance .clear();
+    arbitrary.clear();
+    correspondance.clear();
+    indexCorrespondance.clear();
     dummyComparisonActive       = false;
     dummyVecIntComparisonActive = false;
     freeIndexComparisonActive   = false;

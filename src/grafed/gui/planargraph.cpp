@@ -1,65 +1,56 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
+#include "planargraph.h"
+#include <algorithm>
 #include <cstdlib>
 #include <ctime>
-#include <map>
-#include <algorithm>
 #include <fstream>
-#include "planargraph.h"
 #include <gsl/gsl_multimin.h>
 #include <gsl/gsl_vector.h>
+#include <map>
 
 namespace drawer {
 
-Graph::Graph()
-    :Graph(1)
+Graph::Graph() : Graph(1)
 {
-
 }
 
 Graph::Graph(size_t N)
-    :nInsertions(0),
-    nodes(N),
-    loop(N),
-    external(N),
-    side(N),
-    adjacency(N)
+    : nInsertions(0), nodes(N), loop(N), external(N), side(N), adjacency(N)
 {
     static bool first = true;
     if (first) {
         first = false;
         srand(time(0));
     }
-    for (auto& n : nodes) {
+    for (auto &n : nodes) {
         initPoint(n, N);
     }
     initEnergies();
 }
 
-Graph::Graph(size_t N,
-             std::vector<std::pair<int, int>> const& init)
-    :Graph(N)
+Graph::Graph(size_t N, std::vector<std::pair<int, int>> const &init) : Graph(N)
 {
-    for (const auto& [left, right] : init)
+    for (const auto &[left, right] : init)
         addEdge(left, right);
 }
 
 void Graph::reinit()
 {
-    for (auto& n : nodes)
+    for (auto &n : nodes)
         initPoint(n, nodes.size());
 }
 
@@ -73,38 +64,36 @@ void Graph::clear()
     side.clear();
 }
 
-std::vector<Point>& Graph::getNodes() 
+std::vector<Point> &Graph::getNodes()
 {
     return nodes;
 }
 
-std::vector<Point> const& Graph::getNodes() const
+std::vector<Point> const &Graph::getNodes() const
 {
     return nodes;
 }
 
-Matrix<int>& Graph::getAdjacency()
+Matrix<int> &Graph::getAdjacency()
 {
     return adjacency;
 }
 
-Matrix<int> const& Graph::getAdjacency() const
+Matrix<int> const &Graph::getAdjacency() const
 {
     return adjacency;
 }
 
-bool totalAdjacency(Matrix<int> const& A,
-                    size_t             pos)
+bool totalAdjacency(Matrix<int> const &A, size_t pos)
 {
-    const size_t N = A.size();
-    size_t adj = 0;
+    const size_t N   = A.size();
+    size_t       adj = 0;
     for (size_t i = 0; i < N; ++i)
         adj += A(pos, i);
     return adj;
 }
 
-bool walked(std::vector<size_t> const& walked,
-            size_t pos)
+bool walked(std::vector<size_t> const &walked, size_t pos)
 {
     return std::find(walked.begin(), walked.end(), pos) != walked.end();
 }
@@ -113,21 +102,23 @@ struct next {
     size_t pos;
     int    adjacency;
 
-    bool operator==(next const& other) const {
+    bool operator==(next const &other) const
+    {
         return adjacency == other.adjacency;
     }
 
-    bool operator<(next const& other) const {
+    bool operator<(next const &other) const
+    {
         return pos < other.pos;
     }
 };
 
-std::vector<std::vector<next>> getSorted(std::vector<next> const& init)
+std::vector<std::vector<next>> getSorted(std::vector<next> const &init)
 {
     std::vector<std::vector<next>> sorted;
-    for (const auto& n : init) {
+    for (const auto &n : init) {
         bool filled = false;
-        for (auto& s : sorted)
+        for (auto &s : sorted)
             if (s[0].adjacency == n.adjacency) {
                 s.push_back(n);
                 filled = true;
@@ -136,22 +127,20 @@ std::vector<std::vector<next>> getSorted(std::vector<next> const& init)
         if (not filled)
             sorted.push_back({n});
     }
-    for (auto& s : sorted)
+    for (auto &s : sorted)
         std::sort(s.begin(), s.end());
     std::sort(sorted.begin(),
               sorted.end(),
-              [&](std::vector<next> const& A,
-                  std::vector<next> const& B)
-              {
-                return A[0].adjacency < B[0].adjacency;
+              [&](std::vector<next> const &A, std::vector<next> const &B) {
+                  return A[0].adjacency < B[0].adjacency;
               });
     return sorted;
 }
 
-bool next_permutation(std::vector<std::vector<next>>& sorted)
+bool next_permutation(std::vector<std::vector<next>> &sorted)
 {
     for (size_t i = 0; i != sorted.size(); ++i) {
-        if (sorted[i].size() == 1) 
+        if (sorted[i].size() == 1)
             continue;
         if (std::next_permutation(sorted[i].begin(), sorted[i].end()))
             return true;
@@ -160,17 +149,17 @@ bool next_permutation(std::vector<std::vector<next>>& sorted)
     return false;
 }
 
-bool walkerStep(Matrix<int> const& A,
-                Matrix<int> const& B,
-                size_t iA,
-                size_t iB,
-                std::vector<size_t>& A_walked,
-                std::vector<size_t>& B_walked,
-                std::map<size_t, size_t>& mapAtoB)
+bool walkerStep(Matrix<int> const &       A,
+                Matrix<int> const &       B,
+                size_t                    iA,
+                size_t                    iB,
+                std::vector<size_t> &     A_walked,
+                std::vector<size_t> &     B_walked,
+                std::map<size_t, size_t> &mapAtoB)
 {
     std::vector<next> nextA;
     std::vector<next> nextB;
-    const size_t N = A.size();
+    const size_t      N = A.size();
     for (size_t i = 0; i != N; ++i) {
         if (A(iA, i) > 0 and not walked(A_walked, i))
             nextA.push_back({i, A(iA, i)});
@@ -178,10 +167,10 @@ bool walkerStep(Matrix<int> const& A,
             nextB.push_back({i, B(iB, i)});
     }
     std::vector<size_t> newWalkedA(A_walked);
-    for (const auto& n : nextA)
+    for (const auto &n : nextA)
         newWalkedA.push_back(n.pos);
     std::vector<size_t> newWalkedB(B_walked);
-    for (const auto& n : nextB)
+    for (const auto &n : nextB)
         newWalkedB.push_back(n.pos);
 
     std::vector<std::vector<next>> sortedA = getSorted(nextA);
@@ -190,19 +179,22 @@ bool walkerStep(Matrix<int> const& A,
         return false;
     for (size_t i = 0; i != sortedA.size(); ++i)
         if (sortedA[i].size() != sortedB[i].size()
-                or sortedA[i][0].adjacency != sortedB[i][0].adjacency)
+            or sortedA[i][0].adjacency != sortedB[i][0].adjacency)
             return false;
 
     auto saveWalkA = newWalkedA;
     auto saveWalkB = newWalkedB;
-    auto saveMap = mapAtoB;
+    auto saveMap   = mapAtoB;
     do {
         bool breakValue = false;
-        for (size_t i = 0; i != sortedA.size(); ++i) { 
+        for (size_t i = 0; i != sortedA.size(); ++i) {
             for (size_t j = 0; j != sortedB[i].size(); ++j) {
-                if (!walkerStep(A, B, 
-                                sortedA[i][j].pos, sortedB[i][j].pos,
-                                newWalkedA, newWalkedB,
+                if (!walkerStep(A,
+                                B,
+                                sortedA[i][j].pos,
+                                sortedB[i][j].pos,
+                                newWalkedA,
+                                newWalkedB,
                                 mapAtoB)) {
                     breakValue = true;
                     break;
@@ -221,17 +213,17 @@ bool walkerStep(Matrix<int> const& A,
         }
         newWalkedA = saveWalkA;
         newWalkedB = saveWalkB;
-        mapAtoB = saveMap;
+        mapAtoB    = saveMap;
     } while (next_permutation(sortedB));
 
     return false;
 }
 
-bool compare(Matrix<int> const& A,
-             Matrix<int> const& B,
-             size_t iA,
-             size_t iB,
-             std::map<size_t, size_t>& mapping)
+bool compare(Matrix<int> const &       A,
+             Matrix<int> const &       B,
+             size_t                    iA,
+             size_t                    iB,
+             std::map<size_t, size_t> &mapping)
 {
     std::vector<size_t> walkedA = {iA};
     std::vector<size_t> walkedB = {iB};
@@ -242,22 +234,21 @@ bool compare(Matrix<int> const& A,
     return res;
 }
 
-bool Graph::isSame(Graph const& other) const
+bool Graph::isSame(Graph const &other) const
 {
     std::map<size_t, size_t> mapping;
     return isSame(other, mapping);
 }
 
-bool Graph::isSame(Graph const& other,
-                   std::map<size_t, size_t>& mapping) const
+bool Graph::isSame(Graph const &other, std::map<size_t, size_t> &mapping) const
 {
     if (nodes.size() != other.nodes.size())
         return false;
-    size_t nEdgesA = 0;
-    size_t nEdgesB = 0;
-    const size_t N = nodes.size();
+    size_t       nEdgesA = 0;
+    size_t       nEdgesB = 0;
+    const size_t N       = nodes.size();
     for (size_t i = 0; i < N; ++i)
-        for (size_t j = i+1; j < N; ++j) {
+        for (size_t j = i + 1; j < N; ++j) {
             nEdgesA += adjacency(i, j);
             nEdgesB += other.adjacency(i, j);
         }
@@ -282,13 +273,13 @@ bool Graph::isSame(Graph const& other,
 void Graph::addEdge(int left, int right)
 {
     if (left == right) {
-        const size_t N = nodes.size();
-        Matrix<int, int> adjacency_new(N+1);
+        const size_t     N = nodes.size();
+        Matrix<int, int> adjacency_new(N + 1);
         for (size_t i = 0; i != N; ++i) {
             for (size_t j = 0; j != N; ++j)
                 adjacency_new(i, j) = adjacency(i, j);
         }
-        adjacency = adjacency_new;
+        adjacency          = adjacency_new;
         adjacency(left, N) = 2;
         adjacency(N, left) = 2;
         loop.push_back(true);
@@ -389,13 +380,13 @@ double Graph::zMax() const
 double Graph::computeEnergy(bool verbose)
 {
     double Energy = 0;
-    for (const auto& func : energies) {
+    for (const auto &func : energies) {
         Energy += func.compute(*this, verbose);
     }
     return Energy;
 }
 
-int Graph::minimize(int mode) 
+int Graph::minimize(int mode)
 {
     if (size() == 0)
         return 0;
@@ -406,15 +397,15 @@ int Graph::minimize(int mode)
         first = false;
     }
     if (mode == 0) {
-        enable3D = true;
-        angleFactor = 0;
-        absAngleFactor = 0;
+        enable3D        = true;
+        angleFactor     = 0;
+        absAngleFactor  = 0;
         extensionFactor = 0;
         minimize(2);
-        angleFactor = defaultAngleFactor;
-        absAngleFactor = defaultAbsAngleFactor;
+        angleFactor     = defaultAngleFactor;
+        absAngleFactor  = defaultAbsAngleFactor;
         extensionFactor = defaultExtensionFactor;
-        enable3D = false;
+        enable3D        = false;
         project();
         if (writeResToFile)
             write(fileNameProject);
@@ -424,19 +415,18 @@ int Graph::minimize(int mode)
         return res;
     }
 
-    auto f = [](const gsl_vector *var, void* graph)
-    {
-        Graph *G = static_cast<Graph*>(graph);
+    auto f = [](const gsl_vector *var, void *graph) {
+        Graph *G = static_cast<Graph *>(graph);
         G->readGslVector(var);
 
         return G->computeEnergy();
     };
 
     const gsl_multimin_fminimizer_type *T = gsl_multimin_fminimizer_nmsimplex2;
-    gsl_multimin_fminimizer *s = NULL;
-    gsl_vector *ss, *x;
-    gsl_multimin_function minex_func;
-  
+    gsl_multimin_fminimizer *           s = NULL;
+    gsl_vector *                        ss, *x;
+    gsl_multimin_function               minex_func;
+
     /* Starting point */
     x = allocGslVector();
     fillGslVector(x);
@@ -444,37 +434,37 @@ int Graph::minimize(int mode)
     /* Set initial step sizes to 1 */
     ss = allocGslVector();
     if (mode == 2) {
-        gsl_vector_set_all (ss, 10.0);
+        gsl_vector_set_all(ss, 10.0);
     }
     else
-        gsl_vector_set_all (ss, 10.0);
-  
+        gsl_vector_set_all(ss, 10.0);
+
     /* Initialize method and iterate */
-    minex_func.n = getNVar();
-    minex_func.f = f;
+    minex_func.n      = getNVar();
+    minex_func.f      = f;
     minex_func.params = this;
-  
-    s = gsl_multimin_fminimizer_alloc (T, getNVar());
-    gsl_multimin_fminimizer_set (s, &minex_func, x, ss);
-  
+
+    s = gsl_multimin_fminimizer_alloc(T, getNVar());
+    gsl_multimin_fminimizer_set(s, &minex_func, x, ss);
+
     size_t iter = 0;
-    int status;
+    int    status;
     double size;
     do {
         iter++;
         status = gsl_multimin_fminimizer_iterate(s);
         if (status)
-          break;
-        size = gsl_multimin_fminimizer_size (s);
-        status = gsl_multimin_test_size (size, 1e-3);
+            break;
+        size   = gsl_multimin_fminimizer_size(s);
+        status = gsl_multimin_test_size(size, 1e-3);
 
         if (writeResToFile and mode == 2 and iter == 10)
             write(fileNameBegin);
-  
+
     } while (status == GSL_CONTINUE && iter < 5000);
     gsl_vector_free(x);
     gsl_vector_free(ss);
-    gsl_multimin_fminimizer_free (s);
+    gsl_multimin_fminimizer_free(s);
 
     center();
     if (writeResToFile)
@@ -483,56 +473,55 @@ int Graph::minimize(int mode)
     return status;
 }
 
-int Graph::minimize2D() 
+int Graph::minimize2D()
 {
     if (size() == 0)
         return 0;
     project(true, true);
     gatherExternalNodes();
 
-    auto f = [](const gsl_vector *var, void* graph)
-    {
-        Graph *G = static_cast<Graph*>(graph);
+    auto f = [](const gsl_vector *var, void *graph) {
+        Graph *G = static_cast<Graph *>(graph);
         G->readGslVector(var);
 
         return G->computeEnergy();
     };
 
     const gsl_multimin_fminimizer_type *T = gsl_multimin_fminimizer_nmsimplex2;
-    gsl_multimin_fminimizer *s = NULL;
-    gsl_vector *ss, *x;
-    gsl_multimin_function minex_func;
-  
+    gsl_multimin_fminimizer *           s = NULL;
+    gsl_vector *                        ss, *x;
+    gsl_multimin_function               minex_func;
+
     /* Starting point */
     x = allocGslVector();
     fillGslVector(x);
 
     /* Set initial step sizes to 1 */
     ss = allocGslVector();
-    gsl_vector_set_all (ss, 1);
-  
+    gsl_vector_set_all(ss, 1);
+
     /* Initialize method and iterate */
-    minex_func.n = getNVar();
-    minex_func.f = f;
+    minex_func.n      = getNVar();
+    minex_func.f      = f;
     minex_func.params = this;
-  
-    s = gsl_multimin_fminimizer_alloc (T, getNVar());
-    gsl_multimin_fminimizer_set (s, &minex_func, x, ss);
-  
+
+    s = gsl_multimin_fminimizer_alloc(T, getNVar());
+    gsl_multimin_fminimizer_set(s, &minex_func, x, ss);
+
     size_t iter = 0;
-    int status;
+    int    status;
     double size;
     do {
         iter++;
         status = gsl_multimin_fminimizer_iterate(s);
         if (status)
-          break;
-        size = gsl_multimin_fminimizer_size (s);
-        status = gsl_multimin_test_size (size, 1e-2);
+            break;
+        size   = gsl_multimin_fminimizer_size(s);
+        status = gsl_multimin_test_size(size, 1e-2);
     } while (status == GSL_CONTINUE && iter < 1000);
     gsl_vector_free(x);
     gsl_vector_free(ss);
-    gsl_multimin_fminimizer_free (s);
+    gsl_multimin_fminimizer_free(s);
 
     center();
     project(true);
@@ -540,85 +529,84 @@ int Graph::minimize2D()
     return status;
 }
 
-void Graph::project(bool only2DRotation,
-                    bool keepExternal)
+void Graph::project(bool only2DRotation, bool keepExternal)
 {
     center();
     extensionFactor = 0;
-    angleFactor = 0;
-    nodeSizeFactor = 0;
-    double Emin = computeEnergy();
-    double theta = 0;
-    double phi   = 0;
-    size_t nStep = 30;
+    angleFactor     = 0;
+    nodeSizeFactor  = 0;
+    double Emin     = computeEnergy();
+    double theta    = 0;
+    double phi      = 0;
+    size_t nStep    = 30;
     if (not only2DRotation) {
         for (size_t i = 0; i < nStep / 2; ++i)
             for (size_t j = 0; j < nStep; ++j) {
                 Graph copy = *this;
-                for (auto& node : copy.nodes) {
-                    node.rotate(i*2*M_PI/nStep, 0);
-                    node.rotate(j*2*M_PI/nStep, 1);
+                for (auto &node : copy.nodes) {
+                    node.rotate(i * 2 * M_PI / nStep, 0);
+                    node.rotate(j * 2 * M_PI / nStep, 1);
                 }
                 auto Enew = copy.computeEnergy();
                 if (Enew < Emin) {
-                    theta = i*2*M_PI/nStep;
-                    phi   = j*2*M_PI/nStep;
-                    Emin = Enew;
+                    theta = i * 2 * M_PI / nStep;
+                    phi   = j * 2 * M_PI / nStep;
+                    Emin  = Enew;
                 }
             }
-        for (auto& node : nodes) {
+        for (auto &node : nodes) {
             node.rotate(theta, 0);
             node.rotate(phi, 1);
         }
     }
-    absAngleFactor = defaultAbsAngleFactor;
-    legsRepulsion  = 0;
+    absAngleFactor    = defaultAbsAngleFactor;
+    legsRepulsion     = 0;
     nodeLegsRepulsion = 0;
     externalRepulsion = 0;
-    theta = 0;
-    nStep = 500;
+    theta             = 0;
+    nStep             = 500;
     for (size_t i = 0; i < nStep; ++i) {
         Graph copy = *this;
-        for (auto& node : copy.nodes) {
-            node.rotate(i*2*M_PI/nStep, 2);
+        for (auto &node : copy.nodes) {
+            node.rotate(i * 2 * M_PI / nStep, 2);
         }
         auto Enew = copy.computeEnergy();
         if (Enew < Emin) {
-            theta = i*2*M_PI/nStep;
-            Emin = Enew;
+            theta = i * 2 * M_PI / nStep;
+            Emin  = Enew;
         }
     }
-    for (auto& node : nodes) {
+    for (auto &node : nodes) {
         node.rotate(theta, 2);
     }
-    absAngleFactor = 0;
+    absAngleFactor     = 0;
     specialAnglesValue = defaultSpecialAnglesValue;
-    externalLayout = (keepExternal) ? externalLayout : 0;
-    nStep = 250;
-    double maxAngle = (keepExternal) ? M_PI : M_PI / 5;
-    double mini = -maxAngle;
-    double maxi = maxAngle;
+    externalLayout     = (keepExternal) ? externalLayout : 0;
+    nStep              = 250;
+    double maxAngle    = (keepExternal) ? M_PI : M_PI / 5;
+    double mini        = -maxAngle;
+    double maxi        = maxAngle;
     for (size_t i = 0; i < nStep; ++i) {
         Graph copy = *this;
-        for (auto& node : copy.nodes) {
-            node.rotate(mini + i*(maxi-mini)/nStep, 2);
+        for (auto &node : copy.nodes) {
+            node.rotate(mini + i * (maxi - mini) / nStep, 2);
         }
         auto Enew = copy.computeEnergy();
         if (Enew < Emin) {
-            theta = mini + i*(maxi-mini)/nStep;
-            Emin = Enew;
+            theta = mini + i * (maxi - mini) / nStep;
+            Emin  = Enew;
         }
     }
-    for (auto& node : nodes) {
+    for (auto &node : nodes) {
         node.rotate(theta, 2);
     }
     specialAnglesValue = 0;
 
-    externalLayout = defaultExternalLayout;
-    extensionFactor = defaultExtensionFactor;
-    angleFactor = defaultAngleFactor;
-    nodeSizeFactor = defaultNodeSizeFactor;
-    legsRepulsion  = defaultLegsRepulsion;
+    externalLayout    = defaultExternalLayout;
+    extensionFactor   = defaultExtensionFactor;
+    angleFactor       = defaultAngleFactor;
+    nodeSizeFactor    = defaultNodeSizeFactor;
+    legsRepulsion     = defaultLegsRepulsion;
     nodeLegsRepulsion = defaultNodeLegsRepulsion;
     externalRepulsion = defaultExternalRepulsion;
 }
@@ -643,10 +631,11 @@ void Graph::flip(int axis)
         return;
     }
     if (axis > 2) {
-        std::cerr << "Flipping axis " << axis << " not possible: axis 2 max.\n";
+        std::cerr << "Flipping axis " << axis
+                  << " not possible: axis 2 max.\n";
         return;
     }
-    for (auto& point : nodes) {
+    for (auto &point : nodes) {
         if (axis == 0)
             point.x *= -1;
         else if (axis == 1)
@@ -660,17 +649,17 @@ void Graph::tryFlip()
 {
     double supLength = 0;
     double infLength = 0;
-    double ratio = 1.;
+    double ratio     = 1.;
     for (size_t i = 0; i != nodes.size(); ++i) {
-        double d = (nodes[i].x < 0) ? ratio*nodes[i].y : nodes[i].y;
+        double d = (nodes[i].x < 0) ? ratio * nodes[i].y : nodes[i].y;
         if (d < 0)
             infLength += -d;
         else
             supLength += d;
-        for (size_t j = i+1; j < nodes.size(); ++j)
+        for (size_t j = i + 1; j < nodes.size(); ++j)
             if (not external[j] and adjacency(i, j) != 0) {
                 double d = (nodes[i].y + nodes[j].y) / 2;
-                d = (nodes[i].x/2 + nodes[j].x/2 < 0) ? ratio*d : d;
+                d = (nodes[i].x / 2 + nodes[j].x / 2 < 0) ? ratio * d : d;
                 if (d < 0)
                     infLength += -d;
                 else
@@ -684,7 +673,7 @@ void Graph::tryFlip()
 
 void Graph::scale(double s)
 {
-    for (auto& n : nodes) {
+    for (auto &n : nodes) {
         n.x *= s;
         n.y *= s;
     }
@@ -692,13 +681,13 @@ void Graph::scale(double s)
 
 void Graph::rotate(double theta)
 {
-    for (auto& n : nodes)
+    for (auto &n : nodes)
         n.rotate(theta);
 }
 
 void Graph::move(double x, double y)
 {
-    for (auto& n : nodes) {
+    for (auto &n : nodes) {
         n.x += x;
         n.y += y;
     }
@@ -707,7 +696,7 @@ void Graph::move(double x, double y)
 Point Graph::getCenter() const
 {
     Point center;
-    for (const auto& p : nodes)
+    for (const auto &p : nodes)
         center += p;
     center /= nodes.size();
 
@@ -716,8 +705,8 @@ Point Graph::getCenter() const
 
 void Graph::placeTopLeft()
 {
-    Point topLeft {xMin(), yMin(), zMin()};
-    for (auto& p : nodes)
+    Point topLeft{xMin(), yMin(), zMin()};
+    for (auto &p : nodes)
         p -= topLeft;
 }
 
@@ -729,7 +718,7 @@ size_t Graph::getNVar()
         return 2 * nodes.size();
 }
 
-gsl_vector* Graph::allocGslVector()
+gsl_vector *Graph::allocGslVector()
 {
     if (enable3D)
         return gsl_vector_alloc(3 * nodes.size());
@@ -737,10 +726,10 @@ gsl_vector* Graph::allocGslVector()
         return gsl_vector_alloc(2 * nodes.size());
 }
 
-void Graph::fillGslVector(gsl_vector* x)
+void Graph::fillGslVector(gsl_vector *x)
 {
     size_t pos = 0;
-    for (const auto& p : nodes) {
+    for (const auto &p : nodes) {
         gsl_vector_set(x, pos++, p.x);
         gsl_vector_set(x, pos++, p.y);
         if (enable3D)
@@ -748,10 +737,10 @@ void Graph::fillGslVector(gsl_vector* x)
     }
 }
 
-void Graph::readGslVector(gsl_vector const* x)
+void Graph::readGslVector(gsl_vector const *x)
 {
     size_t pos = 0;
-    for (auto& p : nodes) {
+    for (auto &p : nodes) {
         p.x = gsl_vector_get(x, pos++);
         p.y = gsl_vector_get(x, pos++);
         if (enable3D)
@@ -764,15 +753,14 @@ void Graph::initExternalDistance()
     for (size_t i = 0; i != nodes.size(); ++i) {
         if (external[i] and side[i] != 0) {
             Vector<int> walker(nodes.size());
-            walker[i] = 1;
-            bool completed = false;
-            size_t step = 0;
+            walker[i]        = 1;
+            bool   completed = false;
+            size_t step      = 0;
             do {
                 walker = adjacency * walker;
                 for (size_t j = 0; j != walker.size(); ++j)
-                    if (walker[j] != 0 
-                            and external[j] 
-                            and side[j]*side[i] < 0) {
+                    if (walker[j] != 0 and external[j]
+                        and side[j] * side[i] < 0) {
                         completed = true;
                         break;
                     }
@@ -783,12 +771,12 @@ void Graph::initExternalDistance()
     }
 }
 
-void Graph::initPoint(Point& p, size_t N)
+void Graph::initPoint(Point &p, size_t N)
 {
-    p.x = rand()*1./RAND_MAX * 2*N - N;
-    p.y = rand()*1./RAND_MAX * 2*N - N;
+    p.x = rand() * 1. / RAND_MAX * 2 * N - N;
+    p.y = rand() * 1. / RAND_MAX * 2 * N - N;
     if (enable3D)
-        p.z = rand()*1./RAND_MAX * 2*N - N;
+        p.z = rand() * 1. / RAND_MAX * 2 * N - N;
     else
         p.z = 0;
 }
@@ -825,7 +813,7 @@ bool Graph::tryPermutation(int order, double energy)
                 if (computeEnergy() < energy) {
                     return true;
                 }
-                if (tryPermutation(order-1, energy))
+                if (tryPermutation(order - 1, energy))
                     return true;
                 std::swap(nodes[i], nodes[j]);
             }
@@ -833,17 +821,17 @@ bool Graph::tryPermutation(int order, double energy)
     return false;
 }
 
-void Graph::write(std::string const& fileName) const
+void Graph::write(std::string const &fileName) const
 {
-    std::string layout = fileName + "_layout.txt";
-    std::string graph  = fileName + "_graph.txt";
+    std::string   layout = fileName + "_layout.txt";
+    std::string   graph  = fileName + "_graph.txt";
     std::ofstream file;
     file.open(layout);
     if (not file) {
         std::cerr << "File " << layout << " impossible to create.\n";
         return;
     }
-    for (const auto& node : nodes)
+    for (const auto &node : nodes)
         file << node << std::endl;
     file.close();
 
@@ -863,8 +851,8 @@ void Graph::addNode(double x, double y)
     external.push_back(false);
     side.push_back(0);
     Matrix<int> adj2(nodes.size());
-    for (size_t i = 0; i != nodes.size()-1; ++i)
-        for (size_t j = 0; j != nodes.size()-1; ++j)
+    for (size_t i = 0; i != nodes.size() - 1; ++i)
+        for (size_t j = 0; j != nodes.size() - 1; ++j)
             adj2(i, j) = adjacency(i, j);
     adjacency = std::move(adj2);
 }
@@ -876,17 +864,14 @@ void Graph::deleteNode(size_t pos)
     external.erase(external.begin() + pos);
     side.erase(side.begin() + pos);
     Matrix<int> adj2(nodes.size());
-    auto t = [&](size_t i) { 
-        return (i >= pos) ? i+1 : i;
-    };
+    auto        t = [&](size_t i) { return (i >= pos) ? i + 1 : i; };
     for (size_t i = 0; i != nodes.size(); ++i)
         for (size_t j = 0; j != nodes.size(); ++j)
             adj2(i, j) = adjacency(t(i), t(j));
     adjacency = std::move(adj2);
 }
 
-std::ostream& operator<<(std::ostream& out,
-                         Graph const&  graph)
+std::ostream &operator<<(std::ostream &out, Graph const &graph)
 {
     out << "Graph\n";
     out << graph.adjacency << '\n';
@@ -900,59 +885,58 @@ std::ostream& operator<<(std::ostream& out,
     return out;
 }
 
-void Graph::initEnergies() 
+void Graph::initEnergies()
 {
     // Uniform size for edges
-    auto edgeSizeEnergy = [](Graph const& g)
-    {
-        const size_t size = g.size();
-        double E = 0;
-        size_t count = 0;
+    auto edgeSizeEnergy = [](Graph const &g) {
+        const size_t size  = g.size();
+        double       E     = 0;
+        size_t       count = 0;
         for (size_t i = 0; i < size; ++i)
-            for (size_t j = i+1; j < size; ++j) {
+            for (size_t j = i + 1; j < size; ++j) {
                 if (g.adjacency(i, j) != 0) {
                     ++count;
-                    double target = (g.external[i] or g.external[j]) ? 
-                        externalLegSizeRation : 1;
+                    double target = (g.external[i] or g.external[j])
+                                        ? externalLegSizeRation
+                                        : 1;
                     if (g.loop[i] xor g.loop[j]) {
                         target /= 2;
                     }
                     else if (g.loop[i] and g.loop[j]) {
                         target /= 2;
                     }
-                    E += std::pow(target - distance(g.nodes[i], g.nodes[j]), 2);
+                    E += std::pow(target - distance(g.nodes[i], g.nodes[j]),
+                                  2);
                 }
             }
         return (count == 0) ? 0 : std::sqrt(E);
     };
 
     // Uniformization of angles around each internal nodes
-    auto angularEnergy = [](Graph const& g)
-    {
-        const size_t size = g.size();
-        double E = 0;
-        size_t count = 0;
+    auto angularEnergy = [](Graph const &g) {
+        const size_t size  = g.size();
+        double       E     = 0;
+        size_t       count = 0;
         for (size_t i = 0; i != size; ++i)
             if (not g.external[i]) {
                 std::vector<double> angles;
                 angles.reserve(size);
                 for (size_t j = 0; j < size; ++j) {
                     if (g.adjacency(i, j) != 0 and i != j) {
-                        angles.push_back(angle(g.nodes[i],
-                                               g.nodes[j],
-                                               g.nodes[i] + Point(1, 0)));
+                        angles.push_back(angle(
+                            g.nodes[i], g.nodes[j], g.nodes[i] + Point(1, 0)));
                     }
                 }
                 if (angles.empty())
                     continue;
                 std::sort(angles.begin(), angles.end());
                 auto saveAngle = angles[0];
-                for (size_t i = 0; i < angles.size()-1; ++i) {
-                    angles[i] = remainder(angles[i+1] - angles[i]);
+                for (size_t i = 0; i < angles.size() - 1; ++i) {
+                    angles[i] = remainder(angles[i + 1] - angles[i]);
                 }
-                angles.back() = remainder(saveAngle - angles.back());
-                double targetAngle = 2*M_PI / angles.size();
-                for (const auto& a : angles) {
+                angles.back()      = remainder(saveAngle - angles.back());
+                double targetAngle = 2 * M_PI / angles.size();
+                for (const auto &a : angles) {
                     E += std::pow(drawer::remainder(a - targetAngle), 2);
                 }
                 count += angles.size();
@@ -961,13 +945,12 @@ void Graph::initEnergies()
     };
 
     // Energy for the values of angles, perfering specific values (0, pi/2 ...)
-    auto absAngleEnergy = [](Graph const& g)
-    {
-        const size_t size = g.size();
-        double E = 0;
-        size_t count = 0;
-        for (size_t i = 0; i < size; ++i) 
-            for (size_t j = i+1; j < size; ++j) {
+    auto absAngleEnergy = [](Graph const &g) {
+        const size_t size  = g.size();
+        double       E     = 0;
+        size_t       count = 0;
+        for (size_t i = 0; i < size; ++i)
+            for (size_t j = i + 1; j < size; ++j) {
                 double dy = g.nodes[j].y - g.nodes[i].y;
                 double dx = g.nodes[j].x - g.nodes[i].x;
                 E += (1 + std::sin(std::atan2(dy, dx))) / 2;
@@ -977,32 +960,30 @@ void Graph::initEnergies()
     };
 
     // Energy from layout of external (in or out) particles.
-    auto layoutEnergy = [](Graph const& g)
-    {
+    auto layoutEnergy = [](Graph const &g) {
         const size_t size = g.size();
-        double E = 0;
-        double xmax = g.xMax();
-        double xmin = g.xMin();
+        double       E    = 0;
+        double       xmax = g.xMax();
+        double       xmin = g.xMin();
         for (size_t i = 0; i != size; ++i) {
             if (g.external[i]) {
                 if (g.side[i] == 0)
                     continue;
                 if (g.side[i] > 0)
-                    E += g.side[i]*std::pow(g.nodes[i].x-xmax, 2);
+                    E += g.side[i] * std::pow(g.nodes[i].x - xmax, 2);
                 else
-                    E -= g.side[i]*std::pow(g.nodes[i].x-xmin, 2);
-                for (size_t j = i+1; j < size; ++j)
+                    E -= g.side[i] * std::pow(g.nodes[i].x - xmin, 2);
+                for (size_t j = i + 1; j < size; ++j)
                     if (g.external[j] and g.side[i] == g.side[j])
                         E += std::pow(g.nodes[i].x - g.nodes[j].x, 2);
                     else if (g.adjacency(i, j) != 0)
                         E += std::pow(
-                                1-g.side[i]*(g.nodes[i].x - g.nodes[j].x),
-                                2);
-                    else if (g.external[j] and g.side[i]*g.side[j] < 0) {
+                            1 - g.side[i] * (g.nodes[i].x - g.nodes[j].x), 2);
+                    else if (g.external[j] and g.side[i] * g.side[j] < 0) {
                         if (g.side[i] < 0)
-                            E += 0.5*std::exp(g.nodes[i].x - g.nodes[j].x);
+                            E += 0.5 * std::exp(g.nodes[i].x - g.nodes[j].x);
                         else
-                            E += 0.5*std::exp(g.nodes[j].x - g.nodes[i].x);
+                            E += 0.5 * std::exp(g.nodes[j].x - g.nodes[i].x);
                     }
             }
         }
@@ -1010,18 +991,17 @@ void Graph::initEnergies()
     };
 
     // Repulsion between nodes that are not wonnected to each other
-    auto nodeRepulsionEnergy = [](Graph const& g)
-    {
-        const size_t size = g.size();
-        double E = 0;
-        size_t count = 0;
+    auto nodeRepulsionEnergy = [](Graph const &g) {
+        const size_t size  = g.size();
+        double       E     = 0;
+        size_t       count = 0;
         for (size_t i = 0; i < size; ++i)
-            for (size_t j = i+1; j < size; ++j) {
+            for (size_t j = i + 1; j < size; ++j) {
                 if (g.adjacency(i, j) == 0) {
                     ++count;
                     auto d = distance2(g.nodes[i], g.nodes[j]);
                     if (decouplingDistance == -1
-                            or std::sqrt(d) < decouplingDistance)
+                        or std::sqrt(d) < decouplingDistance)
                         E += 1 / distance2(g.nodes[i], g.nodes[j]);
                 }
             }
@@ -1029,54 +1009,51 @@ void Graph::initEnergies()
     };
 
     // Repulsion between legs
-    auto legsRepulsionEnergy = [](Graph const& g)
-    {
-        const size_t size = g.size();
-        double E = 0;
-        size_t count = 0;
+    auto legsRepulsionEnergy = [](Graph const &g) {
+        const size_t       size  = g.size();
+        double             E     = 0;
+        size_t             count = 0;
         std::vector<Point> legs;
         legs.reserve(size + 2);
         for (size_t i = 0; i < size; ++i)
-            for (size_t j = i+1; j < size; ++j)
+            for (size_t j = i + 1; j < size; ++j)
                 if (g.adjacency(i, j) != 0)
                     legs.push_back(Point((g.nodes[i] + g.nodes[j]) / 2));
         for (size_t i = 0; i < legs.size(); ++i)
-            for (size_t j = i+1; j < legs.size(); ++j) {
+            for (size_t j = i + 1; j < legs.size(); ++j) {
                 ++count;
                 auto d = distance2(legs[i], legs[j]);
-                if (decouplingDistance == -1 
-                        or std::sqrt(d) < decouplingDistance)
+                if (decouplingDistance == -1
+                    or std::sqrt(d) < decouplingDistance)
                     E += 1 / distance2(legs[i], legs[j]);
             }
         return (count == 0) ? 0 : std::sqrt(E);
     };
 
-    // Repulsion between not connected legs and nodes 
-    auto legsNodesRepulsionEnergy = [](Graph const& g)
-    {
-        const size_t size = g.size();
-        double E = 0;
-        size_t count = 0;
+    // Repulsion between not connected legs and nodes
+    auto legsNodesRepulsionEnergy = [](Graph const &g) {
+        const size_t       size  = g.size();
+        double             E     = 0;
+        size_t             count = 0;
         std::vector<Point> legs;
         legs.reserve(size + 2);
         for (size_t i = 0; i < size; ++i)
-            for (size_t j = i+1; j < size; ++j)
+            for (size_t j = i + 1; j < size; ++j)
                 if (g.adjacency(i, j) != 0)
                     for (size_t k = 0; k != size; ++k)
                         if (k != i and k != j) {
                             ++count;
                             auto leg = (g.nodes[i] + g.nodes[j]) / 2;
-                            auto d = distance2(leg, g.nodes[k]);
+                            auto d   = distance2(leg, g.nodes[k]);
                             if (decouplingDistance == -1
-                                    or std::sqrt(d) < decouplingDistance)
+                                or std::sqrt(d) < decouplingDistance)
                                 E += 1 / distance2(leg, g.nodes[k]);
                         }
         return (count == 0) ? 0 : std::sqrt(E);
     };
 
     // Extension energy for graph, limits the size
-    auto extensionEnergy = [](Graph const& g)
-    {
+    auto extensionEnergy = [](Graph const &g) {
         double xmin = g.xMin();
         double xmax = g.xMax();
         double ymin = g.yMin();
@@ -1085,82 +1062,75 @@ void Graph::initEnergies()
             double zmin = g.zMin();
             double zmax = g.zMax();
             return std::sqrt(std::pow(xmax - xmin, 2)
-                           + std::pow(ymax - ymin, 2)
-                           + std::pow(zmax - zmin, 2));
+                             + std::pow(ymax - ymin, 2)
+                             + std::pow(zmax - zmin, 2));
         }
-        return std::sqrt(std::pow(xmax - xmin, 2)
-                       + std::pow(ymax - ymin, 2));
+        return std::sqrt(std::pow(xmax - xmin, 2) + std::pow(ymax - ymin, 2));
     };
 
-    auto _3DEnergy = [](Graph const& g)
-    {
+    auto _3DEnergy = [](Graph const &g) {
         double E = 0;
         if (not Graph::enable3D)
             return E;
-        for (const auto& node : g.nodes)
+        for (const auto &node : g.nodes)
             E += node.z * node.z;
         return std::sqrt(E);
     };
 
-    auto crossEnergy = [](Graph const& g)
-    {
+    auto crossEnergy = [](Graph const &g) {
         if (g.enable3D)
             return 0.;
         const size_t size = g.size();
-        double E = 0;
+        double       E    = 0;
         for (size_t i = 0; i != size; ++i)
-            for (size_t j = i+1; j < size; ++j)
+            for (size_t j = i + 1; j < size; ++j)
                 if (g.adjacency(i, j) != 0) {
                     line eq_ij = getEquation(g.nodes[i], g.nodes[j]);
                     if (eq_ij.a == 0)
                         continue;
-                    for (size_t k = j+1; k < size; ++k)
-                        for (size_t l = k+1; l < size; ++l)
+                    for (size_t k = j + 1; k < size; ++k)
+                        for (size_t l = k + 1; l < size; ++l)
                             if (g.adjacency(k, l) != 0) {
-                                line eq_kl = 
-                                    getEquation(g.nodes[k], g.nodes[l]);
+                                line eq_kl
+                                    = getEquation(g.nodes[k], g.nodes[l]);
                                 if (eq_kl.a == 0 or eq_kl.a == eq_ij.a)
                                     continue;
-                                double x0 = (eq_ij.b - eq_kl.b) 
-                                          / (eq_ij.a - eq_kl.a);
-                                if (g.nodes[i].x <= x0 and
-                                        g.nodes[j].x >= x0 and
-                                        g.nodes[k].x <= x0 and
-                                        g.nodes[l].x >= x0)
+                                double x0 = (eq_ij.b - eq_kl.b)
+                                            / (eq_ij.a - eq_kl.a);
+                                if (g.nodes[i].x <= x0 and g.nodes[j].x >= x0
+                                    and g.nodes[k].x <= x0
+                                    and g.nodes[l].x >= x0)
                                     ++E;
                             }
-                    }
+                }
         return E;
     };
 
-    auto specialAnglesEnergy = [](Graph const& g)
-    {
-        double E = 0;
-        const size_t size = g.size();
-        double locality = M_PI/60;
+    auto specialAnglesEnergy = [](Graph const &g) {
+        double                                 E        = 0;
+        const size_t                           size     = g.size();
+        double                                 locality = M_PI / 60;
         std::vector<std::pair<double, double>> scores
-            = {{0, 1}, 
-               {M_PI/2, 0.5},
-               {M_PI/3, 0.5},
-               {M_PI/4, 0.2}};  
+            = {{0, 1}, {M_PI / 2, 0.5}, {M_PI / 3, 0.5}, {M_PI / 4, 0.2}};
 
         for (size_t i = 0; i != size; ++i) {
-            for (size_t j = i+1; j < size; ++j)
+            for (size_t j = i + 1; j < size; ++j)
                 if (g.adjacency(i, j) != 0) {
                     auto angle_ij = (g.nodes[i] - g.nodes[j]).angle();
-                    for (const auto& [angle, score] : scores) {
+                    for (const auto &[angle, score] : scores) {
                         auto factor = score;
                         if (g.external[i] or g.external[j])
                             factor *= 1.3;
-                        auto diff = std::abs(remainder(angle-angle_ij));
+                        auto diff = std::abs(remainder(angle - angle_ij));
                         if (diff < 0 or diff > M_PI) {
                             std::cerr << "Angle out of bounds in adjustement: "
-                                << diff << std::endl;
+                                      << diff << std::endl;
                         }
                         if (diff > M_PI / 2)
                             diff = M_PI - diff;
                         if (diff < locality)
-                            E += factor*(-std::cos(M_PI*diff/locality)-1);
+                            E += factor
+                                 * (-std::cos(M_PI * diff / locality) - 1);
                     }
                 }
         }
@@ -1168,39 +1138,22 @@ void Graph::initEnergies()
         return E;
     };
 
-    energies.push_back(Energy(nodeSizeFactor,
-                              edgeSizeEnergy,
-                              "Edge size"));
-    energies.push_back(Energy(angleFactor,
-                              angularEnergy,
-                              "Angles"));
-    energies.push_back(Energy(absAngleFactor,
-                              absAngleEnergy,
-                              "Abs angles"));
-    energies.push_back(Energy(externalLayout,
-                              layoutEnergy,
-                              "Layout"));
-    energies.push_back(Energy(externalRepulsion,
-                              nodeRepulsionEnergy,
-                              "Node repulsion"));
-    energies.push_back(Energy(legsRepulsion,
-                              legsRepulsionEnergy,
-                              "Legs repulsion"));
-    energies.push_back(Energy(nodeLegsRepulsion,
-                              legsNodesRepulsionEnergy,
-                              "Node-legs repulsion"));
-    energies.push_back(Energy(extensionFactor,
-                              extensionEnergy,
-                              "Extension"));
-    energies.push_back(Energy(_3DFactor,
-                              _3DEnergy,
-                              "3D"));
-    energies.push_back(Energy(defaultCrossEnergyValue,
-                              crossEnergy,
-                              "Cross energy"));
-    energies.push_back(Energy(specialAnglesValue,
-                              specialAnglesEnergy,
-                              "Special angles energy"));
+    energies.push_back(Energy(nodeSizeFactor, edgeSizeEnergy, "Edge size"));
+    energies.push_back(Energy(angleFactor, angularEnergy, "Angles"));
+    energies.push_back(Energy(absAngleFactor, absAngleEnergy, "Abs angles"));
+    energies.push_back(Energy(externalLayout, layoutEnergy, "Layout"));
+    energies.push_back(
+        Energy(externalRepulsion, nodeRepulsionEnergy, "Node repulsion"));
+    energies.push_back(
+        Energy(legsRepulsion, legsRepulsionEnergy, "Legs repulsion"));
+    energies.push_back(Energy(
+        nodeLegsRepulsion, legsNodesRepulsionEnergy, "Node-legs repulsion"));
+    energies.push_back(Energy(extensionFactor, extensionEnergy, "Extension"));
+    energies.push_back(Energy(_3DFactor, _3DEnergy, "3D"));
+    energies.push_back(
+        Energy(defaultCrossEnergyValue, crossEnergy, "Cross energy"));
+    energies.push_back(Energy(
+        specialAnglesValue, specialAnglesEnergy, "Special angles energy"));
 }
 
-}
+} // namespace drawer

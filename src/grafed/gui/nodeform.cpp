@@ -1,31 +1,26 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "nodeform.h"
-#include "ui_nodeform.h"
-#include "node.h"
 #include "diagramrenderer.h"
+#include "node.h"
+#include "ui_nodeform.h"
 #include <iostream>
 
-NodeForm::NodeForm(
-        Node *t_node,
-        DiagramRenderer *t_parent) :
-    QWidget(t_parent),
-    ui(new Ui::NodeForm),
-    renderer(t_parent),
-    node(t_node)
+NodeForm::NodeForm(Node *t_node, DiagramRenderer *t_parent)
+    : QWidget(t_parent), ui(new Ui::NodeForm), renderer(t_parent), node(t_node)
 {
     ui->setupUi(this);
 
@@ -35,33 +30,30 @@ NodeForm::NodeForm(
     ui->colorButton->setStyleSheet(qss);
     ui->colorButton->update();
     ui->spinSize->setValue(node->getNodeSize());
-    connect(ui->colorButton, SIGNAL(pressed()),
-            this,            SLOT(changeColor()));
+    connect(ui->colorButton, SIGNAL(pressed()), this, SLOT(changeColor()));
 
     ui->lineName->setText(node->getName());
-    connect(ui->lineName, SIGNAL(textChanged(QString const&)),
-            node,         SLOT(setName(QString const&)));
+    connect(ui->lineName,
+            SIGNAL(textChanged(QString const &)),
+            node,
+            SLOT(setName(QString const &)));
 
     ui->spinSize->setValue(node->getNodeSize());
-    connect(ui->spinSize, SIGNAL(valueChanged(int)),
-            node,              SLOT(setNodeSize(int)));
+    connect(
+        ui->spinSize, SIGNAL(valueChanged(int)), node, SLOT(setNodeSize(int)));
 
-    connect(ui->quitButton, SIGNAL(clicked()),
-            renderer,       SLOT(closeNodeForm()));
+    connect(
+        ui->quitButton, SIGNAL(clicked()), renderer, SLOT(closeNodeForm()));
 
-    QList<QString> files =
-    {
-        "",
-        ":/ressources/images/operator.png",
-        ":/ressources/images/cross.png",
-        ":/ressources/images/plain_disk.png",
-        ":/ressources/images/hatched_disk.png"
-    };
+    QList<QString> files = {"",
+                            ":/ressources/images/operator.png",
+                            ":/ressources/images/cross.png",
+                            ":/ressources/images/plain_disk.png",
+                            ":/ressources/images/hatched_disk.png"};
     ui->tableType->setIconSize(QSize(150, 30));
     ui->tableType->horizontalHeader()->setSectionResizeMode(
-                QHeaderView::Fixed);
-    ui->tableType->verticalHeader()->setSectionResizeMode(
-                QHeaderView::Fixed);
+        QHeaderView::Fixed);
+    ui->tableType->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     ui->tableType->horizontalHeader()->setDefaultSectionSize(80);
     ui->tableType->verticalHeader()->setDefaultSectionSize(30);
     ui->tableType->horizontalHeader()->hide();
@@ -79,8 +71,10 @@ NodeForm::NodeForm(
             j = 1;
         }
     }
-    connect(ui->tableType, SIGNAL(cellClicked(int, int)),
-            this,          SLOT(nodeTypeChanged(int, int)));
+    connect(ui->tableType,
+            SIGNAL(cellClicked(int, int)),
+            this,
+            SLOT(nodeTypeChanged(int, int)));
 }
 
 NodeForm::~NodeForm()
@@ -99,5 +93,5 @@ void NodeForm::changeColor()
 
 void NodeForm::nodeTypeChanged(int i, int j)
 {
-    node->setNodeType(i + 3*j);
+    node->setNodeType(i + 3 * j);
 }

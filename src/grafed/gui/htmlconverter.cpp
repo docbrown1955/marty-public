@@ -1,15 +1,15 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
@@ -17,7 +17,7 @@
 #include <QString>
 #include <iostream>
 
-QString HTMLConverter::fromLatex(QString const& init)
+QString HTMLConverter::fromLatex(QString const &init)
 {
     QString res;
     res.reserve(init.size());
@@ -76,14 +76,14 @@ QString HTMLConverter::fromLatex(QString const& init)
 bool HTMLConverter::isSeparator(QChar c)
 {
     return std::find(separators.begin(), separators.end(), c)
-            != separators.end();
+           != separators.end();
 }
 
 QString HTMLConverter::readSingle(QString::const_iterator &iter,
-                                  QString::const_iterator end)
+                                  QString::const_iterator  end)
 {
     if (*iter == '\\') {
-        return '\\'+readToSeparator(++iter, end);
+        return '\\' + readToSeparator(++iter, end);
     }
     else if (*iter == '{') {
         return readTo('}', ++iter, end);
@@ -104,7 +104,7 @@ QString HTMLConverter::readToSeparator(QString::const_iterator &iter,
     return res;
 }
 
-QString HTMLConverter::readTo(QChar c,
+QString HTMLConverter::readTo(QChar                    c,
                               QString::const_iterator &iter,
                               QString::const_iterator  end)
 {

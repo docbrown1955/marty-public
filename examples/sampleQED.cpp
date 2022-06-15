@@ -3,7 +3,8 @@
 using namespace csl;
 using namespace mty;
 
-int main() {
+int main()
+{
 
     Model QED;
     AddGaugedGroup(QED, group::Type::U1, "U1_em", constant_s("e"));
@@ -22,17 +23,19 @@ int main() {
     Display(rules);
     Show(rules);
 
-    auto compton = QED.computeAmplitude(
-                Order::TreeLevel,
-                { Incoming(electron), Incoming(photon),
-                  Outgoing(electron), Outgoing(photon)});
+    auto compton = QED.computeAmplitude(Order::TreeLevel,
+                                        {Incoming(electron),
+                                         Incoming(photon),
+                                         Outgoing(electron),
+                                         Outgoing(photon)});
     Display(compton);
     Show(compton);
 
-    auto diff = QED.computeAmplitude(
-                Order::TreeLevel,
-                { Incoming(electron), Incoming(electron),
-                  Outgoing(electron), Outgoing(electron)});
+    auto diff = QED.computeAmplitude(Order::TreeLevel,
+                                     {Incoming(electron),
+                                      Incoming(electron),
+                                      Outgoing(electron),
+                                      Outgoing(electron)});
     Display(diff);
     Show(diff);
     DisplayAbbreviations();

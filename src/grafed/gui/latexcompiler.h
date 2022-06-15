@@ -13,47 +13,46 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
- #ifndef LATEXCOMPILER_H
+#ifndef LATEXCOMPILER_H
 #define LATEXCOMPILER_H
 
+#include "resourcehandler.h"
 #include <QPixmap>
-#include <string>
 #include <map>
 #include <optional>
-#include "resourcehandler.h"
+#include <string>
 
-class latexcompiler: public QObject
-{
+class latexcompiler : public QObject {
 
     Q_OBJECT
 
-public:
+  public:
     latexcompiler(QObject *_parent);
-    ~latexcompiler() override {}
-    QPixmap getLabel(QString const &texCode);
+    ~latexcompiler() override
+    {
+    }
+    QPixmap                getLabel(QString const &texCode);
     std::optional<QPixmap> getLabel(std::string const &texCode);
 
     void sendLabel(QString const &texCode);
     void sendLabel(std::string const &texCode);
-    bool isReady() const {
+    bool isReady() const
+    {
         return pixmaps->isReady();
     }
 
-public slots:
+  public slots:
 
     void labelReady_slot(std::string const &);
-signals:
+  signals:
 
     void labelReady(std::string const &);
 
-private:
-    static
-    std::string getGrafedDir();
-    static
-    QPixmap generateLabel(std::string const &equation);
+  private:
+    static std::string getGrafedDir();
+    static QPixmap     generateLabel(std::string const &equation);
 
-private:
-
+  private:
     ResourceHandler *pixmaps;
 };
 

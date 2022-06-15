@@ -17,7 +17,7 @@
  * @file contraction.h
  * @brief Contraction relations.
  * @author Grégoire Uhlrich
- * @version 
+ * @version
  * @date 2021-05-06
  */
 #pragma once
@@ -26,26 +26,19 @@
 
 namespace sgl {
 
-    class IndexChain;
+class IndexChain;
 
-    GExpr contraction(
-            GammaIndex        mu,
-            GammaIndex        nu,
-            csl::Index const &a,
-            csl::Index const &b
-            );
+GExpr contraction(GammaIndex        mu,
+                  GammaIndex        nu,
+                  csl::Index const &a,
+                  csl::Index const &b);
 
-    GExpr epsilonContraction(
-            std::vector<csl::Index> A,
-            std::vector<csl::Index> B
-            );
+GExpr epsilonContraction(std::vector<csl::Index> A, std::vector<csl::Index> B);
 
-    GExpr momentumGammaContraction(
-            IndexChain  const &init,
-            csl::Tensor        p,
-            csl::Index  const &mu,
-            csl::Index  const &nu,
-            size_t             i,
-            size_t             j
-            );
-}
+GExpr momentumGammaContraction(IndexChain const &init,
+                               csl::Tensor       p,
+                               csl::Index const &mu,
+                               csl::Index const &nu,
+                               size_t            i,
+                               size_t            j);
+} // namespace sgl

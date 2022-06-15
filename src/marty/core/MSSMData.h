@@ -1,23 +1,23 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 /*!
- * @file 
+ * @file
  * @author Grégoire Uhlrich
  * @version 1.3
- 
+
  * \brief
  */
 #ifndef MSSM_DATA_H_INCLUDED
@@ -72,15 +72,15 @@ struct MSSM_Data {
     csl::Tensor Ae; // Lepton Trinlinear coupling
 
     // Lepton final masses
-    csl::Expr m_e; 
-    csl::Expr m_mu; 
+    csl::Expr m_e;
+    csl::Expr m_mu;
     csl::Expr m_tau;
-    csl::Expr m_u;  
-    csl::Expr m_c;  
-    csl::Expr m_t;  
-    csl::Expr m_d;  
-    csl::Expr m_s;      
-    csl::Expr m_b;  
+    csl::Expr m_u;
+    csl::Expr m_c;
+    csl::Expr m_t;
+    csl::Expr m_d;
+    csl::Expr m_s;
+    csl::Expr m_b;
 
     ///////////////////////////////////////////////////
     // Quark sector
@@ -113,14 +113,15 @@ struct MSSM_Data {
     mty::Particle s_Hu; // Up-type higgsino doublet
     mty::Particle s_Hd; // Down-type higgsino doublet
 
-    csl::Expr v_h;     // Higgs' VEV v^2 = v_u^2 + v_d^2
-    csl::Expr mu_h;    // mu constant in Higgs potential
-    csl::Expr alpha_h; // Angle defining neutral higgses h^0 & H^0 from gauge states
-    csl::Expr beta_h;  // Angle between up and down VEVS, tan beta = v_u / v_d
-    csl::Expr b_h;     // Function of mu, m_sHu, m_sHd and beta, condition for VEV
-    csl::Expr m_sHu;   // Up-type higgsino mass
-    csl::Expr m_sHd;   // Down-type higgsino mass
-    csl::Expr M_A0;      // Pseudo-scalar mass
+    csl::Expr v_h;  // Higgs' VEV v^2 = v_u^2 + v_d^2
+    csl::Expr mu_h; // mu constant in Higgs potential
+    csl::Expr
+              alpha_h; // Angle defining neutral higgses h^0 & H^0 from gauge states
+    csl::Expr beta_h; // Angle between up and down VEVS, tan beta = v_u / v_d
+    csl::Expr b_h; // Function of mu, m_sHu, m_sHd and beta, condition for VEV
+    csl::Expr m_sHu; // Up-type higgsino mass
+    csl::Expr m_sHd; // Down-type higgsino mass
+    csl::Expr M_A0;  // Pseudo-scalar mass
 
     ///////////////////////////////////////////////////
     // Map between supersymmetric partners

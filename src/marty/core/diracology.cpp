@@ -1,25 +1,25 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "diracology.h"
-#include "mrtError.h"
-#include "polarization.h"
-#include "mrtUtils.h"
-#include "quantumField.h"
-#include "mrtInterface.h"
 #include "../sgl/sgl.h"
+#include "mrtError.h"
+#include "mrtInterface.h"
+#include "mrtUtils.h"
+#include "polarization.h"
+#include "quantumField.h"
 
 using namespace std;
 using namespace csl;
@@ -32,29 +32,27 @@ namespace mty {
 /*************************************************/
 ///////////////////////////////////////////////////
 
-csl::Expr slashed_s(
-        csl::Tensor     p,
-        const csl::Index& alpha,
-        const csl::Index& beta,
-        const DiracSpace* space)
+csl::Expr slashed_s(csl::Tensor       p,
+                    const csl::Index &alpha,
+                    const csl::Index &beta,
+                    const DiracSpace *space)
 {
     csl::Index mu = csl::Minkowski.generateIndex();
-    return space->gamma({+mu,alpha,beta})*p(mu);
+    return space->gamma({+mu, alpha, beta}) * p(mu);
 }
 
-csl::Expr bar_s(const csl::Expr&       tensor,
-           const DiracSpace* space)
+csl::Expr bar_s(const csl::Expr &tensor, const DiracSpace *space)
 {
-    csl::Index beta = space->generateIndex();
-    const csl::IndexStructure& structure = tensor->getIndexStructureView();
-    csl::Index alpha;
-    for (const auto& i : structure)
+    csl::Index                 beta      = space->generateIndex();
+    const csl::IndexStructure &structure = tensor->getIndexStructureView();
+    csl::Index                 alpha;
+    for (const auto &i : structure)
         if (i.getSpace() == space)
             alpha = i;
 
     csl::Expr res = csl::Replaced(tensor, alpha, beta);
-    
-    return csl::GetComplexConjugate(res) * space->gamma({0,beta,alpha});
+
+    return csl::GetComplexConjugate(res) * space->gamma({0, beta, alpha});
 }
 
 ///////////////////////////////////////////////////
@@ -63,55 +61,42 @@ csl::Expr bar_s(const csl::Expr&       tensor,
 /*************************************************/
 ///////////////////////////////////////////////////
 
-DiracSpace::DiracSpace(csl::Space const* t_spaceTime)
-    :csl::Space("dirac",
-                getSpinorDimension(t_spaceTime->getDim()),
-                {"alpha", "beta", "gam", "del", "eps", "eta"}),
-    spaceTime(t_spaceTime)
+DiracSpace::DiracSpace(csl::Space const *t_spaceTime)
+    : csl::Space("dirac",
+                 getSpinorDimension(t_spaceTime->getDim()),
+                 {"alpha", "beta", "gam", "del", "eps", "eta"}),
+      spaceTime(t_spaceTime)
 {
-    gamma = csl::tensor_s(
-            "gamma",
-            {spaceTime, this, this});
+    gamma = csl::tensor_s("gamma", {spaceTime, this, this});
 
-    sigma = csl::tensor_s(
-            "sigma",
-            {spaceTime, spaceTime, this, this});
+    sigma = csl::tensor_s("sigma", {spaceTime, spaceTime, this, this});
 
-    gamma_chir = csl::tensor_s(
-            (dim == 4) ? "gamma5" : "gamma_chir",
-            {this, this});
+    gamma_chir
+        = csl::tensor_s((dim == 4) ? "gamma5" : "gamma_chir", {this, this});
 
-    P_L = csl::tensor_s(
-            "P_L",
-            {this, this});
+    P_L = csl::tensor_s("P_L", {this, this});
 
-    P_R = csl::tensor_s(
-            "P_R",
-            {this, this});
+    P_R = csl::tensor_s("P_R", {this, this});
 
-    C_matrix = csl::tensor_s(
-            "C",
-            std::vector<csl::Space const*>({this, this})
-            );
+    C_matrix
+        = csl::tensor_s("C", std::vector<csl::Space const *>({this, this}));
 
     initProperties();
 }
 
 DiracSpace::~DiracSpace()
 {
-    
 }
 
-csl::Space const* DiracSpace::getSpaceTime() const 
+csl::Space const *DiracSpace::getSpaceTime() const
 {
     return spaceTime;
 }
 
-bool DiracSpace::hasSpecialTraceProperty(
-        const csl::vector_expr& tensors) const
+bool DiracSpace::hasSpecialTraceProperty(const csl::vector_expr &tensors) const
 {
     if (keepCycles) {
-        for (const auto& t : tensors)
+        for (const auto &t : tensors)
             if (not isGammaTensor(t))
                 return false;
         return true;
@@ -120,7 +105,7 @@ bool DiracSpace::hasSpecialTraceProperty(
     return false;
 }
 
-void expandAbbreviations(csl::vector_expr& tensors)
+void expandAbbreviations(csl::vector_expr &tensors)
 {
     bool hasFc = false;
     for (const auto &t : tensors) {
@@ -135,11 +120,11 @@ void expandAbbreviations(csl::vector_expr& tensors)
     csl::vector_expr newTensors;
     newTensors.reserve(tensors.size());
 
-    for (const auto& t : tensors) {
+    for (const auto &t : tensors) {
         csl::Abbrev::enableGenericEvaluation("Fc");
         csl::Expr eval = Evaluated(t);
         if (eval->getType() == csl::Type::Prod)
-            for (const auto& child : *eval)
+            for (const auto &child : *eval)
                 newTensors.push_back(child);
         else
             newTensors.push_back(eval);
@@ -189,18 +174,14 @@ void expandAbbreviations(csl::vector_expr& tensors)
 
 csl::Expr DiracSpace::calculateTrace(csl::vector_expr tensors) const
 {
-    sgl::TensorSet tensorset {
-        dirac4.gamma_chir,
-        dirac4.C_matrix,
-        dirac4.P_L,
-        dirac4.P_R,
-        {}
-    };
+    sgl::TensorSet tensorset{
+        dirac4.gamma_chir, dirac4.C_matrix, dirac4.P_L, dirac4.P_R, {}};
     tensorset.gamma[0] = dirac4.delta;
     tensorset.gamma[1] = dirac4.gamma;
     tensorset.gamma[2] = dirac4.sigma;
     try {
-        sgl::GExpr sglTest = sgl::csl_to_sgl(csl::prod_s(tensors, true), tensorset);
+        sgl::GExpr sglTest
+            = sgl::csl_to_sgl(csl::prod_s(tensors, true), tensorset);
         sgl::Simplify(sglTest);
         return sgl::sgl_to_csl(sglTest, tensorset);
     }
@@ -210,82 +191,72 @@ csl::Expr DiracSpace::calculateTrace(csl::vector_expr tensors) const
     }
 }
 
-void setDiracTensor4(const DiracSpace* self)
+void setDiracTensor4(const DiracSpace *self)
 {
     self->gamma->setTensor(
-            csl::highdtensor_s(
-            {{{CSL_0,CSL_0,CSL_1,CSL_0},
-              {CSL_0,CSL_0,CSL_0,CSL_1},
-              {CSL_1,CSL_0,CSL_0,CSL_0},
-              {CSL_0,CSL_1,CSL_0,CSL_0}},
+        csl::highdtensor_s({{{CSL_0, CSL_0, CSL_1, CSL_0},
+                             {CSL_0, CSL_0, CSL_0, CSL_1},
+                             {CSL_1, CSL_0, CSL_0, CSL_0},
+                             {CSL_0, CSL_1, CSL_0, CSL_0}},
 
-             {{CSL_0,CSL_0,CSL_0,CSL_1},
-              {CSL_0,CSL_0,CSL_1,CSL_0},
-              {CSL_0,CSL_M_1,CSL_0,CSL_0},
-              {CSL_M_1,CSL_0,CSL_0,CSL_0}},
+                            {{CSL_0, CSL_0, CSL_0, CSL_1},
+                             {CSL_0, CSL_0, CSL_1, CSL_0},
+                             {CSL_0, CSL_M_1, CSL_0, CSL_0},
+                             {CSL_M_1, CSL_0, CSL_0, CSL_0}},
 
-             {{CSL_0,CSL_0,CSL_0,-CSL_I},
-              {CSL_0,CSL_0,CSL_I,CSL_0},
-              {CSL_0,CSL_I,CSL_0,CSL_0},
-              {-CSL_I,CSL_0,CSL_0,CSL_0}},
+                            {{CSL_0, CSL_0, CSL_0, -CSL_I},
+                             {CSL_0, CSL_0, CSL_I, CSL_0},
+                             {CSL_0, CSL_I, CSL_0, CSL_0},
+                             {-CSL_I, CSL_0, CSL_0, CSL_0}},
 
-             {{CSL_0,CSL_0,CSL_1,CSL_0},
-              {CSL_0,CSL_0,CSL_0,CSL_M_1},
-              {CSL_M_1,CSL_0,CSL_0,CSL_0},
-              {CSL_0,CSL_1,CSL_0,CSL_0}}}
-        ));
+                            {{CSL_0, CSL_0, CSL_1, CSL_0},
+                             {CSL_0, CSL_0, CSL_0, CSL_M_1},
+                             {CSL_M_1, CSL_0, CSL_0, CSL_0},
+                             {CSL_0, CSL_1, CSL_0, CSL_0}}}));
 
-        self->C_matrix->setTensor(
-                csl::matrix_s(
-                    {{CSL_0, CSL_1, CSL_0, CSL_0},
-                    {CSL_M_1, CSL_0, CSL_0, CSL_0},
-                    {CSL_0, CSL_0, CSL_0, CSL_M_1},
-                    {CSL_0, CSL_0, CSL_1, CSL_0}}
-                ));
+    self->C_matrix->setTensor(csl::matrix_s({{CSL_0, CSL_1, CSL_0, CSL_0},
+                                             {CSL_M_1, CSL_0, CSL_0, CSL_0},
+                                             {CSL_0, CSL_0, CSL_0, CSL_M_1},
+                                             {CSL_0, CSL_0, CSL_1, CSL_0}}));
 
-        self->gamma_chir->setTensor(
-             csl::matrix_s({{CSL_M_1,CSL_0,CSL_0,CSL_0},
-                           {CSL_0,CSL_M_1,CSL_0,CSL_0},
-                           {CSL_0,CSL_0,CSL_1,CSL_0},
-                           {CSL_0,CSL_0,CSL_0,CSL_1}})
-                );
+    self->gamma_chir->setTensor(csl::matrix_s({{CSL_M_1, CSL_0, CSL_0, CSL_0},
+                                               {CSL_0, CSL_M_1, CSL_0, CSL_0},
+                                               {CSL_0, CSL_0, CSL_1, CSL_0},
+                                               {CSL_0, CSL_0, CSL_0, CSL_1}}));
 
-        self->P_L->setTensor(
-             csl::matrix_s({{CSL_1,CSL_0,CSL_0,CSL_0},
-                           {CSL_0,CSL_1,CSL_0,CSL_0},
-                           {CSL_0,CSL_0,CSL_0,CSL_0},
-                           {CSL_0,CSL_0,CSL_0,CSL_0}})
-                );
+    self->P_L->setTensor(csl::matrix_s({{CSL_1, CSL_0, CSL_0, CSL_0},
+                                        {CSL_0, CSL_1, CSL_0, CSL_0},
+                                        {CSL_0, CSL_0, CSL_0, CSL_0},
+                                        {CSL_0, CSL_0, CSL_0, CSL_0}}));
 
-        self->P_R->setTensor(
-             csl::matrix_s({{CSL_0,CSL_0,CSL_0,CSL_0},
-                           {CSL_0,CSL_0,CSL_0,CSL_0},
-                           {CSL_0,CSL_0,CSL_1,CSL_0},
-                           {CSL_0,CSL_0,CSL_0,CSL_1}})
-                );
+    self->P_R->setTensor(csl::matrix_s({{CSL_0, CSL_0, CSL_0, CSL_0},
+                                        {CSL_0, CSL_0, CSL_0, CSL_0},
+                                        {CSL_0, CSL_0, CSL_1, CSL_0},
+                                        {CSL_0, CSL_0, CSL_0, CSL_1}}));
 
-    csl::Expr sigmaTensor = csl::highdtensor_s(std::vector<int>({4,4,4,4}));
+    csl::Expr sigmaTensor = csl::highdtensor_s(std::vector<int>({4, 4, 4, 4}));
     csl::Expr gammaMatrix = dirac4.gamma->getTensor();
     for (int mu = 0; mu != 4; ++mu)
-        for (int nu = 0; nu != 4; ++nu) 
-            for (int alpha = 0; alpha != 4; ++alpha) 
-                for (int beta = 0; beta != 4; ++beta)  {
+        for (int nu = 0; nu != 4; ++nu)
+            for (int alpha = 0; alpha != 4; ++alpha)
+                for (int beta = 0; beta != 4; ++beta) {
                     csl::Expr res = CSL_0;
-                    for (int delta = 0; delta != 4; ++delta) 
-                        res = res 
-                            + gammaMatrix->getArgument({mu,alpha,delta})
-                              * gammaMatrix->getArgument({nu,delta,beta})
-                            - gammaMatrix->getArgument({nu,alpha,delta})
-                              * gammaMatrix->getArgument({mu,delta,beta});
-                    sigmaTensor->setArgument(Expanded(res*CSL_I/2),
-                            {mu,nu,alpha,beta});
+                    for (int delta = 0; delta != 4; ++delta)
+                        res = res
+                              + gammaMatrix->getArgument({mu, alpha, delta})
+                                    * gammaMatrix->getArgument(
+                                        {nu, delta, beta})
+                              - gammaMatrix->getArgument({nu, alpha, delta})
+                                    * gammaMatrix->getArgument(
+                                        {mu, delta, beta});
+                    sigmaTensor->setArgument(Expanded(res * CSL_I / 2),
+                                             {mu, nu, alpha, beta});
                 }
     self->sigma->setTensor(sigmaTensor);
 }
 
-std::vector<csl::Index> DiracSpace::applyInvolution(
-        csl::vector_expr& tensors,
-        csl::Expr             & factor) const
+std::vector<csl::Index> DiracSpace::applyInvolution(csl::vector_expr &tensors,
+                                                    csl::Expr &factor) const
 {
     std::vector<csl::Index> indices;
     indices.reserve(tensors.size());
@@ -308,8 +279,8 @@ std::vector<csl::Index> DiracSpace::applyInvolution(
                         std::cout << t << " ; ";
                     std::cout << std::endl;
                     CallHEPError(mty::error::RuntimeError,
-                            "Badly aligned gamma tensor encountered,"
-                            + toString(mu) + " should not be T / *.");
+                                 "Badly aligned gamma tensor encountered,"
+                                     + toString(mu) + " should not be T / *.");
                     if (tensors[i]->isComplexConjugate()) {
                         indices.push_back(0);
                         indices.push_back(mu);
@@ -329,8 +300,8 @@ std::vector<csl::Index> DiracSpace::applyInvolution(
             }
             if (tensors[i]->isComplexConjugate()) {
                 CallHEPError(mty::error::RuntimeError,
-                        "Badly conjugated gamma tensor encountered,"
-                        + toString(mu) + " should not be T / *.");
+                             "Badly conjugated gamma tensor encountered,"
+                                 + toString(mu) + " should not be T / *.");
                 factor = factor * CSL_M_1;
                 indices.push_back(2);
                 indices.push_back(mu);
@@ -349,14 +320,13 @@ std::vector<csl::Index> DiracSpace::applyInvolution(
     return indices;
 }
 
-void DiracSpace::applyChiralityProp(
-        std::vector<csl::Index>& tensors,
-        csl::Expr                   & factor) const
+void DiracSpace::applyChiralityProp(std::vector<csl::Index> &tensors,
+                                    csl::Expr &              factor) const
 {
     for (size_t i = 1; i < tensors.size(); ++i) {
         if (isGammaChir(tensors[i])) {
             bool simplified = false;
-            for (size_t j = i; j --> 0 ;)
+            for (size_t j = i; j-- > 0;)
                 if (isGammaMu(tensors[j]))
                     factor = -factor;
                 else if (isProjector(tensors[j])) {
@@ -365,7 +335,7 @@ void DiracSpace::applyChiralityProp(
                     simplified = true;
                     break;
                 }
-                else if (isGammaChir(tensors[j])){
+                else if (isGammaChir(tensors[j])) {
                     tensors.erase(tensors.begin() + i);
                     tensors.erase(tensors.begin() + j);
                     i -= 2;
@@ -374,15 +344,16 @@ void DiracSpace::applyChiralityProp(
                 }
                 else
                     CallHEPError(mty::error::TypeError,
-                            "Tensor " + toString(tensors[j]) + " should not "
-                            "appear.");
+                                 "Tensor " + toString(tensors[j])
+                                     + " should not "
+                                       "appear.");
             if (not simplified) {
                 tensors.erase(tensors.begin() + i);
-                tensors.insert(tensors.begin(), dim+1);
+                tensors.insert(tensors.begin(), dim + 1);
             }
         }
         else if (isProjector(tensors[i])) {
-            for (size_t j = i; j --> 0 ;) {
+            for (size_t j = i; j-- > 0;) {
                 if (isGammaMu(tensors[j]))
                     flipChirality(tensors[i]);
                 else if (isGammaChir(tensors[j])) {
@@ -404,35 +375,37 @@ void DiracSpace::applyChiralityProp(
                 }
                 else
                     CallHEPError(mty::error::TypeError,
-                            "Tensor " + toString(tensors[j]) + " should not "
-                            "appear.");
+                                 "Tensor " + toString(tensors[j])
+                                     + " should not "
+                                       "appear.");
             }
             tensors.insert(tensors.begin(), tensors[i]);
-            tensors.erase(tensors.begin() + i+1);
+            tensors.erase(tensors.begin() + i + 1);
         }
     }
 }
 
-void DiracSpace::simplifySquares(
-        std::vector<csl::Index>& tensors,
-        csl::Expr                   & factor) const
+void DiracSpace::simplifySquares(std::vector<csl::Index> &tensors,
+                                 csl::Expr &              factor) const
 {
-    for (size_t i = 0; i+1 < tensors.size(); ++i)
+    for (size_t i = 0; i + 1 < tensors.size(); ++i)
         if (tensors[i].getType() == cslIndex::Fixed
-                and tensors[i+1].getType() ==  cslIndex::Fixed
-                and tensors[i].getValue() == tensors[i+1].getValue()) {
-            if (tensors[i].getSign() == tensors[i+1].getSign()) {
+            and tensors[i + 1].getType() == cslIndex::Fixed
+            and tensors[i].getValue() == tensors[i + 1].getValue()) {
+            if (tensors[i].getSign() == tensors[i + 1].getSign()) {
                 if (tensors[i].getSign()) {
-                    factor = factor * spaceTime
-                        ->getInverseMetric()({tensors[i], tensors[i+1]});
+                    factor = factor
+                             * spaceTime->getInverseMetric()(
+                                 {tensors[i], tensors[i + 1]});
                     tensors.erase(tensors.begin() + i);
                     tensors.erase(tensors.begin() + i);
                     simplifySquares(tensors, factor);
                     return;
                 }
                 else {
-                    factor = factor * spaceTime
-                        ->getMetric()({tensors[i], tensors[i+1]});
+                    factor = factor
+                             * spaceTime->getMetric()(
+                                 {tensors[i], tensors[i + 1]});
                     tensors.erase(tensors.begin() + i);
                     tensors.erase(tensors.begin() + i);
                     simplifySquares(tensors, factor);
@@ -440,15 +413,15 @@ void DiracSpace::simplifySquares(
                 }
             }
             else {
-                factor = factor * spaceTime
-                    ->getDelta()({tensors[i], tensors[i+1]});
+                factor = factor
+                         * spaceTime->getDelta()({tensors[i], tensors[i + 1]});
                 tensors.erase(tensors.begin() + i);
                 tensors.erase(tensors.begin() + i);
                 simplifySquares(tensors, factor);
                 return;
             }
         }
-        else if (tensors[i] == tensors[i+1] and isGammaMu(tensors[i])) {
+        else if (tensors[i] == tensors[i + 1] and isGammaMu(tensors[i])) {
             factor = factor * csl::DMinko;
             tensors.erase(tensors.begin() + i);
             tensors.erase(tensors.begin() + i);
@@ -457,15 +430,14 @@ void DiracSpace::simplifySquares(
         }
 }
 
-csl::Expr DiracSpace::applyRecursion(
-        std::vector<csl::Index>& tensors,
-        csl::Expr                   & factor) const
+csl::Expr DiracSpace::applyRecursion(std::vector<csl::Index> &tensors,
+                                     csl::Expr &              factor) const
 {
     if (tensors.empty())
         return factor * getDim();
 
     if (isProjector(tensors[0])) {
-        factor = factor * CSL_HALF;
+        factor    = factor * CSL_HALF;
         bool sign = isP_L(tensors[0]);
         tensors.erase(tensors.begin());
         csl::Expr res = applyStandardRecursion(tensors);
@@ -482,9 +454,9 @@ csl::Expr DiracSpace::applyRecursion(
     return factor * applyStandardRecursion(tensors);
 }
 
-csl::Expr DiracSpace::applyStandardRecursion(
-        std::vector<csl::Index> const& tensors,
-        bool                           first) const
+csl::Expr
+DiracSpace::applyStandardRecursion(std::vector<csl::Index> const &tensors,
+                                   bool                           first) const
 {
     if (tensors.size() % 2 == 1)
         return CSL_0;
@@ -495,23 +467,23 @@ csl::Expr DiracSpace::applyStandardRecursion(
     if (tensors.size() == 2)
         return 4 * spaceTime->getMetric()({tensors[0], tensors[1]});
 
-    csl::vector_expr terms(tensors.size()-1);
+    csl::vector_expr terms(tensors.size() - 1);
     for (size_t j = 1; j != tensors.size(); ++j) {
         std::vector<csl::Index> copy = tensors;
         csl::Expr metricTerm = spaceTime->getMetric()({copy[0], copy[j]});
-        copy.erase(copy.begin()+j);
+        copy.erase(copy.begin() + j);
         copy.erase(copy.begin());
         csl::Expr recursiveCall = applyStandardRecursion(copy, false);
         if (true or recursiveCall->getType() != csl::Type::Sum) {
-            terms[j-1] = csl::prod_s({csl::pow_s(-CSL_1, csl::int_s(j-1)),
-                                      Copy(metricTerm),
-                                      recursiveCall},
-                                      true);
+            terms[j - 1] = csl::prod_s({csl::pow_s(-CSL_1, csl::int_s(j - 1)),
+                                        Copy(metricTerm),
+                                        recursiveCall},
+                                       true);
         }
         else {
-            terms[j-1] = recursiveCall;
-            for (auto &arg : *terms[j-1])
-                arg = csl::prod_s({csl::pow_s(-CSL_1, csl::int_s(j-1)),
+            terms[j - 1] = recursiveCall;
+            for (auto &arg : *terms[j - 1])
+                arg = csl::prod_s({csl::pow_s(-CSL_1, csl::int_s(j - 1)),
                                    Copy(metricTerm),
                                    Copy(arg)});
         }
@@ -525,9 +497,9 @@ csl::Expr DiracSpace::applyStandardRecursion(
     return sum_s(terms, true);
 }
 
-csl::Expr DiracSpace::applyChiralRecursion(
-        std::vector<csl::Index> const& tensors,
-        bool) const
+csl::Expr
+DiracSpace::applyChiralRecursion(std::vector<csl::Index> const &tensors,
+                                 bool) const
 {
     // Trace(gamma_5) = 0
     // Trace(gamma_5 g) = 0
@@ -537,58 +509,52 @@ csl::Expr DiracSpace::applyChiralRecursion(
         return CSL_0;
     // Trace(gamma_5 g g g g) = -4i epsilon mu,nu,rho,sigma
     if (tensors.size() == 4) {
-        return -4*CSL_I * spaceTime->getEpsilon()(tensors);
+        return -4 * CSL_I * spaceTime->getEpsilon()(tensors);
     }
 
     csl::vector_expr terms;
-    for (size_t i = 0; i != tensors.size()-1; ++i) {
-        int globalSign = (i%4 >= 2) ? -1 : 1;
-        for (size_t j = i+1; j != tensors.size(); ++j) {
-            int sign = ((i+j+1)%2 == 1) ? -globalSign : globalSign;
-            std::vector<csl::Index> recursiveMinkoIndices(tensors.size()-2);
-            size_t recursiveIndex = 0;
-            for (size_t k = i+1; k != tensors.size(); ++k,
-                                                      ++recursiveIndex)
+    for (size_t i = 0; i != tensors.size() - 1; ++i) {
+        int globalSign = (i % 4 >= 2) ? -1 : 1;
+        for (size_t j = i + 1; j != tensors.size(); ++j) {
+            int sign = ((i + j + 1) % 2 == 1) ? -globalSign : globalSign;
+            std::vector<csl::Index> recursiveMinkoIndices(tensors.size() - 2);
+            size_t                  recursiveIndex = 0;
+            for (size_t k = i + 1; k != tensors.size(); ++k, ++recursiveIndex)
                 if (k != j)
                     recursiveMinkoIndices[recursiveIndex] = tensors[k];
-                else 
+                else
                     --recursiveIndex;
-            recursiveIndex = tensors.size()-(i+2);
-            for (size_t k = i; k --> 0 ; ++recursiveIndex)
+            recursiveIndex = tensors.size() - (i + 2);
+            for (size_t k = i; k-- > 0; ++recursiveIndex)
                 recursiveMinkoIndices[recursiveIndex] = tensors[k];
 
             terms.push_back(
-                        csl::prod_s({
-                            csl::int_s(sign),
-                            spaceTime->getMetric()({tensors[i],
-                                                    tensors[j]}),
-                            applyChiralRecursion(recursiveMinkoIndices)
-                            },
-                            true
-                            )
-                        );
+                csl::prod_s({csl::int_s(sign),
+                             spaceTime->getMetric()({tensors[i], tensors[j]}),
+                             applyChiralRecursion(recursiveMinkoIndices)},
+                            true));
         }
     }
     return sum_s(terms, true);
 }
 
-csl::Expr DiracSpace::compute(csl::vector_expr const& aligned) const
+csl::Expr DiracSpace::compute(csl::vector_expr const &aligned) const
 {
-    csl::Expr factor = CSL_1;
+    csl::Expr                        factor = CSL_1;
     std::map<csl::Index, csl::Index> sigmaAntiSymmetry;
-    csl::vector_expr finalTensors;
+    csl::vector_expr                 finalTensors;
 
     finalTensors.reserve(aligned.size());
-    for (const auto& tensor : aligned)
+    for (const auto &tensor : aligned)
         if (isSigma(tensor)) {
-            csl::Index mu = tensor->getIndexStructureView()[0];
-            csl::Index nu = tensor->getIndexStructureView()[1];
+            csl::Index mu    = tensor->getIndexStructureView()[0];
+            csl::Index nu    = tensor->getIndexStructureView()[1];
             csl::Index alpha = tensor->getIndexStructureView()[2];
             csl::Index beta  = tensor->getIndexStructureView()[3];
-            csl::Index gam = generateIndex();
+            csl::Index gam   = generateIndex();
             finalTensors.push_back(gamma({mu, alpha, gam}));
             finalTensors.push_back(gamma({nu, gam, beta}));
-            factor = factor * CSL_I / 2;
+            factor                = factor * CSL_I / 2;
             sigmaAntiSymmetry[mu] = nu;
         }
         else {
@@ -601,30 +567,27 @@ csl::Expr DiracSpace::compute(csl::vector_expr const& aligned) const
     simplifySquares(indices, factor);
 
     csl::Expr res = applyRecursion(indices, factor);
-    for (const auto& antiSymmetry : sigmaAntiSymmetry) {
+    for (const auto &antiSymmetry : sigmaAntiSymmetry) {
         csl::Expr swapped = csl::Swapped(
-                res,
-                antiSymmetry.first,
-                antiSymmetry.second,
-                false);
+            res, antiSymmetry.first, antiSymmetry.second, false);
         res = res - swapped;
     }
 
     return DeepRefreshed(res);
 }
 
-csl::Expr DiracSpace::calculateTrace(csl::Expr const& init) const
+csl::Expr DiracSpace::calculateTrace(csl::Expr const &init) const
 {
     csl::ScopedProperty p1(&keepCycles, true);
     csl::ScopedProperty p2(&csl::option::applyChainContractions, true);
-    csl::Expr res = DeepRefreshed(init);
+    csl::Expr           res = DeepRefreshed(init);
     return res;
 }
 
 void DiracSpace::initProperties()
 {
     /////////////////////////////////////////////////////
-    // In this function hermitian conjugation properties 
+    // In this function hermitian conjugation properties
     // are determined considering fermion bilinears with
     // an implicit gamma^0 commuting with the bilinear.
     // Then, properties are different than usual because
@@ -638,163 +601,119 @@ void DiracSpace::initProperties()
     // P_L->setFullySymmetric();
     // P_R->setFullySymmetric();
 
-    csl::Index mu = st_index();
-    csl::Index nu = st_index();
+    csl::Index mu  = st_index();
+    csl::Index nu  = st_index();
     csl::Index rho = st_index();
     csl::Index sig = st_index();
-    csl::Index a1 = index();
-    csl::Index a2 = index();
-    csl::Index a3 = index();
-    csl::Index a4 = index();
-    csl::Index a5 = index();
-    csl::Index a6 = index();
+    csl::Index a1  = index();
+    csl::Index a2  = index();
+    csl::Index a3  = index();
+    csl::Index a4  = index();
+    csl::Index a5  = index();
+    csl::Index a6  = index();
 
-
-    gamma->addSelfContraction(
-            gamma({+mu, a1, a2}), gamma({mu, a2, a3}),
-            csl::DMinko * delta({a1, a3}));
+    gamma->addSelfContraction(gamma({+mu, a1, a2}),
+                              gamma({mu, a2, a3}),
+                              csl::DMinko * delta({a1, a3}));
     csl::vector_expr sign = spaceTime->getSignature();
     for (csl::Index i = 0; i != spaceTime->getDim(); ++i) {
+        gamma->addSelfContraction(gamma({i, a1, a2}),
+                                  gamma({i, a2, a3}),
+                                  spaceTime->getMetric()({i, i})
+                                      * delta({a1, a3}));
+        gamma->addSelfContraction(gamma({i, a1, a2}),
+                                  gamma({+i, a2, a3}),
+                                  spaceTime->getDelta()({i, +csl::Index(i)})
+                                      * delta({a1, a3}));
+        gamma->addSelfContraction(gamma({+i, a1, a2}),
+                                  gamma({i, a2, a3}),
+                                  spaceTime->getDelta()({+csl::Index(i), i})
+                                      * delta({a1, a3}));
         gamma->addSelfContraction(
-                gamma({i, a1, a2}), gamma({i, a2, a3}),
-                spaceTime->getMetric()({i, i})
-                        * delta({a1, a3}));
-        gamma->addSelfContraction(
-                gamma({i, a1, a2}), gamma({+i, a2, a3}),
-                spaceTime->getDelta()({i, +csl::Index(i)})
-                        * delta({a1, a3}));
-        gamma->addSelfContraction(
-                gamma({+i, a1, a2}), gamma({i, a2, a3}),
-                spaceTime->getDelta()({+csl::Index(i), i})
-                        * delta({a1, a3}));
-        gamma->addSelfContraction(
-                gamma({+i, a1, a2}), gamma({+i, a2, a3}),
-                spaceTime->getInverseMetric()(
-                    {+csl::Index(i), +csl::Index(i)})
-                        * delta({a1, a3}));
+            gamma({+i, a1, a2}),
+            gamma({+i, a2, a3}),
+            spaceTime->getInverseMetric()({+csl::Index(i), +csl::Index(i)})
+                * delta({a1, a3}));
     }
 
     gamma_chir->addSelfContraction(
-            gamma_chir({a1, a2}), gamma_chir({a2, a3}),
-            delta({a1, a3}));
-    P_L->addSelfContraction(
-            P_L({a1, a2}), P_L({a2, a3}),
-            P_L({a1, a3}));
-    P_R->addSelfContraction(
-            P_R({a1, a2}), P_R({a2, a3}),
-            P_R({a1, a3}));
+        gamma_chir({a1, a2}), gamma_chir({a2, a3}), delta({a1, a3}));
+    P_L->addSelfContraction(P_L({a1, a2}), P_L({a2, a3}), P_L({a1, a3}));
+    P_R->addSelfContraction(P_R({a1, a2}), P_R({a2, a3}), P_R({a1, a3}));
 
-    P_L->addSelfContraction(
-            P_L({a1, a2}), P_R({a2, a3}),
-            CSL_0);
-    P_L->addSelfContraction(
-            P_L({a2, a1}), P_R({a3, a2}),
-            CSL_0);
+    P_L->addSelfContraction(P_L({a1, a2}), P_R({a2, a3}), CSL_0);
+    P_L->addSelfContraction(P_L({a2, a1}), P_R({a3, a2}), CSL_0);
 
     csl::Tensor eps = spaceTime->getEpsilon();
     csl::Tensor g   = spaceTime->getMetric();
+    eps->addSelfContraction(eps({mu, nu, rho, sig}),
+                            sigma({+rho, +sig, a1, a2}),
+                            -2 * CSL_I * sigma({mu, nu, a1, a3})
+                                * gamma_chir({a3, a2}));
     eps->addSelfContraction(
-            eps({mu, nu, rho, sig}), sigma({+rho, +sig, a1, a2}),
-            -2*CSL_I * sigma({mu, nu, a1, a3}) * gamma_chir({a3, a2})
-            );
-    eps->addSelfContraction(
-            eps({mu, nu, rho, sig}), gamma({+sig, a1, a2}),
-            -CSL_I * (
-                gamma({mu, a1, a4})*gamma({nu, a4, a5})*gamma({rho, a5, a3})
-                - g({mu, nu})  * gamma({rho, a1, a3})
-                + g({mu, rho}) * gamma({nu, a1, a3})
-                - g({nu, rho}) * gamma({mu, a1, a3})
-                ) * gamma_chir({a3, a2})
-            );
+        eps({mu, nu, rho, sig}),
+        gamma({+sig, a1, a2}),
+        -CSL_I
+            * (gamma({mu, a1, a4}) * gamma({nu, a4, a5}) * gamma({rho, a5, a3})
+               - g({mu, nu}) * gamma({rho, a1, a3})
+               + g({mu, rho}) * gamma({nu, a1, a3})
+               - g({nu, rho}) * gamma({mu, a1, a3}))
+            * gamma_chir({a3, a2}));
 
     gamma->addComplexProperty(gamma({mu, a1, a4}),
-                             gamma({2,a1,a2})
-                           * gamma({mu,a2,a3})
-                           * gamma({2,a3,a4}));
+                              gamma({2, a1, a2}) * gamma({mu, a2, a3})
+                                  * gamma({2, a3, a4}));
 
-    gamma->addHermitianProperty(this,
-                               gamma({mu,a1, a4}),
-                               gamma({mu,a1, a4}));
+    gamma->addHermitianProperty(
+        this, gamma({mu, a1, a4}), gamma({mu, a1, a4}));
 
     gamma->addTransposedProperty(this,
-                                gamma({mu,a1,a6}),
-                                gamma({2,a1,a3})
-                              * gamma({mu,a3,a4})
-                              * gamma({2,a4,a6}));
+                                 gamma({mu, a1, a6}),
+                                 gamma({2, a1, a3}) * gamma({mu, a3, a4})
+                                     * gamma({2, a4, a6}));
 
     gamma->addTraceLessNess(this);
     gamma_chir->addTraceLessNess(this);
     sigma->addTraceLessNess(this);
     C_matrix->addTraceLessNess(this);
     C_matrix->setComplexProperty(csl::ComplexProperty::Real);
-    C_matrix->addHermitianProperty(this,
-                               C_matrix({a1, a4}),
-                               C_matrix({a1, a4}));
-    C_matrix->addTransposedProperty(this,
-                               C_matrix({a1, a4}),
-                               C_matrix({a1, a4}));
+    C_matrix->addHermitianProperty(
+        this, C_matrix({a1, a4}), C_matrix({a1, a4}));
+    C_matrix->addTransposedProperty(
+        this, C_matrix({a1, a4}), C_matrix({a1, a4}));
 
     gamma_chir->addTransposedProperty(
-            this,
-            gamma_chir({a1, a2}),
-            - gamma_chir({a1, a2}));
+        this, gamma_chir({a1, a2}), -gamma_chir({a1, a2}));
     gamma_chir->addHermitianProperty(
-            this,
-            gamma_chir({a1, a2}),
-            - gamma_chir({a1, a2}));
-    P_L->addTransposedProperty(
-            this,
-            P_L({a1, a2}),
-            P_R({a1, a2}));
-    P_R->addTransposedProperty(
-            this,
-            P_R({a1, a2}),
-            P_L({a1, a2}));
-    P_L->addHermitianProperty(
-            this,
-            P_L({a1, a2}),
-            P_R({a1, a2}));
-    P_R->addHermitianProperty(
-            this,
-            P_R({a1, a2}),
-            P_L({a1, a2}));
+        this, gamma_chir({a1, a2}), -gamma_chir({a1, a2}));
+    P_L->addTransposedProperty(this, P_L({a1, a2}), P_R({a1, a2}));
+    P_R->addTransposedProperty(this, P_R({a1, a2}), P_L({a1, a2}));
+    P_L->addHermitianProperty(this, P_L({a1, a2}), P_R({a1, a2}));
+    P_R->addHermitianProperty(this, P_R({a1, a2}), P_L({a1, a2}));
 
     C_matrix->setComplexProperty(csl::ComplexProperty::Real);
     C_matrix->addSelfContraction(
-            C_matrix({a1, a2}), C_matrix({a2, a3}),
-            -delta({a1, a3})
-            );
+        C_matrix({a1, a2}), C_matrix({a2, a3}), -delta({a1, a3}));
     C_matrix->addSelfContraction(
-            C_matrix({a1, a2}), C_matrix({a3, a2}),
-            delta({a1, a3})
-            );
+        C_matrix({a1, a2}), C_matrix({a3, a2}), delta({a1, a3}));
     C_matrix->addSelfContraction(
-            C_matrix({a2, a1}), C_matrix({a2, a3}),
-            delta({a1, a3})
-            );
+        C_matrix({a2, a1}), C_matrix({a2, a3}), delta({a1, a3}));
     C_matrix->addSelfContraction(
-            C_matrix({a1, a2}), gamma({mu, a1, a2}),
-            CSL_0
-            );
+        C_matrix({a1, a2}), gamma({mu, a1, a2}), CSL_0);
     C_matrix->addSelfContraction(
-            C_matrix({a1, a2}), gamma({mu, a2, a1}),
-            CSL_0
-            );
+        C_matrix({a1, a2}), gamma({mu, a2, a1}), CSL_0);
 
     sigma->addComplexProperty(sigma({mu, nu, a1, a4}),
-                             -gamma({2,a1,a2})
-                           * sigma({mu,nu,a2,a3})
-                           * gamma({2,a3,a4}));
+                              -gamma({2, a1, a2}) * sigma({mu, nu, a2, a3})
+                                  * gamma({2, a3, a4}));
 
-    sigma->addHermitianProperty(this,
-                               sigma({mu,nu,a1, a4}),
-                               sigma({mu,nu,a1, a4}));
+    sigma->addHermitianProperty(
+        this, sigma({mu, nu, a1, a4}), sigma({mu, nu, a1, a4}));
 
     sigma->addTransposedProperty(this,
-                                sigma({mu,nu,a1,a6}),
-                                -gamma({2,a1,a3})
-                              * sigma({mu,nu,a3,a4})
-                              * gamma({2,a4,a1}));
+                                 sigma({mu, nu, a1, a6}),
+                                 -gamma({2, a1, a3}) * sigma({mu, nu, a3, a4})
+                                     * gamma({2, a4, a1}));
 
     if (dim == 4)
         setDiracTensor4(this);
@@ -803,7 +722,7 @@ void DiracSpace::initProperties()
 DiracSpace::alignedCycle DiracSpace::align(csl::vector_expr tensors) const
 {
     size_t pos_first = 0;
-    for (size_t i = 0; i != tensors.size(); ++i) 
+    for (size_t i = 0; i != tensors.size(); ++i)
         if (isGammaMu(tensors[i])) {
             pos_first = i;
             break;
@@ -831,15 +750,14 @@ DiracSpace::alignedCycle DiracSpace::align(csl::vector_expr tensors) const
             }
         if (index == first and not tensors.empty()) {
             auto nextCycle = align(tensors);
-            for (auto& cut : nextCycle.cutsBtwCycles)
+            for (auto &cut : nextCycle.cutsBtwCycles)
                 cut += res.size();
             std::vector<size_t> cuts(1, res.size());
             cuts.insert(cuts.end(),
                         nextCycle.cutsBtwCycles.begin(),
                         nextCycle.cutsBtwCycles.end());
-            res.insert(res.end(),
-                       nextCycle.tensors.begin(),
-                       nextCycle.tensors.end());
+            res.insert(
+                res.end(), nextCycle.tensors.begin(), nextCycle.tensors.end());
             return {res, cuts};
         }
     }
@@ -850,7 +768,7 @@ DiracSpace::alignedCycle DiracSpace::align(csl::vector_expr tensors) const
 DiracSpace::alignedCycle DiracSpace::alignOpen(csl::vector_expr tensors) const
 {
     size_t pos_first = 0;
-    for (size_t i = 0; i != tensors.size(); ++i) 
+    for (size_t i = 0; i != tensors.size(); ++i)
         if (isGammaMu(tensors[i])) {
             pos_first = i;
             break;
@@ -868,9 +786,9 @@ DiracSpace::alignedCycle DiracSpace::alignOpen(csl::vector_expr tensors) const
         for (auto iter = tensors.begin(); iter != tensors.end(); ++iter)
             if (getFirstIndex(*iter) == index) {
                 index = getSecondIndex(*iter);
-                if (reverse) 
+                if (reverse)
                     res.insert(res.begin(), *iter);
-                else 
+                else
                     res.push_back(*iter);
                 tensors.erase(iter);
                 indexFound = true;
@@ -878,30 +796,29 @@ DiracSpace::alignedCycle DiracSpace::alignOpen(csl::vector_expr tensors) const
             }
             else if (getSecondIndex(*iter) == index) {
                 index = getFirstIndex(*iter);
-                if (reverse) 
+                if (reverse)
                     res.insert(res.begin(), *iter);
-                else 
+                else
                     res.push_back(*iter);
                 tensors.erase(iter);
                 indexFound = true;
                 break;
             }
         if (not reverse and not indexFound) {
-            index = first;
+            index   = first;
             reverse = true;
         }
-        else if (((reverse and not indexFound) or index == first) 
-                    and not tensors.empty()) {
-            auto nextCycle = alignOpen(tensors);
+        else if (((reverse and not indexFound) or index == first)
+                 and not tensors.empty()) {
+            auto                nextCycle = alignOpen(tensors);
             std::vector<size_t> cuts(1, res.size());
             for (size_t &cut : nextCycle.cutsBtwCycles)
                 cut += res.size();
             cuts.insert(cuts.end(),
                         nextCycle.cutsBtwCycles.begin(),
                         nextCycle.cutsBtwCycles.end());
-            res.insert(res.end(),
-                       nextCycle.tensors.begin(),
-                       nextCycle.tensors.end());
+            res.insert(
+                res.end(), nextCycle.tensors.begin(), nextCycle.tensors.end());
             return {res, cuts};
         }
     }
@@ -909,51 +826,50 @@ DiracSpace::alignedCycle DiracSpace::alignOpen(csl::vector_expr tensors) const
     return {res, std::vector<size_t>()};
 }
 
-void DiracSpace::insert(csl::Index       const & toInsert,
-                        std::vector<csl::Index>& tensors,
-                        std::vector<size_t>    & cuts,
-                        size_t i) const
+void DiracSpace::insert(csl::Index const &       toInsert,
+                        std::vector<csl::Index> &tensors,
+                        std::vector<size_t> &    cuts,
+                        size_t                   i) const
 {
     tensors.insert(tensors.begin() + i, toInsert);
-    for (size_t& pos : cuts) {
+    for (size_t &pos : cuts) {
         if (pos > i)
             ++pos;
     }
 }
 
-void DiracSpace::contract(std::vector<csl::Index>& tensors,
-                          std::vector<size_t>    & cuts,
-                          size_t i) const
+void DiracSpace::contract(std::vector<csl::Index> &tensors,
+                          std::vector<size_t> &    cuts,
+                          size_t                   i) const
 {
     tensors.erase(tensors.begin() + i);
-    for (size_t& pos : cuts) {
+    for (size_t &pos : cuts) {
         if (pos > i)
             --pos;
     }
 }
 
-void DiracSpace::contract(std::vector<csl::Index>& tensors,
-                          std::vector<size_t>    & cuts,
-                          size_t i,
-                          size_t j) const
+void DiracSpace::contract(std::vector<csl::Index> &tensors,
+                          std::vector<size_t> &    cuts,
+                          size_t                   i,
+                          size_t                   j) const
 {
     tensors.erase(tensors.begin() + j);
     tensors.erase(tensors.begin() + i);
-    for (size_t& pos : cuts) {
+    for (size_t &pos : cuts) {
         if (pos > j)
             pos -= 2;
     }
 }
 
-void DiracSpace::contractTensor(
-        std::vector<csl::Index>& tensors,
-        std::vector<size_t>    & cuts,
-        size_t i,
-        size_t j) const
+void DiracSpace::contractTensor(std::vector<csl::Index> &tensors,
+                                std::vector<size_t> &    cuts,
+                                size_t                   i,
+                                size_t                   j) const
 {
     tensors.erase(tensors.begin() + j);
     tensors.erase(tensors.begin() + i);
-    for (size_t& pos : cuts) {
+    for (size_t &pos : cuts) {
         if (pos > i and pos > j)
             pos -= 2;
         else if (pos > i)
@@ -961,57 +877,52 @@ void DiracSpace::contractTensor(
     }
 }
 
-std::vector<DiracSpace::Chain> DiracSpace::simplifyGammaProd(
-        std::vector<csl::Index> const &indices,
-        std::vector<size_t>     const &cuts,
-        csl::Expr                    const &factor
-        ) const
+std::vector<DiracSpace::Chain>
+DiracSpace::simplifyGammaProd(std::vector<csl::Index> const &indices,
+                              std::vector<size_t> const &    cuts,
+                              csl::Expr const &              factor) const
 {
     std::vector<Chain> chains;
-    std::vector<Chain> newChains(1, { factor, indices, cuts, {} });
+    std::vector<Chain> newChains(1, {factor, indices, cuts, {}});
     while (!newChains.empty()) {
         std::vector<Chain> simplified;
         simplified.reserve(newChains.size());
         for (auto &c : newChains) {
             std::vector<Chain> interm = simplifyGammaProd(c);
             if (interm.empty()) {
-                //interm = simplifyFiertzProd(c);
+                // interm = simplifyFiertzProd(c);
                 if (interm.empty()) {
                     chains.push_back(std::move(c));
                     continue;
                 }
             }
-            simplified.insert(
-                    simplified.end(),
-                    std::make_move_iterator(interm.begin()),
-                    std::make_move_iterator(interm.end())
-                    );
+            simplified.insert(simplified.end(),
+                              std::make_move_iterator(interm.begin()),
+                              std::make_move_iterator(interm.end()));
         }
         newChains = std::move(simplified);
     }
     return chains;
 }
 
-std::vector<DiracSpace::Chain> DiracSpace::simplifyGammaProd(
-        Chain         const& init
-        ) const
+std::vector<DiracSpace::Chain>
+DiracSpace::simplifyGammaProd(Chain const &init) const
 {
 
     if (init.size() < 2)
         return {};
-    csl::Index minkoIndex;
-    size_t index_cut = 0;
+    csl::Index                     minkoIndex;
+    size_t                         index_cut = 0;
     std::vector<DiracSpace::Chain> chains;
     for (size_t i = 0; i != init.size(); ++i) {
         if (i == init.cuts[index_cut])
             ++index_cut;
-        if (isGammaMu(init[i]) 
-                and init[i].getType() != cslIndex::Fixed) {
-            for (size_t j = i+1; j < init.cuts[index_cut]; ++j)
+        if (isGammaMu(init[i]) and init[i].getType() != cslIndex::Fixed) {
+            for (size_t j = i + 1; j < init.cuts[index_cut]; ++j)
                 if (init[i] == init[j]) {
                     if (j == i + 1) {
-                        csl::Expr factor = csl::DMinko * init.factor;
-                        Chain newChain = init;
+                        csl::Expr factor   = csl::DMinko * init.factor;
+                        Chain     newChain = init;
                         newChain.factor *= csl::DMinko;
                         contract(newChain.indices, newChain.cuts, i, j);
                         return {newChain};
@@ -1023,34 +934,25 @@ std::vector<DiracSpace::Chain> DiracSpace::simplifyGammaProd(
     for (size_t i = 0; i != init.size(); ++i) {
         if (i == init.cuts[index_cut])
             ++index_cut;
-        if (isGammaMu(init[i]) 
-                and init[i].getType() != cslIndex::Fixed) {
-            for (size_t j = i+1; j < init.cuts[index_cut]; ++j)
+        if (isGammaMu(init[i]) and init[i].getType() != cslIndex::Fixed) {
+            for (size_t j = i + 1; j < init.cuts[index_cut]; ++j)
                 if (init[i] == init[j]) {
                     std::vector<Chain> newChains;
                     newChains.reserve(j - i - 1);
                     for (size_t k = i + 1; k != j - 1; ++k) {
                         Chain newChain(init);
-                        newChain.factor *= csl::pow_s(-1, k-(i+1)) * 2;
+                        newChain.factor *= csl::pow_s(-1, k - (i + 1)) * 2;
                         csl::Index movedIndex = newChain[k];
-                        for (size_t l = k; l != j-1; ++l)
-                            newChain[l] = newChain[l+1];
-                        newChain[j-1] = movedIndex;
-                        contract(
-                                newChain.indices, 
-                                newChain.cuts, 
-                                i, 
-                                j);
+                        for (size_t l = k; l != j - 1; ++l)
+                            newChain[l] = newChain[l + 1];
+                        newChain[j - 1] = movedIndex;
+                        contract(newChain.indices, newChain.cuts, i, j);
                         newChains.push_back(newChain);
                     }
                     Chain newChain(init);
-                    newChain.factor *= csl::pow_s(-1, j - i - 1) 
-                        * (csl::DMinko - 2);
-                    contract(
-                            newChain.indices, 
-                            newChain.cuts, 
-                            i, 
-                            j);
+                    newChain.factor
+                        *= csl::pow_s(-1, j - i - 1) * (csl::DMinko - 2);
+                    contract(newChain.indices, newChain.cuts, i, j);
                     newChains.push_back(newChain);
                     return newChains;
                 }
@@ -1059,11 +961,8 @@ std::vector<DiracSpace::Chain> DiracSpace::simplifyGammaProd(
     return {};
 }
 
-Chirality DiracSpace::getChirality(
-        size_t pos,
-        size_t cut,
-        csl::Index proj
-        ) const
+Chirality
+DiracSpace::getChirality(size_t pos, size_t cut, csl::Index proj) const
 {
     if (not isProjector(proj))
         return Chirality::None;
@@ -1073,38 +972,28 @@ Chirality DiracSpace::getChirality(
     return chir;
 }
 
-std::vector<DiracSpace::FiertzContraction> DiracSpace::getFiertzContractions(
-        DiracSpace::Chain const &init
-        ) const
+std::vector<DiracSpace::FiertzContraction>
+DiracSpace::getFiertzContractions(DiracSpace::Chain const &init) const
 {
     std::vector<FiertzContraction> contractions;
-    size_t index_cut = 0;
+    size_t                         index_cut = 0;
     for (size_t i = 0; i != init.size(); ++i) {
         if (i == init.cuts[index_cut])
             ++index_cut;
         size_t i_cut = init.cuts[index_cut];
-        if (isGammaMu(init[i]) 
-                and init[i].getType() != cslIndex::Fixed) {
-            Chirality chir_i = getChirality(
-                    i, 
-                    i_cut,
-                    init[i_cut - 1]);
+        if (isGammaMu(init[i]) and init[i].getType() != cslIndex::Fixed) {
+            Chirality chir_i = getChirality(i, i_cut, init[i_cut - 1]);
             for (size_t j = i_cut; j != init.size(); ++j)
                 if (init[i] == init[j]) {
-                    size_t index_j_cut = index_cut+1;
-                    for (size_t cut = index_cut+1; 
-                            cut != init.cuts.size(); 
-                            ++cut)
+                    size_t index_j_cut = index_cut + 1;
+                    for (size_t cut = index_cut + 1; cut != init.cuts.size();
+                         ++cut)
                         if (j >= init.cuts[cut])
                             ++index_j_cut;
-                    size_t j_cut = init.cuts[index_j_cut];
-                    Chirality chir_j = getChirality(
-                            j, 
-                            j_cut,
-                            init[j_cut - 1]);
-                    contractions.push_back({
-                            i, j, index_cut, index_j_cut, chir_i, chir_j
-                            });
+                    size_t    j_cut  = init.cuts[index_j_cut];
+                    Chirality chir_j = getChirality(j, j_cut, init[j_cut - 1]);
+                    contractions.push_back(
+                        {i, j, index_cut, index_j_cut, chir_i, chir_j});
                     break;
                 }
         }
@@ -1113,14 +1002,13 @@ std::vector<DiracSpace::FiertzContraction> DiracSpace::getFiertzContractions(
     return contractions;
 }
 
-std::vector<DiracSpace::Chain> DiracSpace::simplifyFiertzProd(
-        Chain         const& init
-        ) const
+std::vector<DiracSpace::Chain>
+DiracSpace::simplifyFiertzProd(Chain const &init) const
 {
 
     if (init.size() < 2 or init.cuts.size() < 2)
         return {};
-    std::vector<DiracSpace::Chain> chains;
+    std::vector<DiracSpace::Chain>             chains;
     std::vector<DiracSpace::FiertzContraction> contractions
         = getFiertzContractions(init);
     for (const auto &c : contractions)
@@ -1137,56 +1025,47 @@ std::vector<DiracSpace::Chain> DiracSpace::simplifyFiertzProd(
             continue;
         for (size_t j = i + 1; j < contractions.size(); ++j) {
             FiertzContraction const &c_j = contractions[j];
-            if (c_i.i_cut == c_j.i_cut
-                    and c_i.j_cut == c_j.j_cut) {
-                bool sameSide = ((c_i.i < c_j.i) == (c_i.j < c_j.j));
+            if (c_i.i_cut == c_j.i_cut and c_i.j_cut == c_j.j_cut) {
+                bool  sameSide = ((c_i.i < c_j.i) == (c_i.j < c_j.j));
                 Chain newChain(init);
                 if (!sameSide) {
                     newChain.factor *= CSL_M_1;
-                    newChain.fiertzFlipping.push_back({
-                            c_i.i_cut,
-                            c_i.j_cut
-                            });
+                    newChain.fiertzFlipping.push_back({c_i.i_cut, c_i.j_cut});
                 }
 
-                if (sameSide)  {
-                    for (size_t k = c_i.i+1; k < init.cuts[c_i.i_cut]-1; ++k) {
-                            insert(
-                                    init[k], 
-                                    newChain.indices, 
-                                    newChain.cuts, 
-                                    c_i.j+1);
+                if (sameSide) {
+                    for (size_t k = c_i.i + 1; k < init.cuts[c_i.i_cut] - 1;
+                         ++k) {
+                        insert(init[k],
+                               newChain.indices,
+                               newChain.cuts,
+                               c_i.j + 1);
                     }
-                    for (size_t k = c_i.i+1; k < init.cuts[c_i.i_cut]-1; ++k) {
-                        contract(
-                                newChain.indices, 
-                                newChain.cuts, 
-                                c_i.i+1);
+                    for (size_t k = c_i.i + 1; k < init.cuts[c_i.i_cut] - 1;
+                         ++k) {
+                        contract(newChain.indices, newChain.cuts, c_i.i + 1);
                     }
                 }
                 else {
-                    size_t ni = init.cuts[c_i.i_cut]-c_i.i-2;
-                    size_t nj = init.cuts[c_i.j_cut]-c_i.j-2;
+                    size_t ni = init.cuts[c_i.i_cut] - c_i.i - 2;
+                    size_t nj = init.cuts[c_i.j_cut] - c_i.j - 2;
                     for (size_t k = 0; k < std::min(ni, nj); ++k) {
-                        std::swap(newChain[c_i.i+1+k], newChain[c_i.j+1+k]);
+                        std::swap(newChain[c_i.i + 1 + k],
+                                  newChain[c_i.j + 1 + k]);
                     }
-                    size_t n = std::max(ni, nj) - std::min(ni, nj);
-                    size_t beginInsert = (ni > nj) ? c_i.j+1 : c_i.i+1;
+                    size_t n           = std::max(ni, nj) - std::min(ni, nj);
+                    size_t beginInsert = (ni > nj) ? c_i.j + 1 : c_i.i + 1;
                     beginInsert += std::min(ni, nj);
-                    size_t beginErase  = (ni > nj) ? c_i.i+1 : c_i.j+1;
-                    beginErase  += std::min(ni, nj);
+                    size_t beginErase = (ni > nj) ? c_i.i + 1 : c_i.j + 1;
+                    beginErase += std::min(ni, nj);
                     for (size_t k = 0; k != n; ++k) {
-                            insert(
-                                    init[beginErase+k], 
-                                    newChain.indices, 
-                                    newChain.cuts, 
-                                    beginInsert+k);
+                        insert(init[beginErase + k],
+                               newChain.indices,
+                               newChain.cuts,
+                               beginInsert + k);
                     }
                     for (size_t k = 0; k != n; ++k) {
-                        contract(
-                                newChain.indices, 
-                                newChain.cuts, 
-                                beginErase);
+                        contract(newChain.indices, newChain.cuts, beginErase);
                     }
                 }
                 return {newChain};
@@ -1198,9 +1077,9 @@ std::vector<DiracSpace::Chain> DiracSpace::simplifyFiertzProd(
 }
 
 void DiracSpace::applyUniqueChiralityStructure(
-        std::vector<csl::Index>& tensors,
-        std::vector<size_t>& cuts,
-        csl::Expr& factor) const
+    std::vector<csl::Index> &tensors,
+    std::vector<size_t> &    cuts,
+    csl::Expr &              factor) const
 {
     enum Mode { None, Chir, Left, Right };
     if (tensors.empty())
@@ -1211,7 +1090,7 @@ void DiracSpace::applyUniqueChiralityStructure(
             pos = cuts[p];
             continue;
         }
-        for (size_t i = pos; i+1 < cuts[p]; ++i) {
+        for (size_t i = pos; i + 1 < cuts[p]; ++i) {
             Mode mode = None;
             if (isGammaChir(tensors[i]))
                 mode = Chir;
@@ -1222,57 +1101,60 @@ void DiracSpace::applyUniqueChiralityStructure(
             if (mode == 0)
                 continue;
             bool simplified = false;
-            for (size_t j = i+1; j < cuts[p]; ++j) {
-                if (isGammaChir(tensors[j])){
-                    switch(mode) {
-                        case Chir:
-                            contract(tensors, cuts, i, j);
-                            simplified = true;
-                            break;
-                        case Left:
-                            factor *= -1;
-                            contract(tensors, cuts, j);
-                            --j;
-                            break;
-                        case Right:
-                            contract(tensors, cuts, j);
-                            --j;
-                            break;
-                        default: break;
+            for (size_t j = i + 1; j < cuts[p]; ++j) {
+                if (isGammaChir(tensors[j])) {
+                    switch (mode) {
+                    case Chir:
+                        contract(tensors, cuts, i, j);
+                        simplified = true;
+                        break;
+                    case Left:
+                        factor *= -1;
+                        contract(tensors, cuts, j);
+                        --j;
+                        break;
+                    case Right:
+                        contract(tensors, cuts, j);
+                        --j;
+                        break;
+                    default:
+                        break;
                     }
                 }
                 else if (isP_L(tensors[j])) {
-                    switch(mode) {
-                        case Chir:
-                            factor *= -1;
-                            contract(tensors, cuts, i);
-                            simplified = true;
-                            break;
-                        case Left:
-                            contract(tensors, cuts, j);
-                            --j;
-                            break;
-                        case Right:
-                            factor = 0;
-                            return;
-                        default: break;
+                    switch (mode) {
+                    case Chir:
+                        factor *= -1;
+                        contract(tensors, cuts, i);
+                        simplified = true;
+                        break;
+                    case Left:
+                        contract(tensors, cuts, j);
+                        --j;
+                        break;
+                    case Right:
+                        factor = 0;
+                        return;
+                    default:
+                        break;
                     }
                 }
                 else if (isP_R(tensors[j])) {
-                    switch(mode) {
-                        case Chir:
-                            factor *= -1;
-                            contract(tensors, cuts, i);
-                            simplified = true;
-                            break;
-                        case Left:
-                            factor = 0;
-                            return;
-                        case Right:
-                            contract(tensors, cuts, j);
-                            --j;
-                            break;
-                        default: break;
+                    switch (mode) {
+                    case Chir:
+                        factor *= -1;
+                        contract(tensors, cuts, i);
+                        simplified = true;
+                        break;
+                    case Left:
+                        factor = 0;
+                        return;
+                    case Right:
+                        contract(tensors, cuts, j);
+                        --j;
+                        break;
+                    default:
+                        break;
                     }
                 }
                 else if (isGammaMu(tensors[j])) {
@@ -1289,19 +1171,20 @@ void DiracSpace::applyUniqueChiralityStructure(
                 }
             }
             if (not simplified) {
-                for (size_t j = i; j < cuts[p]-1; ++j)
-                    tensors[j] = tensors[j+1];
-                switch(mode) {
-                    case Chir:
-                        tensors[cuts[p]-1] = Index(5);
-                        break;
-                    case Left:
-                        tensors[cuts[p]-1] = Index(6);
-                        break;
-                    case Right:
-                        tensors[cuts[p]-1] = Index(7);
-                        break;
-                    default: break;
+                for (size_t j = i; j < cuts[p] - 1; ++j)
+                    tensors[j] = tensors[j + 1];
+                switch (mode) {
+                case Chir:
+                    tensors[cuts[p] - 1] = Index(5);
+                    break;
+                case Left:
+                    tensors[cuts[p] - 1] = Index(6);
+                    break;
+                case Right:
+                    tensors[cuts[p] - 1] = Index(7);
+                    break;
+                default:
+                    break;
                 }
             }
         }
@@ -1309,43 +1192,41 @@ void DiracSpace::applyUniqueChiralityStructure(
     }
 }
 
-std::pair<csl::Index, csl::Index> DiracSpace::getBorderOfChain(
-        std::vector<csl::Expr>::const_iterator first,
-        std::vector<csl::Expr>::const_iterator last) const
+std::pair<csl::Index, csl::Index>
+DiracSpace::getBorderOfChain(std::vector<csl::Expr>::const_iterator first,
+                             std::vector<csl::Expr>::const_iterator last) const
 {
     HEPAssert(first != last,
-            mty::error::RuntimeError,
-            "Cannot get border indices of an empty fermion chain !");
+              mty::error::RuntimeError,
+              "Cannot get border indices of an empty fermion chain !");
 
     std::pair<csl::Index, csl::Index> res;
-    if (first+1 == last) {
-        res.first = getFirstIndex(*first);
+    if (first + 1 == last) {
+        res.first  = getFirstIndex(*first);
         res.second = getSecondIndex(*first);
         return res;
     }
 
     csl::Index A = getFirstIndex(*first);
-    if (A == getFirstIndex(*(first+1))
-            or A == getSecondIndex(*(first+1)))
+    if (A == getFirstIndex(*(first + 1)) or A == getSecondIndex(*(first + 1)))
         res.first = getSecondIndex(*first);
     else
         res.first = A;
 
-    A = getFirstIndex(*(last-1));
-    if (A == getFirstIndex(*(last-2))
-            or A == getSecondIndex(*(last-2)))
-        res.second = getSecondIndex(*(last-1));
+    A = getFirstIndex(*(last - 1));
+    if (A == getFirstIndex(*(last - 2)) or A == getSecondIndex(*(last - 2)))
+        res.second = getSecondIndex(*(last - 1));
     else
         res.second = A;
     return res;
 }
 
 std::vector<std::pair<csl::Index, csl::Index>>
-    DiracSpace::getBorderOfChains(std::vector<csl::Expr>   const& tensors,
-                                  std::vector<size_t>      & cuts) const
+DiracSpace::getBorderOfChains(std::vector<csl::Expr> const &tensors,
+                              std::vector<size_t> &         cuts) const
 {
     std::vector<std::pair<csl::Index, csl::Index>> res;
-    if (cuts.empty() or cuts[cuts.size()-1] != tensors.size())
+    if (cuts.empty() or cuts[cuts.size() - 1] != tensors.size())
         cuts.push_back(tensors.size());
     if (tensors.empty())
         return res;
@@ -1361,31 +1242,30 @@ std::vector<std::pair<csl::Index, csl::Index>>
 }
 
 csl::vector_expr DiracSpace::applyChainIndices(
-        std::vector<csl::Index> const& tensors,
-        std::vector<size_t>     const& cuts,
-        std::vector<std::pair<size_t, size_t>>         const& flipped,
-        std::vector<std::pair<csl::Index, csl::Index>> const& indices) const
+    std::vector<csl::Index> const &                       tensors,
+    std::vector<size_t> const &                           cuts,
+    std::vector<std::pair<size_t, size_t>> const &        flipped,
+    std::vector<std::pair<csl::Index, csl::Index>> const &indices) const
 {
     HEPAssert(cuts.size() == indices.size(),
-            mty::error::RuntimeError,
-            "The number of chains in cuts and indices do not match.");
+              mty::error::RuntimeError,
+              "The number of chains in cuts and indices do not match.");
     if (tensors.empty())
         return csl::vector_expr();
 
-    auto getIndex = [&](size_t indexCut)
-    {
+    auto getIndex = [&](size_t indexCut) {
         size_t currentCut = indexCut;
-        for (const auto &[first ,second] : flipped)
-            if (first == currentCut) 
+        for (const auto &[first, second] : flipped)
+            if (first == currentCut)
                 currentCut = second;
             else if (second == currentCut)
                 currentCut = first;
         return indices[currentCut].second;
     };
 
-    size_t indexCut = 0;
+    size_t           indexCut = 0;
     csl::vector_expr exprTensors(tensors.size());
-    csl::Index current = indices[0].first;
+    csl::Index       current = indices[0].first;
     for (size_t i = 0; i != tensors.size(); ++i) {
         csl::Index second;
         if (i + 1 == cuts[indexCut]) {
@@ -1406,21 +1286,17 @@ csl::vector_expr DiracSpace::applyChainIndices(
     return exprTensors;
 }
 
-csl::vector_expr DiracSpace::simplifyChain(
-        csl::vector_expr const& tensors) const
+csl::vector_expr
+DiracSpace::simplifyChain(csl::vector_expr const &tensors) const
 {
-    sgl::TensorSet tensorset {
-        dirac4.gamma_chir,
-        dirac4.C_matrix,
-        dirac4.P_L,
-        dirac4.P_R,
-        {}
-    };
+    sgl::TensorSet tensorset{
+        dirac4.gamma_chir, dirac4.C_matrix, dirac4.P_L, dirac4.P_R, {}};
     tensorset.gamma[0] = dirac4.delta;
     tensorset.gamma[1] = dirac4.gamma;
     tensorset.gamma[2] = dirac4.sigma;
     try {
-        sgl::GExpr sglTest = sgl::csl_to_sgl(csl::prod_s(tensors, true), tensorset);
+        sgl::GExpr sglTest
+            = sgl::csl_to_sgl(csl::prod_s(tensors, true), tensorset);
         sgl::Simplify(sglTest);
         return {sgl::sgl_to_csl(sglTest, tensorset)};
     }
@@ -1434,19 +1310,19 @@ csl::vector_expr DiracSpace::simplifyChain(
     auto aligned = alignOpen(tensors);
     aligned.cutsBtwCycles.push_back(aligned.tensors.size());
     auto indices = getBorderOfChains(aligned.tensors, aligned.cutsBtwCycles);
-    csl::Expr factor = CSL_1;
-    std::vector<csl::Index> tensorsIndices = exprToIndex(
-            aligned.tensors, aligned.cutsBtwCycles);
-    //std::cout << "HERE" << std::endl;
-    //size_t index = 0;
-    //for (const auto &i : tensorsIndices) {
+    csl::Expr               factor = CSL_1;
+    std::vector<csl::Index> tensorsIndices
+        = exprToIndex(aligned.tensors, aligned.cutsBtwCycles);
+    // std::cout << "HERE" << std::endl;
+    // size_t index = 0;
+    // for (const auto &i : tensorsIndices) {
     //    std::cout << i << " ";
     //    if (auto pos = std::find(aligned.cutsBtwCycles.begin(),
     //                aligned.cutsBtwCycles.end(), ++index);
     //            pos != aligned.cutsBtwCycles.end())
     //        std::cout << "| ";
     //}
-    //std::cout << std::endl;
+    // std::cout << std::endl;
     // size_t pos = 0;
     // for (size_t cut_pos = 0;
     //         cut_pos != aligned.cutsBtwCycles.size();
@@ -1462,8 +1338,8 @@ csl::vector_expr DiracSpace::simplifyChain(
     //               tensorsIndices.begin() + pos);
 
     //     size_t maxi = tensors.size() + pos;
-    //     size_t Ndiff = aligned.cutsBtwCycles[cut_pos] - pos - tensors.size();
-    //     if (Ndiff > 0) {
+    //     size_t Ndiff = aligned.cutsBtwCycles[cut_pos] - pos -
+    //     tensors.size(); if (Ndiff > 0) {
     //         for (size_t pos = cut_pos
     //                 ; pos != aligned.cutsBtwCycles.size()
     //                 ; ++pos)
@@ -1474,13 +1350,9 @@ csl::vector_expr DiracSpace::simplifyChain(
     //     pos = aligned.cutsBtwCycles[cut_pos];
     // }
     applyUniqueChiralityStructure(
-            tensorsIndices,
-            aligned.cutsBtwCycles,
-            factor);
-    auto chains = simplifyGammaProd(
-            tensorsIndices,
-            aligned.cutsBtwCycles,
-            factor);
+        tensorsIndices, aligned.cutsBtwCycles, factor);
+    auto chains
+        = simplifyGammaProd(tensorsIndices, aligned.cutsBtwCycles, factor);
 
     std::vector<csl::Expr> terms;
     terms.reserve(chains.size());
@@ -1490,15 +1362,12 @@ csl::vector_expr DiracSpace::simplifyChain(
         // for (const auto &i : c.indices)
         //     std::cout << i << " ";
         // std::cout << std::endl;
-        auto newTensors = applyChainIndices(
-                c.indices,
-                c.cuts,
-                c.fiertzFlipping,
-                indices);
+        auto newTensors
+            = applyChainIndices(c.indices, c.cuts, c.fiertzFlipping, indices);
         newTensors.push_back(c.factor);
         terms.push_back(csl::prod_s(newTensors));
     }
-    //compare(tensors, sglTest, csl::sum_s(terms));
+    // compare(tensors, sglTest, csl::sum_s(terms));
 
     return terms;
 }
@@ -1508,10 +1377,10 @@ size_t DiracSpace::getSpinorDimension(size_t spaceTimeDim)
     return pow(2, spaceTimeDim / 2);
 }
 
-size_t DiracSpace::countGammaMult(csl::vector_expr const& tensors) const
+size_t DiracSpace::countGammaMult(csl::vector_expr const &tensors) const
 {
     size_t count = 0;
-    for (const auto& t : tensors)
+    for (const auto &t : tensors)
         if (isGammaMu(t))
             count += 1;
         else if (isSigma(t))
@@ -1526,10 +1395,10 @@ size_t DiracSpace::countGammaMult(csl::vector_expr const& tensors) const
     return count;
 }
 
-size_t DiracSpace::countGammaMult(std::vector<csl::Index> const& tensors) const
+size_t DiracSpace::countGammaMult(std::vector<csl::Index> const &tensors) const
 {
     size_t count = 0;
-    for (const auto& t : tensors)
+    for (const auto &t : tensors)
         if (isGammaMu(t))
             count += 1;
         else if (isGammaChir(t))
@@ -1542,28 +1411,28 @@ size_t DiracSpace::countGammaMult(std::vector<csl::Index> const& tensors) const
     return count;
 }
 
-std::vector<csl::Index> DiracSpace::exprToIndex(
-        std::vector<csl::Expr> const& tensors,
-        std::vector<size_t>    & cuts) const
+std::vector<csl::Index>
+DiracSpace::exprToIndex(std::vector<csl::Expr> const &tensors,
+                        std::vector<size_t> &         cuts) const
 {
     std::vector<csl::Index> indices;
     indices.reserve(tensors.size());
     for (size_t i = 0; i != tensors.size(); ++i) {
         csl::Index mu = getSpaceTimeIndex(tensors[i]);
-        if (mu != dim+4)
+        if (mu != dim + 4)
             indices.push_back(mu);
         else
-            for (size_t& cut : cuts)
-                if (cut+1 > indices.size())
+            for (size_t &cut : cuts)
+                if (cut + 1 > indices.size())
                     --cut;
     }
 
     return indices;
 }
 
-csl::Expr DiracSpace::indexToExpr(csl::Index const& spaceTimeIndex,
-                             csl::Index const& first,
-                             csl::Index const& second) const
+csl::Expr DiracSpace::indexToExpr(csl::Index const &spaceTimeIndex,
+                                  csl::Index const &first,
+                                  csl::Index const &second) const
 {
     if (isGammaChir(spaceTimeIndex))
         return gamma_chir({first, second});
@@ -1579,71 +1448,67 @@ csl::Expr DiracSpace::indexToExpr(csl::Index const& spaceTimeIndex,
         return C_matrix({first, second});
 
     CallHEPError(mty::error::TypeError,
-            "Gamma tensor of index " + toString(spaceTimeIndex) + " not "
-            + "recognized in dirac space of dim" + toString(getDim()) + ".");
+                 "Gamma tensor of index " + toString(spaceTimeIndex) + " not "
+                     + "recognized in dirac space of dim" + toString(getDim())
+                     + ".");
 
     return nullptr;
 }
 
-bool DiracSpace::isGammaTensor(csl::Expr const& tensor) const
+bool DiracSpace::isGammaTensor(csl::Expr const &tensor) const
 {
     if (not IsIndicialTensor(tensor))
         return false;
     auto parent = tensor->getParent_info();
-    return (parent == gamma.get()
-            or parent == sigma.get()
-            or parent == gamma_chir.get()
-            or parent == P_L.get()
-            or parent == P_R.get()
-            or parent == C_matrix.get());
+    return (parent == gamma.get() or parent == sigma.get()
+            or parent == gamma_chir.get() or parent == P_L.get()
+            or parent == P_R.get() or parent == C_matrix.get());
 }
 
-bool DiracSpace::isDelta(csl::Expr const& tensor) const
+bool DiracSpace::isDelta(csl::Expr const &tensor) const
 {
     return tensor->getParent_info() == delta.get();
 }
 
-bool DiracSpace::isGammaMu(csl::Expr const& tensor) const
+bool DiracSpace::isGammaMu(csl::Expr const &tensor) const
 {
     return tensor->getParent_info() == gamma.get();
 }
 
-bool DiracSpace::isSigma(csl::Expr const& tensor) const
+bool DiracSpace::isSigma(csl::Expr const &tensor) const
 {
     return tensor->getParent_info() == sigma.get();
 }
 
-bool DiracSpace::isGammaChir(csl::Expr const& tensor) const
+bool DiracSpace::isGammaChir(csl::Expr const &tensor) const
 {
     return tensor->getParent_info() == gamma_chir.get();
 }
 
-bool DiracSpace::isP_L(csl::Expr const& tensor) const
+bool DiracSpace::isP_L(csl::Expr const &tensor) const
 {
     return tensor->getParent_info() == P_L.get();
 }
 
-bool DiracSpace::isP_R(csl::Expr const& tensor) const
+bool DiracSpace::isP_R(csl::Expr const &tensor) const
 {
     return tensor->getParent_info() == P_R.get();
 }
 
-bool DiracSpace::isProjector(csl::Expr const& tensor) const
+bool DiracSpace::isProjector(csl::Expr const &tensor) const
 {
     return isP_L(tensor) or isP_R(tensor);
 }
 
-bool DiracSpace::isCMatrix(csl::Expr const& tensor) const
+bool DiracSpace::isCMatrix(csl::Expr const &tensor) const
 {
     return tensor->getParent_info() == C_matrix.get();
 }
 
-bool DiracSpace::isSymmetric(csl::Expr const& tensor) const
+bool DiracSpace::isSymmetric(csl::Expr const &tensor) const
 {
-    return isGammaChir(tensor) 
-        or isProjector(tensor) 
-        or isDelta(tensor)
-        or isCMatrix(tensor);
+    return isGammaChir(tensor) or isProjector(tensor) or isDelta(tensor)
+           or isCMatrix(tensor);
 }
 
 bool DiracSpace::isGammaTensor(csl::Expr_info tensor) const
@@ -1651,12 +1516,9 @@ bool DiracSpace::isGammaTensor(csl::Expr_info tensor) const
     if (not IsIndicialTensor(tensor))
         return false;
     auto parent = tensor->getParent_info();
-    return (parent == gamma.get()
-            or parent == sigma.get()
-            or parent == gamma_chir.get()
-            or parent == P_L.get()
-            or parent == P_R.get()
-            or parent == C_matrix.get());
+    return (parent == gamma.get() or parent == sigma.get()
+            or parent == gamma_chir.get() or parent == P_L.get()
+            or parent == P_R.get() or parent == C_matrix.get());
 }
 
 bool DiracSpace::isDelta(csl::Expr_info tensor) const
@@ -1701,51 +1563,43 @@ bool DiracSpace::isCMatrix(csl::Expr_info tensor) const
 
 bool DiracSpace::isSymmetric(csl::Expr_info tensor) const
 {
-    return isGammaChir(tensor) 
-        or isProjector(tensor) 
-        or isDelta(tensor)
-        or isCMatrix(tensor);
+    return isGammaChir(tensor) or isProjector(tensor) or isDelta(tensor)
+           or isCMatrix(tensor);
 }
 
-bool DiracSpace::isDelta(csl::Index const& index) const
+bool DiracSpace::isDelta(csl::Index const &index) const
 {
-    return index.getType() == cslIndex::Fixed
-        or index == dim + 4;
+    return index.getType() == cslIndex::Fixed or index == dim + 4;
 }
 
-bool DiracSpace::isGammaMu(csl::Index const& index) const
+bool DiracSpace::isGammaMu(csl::Index const &index) const
 {
-    return index.getType() != cslIndex::Fixed
-        or index.getValue() < dim;
+    return index.getType() != cslIndex::Fixed or index.getValue() < dim;
 }
 
-bool DiracSpace::isGammaChir(csl::Index const& index) const
+bool DiracSpace::isGammaChir(csl::Index const &index) const
 {
-    return index.getType() == cslIndex::Fixed
-        and index == dim + 1;
+    return index.getType() == cslIndex::Fixed and index == dim + 1;
 }
 
-bool DiracSpace::isP_L(csl::Index const& index) const
+bool DiracSpace::isP_L(csl::Index const &index) const
 {
-    return index.getType() == cslIndex::Fixed
-        and index == dim + 2;
+    return index.getType() == cslIndex::Fixed and index == dim + 2;
 }
 
-bool DiracSpace::isP_R(csl::Index const& index) const
+bool DiracSpace::isP_R(csl::Index const &index) const
 {
-    return index.getType() == cslIndex::Fixed
-        and index == dim + 3;
+    return index.getType() == cslIndex::Fixed and index == dim + 3;
 }
 
-bool DiracSpace::isProjector(csl::Index const& index) const
+bool DiracSpace::isProjector(csl::Index const &index) const
 {
     return isP_L(index) or isP_R(index);
 }
 
-bool DiracSpace::isCMatrix(csl::Index const& index) const
+bool DiracSpace::isCMatrix(csl::Index const &index) const
 {
-    return index.getType() == cslIndex::Fixed
-        and index == dim + 5;
+    return index.getType() == cslIndex::Fixed and index == dim + 5;
 }
 
 csl::Index DiracSpace::index() const
@@ -1758,53 +1612,54 @@ csl::Index DiracSpace::st_index() const
     return spaceTime->generateIndex();
 }
 
-void DiracSpace::flipChirality(csl::Index& tensor) const
+void DiracSpace::flipChirality(csl::Index &tensor) const
 {
     tensor = (isP_L(tensor)) ? dim + 3 : dim + 2;
 }
 
-csl::Index DiracSpace::flippedChirality(csl::Index const& tensor) const
+csl::Index DiracSpace::flippedChirality(csl::Index const &tensor) const
 {
-    auto flipped {tensor};
+    auto flipped{tensor};
     flipChirality(flipped);
     return flipped;
 }
 
-csl::Index DiracSpace::getSpaceTimeIndex(csl::Expr const& tensor) const
+csl::Index DiracSpace::getSpaceTimeIndex(csl::Expr const &tensor) const
 {
     if (isGammaMu(tensor))
         return tensor->getIndexStructureView()[0];
     else if (isGammaChir(tensor))
-        return csl::Index(dim+1);
+        return csl::Index(dim + 1);
     else if (isP_L(tensor))
-        return csl::Index(dim+2);
+        return csl::Index(dim + 2);
     else if (isP_R(tensor))
-        return csl::Index(dim+3);
+        return csl::Index(dim + 3);
     else if (isDelta(tensor))
-        return csl::Index(dim+4);
+        return csl::Index(dim + 4);
     else if (isCMatrix(tensor))
-        return csl::Index(dim+5);
+        return csl::Index(dim + 5);
     CallHEPError(mty::error::TypeError,
-            "Tensor " + toString(tensor) + " not recognized in Dirac chain.");
+                 "Tensor " + toString(tensor)
+                     + " not recognized in Dirac chain.");
     return csl::Index();
 }
 
-csl::Index DiracSpace::getFirstIndex(csl::Expr const& tensor) const
+csl::Index DiracSpace::getFirstIndex(csl::Expr const &tensor) const
 {
-    const auto& structure = tensor->getIndexStructureView();
+    const auto &structure = tensor->getIndexStructureView();
     HEPAssert(structure.size() >= 1,
-            mty::error::TypeError,
-            "Tensor " + toString(tensor) + " have less than one index.");
-    return structure[structure.size()-2];
+              mty::error::TypeError,
+              "Tensor " + toString(tensor) + " have less than one index.");
+    return structure[structure.size() - 2];
 }
 
-csl::Index DiracSpace::getSecondIndex(csl::Expr const& tensor) const
+csl::Index DiracSpace::getSecondIndex(csl::Expr const &tensor) const
 {
-    const auto& structure = tensor->getIndexStructureView();
+    const auto &structure = tensor->getIndexStructureView();
     HEPAssert(structure.size() >= 2,
-            mty::error::TypeError,
-            "Tensor " + toString(tensor) + " have less than two indices.");
-    return structure[structure.size()-1];
+              mty::error::TypeError,
+              "Tensor " + toString(tensor) + " have less than two indices.");
+    return structure[structure.size() - 1];
 }
 
 ///////////////////////////////////////////////////
@@ -1813,16 +1668,14 @@ csl::Index DiracSpace::getSecondIndex(csl::Expr const& tensor) const
 /*************************************************/
 ///////////////////////////////////////////////////
 
-bool ConjugationSimplifier::hasContractionProperty(
-        csl::Expr_info self, 
-        csl::Expr_info other
-        ) const
+bool ConjugationSimplifier::hasContractionProperty(csl::Expr_info self,
+                                                   csl::Expr_info other) const
 {
     csl::IndexStructure otherStruct = other->getIndexStructure();
-    csl::Index selfSecond = self->getIndexStructureView()[1];
+    csl::Index          selfSecond  = self->getIndexStructureView()[1];
 
     bool secondIndexContracted = false;
-    for (const auto& index : otherStruct)
+    for (const auto &index : otherStruct)
         if (index == selfSecond) {
             secondIndexContracted = true;
             break;
@@ -1830,52 +1683,46 @@ bool ConjugationSimplifier::hasContractionProperty(
     if (not secondIndexContracted) {
         return false;
     }
-    if (not csl::IsSum(other)
-            and not csl::IsProd(other)
-            and not csl::IsIndicialTensor(other)
-            and not csl::IsVectorIntegral(other)) {
+    if (not csl::IsSum(other) and not csl::IsProd(other)
+        and not csl::IsIndicialTensor(other)
+        and not csl::IsVectorIntegral(other)) {
         return false;
     }
     if (csl::IsVectorIntegral(other))
         return hasContractionProperty(self, other->getOperand().get());
-    return csl::AnyOfLeafs(other, [&](csl::Expr_info sub)
-    {
+    return csl::AnyOfLeafs(other, [&](csl::Expr_info sub) {
         if (not csl::IsIndicialTensor(sub))
             return true;
         auto parent = sub->getParent_info();
         if (parent->getDim(diracSpace) == 0)
             return true;
         return diracSpace->isGammaTensor(sub)
-            or diracSpace->getDelta().get() == parent;
+               or diracSpace->getDelta().get() == parent;
     });
 }
 
-csl::Expr ConjugationSimplifier::contraction(
-        csl::Expr_info self,
-        csl::Expr_info other
-        ) const
+csl::Expr ConjugationSimplifier::contraction(csl::Expr_info self,
+                                             csl::Expr_info other) const
 {
-    if (csl::IsITensor(other) 
-            and other->getParent_info() == self->getParent_info()) {
+    if (csl::IsITensor(other)
+        and other->getParent_info() == self->getParent_info()) {
         return self->copy() * other->copy();
     }
-    csl::Index firstIndex = self->getIndexStructureView()[0];
+    csl::Index firstIndex  = self->getIndexStructureView()[0];
     csl::Index secondIndex = self->getIndexStructureView()[1];
-    csl::Expr commuted = other->copy();
+    csl::Expr  commuted    = other->copy();
     if (commutation(firstIndex, secondIndex, commuted)) {
         return commuted;
     }
-    csl::Expr C = self->copy();
+    csl::Expr C                   = self->copy();
     C->getIndexStructureView()[0] = firstIndex;
     C->getIndexStructureView()[1] = secondIndex;
     return commuted * C;
 }
 
-bool ConjugationSimplifier::commutation(
-        csl::Index &first,
-        csl::Index &second,
-        csl::Expr       &expr
-        ) const
+bool ConjugationSimplifier::commutation(csl::Index &first,
+                                        csl::Index &second,
+                                        csl::Expr & expr) const
 {
     if (csl::IsSum(expr))
         return commutationWithSum(first, second, expr);
@@ -1884,33 +1731,30 @@ bool ConjugationSimplifier::commutation(
     if (csl::IsVectorIntegral(expr))
         return commutationWithIntegral(first, second, expr);
     if (csl::IsIndicialTensor(expr)
-            and (diracSpace->isGammaTensor(expr)
-                or expr->getParent_info() == diracSpace->getDelta().get()))
+        and (diracSpace->isGammaTensor(expr)
+             or expr->getParent_info() == diracSpace->getDelta().get()))
         return commutationWithTensor(first, second, expr);
     if (csl::IsIndicialTensor(expr)
-            and expr->hasContractionProperty(
-                diracSpace->C_matrix({first, second}).get())) {
+        and expr->hasContractionProperty(
+            diracSpace->C_matrix({first, second}).get())) {
         expr = expr * diracSpace->C_matrix({first, second});
         return true;
     }
     HEPAssert(!csl::IsITensor(expr)
-            or expr->getParent_info() != diracSpace->C_matrix.get(),
-            mty::error::RuntimeError,
-            "Conjugation matrix " + toString(expr->copy())
-            + " should not appear in contraction.")
-    return false;
+                  or expr->getParent_info() != diracSpace->C_matrix.get(),
+              mty::error::RuntimeError,
+              "Conjugation matrix " + toString(expr->copy())
+                  + " should not appear in contraction.") return false;
 }
-bool ConjugationSimplifier::commutationWithIntegral(
-        csl::Index &first,
-        csl::Index &second,
-        csl::Expr       &integral
-        ) const
+bool ConjugationSimplifier::commutationWithIntegral(csl::Index &first,
+                                                    csl::Index &second,
+                                                    csl::Expr & integral) const
 {
     HEPAssert(csl::IsVectorIntegral(integral),
-            mty::error::RuntimeError,
-            "Should not encounter non integral (" 
-            + toString(integral->copy()) 
-            + ") in conjugation matrix contraction.");
+              mty::error::RuntimeError,
+              "Should not encounter non integral ("
+                  + toString(integral->copy())
+                  + ") in conjugation matrix contraction.");
 
     csl::Expr operand = integral->getOperand();
     if (commutation(first, second, operand)) {
@@ -1920,23 +1764,21 @@ bool ConjugationSimplifier::commutationWithIntegral(
     integral->setOperand(operand);
     return false;
 }
-bool ConjugationSimplifier::commutationWithTensor(
-        csl::Index &first,
-        csl::Index &second,
-        csl::Expr       &tensor
-        ) const
+bool ConjugationSimplifier::commutationWithTensor(csl::Index &first,
+                                                  csl::Index &second,
+                                                  csl::Expr & tensor) const
 {
     HEPAssert(csl::IsIndicialTensor(tensor),
-            mty::error::RuntimeError,
-            "Should not encounter non tensor (" 
-            + toString(tensor->copy()) 
-            + ") in conjugation matrix contraction.");
+              mty::error::RuntimeError,
+              "Should not encounter non tensor (" + toString(tensor->copy())
+                  + ") in conjugation matrix contraction.");
 
     HEPAssert(diracSpace->isGammaTensor(tensor)
-            or diracSpace->getDelta().get() == tensor->getParent_info(),
-            mty::error::RuntimeError,
-            "Tensor " + toString(tensor->copy()) + " not recognized in "
-            "conjugation matrix contraction.");
+                  or diracSpace->getDelta().get() == tensor->getParent_info(),
+              mty::error::RuntimeError,
+              "Tensor " + toString(tensor->copy())
+                  + " not recognized in "
+                    "conjugation matrix contraction.");
 
     if (tensor->getParent_info() == diracSpace->C_matrix.get()) {
         tensor = diracSpace->C_matrix({first, second}) * tensor;
@@ -1945,46 +1787,43 @@ bool ConjugationSimplifier::commutationWithTensor(
 
     tensor = Copy(tensor);
     for (auto &index : tensor->getIndexStructureView())
-        if (index.getSpace() == diracSpace 
-                and index != second) {
+        if (index.getSpace() == diracSpace and index != second) {
             if (index == first) {
                 tensor = CSL_0;
                 return true;
             }
             auto save_second = second;
-            second = index;
-            index = first;
-            first = save_second;
-            if (diracSpace->isSigma(tensor) 
-                    or diracSpace->isGammaMu(tensor))
+            second           = index;
+            index            = first;
+            first            = save_second;
+            if (diracSpace->isSigma(tensor) or diracSpace->isGammaMu(tensor))
                 tensor *= -1;
             return false;
         }
     HEPAssert(false,
-            mty::error::RuntimeError,
-            "Tensor " + toString(tensor->copy()) + " not recognized in "
-            "conjugation matrix contraction.");
+              mty::error::RuntimeError,
+              "Tensor " + toString(tensor->copy())
+                  + " not recognized in "
+                    "conjugation matrix contraction.");
     return false;
 }
-bool ConjugationSimplifier::commutationWithProduct(
-        csl::Index &first,
-        csl::Index &second,
-        csl::Expr       &prod
-        ) const
+bool ConjugationSimplifier::commutationWithProduct(csl::Index &first,
+                                                   csl::Index &second,
+                                                   csl::Expr & prod) const
 {
     HEPAssert(csl::IsProd(prod),
-            mty::error::TypeError,
-            "Expecting a product, " + toString(prod) + " given.");
-    size_t nArgs = prod->size();
+              mty::error::TypeError,
+              "Expecting a product, " + toString(prod) + " given.");
+    size_t                           nArgs = prod->size();
     std::vector<csl::IndexStructure> indices(nArgs);
     for (size_t i = 0; i != nArgs; ++i)
         indices[i] = prod[i]->getIndexStructure();
     size_t nCommut = 0;
-    bool commuted;
+    bool   commuted;
     do {
         commuted = false;
         for (size_t i = 0; i != nArgs; ++i) {
-            for (const auto& index : indices[i])
+            for (const auto &index : indices[i])
                 if (index == second) {
                     if (commutation(first, second, prod[i])) {
                         csl::Refresh(prod);
@@ -2001,33 +1840,31 @@ bool ConjugationSimplifier::commutationWithProduct(
     csl::Refresh(prod);
     return false;
 }
-bool ConjugationSimplifier::commutationWithSum(
-        csl::Index &first,
-        csl::Index &second,
-        csl::Expr       &sum
-        ) const
+bool ConjugationSimplifier::commutationWithSum(csl::Index &first,
+                                               csl::Index &second,
+                                               csl::Expr & sum) const
 {
     HEPAssert(csl::IsSum(sum),
-            mty::error::TypeError,
-            "Expecting a sum, " + toString(sum) + " given.");
-    csl::Index first_save = first;
+              mty::error::TypeError,
+              "Expecting a sum, " + toString(sum) + " given.");
+    csl::Index first_save  = first;
     csl::Index second_save = second;
-    int value = -1;
+    int        value       = -1;
     for (auto &arg : sum) {
-        first = first_save;
-        second = second_save;
+        first        = first_save;
+        second       = second_save;
         int valueArg = commutation(first, second, arg);
         if (value == -1)
             value = valueArg;
         else
             HEPAssert(value == valueArg,
-                    mty::error::RuntimeError,
-                    "Sum " + toString(sum) + " has bad commutation property"
-                    " with Dirac Conjugation matrix.");
+                      mty::error::RuntimeError,
+                      "Sum " + toString(sum)
+                          + " has bad commutation property"
+                            " with Dirac Conjugation matrix.");
     }
     csl::Refresh(sum);
     return (value == 1);
 }
-
 
 } // End of namespace mty

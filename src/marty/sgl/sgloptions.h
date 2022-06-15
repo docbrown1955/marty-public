@@ -17,13 +17,13 @@
  * @file sgloptions.h
  * @brief Options in SGL.
  * @author Grégoire Uhlrich
- * @version 
+ * @version
  * @date 2021-05-06
  */
 #pragma once
 
 namespace sgl::option {
 
-    inline bool keepEvanescentOperators = true;
+inline bool keepEvanescentOperators = true;
 
 }

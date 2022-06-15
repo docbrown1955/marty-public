@@ -1,23 +1,23 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "lhaData.h"
 #include <algorithm>
+#include <cmath>
 #include <iomanip>
 #include <sstream>
-#include <cmath>
 
 namespace mty::lha {
 
@@ -55,26 +55,45 @@ BlockType blockType(std::string_view name)
     return BlockType::None;
 }
 
-std::ostream &operator<<(
-        std::ostream &out,
-        BlockType     type
-        )
+std::ostream &operator<<(std::ostream &out, BlockType type)
 {
-    switch(type) {
-        case BlockType::SMINPUTS: out << "SMINPUTS"; break;
-        case BlockType::MINPAR:   out << "MINPAR";   break;
-        case BlockType::EXTPAR:   out << "EXTPAR";   break;
-        case BlockType::MSQ2:     out << "MSQ2";     break;
-        case BlockType::MSL2:     out << "MSL2";     break;
-        case BlockType::MSu2:     out << "MSu2";     break;
-        case BlockType::MSd2:     out << "MSd2";     break;
-        case BlockType::MSe2:     out << "MSe2";     break;
-        case BlockType::TUIN:     out << "TUIN";     break;
-        case BlockType::TDIN:     out << "TDIN";     break;
-        case BlockType::TEIN:     out << "TEIN";     break;
-        default:
-            out << "None"; 
-            break;
+    switch (type) {
+    case BlockType::SMINPUTS:
+        out << "SMINPUTS";
+        break;
+    case BlockType::MINPAR:
+        out << "MINPAR";
+        break;
+    case BlockType::EXTPAR:
+        out << "EXTPAR";
+        break;
+    case BlockType::MSQ2:
+        out << "MSQ2";
+        break;
+    case BlockType::MSL2:
+        out << "MSL2";
+        break;
+    case BlockType::MSu2:
+        out << "MSu2";
+        break;
+    case BlockType::MSd2:
+        out << "MSd2";
+        break;
+    case BlockType::MSe2:
+        out << "MSe2";
+        break;
+    case BlockType::TUIN:
+        out << "TUIN";
+        break;
+    case BlockType::TDIN:
+        out << "TDIN";
+        break;
+    case BlockType::TEIN:
+        out << "TEIN";
+        break;
+    default:
+        out << "None";
+        break;
     }
 
     return out;
@@ -111,10 +130,7 @@ std::optional<LHAElement> LHABlock::getElement(size_t id) const
     return std::nullopt;
 }
 
-std::optional<LHAElement> LHABlock::getElement(
-        size_t id,
-        size_t id_sup
-        ) const
+std::optional<LHAElement> LHABlock::getElement(size_t id, size_t id_sup) const
 {
     for (const auto &e : elements) {
         if (e.id == id and (id_sup == size_t(-1) or e.id_sup == id_sup))
@@ -123,9 +139,7 @@ std::optional<LHAElement> LHABlock::getElement(
     return std::nullopt;
 }
 
-std::vector<LHAElement> LHABlock::getMultipleElements(
-        size_t id
-        ) const
+std::vector<LHAElement> LHABlock::getMultipleElements(size_t id) const
 {
     std::vector<LHAElement> res;
     for (const auto &e : elements)
@@ -136,30 +150,19 @@ std::vector<LHAElement> LHABlock::getMultipleElements(
 
 void LHABlock::sortElements()
 {
-    using compareElementFunc = bool(*)(
-            LHAElement const&,
-            LHAElement const&
-            );
-    std::sort(
-            elements.begin(),
-            elements.end(),
-            static_cast<compareElementFunc>(mty::lha::Comparator::compare)
-            );
+    using compareElementFunc
+        = bool (*)(LHAElement const &, LHAElement const &);
+    std::sort(elements.begin(),
+              elements.end(),
+              static_cast<compareElementFunc>(mty::lha::Comparator::compare));
 }
 
-void LHABlock::addElement(
-        size_t    id,
-        FloatType value
-        )
+void LHABlock::addElement(size_t id, FloatType value)
 {
     elements.push_back({id, size_t(-1), value});
 }
 
-void LHABlock::addElement(
-        size_t    id,
-        size_t    id_sup,
-        FloatType value
-        )
+void LHABlock::addElement(size_t id, size_t id_sup, FloatType value)
 {
     elements.push_back({id, id_sup, value});
 }
@@ -180,11 +183,9 @@ void LHABlock::addElement(LHAElement &&t_element)
 /*************************************************/
 ///////////////////////////////////////////////////
 
-size_t LHAFileData::findBlock(
-        std::string_view nameBlock
-        ) const
+size_t LHAFileData::findBlock(std::string_view nameBlock) const
 {
-    for (size_t i = 0; i != blocks.size(); ++i) 
+    for (size_t i = 0; i != blocks.size(); ++i)
         if (blocks[i].isName(nameBlock))
             return i;
     return npos;
@@ -197,9 +198,7 @@ void LHAFileData::addBlock(std::string_view name)
     }
 }
 
-std::vector<FloatType> LHAFileData::getValues(
-        std::string_view nameBlock
-        ) const 
+std::vector<FloatType> LHAFileData::getValues(std::string_view nameBlock) const
 {
     for (const auto &block : blocks)
         if (block.isName(nameBlock)) {
@@ -214,10 +213,8 @@ std::vector<FloatType> LHAFileData::getValues(
     return {};
 }
 
-std::optional<FloatType> LHAFileData::getValue(
-        std::string_view nameBlock,
-        size_t           id
-        ) const
+std::optional<FloatType> LHAFileData::getValue(std::string_view nameBlock,
+                                               size_t           id) const
 {
     for (const auto &block : blocks)
         if (block.isName(nameBlock))
@@ -228,14 +225,11 @@ std::optional<FloatType> LHAFileData::getValue(
     return std::nullopt;
 }
 
-std::optional<FloatType> LHAFileData::getValue(
-        std::string_view nameBlock,
-        size_t           i,
-        size_t           j
-        ) const
+std::optional<FloatType>
+LHAFileData::getValue(std::string_view nameBlock, size_t i, size_t j) const
 {
     for (const auto &block : blocks)
-        if (block.isName(nameBlock)) 
+        if (block.isName(nameBlock))
             for (const auto &el : block)
                 if (el.id == i and el.id_sup == j)
                     return el.value;
@@ -256,14 +250,12 @@ std::optional<FloatType> LHAFileData::getValue(
  *
  * @return std::ceil(std::log10(n)) >= 4 ? 10 : 5
  */
-int nSpace(size_t n) {
+int nSpace(size_t n)
+{
     return (std::ceil(std::log10(n)) >= 4) ? 10 : 5;
 }
 
-std::ostream &operator<<(
-        std::ostream     &out,
-        LHAElement const &element
-        )
+std::ostream &operator<<(std::ostream &out, LHAElement const &element)
 {
     out << std::left;
     out << std::setw(nSpace(element.id)) << element.id;
@@ -276,10 +268,7 @@ std::ostream &operator<<(
     return out;
 }
 
-std::ostream &operator<<(
-        std::ostream   &out,
-        LHABlock const &block
-        )
+std::ostream &operator<<(std::ostream &out, LHABlock const &block)
 {
     out << "BLOCK " << block.getName() << '\n';
     for (const auto &element : block)
@@ -288,10 +277,7 @@ std::ostream &operator<<(
     return out;
 }
 
-std::ostream &operator<<(
-        std::ostream      &out,
-        LHAFileData const &data
-        )
+std::ostream &operator<<(std::ostream &out, LHAFileData const &data)
 {
     out << "# LHA file generated by MARTY\n";
     for (const auto &block : data) {
@@ -304,10 +290,9 @@ std::ostream &operator<<(
 std::string tolower(std::string const &str)
 {
     std::string cpy(str);
-    std::for_each(cpy.begin(), cpy.end(), [&](char &c) {
-        c = std::tolower(c);
-    });
+    std::for_each(
+        cpy.begin(), cpy.end(), [&](char &c) { c = std::tolower(c); });
     return cpy;
 }
 
-} // End of namespace lha
+} // namespace mty::lha

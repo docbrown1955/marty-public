@@ -1,15 +1,15 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
@@ -17,32 +17,21 @@
 #include "ui_mainwindow.h"
 #include <QCloseEvent>
 
-MainWindow::MainWindow(
-        QString const &nameFile,
-        QWidget       *parent) :
-    QMainWindow(parent),
-    m_ui(new Ui::MainWindow),
-    saved(true)
+MainWindow::MainWindow(QString const &nameFile, QWidget *parent)
+    : QMainWindow(parent), m_ui(new Ui::MainWindow), saved(true)
 {
     m_ui->setupUi(this);
     setFocusPolicy(Qt::FocusPolicy::StrongFocus);
     mainWidget = new MainWidget(nameFile, this);
-    connect(mainWidget, SIGNAL(isSaved()),
-            this,       SLOT(isSaved()));
-    connect(mainWidget, SIGNAL(isChanged()),
-            this,       SLOT(isChanged()));
+    connect(mainWidget, SIGNAL(isSaved()), this, SLOT(isSaved()));
+    connect(mainWidget, SIGNAL(isChanged()), this, SLOT(isChanged()));
     setCentralWidget(mainWidget);
     setWindowTitle("Grafed - MARTY");
-    connect(mainWidget, SIGNAL(diagramMode()),
-            this,       SLOT(setDiagramMode()));
-    connect(mainWidget, SIGNAL(sessionMode()),
-            this,       SLOT(setSessionMode()));
-    connect(mainWidget, SIGNAL(normalMode()),
-            this, 		SLOT(normalMode()));
-    connect(mainWidget, SIGNAL(selectMode()),
-            this, 		SLOT(selectMode()));
-    connect(mainWidget, SIGNAL(insertMode()),
-            this, 		SLOT(insertMode()));
+    connect(mainWidget, SIGNAL(diagramMode()), this, SLOT(setDiagramMode()));
+    connect(mainWidget, SIGNAL(sessionMode()), this, SLOT(setSessionMode()));
+    connect(mainWidget, SIGNAL(normalMode()), this, SLOT(normalMode()));
+    connect(mainWidget, SIGNAL(selectMode()), this, SLOT(selectMode()));
+    connect(mainWidget, SIGNAL(insertMode()), this, SLOT(insertMode()));
     m_ui->actionSource_to_clipboard->setEnabled(false);
     m_ui->actionSource_Latex->setEnabled(false);
     m_ui->actionPDF_Latex->setEnabled(false);
@@ -54,24 +43,18 @@ MainWindow::MainWindow(
     font.setPointSize(15);
     statusBar()->setFont(font);
 }
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    m_ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent), m_ui(new Ui::MainWindow)
 {
     m_ui->setupUi(this);
     mainWidget = new MainWidget(this);
     setCentralWidget(mainWidget);
     setWindowTitle("Grafed - MARTY");
-    connect(mainWidget, SIGNAL(diagramMode()),
-            this,       SLOT(setDiagramMode()));
-    connect(mainWidget, SIGNAL(sessionMode()),
-            this,       SLOT(setSessionMode()));
-    connect(mainWidget, SIGNAL(normalMode()),
-            this, 		SLOT(normalMode()));
-    connect(mainWidget, SIGNAL(selectMode()),
-            this, 		SLOT(selectMode()));
-    connect(mainWidget, SIGNAL(insertMode()),
-            this, 		SLOT(insertMode()));
+    connect(mainWidget, SIGNAL(diagramMode()), this, SLOT(setDiagramMode()));
+    connect(mainWidget, SIGNAL(sessionMode()), this, SLOT(setSessionMode()));
+    connect(mainWidget, SIGNAL(normalMode()), this, SLOT(normalMode()));
+    connect(mainWidget, SIGNAL(selectMode()), this, SLOT(selectMode()));
+    connect(mainWidget, SIGNAL(insertMode()), this, SLOT(insertMode()));
     m_ui->actionSource_to_clipboard->setEnabled(false);
     m_ui->actionSource_Latex->setEnabled(false);
     m_ui->actionPDF_Latex->setEnabled(false);
@@ -106,14 +89,13 @@ MainWindow::~MainWindow()
     delete m_ui;
 }
 
-void MainWindow::closeEvent(QCloseEvent *event)  // show prompt when user wants to close app
+void MainWindow::closeEvent(
+    QCloseEvent *event) // show prompt when user wants to close app
 {
     event->ignore();
-    if (mainWidget->maybeSave())
-    {
+    if (mainWidget->maybeSave()) {
         event->accept();
     }
-
 }
 
 void MainWindow::setDiagramMode()
@@ -223,6 +205,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     QMainWindow::keyPressEvent(event);
 }
-bool MainWindow::eventFilter(QObject *target, QEvent *event) {
+bool MainWindow::eventFilter(QObject *target, QEvent *event)
+{
     return QMainWindow::eventFilter(target, event);
 }

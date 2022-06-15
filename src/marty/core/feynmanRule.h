@@ -1,23 +1,23 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 /*!
- * @file 
+ * @file
  * @author Grégoire Uhlrich
  * @version 1.3
- 
+
  * \brief Contains the FeynmanRule object for Feynman rules.
  */
 #ifndef FEYNMANRULE_H_INCLUDED
@@ -34,79 +34,76 @@ class Model;
 /**
  * @brief Represents a Feynman rule.
  *
- * @details This object lauches the vertex calculation in its constructor to get
- * the expression of the Feynman rule. It may, mater on, give any kind of 
+ * @details This object lauches the vertex calculation in its constructor to
+ * get the expression of the Feynman rule. It may, mater on, give any kind of
  * information about the vertex, including of course the fields inside and the
  * expression that will enter amplitude calculations.
  */
 class FeynmanRule {
 
-    public:
-
+  public:
     using TermType = InteractionTerm::TermType;
 
-    FeynmanRule(mty::Model                     &model,
-                TermType                 const &interactionTerm);
+    FeynmanRule(mty::Model &model, TermType const &interactionTerm);
 
     FeynmanRule();
-    FeynmanRule(FeynmanRule const& other);
-    FeynmanRule& operator=(FeynmanRule const& other);
-    FeynmanRule(FeynmanRule && other) = default;
-    FeynmanRule& operator=(FeynmanRule && other) = default;
+    FeynmanRule(FeynmanRule const &other);
+    FeynmanRule &operator            =(FeynmanRule const &other);
+    FeynmanRule(FeynmanRule &&other) = default;
+    FeynmanRule &operator=(FeynmanRule &&other) = default;
 
-    std::vector<QuantumField>& getFieldProduct();
-    std::vector<QuantumField> const& getFieldProduct() const;
-    csl::Expr getFieldProduct(
-            csl::Tensor const& point,
-            std::vector<csl::Tensor>::iterator &first,
-            std::vector<csl::Tensor>::iterator last);
-    TermType& getInteractionTerm();
-    TermType const& getInteractionTerm() const;
-    std::shared_ptr<wick::Graph>& getDiagram();
-    std::shared_ptr<wick::Graph> const& getDiagram() const;
-    csl::Expr getExpr() const;
-    bool contains(mty::QuantumFieldParent const *parent) const;
+    std::vector<QuantumField> &      getFieldProduct();
+    std::vector<QuantumField> const &getFieldProduct() const;
+    csl::Expr                        getFieldProduct(csl::Tensor const &                 point,
+                                                     std::vector<csl::Tensor>::iterator &first,
+                                                     std::vector<csl::Tensor>::iterator  last);
+    TermType &                       getInteractionTerm();
+    TermType const &                 getInteractionTerm() const;
+    std::shared_ptr<wick::Graph> &   getDiagram();
+    std::shared_ptr<wick::Graph> const &getDiagram() const;
+    csl::Expr                           getExpr() const;
+    bool   contains(mty::QuantumFieldParent const *parent) const;
     size_t count(mty::QuantumFieldParent const *parent) const;
-    bool contains(mty::Particle const &p) const { 
-        return contains(p.get()); 
+    bool   contains(mty::Particle const &p) const
+    {
+        return contains(p.get());
     }
     bool containsWeakly(mty::QuantumFieldParent const *parent) const;
-    bool containsWeakly(mty::Particle const &p) const { 
-        return containsWeakly(p.get()); 
+    bool containsWeakly(mty::Particle const &p) const
+    {
+        return containsWeakly(p.get());
     }
-    size_t count(mty::Particle const &p) const { 
-        return count(p.get()); 
+    size_t count(mty::Particle const &p) const
+    {
+        return count(p.get());
     }
 
-    void setFieldProduct(std::vector<QuantumField> const& fieldProduct);
-    void setInteractionTerm(TermType const& term);
-    void setDiagram(std::shared_ptr<wick::Graph> const& diagram);
-    void setExpr(csl::Expr const& expr);
+    void setFieldProduct(std::vector<QuantumField> const &fieldProduct);
+    void setInteractionTerm(TermType const &term);
+    void setDiagram(std::shared_ptr<wick::Graph> const &diagram);
+    void setExpr(csl::Expr const &expr);
 
     void renameIndices();
 
-    bool isZero() const;
-    bool isEmpty() const;
-    bool isSame(FeynmanRule const& other) const;
+    bool   isZero() const;
+    bool   isEmpty() const;
+    bool   isSame(FeynmanRule const &other) const;
     size_t getSize() const;
 
-    bool operator==(FeynmanRule const&) const;
-    bool operator!=(FeynmanRule const&) const;
-    bool operator< (FeynmanRule const&) const;
-    bool operator> (FeynmanRule const&) const;
-    bool operator<=(FeynmanRule const&) const;
-    bool operator>=(FeynmanRule const&) const;
+    bool operator==(FeynmanRule const &) const;
+    bool operator!=(FeynmanRule const &) const;
+    bool operator<(FeynmanRule const &) const;
+    bool operator>(FeynmanRule const &) const;
+    bool operator<=(FeynmanRule const &) const;
+    bool operator>=(FeynmanRule const &) const;
 
-    friend
-    std::ostream& operator<<(std::ostream& out,
-                             FeynmanRule const& rule);
+    friend std::ostream &operator<<(std::ostream &     out,
+                                    FeynmanRule const &rule);
 
-    private:
-
+  private:
     void directCMatrix(csl::Expr &rule);
 
-    private:
-
+  private:
     std::vector<QuantumField>    fieldProduct;
     TermType                     term;
     std::shared_ptr<wick::Graph> diagram;
@@ -115,7 +112,6 @@ class FeynmanRule {
 
 int fermionicFactor(std::vector<mty::QuantumField> const &fieldProduct);
 
-}
-
+} // namespace mty
 
 #endif

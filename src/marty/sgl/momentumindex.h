@@ -17,7 +17,7 @@
  * @file momentumindex.h
  * @brief sgl::MomentumIndex, symbolic representation of of momentum in SGL.
  * @author Grégoire Uhlrich
- * @version 
+ * @version
  * @date 2021-05-06
  */
 #pragma once
@@ -26,55 +26,49 @@
 
 namespace sgl {
 
-    class IndexChain;
+class IndexChain;
 
-    class MomentumIndex: public AbstractGeneralizedIndex {
+class MomentumIndex : public AbstractGeneralizedIndex {
 
-    public:
+  public:
+    MomentumIndex(csl::Tensor const &p, csl::Index const &mu);
 
-        MomentumIndex(
-                csl::Tensor const &p,
-                csl::Index  const &mu
-                );
+    csl::Tensor getP() const
+    {
+        return p;
+    }
 
-        csl::Tensor getP() const {
-            return p;
-        }
+    csl::Expr square() const
+    {
+        auto p_cpy = p;
+        return p_cpy(m_indices[0]) * p_cpy(m_indices[0].getFlipped());
+    }
+    csl::Expr mass() const
+    {
+        return csl::sqrt_s(square());
+    }
 
-        csl::Expr square() const {
-            auto p_cpy = p;
-            return p_cpy(m_indices[0])*p_cpy(m_indices[0].getFlipped());
-        }
-        csl::Expr mass() const {
-            return csl::sqrt_s(square());
-        }
+    bool isZero() const override;
 
-        bool isZero() const override;
+    GExpr copy() const override;
+    GExpr refresh() const override;
 
-        GExpr copy() const override;
-        GExpr refresh() const override;
+    csl::Expr toCSL(TensorSet const &) const override;
 
-        csl::Expr toCSL(TensorSet const&) const override;
+    csl::Expr getFactor() const override;
+    GExpr     getTerm() const override;
 
-        csl::Expr getFactor() const override;
-        GExpr getTerm() const override;
+    bool  hasPropertyWith(GExpr const &other) const override;
+    GExpr propertyWith(GExpr const &other) const override;
 
-        bool hasPropertyWith(GExpr const &other) const override;
-        GExpr propertyWith(GExpr const &other) const override;
+    void print(std::ostream &out = std::cout) const override;
 
-        void print(std::ostream &out = std::cout) const override;
+  protected:
+    bool hasEOMWith(IndexChain const &chain) const;
 
-    protected:
+  protected:
+    csl::Tensor p;
+};
 
-        bool hasEOMWith(IndexChain const &chain) const;
-
-    protected:
-
-        csl::Tensor p;
-    };
-
-    GExpr momentumindex_s(
-            csl::Tensor const &p,
-            csl::Index  const &mu
-            );
-}
+GExpr momentumindex_s(csl::Tensor const &p, csl::Index const &mu);
+} // namespace sgl

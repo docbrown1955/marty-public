@@ -1,23 +1,23 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 /*!
- * @file 
+ * @file
  * @author Grégoire Uhlrich
  * @version 1.3
- 
+
  * \brief
  */
 #pragma once
@@ -26,7 +26,8 @@
 
 namespace csl {
 
-void print_libcomplexop_hdata(std::ostream &out) {
+void print_libcomplexop_hdata(std::ostream &out)
+{
     out << "#ifndef LIBCOMPLEXOP_H_INCLUDED\n";
     out << "#define LIBCOMPLEXOP_H_INCLUDED\n";
     out << "\n";
@@ -304,7 +305,8 @@ void print_libcomplexop_hdata(std::ostream &out) {
     out << "        __complex128  z\n";
     out << "        )\n";
     out << "{\n";
-    out << "    out << \"(\" << crealq(z) << \" + i*\" << cimagq(z) << \")\";\n";
+    out << "    out << \"(\" << crealq(z) << \" + i*\" << cimagq(z) << "
+           "\")\";\n";
     out << "    return out;\n";
     out << "}\n";
     out << "\n";

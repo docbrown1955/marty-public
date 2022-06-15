@@ -13,157 +13,132 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
- #pragma once
+#pragma once
 
-#include <string>
 #include "libraryfunction.h"
+#include <string>
 
 namespace csl {
 
-    class LibraryGroup {
+class LibraryGroup {
 
-    public:
-
-        LibraryGroup(
-                std::string t_name, 
-                bool t_complexReturn
-                )
-            :name(t_name),
-            paramName(
-                    "param" 
-                    + ((name.empty()) ? std::string("") : "_" + name) 
+  public:
+    LibraryGroup(std::string t_name, bool t_complexReturn)
+        : name(t_name),
+          paramName("param" + ((name.empty()) ? std::string("") : "_" + name)
                     + "_t"),
-            complexReturn(t_complexReturn)
-        {}
+          complexReturn(t_complexReturn)
+    {
+    }
 
-        LibraryGroup(LibraryGroup const &) = default;
-        LibraryGroup &operator=(LibraryGroup const &) = default;
+    LibraryGroup(LibraryGroup const &) = default;
+    LibraryGroup &operator=(LibraryGroup const &) = default;
 
-        bool empty() const { return functions.empty(); }
+    bool empty() const
+    {
+        return functions.empty();
+    }
 
-        bool hasComplexReturn() const { return complexReturn; }
+    bool hasComplexReturn() const
+    {
+        return complexReturn;
+    }
 
-        std::string const &getName() const { return name; }
+    std::string const &getName() const
+    {
+        return name;
+    }
 
-        std::string getParamName() const {
-            return paramName;
-        }
+    std::string getParamName() const
+    {
+        return paramName;
+    }
 
-        void setParamName(std::string const &t_paramName) {
-            paramName = t_paramName;
-        }
+    void setParamName(std::string const &t_paramName)
+    {
+        paramName = t_paramName;
+    }
 
-        std::vector<LibParameter> const &getParameters() const {
-            return parameters;
-        }
-        std::vector<LibParameter>       &getParameters()       {
-            return parameters;
-        }
+    std::vector<LibParameter> const &getParameters() const
+    {
+        return parameters;
+    }
+    std::vector<LibParameter> &getParameters()
+    {
+        return parameters;
+    }
 
-        std::vector<LibFunction> const &getFunctions() const {
-            return functions;
-        }
-        std::vector<LibFunction>       &getFunctions()       {
-            return functions;
-        }
+    std::vector<LibFunction> const &getFunctions() const
+    {
+        return functions;
+    }
+    std::vector<LibFunction> &getFunctions()
+    {
+        return functions;
+    }
 
-        LibFunction &addFunction(LibFunction &&func)
-        {
-            functions.emplace_back(std::move(func));
-            return functions.back();
-        }
+    LibFunction &addFunction(LibFunction &&func)
+    {
+        functions.emplace_back(std::move(func));
+        return functions.back();
+    }
 
-        std::vector<LibParameter> const &getForcedParameters() const {
-            return forcedParameters;
-        }
+    std::vector<LibParameter> const &getForcedParameters() const
+    {
+        return forcedParameters;
+    }
 
-        void setForcedParameters(std::vector<LibParameter> const &t_params);
+    void setForcedParameters(std::vector<LibParameter> const &t_params);
 
-        static
-        std::vector<LibParameter> gatherParameters(
-                std::vector<std::shared_ptr<LibraryGroup>> &groups,
-                std::string         const &paramName
-                );
+    static std::vector<LibParameter>
+    gatherParameters(std::vector<std::shared_ptr<LibraryGroup>> &groups,
+                     std::string const &                         paramName);
 
-        void gatherParameters();
+    void gatherParameters();
 
-        static
-        void printResetParameterList(
-                std::string               const &nameContainer,
-                std::vector<LibParameter> const &params,
-                std::ostream &out,
-                int nIndent
-                );
+    static void
+    printResetParameterList(std::string const &              nameContainer,
+                            std::vector<LibParameter> const &params,
+                            std::ostream &                   out,
+                            int                              nIndent);
 
-        void printResetDefinition(
-                std::ostream &out,
-                int nIndent
-                ) const;
+    void printResetDefinition(std::ostream &out, int nIndent) const;
 
-        static
-        void printPrintParameterList(
-                std::string               const &nameContainer,
-                std::vector<LibParameter> const &params,
-                std::ostream &out,
-                int nIndent
-                );
+    static void
+    printPrintParameterList(std::string const &              nameContainer,
+                            std::vector<LibParameter> const &params,
+                            std::ostream &                   out,
+                            int                              nIndent);
 
-        void printPrintDefinition(
-                std::ostream &out,
-                int nIndent
-                ) const;
+    void printPrintDefinition(std::ostream &out, int nIndent) const;
 
-        void printNameMapElement(
-                std::ostream       &out,
-                int                 nIndent,
-                LibParameter const &param,
-                std::string  const &type
-                ) const;
+    void printNameMapElement(std::ostream &      out,
+                             int                 nIndent,
+                             LibParameter const &param,
+                             std::string const & type) const;
 
-        void printNameMap(
-                std::ostream &out,
-                int           nIndent
-                ) const;
+    void printNameMap(std::ostream &out, int nIndent) const;
 
-        void printStructDefinition(
-                std::ostream &out,
-                int nIndent
-                ) const;
+    void printStructDefinition(std::ostream &out, int nIndent) const;
 
-        void printFunctionStack(
-                std::ostream &out,
-                int           nIndent
-                ) const;
+    void printFunctionStack(std::ostream &out, int nIndent) const;
 
-        void printParameterDefinition(
-                std::ostream &out,
-                bool          unusedParam
-                ) const;
+    void printParameterDefinition(std::ostream &out, bool unusedParam) const;
 
-        void printParameterInitialization(
-                std::ostream &out,
-                int           nIndent
-                ) const;
+    void printParameterInitialization(std::ostream &out, int nIndent) const;
 
-        void printForwardDefinitions(
-                std::ostream &out,
-                int           nIndent
-                ) const;
+    void printForwardDefinitions(std::ostream &out, int nIndent) const;
 
-        void print(
-                std::ostream &out,
-                bool          header
-                ) const;
+    void print(std::ostream &out, bool header) const;
 
-    private:
-
-        std::string name;
-        std::string paramName;
-        bool        complexReturn;
-        mutable int                       posTensorParam;
-        mutable std::vector<LibParameter> parameters;
-        mutable std::vector<LibParameter> forcedParameters;
-        mutable std::vector<LibFunction>  functions;
-    };
+  private:
+    std::string                       name;
+    std::string                       paramName;
+    bool                              complexReturn;
+    mutable int                       posTensorParam;
+    mutable std::vector<LibParameter> parameters;
+    mutable std::vector<LibParameter> forcedParameters;
+    mutable std::vector<LibFunction>  functions;
+};
 
 } // namespace csl

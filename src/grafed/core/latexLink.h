@@ -1,21 +1,21 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 /**
  * @file latexLink.h
- * @brief 
+ * @brief
  * @author Grégoire Uhlrich
  * @version 1.3
  * @date 2020-11-05
@@ -27,7 +27,7 @@
 #include <sstream>
 
 namespace JSON {
-    class Node;
+class Node;
 }
 
 namespace drawer {
@@ -46,13 +46,11 @@ enum class ParticleType {
     Ghost,
 };
 
-std::ostream& operator<<(std::ostream& out,
-                         ParticleType  type);
+std::ostream &operator<<(std::ostream &out, ParticleType type);
 
 class LatexLinker {
 
-    public:
-
+  public:
     struct Color {
         using Type = unsigned char;
 
@@ -61,12 +59,13 @@ class LatexLinker {
         Type B = 0;
         Type A = 255;
 
-        static Color fromStr(std::string const &str) {
+        static Color fromStr(std::string const &str)
+        {
             if (str.empty())
                 return Color();
             std::istringstream sin(str);
-            Color c;
-            int a;
+            Color              c;
+            int                a;
             if (sin.eof())
                 return c;
             sin >> a;
@@ -86,7 +85,8 @@ class LatexLinker {
 
             return c;
         }
-        std::string toStr() const {
+        std::string toStr() const
+        {
             std::ostringstream sout;
             sout << int(R) << " " << int(G) << " " << int(B) << " " << int(A);
             return sout.str();
@@ -99,66 +99,62 @@ class LatexLinker {
     inline static constexpr Color Blue{0, 0, 255, 255};
     inline static constexpr Color Green{0, 255, 0, 255};
 
-    enum class NodeType {
-        None = 0,
-        Operator,
-        Cross,
-        PlainDisk,
-        HatchedDisk
-    };
+    enum class NodeType { None = 0, Operator, Cross, PlainDisk, HatchedDisk };
 
     struct Node {
-        std::string name = "";
-        NodeType    type = NodeType::None;
+        std::string name  = "";
+        NodeType    type  = NodeType::None;
         Color       color = Black;
-        int         size = 0;
+        int         size  = 0;
     };
     struct Edge {
-        size_t       i    = 0;
-        size_t       j    = 0;
-        ParticleType type = ParticleType::Scalar;
-        std::string  name = "";
-        int          sign = true;
-        double       curve = 0;
-        bool         flipped = false;
-        Color        color = Black;
+        size_t       i         = 0;
+        size_t       j         = 0;
+        ParticleType type      = ParticleType::Scalar;
+        std::string  name      = "";
+        int          sign      = true;
+        double       curve     = 0;
+        bool         flipped   = false;
+        Color        color     = Black;
         int          lineWidth = 3;
     };
 
     LatexLinker() = default;
 
-    LatexLinker(Graph const& graph);
+    LatexLinker(Graph const &graph);
 
     ~LatexLinker();
 
-    LatexLinker(LatexLinker const&) = default;
-    LatexLinker(LatexLinker&&)      = default;
-    LatexLinker& operator=(LatexLinker const&) = default;
-    LatexLinker& operator=(LatexLinker&&)      = default;
+    LatexLinker(LatexLinker const &) = default;
+    LatexLinker(LatexLinker &&)      = default;
+    LatexLinker &operator=(LatexLinker const &) = default;
+    LatexLinker &operator=(LatexLinker &&) = default;
 
-    drawer::Graph const&getGraph() const;
-    drawer::Graph &getGraph();
+    drawer::Graph const &getGraph() const;
+    drawer::Graph &      getGraph();
 
-    std::string getName() const {
+    std::string getName() const
+    {
         return name;
     }
 
-    void setName(std::string const &t_name) {
+    void setName(std::string const &t_name)
+    {
         name = t_name;
     }
 
     void clear();
 
-    void setGraph(drawer::Graph const& t_graph);
+    void setGraph(drawer::Graph const &t_graph);
 
-    void setParticlesType(size_t       i,
-                          size_t       j,
-                          ParticleType type = ParticleType::Scalar,
-                          std::string const& t_name = "",
-                          bool               sign = true,
-                          double             curve = 0,
-                          bool               flipped = false,
-                          Color              color = Black,
+    void setParticlesType(size_t             i,
+                          size_t             j,
+                          ParticleType       type      = ParticleType::Scalar,
+                          std::string const &t_name    = "",
+                          bool               sign      = true,
+                          double             curve     = 0,
+                          bool               flipped   = false,
+                          Color              color     = Black,
                           int                lineWidth = 3);
 
     void addOperator(size_t pos);
@@ -170,53 +166,50 @@ class LatexLinker {
 
     void removeEdge(size_t i, size_t j);
 
-    void setVertexName(size_t             pos,
-                       std::string const& name);
+    void setVertexName(size_t pos, std::string const &name);
 
-    void setEdgeName(size_t             i,
-                     size_t             j,
-                     std::string const& name);
+    void setEdgeName(size_t i, size_t j, std::string const &name);
 
-    void setEdgeSign(size_t i,
-                     size_t j,
-                     bool   sign);
+    void setEdgeSign(size_t i, size_t j, bool sign);
 
-    void write(std::ostream& out);
+    void write(std::ostream &out);
 
     void saveToNode(JSON::Node *node) const;
 
-    void save(std::string const& fileName) const;
+    void save(std::string const &fileName) const;
 
     void loadFromNode(JSON::Node *node);
 
-    void load(std::string const& fileName);
+    void load(std::string const &fileName);
 
-    static void saveMultiple(std::string const& fileName,
-                             std::vector<LatexLinker> const& links);
+    static void saveMultiple(std::string const &             fileName,
+                             std::vector<LatexLinker> const &links);
 
-    static std::vector<LatexLinker> loadMultiple(std::string const& fileName);
+    static std::vector<LatexLinker> loadMultiple(std::string const &fileName);
 
-    void exportPDF(std::string const& fileName,
-                   std::string const& path = ".");
+    void exportPDF(std::string const &fileName, std::string const &path = ".");
 
-    void exportPNG(std::string const& fileName,
-                   std::string const& path = ".");
+    void exportPNG(std::string const &fileName, std::string const &path = ".");
 
     void scale(float factor);
 
-    std::vector<Node>& getNodes() {
+    std::vector<Node> &getNodes()
+    {
         return nodes;
     }
 
-    std::vector<Node> const &getNodes() const {
+    std::vector<Node> const &getNodes() const
+    {
         return nodes;
     }
 
-    std::vector<Edge>& getEdges() { 
+    std::vector<Edge> &getEdges()
+    {
         return edges;
     };
 
-    std::vector<Edge> const& getEdges() const {
+    std::vector<Edge> const &getEdges() const
+    {
         return edges;
     }
 
@@ -226,64 +219,55 @@ class LatexLinker {
 
     std::string getNameExternal(size_t i) const;
 
-    private:
-
-    static
-    std::string getNameVertex(size_t pos);
+  private:
+    static std::string getNameVertex(size_t pos);
 
     void getFlippedEdgeLabels() const;
 
-    void getStringValue(std::ostream&     out,
-                        double value);
+    void getStringValue(std::ostream &out, double value);
 
-    void writeVertex(std::ostream     & out,
+    void writeVertex(std::ostream &     out,
                      size_t             i,
-                     Point       const& vertex,
-                     std::string const& nameVertex,
-                     std::string const& nameParticle = "");
+                     Point const &      vertex,
+                     std::string const &nameVertex,
+                     std::string const &nameParticle = "");
 
-    void writeEdge(std::ostream     & out,
+    void writeEdge(std::ostream &     out,
                    ParticleType       type,
-                   std::string const& nameA,
-                   std::string const& nameB,
-                   bool               sign = true,
-                   std::string const& nameEdge = "",
+                   std::string const &nameA,
+                   std::string const &nameB,
+                   bool               sign      = true,
+                   std::string const &nameEdge  = "",
                    bool               flipLabel = false);
 
-    void writeLoopEdge(std::ostream     & out,
+    void writeLoopEdge(std::ostream &     out,
                        ParticleType       type,
-                       std::string const& nameA,
-                       std::string const& nameB,
+                       std::string const &nameA,
+                       std::string const &nameB,
                        int                mode,
-                       bool               sign = true,
-                       std::string const& nameEdge = "",
+                       bool               sign      = true,
+                       std::string const &nameEdge  = "",
                        bool               flipLabel = false);
 
-    friend
-    std::ostream& operator<<(std::ostream& out,
-                             LatexLinker&  linker);
+    friend std::ostream &operator<<(std::ostream &out, LatexLinker &linker);
 
-    public:
-
+  public:
     inline static bool autoLabel = true;
 
     inline static const std::string nameOrigin = "O";
 
-    private:
-
+  private:
     std::string name;
 
     float scaleFactor = 1.3;
 
     Graph graph;
 
-    mutable
-    std::vector<Edge> edges;
+    mutable std::vector<Edge> edges;
 
-    mutable
-    std::map<std::pair<size_t, size_t>, int> multiplicity;
+    mutable std::map<std::pair<size_t, size_t>, int> multiplicity;
 
     std::vector<Node> nodes;
 };
 
-}
+} // namespace drawer

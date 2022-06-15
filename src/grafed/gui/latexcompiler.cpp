@@ -13,17 +13,16 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
- #include "latexcompiler.h"
-#include <set>
+#include "latexcompiler.h"
 #include <fstream>
 #include <iostream>
+#include <set>
 #include <sstream>
 
 #define GRAFED_DIR "grafed_temporary_directory"
 #define GRAFED_DENSITY "300"
 
-
-template<class T>
+template <class T>
 std::string toString(T const &t)
 {
     std::ostringstream sout;
@@ -33,9 +32,9 @@ std::string toString(T const &t)
 
 std::string latexcompiler::getGrafedDir()
 {
-    AutoMutex M;
-    static size_t n = 0;
-    std::string folder = GRAFED_DIR "_" + toString(n++);
+    AutoMutex     M;
+    static size_t n      = 0;
+    std::string   folder = GRAFED_DIR "_" + toString(n++);
     std::ifstream f;
     f.open(folder + "/eq.tex");
     if (!f)
@@ -50,9 +49,9 @@ std::string latexcompiler::getGrafedDir()
 
 QPixmap latexcompiler::generateLabel(const std::string &texCode)
 {
-    std::string grafed_dir = getGrafedDir();
-    [[maybe_unused]] int res = system(("mkdir " + grafed_dir).c_str());
-    std::ofstream f(grafed_dir + "/eq.tex");
+    std::string          grafed_dir = getGrafedDir();
+    [[maybe_unused]] int res        = system(("mkdir " + grafed_dir).c_str());
+    std::ofstream        f(grafed_dir + "/eq.tex");
     if (!f)
         return QPixmap();
     f << "\\documentclass[preview]{standalone}\n";
@@ -61,11 +60,16 @@ QPixmap latexcompiler::generateLabel(const std::string &texCode)
     f << "\\usepackage{xcolor}\n";
     f << "\\begin{document}$" << texCode << "$\\end{document}";
     f.close();
-    res = system(("cd " + grafed_dir + " && "
-            " latex --interaction=nonstopmode eq.tex 1>/dev/null;"
-            // " convert -density 300 -antialias -quality 90 eq.pdf eq.png 1>/dev/null"));
-            " dvipng -q --png -D " GRAFED_DENSITY " -T tight -bg Transparent eq.dvi -o eq.png 1>/dev/null")
-                 .c_str());
+    res = system(("cd " + grafed_dir
+                  + " && "
+                    " latex --interaction=nonstopmode eq.tex 1>/dev/null;"
+                    // " convert -density 300 -antialias -quality 90 eq.pdf
+                    // eq.png 1>/dev/null"));
+                    " dvipng -q --png -D " GRAFED_DENSITY " -T tight -bg "
+                                                          "Transparent eq.dvi "
+                                                          "-o eq.png "
+                                                          "1>/dev/null")
+                     .c_str());
     QPixmap label((grafed_dir + "/eq.png").c_str());
     res = system(("rm -rf " + grafed_dir + " &>/dev/null").c_str());
 
@@ -75,15 +79,16 @@ QPixmap latexcompiler::generateLabel(const std::string &texCode)
 #undef GRAFED_DENSITY
 
 latexcompiler::latexcompiler(QObject *_parent)
-    :QObject(_parent),
-     pixmaps(new ResourceHandler(this))
+    : QObject(_parent), pixmaps(new ResourceHandler(this))
 {
     pixmaps->setBuilder(latexcompiler::generateLabel);
-    connect(pixmaps, SIGNAL(valueReady(const std::string&)),
-            this,    SLOT(labelReady_slot(const std::string&)));
+    connect(pixmaps,
+            SIGNAL(valueReady(const std::string &)),
+            this,
+            SLOT(labelReady_slot(const std::string &)));
 }
 
-void latexcompiler::labelReady_slot(std::string const& label)
+void latexcompiler::labelReady_slot(std::string const &label)
 {
     emit labelReady(label);
 }

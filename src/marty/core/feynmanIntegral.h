@@ -1,23 +1,23 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 /*!
- * @file 
+ * @file
  * @author Grégoire Uhlrich
  * @version 1.3
- 
+
  * \brief
  */
 #ifndef FEYNMANINTEGRAL_H_INCLUDED
@@ -28,66 +28,45 @@
 namespace mty {
 
 enum class IntegralType {
-    None, 
-    A, 
-    B, 
-    C, 
-    D, 
+    None,
+    A,
+    B,
+    C,
+    D,
     E,
 };
-
 
 ///////////////////////////////////////////////////
 // Utility functions
 ///////////////////////////////////////////////////
 
-std::ostream& operator<<(std::ostream& out,
-                         IntegralType  type);
+std::ostream &operator<<(std::ostream &out, IntegralType type);
 
-void printLooptoolsId(IntegralType type, 
-                      int id, 
-                      std::ostream& out);
+void printLooptoolsId(IntegralType type, int id, std::ostream &out);
 
-void printLooptoolsId_A(int id, 
-                        std::ostream& out);
+void printLooptoolsId_A(int id, std::ostream &out);
 
-void printLooptoolsId_B(int id, 
-                        std::ostream& out);
+void printLooptoolsId_B(int id, std::ostream &out);
 
-void printLooptoolsId_C(int id, 
-                        std::ostream& out);
+void printLooptoolsId_C(int id, std::ostream &out);
 
-void printLooptoolsId_D(int id, 
-                        std::ostream& out);
+void printLooptoolsId_D(int id, std::ostream &out);
 
-void printLooptoolsId_E(int id, 
-                        std::ostream& out);
+void printLooptoolsId_E(int id, std::ostream &out);
 
 inline constexpr int loopToolsStep = 3;
 
-int loopToolsBegin(IntegralType type,
-                   size_t       nIndices);
+int loopToolsBegin(IntegralType type, size_t nIndices);
 
-int loopToolsIdOf(
-        IntegralType               type,
-        std::vector<size_t> const &indices
-        );
+int loopToolsIdOf(IntegralType type, std::vector<size_t> const &indices);
 
-int loopToolsIdOf_A(
-        std::vector<size_t> const &indices
-        );
+int loopToolsIdOf_A(std::vector<size_t> const &indices);
 
-int loopToolsIdOf_B(
-        std::vector<size_t> const &indices
-        );
+int loopToolsIdOf_B(std::vector<size_t> const &indices);
 
-int loopToolsIdOf_C(
-        std::vector<size_t> const &indices
-        );
+int loopToolsIdOf_C(std::vector<size_t> const &indices);
 
-int loopToolsIdOf_D(
-        std::vector<size_t> const &indices
-        );
+int loopToolsIdOf_D(std::vector<size_t> const &indices);
 
 size_t nPropagatorForIntegral(IntegralType type);
 
@@ -95,130 +74,125 @@ size_t nIndicesForIntegral(IntegralType type);
 
 size_t nArgumentsForIntegral(IntegralType type);
 
-csl::Expr getDivergentFactor(IntegralType type,
-                        int          integral_id,
-                        std::vector<csl::Expr> const& arguments);
+csl::Expr getDivergentFactor(IntegralType                  type,
+                             int                           integral_id,
+                             std::vector<csl::Expr> const &arguments);
 
 csl::Expr psquared(csl::Expr const &p);
 csl::Expr psquared(csl::Expr const &p1, csl::Expr const &p2);
 csl::Expr psum(csl::Expr const &p1, csl::Expr const &p2);
 
-class FeynmanIntegral: public csl::AbstractMultiFunc {
+class FeynmanIntegral : public csl::AbstractMultiFunc {
 
-    public:
-
+  public:
     inline static bool evaluateIntegrals = false;
     // inline static const csl::Expr eps = csl::constant_s("reg_int");
 
-    static csl::Expr replaceIntegral(csl::Expr const& expr);
+    static csl::Expr replaceIntegral(csl::Expr const &expr);
 
-    static csl::Expr replaceIntegral(csl::Expr        const& argument,
-                                csl::Parent const& variable);
+    static csl::Expr replaceIntegral(csl::Expr const &  argument,
+                                     csl::Parent const &variable);
 
-    static csl::Expr applyQSquared(
-            csl::Index              const &squaredIndex,
-            csl::Expr                    const &argument,
-            csl::Parent             const &variable,
-            std::vector<csl::Expr>       const &factor,
-            std::vector<csl::Expr>       const &momentum,
-            std::vector<csl::Expr>       const &mass,
-            std::vector<csl::Index> const &indices,
-            csl::Expr                    const &firstTerm
-            );
+    static csl::Expr applyQSquared(csl::Index const &             squaredIndex,
+                                   csl::Expr const &              argument,
+                                   csl::Parent const &            variable,
+                                   std::vector<csl::Expr> const & factor,
+                                   std::vector<csl::Expr> const & momentum,
+                                   std::vector<csl::Expr> const & mass,
+                                   std::vector<csl::Index> const &indices,
+                                   csl::Expr const &              firstTerm);
 
-    static void applyIndices(std::vector<csl::Expr>& momentum);
+    static void applyIndices(std::vector<csl::Expr> &momentum);
 
-    static csl::Expr applyIndicesToTensors(
-            csl::Space              const* space,
-            std::vector<csl::Expr>       const& momentum,
-            std::vector<csl::Index> const& indices,
-            std::vector<size_t>            tensorPos);
+    static csl::Expr
+    applyIndicesToTensors(csl::Space const *             space,
+                          std::vector<csl::Expr> const & momentum,
+                          std::vector<csl::Index> const &indices,
+                          std::vector<size_t>            tensorPos);
 
-    static csl::Expr computeFinalIntegralDecomposition(
-            IntegralType                   type,
-            std::vector<csl::Expr>       const& momentum,
-            std::vector<csl::Index> const& indices,
-            std::vector<csl::Expr>       const& arguments);
+    static csl::Expr
+    computeFinalIntegralDecomposition(IntegralType                   type,
+                                      std::vector<csl::Expr> const & momentum,
+                                      std::vector<csl::Index> const &indices,
+                                      std::vector<csl::Expr> const &arguments);
 
-    static csl::Expr replaceIntegral(
-            std::vector<csl::Expr> const& factors,
-            std::vector<csl::Expr> const& momentums,
-            std::vector<csl::Expr> const& masses,
-            std::vector<csl::Index> const& indices);
+    static csl::Expr replaceIntegral(std::vector<csl::Expr> const & factors,
+                                     std::vector<csl::Expr> const & momentums,
+                                     std::vector<csl::Expr> const & masses,
+                                     std::vector<csl::Index> const &indices);
 
-    static csl::Expr replaceIntegral_A(
-            std::vector<csl::Expr> const& factors,
-            std::vector<csl::Expr> const& momentums,
-            std::vector<csl::Expr> const& masses,
-            std::vector<csl::Index> const& indices);
+    static csl::Expr replaceIntegral_A(std::vector<csl::Expr> const &factors,
+                                       std::vector<csl::Expr> const &momentums,
+                                       std::vector<csl::Expr> const &masses,
+                                       std::vector<csl::Index> const &indices);
 
-    static csl::Expr replaceIntegral_B(
-            std::vector<csl::Expr> const& factors,
-            std::vector<csl::Expr> const& momentums,
-            std::vector<csl::Expr> const& masses,
-            std::vector<csl::Index> const& indices);
+    static csl::Expr replaceIntegral_B(std::vector<csl::Expr> const &factors,
+                                       std::vector<csl::Expr> const &momentums,
+                                       std::vector<csl::Expr> const &masses,
+                                       std::vector<csl::Index> const &indices);
 
-    static csl::Expr replaceIntegral_C(
-            std::vector<csl::Expr> const& factors,
-            std::vector<csl::Expr> const& momentums,
-            std::vector<csl::Expr> const& masses,
-            std::vector<csl::Index> const& indices);
+    static csl::Expr replaceIntegral_C(std::vector<csl::Expr> const &factors,
+                                       std::vector<csl::Expr> const &momentums,
+                                       std::vector<csl::Expr> const &masses,
+                                       std::vector<csl::Index> const &indices);
 
-    static csl::Expr replaceIntegral_D(
-            std::vector<csl::Expr> const& factors,
-            std::vector<csl::Expr> const& momentums,
-            std::vector<csl::Expr> const& masses,
-            std::vector<csl::Index> const& indices);
+    static csl::Expr replaceIntegral_D(std::vector<csl::Expr> const &factors,
+                                       std::vector<csl::Expr> const &momentums,
+                                       std::vector<csl::Expr> const &masses,
+                                       std::vector<csl::Index> const &indices);
 
-    static csl::Expr replaceIntegral_E(
-            std::vector<csl::Expr> const& factors,
-            std::vector<csl::Expr> const& momentums,
-            std::vector<csl::Expr> const& masses,
-            std::vector<csl::Index> const& indices);
+    static csl::Expr replaceIntegral_E(std::vector<csl::Expr> const &factors,
+                                       std::vector<csl::Expr> const &momentums,
+                                       std::vector<csl::Expr> const &masses,
+                                       std::vector<csl::Index> const &indices);
 
-    static void removeExternalMomenta(
-            csl::Expr &expr,
-            csl::Parent const &Q
-            );
+    static void removeExternalMomenta(csl::Expr &expr, csl::Parent const &Q);
 
-    FeynmanIntegral(IntegralType             t_type,
-                    int                      t_looptoolsId,
-                    std::vector<csl::Expr> const& t_argument);
+    FeynmanIntegral(IntegralType                  t_type,
+                    int                           t_looptoolsId,
+                    std::vector<csl::Expr> const &t_argument);
 
-    FeynmanIntegral(IntegralType               t_type,
-                    int                        t_looptoolsId,
-                    std::vector<csl::Expr>   const &t_argument,
-                    std::vector<size_t> const &t_indices);
+    FeynmanIntegral(IntegralType                  t_type,
+                    int                           t_looptoolsId,
+                    std::vector<csl::Expr> const &t_argument,
+                    std::vector<size_t> const &   t_indices);
 
-    ~FeynmanIntegral() override {}
+    ~FeynmanIntegral() override
+    {
+    }
 
-    int getLoopToolsID() const {
+    int getLoopToolsID() const
+    {
         return loopToolsId;
     }
 
-    IntegralType getIntegralType() const {
+    IntegralType getIntegralType() const
+    {
         return type;
     }
 
-    std::vector<size_t> const &getIntegralIndices() const {
+    std::vector<size_t> const &getIntegralIndices() const
+    {
         return integralIndices;
     }
 
-    bool isIndexed() const override { return false; }
+    bool isIndexed() const override
+    {
+        return false;
+    }
 
-    void print(int mode = 0,
-               std::ostream& out = std::cout,
-               bool lib = false) const override;
+    void print(int           mode = 0,
+               std::ostream &out  = std::cout,
+               bool          lib  = false) const override;
 
     std::string printLaTeX(int mode = 0) const override;
 
-    void printLib(int mode,
-                  std::ostream& out) const;
+    void printLib(int mode, std::ostream &out) const;
 
     csl::LibDependency getLibDependency() const override;
 
     std::optional<csl::Expr> evaluate(csl::eval::mode user_mode
-            = csl::eval::base) const override;
+                                      = csl::eval::base) const override;
 
     csl::unique_Expr copy_unique() const override;
 
@@ -231,28 +205,24 @@ class FeynmanIntegral: public csl::AbstractMultiFunc {
     bool operator<(csl::Expr_info other) const override;
 
     csl::Expr getDivergentFactor() const;
-        
+
     std::vector<csl::Expr> getMomenta() const;
 
     std::vector<csl::Expr> getMasses() const;
 
-    private:
-
+  private:
     std::pair<csl::Expr, csl::Expr> getPair(size_t i) const;
 
     bool compare(size_t i, size_t j) const;
 
     void sortArgument();
 
-    static csl::Expr metricTerm(
-            csl::Space              const *space,
-            std::vector<csl::Index> const &indices
-            );
+    static csl::Expr metricTerm(csl::Space const *             space,
+                                std::vector<csl::Index> const &indices);
 
     std::complex<double> evaluateIntegral() const;
 
-    private:
-
+  private:
     IntegralType type;
 
     int loopToolsId;
@@ -260,23 +230,22 @@ class FeynmanIntegral: public csl::AbstractMultiFunc {
     std::vector<size_t> integralIndices;
 };
 
-csl::Expr feynmanintegral_s(IntegralType             t_type,
-                       int                      t_looptoolsId,
-                       std::vector<csl::Expr> const& t_argument);
+csl::Expr feynmanintegral_s(IntegralType                  t_type,
+                            int                           t_looptoolsId,
+                            std::vector<csl::Expr> const &t_argument);
 
-csl::Expr feynmanintegral_s(IntegralType               t_type,
-                       int                        t_looptoolsId,
-                       std::vector<csl::Expr>   const &t_argument,
-                       std::vector<size_t> const &indices);
+csl::Expr feynmanintegral_s(IntegralType                  t_type,
+                            int                           t_looptoolsId,
+                            std::vector<csl::Expr> const &t_argument,
+                            std::vector<size_t> const &   indices);
 
-template<class IntegralID>
-csl::Expr feynmanintegral_s(IntegralType             t_type,
-                       IntegralID               t_looptoolsId,
-                       std::vector<csl::Expr> const& t_argument)
+template <class IntegralID>
+csl::Expr feynmanintegral_s(IntegralType                  t_type,
+                            IntegralID                    t_looptoolsId,
+                            std::vector<csl::Expr> const &t_argument)
 {
-    return feynmanintegral_s(t_type,
-                             static_cast<int>(t_looptoolsId), 
-                             t_argument);
+    return feynmanintegral_s(
+        t_type, static_cast<int>(t_looptoolsId), t_argument);
 }
 
 enum class IntegralID_E {
@@ -322,7 +291,7 @@ enum class IntegralID_E {
     ee334 = 111,
     ee344 = 114,
     ee444 = 117,
-  
+
     ee0000 = 120,
     ee0011 = 123,
     ee0012 = 126,
@@ -369,7 +338,7 @@ enum class IntegralID_E {
     ee3344 = 249,
     ee3444 = 252,
     ee4444 = 255,
-  
+
     ee00001 = 258,
     ee00002 = 261,
     ee00003 = 264,
@@ -538,7 +507,7 @@ enum class IntegralID_D {
     dd22333 = 231,
     dd23333 = 234,
     dd33333 = 237,
-    ddLAST = 240
+    ddLAST  = 240
 };
 
 enum class IntegralID_C {
@@ -570,25 +539,25 @@ enum class IntegralID_C {
     ccLAST = 66
 };
 
-enum class IntegralID_B{
+enum class IntegralID_B {
     bb0 = 0,
     bb1 = 3,
 
     bb00 = 6,
     bb11 = 9,
 
-    bb001 = 12,
-    bb111 = 15,
+    bb001  = 12,
+    bb111  = 15,
     bbLAST = 18
 };
 
 enum class IntegralID_A {
     aa0 = 0,
 
-    aa00 = 3,
+    aa00   = 3,
     aaLAST = 6
 };
 
-}
+} // namespace mty
 
 #endif

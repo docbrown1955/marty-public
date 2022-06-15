@@ -17,30 +17,30 @@
  * @file simplify.h
  * @brief Simplification procedures of SGL.
  * @author Grégoire Uhlrich
- * @version 
+ * @version
  * @date 2021-05-06
  */
-#pragma once 
+#pragma once
 
 #include "abstractgammasym.h"
 
 namespace sgl {
 
-    struct TensorSet;
+struct TensorSet;
 
-    void SimplifyChain(GExpr &init);
-    void SimplifyMomenta(GExpr &init);
-    void SimplifyTrace(GExpr &init);
-    void OrderChains(GExpr &init);
+void SimplifyChain(GExpr &init);
+void SimplifyMomenta(GExpr &init);
+void SimplifyTrace(GExpr &init);
+void OrderChains(GExpr &init);
 
-    void ReorderFermionChains(GExpr &init);
+void ReorderFermionChains(GExpr &init);
 
-    void Simplify(GExpr &init, bool applyFierzTwice = false);
-    GExpr Simplified(GExpr const &init, bool applyFierzTwice = false);
+void  Simplify(GExpr &init, bool applyFierzTwice = false);
+GExpr Simplified(GExpr const &init, bool applyFierzTwice = false);
 
-    void CSLSimplify(GExpr &init);
-    GExpr CSLSimplified(GExpr const &init);
+void  CSLSimplify(GExpr &init);
+GExpr CSLSimplified(GExpr const &init);
 
-    void SGLSimplify(csl::Expr &init, TensorSet const &t);
-    csl::Expr SGLSimplified(csl::Expr const &init, TensorSet const &t);
-}
+void      SGLSimplify(csl::Expr &init, TensorSet const &t);
+csl::Expr SGLSimplified(csl::Expr const &init, TensorSet const &t);
+} // namespace sgl

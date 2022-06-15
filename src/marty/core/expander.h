@@ -15,7 +15,7 @@
 
 /**
  * @file expander.h
- * @brief Contains the Expander class that expands the Lagrangian in 
+ * @brief Contains the Expander class that expands the Lagrangian in
  * perturbation to find all Feynman diagrams for a given process.
  * @author Grégoire Uhlrich
  * @version 1.3
@@ -23,71 +23,57 @@
  */
 #pragma once
 
-#include "lagrangian.h"
-#include "insertion.h"
 #include "feynOptions.h"
+#include "insertion.h"
+#include "lagrangian.h"
 
 namespace mty {
 
-    class Model;
-    class FeynmanDiagram;
+class Model;
+class FeynmanDiagram;
 
-    enum Order {
-        TreeLevel,
-        OneLoop
-    };
+enum Order { TreeLevel, OneLoop };
 
-    class Expander {
+class Expander {
 
-    public:
+  public:
+    Expander(mty::Model const *                            t_model,
+             FeynOptions const &                           t_options,
+             std::vector<mty::Lagrangian::TermType> const &lagrangian,
+             std::vector<mty::QuantumField> const &        t_insertions);
 
-        Expander(
-                mty::Model  const *t_model,
-                FeynOptions const &t_options,
-                std::vector<mty::Lagrangian::TermType> const &lagrangian,
-                std::vector<mty::QuantumField>         const &t_insertions
-                );
+    std::vector<std::vector<size_t>> findNonZeroDiagrams();
 
-        std::vector<std::vector<size_t>> findNonZeroDiagrams();
+    template <class... Args>
+    static std::vector<std::vector<size_t>> getDiagrams(Args &&... args)
+    {
+        Expander exp(std::forward<Args>(args)...);
+        return exp.findNonZeroDiagrams();
+    }
 
-        template<class ...Args>
-        static std::vector<std::vector<size_t>> getDiagrams(
-                Args &&...args
-                )
-        {
-            Expander exp(std::forward<Args>(args)...);
-            return exp.findNonZeroDiagrams();
-        }
+  private:
+    bool contractionPossible(std::vector<size_t> const &      fieldPos,
+                             std::vector<bool> const &        insertionsPaired,
+                             std::vector<QuantumField> const &newFields,
+                             std::vector<bool> &              newPairing,
+                             int                              order,
+                             int                              maxOrder,
+                             size_t                           nLoops,
+                             size_t maxInteractionLegs);
 
-    private:
+    void addVertexCarefully(size_t                               iTerm,
+                            std::vector<size_t> const &          terms,
+                            std::vector<std::vector<size_t>> &   numbers,
+                            std::vector<std::vector<bool>> &     newPairings,
+                            std::vector<bool> const &            pairing,
+                            std::map<std::vector<size_t>, bool> &vertexMap);
 
-        bool contractionPossible(
-                std::vector<size_t>       const &fieldPos,
-                std::vector<bool>         const &insertionsPaired,
-                std::vector<QuantumField> const &newFields,
-                std::vector<bool>               &newPairing,
-                int                              order,
-                int                              maxOrder,
-                size_t                           nLoops,
-                size_t                           maxInteractionLegs
-                );
+  private:
+    mty::Model const *model;
 
-        void addVertexCarefully(
-                size_t                               iTerm,
-                std::vector<size_t>           const &terms,
-                std::vector<std::vector<size_t>>    &numbers,
-                std::vector<std::vector<bool>>      &newPairings,
-                std::vector<bool>             const &pairing,
-                std::map<std::vector<size_t>, bool> &vertexMap
-                );
-
-    private:
-
-        mty::Model  const *model;
-
-        FeynOptions const &options;
-        std::vector<mty::Lagrangian::TermType> effectiveLagrangian;
-        std::vector<mty::QuantumField>         insertions;
-    };
+    FeynOptions const &                    options;
+    std::vector<mty::Lagrangian::TermType> effectiveLagrangian;
+    std::vector<mty::QuantumField>         insertions;
+};
 
 } // namespace mty

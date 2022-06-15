@@ -26,8 +26,9 @@
 
 namespace mty {
 
-    class QCD_Model: public Model {
-        public: QCD_Model();
-    };
+class QCD_Model : public Model {
+  public:
+    QCD_Model();
+};
 
-}
+} // namespace mty

@@ -17,27 +17,27 @@
  * @file sgl.h
  * @brief Main header file including the others.
  * @author Grégoire Uhlrich
- * @version 
+ * @version
  * @date 2021-05-06
  */
 #include "abstractgammasym.h"
-#include "multifunction.h"
-#include "exceptions.h"
-#include "typecast.h"
-#include "sgloperations.h"
-#include "cslexpr.h"
-#include "gammaindex.h"
-#include "metricindex.h"
-#include "epsilonindex.h"
-#include "sglcommutation.h"
 #include "contraction.h"
-#include "simplify.h"
-#include "debuglog.h"
-#include "sglalgo.h"
-#include "fierz.h"
-#include "indexchain.h"
-#include "sglinterface.h"
-#include "tensorset.h"
 #include "cslconverter.h"
+#include "cslexpr.h"
+#include "debuglog.h"
+#include "epsilonindex.h"
+#include "exceptions.h"
+#include "fierz.h"
+#include "gammaindex.h"
+#include "indexchain.h"
+#include "metricindex.h"
+#include "multifunction.h"
+#include "sglalgo.h"
+#include "sglcommutation.h"
+#include "sglinterface.h"
+#include "sgloperations.h"
+#include "simplify.h"
+#include "tensorset.h"
+#include "typecast.h"
 
 #include "tracer.h"

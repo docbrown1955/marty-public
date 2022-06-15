@@ -17,18 +17,18 @@
  * @file fierz.h
  * @brief Utilities to apply general Fierz identities in fermion chains.
  * @author Grégoire Uhlrich
- * @version 
+ * @version
  * @date 2021-05-06
  */
 #pragma once
 
 namespace sgl {
 
-    class GExpr;
-    class IndexChain;
+class GExpr;
+class IndexChain;
 
-    void fixFierz(GExpr &expr);
-    bool areCanonical(IndexChain const &A, IndexChain const &B);
-    void applyGeneralFierz(GExpr &expr, bool twice = false);
-    void applyGeneralFierzTwice(GExpr &expr);
-}
+void fixFierz(GExpr &expr);
+bool areCanonical(IndexChain const &A, IndexChain const &B);
+void applyGeneralFierz(GExpr &expr, bool twice = false);
+void applyGeneralFierzTwice(GExpr &expr);
+} // namespace sgl

@@ -1,15 +1,15 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
@@ -25,15 +25,15 @@
 
 #include "lhaBlocks.h"
 #include "std_vector_implementation.h"
-#include <vector>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace mty::lha {
 
 /**
- * @brief Returns the BlockType corresponding to its name. The name must 
+ * @brief Returns the BlockType corresponding to its name. The name must
  * correspond to the enumeration name (see BlockType).
  *
  * @param name Name of the type.
@@ -49,10 +49,7 @@ BlockType blockType(std::string_view name);
  *
  * @return A reference to \b out.
  */
-std::ostream &operator<<(
-        std::ostream &out,
-        BlockType     type
-        );
+std::ostream &operator<<(std::ostream &out, BlockType type);
 
 /**
  * @brief Floating point type for LHA support. Long double is 64 bits usually.
@@ -62,7 +59,7 @@ using FloatType = long double;
 /**
  * @brief Corresponds to a line of a .lha file.
  *
- * @details Contains an id, a value, and eventually some additional integers 
+ * @details Contains an id, a value, and eventually some additional integers
  * corresponding typically to matrix positions.
  *
  * @sa LHABlock
@@ -73,11 +70,11 @@ struct LHAElement {
      * @brief Id of the element in the block, or row position for a matrix
      * element.
      */
-    size_t    id;
+    size_t id;
     /**
      * @brief Column position for a matrix element.
      */
-    size_t    id_sup;
+    size_t id_sup;
     /**
      * @brief Value of the element.
      */
@@ -92,12 +89,12 @@ struct Comparator {
     /**
      * @brief Compares two vectors of positions.
      *
-     * @details If \b pos1 and \b pos2 have different sizes, this function 
-     * returns 
+     * @details If \b pos1 and \b pos2 have different sizes, this function
+     * returns
      * \code
      *    pos1.size() < pos2.size();
      * \endcode
-     * Otherwise, the alphabetical order is used. This allows to sort matrix 
+     * Otherwise, the alphabetical order is used. This allows to sort matrix
      * elements row by row, column by column (00 - 01 - 10 - 11 for example).
      *
      * @param pos1 First position.
@@ -106,10 +103,8 @@ struct Comparator {
      * @return \b True  if \b pos1 < \b pos2.
      * @return \b False else.
      */
-    static bool compare(
-            std::vector<size_t> const &pos1,
-            std::vector<size_t> const &pos2
-            )
+    static bool compare(std::vector<size_t> const &pos1,
+                        std::vector<size_t> const &pos2)
     {
         if (pos1.size() != pos2.size())
             return pos1.size() < pos2.size();
@@ -129,8 +124,8 @@ struct Comparator {
     /**
      * @brief Compares two LHAElement.
      *
-     * @details First compares the id. Returns the simpler if they are different
-     * and compares the positions else.
+     * @details First compares the id. Returns the simpler if they are
+     * different and compares the positions else.
      *
      * @param A First LHAElement.
      * @param B Second LHAElement.
@@ -138,10 +133,7 @@ struct Comparator {
      * @return \b True  if \b A < \b B.
      * @return \b False else.
      */
-    static bool compare(
-            LHAElement const &A,
-            LHAElement const &B
-            )
+    static bool compare(LHAElement const &A, LHAElement const &B)
     {
         if (A.id != B.id)
             return A.id < B.id;
@@ -150,7 +142,7 @@ struct Comparator {
 };
 
 /**
- * @brief LHABlock, containing a vector of LHAElement. 
+ * @brief LHABlock, containing a vector of LHAElement.
  *
  * @details When reading a LHA File, all elements of a given block are stored
  * in a LHABlock.
@@ -159,8 +151,7 @@ struct Comparator {
  */
 class LHABlock {
 
-public:
-
+  public:
     IMPLEMENTS_STD_VECTOR(LHAElement, elements)
 
     /**
@@ -182,15 +173,17 @@ public:
     /**
      * @return The name of the block.
      */
-    std::string const &getName() const { 
-        return name; 
+    std::string const &getName() const
+    {
+        return name;
     }
     /**
      * @brief Sets the name of the block.
      *
      * @param t_name New name of the block.
      */
-    void setName(std::string const &t_name) {
+    void setName(std::string const &t_name)
+    {
         name = t_name;
     }
 
@@ -201,7 +194,7 @@ public:
      *
      * @param id Id of the element to search.
      *
-     * @return A std::optional containing the first element with id \b id if 
+     * @return A std::optional containing the first element with id \b id if
      * found.
      * @return std::nullopt else.
      */
@@ -214,17 +207,14 @@ public:
      * @param id  Id of the element to search.
      * @param pos Matrix coordinates of the elements.
      *
-     * @return A std::optional containing the first element corresponding to 
+     * @return A std::optional containing the first element corresponding to
      * \b id and \b pos if found.
      * @return std::nullopt else.
      */
-    std::optional<LHAElement> getElement(
-            size_t id,
-            size_t id_sup = -1
-            ) const;
+    std::optional<LHAElement> getElement(size_t id, size_t id_sup = -1) const;
 
     /**
-     * @brief Returns all the elements for a given id. If there is multiple 
+     * @brief Returns all the elements for a given id. If there is multiple
      * ones, for example a matrix, they are stored linearly in the container.
      *
      * @param id Id of the elements to return.
@@ -250,21 +240,14 @@ public:
      * @param id_sup Supplementary id for the element.
      * @param value  Value of the element.
      */
-    void addElement(
-            size_t    id,
-            size_t    id_sup,
-            FloatType value
-            );
+    void addElement(size_t id, size_t id_sup, FloatType value);
     /**
      * @brief Adds an elements to the block.
      *
      * @param id    Id of the element.
      * @param value Value of the element.
      */
-    void addElement(
-            size_t    id,
-            FloatType value
-            );
+    void addElement(size_t id, FloatType value);
 
     /**
      * @brief Adds an elements to the block.
@@ -280,9 +263,7 @@ public:
      */
     void addElement(LHAElement &&t_element);
 
-private:
-
-
+  private:
     /**
      * @brief Name of the block.
      */
@@ -301,8 +282,7 @@ private:
  */
 class LHAFileData {
 
-public:
-
+  public:
     static constexpr size_t npos = -1;
 
     IMPLEMENTS_STD_VECTOR(LHABlock, blocks)
@@ -342,21 +322,18 @@ public:
      * @param type Type of the block in which the element is added.
      * @param args Arguments for LHABlock::addElement().
      *
-     * @note If the block does not exists, it is created and the element is 
+     * @note If the block does not exists, it is created and the element is
      * added directly after.
      */
-    template<class ...Args>
-        void addElement(
-                std::string_view nameBlock,
-                Args           &&...args
-                )
-        {
-            for (auto &b : blocks)
-                if (b.getName() == nameBlock) {
-                    b.addElement(std::forward<Args>(args)...);
-                    return;
-                }
-        }
+    template <class... Args>
+    void addElement(std::string_view nameBlock, Args &&... args)
+    {
+        for (auto &b : blocks)
+            if (b.getName() == nameBlock) {
+                b.addElement(std::forward<Args>(args)...);
+                return;
+            }
+    }
 
     /**
      * @brief Returns all the values of a given block, in order.
@@ -366,9 +343,7 @@ public:
      * @return All the values of the block if it exists.
      * @return An empty vector else.
      */
-    std::vector<FloatType> getValues(
-            std::string_view nameBlock
-            ) const;
+    std::vector<FloatType> getValues(std::string_view nameBlock) const;
 
     /**
      * @brief Returns the value in a given block for a given id.
@@ -376,13 +351,12 @@ public:
      * @param nameBlock Name of the block.
      * @param id        Id of the element to get.
      *
-     * @return The element in the block \b nameBlock with id \b id if it exists.
+     * @return The element in the block \b nameBlock with id \b id if it
+     * exists.
      * @return std::nullopt else.
      */
-    std::optional<FloatType> getValue(
-            std::string_view nameBlock,
-            size_t           id
-            ) const;
+    std::optional<FloatType> getValue(std::string_view nameBlock,
+                                      size_t           id) const;
 
     /**
      * @brief Returns the value in a given block for a given id.
@@ -391,17 +365,14 @@ public:
      * @param i         Row number for matrix element.
      * @param j         Column number for matrix element.
      *
-     * @return The element in the block \b nameBlock with id \b id if it exists.
+     * @return The element in the block \b nameBlock with id \b id if it
+     * exists.
      * @return std::nullopt else.
      */
-    std::optional<FloatType> getValue(
-            std::string_view nameBlock,
-            size_t           i,
-            size_t           j
-            ) const;
+    std::optional<FloatType>
+    getValue(std::string_view nameBlock, size_t i, size_t j) const;
 
-private:
-
+  private:
     /**
      * @brief Vector of blocks representing the .lha file.
      */
@@ -416,10 +387,7 @@ private:
  *
  * @return A reference to \b out.
  */
-std::ostream &operator<<(
-        std::ostream     &out,
-        LHAElement const &element
-        );
+std::ostream &operator<<(std::ostream &out, LHAElement const &element);
 
 /**
  * @brief Displays a LHABlock in an output stream.
@@ -429,10 +397,7 @@ std::ostream &operator<<(
  *
  * @return A reference to \b out.
  */
-std::ostream &operator<<(
-        std::ostream   &out,
-        LHABlock const &block
-        );
+std::ostream &operator<<(std::ostream &out, LHABlock const &block);
 
 /**
  * @brief Displays a LHAFileData in an output stream.
@@ -442,14 +407,10 @@ std::ostream &operator<<(
  *
  * @return A reference to \b out.
  */
-std::ostream &operator<<(
-        std::ostream      &out,
-        LHAFileData const &data
-        );
-
+std::ostream &operator<<(std::ostream &out, LHAFileData const &data);
 
 std::string tolower(std::string const &str);
 
 } // End of namespace mty::lha
 
-#endif 
+#endif

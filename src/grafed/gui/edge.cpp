@@ -1,63 +1,58 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "edge.h"
-#include "node.h"
-#include "latexLink.h"
-#include "diagramwidget.h"
 #include "curvature.h"
 #include "diagramrenderer.h"
-#include <cmath>
-#include <iostream>
+#include "diagramwidget.h"
+#include "latexLink.h"
+#include "node.h"
+#include <QColorDialog>
+#include <QGraphicsSceneMouseEvent>
+#include <QInputDialog>
+#include <QMenu>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPainterPathStroker>
 #include <QStyleOptionGraphicsItem>
-#include <QGraphicsSceneMouseEvent>
-#include <QMenu>
-#include <QInputDialog>
-#include <QColorDialog>
-
+#include <cmath>
+#include <iostream>
 
 Edge::Edge(Diagram *diag)
-    :graph(diag),
-     first(nullptr),
-     second(nullptr),
-     flippedLabel(false),
-     color(Qt::black),
-     curvature(0),
-     lineWidth(3),
-     amplitude(1),
-     particleType(static_cast<int>(drawer::ParticleType::Scalar)),
-     selected(false)
+    : graph(diag),
+      first(nullptr),
+      second(nullptr),
+      flippedLabel(false),
+      color(Qt::black),
+      curvature(0),
+      lineWidth(3),
+      amplitude(1),
+      particleType(static_cast<int>(drawer::ParticleType::Scalar)),
+      selected(false)
 {
     setZValue(Node::zValue - 1);
-    setTransformOriginPoint(0, qreal(amplitude)/2);
+    setTransformOriginPoint(0, qreal(amplitude) / 2);
 }
 
-Edge::Edge(Diagram *diag,
-           Node    *t_first,
-           Node    *t_second)
-    :Edge(diag)
+Edge::Edge(Diagram *diag, Node *t_first, Node *t_second) : Edge(diag)
 {
     setSides(t_first, t_second);
 }
 
 Edge::~Edge()
 {
-
 }
 
 QString Edge::getName() const
@@ -75,19 +70,19 @@ void Edge::setCurve(double t_curve)
     setCurvature(t_curve);
 }
 
-const Node* Edge::getFirst() const
+const Node *Edge::getFirst() const
 {
     return first;
 }
-const Node* Edge::getSecond() const
+const Node *Edge::getSecond() const
 {
     return second;
 }
-Node* Edge::getFirst()
+Node *Edge::getFirst()
 {
     return first;
 }
-Node* Edge::getSecond()
+Node *Edge::getSecond()
 {
     return second;
 }
@@ -118,7 +113,7 @@ qreal Edge::length() const
 {
     auto effNodes = Node::getEffectiveNodes(first, second);
     return std::sqrt(std::pow(effNodes.first.x() - effNodes.second.x(), 2)
-                   + std::pow(effNodes.first.y() - effNodes.second.y(), 2));
+                     + std::pow(effNodes.first.y() - effNodes.second.y(), 2));
 }
 
 qreal Edge::getCurvature() const
@@ -128,9 +123,9 @@ qreal Edge::getCurvature() const
 
 void Edge::setCurvature(double t_curvature)
 {
-    double max = 2;
-    bool less = std::fabs(2*t_curvature) < std::fabs(curvature);
-    curvature = 2*t_curvature;
+    double max  = 2;
+    bool   less = std::fabs(2 * t_curvature) < std::fabs(curvature);
+    curvature   = 2 * t_curvature;
     if (curvature > max)
         curvature = max;
     else if (curvature < -max)
@@ -143,8 +138,7 @@ void Edge::setCurvature(double t_curvature)
     update();
 }
 
-void Edge::setSides(Node *t_first,
-                    Node *t_second)
+void Edge::setSides(Node *t_first, Node *t_second)
 {
     if (first) {
         disconnect(first, SIGNAL(xChanged()), this, SLOT(nodeMoved()));
@@ -154,7 +148,7 @@ void Edge::setSides(Node *t_first,
         disconnect(second, SIGNAL(xChanged()), this, SLOT(nodeMoved()));
         disconnect(second, SIGNAL(yChanged()), this, SLOT(nodeMoved()));
     }
-    first = t_first;
+    first  = t_first;
     second = t_second;
     connect(first, SIGNAL(xChanged()), this, SLOT(nodeMoved()));
     connect(first, SIGNAL(yChanged()), this, SLOT(nodeMoved()));
@@ -167,7 +161,7 @@ void Edge::setParticleType(qint32 t_type)
 {
     using namespace drawer;
     particleType = t_type;
-    switch(std::abs(particleType)) {
+    switch (std::abs(particleType)) {
     case static_cast<int>(ParticleType::Scalar):
     case static_cast<int>(ParticleType::Fermion):
     case static_cast<int>(ParticleType::Majorana):
@@ -187,18 +181,19 @@ void Edge::setParticleType(qint32 t_type)
     graph->renderer->modificationDone();
 }
 
-void Edge::setName(QString const&name)
+void Edge::setName(QString const &name)
 {
     drawer::LatexLinker::Edge lEdge;
-    lEdge.i = graph->getPosNode(first);
-    lEdge.j = graph->getPosNode(second);
+    lEdge.i       = graph->getPosNode(first);
+    lEdge.j       = graph->getPosNode(second);
     lEdge.flipped = flippedLabel;
-    lEdge.curve = getCurve() / 2;
+    lEdge.curve   = getCurve() / 2;
     graph->addEdgeLabel(this, lEdge, name);
     graph->renderer->modificationDone();
 }
 
-void Edge::setLineWidth(qint32 t_lineWidth) {
+void Edge::setLineWidth(qint32 t_lineWidth)
+{
     lineWidth = std::max(1, t_lineWidth);
     graph->renderer->modificationDone();
     update();
@@ -215,10 +210,10 @@ void Edge::nodeMoved()
     if (first and second) {
         auto res = Node::getEffectiveNodes(first, second);
         setPos(res.first.x(), res.first.y());
-        qreal dx = second->x() - first->x();
-        qreal dy = second->y() - first->y();
+        qreal dx    = second->x() - first->x();
+        qreal dy    = second->y() - first->y();
         qreal angle = std::atan2(dy, dx);
-        setRotation(angle*180/M_PI);
+        setRotation(angle * 180 / M_PI);
         if (label and label->data != "") {
             setName(label->data);
         }
@@ -239,7 +234,7 @@ void Edge::changeEdgeType(QAction *action)
         setParticleType(qint32(ParticleType::ChargedScalar));
     }
     else if (text == "Anti-Charged Scalar") {
-        graph->setEdgeType(this, ParticleType::ChargedScalar ,false);
+        graph->setEdgeType(this, ParticleType::ChargedScalar, false);
         setParticleType(-qint32(ParticleType::ChargedScalar));
     }
     else if (text == "Ghost") {
@@ -247,7 +242,7 @@ void Edge::changeEdgeType(QAction *action)
         setParticleType(qint32(ParticleType::Ghost));
     }
     else if (text == "Anti-Ghost") {
-        graph->setEdgeType(this, ParticleType::Ghost ,false);
+        graph->setEdgeType(this, ParticleType::Ghost, false);
         setParticleType(-qint32(ParticleType::Ghost));
     }
     else if (text == "Fermion") {
@@ -305,15 +300,14 @@ void Edge::changeEdgeType(QAction *action)
 
 void Edge::changeName()
 {
-    bool accepted;
-    QString name = (label) ? label->data : "";
-    QString t_name = QInputDialog::getText(
-                widget,
-                "Change edge name",
-                "Name (latex): ",
-                QLineEdit::Normal,
-                name,
-                &accepted);
+    bool    accepted;
+    QString name   = (label) ? label->data : "";
+    QString t_name = QInputDialog::getText(widget,
+                                           "Change edge name",
+                                           "Name (latex): ",
+                                           QLineEdit::Normal,
+                                           name,
+                                           &accepted);
     if (accepted) {
         setName(t_name);
         graph->renderer->modificationDone();
@@ -322,10 +316,7 @@ void Edge::changeName()
 
 void Edge::changeColor()
 {
-    QColor c = QColorDialog::getColor(
-                Qt::black,
-                widget,
-                "Pick a color");
+    QColor c = QColorDialog::getColor(Qt::black, widget, "Pick a color");
     if (c.isValid()) {
         color = c;
         update();
@@ -335,45 +326,47 @@ void Edge::changeColor()
 
 QRectF Edge::boundingRect() const
 {
-    qreal c = getCurvature();
-    double curvatureHeight = (c == 0.) ?
-                0 : (1 - std::sqrt(1-c*c*length()*length()/4)) / std::abs(c);
+    qreal  c = getCurvature();
+    double curvatureHeight
+        = (c == 0.) ? 0
+                    : (1 - std::sqrt(1 - c * c * length() * length() / 4))
+                          / std::abs(c);
     qreal offset = 30;
     if (c > 0)
-        return QRectF( -amplitude-offset,
-                       -curvatureHeight-amplitude-offset,
-                       qint32(length())+2*amplitude+2*offset,
-                       curvatureHeight+2*amplitude+2*offset);
-    return QRectF( -amplitude-offset,
-                   -amplitude-offset,
-                   qint32(length())+2*amplitude+2*offset,
-                   curvatureHeight+2*amplitude+2*offset);
+        return QRectF(-amplitude - offset,
+                      -curvatureHeight - amplitude - offset,
+                      qint32(length()) + 2 * amplitude + 2 * offset,
+                      curvatureHeight + 2 * amplitude + 2 * offset);
+    return QRectF(-amplitude - offset,
+                  -amplitude - offset,
+                  qint32(length()) + 2 * amplitude + 2 * offset,
+                  curvatureHeight + 2 * amplitude + 2 * offset);
 }
 
 QPainterPath Edge::shape() const
 {
-    qreal c = getCurvature();
-    QPainterPath path(QPointF(0, -amplitude-10));
-    double L = curvature::getTotalLength(c, length());
+    qreal        c = getCurvature();
+    QPainterPath path(QPointF(0, -amplitude - 10));
+    double       L = curvature::getTotalLength(c, length());
     for (int i = 0; i != 50; ++i) {
-        path.lineTo(QPointF(i*L/50, amplitude+10));
+        path.lineTo(QPointF(i * L / 50, amplitude + 10));
     }
-    path.lineTo(QPointF(L, -amplitude-10));
+    path.lineTo(QPointF(L, -amplitude - 10));
     for (int i = 0; i != 50; ++i) {
-        path.lineTo(QPointF(L-i*L/50, -amplitude-10));
+        path.lineTo(QPointF(L - i * L / 50, -amplitude - 10));
     }
     path.closeSubpath();
     curvature::applyCurvature(path, c, length());
     return path;
 }
 
-void Edge::paint(QPainter                      *painter,
-                 QStyleOptionGraphicsItem const*,
+void Edge::paint(QPainter *painter,
+                 QStyleOptionGraphicsItem const *,
                  QWidget *)
 {
     if (not first or not second)
         return;
-    switch(std::abs(particleType)) {
+    switch (std::abs(particleType)) {
 
     case static_cast<int>(drawer::ParticleType::Scalar):
         paintDashedLine(painter);
@@ -434,22 +427,21 @@ void Edge::paintLine(QPainter *painter) const
     pen.setWidth(lineWidth);
     if (curvature == 0.) {
         painter->setPen(pen);
-        painter->drawLine(lineWidth/2, 0, qint32(length()-lineWidth/2), 0);
+        painter->drawLine(
+            lineWidth / 2, 0, qint32(length() - lineWidth / 2), 0);
     }
     else {
-        int N = 100;
-        qreal c = getCurvature();
+        int          N = 100;
+        qreal        c = getCurvature();
         QPainterPath path(QPointF(length(), 0));
-        qreal L = length();
-        qreal theta_min = std::acos(c*L / 2);
-        qreal theta_max = M_PI - theta_min;
-        qreal theta = theta_min;
+        qreal        L         = length();
+        qreal        theta_min = std::acos(c * L / 2);
+        qreal        theta_max = M_PI - theta_min;
+        qreal        theta     = theta_min;
         for (int i = 0; i != N; ++i) {
-            QPointF posCurve(std::cos(theta) / c,
-                            -std::sin(theta) / c);
+            QPointF posCurve(std::cos(theta) / c, -std::sin(theta) / c);
             QPointF newPoint = posCurve;
-            newPoint += QPointF(L/2,
-                                std::sqrt(1-c*c*L*L/4)/c);
+            newPoint += QPointF(L / 2, std::sqrt(1 - c * c * L * L / 4) / c);
             path.lineTo(newPoint);
             theta += (theta_max - theta_min) / N;
         }
@@ -465,23 +457,23 @@ void Edge::paintDashedLine(QPainter *painter) const
     pen.setStyle(Qt::PenStyle::DashLine);
     painter->setPen(pen);
     if (curvature == 0.) {
-        painter->drawLine(lineWidth/2, 0, qint32(length()-lineWidth/2), 0);
+        painter->drawLine(
+            lineWidth / 2, 0, qint32(length() - lineWidth / 2), 0);
     }
     else {
-        int N = 100;
-        qreal c = std::abs(getCurvature());
-        int sign = (curvature < 0) ? -1 : 1;
+        int          N    = 100;
+        qreal        c    = std::abs(getCurvature());
+        int          sign = (curvature < 0) ? -1 : 1;
         QPainterPath path(QPointF(length(), 0));
-        qreal L = length();
-        qreal theta_min = std::acos(c*L / 2);
-        qreal theta_max = M_PI - theta_min;
-        qreal theta = theta_min;
+        qreal        L         = length();
+        qreal        theta_min = std::acos(c * L / 2);
+        qreal        theta_max = M_PI - theta_min;
+        qreal        theta     = theta_min;
         for (int i = 0; i != N; ++i) {
-            QPointF posCurve(std::cos(theta) / c,
-                            -sign*std::sin(theta) / c);
+            QPointF posCurve(std::cos(theta) / c, -sign * std::sin(theta) / c);
             QPointF newPoint = posCurve;
-            newPoint += QPointF(L/2,
-                                sign*std::sqrt(1-c*c*L*L/4)/c);
+            newPoint
+                += QPointF(L / 2, sign * std::sqrt(1 - c * c * L * L / 4) / c);
             path.lineTo(newPoint);
             theta += (theta_max - theta_min) / N;
         }
@@ -494,41 +486,35 @@ void Edge::paintDashedLine(QPainter *painter) const
 
 void Edge::paintDotLine(QPainter *painter) const
 {
-    qreal w = 2*M_PI/20;
-    qreal ds = 2*M_PI / w;
-    qreal c = std::abs(getCurvature());
-    int sign = (curvature < 0) ? -1 : 1;
+    qreal w    = 2 * M_PI / 20;
+    qreal ds   = 2 * M_PI / w;
+    qreal c    = std::abs(getCurvature());
+    int   sign = (curvature < 0) ? -1 : 1;
     if (curvature == 0.)
         sign = 0;
-    qreal L = length();
-    qreal S = curvature::getTotalLength(c, L);
-    w = std::round(w*S)/S;
-    qreal theta_min = std::acos(c*L / 2);
+    qreal L         = length();
+    qreal S         = curvature::getTotalLength(c, L);
+    w               = std::round(w * S) / S;
+    qreal theta_min = std::acos(c * L / 2);
     qreal theta_max = M_PI - theta_min;
-    qreal theta = theta_min;
-    int N = static_cast<int>(S / ds);
+    qreal theta     = theta_min;
+    int   N         = static_cast<int>(S / ds);
     painter->setBrush(Qt::SolidPattern);
-    qreal dtheta = (theta_max - theta_min) / N;
-    qint32 size = amplitude + lineWidth - 3;
+    qreal  dtheta = (theta_max - theta_min) / N;
+    qint32 size   = amplitude + lineWidth - 3;
     for (qreal s = ds; s < S; s += ds) {
         if (curvature != 0.) {
-            QPointF posCurve(std::cos(theta) / c,
-                             -sign*std::sin(theta) / c);
+            QPointF posCurve(std::cos(theta) / c, -sign * std::sin(theta) / c);
             QPointF newPoint = posCurve;
-            newPoint += QPointF(L/2,
-                                sign*std::sqrt(1-c*c*L*L/4)/c);
-            painter->drawEllipse(
-                        int(newPoint.x())-size/2,
-                        int(newPoint.y())-size/2,
-                        size,
-                        size);
+            newPoint
+                += QPointF(L / 2, sign * std::sqrt(1 - c * c * L * L / 4) / c);
+            painter->drawEllipse(int(newPoint.x()) - size / 2,
+                                 int(newPoint.y()) - size / 2,
+                                 size,
+                                 size);
         }
         else {
-            painter->drawEllipse(
-                        int(s) - size/2,
-                        -size/2,
-                        size,
-                        size);
+            painter->drawEllipse(int(s) - size / 2, -size / 2, size, size);
         }
         theta += dtheta;
     }
@@ -539,22 +525,20 @@ void Edge::paintSinusoid(QPainter *painter) const
 {
     QPen pen(getPaintColor());
     pen.setWidth(lineWidth);
-    int N = 500;
-    qreal w = 0.35;
+    int          N = 500;
+    qreal        w = 0.35;
     QPainterPath path;
-    qreal s = 0;
-    qreal offset = (curvature > 0) ? M_PI : 0;
-    qreal S = curvature::getTotalLength(getCurvature(), length());
-    qint32 k = static_cast<qint32>(std::round((w * S - M_PI) / (2*M_PI)));
-    w = (2*M_PI*k + M_PI) / S;
+    qreal        s      = 0;
+    qreal        offset = (curvature > 0) ? M_PI : 0;
+    qreal        S      = curvature::getTotalLength(getCurvature(), length());
+    qint32 k = static_cast<qint32>(std::round((w * S - M_PI) / (2 * M_PI)));
+    w        = (2 * M_PI * k + M_PI) / S;
     for (int i = 0; i != N; ++i) {
-        QPointF newPoint(s, amplitude*std::sin(w*s + offset));
+        QPointF newPoint(s, amplitude * std::sin(w * s + offset));
         path.lineTo(newPoint);
         s += S / N;
     }
-    curvature::applyCurvature(path,
-                              getCurvature(),
-                              length());
+    curvature::applyCurvature(path, getCurvature(), length());
     painter->strokePath(path, pen);
 }
 
@@ -564,24 +548,24 @@ void Edge::paintCycloid(QPainter *painter) const
     pen.setWidth(lineWidth);
     QPainterPath path;
 
-    qreal L = curvature::getTotalLength(getCurvature(), length());
+    qreal L     = curvature::getTotalLength(getCurvature(), length());
     qreal Delta = 6;
     qreal delta = 3;
-    qreal A = amplitude;
-    qreal w = 1;
-    qreal alpha = 2*w*(Delta - delta)/(2 + w);
-    qreal beta = 1.5*(Delta/2 - alpha*M_PI/(2*w));
-    qreal x0 = beta - alpha*M_PI / (2*w);
-    qreal t0 = M_PI / 2;
-    beta = 30*beta;
-    qreal t = t0;
-    qreal dt = 0.05;
+    qreal A     = amplitude;
+    qreal w     = 1;
+    qreal alpha = 2 * w * (Delta - delta) / (2 + w);
+    qreal beta  = 1.5 * (Delta / 2 - alpha * M_PI / (2 * w));
+    qreal x0    = beta - alpha * M_PI / (2 * w);
+    qreal t0    = M_PI / 2;
+    beta        = 30 * beta;
+    qreal t     = t0;
+    qreal dt    = 0.05;
     while (true) {
-        qreal x = x0 + alpha*t - beta*std::sin(w*t);
+        qreal x = x0 + alpha * t - beta * std::sin(w * t);
         if (x > L)
             break;
-        QPointF newPoint(x0 + alpha*t - beta*std::sin(w*t),
-                         -A * std::cos(w*t));
+        QPointF newPoint(x0 + alpha * t - beta * std::sin(w * t),
+                         -A * std::cos(w * t));
         path.lineTo(newPoint);
         t += dt;
     }
@@ -594,34 +578,27 @@ void Edge::paintCycloid(QPainter *painter) const
 
 void Edge::paintArrow(QPainter *painter) const
 {
-    const qreal sizeArrow = Diagram::scaleForGraph / 5. * (lineWidth / 3.);
-    const qreal ratioArrow = 1 / std::sqrt(2);
+    const qreal  sizeArrow  = Diagram::scaleForGraph / 5. * (lineWidth / 3.);
+    const qreal  ratioArrow = 1 / std::sqrt(2);
     QPainterPath path;
-    bool inverted = (particleType < 0);
-    qreal c = getCurvature();
-    qreal L = length();
-    qreal offsetY = (c == 0.) ?
-                0 : -(1 - std::sqrt(1-c*c*L*L/4))/c;
-    const qreal offset = (inverted) ?
-               sizeArrow * 1 / std::sqrt(2)
-              :sizeArrow * (1 - 1 / std::sqrt(2));
+    bool         inverted = (particleType < 0);
+    qreal        c        = getCurvature();
+    qreal        L        = length();
+    qreal        offsetY
+        = (c == 0.) ? 0 : -(1 - std::sqrt(1 - c * c * L * L / 4)) / c;
+    const qreal offset = (inverted) ? sizeArrow * 1 / std::sqrt(2)
+                                    : sizeArrow * (1 - 1 / std::sqrt(2));
     const qreal posMin = L / 2 - offset;
     const qreal posMax = posMin + sizeArrow;
     if (inverted) {
-        path.moveTo(posMax,
-                    offsetY+ratioArrow*sizeArrow / 2);
-        path.lineTo(QPointF(posMin,
-                            offsetY));
-        path.lineTo(QPointF(posMax,
-                            offsetY-ratioArrow*sizeArrow / 2));
+        path.moveTo(posMax, offsetY + ratioArrow * sizeArrow / 2);
+        path.lineTo(QPointF(posMin, offsetY));
+        path.lineTo(QPointF(posMax, offsetY - ratioArrow * sizeArrow / 2));
     }
     else {
-        path.moveTo(posMin,
-                    offsetY+ratioArrow*sizeArrow / 2);
-        path.lineTo(QPointF(posMax,
-                            offsetY));
-        path.lineTo(QPointF(posMin,
-                            offsetY-ratioArrow*sizeArrow / 2));
+        path.moveTo(posMin, offsetY + ratioArrow * sizeArrow / 2);
+        path.lineTo(QPointF(posMax, offsetY));
+        path.lineTo(QPointF(posMin, offsetY - ratioArrow * sizeArrow / 2));
     }
     path.closeSubpath();
     painter->setPen(QPen(getPaintColor(), 1));
@@ -638,35 +615,34 @@ void Edge::mousePressEvent(QGraphicsSceneMouseEvent *event)
                 alreadyFocused = true;
                 break;
             }
-        if (graph->getInteractiveMode() == SelectionMode
-                or !alreadyFocused)
+        if (graph->getInteractiveMode() == SelectionMode or !alreadyFocused)
             selected = true;
     }
     if (event->button() == Qt::RightButton) {
-        QMenu *menu = new QMenu(widget);
+        QMenu *menu  = new QMenu(widget);
         QMenu *setPT = menu->addMenu("Set particle type");
-            setPT->addAction("Scalar");
-            setPT->addAction("Charged Scalar");
-            setPT->addAction("Anti-Charged Scalar");
-            setPT->addAction("Ghost");
-            setPT->addAction("Anti-Ghost");
-            setPT->addAction("Fermion");
-            setPT->addAction("Anti-Fermion");
-            setPT->addAction("Majorana");
-            setPT->addAction("Vector");
-            setPT->addAction("Gaugino");
-            setPT->addAction("Anti-Gaugino");
-            setPT->addAction("Gluon");
-            setPT->addAction("Gluino");
-            setPT->addAction("Anti-Gluino");
+        setPT->addAction("Scalar");
+        setPT->addAction("Charged Scalar");
+        setPT->addAction("Anti-Charged Scalar");
+        setPT->addAction("Ghost");
+        setPT->addAction("Anti-Ghost");
+        setPT->addAction("Fermion");
+        setPT->addAction("Anti-Fermion");
+        setPT->addAction("Majorana");
+        setPT->addAction("Vector");
+        setPT->addAction("Gaugino");
+        setPT->addAction("Anti-Gaugino");
+        setPT->addAction("Gluon");
+        setPT->addAction("Gluino");
+        setPT->addAction("Anti-Gluino");
         menu->addAction("Set label");
         menu->addAction("Flip label");
         menu->addAction("Change color");
         menu->addAction("Open editor");
         connect(menu,
-                SIGNAL(triggered(QAction*)),
+                SIGNAL(triggered(QAction *)),
                 this,
-                SLOT(changeEdgeType(QAction*)));
+                SLOT(changeEdgeType(QAction *)));
         menu->exec(QCursor::pos());
     }
     QGraphicsItem::mousePressEvent(event);
@@ -682,7 +658,7 @@ void Edge::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     update();
 }
 
-void Edge::mouseDoubleClickEvent(QGraphicsSceneMouseEvent */*event*/)
+void Edge::mouseDoubleClickEvent(QGraphicsSceneMouseEvent * /*event*/)
 {
     release();
     graph->renderer->openEdgeForm(this);
@@ -692,7 +668,7 @@ void Edge::wheelEventCustom(int delta)
 {
     if (hasFocusInGraph()) {
         double step = 0.002 * 1 / (1 + std::pow(std::fabs(curvature), 2));
-        setCurvature((curvature + delta * step)/2);
+        setCurvature((curvature + delta * step) / 2);
         if (label and label->data != "")
             setName(label->data);
         scene()->update();

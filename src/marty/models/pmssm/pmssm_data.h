@@ -1,23 +1,23 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 /*!
- * @file 
+ * @file
  * @author Grégoire Uhlrich
  * @version 1.3
- 
+
  * \brief
  */
 #ifndef DEFINITION_PMSSM_DATA_H_INCLUDED
@@ -29,14 +29,10 @@ namespace mty {
 
 class PMSSM_data {
 
-protected:
-
-    PMSSM_data(csl::Space const &t_dirac,
-               csl::Space const &t_minko)
-        :dirac(t_dirac),
-        Minko(t_minko)
+  protected:
+    PMSSM_data(csl::Space const &t_dirac, csl::Space const &t_minko)
+        : dirac(t_dirac), Minko(t_minko)
     {
-
     }
 
     csl::Tensor gamma;
@@ -177,116 +173,116 @@ protected:
     mty::Particle tau;
     mty::Particle C_1;
     mty::Particle C_2;
-    csl::Expr g_s;
-    csl::Expr m_N_4;
-    csl::Expr m_C2p;
-    csl::Expr M_3;
-    csl::Expr M_2;
-    csl::Expr M_W;
-    csl::Expr beta;
-    csl::Expr M_A;
-    csl::Expr m_Z;
-    csl::Expr m_A0;
-    csl::Expr m_Hp;
-    csl::Expr m_Gp;
-    csl::Expr alpha;
-    csl::Expr m_h0;
-    csl::Expr m_H0;
-    csl::Expr m_e;
-    csl::Expr m_mu;
-    csl::Expr m_d;
-    csl::Expr m_c;
-    csl::Expr m_u;
-    csl::Expr m_t;
-    csl::Expr m_s;
-    csl::Expr m_b;
-    csl::Expr m_tau;
-    csl::Expr theta_W;
-    csl::Expr M_q1L;
-    csl::Expr m_su_L;
-    csl::Expr m_sc_L;
-    csl::Expr m_sc_R;
-    csl::Expr M_quR;
-    csl::Expr m_su_R;
-    csl::Expr V_ud;
-    csl::Expr m_sd_L;
-    csl::Expr delta_wolf;
-    csl::Expr V_cs;
-    csl::Expr m_ss_L;
-    csl::Expr M_qdR;
-    csl::Expr m_sd_R;
-    csl::Expr m_ss_R;
-    csl::Expr M_eL;
-    csl::Expr m_se_L;
-    csl::Expr M_eR;
-    csl::Expr m_se_R;
-    csl::Expr m_snu_e;
-    csl::Expr M_tauL;
-    csl::Expr m_snu_mu;
-    csl::Expr m_snu_tau;
-    csl::Expr m_N_1;
-    csl::Expr m_N_2;
-    csl::Expr m_N_3;
-    csl::Expr m_C1p;
-    csl::Expr m_st_L;
-    csl::Expr m_st_R;
-    csl::Expr m_smu_L;
-    csl::Expr m_smu_R;
-    csl::Expr m_stau_L;
-    csl::Expr m_stau_R;
-    csl::Expr m_sb_L;
-    csl::Expr m_sb_R;
-    csl::Expr e_em;
-    csl::Expr mu_h;
-    csl::Expr V_tb;
-    csl::Expr V_us;
-    csl::Expr A_b;
-    csl::Expr A_t;
-    csl::Expr A_tau;
-    csl::Expr U_sb_00;
-    csl::Expr N_u4;
-    csl::Expr V_ts;
-    csl::Expr V_td;
-    csl::Expr V_cd;
-    csl::Expr V_cb;
-    csl::Expr V_ub;
-    csl::Expr V_ub_mod;
-    csl::Expr U_sb_11;
-    csl::Expr N_W2;
-    csl::Expr U_stau_00;
-    csl::Expr N_B4;
-    csl::Expr N_B3;
-    csl::Expr N_B1;
-    csl::Expr V_Wp1;
-    csl::Expr U_stau_10;
-    csl::Expr N_d4;
-    csl::Expr N_W4;
-    csl::Expr N_d3;
-    csl::Expr V_u2;
-    csl::Expr N_u3;
-    csl::Expr N_u2;
-    csl::Expr N_u1;
-    csl::Expr N_W3;
-    csl::Expr V_u1;
-    csl::Expr U_stau_01;
-    csl::Expr U_st_10;
-    csl::Expr U_st_00;
-    csl::Expr V_Wp2;
-    csl::Expr U_st_11;
-    csl::Expr N_d2;
-    csl::Expr U_Wm1;
-    csl::Expr U_d2;
-    csl::Expr U_st_01;
-    csl::Expr U_sb_01;
-    csl::Expr N_d1;
-    csl::Expr U_Wm2;
-    csl::Expr U_sb_10;
-    csl::Expr U_stau_11;
-    csl::Expr N_B2;
-    csl::Expr U_d1;
-    csl::Expr N_W1;
-    csl::Expr m_G_0_encaps;
-    csl::Expr m_G_0;
+    csl::Expr     g_s;
+    csl::Expr     m_N_4;
+    csl::Expr     m_C2p;
+    csl::Expr     M_3;
+    csl::Expr     M_2;
+    csl::Expr     M_W;
+    csl::Expr     beta;
+    csl::Expr     M_A;
+    csl::Expr     m_Z;
+    csl::Expr     m_A0;
+    csl::Expr     m_Hp;
+    csl::Expr     m_Gp;
+    csl::Expr     alpha;
+    csl::Expr     m_h0;
+    csl::Expr     m_H0;
+    csl::Expr     m_e;
+    csl::Expr     m_mu;
+    csl::Expr     m_d;
+    csl::Expr     m_c;
+    csl::Expr     m_u;
+    csl::Expr     m_t;
+    csl::Expr     m_s;
+    csl::Expr     m_b;
+    csl::Expr     m_tau;
+    csl::Expr     theta_W;
+    csl::Expr     M_q1L;
+    csl::Expr     m_su_L;
+    csl::Expr     m_sc_L;
+    csl::Expr     m_sc_R;
+    csl::Expr     M_quR;
+    csl::Expr     m_su_R;
+    csl::Expr     V_ud;
+    csl::Expr     m_sd_L;
+    csl::Expr     delta_wolf;
+    csl::Expr     V_cs;
+    csl::Expr     m_ss_L;
+    csl::Expr     M_qdR;
+    csl::Expr     m_sd_R;
+    csl::Expr     m_ss_R;
+    csl::Expr     M_eL;
+    csl::Expr     m_se_L;
+    csl::Expr     M_eR;
+    csl::Expr     m_se_R;
+    csl::Expr     m_snu_e;
+    csl::Expr     M_tauL;
+    csl::Expr     m_snu_mu;
+    csl::Expr     m_snu_tau;
+    csl::Expr     m_N_1;
+    csl::Expr     m_N_2;
+    csl::Expr     m_N_3;
+    csl::Expr     m_C1p;
+    csl::Expr     m_st_L;
+    csl::Expr     m_st_R;
+    csl::Expr     m_smu_L;
+    csl::Expr     m_smu_R;
+    csl::Expr     m_stau_L;
+    csl::Expr     m_stau_R;
+    csl::Expr     m_sb_L;
+    csl::Expr     m_sb_R;
+    csl::Expr     e_em;
+    csl::Expr     mu_h;
+    csl::Expr     V_tb;
+    csl::Expr     V_us;
+    csl::Expr     A_b;
+    csl::Expr     A_t;
+    csl::Expr     A_tau;
+    csl::Expr     U_sb_00;
+    csl::Expr     N_u4;
+    csl::Expr     V_ts;
+    csl::Expr     V_td;
+    csl::Expr     V_cd;
+    csl::Expr     V_cb;
+    csl::Expr     V_ub;
+    csl::Expr     V_ub_mod;
+    csl::Expr     U_sb_11;
+    csl::Expr     N_W2;
+    csl::Expr     U_stau_00;
+    csl::Expr     N_B4;
+    csl::Expr     N_B3;
+    csl::Expr     N_B1;
+    csl::Expr     V_Wp1;
+    csl::Expr     U_stau_10;
+    csl::Expr     N_d4;
+    csl::Expr     N_W4;
+    csl::Expr     N_d3;
+    csl::Expr     V_u2;
+    csl::Expr     N_u3;
+    csl::Expr     N_u2;
+    csl::Expr     N_u1;
+    csl::Expr     N_W3;
+    csl::Expr     V_u1;
+    csl::Expr     U_stau_01;
+    csl::Expr     U_st_10;
+    csl::Expr     U_st_00;
+    csl::Expr     V_Wp2;
+    csl::Expr     U_st_11;
+    csl::Expr     N_d2;
+    csl::Expr     U_Wm1;
+    csl::Expr     U_d2;
+    csl::Expr     U_st_01;
+    csl::Expr     U_sb_01;
+    csl::Expr     N_d1;
+    csl::Expr     U_Wm2;
+    csl::Expr     U_sb_10;
+    csl::Expr     U_stau_11;
+    csl::Expr     N_B2;
+    csl::Expr     U_d1;
+    csl::Expr     N_W1;
+    csl::Expr     m_G_0_encaps;
+    csl::Expr     m_G_0;
 
     csl::Expr M_1;
     csl::Expr M_q3L;

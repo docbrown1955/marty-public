@@ -17,7 +17,7 @@
  * @file cslconverter.h
  * @brief Convertion utilities from and to CSL.
  * @author Grégoire Uhlrich
- * @version 
+ * @version
  * @date 2021-05-06
  */
 #pragma once
@@ -26,20 +26,11 @@
 
 namespace sgl {
 
-    struct TensorSet;
+struct TensorSet;
 
-    GExpr csl_simplified(
-            GExpr const &expr,
-            TensorSet const &tensors
-            );
+GExpr csl_simplified(GExpr const &expr, TensorSet const &tensors);
 
-    csl::Expr sgl_to_csl(
-            GExpr const &expr,
-            TensorSet const &tensors
-            );
+csl::Expr sgl_to_csl(GExpr const &expr, TensorSet const &tensors);
 
-    GExpr csl_to_sgl(
-            csl::Expr const &expr,
-            TensorSet const &tensors
-            );
-}
+GExpr csl_to_sgl(csl::Expr const &expr, TensorSet const &tensors);
+} // namespace sgl

@@ -1,23 +1,23 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 /*!
- * @file 
+ * @file
  * @author Grégoire Uhlrich
  * @version 1.3
- 
+
  * @brief Contains implementation of the Ghost boson in MARTY.
  */
 #ifndef GHOST_FIELD_H_INCLUDED
@@ -30,18 +30,17 @@ namespace mty {
 class VectorBoson;
 
 /**
- * @brief Ghost boson, created with the vector bosons in non abelian gauge 
+ * @brief Ghost boson, created with the vector bosons in non abelian gauge
  * groups.
  *
- * @details These particles are anti-commuting scalar bosons with the same 
- * Gauge representation as the associated vector boson. The anti-commuting 
- * property is very important calculations as it determines the sign of diagrams
- * in which ghosts arise.
+ * @details These particles are anti-commuting scalar bosons with the same
+ * Gauge representation as the associated vector boson. The anti-commuting
+ * property is very important calculations as it determines the sign of
+ * diagrams in which ghosts arise.
  */
-class GhostBoson: public ScalarBoson {
+class GhostBoson : public ScalarBoson {
 
-    public:
-
+  public:
     /**
      * @brief Constructor with one parameter.
      *
@@ -50,7 +49,7 @@ class GhostBoson: public ScalarBoson {
      *
      * @param t_vectorBoson Associated vector boson.
      */
-    GhostBoson(std::shared_ptr<VectorBoson> const& t_vectorBoson);
+    GhostBoson(std::shared_ptr<VectorBoson> const &t_vectorBoson);
 
     /**
      * @brief Constructor with two parameters.
@@ -58,15 +57,13 @@ class GhostBoson: public ScalarBoson {
      * @param t_name        Name of the Ghost boson.
      * @param t_vectorBoson Associated vector boson.
      */
-    GhostBoson(std::string                  const& t_name,
-               std::shared_ptr<VectorBoson> const& t_vectorBoson);
+    GhostBoson(std::string const &                 t_name,
+               std::shared_ptr<VectorBoson> const &t_vectorBoson);
 
-    GhostBoson(
-            std::string const& t_name,
-            mty::GaugeIrrep const &rep);
+    GhostBoson(std::string const &t_name, mty::GaugeIrrep const &rep);
 
     /**
-     * @brief Prints the MARTY (C++) code defining the Ghost boson. 
+     * @brief Prints the MARTY (C++) code defining the Ghost boson.
      *
      * @details This function assumes that the vector boson has already been
      * defined.
@@ -74,16 +71,15 @@ class GhostBoson: public ScalarBoson {
      * @param out        Output stream
      * @param indentSize Indent to use when printing instructions
      */
-    void printDefinition(
-            std::ostream &out = std::cout,
-            int           indentSize = 4,
-            bool          header = false
-            ) const override;
+    void printDefinition(std::ostream &out        = std::cout,
+                         int           indentSize = 4,
+                         bool          header     = false) const override;
 
     /**
      * @return ParticleType::GhostBoson
      */
-    ParticleType getParticleType() const override {
+    ParticleType getParticleType() const override
+    {
         return ParticleType::GhostBoson;
     }
 
@@ -107,12 +103,12 @@ class GhostBoson: public ScalarBoson {
      *
      * @return The newly created Ghost boson.
      */
-    Particle generateSimilar(std::string const& t_name) const override;
+    Particle generateSimilar(std::string const &t_name) const override;
 
     /**
      * @brief Calculates the kinetic term of the Ghost.
      *
-     * @details The Ghost kinetic term is not the same as a standard scalar 
+     * @details The Ghost kinetic term is not the same as a standard scalar
      * boson and must be given explicitly by this class.
      *
      * @param X Space-time point for the Lagrangian term.
@@ -121,12 +117,11 @@ class GhostBoson: public ScalarBoson {
      *
      * @sa mty::GhostKineticTerm() that contains the implementation.
      */
-    csl::Expr getKineticTerm(csl::Tensor & X) override;
+    csl::Expr getKineticTerm(csl::Tensor &X) override;
 
     int getNDegreesOfFreedom() const override;
 
-    private:
-
+  private:
     /**
      * @brief Weak pointer to the associated vector boson.
      */
@@ -143,15 +138,14 @@ class GhostBoson: public ScalarBoson {
  *
  * @return The newly created Ghost boson.
  */
-Particle ghostboson_s(
-        std::string                  const& name,
-        std::shared_ptr<VectorBoson> const& t_vectorBoson,
-        bool                                conjugated = false);
+Particle ghostboson_s(std::string const &                 name,
+                      std::shared_ptr<VectorBoson> const &t_vectorBoson,
+                      bool                                conjugated = false);
 
 /**
  * @brief Creates a ghost boson.
  *
- * @details The name is determined automatically by the constructor 
+ * @details The name is determined automatically by the constructor
  * GhostBoson::GhostBoson().
  *
  * @param t_vectorBoson Associated vector boson.
@@ -160,42 +154,37 @@ Particle ghostboson_s(
  *
  * @return The newly created Ghost boson.
  */
-Particle ghostboson_s(
-        std::shared_ptr<VectorBoson> const& t_vectorBoson,
-        bool                                conjugated = false);
+Particle ghostboson_s(std::shared_ptr<VectorBoson> const &t_vectorBoson,
+                      bool                                conjugated = false);
 
 /**
  * @brief Creates a ghost boson.
  *
  * @param name          Name of the Ghost.
- * @param t_vectorBoson Associated vector boson, **must be of type VectorBoson**.
- * \param conjugated    True if the ghost is a conjugated ghost (i.e. a ghost
- * is already defined, such as c+ and c- for W in the SM)
+ * @param t_vectorBoson Associated vector boson, **must be of type
+ * VectorBoson**. \param conjugated    True if the ghost is a conjugated ghost
+ * (i.e. a ghost is already defined, such as c+ and c- for W in the SM)
  *
  * @return The newly created Ghost boson.
  */
-Particle ghostboson_s(
-        std::string const& name,
-        Particle    const& t_vectorBoson,
-        bool               conjugated = false);
+Particle ghostboson_s(std::string const &name,
+                      Particle const &   t_vectorBoson,
+                      bool               conjugated = false);
 
 /**
  * @brief Creates a ghost boson.
  *
- * @details The name is determined automatically by the constructor 
+ * @details The name is determined automatically by the constructor
  * GhostBoson::GhostBoson().
  *
- * @param t_vectorBoson Associated vector boson, **must be of type VectorBoson**.
- * \param conjugated    True if the ghost is a conjugated ghost (i.e. a ghost
- * is already defined, such as c+ and c- for W in the SM)
+ * @param t_vectorBoson Associated vector boson, **must be of type
+ * VectorBoson**. \param conjugated    True if the ghost is a conjugated ghost
+ * (i.e. a ghost is already defined, such as c+ and c- for W in the SM)
  *
  * @return The newly created Ghost boson.
  */
-Particle ghostboson_s(
-        Particle const& t_vectorBoson,
-        bool            conjugated = false);
+Particle ghostboson_s(Particle const &t_vectorBoson, bool conjugated = false);
 
-
-}
+} // namespace mty
 
 #endif

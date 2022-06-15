@@ -5,7 +5,6 @@ this file is part of LoopTools
 last modified 27 Feb 14 th
 #endif
 
-
 #ifndef LOOPTOOLS_H
 #define LOOPTOOLS_H
 
@@ -220,83 +219,64 @@ last modified 27 Feb 14 th
 #define ee4444 256
 #define Nee 258
 
-#define KeyA0 2**0
-#define KeyBget 2**2
-#define KeyC0 2**4
-#define KeyD0 2**6
-#define KeyD0C 2**8
-#define KeyE0 2**10
-#define KeyEget 2**12
-#define KeyEgetC 2**14
+#define KeyA0 2 * *0
+#define KeyBget 2 * *2
+#define KeyC0 2 * *4
+#define KeyD0 2 * *6
+#define KeyD0C 2 * *8
+#define KeyE0 2 * *10
+#define KeyEget 2 * *12
+#define KeyEgetC 2 * *14
 #define KeyAll 21845
 
-#define DebugA 2**0
-#define DebugB 2**1
-#define DebugC 2**2
-#define DebugD 2**3
-#define DebugE 2**4
+#define DebugA 2 * *0
+#define DebugB 2 * *1
+#define DebugC 2 * *2
+#define DebugD 2 * *3
+#define DebugE 2 * *4
 #define DebugAll 31
 
-#define memindex integer*8
+#define memindex integer * 8
 
 #define Ccache 0
 #define Dcache 0
 
 #endif
 
-	integer ncaches
-	parameter (ncaches = 10)
+integer ncaches parameter(ncaches = 10)
 
-	ComplexType cache(2,ncaches)
-	common /ltvars/ cache
+        ComplexType cache(2, ncaches) common
+    / ltvars
+    / cache
 
-	ComplexType Aval(1,1), AvalC(1,1)
-	ComplexType Bval(1,1), BvalC(1,1)
-	ComplexType Cval(1,1), CvalC(1,1)
-	ComplexType Dval(1,1), DvalC(1,1)
-	ComplexType Eval(1,1), EvalC(1,1)
-	equivalence (cache(2,1), Aval)
-	equivalence (cache(2,2), AvalC)
-	equivalence (cache(2,3), Bval)
-	equivalence (cache(2,4), BvalC)
-	equivalence (cache(2,5), Cval)
-	equivalence (cache(2,6), CvalC)
-	equivalence (cache(2,7), Dval)
-	equivalence (cache(2,8), DvalC)
-	equivalence (cache(2,9), Eval)
-	equivalence (cache(2,10), EvalC)
+    ComplexType Aval(1, 1),
+    AvalC(1, 1) ComplexType Bval(1, 1), BvalC(1, 1) ComplexType Cval(1, 1),
+    CvalC(1, 1) ComplexType Dval(1, 1), DvalC(1, 1) ComplexType Eval(1, 1),
+    EvalC(1, 1) equivalence(cache(2, 1), Aval) equivalence(cache(2, 2), AvalC)
+        equivalence(cache(2, 3), Bval) equivalence(cache(2, 4), BvalC)
+            equivalence(cache(2, 5), Cval) equivalence(cache(2, 6), CvalC)
+                equivalence(cache(2, 7), Dval) equivalence(cache(2, 8), DvalC)
+                    equivalence(cache(2, 9), Eval)
+                        equivalence(cache(2, 10), EvalC)
 
-	ComplexType A0, A0C, A00, A00C, B0i, B0iC
-	ComplexType B0, B1, B00, B11, B001, B111
-	ComplexType B0C, B1C, B00C, B11C, B001C, B111C
-	ComplexType DB0, DB1, DB00, DB11, DB001
-	ComplexType DB0C, DB1C, DB00C, DB11C, DB001C
-	ComplexType C0, C0C, C0i, C0iC
-	ComplexType D0, D0C, D0i, D0iC
-	ComplexType E0, E0C, E0i, E0iC
-	ComplexType Li2, Li2C, Li2omx, Li2omxC
-	memindex Aget, AgetC, Bget, BgetC, Cget, CgetC
-	memindex Dget, DgetC, Eget, EgetC
-	RealType getmudim, getdelta, getlambda, getminmass
-	RealType getmaxdev
-	integer getepsi, getwarndigits, geterrdigits
-	integer getversionkey, getdebugkey
-	integer getcachelast
+                            ComplexType A0,
+    A0C, A00, A00C, B0i, B0iC ComplexType B0, B1, B00, B11, B001,
+    B111 ComplexType B0C, B1C, B00C, B11C, B001C, B111C ComplexType DB0, DB1,
+    DB00, DB11, DB001 ComplexType DB0C, DB1C, DB00C, DB11C,
+    DB001C ComplexType C0, C0C, C0i, C0iC ComplexType D0, D0C, D0i,
+    D0iC ComplexType E0, E0C, E0i, E0iC ComplexType Li2, Li2C, Li2omx,
+    Li2omxC memindex Aget, AgetC, Bget, BgetC, Cget, CgetC memindex Dget,
+    DgetC, Eget, EgetC RealType getmudim, getdelta, getlambda,
+    getminmass RealType getmaxdev integer getepsi, getwarndigits,
+    geterrdigits integer getversionkey,
+    getdebugkey integer getcachelast
 
-	external A0, A0C, A00, A00C, B0i, B0iC
-	external B0, B1, B00, B11, B001, B111
-	external B0C, B1C, B00C, B11C, B001C, B111C
-	external DB0, DB1, DB00, DB11, DB001
-	external DB0C, DB1C, DB00C, DB11C, DB001C
-	external C0, C0C, C0i, C0iC
-	external D0, D0C, D0i, D0iC
-	external E0, E0C, E0i, E0iC
-	external Li2, Li2C, Li2omx, Li2omxC
-	external Aget, AgetC, Bget, BgetC, Cget, CgetC
-	external Dget, DgetC, Eget, EgetC
-	external getmudim, getdelta, getlambda, getminmass
-	external getmaxdev
-	external getepsi, getwarndigits, geterrdigits
-	external getversionkey, getdebugkey
-	external getcachelast
-
+    external A0,
+    A0C, A00, A00C, B0i, B0iC external B0, B1, B00, B11, B001,
+    B111 external B0C, B1C, B00C, B11C, B001C, B111C external DB0, DB1, DB00,
+    DB11, DB001 external DB0C, DB1C, DB00C, DB11C, DB001C external C0, C0C,
+    C0i, C0iC external D0, D0C, D0i, D0iC external E0, E0C, E0i,
+    E0iC external Li2, Li2C, Li2omx, Li2omxC external Aget, AgetC, Bget, BgetC,
+    Cget, CgetC external Dget, DgetC, Eget, EgetC external getmudim, getdelta,
+    getlambda, getminmass external getmaxdev external getepsi, getwarndigits,
+    geterrdigits external getversionkey, getdebugkey external getcachelast

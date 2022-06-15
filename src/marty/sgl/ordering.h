@@ -17,7 +17,7 @@
  * @file ordering.h
  * @brief Contains ordering rules between gamma matrices.
  * @author Grégoire Uhlrich
- * @version 
+ * @version
  * @date 2021-05-06
  */
 #pragma once
@@ -26,27 +26,14 @@
 
 namespace sgl {
 
-    class GammaIndex;
+class GammaIndex;
 
-    bool freeOrder(
-            std::vector<csl::Index> const &mu,
-            std::vector<csl::Index> const &nu
-            );
+bool freeOrder(std::vector<csl::Index> const &mu,
+               std::vector<csl::Index> const &nu);
 
-    bool contractedOrder(
-            GExpr const &A,
-            GExpr const &B
-            );
+bool contractedOrder(GExpr const &A, GExpr const &B);
 
-    bool isOrdered(
-            GExpr      const &prod,
-            GammaIndex const &mu,
-            GammaIndex const &nu
-            );
+bool isOrdered(GExpr const &prod, GammaIndex const &mu, GammaIndex const &nu);
 
-    size_t simplest(
-            GExpr const &prod,
-            GExpr const &chain,
-            size_t       begin = 0
-            );
-}
+size_t simplest(GExpr const &prod, GExpr const &chain, size_t begin = 0);
+} // namespace sgl

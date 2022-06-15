@@ -1,13 +1,11 @@
 #include "pdfsetupdialog.h"
 #include "ui_pdfsetupdialog.h"
-#include <iostream>
 #include <QFileDialog>
 #include <QImage>
+#include <iostream>
 
-PDFSetupDialog::PDFSetupDialog(MainWidget *parent) :
-    QDialog(parent),
-    mainWidget(parent),
-    ui(new Ui::PDFSetupDialog)
+PDFSetupDialog::PDFSetupDialog(MainWidget *parent)
+    : QDialog(parent), mainWidget(parent), ui(new Ui::PDFSetupDialog)
 {
     ui->setupUi(this);
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
@@ -36,9 +34,11 @@ void PDFSetupDialog::reject()
 
 void PDFSetupDialog::renderPreview()
 {
-    options.width = ui->preview->width();
+    options.width  = ui->preview->width();
     options.height = ui->preview->height();
-    QImage image(ui->preview->width(), ui->preview->height(), QImage::Format_ARGB32_Premultiplied);
+    QImage image(ui->preview->width(),
+                 ui->preview->height(),
+                 QImage::Format_ARGB32_Premultiplied);
     image.fill(Qt::white);
     QPainter painter(&image);
     mainWidget->renderPDF(painter, options);
@@ -49,21 +49,21 @@ void PDFSetupDialog::renderPreview()
 void PDFSetupDialog::loadOptions()
 {
     ui->rowSizeBox->setValue(options.rowSize);
-    ui->hMarginSlider->setSliderPosition(fromRatio(options.horizontalMarginRatio));
-    ui->hSpacingSlider->setSliderPosition(fromRatio(options.horizontalSpacingRatio));
-    ui->vMarginSlider->setSliderPosition(fromRatio(options.verticalMarginRatio));
-    ui->vSpacingSlider->setSliderPosition(fromRatio(options.verticalSpacingRatio));
+    ui->hMarginSlider->setSliderPosition(
+        fromRatio(options.horizontalMarginRatio));
+    ui->hSpacingSlider->setSliderPosition(
+        fromRatio(options.horizontalSpacingRatio));
+    ui->vMarginSlider->setSliderPosition(
+        fromRatio(options.verticalMarginRatio));
+    ui->vSpacingSlider->setSliderPosition(
+        fromRatio(options.verticalSpacingRatio));
     ui->numberBox->setChecked(options.showNumbers);
 }
 
 void PDFSetupDialog::browsePath()
 {
     saveFile = QFileDialog::getSaveFileName(
-                this,
-                tr("Choose File"),
-                "",
-                tr("PDF files (*.pdf)")
-                );
+        this, tr("Choose File"), "", tr("PDF files (*.pdf)"));
     if (!saveFile.isEmpty()) {
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
         ui->pathEdit->setText(saveFile);

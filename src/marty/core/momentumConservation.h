@@ -15,7 +15,7 @@
 
 /**
  * @file momentumConservation.h
- * @brief Helper class mty::MomentumConservater to apply momentum conservation 
+ * @brief Helper class mty::MomentumConservater to apply momentum conservation
  * in amplitudes to simplify them.
  * @author Grégoire Uhlrich
  * @version 1.3
@@ -23,38 +23,32 @@
  */
 #pragma once
 
-#include <vector>
 #include "quantumField.h"
+#include <vector>
 
 namespace mty {
 
-    class MomentumConservater {
+class MomentumConservater {
 
-    public:
+  public:
+    MomentumConservater(std::vector<mty::QuantumField> const &insertions,
+                        std::vector<csl::Tensor> const &      t_momenta);
+    bool apply(csl::Expr &expr);
 
-        MomentumConservater(
-                std::vector<mty::QuantumField> const &insertions,
-                std::vector<csl::Tensor>       const &t_momenta
-                );
-        bool apply(csl::Expr &expr);
+  private:
+    int                    findMomentum(csl::Expr const &sub);
+    std::vector<csl::Expr> isMomentumSum(csl::Expr const &sub);
+    std::optional<csl::Expr>
+    applyOnMomentumSum(std::vector<csl::Expr> &factors);
 
-    private:
+    std::pair<int, csl::Expr> getMomentumStructure(csl::Expr const &term);
+    bool                      simplify(std::vector<csl::Expr> &factors);
+    csl::Expr recoverExpr(std::vector<csl::Expr> const &factors);
 
-        int findMomentum(csl::Expr const &sub);
-        std::vector<csl::Expr> isMomentumSum(csl::Expr const &sub);
-        std::optional<csl::Expr> applyOnMomentumSum(
-                std::vector<csl::Expr> &factors
-                );
-
-        std::pair<int, csl::Expr> getMomentumStructure(csl::Expr const &term);
-        bool simplify(std::vector<csl::Expr> &factors);
-        csl::Expr recoverExpr(std::vector<csl::Expr> const &factors);
-
-    private:
-
-        std::vector<bool>        signs;
-        std::vector<csl::Tensor> momenta;
-        size_t                   posSimplestMomenta;
-        csl::Index               mu;
-    };
-}
+  private:
+    std::vector<bool>        signs;
+    std::vector<csl::Tensor> momenta;
+    size_t                   posSimplestMomenta;
+    csl::Index               mu;
+};
+} // namespace mty

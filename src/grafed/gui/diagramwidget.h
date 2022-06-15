@@ -1,34 +1,33 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 /*!
- * @file 
+ * @file
  * @author Grégoire Uhlrich
  * @version 1.3
- 
+
  * \brief
  */
 #ifndef DIAGRAMWIDGET_H
 #define DIAGRAMWIDGET_H
 
-
-#include <QGraphicsView>
-#include <QGraphicsProxyWidget>
-#include "planargraph.h"
 #include "diagram.h"
 #include "latexLink.h"
+#include "planargraph.h"
+#include <QGraphicsProxyWidget>
+#include <QGraphicsView>
 
 class MainWindow;
 class QLabel;
@@ -40,21 +39,19 @@ class Node;
 class Edge;
 
 class Proxy;
-class DiagramWidget : public QGraphicsView
-{
+class DiagramWidget : public QGraphicsView {
     Q_OBJECT
 
     friend class MainWindow;
     friend class MainWidget;
     friend class DiagramRenderer;
 
-public:
+  public:
     DiagramWidget(QGraphicsScene *t_scene,
-                  qint32 t_X0,
-                  qint32 t_Y0,
-                  QWidget *parent,
-                  Diagram *t_diagram);
-
+                  qint32          t_X0,
+                  qint32          t_Y0,
+                  QWidget *       parent,
+                  Diagram *       t_diagram);
 
     ~DiagramWidget() override;
 
@@ -62,21 +59,27 @@ public:
 
     QPointF getCursorPos() const;
 
-public slots:
+  public slots:
     void zoom(double scale);
     void zoomIn();
     void zoomOut();
     void centerScene();
     void addLabel();
 
-    void enableDiagram() { diagramEnabled = true; }
-    void disableDiagram() { diagramEnabled = false; }
+    void enableDiagram()
+    {
+        diagramEnabled = true;
+    }
+    void disableDiagram()
+    {
+        diagramEnabled = false;
+    }
 
-signals:
+  signals:
 
     void zoom(QWheelEvent *event);
 
-protected:
+  protected:
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
@@ -87,18 +90,17 @@ protected:
 
     void scaleView(qreal scaleFactor);
 
-public:
-    static constexpr    qint32      dx            = 16;
-private:
+  public:
+    static constexpr qint32 dx = 16;
 
-    QGraphicsScene             *scene;
-    Diagram                    *diagram;
-    bool                        diagramEnabled;
-    qint32                      X0;
-    qint32                      Y0;
-    qint32                      LX;
-    qint32                      LY;
+  private:
+    QGraphicsScene *scene;
+    Diagram *       diagram;
+    bool            diagramEnabled;
+    qint32          X0;
+    qint32          Y0;
+    qint32          LX;
+    qint32          LY;
 };
-
 
 #endif // DIAGRAMWIDGET_H

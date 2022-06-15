@@ -1,28 +1,28 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "jsonLoader.h"
+#include <csignal>
 #include <fstream>
 #include <sstream>
-#include <csignal>
 
 using namespace std;
 
 namespace JSON {
 
-void JSONAssert(bool condition, std::string const& spec)
+void JSONAssert(bool condition, std::string const &spec)
 {
     if (not condition) {
         cout << "JSONError: " << spec << endl;
@@ -40,14 +40,14 @@ void JSONAssert(bool condition, std::string const& spec)
 // Public members (load and save from/to file)
 ///////////////////////////////////////////////////
 
-std::unique_ptr<Node> Reader::loadFromFile(string const& fileName)
+std::unique_ptr<Node> Reader::loadFromFile(string const &fileName)
 {
     fin = ifstream(fileName);
     unique_ptr<Object> root;
     if (fin) {
         currentFileName = fileName;
-        indent = 0;
-        char c = readSeparator();
+        indent          = 0;
+        char c          = readSeparator();
         while (c != '{' and not fin.eof())
             c = readSeparator();
         readNode(root, "##ROOT##");
@@ -56,11 +56,10 @@ std::unique_ptr<Node> Reader::loadFromFile(string const& fileName)
     else
         cerr << "File \"" + fileName + "\" not found!\n";
 
-    return unique_ptr<Node>(static_cast<Node*>(root.release()));
+    return unique_ptr<Node>(static_cast<Node *>(root.release()));
 }
 
-void Reader::saveToFile(std::string const& fileName,
-                        Node*              tree)
+void Reader::saveToFile(std::string const &fileName, Node *tree)
 {
     fout = ofstream(fileName);
     if (fout) {
@@ -72,8 +71,8 @@ void Reader::saveToFile(std::string const& fileName,
         cerr << "File \"" + fileName + "\" not found!\n";
 }
 
-void Reader::saveToFile(std::string      const& fileName,
-                        unique_ptr<Node> const& tree)
+void Reader::saveToFile(std::string const &     fileName,
+                        unique_ptr<Node> const &tree)
 {
     saveToFile(fileName, tree.get());
 }
@@ -85,7 +84,7 @@ void Reader::saveToFile(std::string      const& fileName,
 int Reader::readLineNumber()
 {
     int lineCount = 1;
-    fin.clear();     // need to clear error bits otherwise tellg returns -1.
+    fin.clear(); // need to clear error bits otherwise tellg returns -1.
     auto originalPos = fin.tellg();
     if (originalPos < 0)
         return -1;
@@ -99,12 +98,12 @@ int Reader::readLineNumber()
     return lineCount;
 }
 
-void Reader::readingError(string const& error)
+void Reader::readingError(string const &error)
 {
-    int lineNumber = readLineNumber();
+    int           lineNumber = readLineNumber();
     ostringstream serr;
     serr << "readingError in fin \"" << currentFileName << "\" (l. "
-        << lineNumber << "): " << error << endl;
+         << lineNumber << "): " << error << endl;
     JSONAssert(false, serr.str());
 }
 
@@ -120,13 +119,13 @@ char Reader::readSeparator()
         if (c != ' ' and c != '\n')
             return c;
     }
-    //unexpectedEndOfFile(fin);
+    // unexpectedEndOfFile(fin);
     return c;
 }
 
 string Reader::readString()
 {
-    char c;
+    char   c;
     string str;
     while (fin.get(c)) {
         if (c == '"')
@@ -139,8 +138,7 @@ string Reader::readString()
     return str;
 }
 
-char Reader::readBoolean(char first,
-                         string& strNumber)
+char Reader::readBoolean(char first, string &strNumber)
 {
     strNumber = first;
     char end;
@@ -155,8 +153,7 @@ char Reader::readBoolean(char first,
     return end;
 }
 
-char Reader::readNumber(char first,
-                        string& strNumber)
+char Reader::readNumber(char first, string &strNumber)
 {
     strNumber = first;
     char end;
@@ -171,12 +168,10 @@ char Reader::readNumber(char first,
     return end;
 }
 
-char Reader::getBooleanLeaf(Child& child,
-                            string const& specifier,
-                            char first)
+char Reader::getBooleanLeaf(Child &child, string const &specifier, char first)
 {
     string strNumber;
-    char end = readBoolean(first, strNumber);
+    char   end = readBoolean(first, strNumber);
     if (strNumber == "true") {
         child = make_unique<Leaf<bool>>(specifier, true);
     }
@@ -184,22 +179,20 @@ char Reader::getBooleanLeaf(Child& child,
         child = make_unique<Leaf<bool>>(specifier, false);
     }
     else {
-        readingError("Boolean value " + strNumber + " not recognized. Should be "
-                "either true or false.");
+        readingError("Boolean value " + strNumber
+                     + " not recognized. Should be "
+                       "either true or false.");
     }
     return end;
 }
 
-char Reader::getNumberLeaf(Child& child,
-                           string const& specifier,
-                           char first)
+char Reader::getNumberLeaf(Child &child, string const &specifier, char first)
 {
     string strNumber;
-    char end = readNumber(first, strNumber);
-    bool isInteger = true;
-    for (const auto& c : strNumber)
-        if (not (c >= '0' and c <= '9')
-            and not (c == '-')) {
+    char   end       = readNumber(first, strNumber);
+    bool   isInteger = true;
+    for (const auto &c : strNumber)
+        if (not(c >= '0' and c <= '9') and not(c == '-')) {
             isInteger = false;
             break;
         }
@@ -217,55 +210,50 @@ char Reader::getNumberLeaf(Child& child,
     return end;
 }
 
-char Reader::getStringLeaf(Child&        child,
-                           string const& specifier)
+char Reader::getStringLeaf(Child &child, string const &specifier)
 {
     string argument = readString();
-    child = make_unique<Leaf<string>>(specifier, argument);
+    child           = make_unique<Leaf<string>>(specifier, argument);
 
     return readSeparator();
 }
 
-char Reader::readNode(Child&        child,
-                      string const& mainSpecifier)
+char Reader::readNode(Child &child, string const &mainSpecifier)
 {
     child = make_unique<Node>(mainSpecifier);
     char c;
     while ((c = readSeparator()) == '"') {
         string specifier = readString();
-        c = readSeparator();
+        c                = readSeparator();
         if (c != ':')
-            readingError((string)"expected ':' after specifier, not '"
-                    + c + "'.");
+            readingError((string) "expected ':' after specifier, not '" + c
+                         + "'.");
         Child newChild;
         c = readObject(newChild, specifier);
-        static_cast<Node*>(child.get())->addChild(newChild);
+        static_cast<Node *>(child.get())->addChild(newChild);
         if (c == '}')
             break;
         if (c != ',')
-            readingError((string)"expecting '}' or ',' before '"
-                    + c + "'.");
+            readingError((string) "expecting '}' or ',' before '" + c + "'.");
     }
     if (not fin.eof())
         c = readSeparator();
 
     return c;
-} 
+}
 
-char Reader::readList(Child&        child,
-                      string const& specifier)
+char Reader::readList(Child &child, string const &specifier)
 {
-    child = make_unique<List>(specifier);
+    child  = make_unique<List>(specifier);
     char c = readSeparator();
     while (c != ']') {
         Child newChild;
         c = readObject(newChild, specifier, c);
-        static_cast<List*>(child.get())->addChild(newChild);
+        static_cast<List *>(child.get())->addChild(newChild);
         if (c == ']')
             break;
         if (c != ',')
-            readingError((string)"expecting ']' or ',' before '"
-                    + c + "'.");
+            readingError((string) "expecting ']' or ',' before '" + c + "'.");
         c = readSeparator();
     }
     if (not fin.eof())
@@ -274,46 +262,46 @@ char Reader::readList(Child&        child,
     return c;
 }
 
-char Reader::readObject(Child&        child,
-                        string const& specifier)
+char Reader::readObject(Child &child, string const &specifier)
 {
     char c = readSeparator();
     return readObject(child, specifier, c);
 }
 
-char Reader::readObject(Child&        child,
-                        string const& specifier,
-                        char          first)
+char Reader::readObject(Child &child, string const &specifier, char first)
 {
-    switch(first) {
-        case '{': return readNode(child, specifier); break;
-        case '[': return readList(child, specifier); break;
-        default:
-            if (first == '"') 
-                return getStringLeaf(child, specifier);
-            if (first == 't' or first == 'f')
-                return getBooleanLeaf(child, specifier, first);
-            return getNumberLeaf(child, specifier, first);
+    switch (first) {
+    case '{':
+        return readNode(child, specifier);
+        break;
+    case '[':
+        return readList(child, specifier);
+        break;
+    default:
+        if (first == '"')
+            return getStringLeaf(child, specifier);
+        if (first == 't' or first == 'f')
+            return getBooleanLeaf(child, specifier, first);
+        return getNumberLeaf(child, specifier, first);
     }
 }
 
-void Reader::writeToFileWithIndent(string const& str)
+void Reader::writeToFileWithIndent(string const &str)
 {
     fout << std::string(static_cast<size_t>(indent), ' ') << str;
 }
 
-void Reader::writeToFile(Object* object,
-                         bool    writeSpec)
+void Reader::writeToFile(Object *object, bool writeSpec)
 {
     if (writeSpec and object->getSpecifier() != "##ROOT##")
-        writeToFileWithIndent("\""+object->getSpecifier()+"\" : ");
-    if (typeid(*object) == typeid(Node) ) {
+        writeToFileWithIndent("\"" + object->getSpecifier() + "\" : ");
+    if (typeid(*object) == typeid(Node)) {
         fout << "{\n";
-        Node* node = static_cast<Node*>(object);
+        Node *node = static_cast<Node *>(object);
         indent += indentStep;
         for (auto iter = node->begin(); iter != node->end(); ++iter) {
             writeToFile(iter->get());
-            if (iter+1 != node->end())
+            if (iter + 1 != node->end())
                 fout << ",\n";
         }
         indent -= indentStep;
@@ -321,10 +309,10 @@ void Reader::writeToFile(Object* object,
         writeToFileWithIndent("}");
     }
     else if (typeid(*object) == typeid(List)) {
-        List* node = static_cast<List*>(object);
+        List *node = static_cast<List *>(object);
         if (writeSpec)
             fout << "[\n";
-        else 
+        else
             fout << "[";
         indent += indentStep;
         if (writeSpec)
@@ -332,18 +320,18 @@ void Reader::writeToFile(Object* object,
         for (auto iter = node->begin(); iter != node->end(); ++iter) {
             writeToFile(iter->get(), false);
             auto const &pointed = **iter;
-            if (iter+1 != node->end()
-                    and (typeid(pointed) == typeid(List) 
-                    or typeid(pointed) == typeid(Node))) {
+            if (iter + 1 != node->end()
+                and (typeid(pointed) == typeid(List)
+                     or typeid(pointed) == typeid(Node))) {
                 fout << ", ";
                 fout << "\n";
                 writeToFileWithIndent("");
             }
-            else if (iter+1 != node->end())
+            else if (iter + 1 != node->end())
                 fout << ", ";
         }
         indent -= indentStep;
-        if (writeSpec){
+        if (writeSpec) {
             fout << "\n";
             writeToFileWithIndent("]");
         }
@@ -351,7 +339,7 @@ void Reader::writeToFile(Object* object,
             fout << "]";
     }
     else {
-        auto leaf = dynamic_cast<AbstractLeaf*>(object);
+        auto leaf = dynamic_cast<AbstractLeaf *>(object);
         fout << leaf->getArgument();
     }
 }
@@ -362,36 +350,35 @@ void Reader::writeToFile(Object* object,
 /*************************************************/
 ///////////////////////////////////////////////////
 
-Node* Parser::parseNode(Node*              parent,
-                        std::string const& specifier,
-                        bool               mandatory)
+Node *
+Parser::parseNode(Node *parent, std::string const &specifier, bool mandatory)
 {
-    for (const auto& object : *parent)
+    for (const auto &object : *parent)
         if (object->getSpecifier() == specifier) {
             JSONAssert(object->isNode(),
-                    "Expecting node of type \"" + specifier + "\" but "
-                    + " a leaf is given.");
-            return static_cast<Node*>(object.get());
+                       "Expecting node of type \"" + specifier + "\" but "
+                           + " a leaf is given.");
+            return static_cast<Node *>(object.get());
         }
     JSONAssert(not mandatory,
-            "Node \"" + specifier
-            + "\" should be specified but is not given.");
+               "Node \"" + specifier
+                   + "\" should be specified but is not given.");
     return nullptr;
 }
 
-Node* Parser::parseNode(unique_ptr<Object> const& parent,
-                        std::string        const& specifier,
+Node *Parser::parseNode(unique_ptr<Object> const &parent,
+                        std::string const &       specifier,
                         bool                      mandatory)
 {
     return parseNode(convert(parent), specifier, mandatory);
 }
 
-Node* Parser::convert(const std::unique_ptr<Object>& node)
+Node *Parser::convert(const std::unique_ptr<Object> &node)
 {
     JSONAssert(node->isNode(),
-            "Converting into a node an object that is not a node: \""
-            + node->getSpecifier() + "\".");
-    return static_cast<Node*>(node.get());
+               "Converting into a node an object that is not a node: \""
+                   + node->getSpecifier() + "\".");
+    return static_cast<Node *>(node.get());
 }
 
 } // End of namespace JSON

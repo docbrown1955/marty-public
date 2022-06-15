@@ -1,23 +1,23 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "lha.h"
 #include "lhaData.h"
-#include <iostream>
-#include <fstream>
 #include <algorithm>
+#include <fstream>
+#include <iostream>
 
 namespace mty::lha {
 
@@ -26,7 +26,7 @@ LHAFileData Reader::readFile(std::string const &fileName)
     std::ifstream f(fileName, std::ios::in);
     if (!f) {
         std::cerr << "Error: File \"" + fileName + "\" not found.\n";
-    } 
+    }
     auto res = readFile(f);
     f.close();
     return res;
@@ -34,26 +34,25 @@ LHAFileData Reader::readFile(std::string const &fileName)
 
 LHAFileData Reader::readFile(std::ifstream &in)
 {
-    LHAFileData data;
+    LHAFileData              data;
     std::vector<std::string> currentLine;
-    size_t iLine = 1;
-    std::string currentType = "";
+    size_t                   iLine       = 1;
+    std::string              currentType = "";
     while (!in.eof()) {
         currentLine = split(nextLine(in));
         if (isBlockLine(currentLine)) {
             currentType = currentLine[1];
             data.addBlock(currentType);
         }
-        else if (isValueLine(currentLine) 
-                and !currentType.empty()) {
+        else if (isValueLine(currentLine) and !currentType.empty()) {
             data.addElement(currentType, readValue(currentLine));
         }
         else if (!currentLine.empty()) {
             currentType.clear();
             if (verbose) {
-                std::cerr << "Warning: ignoring line " << iLine 
-                    << "of lha file:\n";
-                for (const auto &str: currentLine)
+                std::cerr << "Warning: ignoring line " << iLine
+                          << "of lha file:\n";
+                for (const auto &str : currentLine)
                     std::cerr << str << "  ";
                 std::cerr << '\n';
             }
@@ -83,7 +82,7 @@ std::vector<std::string> Reader::split(std::string const &line)
 {
     std::vector<std::string> res;
     res.reserve(10);
-    auto iter = line.begin();
+    auto iter  = line.begin();
     auto first = line.end();
     while (iter != line.end()) {
         if (*iter == ' ' or *iter == '\n') {
@@ -105,8 +104,7 @@ std::vector<std::string> Reader::split(std::string const &line)
 
 bool Reader::isBlockLine(std::vector<std::string> const &line)
 {
-    return line.size() >= 2
-        and mty::lha::tolower(line[0]) == "block";
+    return line.size() >= 2 and mty::lha::tolower(line[0]) == "block";
 }
 
 bool Reader::isPositiveInteger(std::string const &str)
@@ -115,10 +113,10 @@ bool Reader::isPositiveInteger(std::string const &str)
         std::stoull(str);
         return true;
     }
-    catch (std::out_of_range&) {
+    catch (std::out_of_range &) {
         return false;
     }
-    catch (std::invalid_argument&) {
+    catch (std::invalid_argument &) {
         return false;
     }
 }
@@ -129,10 +127,10 @@ bool Reader::isNumber(std::string const &str)
         std::stold(str);
         return true;
     }
-    catch (std::out_of_range&) {
+    catch (std::out_of_range &) {
         return false;
     }
-    catch (std::invalid_argument&) {
+    catch (std::invalid_argument &) {
         return false;
     }
 }
@@ -150,7 +148,7 @@ LHAElement Reader::readValue(std::vector<std::string> const &line)
 {
     LHAElement element;
     element.id    = std::stoull(line[0]);
-    element.value = std::stold (line.back());
+    element.value = std::stold(line.back());
     if (line.size() == 3)
         element.id_sup = std::stoull(line[1]);
 

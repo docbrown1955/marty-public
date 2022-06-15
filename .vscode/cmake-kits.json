@@ -1,0 +1,10 @@
+[
+    {
+        "name": "GNU-11",
+        "compilers": {
+            "CC": "/usr/bin/gcc-11",
+            "CXX": "/usr/bin/g++-11",
+            "FC": "/usr/bin/gfortran-11"
+        }
+    }
+]
