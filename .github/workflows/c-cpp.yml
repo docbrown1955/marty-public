@@ -7,7 +7,7 @@ on:
   pull_request:
     branches:
       - master
-    types: 
+    types:
       - ready_for_review
       - review_requested
 
@@ -17,49 +17,24 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: dependencies
-      run: sudo apt-get install coreutils build-essential gcc-7 g++-7 gfortran-7 libgsl-dev libgslcblas0 qt5-default qtcreator dvipng -y
+      run: sudo apt-get install coreutils build-essential gcc-7 g++-7 gfortran-7 libgsl-dev libgslcblas0 qt5-default dvipng -y
     - name: configure
-      run: source setup.sh .install
+      run: |
+        mkdir build
+        cd build
+        cmake ..
     - name: make
       run: |
-        source marty_env.sh
+        cd build
         make
     - name: install
-      run: make install
+      run: |
+        cd build
+        sudo make install
     - name: download-tests
       run: git clone https://github.com/docbrown1955/test-suite.git
     - name: run-tests
       run: |
         source marty_env.sh
-        cd test-suite
-        ./launch_tests.sh
-  
-  build-and-test-mac:
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: configure
-      run: source setup.sh .install
-    - name: make
-      run: |
-        source marty_env.sh
-        export PATH=$PATH:/usr/local/bin
-        export CPATH=$CPATH:/usr/local/include
-        export C_INCLUDE_PATH=$C_INCLUDE_PATH:/usr/local/include
-        export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:/usr/local/lib
-        export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/lib
-        make
-    - name: install
-      run: make install
-    - name: download-tests
-      run: git clone https://github.com/docbrown1955/test-suite.git
-    - name: run-tests
-      run: |
-        source marty_env.sh
-        export PATH=$PATH:/usr/local/bin
-        export CPATH=$CPATH:/usr/local/include
-        export C_INCLUDE_PATH=$C_INCLUDE_PATH:/usr/local/include
-        export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:/usr/local/lib
-        export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/lib
         cd test-suite
         ./launch_tests.sh
