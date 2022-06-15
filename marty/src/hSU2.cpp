@@ -473,6 +473,25 @@ void hSU2_Model::initInteractions(){
         * E_R[a_l]({al})
         ,true);
   }
+  // Vector-like mass terms 
+  csl::Expr m_psi_u = hSU2_input::M_U;
+  csl::Expr m_psi_d = hSU2_input::M_D;
+  csl::Expr m_psi_l = hSU2_input::M_L;
+  addLagrangianTerm(
+       m_psi_u 
+       * GetComplexConjugate(Psi_uL({a,J,al}))
+       * Psi_uR({a,J,al})
+       , true);
+  addLagrangianTerm(
+       m_psi_d
+       * GetComplexConjugate(Psi_dL({a,J,al}))
+       * Psi_dR({a,J,al})
+       , true);
+  addLagrangianTerm(
+       m_psi_l 
+       * GetComplexConjugate(Psi_lL({J,al}))
+       * Psi_lR({J,al})
+       ,true);
 }
 void hSU2_Model::gatherhSU2Inputs(){
 
@@ -482,7 +501,7 @@ void hSU2_Model::getToLowEnergyLagrangian(){
   
      std::cout << "Breaking the SU(2)_h symmetry...." << std::endl;
      horizontalSymmetryBreaking();
-     std::cout << "Expanding around additional Scalars' VEV's"
+     std::cout << "Expanding around additional Scalars' VEV's" << std::endl; 
      expandAroundVEVs();
 }
 void hSU2_Model::horizontalSymmetryBreaking(){
@@ -504,19 +523,29 @@ void hSU2_Model::horizontalSymmetryBreaking(){
      renameParticle("{E_R}_2","\\tau_R");
 }
 
-void expandAroundVEVs(){
-  v_h = hSU2_input::v_h ;
+void hSU2_Model::expandAroundVEVs(){
+  csl::Expr v_h = hSU2_input::v_h ;
   
-  Particle Y1 = GetParticle(*this, "Y_1");
-  Particle Y2 = GetParticle(*this, "Y_2");
-  Particle Y3 = GetParticle(*this, "Y_3"); 
+  Particle Y1 = getParticle("Y_1");
+  Particle Y2 = getParticle("Y_2");
+  Particle Y3 = getParticle("Y_3"); 
 
-  Particle X1 = GetParticle(*this, "X_1");
-  Particle X2 = GetParticle(*this, "X_2");
+  Particle X1 = getParticle("X_1");
+  Particle X2 = getParticle("X_2");
 
-  Particle x0 = scalarboson_s("x0 ; x")
+  Particle x0 = scalarboson_s("x0 ; x^0", *this); // New scalar physical boson 
+  Particle Gxp= scalarboson_s("Gxp; G_x^+", *this); // New goldstone boson.
+  Particle Gx0= scalarboson_s("Gx0; G_x^0", *this); // New goldstone boson.
 
-  
+  x0->setSelfConjugate(true);
+  Gx0->setSelfConjugate(true);
+ 
+  replace(X1, Gxp());
+  replace(X2, (x0() + CSL_I*Gx0() + v_h)/csl::sqrt_s(2));
+  promoteToGoldstone("G_x^+","V_1");
+
+  // Particle y1_0 = scalarboson_s("y_1; y_1^0", *this);
+  // Particle y2_0 = scalarboson_s("")
 }
 void hSU2_Model::checkHermiticity(){
 

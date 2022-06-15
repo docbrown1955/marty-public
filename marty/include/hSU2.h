@@ -99,7 +99,7 @@ namespace mty::hSU2_input{
   inline
     csl::Expr k_d2 = csl::constant_s("\\kappa_d2"); // \tilde{\kappa_d}
 
-  inlin 
+  inline 
     csl::Expr tk_d0 = csl::constant_s("\\kappa_d0");
   inline
     csl::Expr tk_d1 = csl::constant_s("\\kappa_d1");
