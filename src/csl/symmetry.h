@@ -23,6 +23,7 @@
 #ifndef SYMMETRY_H_INCLUDED
 #define SYMMETRY_H_INCLUDED
 
+#include "abstract.h"
 #include "index.h"
 #include "std_vector_implementation.h"
 #include <vector>
@@ -209,7 +210,7 @@ class Permutation {
      *
      * \return A reference to the modified flux \b fout.
      */
-    friend std::ostream &operator<<(std::ostream &     fout,
+    friend std::ostream &operator<<(std::ostream      &fout,
                                     const Permutation &permutation);
 };
 
@@ -408,7 +409,7 @@ class Symmetry {
      *
      * \return A reference to the modified flux \b fout.
      */
-    friend std::ostream &operator<<(std::ostream &  fout,
+    friend std::ostream &operator<<(std::ostream   &fout,
                                     const Symmetry &symmetry);
 };
 
@@ -422,7 +423,7 @@ class IndexedSymmetry : public Symmetry {
     explicit IndexedSymmetry(const Index &i1, const Index &i2);
 
     explicit IndexedSymmetry(const IndexStructure &init,
-                             const Symmetry &      initialSym);
+                             const Symmetry       &initialSym);
 
     void addSymmetry(const Index &i1, const Index &i2);
 
@@ -440,9 +441,9 @@ class IndexedSymmetry : public Symmetry {
 
     IndexedSymmetry &operator*=(const IndexedSymmetry &other);
 
-    csl::vector_expr applySymmetry(const Expr &expr) const;
+    std::vector<csl::Expr> applySymmetry(const Expr &expr) const;
 
-    friend std::ostream &operator<<(std::ostream &         fout,
+    friend std::ostream &operator<<(std::ostream          &fout,
                                     const IndexedSymmetry &sym);
 
   private:

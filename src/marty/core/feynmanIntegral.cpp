@@ -1521,7 +1521,7 @@ csl::Expr FeynmanIntegral::replaceIntegral(csl::Expr const &expr)
     return factor * res;
 }
 
-csl::Expr FeynmanIntegral::replaceIntegral(csl::Expr const &  argument,
+csl::Expr FeynmanIntegral::replaceIntegral(csl::Expr const   &argument,
                                            csl::Parent const &variable)
 {
     if (argument == CSL_0)
@@ -1637,9 +1637,9 @@ csl::Expr FeynmanIntegral::replaceIntegral(csl::Expr const &  argument,
     return replaceIntegral(factor, momentum, mass, indices);
 }
 csl::Expr
-FeynmanIntegral::replaceIntegral(std::vector<csl::Expr> const & factor,
-                                 std::vector<csl::Expr> const & momentum,
-                                 std::vector<csl::Expr> const & mass,
+FeynmanIntegral::replaceIntegral(std::vector<csl::Expr> const  &factor,
+                                 std::vector<csl::Expr> const  &momentum,
+                                 std::vector<csl::Expr> const  &mass,
                                  std::vector<csl::Index> const &indices)
 {
     csl::Expr res;
@@ -1665,14 +1665,14 @@ FeynmanIntegral::replaceIntegral(std::vector<csl::Expr> const & factor,
 }
 
 csl::Expr
-FeynmanIntegral::applyQSquared(csl::Index const &             squaredIndex,
-                               csl::Expr const &              argument,
-                               csl::Parent const &            variable,
-                               std::vector<csl::Expr> const & factor,
-                               std::vector<csl::Expr> const & momentum,
-                               std::vector<csl::Expr> const & mass,
+FeynmanIntegral::applyQSquared(csl::Index const              &squaredIndex,
+                               csl::Expr const               &argument,
+                               csl::Parent const             &variable,
+                               std::vector<csl::Expr> const  &factor,
+                               std::vector<csl::Expr> const  &momentum,
+                               std::vector<csl::Expr> const  &mass,
                                std::vector<csl::Index> const &indices,
-                               csl::Expr const &              firstTerm)
+                               csl::Expr const               &firstTerm)
 {
     csl::Expr p1;
     size_t    imin = 0;
@@ -1737,7 +1737,7 @@ FeynmanIntegral::applyQSquared(csl::Index const &             squaredIndex,
     return term1 + term2;
 }
 
-void FeynmanIntegral::removeExternalMomenta(csl::Expr &        expr,
+void FeynmanIntegral::removeExternalMomenta(csl::Expr         &expr,
                                             csl::Parent const &Q)
 {
     if (csl::IsSum(expr) || csl::IsProd(expr) || csl::IsPow(expr)) {
@@ -1917,7 +1917,7 @@ std::vector<std::vector<size_t>> getMetricIndices(size_t n)
     return getMetricIndices(indices);
 }
 
-csl::Expr FeynmanIntegral::metricTerm(csl::Space const *             space,
+csl::Expr FeynmanIntegral::metricTerm(csl::Space const              *space,
                                       std::vector<csl::Index> const &indices)
 {
     HEPAssert(indices.size() % 2 == 0,
@@ -1956,8 +1956,8 @@ csl::Expr FeynmanIntegral::metricTerm(csl::Space const *             space,
 }
 
 csl::Expr
-FeynmanIntegral::applyIndicesToTensors(csl::Space const *             space,
-                                       std::vector<csl::Expr> const & momentum,
+FeynmanIntegral::applyIndicesToTensors(csl::Space const              *space,
+                                       std::vector<csl::Expr> const  &momentum,
                                        std::vector<csl::Index> const &indices,
                                        std::vector<size_t> tensorPos)
 {
@@ -1992,9 +1992,9 @@ FeynmanIntegral::applyIndicesToTensors(csl::Space const *             space,
 
 csl::Expr FeynmanIntegral::computeFinalIntegralDecomposition(
     IntegralType                   type,
-    std::vector<csl::Expr> const & momentum,
+    std::vector<csl::Expr> const  &momentum,
     std::vector<csl::Index> const &indices,
-    std::vector<csl::Expr> const & arguments)
+    std::vector<csl::Expr> const  &arguments)
 {
     std::vector<csl::Expr> sum_terms;
     int                    integral_id = loopToolsBegin(type, indices.size());
@@ -2042,9 +2042,9 @@ csl::Expr FeynmanIntegral::computeFinalIntegralDecomposition(
 }
 
 csl::Expr
-FeynmanIntegral::replaceIntegral_A(std::vector<csl::Expr> const & factor,
-                                   std::vector<csl::Expr> const & momentum,
-                                   std::vector<csl::Expr> const & mass,
+FeynmanIntegral::replaceIntegral_A(std::vector<csl::Expr> const  &factor,
+                                   std::vector<csl::Expr> const  &momentum,
+                                   std::vector<csl::Expr> const  &mass,
                                    std::vector<csl::Index> const &indices)
 {
     std::vector<csl::Expr> terms(factor);
@@ -2077,16 +2077,16 @@ FeynmanIntegral::replaceIntegral_A(std::vector<csl::Expr> const & factor,
 }
 
 csl::Expr
-FeynmanIntegral::replaceIntegral_B(std::vector<csl::Expr> const & factor,
-                                   std::vector<csl::Expr> const & momentum,
-                                   std::vector<csl::Expr> const & mass,
+FeynmanIntegral::replaceIntegral_B(std::vector<csl::Expr> const  &factor,
+                                   std::vector<csl::Expr> const  &momentum,
+                                   std::vector<csl::Expr> const  &mass,
                                    std::vector<csl::Index> const &indices)
 {
     std::vector<csl::Expr> terms(factor);
     testError(IntegralType::B, momentum, 1, mass, 2, indices, 3);
 
     csl::Tensor            g = csl::Minkowski.getMetric();
-    csl::Expr const &      p = momentum[0];
+    csl::Expr const       &p = momentum[0];
     std::vector<csl::Expr> arguments
         = {psquared(p), mass[0] * mass[0], mass[1] * mass[1]};
     switch (indices.size()) {
@@ -2151,17 +2151,17 @@ csl::Expr mom(csl::Expr init)
 }
 
 csl::Expr
-FeynmanIntegral::replaceIntegral_C(std::vector<csl::Expr> const & factor,
-                                   std::vector<csl::Expr> const & momentum,
-                                   std::vector<csl::Expr> const & mass,
+FeynmanIntegral::replaceIntegral_C(std::vector<csl::Expr> const  &factor,
+                                   std::vector<csl::Expr> const  &momentum,
+                                   std::vector<csl::Expr> const  &mass,
                                    std::vector<csl::Index> const &indices)
 {
     std::vector<csl::Expr> terms(factor);
     testError(IntegralType::C, momentum, 2, mass, 3, indices, 4);
 
     csl::Tensor            g         = csl::Minkowski.getMetric();
-    csl::Expr const &      p1        = mom(momentum[0]);
-    csl::Expr const &      p2        = mom(momentum[1]);
+    csl::Expr const       &p1        = mom(momentum[0]);
+    csl::Expr const       &p2        = mom(momentum[1]);
     std::vector<csl::Expr> arguments = {psquared(p1),
                                         psquared(p2 - p1),
                                         psquared(p2),
@@ -2179,18 +2179,18 @@ FeynmanIntegral::replaceIntegral_C(std::vector<csl::Expr> const & factor,
 }
 
 csl::Expr
-FeynmanIntegral::replaceIntegral_D(std::vector<csl::Expr> const & factor,
-                                   std::vector<csl::Expr> const & momentum,
-                                   std::vector<csl::Expr> const & mass,
+FeynmanIntegral::replaceIntegral_D(std::vector<csl::Expr> const  &factor,
+                                   std::vector<csl::Expr> const  &momentum,
+                                   std::vector<csl::Expr> const  &mass,
                                    std::vector<csl::Index> const &indices)
 {
     std::vector<csl::Expr> terms(factor);
     testError(IntegralType::D, momentum, 3, mass, 4, indices, 5);
 
     csl::Tensor            g         = csl::Minkowski.getMetric();
-    csl::Expr const &      p1        = mom(momentum[0]);
-    csl::Expr const &      p2        = mom(momentum[1]);
-    csl::Expr const &      p3        = mom(momentum[2]);
+    csl::Expr const       &p1        = mom(momentum[0]);
+    csl::Expr const       &p2        = mom(momentum[1]);
+    csl::Expr const       &p3        = mom(momentum[2]);
     std::vector<csl::Expr> arguments = {psquared(p1),
                                         psquared(p2 - p1),
                                         psquared(p3 - p2),
@@ -2212,9 +2212,9 @@ FeynmanIntegral::replaceIntegral_D(std::vector<csl::Expr> const & factor,
 }
 
 csl::Expr
-FeynmanIntegral::replaceIntegral_E(std::vector<csl::Expr> const & factor,
-                                   std::vector<csl::Expr> const & momentum,
-                                   std::vector<csl::Expr> const & mass,
+FeynmanIntegral::replaceIntegral_E(std::vector<csl::Expr> const  &factor,
+                                   std::vector<csl::Expr> const  &momentum,
+                                   std::vector<csl::Expr> const  &mass,
                                    std::vector<csl::Index> const &indices)
 {
     std::vector<csl::Expr> terms(factor);
@@ -2269,7 +2269,7 @@ FeynmanIntegral::FeynmanIntegral(IntegralType                  t_type,
 FeynmanIntegral::FeynmanIntegral(IntegralType                  t_type,
                                  int                           t_looptoolsId,
                                  std::vector<csl::Expr> const &t_argument,
-                                 std::vector<size_t> const &   t_indices)
+                                 std::vector<size_t> const    &t_indices)
     : FeynmanIntegral(t_type, t_looptoolsId, t_argument)
 {
     integralIndices = t_indices;
@@ -2549,7 +2549,7 @@ std::vector<csl::Expr> FeynmanIntegral::getMasses() const
     }
 }
 
-ComplexType FeynmanIntegral::evaluateIntegral() const
+ltComplexType FeynmanIntegral::evaluateIntegral() const
 {
     switch (type) {
     case IntegralType::A:
@@ -2595,7 +2595,7 @@ ComplexType FeynmanIntegral::evaluateIntegral() const
 csl::Expr feynmanintegral_s(IntegralType                  type,
                             int                           looptoolsId,
                             std::vector<csl::Expr> const &argument,
-                            std::vector<size_t> const &   indices)
+                            std::vector<size_t> const    &indices)
 {
     return csl::make_shared<FeynmanIntegral>(
         type,

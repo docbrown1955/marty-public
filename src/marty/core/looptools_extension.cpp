@@ -13,12 +13,13 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
-#include "clooptools.h"
-#include "feynmanIntegral.h"
-#undef RealType
-#undef ComplexType
 #include "looptools_extension.h"
+#include "feynmanIntegral.h"
 #include "mrtError.h"
+
+// Because of macro definitions, this include must be the last one
+// Do not put other includes after it, especially looptools_extension.h
+#include "clooptools.h"
 
 using namespace csl;
 namespace mty {
@@ -27,13 +28,13 @@ namespace mty {
 // Conversion functions
 ///////////////////////////////////////////////////
 
-csl::Expr complexToExpr(ComplexType const &complexNumber)
+csl::Expr complexToExpr(ltComplexType const &complexNumber)
 {
     return csl::complex_s(csl::autonumber_s(complexNumber.real()),
                           csl::autonumber_s(complexNumber.imag()));
 }
 
-ComplexType exprToComplexType(csl::Expr const &init)
+ltComplexType exprToComplexType(csl::Expr const &init)
 {
     csl::Expr eval = Evaluated(init, csl::eval::all);
     HEPAssert(eval->getPrimaryType() == csl::PrimaryType::Numerical,
@@ -43,16 +44,17 @@ ComplexType exprToComplexType(csl::Expr const &init)
                     "resulting expr: "
                   + toString(eval));
 
-    ComplexType z;
+    ltComplexType z;
     z.real(GetRealPart(eval)->evaluateScalar());
     z.imag(GetImaginaryPart(eval)->evaluateScalar());
 
     return z;
 }
 
-std::vector<ComplexType> exprToComplexType(std::vector<csl::Expr> const &init)
+std::vector<ltComplexType>
+exprToComplexType(std::vector<csl::Expr> const &init)
 {
-    std::vector<ComplexType> complexNumbers(init.size());
+    std::vector<ltComplexType> complexNumbers(init.size());
     std::transform(init.begin(),
                    init.end(),
                    complexNumbers.begin(),
@@ -71,7 +73,7 @@ double exprToRealType(csl::Expr const &init)
                     "resulting expr: "
                   + toString(eval));
 
-    ComplexType z;
+    ltComplexType z;
     z.real(GetRealPart(eval)->evaluateScalar());
     z.imag(GetImaginaryPart(eval)->evaluateScalar());
 
@@ -94,10 +96,10 @@ std::vector<double> exprToRealType(std::vector<csl::Expr> const &init)
     return numbers;
 }
 
-std::optional<std::vector<RealType>>
-isReal(std::vector<ComplexType> const &init)
+std::optional<std::vector<ltRealType>>
+isReal(std::vector<ltComplexType> const &init)
 {
-    std::vector<RealType> realNumbers(init.size());
+    std::vector<ltRealType> realNumbers(init.size());
     for (size_t i = 0; i != init.size(); ++i)
         if (init[i].imag() != 0)
             return std::nullopt;
@@ -108,10 +110,10 @@ isReal(std::vector<ComplexType> const &init)
 }
 
 ///////////////////////////////////////////////////
-// Functions taking RealType
+// Functions taking ltRealType
 ///////////////////////////////////////////////////
 
-ComplexType A0i_runtime(int id, std::vector<RealType> const &arguments)
+ltComplexType A0i_runtime(int id, std::vector<ltRealType> const &arguments)
 {
     HEPAssert(arguments.size() == 1,
               mty::error::RuntimeError,
@@ -120,7 +122,7 @@ ComplexType A0i_runtime(int id, std::vector<RealType> const &arguments)
     return A0i(id, arguments[0]);
 }
 
-ComplexType B0i_runtime(int id, std::vector<RealType> const &arguments)
+ltComplexType B0i_runtime(int id, std::vector<ltRealType> const &arguments)
 {
     HEPAssert(arguments.size() == 3,
               mty::error::RuntimeError,
@@ -129,7 +131,7 @@ ComplexType B0i_runtime(int id, std::vector<RealType> const &arguments)
     return B0i(id, arguments[0], arguments[1], arguments[2]);
 }
 
-ComplexType C0i_runtime(int id, std::vector<RealType> const &arguments)
+ltComplexType C0i_runtime(int id, std::vector<ltRealType> const &arguments)
 {
     HEPAssert(arguments.size() == 6,
               mty::error::RuntimeError,
@@ -144,7 +146,7 @@ ComplexType C0i_runtime(int id, std::vector<RealType> const &arguments)
                arguments[5]);
 }
 
-ComplexType D0i_runtime(int id, std::vector<RealType> const &arguments)
+ltComplexType D0i_runtime(int id, std::vector<ltRealType> const &arguments)
 {
     HEPAssert(arguments.size() == 10,
               mty::error::RuntimeError,
@@ -163,7 +165,7 @@ ComplexType D0i_runtime(int id, std::vector<RealType> const &arguments)
                arguments[9]);
 }
 
-ComplexType E0i_runtime(int id, std::vector<RealType> const &arguments)
+ltComplexType E0i_runtime(int id, std::vector<ltRealType> const &arguments)
 {
     HEPAssert(arguments.size() == 15,
               mty::error::RuntimeError,
@@ -191,7 +193,7 @@ ComplexType E0i_runtime(int id, std::vector<RealType> const &arguments)
 // Functions taking complex
 ///////////////////////////////////////////////////
 
-ComplexType A0i_runtime(int id, std::vector<ComplexType> const &arguments)
+ltComplexType A0i_runtime(int id, std::vector<ltComplexType> const &arguments)
 {
     if (auto reals = isReal(arguments); reals)
         return A0i_runtime(id, reals.value());
@@ -202,7 +204,7 @@ ComplexType A0i_runtime(int id, std::vector<ComplexType> const &arguments)
     return A0iC(id, arguments[0]);
 }
 
-ComplexType B0i_runtime(int id, std::vector<ComplexType> const &arguments)
+ltComplexType B0i_runtime(int id, std::vector<ltComplexType> const &arguments)
 {
     if (auto reals = isReal(arguments); reals)
         return B0i_runtime(id, reals.value());
@@ -213,7 +215,7 @@ ComplexType B0i_runtime(int id, std::vector<ComplexType> const &arguments)
     return B0iC(id, arguments[0], arguments[1], arguments[2]);
 }
 
-ComplexType C0i_runtime(int id, std::vector<ComplexType> const &arguments)
+ltComplexType C0i_runtime(int id, std::vector<ltComplexType> const &arguments)
 {
     if (auto reals = isReal(arguments); reals)
         return C0i_runtime(id, reals.value());
@@ -230,7 +232,7 @@ ComplexType C0i_runtime(int id, std::vector<ComplexType> const &arguments)
                 arguments[5]);
 }
 
-ComplexType D0i_runtime(int id, std::vector<ComplexType> const &arguments)
+ltComplexType D0i_runtime(int id, std::vector<ltComplexType> const &arguments)
 {
     if (auto reals = isReal(arguments); reals)
         return D0i_runtime(id, reals.value());
@@ -251,7 +253,7 @@ ComplexType D0i_runtime(int id, std::vector<ComplexType> const &arguments)
                 arguments[9]);
 }
 
-ComplexType E0i_runtime(int id, std::vector<ComplexType> const &arguments)
+ltComplexType E0i_runtime(int id, std::vector<ltComplexType> const &arguments)
 {
     if (auto reals = isReal(arguments); reals)
         return E0i_runtime(id, reals.value());
@@ -281,27 +283,27 @@ ComplexType E0i_runtime(int id, std::vector<ComplexType> const &arguments)
 // Functions taking csl::Expr
 ///////////////////////////////////////////////////
 
-ComplexType A0i_runtime(int id, std::vector<csl::Expr> const &arguments)
+ltComplexType A0i_runtime(int id, std::vector<csl::Expr> const &arguments)
 {
     return A0i_runtime(id, exprToComplexType(arguments));
 }
 
-ComplexType B0i_runtime(int id, std::vector<csl::Expr> const &arguments)
+ltComplexType B0i_runtime(int id, std::vector<csl::Expr> const &arguments)
 {
     return B0i_runtime(id, exprToComplexType(arguments));
 }
 
-ComplexType C0i_runtime(int id, std::vector<csl::Expr> const &arguments)
+ltComplexType C0i_runtime(int id, std::vector<csl::Expr> const &arguments)
 {
     return C0i_runtime(id, exprToComplexType(arguments));
 }
 
-ComplexType D0i_runtime(int id, std::vector<csl::Expr> const &arguments)
+ltComplexType D0i_runtime(int id, std::vector<csl::Expr> const &arguments)
 {
     return D0i_runtime(id, exprToComplexType(arguments));
 }
 
-ComplexType E0i_runtime(int id, std::vector<csl::Expr> const &arguments)
+ltComplexType E0i_runtime(int id, std::vector<csl::Expr> const &arguments)
 {
     return E0i_runtime(id, exprToComplexType(arguments));
 }

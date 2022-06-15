@@ -6,7 +6,7 @@ add_custom_command(
     COMMAND export CFLAGS=-fPIC
     COMMAND export CXXFLAGS=-fPIC
     COMMAND rm -rf build
-    COMMAND ./configure
+    COMMAND ./configure FFLAGS="-fPIC"
     COMMAND make
     COMMAND cp build/clooptools.h ${PROJECT_BINARY_DIR}/clooptools.h
     COMMAND ${CMAKE_Fortran_COMPILER} -shared build/*.o -o ${PROJECT_BINARY_DIR}/libooptools.so
@@ -18,7 +18,7 @@ add_custom_command(
     COMMAND export CFLAGS=-fPIC
     COMMAND export CXXFLAGS=-fPIC
     COMMAND rm -rf build-quad
-    COMMAND ./configure --quad
+    COMMAND ./configure --quad FFLAGS="-fpic"
     COMMAND make
     COMMAND ${CMAKE_Fortran_COMPILER} -shared build-quad/*.o -o ${PROJECT_BINARY_DIR}/libooptools-quad.so
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}

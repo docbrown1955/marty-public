@@ -563,7 +563,7 @@ IndexedSymmetry::IndexedSymmetry(const IndexStructure &t_init)
 }
 
 IndexedSymmetry::IndexedSymmetry(const IndexStructure &t_init,
-                                 const Symmetry &      initSym)
+                                 const Symmetry       &initSym)
     : Symmetry(initSym), init(t_init)
 {
     mustGetSpan = false;
@@ -602,8 +602,8 @@ void IndexedSymmetry::addAntiSymmetry(const pair<Index, Index> &perm)
     addSymmetry(perm, -1);
 }
 
-size_t IndexedSymmetry::findPos(const Index &   index,
-                                size_t &        posMax,
+size_t IndexedSymmetry::findPos(const Index    &index,
+                                size_t         &posMax,
                                 IndexStructure &newInit) const
 {
     if (auto pos = find_if(init.begin(),
@@ -636,9 +636,9 @@ IndexedSymmetry::getCorrespondingSymmetries(IndexedSymmetry other,
         IndexedSymmetry copy = *this;
         for (auto &permutation : copy)
             permutation.adjustToSize(posMax);
-        return make_pair((Symmetry)(copy), (Symmetry)(other));
+        return make_pair((Symmetry) (copy), (Symmetry) (other));
     }
-    return make_pair((Symmetry)(*this), (Symmetry)(other));
+    return make_pair((Symmetry) (*this), (Symmetry) (other));
 }
 
 IndexedSymmetry IndexedSymmetry::operator+(const IndexedSymmetry &other) const
@@ -686,13 +686,13 @@ IndexedSymmetry &IndexedSymmetry::operator*=(const IndexedSymmetry &other)
     return *this;
 }
 
-csl::vector_expr IndexedSymmetry::applySymmetry(const Expr &expr) const
+std::vector<Expr> IndexedSymmetry::applySymmetry(const Expr &expr) const
 {
     if (empty() or init.empty())
         return csl::vector_expr(0);
 
-    csl::vector_expr res(size());
-    vector<Index>    fooIndices(init.size());
+    std::vector<Expr> res(size());
+    vector<Index>     fooIndices(init.size());
     for (auto &foo : fooIndices)
         foo = init[0].getSpace()->generateIndex("foo");
 

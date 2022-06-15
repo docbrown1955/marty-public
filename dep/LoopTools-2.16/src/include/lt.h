@@ -3,6 +3,7 @@
 * this file is part of LoopTools
 * last modified 14 Apr 18 th
 
+
 #include "ff.h"
 
 * the cache-pointer structure is (see cache.c):
@@ -36,5 +37,6 @@
 	equivalence (cacheptr, cache)
 
 #ifndef DEBUGLEVEL
-#define DEBUGLEVEL ibits(debugkey, 8, 2)
+#define DEBUGLEVEL ibits(debugkey,8,2)
 #endif
+
