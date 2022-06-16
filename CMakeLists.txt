@@ -56,6 +56,33 @@ endif()
 
 find_package(GSL REQUIRED)
 
+# Dependencies for GRAFED
+find_program(LUALATEX lualatex REQUIRED)
+find_program(CONVERT convert REQUIRED)
+find_program(LATEX latex REQUIRED)
+find_program(DVIPNG dvipng)
+if (NOT LUALATEX)
+    message(FATAL_ERROR
+        "The 'lualatex' program is not found but necessary for GRAFED."
+        "Install it before retrying the installation.")
+endif()
+if (NOT DVIPNG)
+    message(FATAL_ERROR
+        "The 'dvipng' program is not found but necessary for GRAFED."
+        "Install it before retrying the installation.")
+endif()
+if (NOT LUALATEX)
+    message(FATAL_ERROR
+        "The 'lualatex' program is not found but necessary for GRAFED."
+        "Install it before retrying the installation.")
+endif()
+if (NOT CONVERT)
+    message(FATAL_ERROR
+        "The 'convert' program is not found but necessary for GRAFED."
+        "The 'convert' program is part of the ImageMagick package."
+        "Install it before retrying the installation.")
+endif()
+
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
