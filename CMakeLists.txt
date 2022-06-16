@@ -111,6 +111,7 @@ add_library(csl-static STATIC)
 target_link_libraries(csl-static csl-core)
 target_link_libraries(csl-static GSL::gsl GSL::gslcblas)
 
+add_dependencies(marty-core lt_header)
 add_library(marty SHARED)
 target_link_libraries(marty csl-core grafed-core jsonparser marty-core sgl marty-models)
 target_link_libraries(marty GSL::gsl GSL::gslcblas)

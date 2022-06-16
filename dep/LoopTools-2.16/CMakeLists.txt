@@ -1,7 +1,11 @@
 cmake_minimum_required(VERSION 3.5)
 
 add_custom_command(
-    OUTPUT ${PROJECT_BINARY_DIR}/clooptools.h ${PROJECT_BINARY_DIR}/libooptools.so ${PROJECT_BINARY_DIR}/libooptools-static.a
+    OUTPUT
+    ${PROJECT_BINARY_DIR}/clooptools.h
+    ${PROJECT_BINARY_DIR}/libooptools.so
+    ${PROJECT_BINARY_DIR}/libooptools-static.a
+    ${PROJECT_SOURCE_DIR}/src/clooptools.h
     COMMAND export FFLAGS=-fPIC
     COMMAND export CFLAGS=-fPIC
     COMMAND export CXXFLAGS=-fPIC
@@ -9,7 +13,8 @@ add_custom_command(
     COMMAND ./configure FFLAGS="-fPIC"
     COMMAND make
     COMMAND cp build/libooptools.a ${PROJECT_BINARY_DIR}/libooptools-static.a
-    COMMAND cp build/clooptools.h ${PROJECT_BINARY_DIR}/clooptools.h
+    COMMAND cp build/clooptools.h ${PROJECT_BINARY_DIR}/
+    COMMAND cp build/clooptools.h ${PROJECT_SOURCE_DIR}/src/
     COMMAND ${CMAKE_Fortran_COMPILER} -shared build/*.o -o ${PROJECT_BINARY_DIR}/libooptools.so
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
@@ -28,6 +33,7 @@ add_custom_command(
 
 add_custom_target(lt_header
     DEPENDS ${PROJECT_BINARY_DIR}/clooptools.h
+    DEPENDS ${PROJECT_SOURCE_DIR}/src/clooptools.h
 )
 add_custom_target(lt_lib
     DEPENDS ${PROJECT_BINARY_DIR}/libooptools.so

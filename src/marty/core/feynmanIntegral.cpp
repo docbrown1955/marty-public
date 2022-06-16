@@ -14,7 +14,7 @@
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "feynmanIntegral.h"
-#include "clooptools.h"
+#include "../../clooptools.h"
 #include "localTerms.h"
 #include "looptools_extension.h"
 #include "mrtError.h"

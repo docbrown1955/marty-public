@@ -19,7 +19,7 @@
 
 // Because of macro definitions, this include must be the last one
 // Do not put other includes after it, especially looptools_extension.h
-#include "clooptools.h"
+#include "../../clooptools.h"
 
 using namespace csl;
 namespace mty {
