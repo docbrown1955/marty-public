@@ -129,8 +129,6 @@ install(TARGETS marty marty-static csl csl-static
 install(DIRECTORY src/
     DESTINATION include
     FILES_MATCHING PATTERN *.h)
-install(FILES ${PROJECT_BINARY_DIR}/clooptools.h
-    DESTINATION include)
 install(FILES ${PROJECT_BINARY_DIR}/libooptools.so ${PROJECT_BINARY_DIR}/libooptools-quad.so
     DESTINATION lib)
 install(FILES ${PROJECT_BINARY_DIR}/libooptools-static.a ${PROJECT_BINARY_DIR}/libooptools-quad-static.a
