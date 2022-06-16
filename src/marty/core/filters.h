@@ -69,7 +69,7 @@
  * mty::FeynOptions::addFilter(), mty::FeynOptions::addFilters().
  *
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
  * @date 2021-05-05
  */
 #pragma once

@@ -16,7 +16,7 @@
 /*!
  * @file
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
 
  * \brief
  */
@@ -43,25 +43,25 @@ class TensorFieldParent : public TensorParent {
 
     TensorFieldParent(const std::string &t_name, const Space *t_spaceField);
 
-    TensorFieldParent(const std::string &               t_name,
-                      const Space *                     t_spaceField,
+    TensorFieldParent(const std::string                &t_name,
+                      const Space                      *t_spaceField,
                       const std::vector<const Space *> &spaces);
 
     template <class... Args>
-    friend TensorField tensorfield_s(Args &&... args);
+    friend TensorField tensorfield_s(Args &&...args);
 
     template <class... Args>
     friend TensorField tensorfield_s(std::string const &name,
-                                     csl::Space const * spaceField,
+                                     csl::Space const  *spaceField,
                                      std::vector<const Space *> const &indices,
-                                     Args &&... args);
+                                     Args &&...args);
 
     ~TensorFieldParent(){};
 
     std::vector<Parent>
-    breakSpace(const Space *                     broken,
+    breakSpace(const Space                      *broken,
                const std::vector<const Space *> &newSpace,
-               const std::vector<size_t> &       pieces) const override;
+               const std::vector<size_t>        &pieces) const override;
 
     cslParent::PrimaryType getPrimaryType() const override;
 
@@ -80,10 +80,10 @@ class TensorFieldParent : public TensorParent {
     virtual Expr operator()(Index index, const Tensor &point) override;
 
     virtual Expr operator()(const std::vector<int> &indices,
-                            const Tensor &          point) override;
+                            const Tensor           &point) override;
 
     virtual Expr operator()(std::vector<Index> indices,
-                            const Tensor &     point) override;
+                            const Tensor      &point) override;
 
   protected:
     void checkFieldRequest(TensorParent *point);
@@ -93,24 +93,24 @@ class TensorFieldParent : public TensorParent {
     void checkIndicialAndFieldRequest(const Index &index, TensorParent *point);
 
     void checkIndicialAndFieldRequest(const std::vector<Index> &indices,
-                                      TensorParent *            point);
+                                      TensorParent             *point);
 
   protected:
     const Space *spaceField;
 };
 
 template <class... Args>
-std::shared_ptr<TensorFieldParent> tensorfield_s(Args &&... args)
+std::shared_ptr<TensorFieldParent> tensorfield_s(Args &&...args)
 {
     return csl::make_shared<TensorFieldParent>(std::forward<Args>(args)...);
 }
 
 template <class... Args>
 std::shared_ptr<TensorFieldParent>
-tensorfield_s(std::string const &               name,
-              csl::Space const *                spaceField,
+tensorfield_s(std::string const                &name,
+              csl::Space const                 *spaceField,
               std::vector<const Space *> const &indices,
-              Args &&... args)
+              Args &&...args)
 {
     return csl::make_shared<TensorFieldParent>(
         name, spaceField, indices, std::forward<Args>(args)...);
@@ -126,27 +126,27 @@ class TensorField : public std::shared_ptr<TensorFieldParent> {
     {
     }
 
-    TensorField(const std::string &               t_name,
-                const Space *                     t_spaceField,
+    TensorField(const std::string                &t_name,
+                const Space                      *t_spaceField,
                 const std::vector<const Space *> &spaces)
         : TensorField(tensorfield_s(t_name, t_spaceField, spaces))
     {
     }
 
     template <class... Args>
-    inline Expr operator()(Args &&... args)
+    inline Expr operator()(Args &&...args)
     {
         return (**this)(std::forward<Args>(args)...);
     }
 
     template <class... Args>
-    inline Expr operator()(const std::vector<int> &indices, Args &&... args)
+    inline Expr operator()(const std::vector<int> &indices, Args &&...args)
     {
         return (**this)(indices, std::forward<Args>(args)...);
     }
 
     template <class... Args>
-    inline Expr operator()(const std::vector<Index> &indices, Args &&... args)
+    inline Expr operator()(const std::vector<Index> &indices, Args &&...args)
     {
         return (**this)(indices, std::forward<Args>(args)...);
     }
@@ -162,17 +162,17 @@ class TensorFieldElement : public TensorElement {
   public:
     TensorFieldElement(const Tensor &t_vector, const Parent &t_parent);
 
-    TensorFieldElement(const Tensor &            t_vector,
-                       const Parent &            t_parent,
+    TensorFieldElement(const Tensor             &t_vector,
+                       const Parent             &t_parent,
                        const std::vector<Index> &indices);
 
-    TensorFieldElement(const Tensor &        t_vector,
-                       const Parent &        t_parent,
+    TensorFieldElement(const Tensor         &t_vector,
+                       const Parent         &t_parent,
                        const IndexStructure &indices);
 
   public:
     template <typename... Args>
-    friend Expr tensorfieldelement_s(Args &&... args);
+    friend Expr tensorfieldelement_s(Args &&...args);
 
     ~TensorFieldElement(){};
 
@@ -224,7 +224,7 @@ class TensorFieldElement : public TensorElement {
 };
 
 template <typename... Args>
-Expr tensorfieldelement_s(Args &&... args)
+Expr tensorfieldelement_s(Args &&...args)
 {
     return csl::make_shared<TensorFieldElement>(std::forward<Args>(args)...)
         ->getCanonicalPermutation();
@@ -238,12 +238,12 @@ class TDerivativeElement : public Operator<TensorFieldElement> {
   public:
     TDerivativeElement(const Tensor &t_vector,
                        const Parent &t_parent,
-                       const Index & index);
+                       const Index  &index);
 
     TDerivativeElement(const Tensor &t_vector,
                        const Parent &t_parent,
-                       const Index & index,
-                       const Expr &  operand,
+                       const Index  &index,
+                       const Expr   &operand,
                        bool          empty);
 
   public:
@@ -334,9 +334,9 @@ class TDerivativeElement : public Operator<TensorFieldElement> {
                    bool                      flipped = false) const override;
 
     csl::vector_expr
-    breakSpace(const Space *                     brokenSpace,
+    breakSpace(const Space                      *brokenSpace,
                const std::vector<const Space *> &newSpaces,
-               const std::vector<std::string> &  indexNames) const override;
+               const std::vector<std::string>   &indexNames) const override;
 
     std::optional<Expr> getComplexConjugate() const override;
 
@@ -354,7 +354,7 @@ class TDerivativeElement : public Operator<TensorFieldElement> {
 
     friend Expr tderivativeelement_s(const Tensor &t_vector,
                                      const Parent &t_parent,
-                                     const Index & t_index)
+                                     const Index  &t_index)
     {
         return csl::make_shared<TDerivativeElement>(
             t_vector, t_parent, t_index);
@@ -362,8 +362,8 @@ class TDerivativeElement : public Operator<TensorFieldElement> {
 
     friend Expr tderivativeelement_s(const Tensor &t_vector,
                                      const Parent &t_parent,
-                                     const Index & t_index,
-                                     const Expr &  t_operand,
+                                     const Index  &t_index,
+                                     const Expr   &t_operand,
                                      bool          t_empty)
     {
         return csl::make_shared<TDerivativeElement>(
@@ -374,12 +374,12 @@ class TDerivativeElement : public Operator<TensorFieldElement> {
 
 Expr tderivativeelement_s(const Tensor &t_vector,
                           const Parent &t_parent,
-                          const Index & t_index);
+                          const Index  &t_index);
 
 Expr tderivativeelement_s(const Tensor &t_vector,
                           const Parent &t_parent,
-                          const Index & t_index,
-                          const Expr &  t_operand,
+                          const Index  &t_index,
+                          const Expr   &t_operand,
                           bool          t_empty);
 
 class TDerivativeParent : public TensorFieldParent {
@@ -396,7 +396,7 @@ class TDerivativeParent : public TensorFieldParent {
                          bool          header     = false) const override;
 
     template <class... Args>
-    friend TDerivative tderivative_s(Args &&... args);
+    friend TDerivative tderivative_s(Args &&...args);
 
     ~TDerivativeParent(){};
 
@@ -404,7 +404,7 @@ class TDerivativeParent : public TensorFieldParent {
 };
 
 template <class... Args>
-std::shared_ptr<TDerivativeParent> tderivative_s(Args &&... args)
+std::shared_ptr<TDerivativeParent> tderivative_s(Args &&...args)
 {
     return csl::make_shared<TDerivativeParent>(std::forward<Args>(args)...);
 }
@@ -420,7 +420,7 @@ class TDerivative : public std::shared_ptr<TDerivativeParent> {
     }
 
     template <class... Args>
-    inline Expr operator()(Args &&... args)
+    inline Expr operator()(Args &&...args)
     {
         return (**this)(std::forward<Args>(args)...);
     }

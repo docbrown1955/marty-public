@@ -16,7 +16,7 @@
 /*!
  * @file
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
 
  * \brief
  */
@@ -35,7 +35,7 @@ class OptionalCondition {
 
   public:
     OptionalCondition()
-        : condition([]([[maybe_unused]] Args &&... args) { return true; })
+        : condition([]([[maybe_unused]] Args &&...args) { return true; })
     {
     }
 

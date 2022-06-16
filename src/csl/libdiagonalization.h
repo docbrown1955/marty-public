@@ -16,7 +16,7 @@
 /*!
  * @file
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
 
  * \brief
  */
@@ -71,19 +71,19 @@ class Diagonalizer {
 
     void diagonalize(std::vector<complex>  massMatrix,
                      std::vector<complex> &transfer,
-                     std::vector<real> &   mass,
+                     std::vector<real>    &mass,
                      bool                  bidiagonalization = false);
 
     void swap(const size_t          i,
               const size_t          j,
               std::vector<complex> &transfer,
-              std::vector<real> &   mass);
+              std::vector<real>    &mass);
 
     void sort(std::vector<complex> &transfer, std::vector<real> &mass);
 
     void sort(std::vector<complex> &transfer,
               std::vector<complex> &transfer2,
-              std::vector<real> &   mass);
+              std::vector<real>    &mass);
 
     void diagonalize();
 
@@ -98,7 +98,7 @@ class Diagonalizer {
     getGSLMassMatrix(std::vector<complex> const &massMatrix) const;
 
     void loadGSLMatrix(gsl_matrix_complex const *matrix,
-                       std::vector<complex> &    target);
+                       std::vector<complex>     &target);
 
     void loadGSLVector(gsl_vector const *vect, std::vector<real> &target);
 

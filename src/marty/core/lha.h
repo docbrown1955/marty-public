@@ -22,7 +22,7 @@
  * in particular in the pMSSM or more general NMFV. For more details on the LHA
  * conventions, see https://arxiv.org/pdf/hep-ph/0311123.pdf.
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
  * @date 2020-08-31
  */
 #ifndef LHA_H_INCLUDED

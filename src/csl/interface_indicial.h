@@ -16,7 +16,7 @@
 /*!
  * @file
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
 
  * \brief
  */
@@ -34,13 +34,13 @@ class Space;
 class Index;
 
 void AddProperty(csl::Tensor &tensor,
-                 Expr const & A,
-                 Expr const & B,
-                 Expr const & res);
+                 Expr const  &A,
+                 Expr const  &B,
+                 Expr const  &res);
 
-void AddProperty(csl::Tensor &            tensor,
+void AddProperty(csl::Tensor             &tensor,
                  std::vector<Expr> const &product,
-                 Expr const &             res);
+                 Expr const              &res);
 
 const csl::Space *GetSpace(csl::Tensor const &tensor, int pos = 0);
 

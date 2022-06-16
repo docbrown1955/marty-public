@@ -16,7 +16,7 @@
 /*!
  * @file
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
 
  * \brief
  */
@@ -87,7 +87,7 @@ template <class T>
     return init->dependsOn(x.get());
 }
 
-[[nodiscard]] inline bool DependsExplicitlyOn(Expr const &       init,
+[[nodiscard]] inline bool DependsExplicitlyOn(Expr const        &init,
                                               csl::Parent const &x)
 {
     return init->dependsExplicitlyOn(x.get());
@@ -98,7 +98,7 @@ void Expand(Expr &expression, bool full = false, bool inplace = false);
 [[nodiscard]] Expr
 Expanded(const Expr &expression, bool full = false, bool inplace = false);
 
-void ExpandIf(Expr &                                   expression,
+void ExpandIf(Expr                                    &expression,
               std::function<bool(Expr const &)> const &f,
               bool                                     full    = false,
               bool                                     inplace = false);
@@ -119,7 +119,7 @@ inline void DeepExpand(Expr &expression, bool inplace = false)
     return Expanded(expression, true, inplace);
 }
 
-inline void DeepExpandIf(Expr &                                   expression,
+inline void DeepExpandIf(Expr                                    &expression,
                          std::function<bool(Expr const &)> const &f,
                          bool inplace = false)
 {
@@ -127,21 +127,21 @@ inline void DeepExpandIf(Expr &                                   expression,
 }
 
 [[nodiscard]] inline Expr
-DeepExpandedIf(Expr const &                             expression,
+DeepExpandedIf(Expr const                              &expression,
                std::function<bool(Expr const &)> const &f,
                bool                                     inplace = false)
 {
     return ExpandedIf(expression, f, true, inplace);
 }
 
-void DeepExpandIf_lock(Expr &                                   expression,
+void DeepExpandIf_lock(Expr                                    &expression,
                        std::function<bool(Expr const &)> const &f,
                        int                                      lockId = 0,
                        bool inplace                                    = false,
                        bool refactor = false);
 
 [[nodiscard]] Expr
-DeepExpandedIf_lock(Expr const &                             expression,
+DeepExpandedIf_lock(Expr const                              &expression,
                     std::function<bool(Expr const &)> const &f,
                     int                                      lockId   = 0,
                     bool                                     inplace  = false,
@@ -201,9 +201,9 @@ inline void DeepFactor(Expr &expression, Expr const &factor)
 
 void               Collect(Expr &expr, std::vector<Expr> const &factors);
 void               DeepCollect(Expr &expr, std::vector<Expr> const &factors);
-[[nodiscard]] Expr Collected(Expr const &             expr,
+[[nodiscard]] Expr Collected(Expr const              &expr,
                              std::vector<Expr> const &factors);
-[[nodiscard]] Expr DeepCollected(Expr const &             expr,
+[[nodiscard]] Expr DeepCollected(Expr const              &expr,
                                  std::vector<Expr> const &factors);
 
 [[nodiscard]] Expr
@@ -272,7 +272,7 @@ inline void DeepDistribute(Expr &expression, Parent_info factor)
     Distribute(expression, factor, true);
 }
 
-[[nodiscard]] inline Expr DeepDistributed(Expr const &  expression,
+[[nodiscard]] inline Expr DeepDistributed(Expr const   &expression,
                                           Parent const &factor)
 {
     return Distributed(expression, factor, true);
@@ -283,11 +283,11 @@ inline void DeepDistribute(Expr &expression, Parent const &factor)
     Distribute(expression, factor, true);
 }
 
-[[nodiscard]] Expr DistributedIf(Expr const &                      expression,
+[[nodiscard]] Expr DistributedIf(Expr const                       &expression,
                                  std::function<bool(Expr const &)> f,
                                  bool full = false);
 
-void DistributeIf(Expr &                            expression,
+void DistributeIf(Expr                             &expression,
                   std::function<bool(Expr const &)> f,
                   bool                              full = false);
 
@@ -297,7 +297,7 @@ DeepDistributedIf(Expr const &expression, std::function<bool(Expr const &)> f)
     return DistributedIf(expression, f, true);
 }
 
-inline void DeepDistributeIf(Expr &                            expression,
+inline void DeepDistributeIf(Expr                             &expression,
                              std::function<bool(Expr const &)> f)
 {
     return DistributeIf(expression, f, true);
@@ -333,7 +333,7 @@ GetPolynomialTerm(const Expr &expression, const Expr &variable, int order)
 
 [[nodiscard]] Expr Evaluated(const Expr &expression);
 
-[[nodiscard]] Expr Evaluated(const Expr &    expression,
+[[nodiscard]] Expr Evaluated(const Expr     &expression,
                              csl::eval::mode user_mode);
 
 inline void Evaluate(Expr &expr)
@@ -371,22 +371,22 @@ inline void SetComplexProperty(T parent, ComplexProperty prop)
 
 [[nodiscard]] Expr GetComplexConjugate(const Expr &expression);
 
-[[nodiscard]] Expr GetTransposed(const Expr & expression,
+[[nodiscard]] Expr GetTransposed(const Expr  &expression,
                                  const Space *space,
                                  bool         applyProp = true);
 
-[[nodiscard]] Expr GetTransposed(const Expr &                      expression,
+[[nodiscard]] Expr GetTransposed(const Expr                       &expression,
                                  const std::vector<const Space *> &spaces,
                                  bool applyProp = true);
 
-[[nodiscard]] Expr GetHermitianConjugate(const Expr & expression,
+[[nodiscard]] Expr GetHermitianConjugate(const Expr  &expression,
                                          const Space *space);
 
 [[nodiscard]] Expr
-GetHermitianConjugate(const Expr &                      expression,
+GetHermitianConjugate(const Expr                       &expression,
                       const std::vector<const Space *> &spaces);
 
-[[nodiscard]] Expr Swapped(const Expr & expression,
+[[nodiscard]] Expr Swapped(const Expr  &expression,
                            const Index &index1,
                            const Index &index2,
                            bool         refresh = true);
@@ -396,7 +396,7 @@ GetHermitianConjugate(const Expr &                      expression,
                            const Expr &index2,
                            bool        refresh = true);
 
-[[nodiscard]] Expr Swapped(const Expr &  expression,
+[[nodiscard]] Expr Swapped(const Expr   &expression,
                            const Parent &index1,
                            const Parent &index2,
                            bool          refresh = true);
@@ -414,7 +414,7 @@ inline void Swap(Expr &expression, T const &old_obj, T const &new_obj)
 //
 [[nodiscard]] Expr ContractIndex(const Expr &expression, const Index &index);
 
-[[nodiscard]] csl::Index GenerateIndex(const csl::Space * space,
+[[nodiscard]] csl::Index GenerateIndex(const csl::Space  *space,
                                        const std::string &name = "");
 
 [[nodiscard]] csl::Tensor GetDelta(const csl::Space *space);
@@ -431,25 +431,25 @@ inline void Swap(Expr &expression, T const &old_obj, T const &new_obj)
 [[nodiscard]] TDerivative GetTDerivativeParent(Expr const &tensor);
 
 void AddSelfContraction(csl::Tensor &parent,
-                        Expr const & A,
-                        Expr const & B,
-                        Expr const & res);
+                        Expr const  &A,
+                        Expr const  &B,
+                        Expr const  &res);
 
-void AddContractionProperty(csl::Tensor &            parent,
+void AddContractionProperty(csl::Tensor             &parent,
                             std::vector<Expr> const &tensors,
-                            Expr const &             res);
+                            Expr const              &res);
 
 void AddComplexProperty(csl::Tensor &parent, Expr const &A, Expr const &B);
 
-void AddTransposedProperty(csl::Tensor &     parent,
+void AddTransposedProperty(csl::Tensor      &parent,
                            csl::Space const *space,
-                           Expr const &      A,
-                           Expr const &      B);
+                           Expr const       &A,
+                           Expr const       &B);
 
-void AddHermitianProperty(csl::Tensor &     parent,
+void AddHermitianProperty(csl::Tensor      &parent,
                           csl::Space const *space,
-                          Expr const &      A,
-                          Expr const &      B);
+                          Expr const       &A,
+                          Expr const       &B);
 
 [[nodiscard]] LibDependency GetLibraryDependencies(Expr const &expression);
 
@@ -924,11 +924,11 @@ void AddHermitianProperty(csl::Tensor &     parent,
  * \sa ApplyChainProperty(), AddSelfContraction()
  * , TensorParent::addSelfContraction().
  */
-void ApplySelfProperty(Expr &       init,
+void ApplySelfProperty(Expr        &init,
                        csl::Tensor &tensor,
-                       Expr const & A,
-                       Expr const & B,
-                       Expr const & res);
+                       Expr const  &A,
+                       Expr const  &B,
+                       Expr const  &res);
 
 /*!
  * \brief Declares a chain contraction property just the time of a refresh
@@ -940,10 +940,10 @@ void ApplySelfProperty(Expr &       init,
  * \sa ApplyChainProperty(), AddSelfContraction()
  * , TensorParent::addSelfContraction().
  */
-void ApplyChainProperty(Expr &                   init,
-                        csl::Tensor &            tensor,
+void ApplyChainProperty(Expr                    &init,
+                        csl::Tensor             &tensor,
                         std::vector<Expr> const &prod,
-                        Expr const &             res);
+                        Expr const              &res);
 
 /*!
  * \brief Checks the validity of an expression.
@@ -955,7 +955,7 @@ void ApplyChainProperty(Expr &                   init,
  * \return \b True  if the expression is valid.
  * \return \b False else.
  */
-bool CheckValidity(Expr const &           init,
+bool CheckValidity(Expr const            &init,
                    std::vector<Expr_info> encountered
                    = std::vector<Expr_info>());
 

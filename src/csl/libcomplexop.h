@@ -16,7 +16,7 @@
 /*!
  * @file
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
 
  * \brief
  */
@@ -81,44 +81,44 @@ inline std::complex<__float128> operator/(double                          a,
 // Complex - complex operators
 
 inline std::complex<__float128> operator+(std::complex<__float128> const &c,
-                                          std::complex<double> const &    a)
+                                          std::complex<double> const     &a)
 {
     return c + std::complex<__float128>(a);
 }
-inline std::complex<__float128> operator+(std::complex<double> const &    a,
+inline std::complex<__float128> operator+(std::complex<double> const     &a,
                                           std::complex<__float128> const &c)
 {
     return c + std::complex<__float128>(a);
 }
 
 inline std::complex<__float128> operator*(std::complex<__float128> const &c,
-                                          std::complex<double> const &    a)
+                                          std::complex<double> const     &a)
 {
     return c * std::complex<__float128>(a);
 }
-inline std::complex<__float128> operator*(std::complex<double> const &    a,
+inline std::complex<__float128> operator*(std::complex<double> const     &a,
                                           std::complex<__float128> const &c)
 {
     return c * std::complex<__float128>(a);
 }
 
 inline std::complex<__float128> operator-(std::complex<__float128> const &c,
-                                          std::complex<double> const &    a)
+                                          std::complex<double> const     &a)
 {
     return c - std::complex<__float128>(a);
 }
-inline std::complex<__float128> operator-(std::complex<double> const &    a,
+inline std::complex<__float128> operator-(std::complex<double> const     &a,
                                           std::complex<__float128> const &c)
 {
     return std::complex<__float128>(a) - c;
 }
 
 inline std::complex<__float128> operator/(std::complex<__float128> const &c,
-                                          std::complex<double> const &    a)
+                                          std::complex<double> const     &a)
 {
     return c / std::complex<__float128>(a);
 }
-inline std::complex<__float128> operator/(std::complex<double> const &    a,
+inline std::complex<__float128> operator/(std::complex<double> const     &a,
                                           std::complex<__float128> const &c)
 {
     return std::complex<__float128>(a) / c;
@@ -175,44 +175,44 @@ inline std::complex<__float128> operator/(int                             a,
 // Complex - complex operators
 
 inline std::complex<__float128> operator+(std::complex<__float128> const &c,
-                                          std::complex<int> const &       a)
+                                          std::complex<int> const        &a)
 {
     return c + std::complex<__float128>(a);
 }
-inline std::complex<__float128> operator+(std::complex<int> const &       a,
+inline std::complex<__float128> operator+(std::complex<int> const        &a,
                                           std::complex<__float128> const &c)
 {
     return c + std::complex<__float128>(a);
 }
 
 inline std::complex<__float128> operator*(std::complex<__float128> const &c,
-                                          std::complex<int> const &       a)
+                                          std::complex<int> const        &a)
 {
     return c * std::complex<__float128>(a);
 }
-inline std::complex<__float128> operator*(std::complex<int> const &       a,
+inline std::complex<__float128> operator*(std::complex<int> const        &a,
                                           std::complex<__float128> const &c)
 {
     return c * std::complex<__float128>(a);
 }
 
 inline std::complex<__float128> operator-(std::complex<__float128> const &c,
-                                          std::complex<int> const &       a)
+                                          std::complex<int> const        &a)
 {
     return c - std::complex<__float128>(a);
 }
-inline std::complex<__float128> operator-(std::complex<int> const &       a,
+inline std::complex<__float128> operator-(std::complex<int> const        &a,
                                           std::complex<__float128> const &c)
 {
     return std::complex<__float128>(a) - c;
 }
 
 inline std::complex<__float128> operator/(std::complex<__float128> const &c,
-                                          std::complex<int> const &       a)
+                                          std::complex<int> const        &a)
 {
     return c / std::complex<__float128>(a);
 }
-inline std::complex<__float128> operator/(std::complex<int> const &       a,
+inline std::complex<__float128> operator/(std::complex<int> const        &a,
                                           std::complex<__float128> const &c)
 {
     return std::complex<__float128>(a) / c;
@@ -275,44 +275,44 @@ inline std::complex<double> operator/(int a, std::complex<double> const &c)
 // Complex - complex operators
 
 inline std::complex<double> operator+(std::complex<double> const &c,
-                                      std::complex<int> const &   a)
+                                      std::complex<int> const    &a)
 {
     return c + std::complex<double>(a.real(), a.imag());
 }
-inline std::complex<double> operator+(std::complex<int> const &   a,
+inline std::complex<double> operator+(std::complex<int> const    &a,
                                       std::complex<double> const &c)
 {
     return c + std::complex<double>(a.real(), a.imag());
 }
 
 inline std::complex<double> operator*(std::complex<double> const &c,
-                                      std::complex<int> const &   a)
+                                      std::complex<int> const    &a)
 {
     return c * std::complex<double>(a.real(), a.imag());
 }
-inline std::complex<double> operator*(std::complex<int> const &   a,
+inline std::complex<double> operator*(std::complex<int> const    &a,
                                       std::complex<double> const &c)
 {
     return c * std::complex<double>(a.real(), a.imag());
 }
 
 inline std::complex<double> operator-(std::complex<double> const &c,
-                                      std::complex<int> const &   a)
+                                      std::complex<int> const    &a)
 {
     return c - std::complex<double>(a.real(), a.imag());
 }
-inline std::complex<double> operator-(std::complex<int> const &   a,
+inline std::complex<double> operator-(std::complex<int> const    &a,
                                       std::complex<double> const &c)
 {
     return std::complex<double>(a.real(), a.imag()) - c;
 }
 
 inline std::complex<double> operator/(std::complex<double> const &c,
-                                      std::complex<int> const &   a)
+                                      std::complex<int> const    &a)
 {
     return c / std::complex<double>(a.real(), a.imag());
 }
-inline std::complex<double> operator/(std::complex<int> const &   a,
+inline std::complex<double> operator/(std::complex<int> const    &a,
                                       std::complex<double> const &c)
 {
     return std::complex<double>(a.real(), a.imag()) / c;

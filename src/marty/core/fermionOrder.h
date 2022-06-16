@@ -17,7 +17,7 @@
  * @file fermionOrder.h
  * @brief Utilities for fermion ordering in amplitudes.
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
  * @date 2021-05-06
  */
 #pragma once

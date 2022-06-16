@@ -17,7 +17,7 @@
  * @file topology.h
  * @brief Contains utilities to handle topologies for Feynman diagrams.
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
  * @date 2021-05-05
  */
 #pragma once

@@ -17,7 +17,7 @@
  * @file sgloperations.h
  * @brief Contains sgl::Prod and sgl::Sum for SGL.
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
  * @date 2021-05-06
  */
 #pragma once

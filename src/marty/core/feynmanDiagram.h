@@ -16,7 +16,7 @@
  * @file feynmanDiagram.h
  * @brief Contains the mty::FeynmanDiagram class.
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
  * @date 2021-05-05
  */
 

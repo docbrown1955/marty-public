@@ -18,7 +18,7 @@
  * @brief Contains the base class for the Symbolic Gamma Library (SGL) and the
  * GExpr definition.
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
  * @date 2021-05-06
  */
 #pragma once

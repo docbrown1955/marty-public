@@ -18,7 +18,7 @@
  * @brief File containing the Spectrum class, handling numerical
  * diagonalization for High-Energy physics models.
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
  * @date 2020-08-31
  */
 #ifndef SPECTRUM_H_INCLUDED

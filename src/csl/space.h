@@ -16,7 +16,7 @@
 /*!
  * @file
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
 
  * \brief
  */
@@ -137,7 +137,7 @@ class Space {
      * \param t_name Name of the Space.
      * \param t_dim Dimension of the Space.
      */
-    Space(const std::string &             t_name,
+    Space(const std::string              &t_name,
           int                             t_dim,
           std::vector<std::string> const &indexNames = {"i", "j", "k", "l"});
 
@@ -155,10 +155,10 @@ class Space {
      * \param t_metric Explicit TensorElement for the metric
      * (should be a 2D square matrix, symmetric).
      */
-    Space(const std::string &             t_name,
+    Space(const std::string              &t_name,
           int                             t_dim,
-          const std::string &             name_metric,
-          const Expr &                    t_metric,
+          const std::string              &name_metric,
+          const Expr                     &t_metric,
           std::vector<std::string> const &indexNames = {"i", "j", "k", "l"});
 
     /*!

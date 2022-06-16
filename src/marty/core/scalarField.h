@@ -16,7 +16,7 @@
 /*!
  * @file
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
  * @brief Contains the implementation of the Scalar boson in MARTY.
  * @sa ghostField.h for ghosts, goldstoneField.h for Golstone bosons.
  */

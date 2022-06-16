@@ -16,7 +16,7 @@
 /*!
  * @file
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
 
  * \brief
  */
@@ -97,7 +97,7 @@ class symmetricCounter {
         return false;
     }
 
-    friend std::ostream &operator<<(std::ostream &             out,
+    friend std::ostream &operator<<(std::ostream              &out,
                                     symmetricCounter<T> const &c)
     {
         out << c.factor();

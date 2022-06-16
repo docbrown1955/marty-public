@@ -17,7 +17,7 @@
  * @file modelBuilder.h
  * @brief File containing the ModelBuilder class.
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
  * @date 2020-08-14
  */
 

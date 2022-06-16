@@ -16,7 +16,7 @@
 /*!
  * @file
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
 
  * \brief
  */
@@ -116,7 +116,7 @@
     }                                                                        \
     typename std::vector<object>::const_iterator insert(                     \
         typename std::vector<object>::const_iterator pos,                    \
-        const object &                               value)                  \
+        const object                                &value)                  \
     {                                                                        \
         return variable.insert(pos, value);                                  \
     }                                                                        \
@@ -127,14 +127,14 @@
     }                                                                        \
     void insert(typename std::vector<object>::iterator pos,                  \
                 size_t                                 count,                \
-                const object &                         value)                \
+                const object                          &value)                \
     {                                                                        \
         variable.insert(pos, count, value);                                  \
     }                                                                        \
     typename std::vector<object>::iterator insert(                           \
         typename std::vector<object>::const_iterator pos,                    \
         size_t                                       count,                  \
-        const object &                               value)                  \
+        const object                                &value)                  \
     {                                                                        \
         return variable.insert(pos, count, value);                           \
     }                                                                        \

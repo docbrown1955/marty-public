@@ -16,7 +16,7 @@
 /*!
  * @file
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
 
  * \brief
  */
@@ -36,7 +36,7 @@ class PseudoIntegral {
     explicit PseudoIntegral(const csl::vector_expr &terms);
 
     PseudoIntegral(const csl::vector_expr &t_integrals,
-                   const Expr &            t_argument);
+                   const Expr             &t_argument);
 
     ~PseudoIntegral(){};
 
@@ -59,8 +59,8 @@ class PseudoIntegral {
 
     void addSingleIntegral(const Expr &integral);
 
-    void getRecursiveIntegralDependency(Expr &               operand,
-                                        const Expr &         variable,
+    void getRecursiveIntegralDependency(Expr                &operand,
+                                        const Expr          &variable,
                                         std::vector<Expr *> &dependencies);
 
     Expr getExponentialDependency(std::vector<Expr *> const &dep) const;
@@ -68,11 +68,11 @@ class PseudoIntegral {
     void expandExponentials();
 
     bool evaluateExpProduct(int                  index,
-                            Expr &               res,
+                            Expr                &res,
                             std::vector<Expr *> &dependencies) const;
 
     bool evaluateDelta(int                  index,
-                       Expr &               res,
+                       Expr                &res,
                        std::vector<Expr *> &dependencies) const;
 
   private:
@@ -210,24 +210,24 @@ class VectorIntegral : public AbstractIntegral {
 
     VectorIntegral(const Expr &operand, const Tensor &t_variables);
 
-    VectorIntegral(const Expr &  operand,
+    VectorIntegral(const Expr   &operand,
                    const Tensor &t_variable,
                    bool          t_empty);
 
-    VectorIntegral(const Expr &  operand,
+    VectorIntegral(const Expr   &operand,
                    const Tensor &t_variable,
-                   const Expr &  t_inf,
-                   const Expr &  t_sup);
+                   const Expr   &t_inf,
+                   const Expr   &t_sup);
 
     VectorIntegral(const Tensor &t_variable,
-                   const Expr &  t_inf,
-                   const Expr &  t_sup);
+                   const Expr   &t_inf,
+                   const Expr   &t_sup);
 
-    VectorIntegral(const Expr &  operand,
+    VectorIntegral(const Expr   &operand,
                    const Tensor &t_variable,
                    bool          t_empty,
-                   const Expr &  t_inf,
-                   const Expr &  t_sup);
+                   const Expr   &t_inf,
+                   const Expr   &t_sup);
 
     /*! \brief Destructor.
      */
@@ -293,7 +293,7 @@ Expr scalarintegral_s(Args... args)
 Expr vectorintegral_s(const Tensor &variables);
 
 template <typename... Args>
-Expr vectorintegral_s(const Expr &  operand,
+Expr vectorintegral_s(const Expr   &operand,
                       const Tensor &variables,
                       Args... args)
 {
@@ -321,7 +321,7 @@ inline Expr vectorintegral_s(const Parent &variables)
 }
 
 template <typename... Args>
-Expr vectorintegral_s(const Expr &  operand,
+Expr vectorintegral_s(const Expr   &operand,
                       const Parent &variables,
                       Args... args)
 {

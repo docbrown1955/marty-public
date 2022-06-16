@@ -16,7 +16,7 @@
 /*!
  * @file
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
 
  * \brief
  */
@@ -62,14 +62,14 @@ class Functional {
     }
 
     template <class... T_Args>
-    friend std::ostream &operator<<(std::ostream &        out,
+    friend std::ostream &operator<<(std::ostream         &out,
                                     Functional<T_Args...> func);
 
     template <class... Arg1>
     struct Replacer {
 
         template <size_t i, class... Arg2>
-        Expr replace(Expr &               init,
+        Expr replace(Expr                &init,
                      std::tuple<Arg1...> &oldArg,
                      std::tuple<Arg2...> &newArg)
         {

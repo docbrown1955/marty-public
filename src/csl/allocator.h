@@ -16,7 +16,7 @@
 /*!
  * @file
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
 
  * \brief
  */
@@ -29,14 +29,14 @@
 namespace csl {
 
 template <class T, csl::allocator<T> &pool, class... Args>
-inline std::shared_ptr<T> make_shared(Args &&... args)
+inline std::shared_ptr<T> make_shared(Args &&...args)
 {
     return std::allocate_shared<T, csl::allocator<T>>(
         pool, std::forward<Args>(args)...);
 }
 
 template <class T, class... Args>
-inline std::shared_ptr<T> make_shared(Args &&... args)
+inline std::shared_ptr<T> make_shared(Args &&...args)
 {
     return std::make_shared<T>(std::forward<Args>(args)...);
 }

@@ -16,7 +16,7 @@
 /*!
  * @file
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
 
  * \brief
  */
@@ -51,14 +51,14 @@ class LibFunction {
     DEFINE_DEFAULT_CPY_MV(LibFunction)
 
     LibFunction(std::string_view                     t_name,
-                Expr const &                         t_expression,
+                Expr const                          &t_expression,
                 std::shared_ptr<LibraryGroup> const &t_group);
 
     ~LibFunction()
     {
     }
 
-    std::string const & getName() const;
+    std::string const  &getName() const;
     std::string         getTensorName(csl::Parent const &tensor) const;
     LibraryGroup const &getGroup() const
     {
@@ -68,7 +68,7 @@ class LibFunction {
     {
         return *group;
     }
-    Expr &      getExpression();
+    Expr       &getExpression();
     Expr const &getExpression() const;
     bool        isTensorial() const;
     int         getPosTensorParameter() const
@@ -79,10 +79,10 @@ class LibFunction {
     {
         tensorParameter = t_pos;
     }
-    std::vector<csl::Tensor> const & getTensors() const;
-    std::vector<csl::Tensor> &       getTensors();
-    std::vector<std::string> const & getIntermediateSteps() const;
-    std::vector<std::string> &       getIntermediateSteps();
+    std::vector<csl::Tensor> const  &getTensors() const;
+    std::vector<csl::Tensor>        &getTensors();
+    std::vector<std::string> const  &getIntermediateSteps() const;
+    std::vector<std::string>        &getIntermediateSteps();
     std::vector<LibParameter> const &getParameters() const;
 
     void setName(std::string_view t_name);
@@ -98,20 +98,20 @@ class LibFunction {
     void addInitInstruction(std::string const &t_inst);
 
     static void cutParameters(std::vector<LibParameter> &parameters,
-                              int &                      tensorParameter);
+                              int                       &tensorParameter);
     static void sortParameters(std::vector<LibParameter> &parameters,
                                int                        tensorParameter);
 
-    void print(std::ostream &     out,
+    void print(std::ostream      &out,
                bool               header,
                std::string const &initInstruction = "") const;
 
   private:
     void printName(std::ostream &out) const;
-    void printBody(std::ostream &     out,
+    void printBody(std::ostream      &out,
                    std::string const &initInstruction) const;
-    void printExpression(std::ostream &     out,
-                         Expr const &       expression,
+    void printExpression(std::ostream      &out,
+                         Expr const        &expression,
                          int                indent,
                          std::string const &beginning = "") const;
 

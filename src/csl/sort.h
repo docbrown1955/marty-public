@@ -27,7 +27,7 @@
  * efficient. For non canonical ones, the sort is ill-defined but may still
  * be performed.
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
  * @date 2020-09-20
  */
 #ifndef CSL_SORT_H_INCLUDED

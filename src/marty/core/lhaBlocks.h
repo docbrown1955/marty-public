@@ -17,7 +17,7 @@
  * @file lhaBlocks.h
  * @brief Contains an enumeration of LHA blocks.
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
  * @date 2020-09-02
  */
 #ifndef LHABLOCKS_H_INCLUDED

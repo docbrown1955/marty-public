@@ -17,7 +17,7 @@
  * @file QCD.h
  * @brief Quantum Chromo-Dynamics model, mty::QCD_Model.
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
  * @date 2021-05-06
  */
 #pragma once

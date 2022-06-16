@@ -16,7 +16,7 @@
 /*!
  * @file
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
 
  * \brief
  */
@@ -524,26 +524,26 @@ inline Imaginary::Imaginary() : AbstractLiteral()
  */
 Expr intfactorial_s(int value);
 
-Expr constant_s(std::string const &  name,
+Expr constant_s(std::string const   &name,
                 csl::ComplexProperty prop = csl::ComplexProperty::Real);
 
-Expr constant_s(std::string const &  name,
+Expr constant_s(std::string const   &name,
                 long double          value,
                 csl::ComplexProperty prop = csl::ComplexProperty::Real);
 
-Expr constant_s(std::string const &  name,
-                Expr const &         value,
+Expr constant_s(std::string const   &name,
+                Expr const          &value,
                 csl::ComplexProperty prop = csl::ComplexProperty::Real);
 
-Expr variable_s(std::string const &  name,
+Expr variable_s(std::string const   &name,
                 csl::ComplexProperty prop = csl::ComplexProperty::Real);
 
-Expr variable_s(std::string const &  name,
+Expr variable_s(std::string const   &name,
                 long double          value,
                 csl::ComplexProperty prop = csl::ComplexProperty::Real);
 
-Expr variable_s(std::string const &  name,
-                Expr const &         value,
+Expr variable_s(std::string const   &name,
+                Expr const          &value,
                 csl::ComplexProperty prop = csl::ComplexProperty::Real);
 
 /*************************************************/

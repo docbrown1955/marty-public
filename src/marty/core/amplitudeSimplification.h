@@ -27,7 +27,7 @@
  *
  * @author Grégoire Uhlrich
  *
- * @version 1.3
+ * @version 2.0
  *
  * @date 2021-04-16
  */

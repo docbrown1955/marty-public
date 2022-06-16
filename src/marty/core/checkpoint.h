@@ -17,7 +17,7 @@
  * @file checkpoint.h
  * @brief Contains checkpoints for doc brown's debugger procedure.
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
  * @date 2021-05-06
  */
 #pragma once

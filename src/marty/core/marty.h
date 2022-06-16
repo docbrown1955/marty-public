@@ -16,10 +16,15 @@
 /*!
  * @file
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
 
  * \brief
  */
+
+#ifndef MARTY_VERSION_STR
+#define MARTY_VERSION_STR "2.0"
+#endif
+
 #include "../../csl/csl.h"
 #include "../sgl/sgl.h"
 #include "2HDM.h"

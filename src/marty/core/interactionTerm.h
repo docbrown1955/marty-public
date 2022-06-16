@@ -18,7 +18,7 @@
  * \brief Class mty::InteractionTerm, general purpose container for Lagrangian
  * terms in MARTY.
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
  */
 #ifndef INTERACTION_TERM_H_INCLUDED
 #define INTERACTION_TERM_H_INCLUDED

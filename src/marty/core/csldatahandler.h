@@ -17,7 +17,7 @@
  * @file csldatahandler.h
  * @brief Contains the handler of CSL data for doc brown's debugger.
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
  * @date 2021-05-06
  */
 #pragma once

@@ -18,7 +18,7 @@
  * @brief Contains the Expander class that expands the Lagrangian in
  * perturbation to find all Feynman diagrams for a given process.
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
  * @date 2021-05-06
  */
 #pragma once

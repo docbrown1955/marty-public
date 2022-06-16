@@ -18,7 +18,7 @@
  * @brief Helper class mty::MomentumConservater to apply momentum conservation
  * in amplitudes to simplify them.
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
  * @date 2021-05-06
  */
 #pragma once

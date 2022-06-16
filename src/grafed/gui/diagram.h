@@ -17,7 +17,7 @@
  * @file diagram.h
  * @brief
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
  * @date 2020-11-05
  */
 #ifndef DIAGRAM_H

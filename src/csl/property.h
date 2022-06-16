@@ -16,7 +16,7 @@
 /*!
  * @file
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
 
  * \brief
  */
@@ -34,9 +34,9 @@ class PropertyList {
 
   public:
     PropertyList();
-    PropertyList(const PropertyList &)  = delete;
-    PropertyList(const PropertyList &&) = delete;
-    PropertyList &operator=(const PropertyList &) = delete;
+    PropertyList(const PropertyList &)             = delete;
+    PropertyList(const PropertyList &&)            = delete;
+    PropertyList &operator=(const PropertyList &)  = delete;
     PropertyList &operator=(const PropertyList &&) = delete;
     ~PropertyList();
 
@@ -48,7 +48,7 @@ class PropertyList {
 
     csl::vector_expr apply(const Expr &expr) const;
 
-    friend std::ostream &operator<<(std::ostream &      fout,
+    friend std::ostream &operator<<(std::ostream       &fout,
                                     const PropertyList &prop);
 };
 

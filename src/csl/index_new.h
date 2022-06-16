@@ -16,7 +16,7 @@
 /*!
  * @file
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
 
  * \brief
  */
@@ -86,12 +86,12 @@ class IndexStructure_new {
     using const_reverse_iterator =
         typename std::array<csl::Index, N>::const_reverse_iterator;
 
-    IndexStructure_new()                           = default;
-    ~IndexStructure_new()                          = default;
-    IndexStructure_new(IndexStructure_new const &) = default;
-    IndexStructure_new(IndexStructure_new &&)      = default;
+    IndexStructure_new()                                            = default;
+    ~IndexStructure_new()                                           = default;
+    IndexStructure_new(IndexStructure_new const &)                  = default;
+    IndexStructure_new(IndexStructure_new &&)                       = default;
     IndexStructure_new<N> &operator=(IndexStructure_new<N> const &) = default;
-    IndexStructure_new<N> &operator=(IndexStructure_new<N> &&) = default;
+    IndexStructure_new<N> &operator=(IndexStructure_new<N> &&)      = default;
 
     explicit IndexStructure_new(csl::Index const &first)
     {
@@ -259,7 +259,7 @@ class IndexStructure_new {
      * \return \b False else.
      */
     bool compareWithDummy(const IndexStructure_new<N> &structure,
-                          std::map<Index, Index> &     constraints,
+                          std::map<Index, Index>      &constraints,
                           bool keepAllCosntraints = false) const
     {
         auto self = begin();

@@ -16,7 +16,7 @@
 /*!
  * @file
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
 
  * \brief
  */
@@ -38,7 +38,7 @@ class LiteralParent : public AbstractParent {
     LiteralParent(std::string const &t_name, Expr const &t_value);
 
     // Assignment and copy are forbidden
-    LiteralParent(const LiteralParent &) = delete;
+    LiteralParent(const LiteralParent &)            = delete;
     LiteralParent &operator=(const LiteralParent &) = delete;
 
     ~LiteralParent()
@@ -112,7 +112,7 @@ class VariableParent : public LiteralParent {
     VariableParent(std::string const &t_name, Expr const &t_value);
 
     // Assignment and copy are forbidden
-    VariableParent(const VariableParent &) = delete;
+    VariableParent(const VariableParent &)            = delete;
     VariableParent &operator=(const VariableParent &) = delete;
 
     ~VariableParent()

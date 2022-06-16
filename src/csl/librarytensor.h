@@ -17,7 +17,7 @@
  * @file librarytensor.h
  * @brief
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
  * @date 2020-11-05
  */
 #ifndef CSL_LIBRARYTENSOR_H_INCLUDED
@@ -62,7 +62,7 @@ class LibraryTensor {
     }
 
     LibraryTensor(std::vector<size_t> const &t_dimensions,
-                  std::vector<Type> const &  t_data)
+                  std::vector<Type> const   &t_data)
         : dimensions(t_dimensions), data(t_data)
     {
         if (getTotalDimension(dimensions) != data.size()) {

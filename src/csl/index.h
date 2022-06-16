@@ -16,7 +16,7 @@
 /*!
  * @file
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
 
  * \brief
  */
@@ -124,7 +124,7 @@ class Index {
      * \param t_space Space in which the Index lives.
      */
     Index(const std::string &t_name,
-          const Space *      t_space,
+          const Space       *t_space,
           unsigned short     t_id = 0);
 
     /*!
@@ -668,7 +668,7 @@ class IndexStructure {
      * Index::compareWithDummy().
      * \return \b False else.
      */
-    bool compareWithDummy(const IndexStructure &  structure,
+    bool compareWithDummy(const IndexStructure   &structure,
                           std::map<Index, Index> &constraints,
                           bool keepAllCosntraints = false) const;
 
@@ -780,7 +780,7 @@ class IndexStructure {
      *
      * \return A reference to the modifed flux \b fout.
      */
-    friend std::ostream &operator<<(std::ostream &        fout,
+    friend std::ostream &operator<<(std::ostream         &fout,
                                     const IndexStructure &structure);
 };
 

@@ -16,7 +16,7 @@
 /*!
  * @file
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
 
  * \brief
  */
@@ -47,11 +47,11 @@ class counter_iterator {
     {
     }
 
-    counter_iterator(counter_iterator<T> const &other) = default;
+    counter_iterator(counter_iterator<T> const &other)            = default;
     counter_iterator &operator=(counter_iterator<T> const &other) = default;
     counter_iterator(counter_iterator<T> &&other)                 = default;
-    counter_iterator &operator=(counter_iterator<T> &&other) = default;
-    ~counter_iterator()                                      = default;
+    counter_iterator &operator=(counter_iterator<T> &&other)      = default;
+    ~counter_iterator()                                           = default;
 
     counter_iterator &operator++()
     {
@@ -145,7 +145,7 @@ class counter {
         return *this;
     }
 
-    counter(counter &&other) = default;
+    counter(counter &&other)            = default;
     counter &operator=(counter &&other) = default;
 
     ~counter()

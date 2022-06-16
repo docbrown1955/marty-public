@@ -18,7 +18,7 @@
  * @brief Contains built-in read functions, updating directly SM and
  * MSSM parameters from a .lha file.
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
  * @date 2020-09-02
  */
 #ifndef LHABUILTIN_H_INCLUDED

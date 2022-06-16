@@ -16,7 +16,7 @@
 /*!
  * @file
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
 
  * @brief Contains vector particles of MARTY: vector and gauge bosons, and the
  * field strength object.

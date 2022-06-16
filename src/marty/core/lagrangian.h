@@ -18,7 +18,7 @@
  * @brief Contains the Lagrangian class, that encapsulates all interaction
  * terms for a model.
  * @author Grégoire Uhlrich
- * @version 1.3
+ * @version 2.0
  * @date 2020-09-02
  */
 #ifndef LAGRANGIAN_H_INCLUDED
