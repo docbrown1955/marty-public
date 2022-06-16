@@ -107,11 +107,13 @@ add_library(marty SHARED)
 target_link_libraries(marty csl-core grafed-core jsonparser marty-core sgl marty-models)
 target_link_libraries(marty GSL::gsl GSL::gslcblas)
 target_link_libraries(marty ${PROJECT_BINARY_DIR}/libooptools.so)
+add_dependencies(marty lt_lib)
 
 add_library(marty-static STATIC)
 target_link_libraries(marty-static csl-core grafed-core jsonparser marty-core sgl marty-models)
 target_link_libraries(marty-static GSL::gsl GSL::gslcblas)
-target_link_libraries(marty-static ${PROJECT_BINARY_DIR}/libooptools.so)
+target_link_libraries(marty-static ${PROJECT_BINARY_DIR}/libooptools.a)
+add_dependencies(marty-static lt_lib_static)
 
 install(TARGETS marty marty-static csl csl-static
     DESTINATION lib)
