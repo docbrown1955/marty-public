@@ -23,7 +23,7 @@
  */
 #pragma once
 
-#include "csl.h"
+#include "../../csl.h"
 #include <functional>
 #include <iostream>
 #include <memory>
@@ -44,8 +44,8 @@ class AbstractGammaSym
     virtual ~AbstractGammaSym(){};
 
     virtual size_t         size() const             = 0;
-    virtual GExpr const &  argument(size_t i) const = 0;
-    virtual GExpr &        argument(size_t i)       = 0;
+    virtual GExpr const   &argument(size_t i) const = 0;
+    virtual GExpr         &argument(size_t i)       = 0;
     virtual iterator       begin()                  = 0;
     virtual const_iterator begin() const            = 0;
     virtual iterator       end()                    = 0;
@@ -66,13 +66,13 @@ class AbstractGammaSym
     virtual GExpr simplify();
 
     virtual std::vector<csl::Index> const &indices() const;
-    virtual std::vector<csl::Index> &      indices();
+    virtual std::vector<csl::Index>       &indices();
 
     virtual bool contains(csl::Index const &) const              = 0;
     virtual void replace(csl::Index const &, csl::Index const &) = 0;
 
     virtual csl::Expr const &expr() const;
-    virtual csl::Expr &      expr();
+    virtual csl::Expr       &expr();
 
     virtual csl::Expr toCSL(TensorSet const &tensors) const = 0;
 

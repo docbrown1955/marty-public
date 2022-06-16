@@ -1,5 +1,0 @@
-- version strings
-- MARTY_VERSION_STR in marty.h
-- manual
-- website
-- README.md
