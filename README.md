@@ -48,7 +48,7 @@ System dependencies (needed at run-time as system commands):
 MARTY links C++ code with Fortran code from the [LoopTools](http://www.feynarts.de/looptools/) library.
 MARTY takes care of compiling and linking `LoopTools` but the compilers must be chosen carefully to link C++ and fortran codes.
 
-For this reason, the MARTY installation procedure requires to have the GNU compiler collection, version greater than 7. Furthermore, the versions of `gcc/g++/gfortran` should be the same. The minimal set of compilers required to compile `MARTY` are therefore
+For this reason, the MARTY installation procedure requires to have the GNU compiler collection, version greater than 7. Furthermore, the versions of `gcc/g++/gfortran` should be the same. The minimal set of compilers required to compile `MARTY` is therefore
 ```
     gcc-7
     g++-7
@@ -66,8 +66,13 @@ Any version greater than 7 can be used but all the three compilers must use **th
 ### Build and install `MARTY`
 
 
-Once the dependencies have been installed and that the `C`, `C++` and `Fortran` compilers meet the requirements above (either by default or after having exported the `CC`, `CXX` and `FC` environment variables), build `MARTY` simply typing
+Once the dependencies have been installed and that the `C`, `C++` and `Fortran` compilers meet the requirements above (either by default or after having exported the `CC`, `CXX` and `FC` environment variables), clone this repository:
+```bash
+    git clone https://github.com/docbrown1955/marty-public.git
+```
+Then, build and install `MARTY`!
 ``` bash
+    cd marty-public
     mkdir build
     cd build
     cmake .. -DCMAKE_INSTALL_PREFIX=<installation-path-for-marty>
@@ -79,10 +84,37 @@ If the `CMAKE_INSTALL_PREFIX` is not given, `cmake` will automatically set this 
 ``` bash
     sudo make install
 ```
+## Environment variables
+
+In case `MARTY` is not installed in a standard location (not in `/usr/local/`) it is necessary to set properly environment variables. Given that the installation path is `<install/path>`, Linux users should add this in their `${HOME}/.bashrc` file:
+
+``` bash
+    export PATH=$PATH:<install/path>/bin
+    export CPATH=$CPATH:<install/path>/include
+    export C_INCLUDE_PATH=$C_INCLUDE_PATH:<install/path>/include
+    export LIBRARY_PATH=$LIBRARY_PATH:<install/path>/lib
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:<install/path>/lib
+```
+
+Although not recommended, if MacOS users install MARTY in a non-standard location the appropriate environment variables are (also to put in `${HOME}/.bashrc`)
+
+``` bash
+    export PATH=$PATH:<install/path>/bin
+    export CPATH=$CPATH:<install/path>/include
+    export C_INCLUDE_PATH=$C_INCLUDE_PATH:<install/path>/include
+    export LIBRARY_PATH=$LIBRARY_PATH:<install/path>/lib
+    export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:<install/path>/lib
+```
+
+After the first installation (and adding the environment variables in the `.bashrc` file) it is necessary to launch a new terminal or reload the bash session:
+
+``` bash
+   source ${HOME}/.bashrc
+```
 
 ## The specific case of `MacOS`
 
-On `MacOS` the System Integrity Protection (SIP) can cause issues if files are not installed in `/usr/local`. We therefore recommand to install `MARTY` in this location:
+On `MacOS` the System Integrity Protection (SIP) can cause issues if files are not installed in `/usr/local`. We therefore recommand to install `MARTY` in this location (default):
 ``` bash
     mkdir build
     cd build

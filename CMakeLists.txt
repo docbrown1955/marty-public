@@ -61,22 +61,26 @@ find_program(LUALATEX lualatex REQUIRED)
 find_program(CONVERT convert REQUIRED)
 find_program(LATEX latex REQUIRED)
 find_program(DVIPNG dvipng)
-if (NOT LUALATEX)
+
+if(NOT LUALATEX)
     message(FATAL_ERROR
         "The 'lualatex' program is not found but necessary for GRAFED."
         "Install it before retrying the installation.")
 endif()
-if (NOT DVIPNG)
+
+if(NOT DVIPNG)
     message(FATAL_ERROR
         "The 'dvipng' program is not found but necessary for GRAFED."
         "Install it before retrying the installation.")
 endif()
-if (NOT LUALATEX)
+
+if(NOT LUALATEX)
     message(FATAL_ERROR
         "The 'lualatex' program is not found but necessary for GRAFED."
         "Install it before retrying the installation.")
 endif()
-if (NOT CONVERT)
+
+if(NOT CONVERT)
     message(FATAL_ERROR
         "The 'convert' program is not found but necessary for GRAFED."
         "The 'convert' program is part of the ImageMagick package."
@@ -90,6 +94,10 @@ endif()
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wpedantic")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
+add_compile_definitions(MARTY_CXX=${CMAKE_CXX_COMPILER})
+add_compile_definitions(MARTY_CC=${CMAKE_C_COMPILER})
+add_compile_definitions(MARTY_FC=${CMAKE_Fortran_COMPILER})
 
 add_subdirectory(dep)
 add_subdirectory(src)

@@ -34,6 +34,13 @@
 #include <fstream>
 #include <iomanip>
 #include <list>
+#include <string>
+
+#ifndef MARTY_CXX
+#define MARTY_CXX g++
+#endif
+#define STRINGIFY2(X) #X
+#define STRINGIFY(X) STRINGIFY2(X)
 
 namespace csl {
 
@@ -682,11 +689,15 @@ void LibraryGenerator::printMakefile() const
     for (const auto &path : LPath)
         makefile << "-L" << path << " ";
     makefile << "\nLIBS    = ";
-    dependencies.printLib(makefile, compiler == clang);
+    static const std::string clang_str = "clang";
+    bool                     is_clang  = (0
+                     == clang_str.compare(
+                         0, std::string::npos, STRINGIFY(MARTY_CXX), 5));
+    dependencies.printLib(makefile, is_clang);
     if (hasGlobalFile())
         makefile << " -lgsl -lgslcblas";
     makefile << "\n\n";
-    print_libmakefile_data(makefile, quadruple, compiler == clang);
+    print_libmakefile_data(makefile, quadruple, STRINGIFY(MARTY_CXX));
     makefile.close();
 }
 
@@ -828,7 +839,7 @@ std::string LibraryGenerator::getGroupFileName(LibraryGroup const &g) const
 //     generator << "#!/usr/bin/python\n";
 //     generator << "# -*- coding: utf-8 -*-\n";
 //     generator << "\n";
-//     generator << "from pygccxml import parser\n";
+//     generator << "fromFortrangccxml import parser\n";
 //     generator << "from pyplusplus import module_builder\n";
 //     generator << "\n";
 //     generator << "# Configurations que vous pouvez avoir à "
