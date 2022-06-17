@@ -56,6 +56,15 @@ endif()
 
 find_package(GSL REQUIRED)
 
+if(NOT DEFINED PYMARTY)
+    set(PYMARTY 1)
+endif()
+
+if(PYMARTY)
+    find_package(Python3 REQUIRED)
+    find_package(pybind11 CONFIG REQUIRED)
+endif()
+
 # Dependencies for GRAFED
 find_program(LUALATEX lualatex REQUIRED)
 find_program(CONVERT convert REQUIRED)
