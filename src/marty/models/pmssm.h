@@ -23,7 +23,7 @@
 #ifndef PMSSM_H_INCLUDED
 #define PMSSM_H_INCLUDED
 
-#include "MSSM.h"
+#include "mssm.h"
 
 namespace mty {
 

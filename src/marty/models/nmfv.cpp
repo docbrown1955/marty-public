@@ -1,9 +1,9 @@
-#include "NMFV.h"
+#include "nmfv.h"
 
 namespace mty {
 
 NMFV_Model::NMFV_Model(std::vector<MixingInfo> const &mixings,
-                       std::string const &            t_saveFile)
+                       std::string const             &t_saveFile)
     : mty::PMSSM_Model(t_saveFile, false)
 {
     std::cout << "Initializing gauge and particle content ..." << std::endl;

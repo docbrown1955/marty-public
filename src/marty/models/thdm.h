@@ -23,11 +23,11 @@
 #ifndef _2HDM_H_INCLUDED
 #define _2HDM_H_INCLUDED
 
-#include "../core/CKM.h"
+#include "../core/ckm.h"
 #include "../core/ghostField.h"
 #include "../core/model.h"
 #include "../core/mrtInterface.h"
-#include "SM.h"
+#include "sm.h"
 
 namespace mty {
 

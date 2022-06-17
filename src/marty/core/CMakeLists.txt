@@ -2,10 +2,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(ALL_SOURCES
-    CKM.cpp
-    CKM.h
-    SU_N_algebra.cpp
-    SU_N_algebra.h
+    ckm.cpp
+    ckm.h
+    su_n_algebra.cpp
+    su_n_algebra.h
     algebra.h
     algebraState.cpp
     algebraState.h

@@ -1,7 +1,7 @@
 #ifndef MTY_GTHDM_H_INCLUDED
 #define MTY_GTHDM_H_INCLUDED
 
-#include "2HDM.h"
+#include "thdm.h"
 
 namespace mty {
 

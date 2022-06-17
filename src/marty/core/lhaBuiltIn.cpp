@@ -16,8 +16,8 @@
 #include "lhaBuiltIn.h"
 #include "../lha/lha.h"
 #include "../lha/lhaData.h"
-#include "../models/MSSM.h"
-#include "../models/SM.h"
+#include "../models/mssm.h"
+#include "../models/sm.h"
 #include "mrtError.h"
 
 #include <fstream>

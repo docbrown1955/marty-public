@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
-#include "SM.h"
-#include "../core/CKM.h"
+#include "sm.h"
+#include "../core/ckm.h"
 #include "../core/diracology.h"
 #include "../core/fermionicField.h"
 #include "../core/ghostField.h"

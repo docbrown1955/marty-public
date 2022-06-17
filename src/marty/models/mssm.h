@@ -24,8 +24,8 @@
 #ifndef MSSM_H_INCLUDED
 #define MSSM_H_INCLUDED
 
-#include "MSSMData.h"
 #include "marty/core/model.h"
+#include "mssmData.h"
 
 /**
  * @brief Namespace containing all MSSM input parameters that may be modified

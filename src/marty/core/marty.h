@@ -27,12 +27,12 @@
 
 #include "../../csl/csl.h"
 #include "../sgl/sgl.h"
-#include "CKM.h"
 #include "amplitude.h"
 #include "amplitudeInitializer.h"
 #include "amplitudeSimplification.h"
 #include "bernoulli.h"
 #include "builtinOperators.h"
+#include "ckm.h"
 #include "colorSimplification.h"
 #include "colorSpace.h"
 #include "diracology.h"

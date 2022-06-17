@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PMSSM.h"
+#include "pmssm.h"
 
 namespace mty {
 
@@ -15,10 +15,10 @@ class NMFV_Model : public PMSSM_Model {
     };
 
     NMFV_Model(std::vector<MixingInfo> const &mixings,
-               std::string const &            saveFile = "");
+               std::string const             &saveFile = "");
 
     NMFV_Model(std::initializer_list<MixingInfo> mixings,
-               std::string const &               saveFile = "")
+               std::string const                &saveFile = "")
         : NMFV_Model(std::vector<MixingInfo>(mixings), saveFile)
     {
     }

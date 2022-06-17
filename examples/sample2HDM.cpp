@@ -14,7 +14,7 @@
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include <marty.h>
-#include <marty/models/2HDM.h>
+#include <marty/models/thdm.h>
 
 using namespace mty;
 
@@ -40,9 +40,9 @@ int main()
     mty::option::keepOnlyFirstMassInLoop = true;
     auto ampl                            = THDM.computeAmplitude(OneLoop,
                                       {Incoming("d"),
-                                       Incoming(AntiPart("s")),
-                                       Outgoing(AntiPart("d")),
-                                       Outgoing("s")},
+                                                                  Incoming(AntiPart("s")),
+                                                                  Outgoing(AntiPart("d")),
+                                                                  Outgoing("s")},
                                       options);
     Display(ampl);
     Show(ampl);

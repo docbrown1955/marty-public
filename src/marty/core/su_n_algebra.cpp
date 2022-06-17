@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
-#include "SU_N_algebra.h"
+#include "su_n_algebra.h"
 
 namespace gell_mann {
 

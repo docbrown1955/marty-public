@@ -13,10 +13,10 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
-#include "PMSSM.h"
-#include "../core/CKM.h"
+#include "pmssm.h"
+#include "../core/ckm.h"
 #include "../core/mrtInterface.h"
-#include "SM.h"
+#include "sm.h"
 
 namespace mty {
 

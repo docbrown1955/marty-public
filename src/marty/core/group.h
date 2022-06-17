@@ -22,10 +22,10 @@
 #ifndef GROUP_H_INCLUDED
 #define GROUP_H_INCLUDED
 
-#include "SU_N_algebra.h"
 #include "mrtError.h"
 #include "representation.h"
 #include "semiSimpleAlgebra.h"
+#include "su_n_algebra.h"
 #include <memory>
 
 // Forward declaration of QuantumFieldParent
@@ -222,7 +222,7 @@ class SemiSimpleGroup : public AbstractGroup {
      * \param t_name    name of the group.
      */
     SemiSimpleGroup(const SemiSimpleAlgebra &t_algebra,
-                    const std::string &      t_name);
+                    const std::string       &t_name);
 
     /*!
      * \brief Destructor.
@@ -359,7 +359,7 @@ class SemiSimpleGroup : public AbstractGroup {
      * the group.
      */
     csl::Index
-    getCorrespondingIndex(const std::string &       index_name,
+    getCorrespondingIndex(const std::string        &index_name,
                           const QuantumFieldParent &parent) override;
 
   protected:

@@ -1,4 +1,4 @@
-#include "GTHDM.h"
+#include "gthdm.h"
 
 using namespace csl;
 
