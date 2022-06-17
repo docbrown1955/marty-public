@@ -4,6 +4,10 @@
         "iostream": "cpp"
     },
     "python.linting.pylintArgs": [
+<<<<<<< HEAD
         "--extension-pkg-allow-list=pymarty"
+=======
+        "--extension-pkg-whitelist=pymarty"
+>>>>>>> 5aa13839f343a0d803c73d31d19aea0509e913d4
     ]
 }

@@ -1,12 +1,12 @@
 """ Basic test of python binding for MARTY. """
 
-from . import minkowski_index
+import pymarty
 
 
 def main():
     """ Main program. """
-    print(minkowski_index())
-    print(minkowski_index("some_name").name)
+    print(pymarty.minkowski_index())
+    print(pymarty.minkowski_index("some_name").name)
 
 
 if __name__ == '__main__':
