@@ -13,8 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
-#include "pmssm_lem.h"
 #include <marty.h>
+#include <marty/models/PMSSM.h>
 
 using namespace std;
 using namespace csl;

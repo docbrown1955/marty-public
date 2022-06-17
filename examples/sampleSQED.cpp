@@ -6,28 +6,31 @@ using namespace mty;
 int main()
 {
 
-    Model sQED("models/files/sQED.json");
+    Model sQED;
+    sQED.addGaugedGroup(group::Type::U1, "U1em", constant_s("e"));
+    sQED.init();
+
+    sQED.renameParticle("A_U1em", "A");
+
+    Particle phi = scalarboson_s("phi ; \\phi", sQED);
+    Expr     m   = constant_s("m");
+    phi->setMass(m);
+    phi->setGroupRep("U1em", -1);
+    sQED.addParticle(phi);
 
     std::cout << sQED << std::endl;
-
-    Particle phi    = sQED.getParticle("\\phi");
-    Particle photon = sQED.getParticle("A");
-
-    csl::Expr m = constant_s("m");
-    csl::Expr g = constant_s("Gamma");
-    phi->setMass(m);
-    phi->setWidth(g);
 
     auto rules = ComputeFeynmanRules(sQED);
     Display(rules);
     Show(rules);
 
     mty::option::amputateExternalLegs = true;
-    auto res                          = sQED.computeAmplitude(Order::TreeLevel,
-                                     {Incoming(phi),
-                                      Incoming(AntiPart(phi)),
-                                      Outgoing(photon),
-                                      Outgoing(photon)});
+
+    auto res = sQED.computeAmplitude(TreeLevel,
+                                     {Incoming("phi"),
+                                      Incoming(AntiPart("phi")),
+                                      Outgoing("A"),
+                                      Outgoing("A")});
 
     Display(res);
     Show(res);

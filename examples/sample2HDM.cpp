@@ -14,6 +14,7 @@
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include <marty.h>
+#include <marty/models/2HDM.h>
 
 using namespace mty;
 
