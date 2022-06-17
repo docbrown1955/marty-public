@@ -49,6 +49,7 @@ jobs:
       run: |
         mkdir build
         cd build
+        export PATH=$PATH:/usr/texbin:/Library/TeX/bin
         cmake ..
     - name: make
       run: |
