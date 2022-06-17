@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: dependencies
-      run: sudo apt-get install coreutils build-essential gcc-11 g++-11 gfortran-11 libgsl-dev libgslcblas0 qt5-default dvipng cmake texlive texlive-luatex -y
+      run: sudo apt-get install coreutils build-essential gcc-11 g++-11 gfortran-11 libgsl-dev libgslcblas0 qt5-default dvipng cmake texlive texlive-latex-extra texlive-luatex -y
     - name: configure
       run: |
         mkdir build
@@ -47,7 +47,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: dependencies
-      run: brew install coreutils gcc@11 gsl qt5 cmake texlive texlive-luatex imagemagick
+      run: |
+        brew install coreutils gcc@11 gsl qt5 cmake texlive imagemagick
+        sudo port install texlive texlive-latex-extra texlive-luatex
     - name: configure
       run: |
         mkdir build
