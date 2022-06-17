@@ -47,7 +47,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: dependencies
-      run: brew install coreutils gcc@11 gsl qt5 cmake
+      run: brew install coreutils gcc@11 gsl qt5 cmake texlive texlive-luatex imagemagick
     - name: configure
       run: |
         mkdir build
