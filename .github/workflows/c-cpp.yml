@@ -52,6 +52,9 @@ jobs:
       run: |
         mkdir build
         cd build
+        export CXX=g++-11
+        export CC=gcc-11 
+        export FC=gfortran-11
         cmake ..
     - name: make
       run: |
