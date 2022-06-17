@@ -14,9 +14,9 @@
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "QED.h"
+#include "../core/fermionicField.h"
+#include "../core/quantumFieldTheory.h"
 #include "SM.h"
-#include "fermionicField.h"
-#include "quantumFieldTheory.h"
 
 namespace mty {
 

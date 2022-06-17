@@ -25,8 +25,7 @@
 #ifndef SM_H_INCLUDED
 #define SM_H_INCLUDED
 
-#include "../../csl/csl.h"
-#include "model.h"
+#include "../core/model.h"
 
 namespace mty {
 

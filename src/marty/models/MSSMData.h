@@ -23,7 +23,7 @@
 #ifndef MSSM_DATA_H_INCLUDED
 #define MSSM_DATA_H_INCLUDED
 
-#include "quantumField.h"
+#include "../core/quantumField.h"
 
 namespace mty {
 
@@ -116,7 +116,7 @@ struct MSSM_Data {
     csl::Expr v_h;  // Higgs' VEV v^2 = v_u^2 + v_d^2
     csl::Expr mu_h; // mu constant in Higgs potential
     csl::Expr
-              alpha_h; // Angle defining neutral higgses h^0 & H^0 from gauge states
+        alpha_h; // Angle defining neutral higgses h^0 & H^0 from gauge states
     csl::Expr beta_h; // Angle between up and down VEVS, tan beta = v_u / v_d
     csl::Expr b_h; // Function of mu, m_sHu, m_sHd and beta, condition for VEV
     csl::Expr m_sHu; // Up-type higgsino mass

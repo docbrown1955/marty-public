@@ -13,4 +13,24 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
- #include "marty.h"
+/*!
+ * @file
+ * @author Grégoire Uhlrich
+ * @version 2.0
+
+ * \brief
+ */
+#ifndef HEP_QED_H_INCLUDED
+#define HEP_QED_H_INCLUDED
+
+#include "../core/model.h"
+
+namespace mty {
+
+class QED_Model : public mty::Model {
+  public:
+    QED_Model();
+};
+} // namespace mty
+
+#endif

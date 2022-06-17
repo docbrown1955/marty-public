@@ -14,7 +14,7 @@
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "CKM.h"
-#include "SM.h"
+#include "../models/SM.h"
 namespace mty {
 
 csl::Tensor buildCKM(const csl::Space *flavorSpace)

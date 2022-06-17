@@ -2,25 +2,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(ALL_SOURCES
-    2HDM.cpp
-    2HDM.h
     CKM.cpp
     CKM.h
-    GTHDM.cpp
-    GTHDM.h
-    MSSM.cpp
-    MSSM.h
-    MSSMData.h
-    NMFV.cpp
-    NMFV.h
-    PMSSM.cpp
-    PMSSM.h
-    QCD.cpp
-    QCD.h
-    QED.cpp
-    QED.h
-    SM.cpp
-    SM.h
     SU_N_algebra.cpp
     SU_N_algebra.h
     algebra.h
@@ -111,13 +94,8 @@ set(ALL_SOURCES
     kinematics.h
     lagrangian.cpp
     lagrangian.h
-    lha.cpp
-    lha.h
-    lhaBlocks.h
-    lhaBuiltIn.cpp
     lhaBuiltIn.h
-    lhaData.cpp
-    lhaData.h
+    lhaBuiltIn.cpp
     localTerms.cpp
     localTerms.h
     looptools_extension.cpp

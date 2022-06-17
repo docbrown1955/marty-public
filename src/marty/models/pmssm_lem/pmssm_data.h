@@ -24,6 +24,8 @@
 #define DEFINITION_PMSSM_DATA_H_INCLUDED
 
 #include "../../core/marty.h"
+#include "../MSSM.h"
+#include "../SM.h"
 
 namespace mty {
 

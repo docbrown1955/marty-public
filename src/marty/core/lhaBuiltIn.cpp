@@ -14,11 +14,11 @@
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "lhaBuiltIn.h"
-#include "lha.h"
-#include "lhaData.h"
-
-#include "MSSM.h"
-#include "SM.h"
+#include "../lha/lha.h"
+#include "../lha/lhaData.h"
+#include "../models/MSSM.h"
+#include "../models/SM.h"
+#include "mrtError.h"
 
 #include <fstream>
 
@@ -49,7 +49,7 @@ void readFile(std::ifstream &file)
 bool applyLHA(LHAFileData const &data,
               std::string_view   nameBlock,
               size_t             id,
-              csl::Expr &        expr)
+              csl::Expr         &expr)
 {
     HEPAssert(csl::IsLiteral(expr),
               mty::error::TypeError,
@@ -66,7 +66,7 @@ bool applyLHA(LHAFileData const &data,
               std::string_view   nameBlock,
               size_t             i,
               size_t             j,
-              csl::Expr &        expr)
+              csl::Expr         &expr)
 {
     HEPAssert(csl::IsLiteral(expr),
               mty::error::TypeError,
@@ -81,7 +81,7 @@ bool applyLHA(LHAFileData const &data,
 
 bool applyLHA(LHAFileData const &data,
               std::string_view   nameBlock,
-              csl::Expr &        expr)
+              csl::Expr         &expr)
 {
     HEPAssert(csl::IsMatrix(expr),
               mty::error::TypeError,

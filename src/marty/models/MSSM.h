@@ -25,7 +25,7 @@
 #define MSSM_H_INCLUDED
 
 #include "MSSMData.h"
-#include "model.h"
+#include "marty/core/model.h"
 
 /**
  * @brief Namespace containing all MSSM input parameters that may be modified
@@ -217,9 +217,9 @@ inline csl::Expr MqbR = csl::constant_s("M_qbR");
          {MTY_CST(#name "_21"), MTY_CST(#name "_22"), MTY_CST(#name "_23")}, \
          {MTY_CST(#name "_31"), MTY_CST(#name "_32"), MTY_CST(#name "_33")}})
 #define MTY_MAT_SPEC(name, u, c, t)            \
-    csl::matrix_s({{MTY_CST(#name "_" #u #u),  \
-                    MTY_CST(#name "_" #u #c),  \
-                    MTY_CST(#name "_" #u #t)}, \
+    csl::matrix_s({{MTY_CST(#name "_" #u#u),   \
+                    MTY_CST(#name "_" #u#c),   \
+                    MTY_CST(#name "_" #u#t)},  \
                    {MTY_CST(#name "_" #c #u),  \
                     MTY_CST(#name "_" #c #c),  \
                     MTY_CST(#name "_" #c #t)}, \
@@ -300,9 +300,9 @@ class MSSM_Model : public mty::Model, protected MSSM_Data {
     void initInteractions();
     void initGauginoInteractions();
     void initGauginoInteractions(mty::Particle const &gaugeBoson,
-                                 mty::GaugedGroup *   gauged);
+                                 mty::GaugedGroup    *gauged);
     void initU1GauginoInteractions(mty::Particle const &gaugeBoson,
-                                   mty::GaugedGroup *   gauged);
+                                   mty::GaugedGroup    *gauged);
     void initHiggsPotential();
     void initYukawas();
     void initTrilinears();
@@ -335,7 +335,7 @@ class MSSM_Model : public mty::Model, protected MSSM_Data {
     void        renameSFermions();
     void        generateDiracFermions();
 
-    friend std::ostream &operator<<(std::ostream &    out,
+    friend std::ostream &operator<<(std::ostream     &out,
                                     MSSM_Model const &model);
 
   private:

@@ -23,11 +23,11 @@
 #ifndef _2HDM_H_INCLUDED
 #define _2HDM_H_INCLUDED
 
-#include "CKM.h"
+#include "../core/CKM.h"
+#include "../core/ghostField.h"
+#include "../core/model.h"
+#include "../core/mrtInterface.h"
 #include "SM.h"
-#include "ghostField.h"
-#include "model.h"
-#include "mrtInterface.h"
 
 namespace mty {
 
@@ -81,7 +81,7 @@ class TwoHDM_Model : public mty::Model {
     void adjust();
 
     template <int t_type>
-    friend std::ostream &operator<<(std::ostream &      out,
+    friend std::ostream &operator<<(std::ostream       &out,
                                     TwoHDM_Model const &model);
 
   protected:
@@ -359,8 +359,8 @@ void TwoHDM_Model<type>::replaceYukawas()
     csl::Tensor       M_e         = csl::tensor_s("M_e",
                                     {flavorSpace, flavorSpace},
                                     csl::matrix_s({{m_e, CSL_0, CSL_0},
-                                                   {CSL_0, m_mu, CSL_0},
-                                                   {CSL_0, CSL_0, m_tau}}));
+                                                                 {CSL_0, m_mu, CSL_0},
+                                                                 {CSL_0, CSL_0, m_tau}}));
 
     csl::Tensor M_u = csl::tensor_s(
         "M_u",

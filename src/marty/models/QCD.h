@@ -22,7 +22,7 @@
  */
 #pragma once
 
-#include "model.h"
+#include "../core/model.h"
 
 namespace mty {
 

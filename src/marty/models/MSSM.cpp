@@ -14,14 +14,14 @@
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "MSSM.h"
-#include "CKM.h"
+#include "../core/CKM.h"
+#include "../core/diracology.h"
+#include "../core/fermionicField.h"
+#include "../core/ghostField.h"
+#include "../core/mrtInterface.h"
+#include "../core/scalarField.h"
+#include "../core/vectorField.h"
 #include "SM.h"
-#include "diracology.h"
-#include "fermionicField.h"
-#include "ghostField.h"
-#include "mrtInterface.h"
-#include "scalarField.h"
-#include "vectorField.h"
 
 namespace mty {
 
@@ -319,7 +319,7 @@ void MSSM_Model::initGauginoInteractions()
     initU1GauginoInteractions(B, U1_Y);
 }
 void MSSM_Model::initGauginoInteractions(mty::Particle const &gaugeBoson,
-                                         mty::GaugedGroup *   gauged)
+                                         mty::GaugedGroup    *gauged)
 {
     mty::Group const *group    = gauged->getGroup();
     csl::Index        A        = generateIndex(group, gaugeBoson);
@@ -373,7 +373,7 @@ void MSSM_Model::initGauginoInteractions(mty::Particle const &gaugeBoson,
     }
 }
 void MSSM_Model::initU1GauginoInteractions(mty::Particle const &gaugeBoson,
-                                           mty::GaugedGroup *   gauged)
+                                           mty::GaugedGroup    *gauged)
 {
     mty::Group const *group    = gauged->getGroup();
     csl::Expr         coupling = gauged->getCouplingConstant();

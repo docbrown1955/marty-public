@@ -82,10 +82,10 @@ class Library : public csl::LibraryGenerator {
         }
     }
 
-    void importLHAModule(std::string const &t_pathToMarty)
+    void importLHAModule()
     {
-        lhaEnabled  = true;
-        pathToMarty = t_pathToMarty;
+        addInclude("marty/lha/lha.h");
+        addLibrary("-lmarty-lha");
     }
 
     void addFunction(std::string const &name,
@@ -99,42 +99,12 @@ class Library : public csl::LibraryGenerator {
 
     void print()
     {
-        if (lhaEnabled)
-            doImportLHAModule();
         csl::LibraryGenerator::print();
     }
 
     void build(unsigned int nJobs = 1)
     {
-        if (lhaEnabled)
-            doImportLHAModule();
         csl::LibraryGenerator::build(nJobs);
     }
-
-  private:
-    void doImportLHAModule()
-    {
-        csl::LibraryGenerator::setupDirectory();
-        const auto           martySrc  = pathToMarty + "/src";
-        const auto           martyInc  = pathToMarty + "/include";
-        const auto           targetSrc = path + "/src";
-        const auto           targetInc = path + "/include";
-        [[maybe_unused]] int sysres
-            = system(("mkdir -p " + martySrc + " " + martyInc).c_str());
-        sysres = system(("cp " + martySrc + "/lha.cpp " + targetSrc).c_str());
-        sysres
-            = system(("cp " + martySrc + "/lhaData.cpp " + targetSrc).c_str());
-        sysres = system(("cp " + martyInc + "/lha.h " + targetInc).c_str());
-        sysres
-            = system(("cp " + martyInc + "/lhaData.h " + targetInc).c_str());
-        sysres
-            = system(("cp " + martyInc + "/lhaBlocks.h " + targetInc).c_str());
-        sysres = system(("cp " + pathToMarty + "/../csl/include/std_vector*.h "
-                         + targetInc)
-                            .c_str());
-    }
-
-    bool        lhaEnabled{false};
-    std::string pathToMarty;
 };
 } // namespace mty

@@ -14,7 +14,7 @@
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "QCD.h"
-#include "mrtInterface.h"
+#include "../core/mrtInterface.h"
 
 namespace mty {
 

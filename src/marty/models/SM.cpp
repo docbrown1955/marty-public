@@ -14,12 +14,12 @@
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "SM.h"
-#include "CKM.h"
-#include "diracology.h"
-#include "fermionicField.h"
-#include "ghostField.h"
-#include "group.h"
-#include "mrtInterface.h"
+#include "../core/CKM.h"
+#include "../core/diracology.h"
+#include "../core/fermionicField.h"
+#include "../core/ghostField.h"
+#include "../core/group.h"
+#include "../core/mrtInterface.h"
 
 using namespace mty::sm_input;
 using namespace csl;

@@ -14,9 +14,9 @@
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "PMSSM.h"
-#include "CKM.h"
+#include "../core/CKM.h"
+#include "../core/mrtInterface.h"
 #include "SM.h"
-#include "mrtInterface.h"
 
 namespace mty {
 

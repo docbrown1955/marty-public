@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MTY_GTHDM_H_INCLUDED
+#define MTY_GTHDM_H_INCLUDED
 
 #include "2HDM.h"
 
@@ -19,3 +20,5 @@ class GTHDM_Model : public TwoHDM_Model<GTHDM_type> {
 };
 
 } // namespace mty
+
+#endif
