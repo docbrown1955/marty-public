@@ -199,10 +199,14 @@ namespace csl {
         printCName(out);
         out << LibraryGenerator::indent(2);
 <<<<<<< HEAD:src/csl/libraryfunction.cpp
+<<<<<<< HEAD:src/csl/libraryfunction.cpp
         group->printParameterDefinition(out, isTrivial(), true);
 =======
         group->printParameterDefinition(out, csl::IsNumerical(expression), true);
 >>>>>>> Generation of C functions:csl/src/libraryfunction.cpp
+=======
+        group->printParameterDefinition(out, isTrivial(), true);
+>>>>>>> Corrected looptools for C/Cpp libraries:csl/src/libraryfunction.cpp
         out << '\n' << LibraryGenerator::indent(2) << ")";
         if (header)
             out << ";\n";
@@ -262,6 +266,7 @@ namespace csl {
         printName(out);
         out << LibraryGenerator::indent(2);
 <<<<<<< HEAD:src/csl/libraryfunction.cpp
+<<<<<<< HEAD:src/csl/libraryfunction.cpp
         group->printParameterDefinition(out, isTrivial());
         out << '\n' << LibraryGenerator::indent(2) << ")";
         out << "\n{\n";
@@ -298,23 +303,43 @@ namespace csl {
         }
 =======
         group->printParameterDefinition(out, csl::IsNumerical(expression));
+=======
+        group->printParameterDefinition(out, isTrivial());
+>>>>>>> Corrected looptools for C/Cpp libraries:csl/src/libraryfunction.cpp
         out << '\n' << LibraryGenerator::indent(2) << ")";
         out << "\n{\n";
-        out << LibraryGenerator::indent(1) << "cparam_t cparam;\n";
-        for (const auto &param : parameters) {
-            if (
-                    param.type == LibraryGenerator::complexUsing
-                    && !LibraryGenerator::isQuadruplePrecision()
-            ) {
-                out << LibraryGenerator::indent(1)
-                    << "cparam." << param.name << " = param." << param.name << ".real() + _Complex_I*"
-                    << "param." << param.name << ".imag();\n";
+        if (isTrivial()) {
+            csl::Expr toPrint = expression;
+            session.printLib(toPrint, perf, out);
+        }
+        else {
+            out << LibraryGenerator::indent(1) << "cparam_t cparam;\n";
+            for (const auto &param : parameters) {
+                if (
+                        param.type == LibraryGenerator::complexUsing
+                        && !LibraryGenerator::isQuadruplePrecision()
+                ) {
+                    out << LibraryGenerator::indent(1)
+                        << "cparam." << param.name << " = param." << param.name << ".get().real() + _mty_I*"
+                        << "param." << param.name << ".get().imag();\n";
+                }
+                else {
+                    out << LibraryGenerator::indent(1)
+                        << "cparam." << param.name << " = param." << param.name << ";\n"; 
+                }
+            }
+            if (group->hasComplexReturn()) {
+                out << LibraryGenerator::indent(1) << "auto res = c_" << name 
+                    << "(&cparam);\n";
+                out << LibraryGenerator::indent(1) << "return {"
+                    << "res.real, res.imag};\n";
             }
             else {
-                out << LibraryGenerator::indent(1)
-                    << "cparam." << param.name << " = param." << param.name << ";\n"; 
+                out << LibraryGenerator::indent(1) << "return c_"
+                    << name << "(&cparam);\n";
             }
         }
+<<<<<<< HEAD:src/csl/libraryfunction.cpp
         if (group->hasComplexReturn()) {
             out << LibraryGenerator::indent(1) << "auto res = c_" << name 
                 << "(&cparam);\n";
@@ -326,6 +351,8 @@ namespace csl {
                 << name << "(&cparam);\n";
         }
 >>>>>>> Full C/C++ library generation:csl/src/libraryfunction.cpp
+=======
+>>>>>>> Corrected looptools for C/Cpp libraries:csl/src/libraryfunction.cpp
         out << "}";
         out << '\n';
     }

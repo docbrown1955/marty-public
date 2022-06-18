@@ -388,10 +388,14 @@ namespace csl {
             out << getParamName() << " const &";
         }
 <<<<<<< HEAD:src/csl/librarygroup.cpp
+<<<<<<< HEAD:src/csl/librarygroup.cpp
         if (isCSource || !unusedParam)
 =======
         if (!unusedParam)
 >>>>>>> Generation of C functions:csl/src/librarygroup.cpp
+=======
+        if (isCSource || !unusedParam)
+>>>>>>> Corrected looptools for C/Cpp libraries:csl/src/librarygroup.cpp
             out << "param";
     }
 
