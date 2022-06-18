@@ -25,7 +25,6 @@ jobs:
         export CXX=g++-11
         export CC=gcc-11 
         export FC=gfortran-11
-        export PATH=$PATH:/usr/texbin/:/Library/TeX/bin
         cmake ..
     - name: make
       run: |
@@ -58,6 +57,7 @@ jobs:
         export CXX=g++-11
         export CC=gcc-11 
         export FC=gfortran-11
+        export PATH=$PATH:/usr/texbin/:/Library/TeX/bin:/usr/local:/usr/local/texlive:/usr/local/texlive/2022:/usr/local/texlive/2022/bin
         cmake ..
     - name: make
       run: |
