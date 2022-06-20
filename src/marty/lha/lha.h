@@ -28,6 +28,8 @@
 #ifndef LHA_H_INCLUDED
 #define LHA_H_INCLUDED
 
+#include "lhaBlocks.h"
+#include "lhaData.h"
 #include <string>
 #include <vector>
 
@@ -35,9 +37,6 @@
  * @brief Namespace containing all lha utilities.
  */
 namespace mty::lha {
-
-struct LHAElement;
-class LHAFileData;
 
 /**
  * @brief Class the reads .lha file, parses them and create a LHAFileData

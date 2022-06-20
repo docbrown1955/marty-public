@@ -14,7 +14,6 @@
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "lha.h"
-#include "lhaData.h"
 #include <algorithm>
 #include <fstream>
 #include <iostream>
