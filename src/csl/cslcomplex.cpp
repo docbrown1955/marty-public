@@ -17,6 +17,7 @@
 #include "comparison.h"
 #include "interface.h"
 #include "librarydependency.h"
+#include "librarygenerator.h"
 
 using namespace std;
 
@@ -61,15 +62,25 @@ void RealPart::setOperand(const Expr &arg)
 void RealPart::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
     if (libMode == LibraryMode::CppLib) {
-        out << "std::complex<long double>(";
-        argument->print(1, out, libMode);
-        out << ").real()";
+        if (LibraryGenerator::isQuadruplePrecision()) {
+            out << "crealq(";
+            argument->print(1, out, libMode);
+            out << ")";
+        }
+        else {
+            out << "std::complex<long double>(";
+            argument->print(1, out, libMode);
+            out << ").real()";
+        }
         if (mode == 0)
             out << endl;
         return;
     }
     else if (libMode == LibraryMode::CLib) {
-        out << "creal(";
+        if (LibraryGenerator::isQuadruplePrecision())
+            out << "crealq(";
+        else
+            out << "creal(";
         argument->print(1, out, libMode);
         out << ")";
         if (mode == 0)
@@ -225,15 +236,25 @@ void ImaginaryPart::print(int           mode,
                           LibraryMode   libMode) const
 {
     if (libMode == LibraryMode::CppLib) {
-        out << "std::complex<long double>(";
-        argument->print(1, out, libMode);
-        out << ").imag()";
+        if (LibraryGenerator::isQuadruplePrecision()) {
+            out << "cimagq(";
+            argument->print(1, out, libMode);
+            out << ")";
+        }
+        else {
+            out << "std::complex<long double>(";
+            argument->print(1, out, libMode);
+            out << ").imag()";
+        }
         if (mode == 0)
             out << endl;
         return;
     }
     else if (libMode == LibraryMode::CLib) {
-        out << "cimag(";
+        if (LibraryGenerator::isQuadruplePrecision())
+            out << "cimagq(";
+        else
+            out << "cimag(";
         argument->print(1, out, libMode);
         out << ")";
         if (mode == 0)
