@@ -2373,7 +2373,6 @@ void FeynmanIntegral::printLib(int              mode,
         return;
     }
     if (libMode == csl::LibraryMode::CppLib) {
-<<<<<<< HEAD:src/marty/core/feynmanIntegral.cpp
         out << "mtylt_" << type << "0iC(" << int(loopToolsId) << ", ";
         for (size_t i = 0; i != argument.size(); ++i) {
             argument[i]->print(mode, out, libMode);
@@ -2383,14 +2382,6 @@ void FeynmanIntegral::printLib(int              mode,
         if (type == IntegralType::C) {
             out << ", getIntegrationParameters()->reg_int";
         }
-=======
-        out << "mty::lt::" << type << "0iC(" << int(loopToolsId) << ", ";
-        for (size_t i = 0; i != argument.size(); ++i) {
-            argument[i]->print(mode, out, libMode);
-            out << ", ";
-        }
-        out << "mty::lt::reg_int";
->>>>>>> Extended MARTY objects for C code generation:marty/src/feynmanIntegral.cpp
         out << ")";
         if (mode == 0)
             out << '\n';
@@ -2414,10 +2405,10 @@ void FeynmanIntegral::printLib(int              mode,
 csl::LibDependency FeynmanIntegral::getLibDependency() const
 {
     csl::LibDependency dependencies;
-    dependencies.addInclude("marty/looptools_init.h",
-                            "marty/looptools_init.h");
-    dependencies.addInclude("marty/looptools_interface.h",
-                            "marty/looptools_interface.h");
+    dependencies.addInclude("marty/core/looptools_init.h",
+                            "marty/core/looptools_init.h");
+    dependencies.addInclude("marty/core/looptools_interface.h",
+                            "marty/core/looptools_interface.h");
     dependencies.addLib("-lgfortran");
     dependencies.addInclude("clooptools.h", "clooptools.h");
     if (csl::LibraryGenerator::isQuadruplePrecision()) {
@@ -2568,7 +2559,7 @@ std::vector<csl::Expr> FeynmanIntegral::getMasses() const
     }
 }
 
-ComplexType FeynmanIntegral::evaluateIntegral() const
+ltComplexType FeynmanIntegral::evaluateIntegral() const
 {
     switch (type) {
     case IntegralType::A:
