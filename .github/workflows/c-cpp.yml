@@ -43,6 +43,7 @@ jobs:
         cd test-suite
         ./launch_tests.sh
   build-and-test-macos:
+    if: ${{ false }}
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v3
