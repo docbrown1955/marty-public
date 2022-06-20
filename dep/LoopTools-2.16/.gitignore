@@ -1,0 +1,4 @@
+build/*
+build-quad/*
+makefile
+!src/makefile

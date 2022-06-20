@@ -1,0 +1,51 @@
+set(ALL_SOURCES
+    abstractgammasym.cpp
+    abstractgammasym.h
+    contraction.cpp
+    contraction.h
+    cslconverter.cpp
+    cslconverter.h
+    cslexpr.cpp
+    cslexpr.h
+    debuglog.h
+    epsilonindex.cpp
+    epsilonindex.h
+    exceptions.h
+    fierz.cpp
+    fierz.h
+    gammaindex.cpp
+    gammaindex.h
+    generalizedindex.cpp
+    generalizedindex.h
+    indexchain.cpp
+    indexchain.h
+    metricindex.cpp
+    metricindex.h
+    momentumindex.cpp
+    momentumindex.h
+    multifunction.cpp
+    multifunction.h
+    ordering.cpp
+    ordering.h
+    sgl.h
+    sglalgo.h
+    sglcommutation.cpp
+    sglcommutation.h
+    sglfield.cpp
+    sglfield.h
+    sglinterface.cpp
+    sglinterface.h
+    sgloperations.cpp
+    sgloperations.h
+    sgloptions.h
+    simplify.cpp
+    simplify.h
+    tensorset.cpp
+    tensorset.h
+    tracer.cpp
+    tracer.h
+    typecast.h
+)
+
+add_library(sgl OBJECT ${ALL_SOURCES})
+set_property(TARGET sgl PROPERTY POSITION_INDEPENDENT_CODE 1)
