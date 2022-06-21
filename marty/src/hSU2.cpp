@@ -252,9 +252,21 @@ void hSU2_Model::initHiggs(){
   H = mty::scalarboson_s("H",*this);
   H->setGroupRep("L",1);
   H->setGroupRep("Y",{1,2});
-  csl::Expr m_H = csl::constant_s("m_H"); // higgs mass. Should be left as input. 
-  H->setMass(m_H);
   addParticle(H); // 
+
+  csl::Index i = GaugeIndex(*this, "L", H);
+  csl::Index j = GaugeIndex(*this, "L", H);
+  csl::Expr v = hSU2_Model::v_h;
+  csl::Expr mh = sm_input::m_h;
+  csl::Expr H2 = csl::GetComplexConjugate(H(i)) * H(i);
+  csl::Expr m2 = mh*mh / 2;
+  csl::Expr lam = mh*mh / (2*v*v);
+
+  // Mexican hat potential
+  addLagrangianTerm(m2*H2);
+  addLagrangianTerm(-lam*csl::pow_s(H2, 2));
+
+
 }
 void hSU2_Model::initInteractions(){
   //Complete the Lagrangian with Yukawa interactions.   
@@ -289,7 +301,7 @@ void hSU2_Model::initInteractions(){
 
   // Interaction terms : 
   // up sector
-  addLagrangianTerm(
+  addLagrangianTerm(-
       y_u 
       * GetComplexConjugate(Qi({a,il[0],I, al}))
       * eps({il[0],il[1]})
@@ -297,7 +309,7 @@ void hSU2_Model::initInteractions(){
       * Psi_uR({a,I,al}),
       true); // Add also the complex conjugate of this term
 
-  addLagrangianTerm(
+  addLagrangianTerm(-
       lambda_u 
       * GetComplexConjugate(Psi_uL({a,ih[0],al})) 
       * Y(A)
@@ -305,7 +317,7 @@ void hSU2_Model::initInteractions(){
       * Psi_uR({a,ih[1],al})
       ,true);
 
-  addLagrangianTerm(
+  addLagrangianTerm(-
       tilde_lambda_u
       * GetComplexConjugate(Psi_uL({a,ih[0],al})) 
       * eps({il[0],il[1]})
@@ -316,7 +328,7 @@ void hSU2_Model::initInteractions(){
       ,true );
 
   Expr y_u0 = constant_s("y_{u0}");
-  addLagrangianTerm(
+  addLagrangianTerm(-
       y_u0 
       * GetComplexConjugate(Q0({a,il[0],al}))
       * eps({il[0],il[1]})
@@ -336,13 +348,13 @@ void hSU2_Model::initInteractions(){
   std::vector<Particle> U_R = {U0, U1, U2};
 
   for(int a_u = 0; a_u < 3; a_u++){
-    addLagrangianTerm(
+    addLagrangianTerm(-
         K_u[a_u]
         * GetComplexConjugate(Psi_uL({a,I,al}))
         * X(I)
         * U_R[a_u]({a,al})
         ,true);
-    addLagrangianTerm(
+    addLagrangianTerm(-
         tK_u[a_u]
         * GetComplexConjugate(Psi_uL({a,ih[0],al}))
         * eps_h({ih[0],ih[1]})
@@ -354,14 +366,14 @@ void hSU2_Model::initInteractions(){
   std::cout << "Up quark sector interactions complete..." << std::endl;
   // Down sector 
   // No charge conjugation on Higgs
-  addLagrangianTerm(
+  addLagrangianTerm(-
       y_d
       * GetComplexConjugate(Qi({a,Il,I, al}))
      // * eps({il[0],il[1]})
       * H(Il)
       * Psi_dR({a,I,al}),
       true); // Add also the complex conjugate of this term
-  addLagrangianTerm( 
+  addLagrangianTerm(- 
       lambda_d 
       * GetComplexConjugate(Psi_dL({a,ih[0],al})) 
       * Y(A)
@@ -369,7 +381,7 @@ void hSU2_Model::initInteractions(){
       * Psi_dR({a,ih[1],al})
       ,true);
 
-  addLagrangianTerm(
+  addLagrangianTerm(-
       tilde_lambda_d
       * GetComplexConjugate(Psi_dL({a,ih[0],al})) 
       * eps({il[0],il[1]})
@@ -380,7 +392,7 @@ void hSU2_Model::initInteractions(){
       ,true );
 
   Expr y_d0 = constant_s("y_{d0}");
-  addLagrangianTerm(
+  addLagrangianTerm(-
       y_d0 
       * GetComplexConjugate(Q0({a,Il,al}))
       * H(Il)
@@ -399,13 +411,13 @@ void hSU2_Model::initInteractions(){
   std::vector<Particle> D_R = {D0, D1, D2};
 
   for(int a_d = 0; a_d < 3; a_d++){
-    addLagrangianTerm(
+    addLagrangianTerm(-
         K_d[a_d]
         * GetComplexConjugate(Psi_dL({a,I,al}))
         * X(I)
         * D_R[a_d]({a,al})
         ,true);
-    addLagrangianTerm(
+    addLagrangianTerm(-
         tK_d[a_d]
         * GetComplexConjugate(Psi_dL({a,ih[0],al}))
         * eps_h({ih[0],ih[1]})
@@ -414,14 +426,14 @@ void hSU2_Model::initInteractions(){
         ,true);
   }
   // Lepton sector
-  addLagrangianTerm(
+  addLagrangianTerm(-
       y_l
       * GetComplexConjugate(Li({Il,I, al}))
       * H(Il)
       * Psi_lR({I,al}),
       true); // Add also the complex conjugate of this term
 
-  addLagrangianTerm(
+  addLagrangianTerm(-
       lambda_l 
       * GetComplexConjugate(Psi_lL({ih[0],al})) 
       * Y(A)
@@ -429,7 +441,7 @@ void hSU2_Model::initInteractions(){
       * Psi_lR({ih[1],al})
       ,true);
 
-  addLagrangianTerm(
+  addLagrangianTerm(-
       tilde_lambda_l
       * GetComplexConjugate(Psi_lL({ih[0],al})) 
       * eps({il[0],il[1]})
@@ -440,7 +452,7 @@ void hSU2_Model::initInteractions(){
       ,true );
 
   Expr y_l0 = constant_s("y_{l0}");
-  addLagrangianTerm(
+  addLagrangianTerm(-
       y_l0
       * GetComplexConjugate(L0({Il,al}))
       * H(Il)
@@ -459,13 +471,13 @@ void hSU2_Model::initInteractions(){
   std::vector<Particle> E_R = {E0, E1, E2};
 
   for(int a_l = 0; a_l < 3; a_l++){
-    addLagrangianTerm(
+    addLagrangianTerm(-
         K_l[a_l]
         * GetComplexConjugate(Psi_lL({J,al}))
         * X(J)
         * E_R[a_l]({al})
         ,true);
-    addLagrangianTerm(
+    addLagrangianTerm(-
         tK_l[a_l]
         * GetComplexConjugate(Psi_lL({ih[0],al}))
         * eps_h({ih[0],ih[1]})
@@ -477,17 +489,17 @@ void hSU2_Model::initInteractions(){
   csl::Expr m_psi_u = hSU2_input::M_U;
   csl::Expr m_psi_d = hSU2_input::M_D;
   csl::Expr m_psi_l = hSU2_input::M_L;
-  addLagrangianTerm(
+  addLagrangianTerm(-
        m_psi_u 
        * GetComplexConjugate(Psi_uL({a,J,al}))
        * Psi_uR({a,J,al})
        , true);
-  addLagrangianTerm(
+  addLagrangianTerm(-
        m_psi_d
        * GetComplexConjugate(Psi_dL({a,J,al}))
        * Psi_dR({a,J,al})
        , true);
-  addLagrangianTerm(
+  addLagrangianTerm(-
        m_psi_l 
        * GetComplexConjugate(Psi_lL({J,al}))
        * Psi_lR({J,al})
@@ -501,8 +513,13 @@ void hSU2_Model::getToLowEnergyLagrangian(){
   
      std::cout << "Breaking the SU(2)_h symmetry...." << std::endl;
      horizontalSymmetryBreaking();
-     std::cout << "Expanding around additional Scalars' VEV's" << std::endl; 
-     expandAroundVEVs();
+     std::cout << "Expanding around additional Scalars' VEV's" << std::endl;
+     std::cout << "Breaking SM SU(2)_L x U(1)_Y symmetry" << std::endl;
+     breakSMSymmetry();
+     std::cout << "Mixing fermions..." << std::endl;
+     //rotateFermions();
+//     expandAroundVEVs();
+    
 }
 void hSU2_Model::horizontalSymmetryBreaking(){
     ////////////////////////////////////////////////
@@ -510,21 +527,13 @@ void hSU2_Model::horizontalSymmetryBreaking(){
     ///////////////////////////////////////////////
 
      BreakGaugeSymmetry(*this, "X");
-     renameParticle("{U_R}_0","u_R");
-     renameParticle("{U_R}_1","c_R");
-     renameParticle("{U_R}_2","t_R");
-
-     renameParticle("{D_R}_0","d_R");
-     renameParticle("{D_R}_1","s_R");
-     renameParticle("{D_R}_2","b_R");
-     
-     renameParticle("{E_R}_0","e_R");
-     renameParticle("{E_R}_1","\\mu_R");
-     renameParticle("{E_R}_2","\\tau_R");
+     expandAroundVEVs();
+     setGaugeBosonsMass();
 }
 
 void hSU2_Model::expandAroundVEVs(){
   csl::Expr v_h = hSU2_input::v_h ;
+  csl::Expr v_y = hSU2_input::v_y ;
   
   Particle Y1 = getParticle("Y_1");
   Particle Y2 = getParticle("Y_2");
@@ -536,16 +545,153 @@ void hSU2_Model::expandAroundVEVs(){
   Particle x0 = scalarboson_s("x0 ; x^0", *this); // New scalar physical boson 
   Particle Gxp= scalarboson_s("Gxp; G_x^+", *this); // New goldstone boson.
   Particle Gx0= scalarboson_s("Gx0; G_x^0", *this); // New goldstone boson.
+  Particle y0 = scalarboson_s("y0 ; y^0", *this); // New scalar boson 
 
   x0->setSelfConjugate(true);
+  y0->setSelfConjugate(true);
   Gx0->setSelfConjugate(true);
  
-  replace(X1, Gxp());
-  replace(X2, (x0() + CSL_I*Gx0() + v_h)/csl::sqrt_s(2));
-  promoteToGoldstone("G_x^+","V_1");
+  replace(X1, CSL_0);
+  replace(X2, (x0() + v_h)/csl::sqrt_s(2));
 
+  Replaced(*this,
+      Y3,
+      (v_y + y0)/csl::sqrt_s(2)
+      );
+  Replaced(*this,
+      Y1,
+      CSL_0);
+  Replaced(*this,
+      Y2,
+      CSL_0);
   // Particle y1_0 = scalarboson_s("y_1; y_1^0", *this);
   // Particle y2_0 = scalarboson_s("")
+}
+void hSU2_Model::setGaugeBosonsMass(){
+  
+     Particle V_1 = getParticle("V_1");
+     Particle V_2 = getParticle("V_2");
+     Particle V_3 = getParticle("V_3");
+
+    Replaced(*this,
+        V_1->getMass(),
+        hSU2_input::M_V_1);
+    Replaced(*this,
+        V_2->getMass(),
+        hSU2_input::M_V_2);
+    Replaced(*this,
+        V_3->getMass(),
+        hSU2_input::M_V_3);
+     rotateFields({V_1,V_2,V_3},true);
+     SetGaugeChoice(V_1,gauge::Unitary);
+     SetGaugeChoice(V_2,gauge::Unitary);
+     SetGaugeChoice(V_3,gauge::Unitary);
+}
+
+void hSU2_Model::breakSMSymmetry(){ 
+    ///////////////////////////////////////////////////
+    // Breaking gauge SU(2)_L symmetry, renaming
+    ///////////////////////////////////////////////////
+
+    BreakGaugeSymmetry(*this, "Y");
+    BreakGaugeSymmetry(*this, "L");
+    
+    ///////////////////////////////////////////////////
+    // Replacements to get SM particles W +-
+    ///////////////////////////////////////////////////
+
+    Particle W1   = GetParticle(*this, "W_1");
+    Particle W2   = GetParticle(*this, "W_2");
+    Particle W_SM = W1->generateSimilar("W");
+    W_SM->setSelfConjugate(false);
+
+    Particle cW1 = getParticle("c_W_1");
+    Particle cW2 = getParticle("c_W_2");
+    Particle cWp = W_SM->getGhostBoson();
+    cWp->setName("c_Wp ; c_{+}");
+    Particle cWm = ghostboson_s("c_Wm; c_{-}", W_SM, true);
+    W_SM->setConjugatedGhostBoson(cWm);
+
+    csl::Index mu = MinkowskiIndex();
+    csl::Index nu = MinkowskiIndex();
+    csl::Expr W_p = W_SM(+mu);
+    csl::Expr W_m = csl::GetComplexConjugate(W_SM(+mu));
+    csl::Expr F_W_p = W_SM({+mu,+nu});
+    csl::Expr F_W_m = csl::GetComplexConjugate(W_SM({+mu, +nu}));
+
+    auto W1_expr = [](csl::Expr const &Wp, csl::Expr const &Wm) {
+        return (Wp + Wm) / csl::sqrt_s(2);
+    };
+    auto W2_expr = [](csl::Expr const &Wp, csl::Expr const &Wm) {
+        return CSL_I * (Wp - Wm) / csl::sqrt_s(2);
+    };
+    replace(W1, W1_expr(W_p, W_m));
+    replace(W2, W2_expr(W_p, W_m));
+    replace(W1->getFieldStrength(), W1_expr(F_W_p, F_W_m));
+    replace(W2->getFieldStrength(), W2_expr(F_W_p, F_W_m));
+    replace(cW1, W1_expr(cWp, cWm));
+    replace(cW2, W2_expr(cWp, cWm));
+
+    ///////////////////////////////////////////////////
+    // Actual gauge (spontaneous) symmetry breaking
+    ///////////////////////////////////////////////////
+
+    csl::Expr v_h = hSU2_input::v_h;
+
+    Particle H1 = getParticle("H_1");
+    Particle H2 = getParticle("H_2");
+
+    Particle h0 = scalarboson_s("h0 ; h^0", *this); // SM Higgs boson
+    Particle Gp = scalarboson_s("Gp ; G^+", *this);
+    Particle G0 = scalarboson_s("G0 ; G^0", *this);
+    h0->setSelfConjugate(true);
+    G0->setSelfConjugate(true);
+
+    replace(H1, Gp());
+    replace(H2, (h0() + CSL_I*G0() + v_h)/csl::sqrt_s(2));
+
+    ///////////////////////////////////////////////////
+    // Diagonalizing what can be
+    ///////////////////////////////////////////////////
+
+    diagonalizeMassMatrices();
+    renameParticle("B", "A");
+    renameParticle("W_3", "Z");
+    gatherMass("W");
+    gatherMass("Z");
+
+    // csl::Expr g_Y = getScalarCoupling("g_Y");
+    // csl::Expr g_L = getScalarCoupling("g_L");
+    csl::Expr theta_Weinberg = sm_input::theta_W;
+    csl::Expr e  = sm_input::e_em;
+
+    replace(
+            g_L*g_L + g_Y*g_Y,
+            csl::pow_s(g_L/csl::cos_s(theta_Weinberg), csl::int_s(2)));
+    replace(
+            g_Y, 
+            e / csl::cos_s(theta_Weinberg));
+    replace(
+            g_L, 
+            e / csl::sin_s(theta_Weinberg));
+}
+void hSU2_Model::rotateFermions(){
+    Particle Q_0 = getParticle("{Q_L}_0");
+    Particle Q_1 = getParticle("{Q_L}_i_1");
+    Particle Q_2 = getParticle("{Q_L}_i_2");
+
+    Particle U_0 = getParticle("{U_R}_0");
+    Particle U_1 = getParticle("{U_R}_1");
+    Particle U_2 = getParticle("{U_R}_2");
+    
+    Particle Psi_uL_1 = getParticle("\\Psi_uL_1");
+    Particle Psi_uR_1 = getParticle("\\Psi_uR_1");
+
+
+    Particle L_0 = getParticle("{L_L}_0");
+    Particle L_1 = getParticle("{L_L}_i_1");
+    Particle L_2 = getParticle("{L_L}_i_2");
+   
 }
 void hSU2_Model::checkHermiticity(){
 

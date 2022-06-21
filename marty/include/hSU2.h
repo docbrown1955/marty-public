@@ -78,6 +78,11 @@ namespace mty::hSU2_input{
   inline
     csl::Expr M_L = csl::constant_s("M_L");
 
+  // Mass termes for new gauge bosons 
+  inline 
+    csl::Expr M_V_1 = csl::constant_s("M_V_1");
+    csl::Expr M_V_2 = csl::constant_s("M_V_2");
+    csl::Expr M_V_3 = csl::constant_s("M_V_3");
   inline
     csl::Expr k_u0 = csl::constant_s("\\kappa_u0");
   inline
@@ -183,6 +188,9 @@ namespace mty{
       void getToLowEnergyLagrangian();
         void horizontalSymmetryBreaking();
         void expandAroundVEVs();
+        void setGaugeBosonsMass();
+        void breakSMSymmetry();
+        void rotateFermions();
         void checkHermiticity();
         void computeFeynmanRules();
         void adjust_fermions(); // ?
