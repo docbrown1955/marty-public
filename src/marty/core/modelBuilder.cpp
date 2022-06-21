@@ -781,6 +781,9 @@ void ModelBuilder::birotateFields(std::vector<std::string> const &fields1,
 void ModelBuilder::applyUnitaryCondition(
     std::vector<std::vector<csl::Expr>> const &unitary)
 {
+    if (!mty::option::tryUnitaryCondition) {
+        return;
+    }
     auto dependsOnMixing = [&](csl::Expr const &expr) {
         for (const auto &row : unitary)
             for (const auto &el : row)
