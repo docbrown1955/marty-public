@@ -9,7 +9,7 @@ namespace test_spectrum {
 struct param_t;
 
 complex_t m_Z(
-        param_t const &param
+        param_t const &
         );
 
 }

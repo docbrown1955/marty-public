@@ -20,7 +20,7 @@ void updateDiagonalization(param_t &params);
 ////////////////////////////////////////////////////
 struct SpectrumInput {
     complex_t g_X;
-    complex_t v_h;
+    complex_t v_x;
     complex_t v_y;
 };
 
@@ -56,7 +56,7 @@ void readDiagonalizationInputs(
         )
 {
     diagData.g_X = input.g_X;
-    diagData.v_h = input.v_h;
+    diagData.v_x = input.v_x;
     diagData.v_y = input.v_y;
 }
 

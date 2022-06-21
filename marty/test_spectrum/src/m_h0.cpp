@@ -1,7 +1,7 @@
 #include "clooptools.h"
 #include "marty/looptools_init.h"
 #include <cmath>
-#include "m_{L_L}_0_2.h"
+#include "m_h0.h"
 #include "common.h"
 
 #include "params.h"
@@ -9,13 +9,14 @@
 
 namespace test_spectrum {
 
-complex_t m_{L_L}_0_2(
+complex_t m_h0(
         param_t const &param
         )
 {
     clearcache();
-    const real_t y_l0 = param.y_l0;
-    const complex_t IT_0000 = (-174.103831663752)*y_l0;
-    return IT_0000;
+    const real_t m_H = param.m_H;
+    const complex_t IT_0000 = std::pow(m_H, 2);
+    const complex_t IT_0001 = std::pow(23505.0486 + IT_0000, 0.5);
+    return IT_0001;
 }
 } // End of namespace test_spectrum

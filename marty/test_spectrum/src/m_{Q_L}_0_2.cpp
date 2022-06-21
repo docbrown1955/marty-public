@@ -14,9 +14,8 @@ complex_t m_{Q_L}_0_2(
         )
 {
     clearcache();
-    const real_t v_h = param.v_h;
     const real_t y_d0 = param.y_d0;
-    const complex_t IT_0000 = 0.707106781186548*v_h*y_d0;
+    const complex_t IT_0000 = (-174.103831663752)*y_d0;
     return IT_0000;
 }
 } // End of namespace test_spectrum

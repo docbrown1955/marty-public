@@ -15,7 +15,7 @@ struct param_t {
     // Elementary parameters to be defined 
     ///////////////////////////////////////
 
-    csl::InitSanitizer<real_t> v_h { "v_h" };
+    csl::InitSanitizer<real_t> v_x { "v_x" };
     csl::InitSanitizer<real_t> y_d { "y_d" };
     csl::InitSanitizer<real_t> y_l { "y_l" };
     csl::InitSanitizer<real_t> y_u { "y_u" };
@@ -44,6 +44,9 @@ struct param_t {
     csl::InitSanitizer<real_t> m_H { "m_H" };
     csl::InitSanitizer<real_t> m_W { "m_W" };
     csl::InitSanitizer<real_t> m_Z { "m_Z" };
+    csl::InitSanitizer<real_t> m_G0 { "m_G0" };
+    csl::InitSanitizer<real_t> m_Gp { "m_Gp" };
+    csl::InitSanitizer<real_t> m_h0 { "m_h0" };
     csl::InitSanitizer<real_t> m_V_1 { "m_V_1" };
     csl::InitSanitizer<real_t> m_V_2 { "m_V_2" };
     csl::InitSanitizer<real_t> m_V_3 { "m_V_3" };
@@ -74,16 +77,17 @@ struct param_t {
 
     void reset()
     {
-        using real_params = std::array<csl::InitSanitizer<real_t>*, 34>;
+        using real_params = std::array<csl::InitSanitizer<real_t>*, 37>;
         using complex_params = std::array<csl::InitSanitizer<complex_t>*, 11>;
 
         for (auto &par : real_params{
-                &v_h, &y_d, &y_l, &y_u, &y_d0, 
+                &v_x, &y_d, &y_l, &y_u, &y_d0, 
                 &y_l0, &y_u0, &kappa_d1, &kappa_d2, &kappa_l1, &kappa_l2, 
-                &kappa_u1, &tildekappa_u2, &m_H, &m_W, &m_Z, &m_V_1, 
-                &m_V_2, &m_V_3, &m_{D_R}_1, &m_{D_R}_2, &m_{E_R}_1, &m_{E_R}_2, 
-                &m_{U_R}_1, &m_{U_R}_2, &m_{L_L}_0_2, &m_{Q_L}_0_1, &m_{Q_L}_0_2, &m_{L_L}_i_1_2, 
-                &m_{L_L}_i_2_2, &m_{Q_L}_i_1_1, &m_{Q_L}_i_1_2, &m_{Q_L}_i_2_1, &m_{Q_L}_i_2_2, })
+                &kappa_u1, &tildekappa_u2, &m_H, &m_W, &m_Z, &m_G0, 
+                &m_Gp, &m_h0, &m_V_1, &m_V_2, &m_V_3, &m_{D_R}_1, 
+                &m_{D_R}_2, &m_{E_R}_1, &m_{E_R}_2, &m_{U_R}_1, &m_{U_R}_2, &m_{L_L}_0_2, 
+                &m_{Q_L}_0_1, &m_{Q_L}_0_2, &m_{L_L}_i_1_2, &m_{L_L}_i_2_2, &m_{Q_L}_i_1_1, &m_{Q_L}_i_1_2, 
+                &m_{Q_L}_i_2_1, &m_{Q_L}_i_2_2, })
         {
             par->reset();
         }
@@ -98,18 +102,19 @@ struct param_t {
 
     void print(std::ostream &out = std::cout)
     {
-        using real_params = std::array<csl::InitSanitizer<real_t> const*, 34>;
+        using real_params = std::array<csl::InitSanitizer<real_t> const*, 37>;
         using complex_params = std::array<csl::InitSanitizer<complex_t> const*, 11>;
 
         out << "param_t struct:\n";
         out << "Real parameters\n";
         for (auto const &par : real_params{
-                &v_h, &y_d, &y_l, &y_u, &y_d0, 
+                &v_x, &y_d, &y_l, &y_u, &y_d0, 
                 &y_l0, &y_u0, &kappa_d1, &kappa_d2, &kappa_l1, &kappa_l2, 
-                &kappa_u1, &tildekappa_u2, &m_H, &m_W, &m_Z, &m_V_1, 
-                &m_V_2, &m_V_3, &m_{D_R}_1, &m_{D_R}_2, &m_{E_R}_1, &m_{E_R}_2, 
-                &m_{U_R}_1, &m_{U_R}_2, &m_{L_L}_0_2, &m_{Q_L}_0_1, &m_{Q_L}_0_2, &m_{L_L}_i_1_2, 
-                &m_{L_L}_i_2_2, &m_{Q_L}_i_1_1, &m_{Q_L}_i_1_2, &m_{Q_L}_i_2_1, &m_{Q_L}_i_2_2, })
+                &kappa_u1, &tildekappa_u2, &m_H, &m_W, &m_Z, &m_G0, 
+                &m_Gp, &m_h0, &m_V_1, &m_V_2, &m_V_3, &m_{D_R}_1, 
+                &m_{D_R}_2, &m_{E_R}_1, &m_{E_R}_2, &m_{U_R}_1, &m_{U_R}_2, &m_{L_L}_0_2, 
+                &m_{Q_L}_0_1, &m_{Q_L}_0_2, &m_{L_L}_i_1_2, &m_{L_L}_i_2_2, &m_{Q_L}_i_1_1, &m_{Q_L}_i_1_2, 
+                &m_{Q_L}_i_2_1, &m_{Q_L}_i_2_2, })
         {
             out << "  -> ";
             par->print(out);
@@ -127,7 +132,7 @@ struct param_t {
     }
 
     std::map<std::string, csl::InitSanitizer<real_t>*> realParams {
-        {"v_h", &v_h},
+        {"v_x", &v_x},
         {"y_d", &y_d},
         {"y_l", &y_l},
         {"y_u", &y_u},
@@ -143,6 +148,9 @@ struct param_t {
         {"m_H", &m_H},
         {"m_W", &m_W},
         {"m_Z", &m_Z},
+        {"m_G0", &m_G0},
+        {"m_Gp", &m_Gp},
+        {"m_h0", &m_h0},
         {"m_V_1", &m_V_1},
         {"m_V_2", &m_V_2},
         {"m_V_3", &m_V_3},

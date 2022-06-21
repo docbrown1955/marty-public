@@ -35,11 +35,8 @@ namespace mty::hSU2_input{
 
   /// hSU2 inputs  ? Should define a clean way to read and sample them.
 
-  inline 
-    csl::Expr v_h = csl::constant_s("v_h"); // Higgs VEV
   inline
     csl::Expr v_x = csl::constant_s("v_x"); // X spurion vev
-
   inline
     csl::Expr v_y = csl::constant_s("v_y"); // Y spurion vev
 
@@ -72,11 +69,11 @@ namespace mty::hSU2_input{
 
   // Mass terms for vector like fermions. Redundant parametrization : M_U_i = \lambda_Ui * v_y
   inline
-    csl::Expr M_U = csl::constant_s("M_U");
+    csl::Expr m_U = csl::constant_s("M_U");
   inline
-    csl::Expr M_D = csl::constant_s("M_D");
+    csl::Expr m_D = csl::constant_s("M_D");
   inline
-    csl::Expr M_L = csl::constant_s("M_L");
+    csl::Expr m_L = csl::constant_s("M_L");
 
   // Mass termes for new gauge bosons 
   inline 
@@ -190,7 +187,9 @@ namespace mty{
         void expandAroundVEVs();
         void setGaugeBosonsMass();
         void breakSMSymmetry();
-        void rotateFermions();
+          void rotateFermions();
+          void adjutSM();
+          void addGaugeSMFixingTerms();
         void checkHermiticity();
         void computeFeynmanRules();
         void adjust_fermions(); // ?

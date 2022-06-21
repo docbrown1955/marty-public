@@ -10,12 +10,10 @@
 namespace test_spectrum {
 
 complex_t m_W(
-        param_t const &param
+        param_t const &
         )
 {
     clearcache();
-    const real_t v_h = param.v_h;
-    const complex_t IT_0000 = 0.315323400381146*v_h;
-    return IT_0000;
+    return 77.6389276418457;
 }
 } // End of namespace test_spectrum
