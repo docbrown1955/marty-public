@@ -107,9 +107,9 @@ class Commutator : public AbstractDuoFunc {
      */
     int getSign() const override;
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     std::string printLaTeX(int mode = 0) const override;
 

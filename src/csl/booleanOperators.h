@@ -73,13 +73,15 @@ class BooleanOperator : public AbstractMultiFunc {
 
     std::optional<Expr> getComplexArgument() const override;
 
-    void print(int           mode = 0,
-               std::ostream &out  = std::cout,
-               bool          lib  = false) const override;
+    void print(int           mode    = 0,
+               std::ostream &out     = std::cout,
+               LibraryMode   libMode = LibraryMode::NoLib) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
     std::string printLaTeX(int mode = 0) const override;
+
+    LibDependency getLibDependency() const override;
 
     std::optional<Expr> evaluate(csl::eval::mode user_mode
                                  = csl::eval::base) const override;
@@ -104,15 +106,15 @@ class BooleanOperator : public AbstractMultiFunc {
 };
 
 csl::Expr booleanOperator_s(BooleanOperator::Type type,
-                            csl::Expr const &     A,
-                            csl::Expr const &     B,
-                            csl::Expr const &     ifTrue,
-                            csl::Expr const &     ifFalse);
+                            csl::Expr const      &A,
+                            csl::Expr const      &B,
+                            csl::Expr const      &ifTrue,
+                            csl::Expr const      &ifFalse);
 
 csl::Expr booleanOperator_s(BooleanOperator::Type type,
-                            csl::Expr const &     A,
-                            csl::Expr const &     ifTrue,
-                            csl::Expr const &     ifFalse);
+                            csl::Expr const      &A,
+                            csl::Expr const      &ifTrue,
+                            csl::Expr const      &ifFalse);
 
 std::ostream &operator<<(std::ostream &out, BooleanOperator::Type type);
 

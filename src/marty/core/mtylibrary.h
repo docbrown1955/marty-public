@@ -41,7 +41,6 @@ class Library : public csl::LibraryGenerator {
 #endif
         if (csl::LibraryGenerator::isQuadruplePrecision()) {
             addLibrary("-looptools-quad");
-            addInclude("marty/core/looptools_quad_extension.h");
             addLibrary("-lquadmath");
         }
         else {
@@ -60,7 +59,7 @@ class Library : public csl::LibraryGenerator {
         for (const auto &m : model.getAbbreviatedMassExpressions()) {
             if (csl::Abbrev::find_opt(m)) {
                 addMassExpression(m->getName());
-                addFunction(m->getName(), m, "G");
+                addFunction(m->getName(), m);
             }
         }
         for (const auto &particle : model.getParticles()) {
@@ -87,10 +86,10 @@ class Library : public csl::LibraryGenerator {
 
     void addFunction(std::string const &name,
                      csl::Expr          expr,
-                     std::string const &groupName = "G")
+                     bool               forceCppFunc = false)
     {
         csl::ScopedProperty p(&csl::option::checkCommutations, false);
-        auto &f = csl::LibraryGenerator::addFunction(name, expr, groupName);
+        auto &f = csl::LibraryGenerator::addFunction(name, expr, forceCppFunc);
         f.addInitInstruction("clearcache();");
     }
 

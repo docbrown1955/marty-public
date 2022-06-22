@@ -284,13 +284,24 @@ void LibEval::print(std::ostream &out) const
     out << expr << " = " << init;
 }
 
-void LibEval::printLib(std::ostream &out, int indent, bool)
+void LibEval::printLib(std::ostream &out,
+                       LibraryMode   libMode,
+                       int           indent,
+                       bool)
 {
-    auto var = (expr->isReal()) ? LibraryGenerator::realUsing
+    std::string type;
+    if (libMode == LibraryMode::CppLib)
+        type = (expr->isReal()) ? LibraryGenerator::realUsing
                                 : LibraryGenerator::complexUsing;
+    else
+        type = (expr->isReal()) ? LibraryGenerator::crealUsing
+                                : LibraryGenerator::ccomplexUsing;
     if (indices.size() == 0 and not init->isIndexed()) {
-        printExpression(
-            out, init, indent, "const " + var + " " + toString(expr) + " = ");
+        printExpression(out,
+                        init,
+                        libMode,
+                        indent,
+                        "const " + type + " " + toString(expr) + " = ");
         return;
     }
 
@@ -300,7 +311,8 @@ void LibEval::printLib(std::ostream &out, int indent, bool)
                         + " not recognized in "
                           "library printing of indicial expression.");
 
-    out << LibraryGenerator::indent(indent) << var << ' ' << expr << " = 0;\n";
+    out << LibraryGenerator::indent(indent) << type << ' ' << expr
+        << " = 0;\n";
     replaceTensors();
     std::vector<std::string> indexNames(indices.size());
     for (size_t i = 0; i != indexNames.size(); ++i) {
@@ -310,7 +322,7 @@ void LibEval::printLib(std::ostream &out, int indent, bool)
             << " != " << indices[i].getSpace()->getDim() << "; ++"
             << indexNames[i] << ") {\n";
     }
-    printExpression(out, init, indent + 1, toString(expr) + " += ");
+    printExpression(out, init, libMode, indent + 1, toString(expr) + " += ");
     out << LibraryGenerator::indent(indent);
     for (size_t i = 0; i != indexNames.size(); ++i) {
         out << "}";
@@ -332,10 +344,12 @@ bool isTensorName(std::string_view name)
     return false;
 }
 
-void LibEval::printExpression(std::ostream &     out,
-                              Expr &             expression,
+void LibEval::printExpression(std::ostream      &out,
+                              Expr              &expression,
+                              LibraryMode        libMode,
                               int                indent,
-                              std::string const &beginning)
+                              std::string const &beginning,
+                              std::string const &end)
 {
     csl::Transform(expression, [&](Expr &sub) {
         const auto name    = sub->getName();
@@ -352,12 +366,14 @@ void LibEval::printExpression(std::ostream &     out,
     std::array<char, 7> delimiters = {'+', '*', '-', '/', '(', ')', ' '};
     std::ostringstream  sout;
     sout.precision(LibraryGenerator::nDigits);
-    Expr symb_i = csl::constant_s("_i_");
+    Expr symb_i = (libMode == LibraryMode::CppLib) ? csl::constant_s("_i_")
+                                                   : csl::constant_s("_Complex"
+                                                                     "_I");
     csl::ForEachLeaf(expression, [&](Expr &el) {
         if (el == CSL_I)
             el = symb_i;
     });
-    expression->print(1, sout, true);
+    expression->print(1, sout, libMode);
     std::vector<std::string> lines;
     std::string              str = sout.str();
 
@@ -383,7 +399,7 @@ void LibEval::printExpression(std::ostream &     out,
     for (size_t i = 0; i != lines.size(); ++i) {
         out << LibraryGenerator::indent(indent)
             << ((i == 0) ? beginning : "  ") << lines[i]
-            << ((i == lines.size() - 1) ? ";" : "") << "\n";
+            << ((i == lines.size() - 1) ? (end + ";") : std::string{}) << "\n";
     }
 }
 
@@ -571,9 +587,9 @@ LibEvalSession::Perf LibEvalSession::getPerf(Expr &init)
     return {eval.size(), nOp, eval};
 }
 
-void LibEvalSession::getPerf(LibEval const &       init,
+void LibEvalSession::getPerf(LibEval const        &init,
                              std::vector<LibEval> &newEvals,
-                             std::vector<int> &    nOccurences)
+                             std::vector<int>     &nOccurences)
 {
     auto pos = std::find(newEvals.begin(), newEvals.end(), init);
     if (pos == newEvals.end()) {
@@ -756,7 +772,7 @@ size_t getNLeafs(csl::Expr const &expr)
 }
 
 void LibEvalSession::parse(
-    Expr &                                            expr,
+    Expr                                             &expr,
     bool                                              findIntermediates,
     std::map<csl::AbstractParent const *, csl::Expr> &parsedAbbrevs)
 {
@@ -870,7 +886,7 @@ Expr LibEvalSession::expandIProd(Expr const &iprod)
 }
 
 void LibEvalSession::parseProduct(
-    Expr &                                            iprod,
+    Expr                                             &iprod,
     bool                                              findIntermediates,
     std::map<csl::AbstractParent const *, csl::Expr> &parsedAbbrevs)
 {
@@ -1005,16 +1021,33 @@ void LibEvalSession::print(std::ostream &out) const
         out << ev << '\n';
 }
 
-void LibEvalSession::printLib(Expr &        init,
-                              Perf &        perf,
+void LibEvalSession::printCLib(Expr         &init,
+                               Perf         &perf,
+                               std::ostream &out,
+                               bool          onlyDep)
+{
+    for (auto &eval : perf.evals) {
+        eval.printLib(out, LibraryMode::CLib);
+    }
+    if (not onlyDep)
+        LibEval::printExpression(out,
+                                 init,
+                                 LibraryMode::CLib,
+                                 1,
+                                 "return create_ccomplex_return(",
+                                 ")");
+}
+
+void LibEvalSession::printLib(Expr         &init,
+                              Perf         &perf,
                               std::ostream &out,
                               bool          onlyDep)
 {
     for (auto &eval : perf.evals) {
-        eval.printLib(out);
+        eval.printLib(out, LibraryMode::CppLib);
     }
     if (not onlyDep)
-        LibEval::printExpression(out, init, 1, "return ");
+        LibEval::printExpression(out, init, LibraryMode::CppLib, 1, "return ");
 }
 
 } // End of namespace csl

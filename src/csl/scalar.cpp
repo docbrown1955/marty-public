@@ -34,10 +34,10 @@ csl::Type Scalar::getType() const
     return csl::Type::Scalar;
 }
 
-void Scalar::print(int mode, std::ostream &out, bool lib) const
+void Scalar::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (lib) {
-        (argument[0] * argument[1])->print(mode, out, lib);
+    if (libMode != LibraryMode::NoLib) {
+        (argument[0] * argument[1])->print(mode, out, libMode);
         return;
     }
     out << "S(";

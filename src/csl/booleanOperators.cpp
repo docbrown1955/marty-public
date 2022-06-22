@@ -1,6 +1,7 @@
 #include "booleanOperators.h"
 #include "cslcomplex.h"
 #include "error.h"
+#include "librarydependency.h"
 #include <algorithm>
 
 namespace csl {
@@ -77,17 +78,19 @@ std::optional<csl::Expr> BooleanOperator::getComplexArgument() const
     return cpy.copy();
 }
 
-void BooleanOperator::print(int mode, std::ostream &out, bool lib) const
+void BooleanOperator::print(int           mode,
+                            std::ostream &out,
+                            LibraryMode   libMode) const
 {
     const size_t first = size() - 2;
-    if (lib) {
+    if (libMode != LibraryMode::NoLib) {
         out << "( (";
         switch (type) {
         case True:
-            out << "bool(" << argument[0] << ")";
+            out << "(bool)(" << argument[0] << ")";
             break;
         case False:
-            out << "!bool(" << argument[0] << ")";
+            out << "!(bool)(" << argument[0] << ")";
             break;
         case EqualTo:
             out << "(" << argument[0] << ") == (" << argument[1] << ")";
@@ -179,6 +182,13 @@ std::string BooleanOperator::printLaTeX(int mode) const
     return sout.str();
 }
 
+LibDependency BooleanOperator::getLibDependency() const
+{
+    LibDependency dep;
+    dep.addInclude("stdbool.h", "stdbool.h");
+    return dep;
+}
+
 std::optional<Expr> BooleanOperator::evaluate(csl::eval::mode user_mode) const
 {
     bool evaluated = false;
@@ -250,10 +260,10 @@ bool BooleanOperator::operator==(Expr_info expr) const
 }
 
 csl::Expr booleanOperator_s(BooleanOperator::Type type,
-                            csl::Expr const &     A,
-                            csl::Expr const &     B,
-                            csl::Expr const &     ifTrue,
-                            csl::Expr const &     ifFalse)
+                            csl::Expr const      &A,
+                            csl::Expr const      &B,
+                            csl::Expr const      &ifTrue,
+                            csl::Expr const      &ifFalse)
 {
     if (A == B) {
         if (type == BooleanOperator::EqualTo
@@ -271,9 +281,9 @@ csl::Expr booleanOperator_s(BooleanOperator::Type type,
 }
 
 csl::Expr booleanOperator_s(BooleanOperator::Type type,
-                            csl::Expr const &     A,
-                            csl::Expr const &     ifTrue,
-                            csl::Expr const &     ifFalse)
+                            csl::Expr const      &A,
+                            csl::Expr const      &ifTrue,
+                            csl::Expr const      &ifFalse)
 {
     if (A == CSL_1 && type == BooleanOperator::True) {
         return ifTrue;

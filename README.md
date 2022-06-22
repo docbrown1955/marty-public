@@ -13,6 +13,10 @@ phenomenological analysis.
 
 More information can be found on the [website](https://marty.in2p3.fr).
 
+## Get Started
+
+In the following some possibilities to get started easily with `MARTY`, once installed, are presented. For installation instructions, see the following section.
+
 ## Installation
 
 The following procedure is relevant since `MARTY-2.0`. To build and install older versions please refer to the [website](https://marty.in2p3.fr/download.html).

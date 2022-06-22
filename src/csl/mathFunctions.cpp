@@ -95,15 +95,20 @@ IMPLEMENT_PRINT_CODE(Factorial, factorial_s)
 /*************************************************/
 ///////////////////////////////////////////////////
 
-void Abs::print(int mode, std::ostream &out, bool lib) const
+void Abs::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (lib and LibraryGenerator::isQuadruplePrecision())
+    if (libMode != LibraryMode::NoLib
+        and LibraryGenerator::isQuadruplePrecision())
         out << "cabsq(";
-    else if (lib)
+    else if (libMode == LibraryMode::CppLib)
         out << "std::abs(";
+    else if (libMode == LibraryMode::CLib && argument->isReal())
+        out << "abs(";
+    else if (libMode == LibraryMode::CLib)
+        out << "cabs(";
     else
         out << "abs(";
-    argument->print(1, out, lib);
+    argument->print(1, out, libMode);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -201,15 +206,20 @@ optional<Expr> Exp::getComplexArgument() const
     return argument->getImaginaryPart();
 }
 
-void Exp::print(int mode, std::ostream &out, bool lib) const
+void Exp::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (lib and LibraryGenerator::isQuadruplePrecision())
+    if (libMode != LibraryMode::NoLib
+        and LibraryGenerator::isQuadruplePrecision())
         out << (argument->isReal() ? "" : "c") << "expq(";
-    else if (lib)
+    else if (libMode == LibraryMode::CppLib)
         out << "std::exp(";
+    else if (libMode == LibraryMode::CLib && argument->isReal())
+        out << "exp(";
+    else if (libMode == LibraryMode::CLib)
+        out << "cexp(";
     else
         out << "exp(";
-    argument->print(1, out, lib);
+    argument->print(1, out, libMode);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -349,15 +359,20 @@ optional<Expr> Log::getComplexArgument() const
                                    GetImaginaryPart(copy()));
 }
 
-void Log::print(int mode, std::ostream &out, bool lib) const
+void Log::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (lib and LibraryGenerator::isQuadruplePrecision())
+    if (libMode != LibraryMode::NoLib
+        and LibraryGenerator::isQuadruplePrecision())
         out << "clogq(";
-    else if (lib)
+    else if (libMode == LibraryMode::CppLib)
         out << "std::log(";
+    else if (libMode == LibraryMode::CLib && argument->isReal())
+        out << "log(";
+    else if (libMode == LibraryMode::CLib)
+        out << "clog(";
     else
         out << "log(";
-    argument->print(1, out, lib);
+    argument->print(1, out, libMode);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -452,15 +467,20 @@ optional<Expr> Cos::getComplexArgument() const
                                    GetImaginaryPart(copy()));
 }
 
-void Cos::print(int mode, std::ostream &out, bool lib) const
+void Cos::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (lib and LibraryGenerator::isQuadruplePrecision())
+    if (libMode != LibraryMode::NoLib
+        and LibraryGenerator::isQuadruplePrecision())
         out << (argument->isReal() ? "" : "c") << "cosq(";
-    else if (lib)
+    else if (libMode == LibraryMode::CppLib)
         out << "std::cos(";
+    else if (libMode == LibraryMode::CLib && argument->isReal())
+        out << "cos(";
+    else if (libMode == LibraryMode::CLib)
+        out << "ccos(";
     else
         out << "cos(";
-    argument->print(1, out, lib);
+    argument->print(1, out, libMode);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -578,15 +598,20 @@ optional<Expr> Sin::getComplexArgument() const
                                    GetImaginaryPart(copy()));
 }
 
-void Sin::print(int mode, std::ostream &out, bool lib) const
+void Sin::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (lib and LibraryGenerator::isQuadruplePrecision())
+    if (libMode != LibraryMode::NoLib
+        and LibraryGenerator::isQuadruplePrecision())
         out << (argument->isReal() ? "" : "c") << "sinq(";
-    else if (lib)
+    else if (libMode == LibraryMode::CppLib)
         out << "std::sin(";
+    else if (libMode == LibraryMode::CLib && argument->isReal())
+        out << "sin(";
+    else if (libMode == LibraryMode::CLib)
+        out << "csin(";
     else
         out << "sin(";
-    argument->print(1, out, lib);
+    argument->print(1, out, libMode);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -720,15 +745,20 @@ optional<Expr> Tan::getComplexArgument() const
                                    prod_s(cosh_s(im), sinh_s(im)));
 }
 
-void Tan::print(int mode, std::ostream &out, bool lib) const
+void Tan::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (lib and LibraryGenerator::isQuadruplePrecision())
+    if (libMode != LibraryMode::NoLib
+        and LibraryGenerator::isQuadruplePrecision())
         out << (argument->isReal() ? "" : "c") << "tanq(";
-    else if (lib)
+    else if (libMode == LibraryMode::CppLib)
         out << "std::tan(";
+    else if (libMode == LibraryMode::CLib && argument->isReal())
+        out << "tan(";
+    else if (libMode == LibraryMode::CLib)
+        out << "ctan(";
     else
         out << "tan(";
-    argument->print(1, out, lib);
+    argument->print(1, out, libMode);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -844,15 +874,20 @@ optional<Expr> ACos::getComplexArgument() const
                                    GetImaginaryPart(copy()));
 }
 
-void ACos::print(int mode, std::ostream &out, bool lib) const
+void ACos::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (lib and LibraryGenerator::isQuadruplePrecision())
+    if (libMode != LibraryMode::NoLib
+        and LibraryGenerator::isQuadruplePrecision())
         out << (argument->isReal() ? "" : "c") << "acosq(";
-    else if (lib)
+    else if (libMode == LibraryMode::CppLib)
         out << "std::acos(";
+    else if (libMode == LibraryMode::CLib && argument->isReal())
+        out << "acos(";
+    else if (libMode == LibraryMode::CLib)
+        out << "cacos(";
     else
         out << "acos(";
-    argument->print(1, out, lib);
+    argument->print(1, out, libMode);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -944,15 +979,20 @@ optional<Expr> ASin::getComplexArgument() const
                                    GetImaginaryPart(copy()));
 }
 
-void ASin::print(int mode, std::ostream &out, bool lib) const
+void ASin::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (lib and LibraryGenerator::isQuadruplePrecision())
+    if (libMode != LibraryMode::NoLib
+        and LibraryGenerator::isQuadruplePrecision())
         out << (argument->isReal() ? "" : "c") << "asinq(";
-    else if (lib)
+    else if (libMode == LibraryMode::CppLib)
         out << "std::asin(";
+    else if (libMode == LibraryMode::CLib && argument->isReal())
+        out << "asin(";
+    else if (libMode == LibraryMode::CLib)
+        out << "casin(";
     else
         out << "asin(";
-    argument->print(1, out, lib);
+    argument->print(1, out, libMode);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -1017,15 +1057,20 @@ Expr asin_s(const Expr &expr)
 /*************************************************/
 ///////////////////////////////////////////////////
 
-void ATan::print(int mode, std::ostream &out, bool lib) const
+void ATan::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (lib and LibraryGenerator::isQuadruplePrecision())
+    if (libMode != LibraryMode::NoLib
+        and LibraryGenerator::isQuadruplePrecision())
         out << (argument->isReal() ? "" : "c") << "atanq(";
-    else if (lib)
+    else if (libMode == LibraryMode::CppLib)
         out << "std::atan(";
+    else if (libMode == LibraryMode::CLib && argument->isReal())
+        out << "atan(";
+    else if (libMode == LibraryMode::CLib)
+        out << "catan(";
     else
         out << "atan(";
-    argument->print(1, out, lib);
+    argument->print(1, out, libMode);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -1116,15 +1161,20 @@ optional<Expr> Cosh::getComplexArgument() const
                                    GetImaginaryPart(copy()));
 }
 
-void Cosh::print(int mode, std::ostream &out, bool lib) const
+void Cosh::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (lib and LibraryGenerator::isQuadruplePrecision())
+    if (libMode != LibraryMode::NoLib
+        and LibraryGenerator::isQuadruplePrecision())
         out << "ccoshq(";
-    else if (lib)
+    else if (libMode == LibraryMode::CppLib)
         out << "std::cosh(";
+    else if (libMode == LibraryMode::CLib && argument->isReal())
+        out << "cosh(";
+    else if (libMode == LibraryMode::CLib)
+        out << "ccosh(";
     else
         out << "cosh(";
-    argument->print(1, out, lib);
+    argument->print(1, out, libMode);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -1214,15 +1264,20 @@ optional<Expr> Sinh::getComplexArgument() const
                                    GetImaginaryPart(copy()));
 }
 
-void Sinh::print(int mode, std::ostream &out, bool lib) const
+void Sinh::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (lib and LibraryGenerator::isQuadruplePrecision())
+    if (libMode != LibraryMode::NoLib
+        and LibraryGenerator::isQuadruplePrecision())
         out << "csinhq(";
-    else if (lib)
+    else if (libMode == LibraryMode::CppLib)
         out << "std::sinh(";
+    else if (libMode == LibraryMode::CLib && argument->isReal())
+        out << "sinh(";
+    else if (libMode == LibraryMode::CLib)
+        out << "csinh(";
     else
         out << "sinh(";
-    argument->print(1, out, lib);
+    argument->print(1, out, libMode);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -1330,15 +1385,20 @@ optional<Expr> Tanh::getComplexArgument() const
                                    prod_s(cos_s(im), sin_s(im)));
 }
 
-void Tanh::print(int mode, std::ostream &out, bool lib) const
+void Tanh::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (lib and LibraryGenerator::isQuadruplePrecision())
+    if (libMode != LibraryMode::NoLib
+        and LibraryGenerator::isQuadruplePrecision())
         out << "ctanhq(";
-    else if (lib)
+    else if (libMode == LibraryMode::CppLib)
         out << "std::tanh(";
+    else if (libMode == LibraryMode::CLib && argument->isReal())
+        out << "tanh(";
+    else if (libMode == LibraryMode::CLib)
+        out << "ctanh(";
     else
         out << "tanh(";
-    argument->print(1, out, lib);
+    argument->print(1, out, libMode);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -1402,15 +1462,20 @@ Expr tanh_s(const Expr &expr)
 /*************************************************/
 ///////////////////////////////////////////////////
 
-void ACosh::print(int mode, std::ostream &out, bool lib) const
+void ACosh::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (lib and LibraryGenerator::isQuadruplePrecision())
+    if (libMode != LibraryMode::NoLib
+        and LibraryGenerator::isQuadruplePrecision())
         out << "cacoshq(";
-    else if (lib)
+    else if (libMode == LibraryMode::CppLib)
         out << "std::acosh(";
+    else if (libMode == LibraryMode::CLib && argument->isReal())
+        out << "acosh(";
+    else if (libMode == LibraryMode::CLib)
+        out << "cacosh(";
     else
         out << "acosh(";
-    argument->print(1, out, lib);
+    argument->print(1, out, libMode);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -1473,15 +1538,20 @@ Expr acosh_s(const Expr &expr)
 /*************************************************/
 ///////////////////////////////////////////////////
 
-void ASinh::print(int mode, std::ostream &out, bool lib) const
+void ASinh::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (lib and LibraryGenerator::isQuadruplePrecision())
+    if (libMode != LibraryMode::NoLib
+        and LibraryGenerator::isQuadruplePrecision())
         out << "casinhq(";
-    else if (lib)
+    else if (libMode == LibraryMode::CppLib)
         out << "std::asinh(";
+    else if (libMode == LibraryMode::CLib && argument->isReal())
+        out << "asinh(";
+    else if (libMode == LibraryMode::CLib)
+        out << "casinh(";
     else
         out << "asinh(";
-    argument->print(1, out, lib);
+    argument->print(1, out, libMode);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -1547,15 +1617,20 @@ Expr asinh_s(const Expr &expr)
 /*************************************************/
 ///////////////////////////////////////////////////
 
-void ATanh::print(int mode, std::ostream &out, bool lib) const
+void ATanh::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (lib and LibraryGenerator::isQuadruplePrecision())
+    if (libMode != LibraryMode::NoLib
+        and LibraryGenerator::isQuadruplePrecision())
         out << "catanhq(";
-    else if (lib)
+    else if (libMode == LibraryMode::CppLib)
         out << "std::atanh(";
+    else if (libMode == LibraryMode::CLib && argument->isReal())
+        out << "atanh(";
+    else if (libMode == LibraryMode::CLib)
+        out << "catanh(";
     else
         out << "atanh(";
-    argument->print(1, out, lib);
+    argument->print(1, out, libMode);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -1620,23 +1695,26 @@ Expr atanh_s(const Expr &expr)
 /*************************************************/
 ///////////////////////////////////////////////////
 
-void Angle::print(int mode, std::ostream &out, bool lib) const
+void Angle::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (lib and LibraryGenerator::isQuadruplePrecision())
+    if (libMode != LibraryMode::NoLib
+        and LibraryGenerator::isQuadruplePrecision())
         out << "catan2q(";
-    else if (lib)
+    else if (libMode == LibraryMode::CppLib)
         out << "std::atan2(";
+    else if (libMode == LibraryMode::CLib)
+        out << "atan2(";
     else
         out << "angle(";
-    if (lib) {
-        argument[1]->print(1, out, lib);
+    if (libMode != LibraryMode::NoLib) {
+        argument[1]->print(1, out, libMode);
         out << ", ";
-        argument[0]->print(1, out, lib);
+        argument[0]->print(1, out, libMode);
     }
     else {
-        argument[0]->print(1, out, lib);
+        argument[0]->print(1, out, libMode);
         out << ", ";
-        argument[1]->print(1, out, lib);
+        argument[1]->print(1, out, libMode);
     }
     out << ")";
     printProp(out);
@@ -1756,11 +1834,11 @@ Expr angle_s(Expr const &a, Expr const &b)
 /*************************************************/
 ///////////////////////////////////////////////////
 
-void Factorial::print(int mode, std::ostream &out, bool lib) const
+void Factorial::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (lib) {
+    if (libMode == LibraryMode::CppLib) {
         out << "csl::factorial(";
-        argument->print(1, out, lib);
+        argument->print(1, out, libMode);
         out << ")";
     }
     else {
@@ -1888,7 +1966,7 @@ optional<Expr> DiracDelta::getComplexArgument() const
     return CSL_0;
 }
 
-void DiracDelta::print(int mode, std::ostream &out, bool) const
+void DiracDelta::print(int mode, std::ostream &out, LibraryMode) const
 {
     out << "delta{";
     if (argument->getDim() > 0)

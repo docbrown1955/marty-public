@@ -120,11 +120,11 @@ int Commutator::getSign() const
     return sign;
 }
 
-void Commutator::print(int mode, std::ostream &out, bool lib) const
+void Commutator::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (lib) {
+    if (libMode != LibraryMode::NoLib) {
         (argument[0] * argument[1] + sign * argument[1] * argument[0])
-            ->print(mode, out, lib);
+            ->print(mode, out, libMode);
         return;
     }
     if (sign == -1)

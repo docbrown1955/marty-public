@@ -255,7 +255,6 @@ void PMSSM_Model::approximateSFermionMixings()
 }
 void PMSSM_Model::renameSFermions()
 {
-    renameParticle("st_L", "st_1");
     std::vector<std::string> oldNames
         = {"st_L", "st_R", "sb_L", "sb_R", "stau_L", "stau_R"};
     std::vector<std::string> newNames

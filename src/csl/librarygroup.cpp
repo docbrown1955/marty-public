@@ -20,7 +20,7 @@ namespace csl {
 
 std::vector<LibParameter> LibraryGroup::gatherParameters(
     std::vector<std::shared_ptr<LibraryGroup>> &groups,
-    std::string const &                         paramName)
+    std::string const                          &paramName)
 {
     if (groups.empty())
         return {};
@@ -106,9 +106,9 @@ separateComplexParameters(std::vector<LibParameter> const &params1,
 }
 
 void LibraryGroup::printResetParameterList(
-    std::string const &              nameContainer,
+    std::string const               &nameContainer,
     std::vector<LibParameter> const &params,
-    std::ostream &                   out,
+    std::ostream                    &out,
     int                              nIndent)
 {
     constexpr size_t limitParams = 5;
@@ -154,9 +154,9 @@ void LibraryGroup::printResetDefinition(std::ostream &out, int nIndent) const
 }
 
 void LibraryGroup::printPrintParameterList(
-    std::string const &              nameContainer,
+    std::string const               &nameContainer,
     std::vector<LibParameter> const &params,
-    std::ostream &                   out,
+    std::ostream                    &out,
     int                              nIndent)
 {
     constexpr size_t limitParams = 5;
@@ -208,56 +208,76 @@ void LibraryGroup::printPrintDefinition(std::ostream &out, int nIndent) const
     out << LibraryGenerator::indent(nIndent) << "}\n";
 }
 
-void LibraryGroup::printStructDefinition(std::ostream &out, int nIndent) const
+void LibraryGroup::printStructDefinition(std::ostream &out,
+                                         int           nIndent,
+                                         bool          isCSource) const
 {
-    out << LibraryGenerator::indent(nIndent);
-    out << "struct " << getParamName();
-    out << " {\n\n";
-    out << LibraryGenerator::indent(nIndent + 1)
-        << "///////////////////////////////////////\n";
-    out << LibraryGenerator::indent(nIndent + 1)
-        << "// Elementary parameters to be defined \n";
-    out << LibraryGenerator::indent(nIndent + 1)
-        << "///////////////////////////////////////\n\n";
-    for (const auto &par : parameters) {
-        out << LibraryGenerator::indent(nIndent + 1);
-        out << "csl::InitSanitizer<" << par.type << "> " << par.name << " { \""
-            << par.name << "\" };\n";
+    if (isCSource) {
+        out << LibraryGenerator::indent(nIndent);
+        out << "typedef struct " << getCStructName();
+        out << " {\n\n";
+        for (const auto &par : parameters) {
+            out << LibraryGenerator::indent(nIndent + 1);
+            out << par.ctype << " " << par.name << ";\n";
+        }
+        out << '\n';
+        for (const auto &par : forcedParameters) {
+            out << LibraryGenerator::indent(nIndent + 1);
+            out << par.ctype << " " << par.name << ";\n";
+        }
+        out << LibraryGenerator::indent(nIndent) << "} " << getCParamName()
+            << ";\n";
     }
-    out << "\n\n";
-    out << LibraryGenerator::indent(nIndent + 1)
-        << "///////////////////////////////////////\n";
-    out << LibraryGenerator::indent(nIndent + 1)
-        << "// Parameters functions of others  \n";
-    out << LibraryGenerator::indent(nIndent + 1)
-        << "// through diagonalization or mass \n";
-    out << LibraryGenerator::indent(nIndent + 1)
-        << "// expressions, see updateSpectrum()  \n";
-    out << LibraryGenerator::indent(nIndent + 1)
-        << "// in global.h or set them by hand  \n";
-    out << LibraryGenerator::indent(nIndent + 1) << "// \n";
-    out << LibraryGenerator::indent(nIndent + 1)
-        << "// And other default parameters  \n";
-    out << LibraryGenerator::indent(nIndent + 1)
-        << "///////////////////////////////////////\n\n";
-    for (const auto &par : forcedParameters) {
-        out << LibraryGenerator::indent(nIndent + 1);
-        out << "csl::InitSanitizer<" << par.type << "> " << par.name << " { \""
-            << par.name << "\" };\n";
+    else {
+        out << LibraryGenerator::indent(nIndent);
+        out << "struct " << getParamName();
+        out << " {\n\n";
+        out << LibraryGenerator::indent(nIndent + 1)
+            << "///////////////////////////////////////\n";
+        out << LibraryGenerator::indent(nIndent + 1)
+            << "// Elementary parameters to be defined \n";
+        out << LibraryGenerator::indent(nIndent + 1)
+            << "///////////////////////////////////////\n\n";
+        for (const auto &par : parameters) {
+            out << LibraryGenerator::indent(nIndent + 1);
+            out << "csl::InitSanitizer<" << par.type << "> " << par.name
+                << " { \"" << par.name << "\" };\n";
+        }
+        out << "\n\n";
+        out << LibraryGenerator::indent(nIndent + 1)
+            << "///////////////////////////////////////\n";
+        out << LibraryGenerator::indent(nIndent + 1)
+            << "// Parameters functions of others  \n";
+        out << LibraryGenerator::indent(nIndent + 1)
+            << "// through diagonalization or mass \n";
+        out << LibraryGenerator::indent(nIndent + 1)
+            << "// expressions, see updateSpectrum()  \n";
+        out << LibraryGenerator::indent(nIndent + 1)
+            << "// in global.h or set them by hand  \n";
+        out << LibraryGenerator::indent(nIndent + 1) << "// \n";
+        out << LibraryGenerator::indent(nIndent + 1)
+            << "// And other default parameters  \n";
+        out << LibraryGenerator::indent(nIndent + 1)
+            << "///////////////////////////////////////\n\n";
+        for (const auto &par : forcedParameters) {
+            out << LibraryGenerator::indent(nIndent + 1);
+            out << "csl::InitSanitizer<" << par.type << "> " << par.name
+                << " { \"" << par.name << "\" };\n";
+        }
+        out << '\n';
+        printResetDefinition(out, nIndent + 1);
+        out << '\n';
+        printPrintDefinition(out, nIndent + 1);
+        out << '\n';
+        printNameMap(out, nIndent + 1);
+        out << LibraryGenerator::indent(nIndent) << "};\n";
     }
-    out << '\n';
-    printResetDefinition(out, nIndent + 1);
-    out << '\n';
-    printPrintDefinition(out, nIndent + 1);
-    out << '\n';
-    printNameMap(out, nIndent + 1);
-    out << LibraryGenerator::indent(nIndent) << "};\n";
 }
 
-void LibraryGroup::printNameMapElement(std::ostream &      out,
+void LibraryGroup::printNameMapElement(std::ostream       &out,
                                        int                 nIndent,
                                        LibParameter const &param,
-                                       std::string const & type) const
+                                       std::string const  &type) const
 {
     if (param.type == type) {
         out << LibraryGenerator::indent(1 + nIndent) << "{\"" << param.name
@@ -319,10 +339,16 @@ void LibraryGroup::printFunctionStack(std::ostream &out, int nIndent) const
 }
 
 void LibraryGroup::printParameterDefinition(std::ostream &out,
-                                            bool          unusedParam) const
+                                            bool          unusedParam,
+                                            bool          isCSource) const
 {
-    out << getParamName() << " const &";
-    if (!unusedParam)
+    if (isCSource) {
+        out << getCParamName() << " const *";
+    }
+    else {
+        out << getParamName() << " const &";
+    }
+    if (isCSource || !unusedParam)
         out << "param";
 }
 
@@ -338,16 +364,30 @@ void LibraryGroup::printParameterInitialization(std::ostream &out,
 }
 
 void LibraryGroup::printForwardDefinitions(std::ostream &out,
-                                           int           nIndent) const
+                                           int           nIndent,
+                                           bool          isCSource) const
 {
-    out << LibraryGenerator::indent(nIndent) << "struct " << getParamName()
-        << ";\n";
+    if (isCSource) {
+        out << LibraryGenerator::indent(nIndent) << "typedef struct "
+            << getCStructName() << " " << getCParamName() << ";\n";
+    }
+    else {
+        out << LibraryGenerator::indent(nIndent) << "struct " << getParamName()
+            << ";\n";
+    }
 }
 
 void LibraryGroup::print(std::ostream &out, bool header) const
 {
     if (header) {
         printStructDefinition(out, 0);
+    }
+}
+
+void LibraryGroup::printExternC(std::ostream &out, bool header) const
+{
+    if (header) {
+        printStructDefinition(out, 0, true);
     }
 }
 

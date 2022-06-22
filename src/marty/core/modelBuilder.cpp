@@ -781,6 +781,9 @@ void ModelBuilder::birotateFields(std::vector<std::string> const &fields1,
 void ModelBuilder::applyUnitaryCondition(
     std::vector<std::vector<csl::Expr>> const &unitary)
 {
+    if (!mty::option::tryUnitaryCondition) {
+        return;
+    }
     auto dependsOnMixing = [&](csl::Expr const &expr) {
         for (const auto &row : unitary)
             for (const auto &el : row)
@@ -2213,7 +2216,7 @@ void ModelBuilder::applyDiagonalizationData(
                         dependencies.emplace_back(sub->getName());
                     }
                 });
-                massTerm->print(1, sout, true);
+                massTerm->print(1, sout, csl::LibraryMode::CppLib);
                 expressions.emplace_back(sout.str());
             }
         for (size_t i = 0; i != initMix2.size1(); ++i)

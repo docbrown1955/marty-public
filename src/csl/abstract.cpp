@@ -302,7 +302,7 @@ optional<Expr> Abstract::contractIndex(const Index &index) const
 }
 
 csl::vector_expr
-Abstract::breakSpace(const Space *                brokenSpace,
+Abstract::breakSpace(const Space                 *brokenSpace,
                      const vector<const Space *> &newSpace) const
 {
     vector<string> names(newSpace.size());
@@ -603,7 +603,7 @@ std::optional<Expr> Abstract::getTerm() const
 }
 
 void Abstract::getExponents(std::vector<Expr> const &factors,
-                            std::vector<Expr> &      exponents) const
+                            std::vector<Expr>       &exponents) const
 {
     for (size_t i = 0; i != factors.size(); ++i)
         if (*this == factors[i].get()) {

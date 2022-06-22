@@ -46,10 +46,12 @@ csl::Type NumericalEval::getType() const
     return csl::Type::NumericalEval;
 }
 
-void NumericalEval::print(int mode, std::ostream &out, bool lib) const
+void NumericalEval::print(int           mode,
+                          std::ostream &out,
+                          LibraryMode   libMode) const
 {
-    if (lib) {
-        autonumber_s(value)->print(mode, out, lib);
+    if (libMode != LibraryMode::NoLib) {
+        autonumber_s(value)->print(mode, out, libMode);
         return;
     }
     if (value < 0) {

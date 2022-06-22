@@ -67,7 +67,7 @@ void NMFV_Model::getToLowEnergyLagrangian()
 
     std::cout << "Diagonalizing SFermions ..." << std::endl;
     diagonalizeSFermions();
-    renameSFermions();
+    // renameSFermions();
     generateDiracFermions();
     gatherMasses();
 

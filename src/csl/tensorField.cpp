@@ -42,8 +42,8 @@ TensorFieldParent::TensorFieldParent(const string &t_name, const Space *)
 {
 }
 
-TensorFieldParent::TensorFieldParent(const string &               t_name,
-                                     const Space *                t_field,
+TensorFieldParent::TensorFieldParent(const string                &t_name,
+                                     const Space                 *t_field,
                                      const vector<const Space *> &spaces)
     : TensorParent(t_name, spaces), spaceField(t_field)
 {
@@ -98,9 +98,9 @@ void TensorFieldParent::setFieldSpace(const Space *t_space)
 }
 
 vector<Parent>
-TensorFieldParent::breakSpace(const Space *                broken,
+TensorFieldParent::breakSpace(const Space                 *broken,
                               const vector<const Space *> &newSpace,
-                              const vector<size_t> &       pieces) const
+                              const vector<size_t>        &pieces) const
 {
     return TensorParent::breakSpace(broken, newSpace, pieces);
 }
@@ -125,7 +125,7 @@ Expr TensorFieldParent::operator()(Index t_index, const Tensor &t_vector)
 }
 
 Expr TensorFieldParent::operator()(const vector<int> &indices,
-                                   const Tensor &     t_vector)
+                                   const Tensor      &t_vector)
 {
     return (*this)(integerToIndices(indices), t_vector);
 }
@@ -146,7 +146,7 @@ void TensorFieldParent::checkIndicialAndFieldRequest(TensorParent *point)
     checkIndicialAndFieldRequest(vector<Index>(), point);
 }
 
-void TensorFieldParent::checkIndicialAndFieldRequest(const Index & index,
+void TensorFieldParent::checkIndicialAndFieldRequest(const Index  &index,
                                                      TensorParent *point)
 {
     checkIndicialAndFieldRequest(vector<Index>(1, index), point);
@@ -170,7 +170,7 @@ TDerivativeParent::TDerivativeParent() : TensorFieldParent()
 }
 
 TDerivativeParent::TDerivativeParent(const string &t_name,
-                                     const Space * t_space)
+                                     const Space  *t_space)
     : TensorFieldParent(t_name,
                         t_space,
                         {
@@ -209,7 +209,7 @@ Expr TDerivativeParent::operator()(Index index, const Tensor &point)
 
 TDerivativeElement::TDerivativeElement(const Tensor &t_point,
                                        const Parent &t_parent,
-                                       const Index & t_index)
+                                       const Index  &t_index)
     : Operator<TensorFieldElement>(
         t_point, t_parent, vector<Index>(1, t_index))
 {
@@ -218,8 +218,8 @@ TDerivativeElement::TDerivativeElement(const Tensor &t_point,
 
 TDerivativeElement::TDerivativeElement(const Tensor &t_point,
                                        const Parent &t_parent,
-                                       const Index & t_index,
-                                       const Expr &  t_operand,
+                                       const Index  &t_index,
+                                       const Expr   &t_operand,
                                        bool          t_empty)
     : TDerivativeElement(t_point, t_parent, t_index)
 {
@@ -238,7 +238,7 @@ size_t TDerivativeElement::size() const
     return 1;
 }
 
-void TDerivativeElement::print(int mode, std::ostream &out, bool) const
+void TDerivativeElement::print(int mode, std::ostream &out, LibraryMode) const
 {
     TensorFieldElement::print(max(1, mode), out);
     out << "(";
@@ -530,9 +530,9 @@ bool TDerivativeElement::compareWithDummy(Expr_info          other,
 }
 
 csl::vector_expr
-TDerivativeElement::breakSpace(const Space *                brokenSpace,
+TDerivativeElement::breakSpace(const Space                 *brokenSpace,
                                const vector<const Space *> &newSpace,
-                               const vector<string> &       indexNames) const
+                               const vector<string>        &indexNames) const
 {
     if (operand == CSL_1) {
         return TensorFieldElement::breakSpace(
@@ -606,15 +606,15 @@ TensorFieldElement::TensorFieldElement(const Tensor &t_vector,
 {
 }
 
-TensorFieldElement::TensorFieldElement(const Tensor &            t_vector,
-                                       const Parent &            t_parent,
+TensorFieldElement::TensorFieldElement(const Tensor             &t_vector,
+                                       const Parent             &t_parent,
                                        const std::vector<Index> &indices)
     : TensorElement(indices, t_parent), point(t_vector)
 {
 }
 
-TensorFieldElement::TensorFieldElement(const Tensor &        t_vector,
-                                       const Parent &        t_parent,
+TensorFieldElement::TensorFieldElement(const Tensor         &t_vector,
+                                       const Parent         &t_parent,
                                        const IndexStructure &indices)
     : TensorElement(indices, t_parent), point(t_vector)
 {
@@ -657,7 +657,7 @@ Expr TensorFieldElement::refresh() const
     return copy()->getCanonicalPermutation();
 }
 
-void TensorFieldElement::print(int mode, std::ostream &out, bool) const
+void TensorFieldElement::print(int mode, std::ostream &out, LibraryMode) const
 {
     out << getName();
     if (index.size() > 0) {

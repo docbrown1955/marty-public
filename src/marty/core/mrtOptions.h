@@ -72,6 +72,7 @@ inline bool &keepEvanescentOperators = sgl::option::keepEvanescentOperators;
 inline bool displayAbbreviations    = true;
 inline bool displayIntegralArgs     = false;
 inline bool diagonalizeSymbolically = false;
+inline bool tryUnitaryCondition     = true;
 
 ///////////////////////////////////////////////////
 // More deep features, the user should probably

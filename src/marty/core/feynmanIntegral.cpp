@@ -14,7 +14,7 @@
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "feynmanIntegral.h"
-#include "../../clooptools.h"
+#include "clooptools.h"
 #include "localTerms.h"
 #include "looptools_extension.h"
 #include "mrtError.h"
@@ -1618,19 +1618,19 @@ csl::Expr FeynmanIntegral::replaceIntegral(csl::Expr const   &argument,
 
     applyIndices(momentum);
     // for (size_t i = 0; i != indices.size(); ++i)
-    //    for (size_t j = i+1; j < indices.size(); ++j)
-    //        if (indices[i] == indices[j]) {
-    //            return applyQSquared(
-    //                    indices[i],
-    //                    argument,
-    //                    variable,
-    //                    factor,
-    //                    momentum,
-    //                    mass,
-    //                    indices,
-    //                    firstTerm
-    //                    );
-    //        }
+    //     for (size_t j = i+1; j < indices.size(); ++j)
+    //         if (indices[i] == indices[j]) {
+    //             return applyQSquared(
+    //                     indices[i],
+    //                     argument,
+    //                     variable,
+    //                     factor,
+    //                     momentum,
+    //                     mass,
+    //                     indices,
+    //                     firstTerm
+    //                     );
+    //         }
 
     // std::cout << "Rank " << indices.size() << " " <<
     // mass.size() << "-point function."<< std::endl;
@@ -2022,8 +2022,8 @@ csl::Expr FeynmanIntegral::computeFinalIntegralDecomposition(
                 std::make_move_iterator(sum_terms_intermediate.begin()),
                 std::make_move_iterator(sum_terms_intermediate.end()));
             // sum_terms.push_back(
-            //            sum_s(sum_terms_intermediate),
-            //            true));
+            //             sum_s(sum_terms_intermediate),
+            //             true));
         }
         else {
             csl::Expr integral = feynmanintegral_s(
@@ -2312,10 +2312,12 @@ void FeynmanIntegral::sortArgument()
     }
 }
 
-void FeynmanIntegral::print(int mode, std::ostream &out, bool lib) const
+void FeynmanIntegral::print(int              mode,
+                            std::ostream    &out,
+                            csl::LibraryMode libMode) const
 {
-    if (lib) {
-        printLib(mode, out);
+    if (libMode != csl::LibraryMode::NoLib) {
+        printLib(mode, libMode, out);
         return;
     }
     if (loopToolsId != -1)
@@ -2358,15 +2360,10 @@ std::string FeynmanIntegral::printLaTeX(int) const
     return sout.str();
 }
 
-void FeynmanIntegral::printLib(int mode, std::ostream &out) const
+void FeynmanIntegral::printLib(int              mode,
+                               csl::LibraryMode libMode,
+                               std::ostream    &out) const
 {
-    // if (type == IntegralType::E and loopToolsId >= Nee) {
-    //     auto integers = getRank5Indices(loopToolsId);
-    //     out << "PJFry::E0v5(" ;
-    //     for (int index : integers)
-    //         out << index << ", ";
-    // }
-    // else {
     if (int(loopToolsId) == -1) {
         std::cerr << "Warning: Integral " << copy() << " set to 0 because not "
                   << "supported.\n";
@@ -2375,32 +2372,51 @@ void FeynmanIntegral::printLib(int mode, std::ostream &out) const
             out << "\n";
         return;
     }
-    out << "mty::lt::" << type << "0iC(" << int(loopToolsId) << ", ";
-    // }
-    for (size_t i = 0; i != argument.size(); ++i) {
-        argument[i]->print(mode, out, true);
-        out << ", ";
+    if (libMode == csl::LibraryMode::CppLib) {
+        out << "mtylt_" << type << "0iC(" << int(loopToolsId) << ", ";
+        for (size_t i = 0; i != argument.size(); ++i) {
+            argument[i]->print(mode, out, libMode);
+            if (i < argument.size() - 1)
+                out << ", ";
+        }
+        if (type == IntegralType::C) {
+            out << ", getIntegrationParameters()->reg_int";
+        }
+        out << ")";
+        if (mode == 0)
+            out << '\n';
     }
-    out << "mty::lt::reg_int";
-    out << ")";
-    if (mode == 0)
-        out << '\n';
+    else {
+        out << "mtylt_" << type << "0iC(" << int(loopToolsId) << ", ";
+        for (size_t i = 0; i != argument.size(); ++i) {
+            argument[i]->print(mode, out, libMode);
+            if (i < argument.size() - 1)
+                out << ", ";
+        }
+        if (type == IntegralType::C) {
+            out << ", getIntegrationParameters()->reg_int";
+        }
+        out << ")";
+        if (mode == 0)
+            out << '\n';
+    }
 }
 
 csl::LibDependency FeynmanIntegral::getLibDependency() const
 {
     csl::LibDependency dependencies;
-    dependencies.addInclude("marty/core/looptools_init.h");
-    dependencies.addInclude("marty/core/looptools_interface.h");
+    dependencies.addInclude("marty/core/looptools_init.h",
+                            "marty/core/looptools_init.h");
+    dependencies.addInclude("marty/core/looptools_interface.h",
+                            "marty/core/looptools_interface.h");
     dependencies.addLib("-lgfortran");
-    dependencies.addInclude("clooptools.h");
+    dependencies.addInclude("clooptools.h", "clooptools.h");
     if (csl::LibraryGenerator::isQuadruplePrecision()) {
         dependencies.addLib("-looptools-quad");
     }
     else {
         dependencies.addLib("-looptools");
     }
-    // }
 
     return dependencies;
 }
