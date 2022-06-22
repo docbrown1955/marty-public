@@ -13,26 +13,6 @@ set(LLVM_COMPILERS 0)
 set(REQUIRED_COMPILER_VERSION 0)
 set(IDENTICAL_COMPILER_VERSION 0)
 
-function(PRINT_COMPILERS)
-    message("> Using CXX: ${CMAKE_CXX_COMPILER_VERSION}")
-    message("> Using CC : ${CMAKE_C_COMPILER_VERSION}")
-    message("> Using FC : ${CMAKE_Fortran_COMPILER_VERSION}")
-endfunction()
-
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-    set(CLANG_COMPILERS 1)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-    set(GNU_COMPILERS 1)
-endif()
-
-if(NOT CLANG_COMPILERS AND NOT GNU_COMPILERS)
-    PRINT_COMPILERS()
-    message("${CMAKE_CXX_COMPILER_ID}")
-    message("${CMAKE_C_COMPILER_ID}")
-    message("${CMAKE_Fortran_COMPILER_ID}")
-    message(FATAL_ERROR "Compilers for C/C++/Fortran should be of the same family (GNU or Clang)")
-endif()
-
 find_package(GSL REQUIRED)
 
 # Dependencies for GRAFED
