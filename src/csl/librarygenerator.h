@@ -48,11 +48,6 @@ class LibraryGenerator {
         }
     };
 
-    enum Compiler {
-        gcc,
-        clang,
-    };
-
     inline static int nDigits = std::numeric_limits<double>::max_digits10 - 2;
     inline static std::string realType     = "double";
     inline static std::string complexType  = "std::complex<double>";
@@ -111,10 +106,10 @@ class LibraryGenerator {
 
     std::string                   getName() const;
     std::string                   getPath() const;
-    std::set<std::string> const & getIPath() const;
-    std::set<std::string> &       getIPath();
-    std::set<std::string> const & getLPath() const;
-    std::set<std::string> &       getLPath();
+    std::set<std::string> const  &getIPath() const;
+    std::set<std::string>        &getIPath();
+    std::set<std::string> const  &getLPath() const;
+    std::set<std::string>        &getLPath();
     LibDependency                 getDependencies() const;
     std::shared_ptr<LibraryGroup> getGroup(std::string_view name) const;
     bool                          hasGlobalFile() const
@@ -126,19 +121,20 @@ class LibraryGenerator {
         return uniqueParamStruct;
     }
 
+    bool getOptimization() const
+    {
+        return optimize;
+    }
+
     void cleanExistingSources() const;
-    void setClangCompiler()
-    {
-        compiler = clang;
-    }
-    void setGccCompiler()
-    {
-        compiler = gcc;
-    }
     void setName(std::string const &t_name);
     void setUniqueParamStruct(bool t_par)
     {
         uniqueParamStruct = t_par;
+    }
+    void setOptimization(bool optimize)
+    {
+        this->optimize = optimize;
     }
     void setPath(std::string const &t_path);
     void setIPath(std::vector<std::string> const &t_path);
@@ -225,9 +221,9 @@ class LibraryGenerator {
   protected:
     std::string name;
 
-    Compiler compiler;
-
     std::string path;
+
+    bool optimize = true;
 
     std::set<std::string> IPath;
 
