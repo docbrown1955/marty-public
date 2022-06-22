@@ -69,16 +69,18 @@ namespace mty::hSU2_input{
 
   // Mass terms for vector like fermions. Redundant parametrization : M_U_i = \lambda_Ui * v_y
   inline
-    csl::Expr m_U = csl::constant_s("M_U");
+    csl::Expr M_U = csl::constant_s("M_U");
   inline
-    csl::Expr m_D = csl::constant_s("M_D");
+    csl::Expr M_D = csl::constant_s("M_D");
   inline
-    csl::Expr m_L = csl::constant_s("M_L");
+    csl::Expr M_L = csl::constant_s("M_L");
 
   // Mass termes for new gauge bosons 
   inline 
     csl::Expr M_V_1 = csl::constant_s("M_V_1");
+  inline
     csl::Expr M_V_2 = csl::constant_s("M_V_2");
+  inline
     csl::Expr M_V_3 = csl::constant_s("M_V_3");
   inline
     csl::Expr k_u0 = csl::constant_s("\\kappa_u0");
@@ -188,11 +190,12 @@ namespace mty{
         void setGaugeBosonsMass();
         void breakSMSymmetry();
           void rotateFermions();
-          void adjutSM();
+          void adjustSM();
           void addGaugeSMFixingTerms();
-        void checkHermiticity();
+       void replaceUpYukawa();
+       void replaceDownYukawa();
+       void replaceLeptonYukawa();
         void computeFeynmanRules();
-        void adjust_fermions(); // ?
 
 
     private:

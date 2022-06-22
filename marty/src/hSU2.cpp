@@ -484,9 +484,9 @@ void hSU2_Model::initInteractions(){
         ,true);
   }
   // Vector-like mass terms 
-  csl::Expr m_psi_u = hSU2_input::m_U;
-  csl::Expr m_psi_d = hSU2_input::m_D;
-  csl::Expr m_psi_l = hSU2_input::m_L;
+  csl::Expr m_psi_u = hSU2_input::M_U;
+  csl::Expr m_psi_d = hSU2_input::M_D;
+  csl::Expr m_psi_l = hSU2_input::M_L;
   addLagrangianTerm(
        m_psi_u 
        * GetComplexConjugate(Psi_uL({a,J,al}))
@@ -515,8 +515,13 @@ void hSU2_Model::getToLowEnergyLagrangian(){
      std::cout << "Breaking SM SU(2)_L x U(1)_Y symmetry" << std::endl;
      breakSMSymmetry();
      std::cout << "Mixing fermions..." << std::endl;
-     //rotateFermions();
-//     expandAroundVEVs();
+     rotateFermions();
+     std::cout << "Treating Yukawa sector" << std::endl;
+     replaceUpYukawa();
+     replaceLeptonYukawa();
+     replaceDownYukawa();
+     std::cout << "Adjusting Gauge..." << std::endl;
+     adjustSM();
     
 }
 void hSU2_Model::horizontalSymmetryBreaking(){
@@ -674,7 +679,7 @@ void hSU2_Model::breakSMSymmetry(){
             e / csl::sin_s(theta_Weinberg));
 }
 
-void hSU2_Model::adjutSM(){
+void hSU2_Model::adjustSM(){
 
     using namespace sm_input;
     replace(v, (2 * M_W * csl::sin_s(theta_W)) / e_em);
@@ -742,27 +747,158 @@ void hSU2_Model::addGaugeSMFixingTerms(){
     }
 }
 void hSU2_Model::rotateFermions(){
-    Particle Q_0 = getParticle("{Q_L}_0");
-    Particle Q_1 = getParticle("{Q_L}_i_1");
-    Particle Q_2 = getParticle("{Q_L}_i_2");
+    Particle Q_0_1 = getParticle("{Q_L}_0_1");
+    Particle Q_1_1 = getParticle("{Q_L}_i_1_1");
+    Particle Q_2_1 = getParticle("{Q_L}_i_2_1");
 
     Particle U_0 = getParticle("{U_R}_0");
     Particle U_1 = getParticle("{U_R}_1");
     Particle U_2 = getParticle("{U_R}_2");
     
-    Particle Psi_uL_1 = getParticle("\\Psi_uL_1");
-    Particle Psi_uR_1 = getParticle("\\Psi_uR_1");
+    Particle Psi_uL_1 = getParticle("\\Psi_{uL}_1");
+    Particle Psi_uR_1 = getParticle("\\Psi_{uR}_1");
+    Particle Psi_uL_2 = getParticle("\\Psi_{uL}_2");
+    Particle Psi_uR_2 = getParticle("\\Psi_{uR}_2");
 
+    birotateFields(
+        {Q_1_1, Q_2_1, Q_0_1, Psi_uL_1, Psi_uL_2},
+        {U_1, U_2, U_0, Psi_uR_1, Psi_uR_2},
+        true);
 
-    Particle L_0 = getParticle("{L_L}_0");
-    Particle L_1 = getParticle("{L_L}_i_1");
-    Particle L_2 = getParticle("{L_L}_i_2");
+    Particle Q_0_2 = getParticle("{Q_L}_0_2");
+    Particle Q_1_2 = getParticle("{Q_L}_i_1_2");
+    Particle Q_2_2 = getParticle("{Q_L}_i_2_2");
+
+    Particle D_0 = getParticle("{D_R}_0");
+    Particle D_1 = getParticle("{D_R}_1");
+    Particle D_2 = getParticle("{D_R}_2");
+    
+    Particle Psi_dL_1 = getParticle("\\Psi_{dL}_1");
+    Particle Psi_dR_1 = getParticle("\\Psi_{dR}_1");
+    Particle Psi_dL_2 = getParticle("\\Psi_{dL}_2");
+    Particle Psi_dR_2 = getParticle("\\Psi_{dR}_2");
+
+    birotateFields(
+        {Q_1_2, Q_2_2, Q_0_2, Psi_dL_1, Psi_dL_2},
+        {D_1, D_2, D_0, Psi_dR_1, Psi_dR_2},
+        true);
+    Particle L_0_2 = getParticle("{L_L}_0_2");
+    Particle L_1_2 = getParticle("{L_L}_i_1_2");
+    Particle L_2_2 = getParticle("{L_L}_i_2_2");
    
-}
-void hSU2_Model::checkHermiticity(){
+    Particle E_0 = getParticle("{E_R}_0");
+    Particle E_1 = getParticle("{E_R}_1");
+    Particle E_2 = getParticle("{E_R}_2");
 
-}
-void hSU2_Model::adjust_fermions(){
+    Particle Psi_lL_1 = getParticle("\\Psi_{lL}_1");
+    Particle Psi_lR_1 = getParticle("\\Psi_{lR}_1");
+    Particle Psi_lL_2 = getParticle("\\Psi_{lL}_2");
+    Particle Psi_lR_2 = getParticle("\\Psi_{lR}_2");
 
+    birotateFields(
+        {L_1_2, L_2_2, L_0_2, Psi_lL_1, Psi_lL_2},
+        {E_1, E_2, E_0, Psi_lR_1, Psi_lR_2},
+        true);
+   static const std::vector<std::pair<std::string,std::string>> names = {
+     {"{Q_L}_0_1","t_L"}, {"{Q_L}_0_2","b_L"},
+     // {"{U_R}_0", "t_R"}, {"{U_R}_0","b_R"},
+     // {"{D_R}_1", "{d_R}_1"}, {"{U_R}_1","{u_R}_1"},
+     // {"{D_R}_2", "{d_R}_2"}, {"{U_R}_2","{u_R}_2"},
+     {"{Q_L}_i_1_1","{u_L}_1"}, {"{Q_L}_i_1_2", "{d_L}_1"},
+     {"{Q_L}_i_2_1","{u_L}_2"}, {"{Q_L}_i_2_2", "{d_L}_2"},
+     {"{L_L}_0_1","\\nu_\\tau"},{"{L_L}_0_2","\\tau_L"},
+     {"{L_L}_i_1_1","\\nu_1"}, {"{L_L}_i_1_2","l_1"},
+     {"{L_L}_i_2_1","\\nu_2"}, {"{L_L}_i_2_2","l_2"},
+     {"{E_R}_0","\\tau_R"},{"{E_R}_1","{e_R}_1"},{"{E_R}_2","{e_R}_2"}
+   };
+   for (const auto [previous, next]: names)
+     renameParticle(previous,next);
+}
+// void hSU2_Model::checkHermiticity(){
+//
+// }
+// void hSU2_Model::adjust_fermions(){
+//
+// }
+
+void hSU2_Model::replaceUpYukawa()
+{
+    csl::Tensor Yu = GetYukawa(*this, "Yu");
+    const csl::Space* flavorSpace = GetSpace(Yu);
+    csl::Index f_i = GetIndex(flavorSpace);
+    csl::Index f_j = GetIndex(flavorSpace);
+    csl::Expr v = sm_input::v ;
+    csl::Expr factor = csl::sqrt_s(2) / v;
+    csl::Expr m_u   = sm_input::m_u;
+    csl::Expr m_c   = sm_input::m_c;
+    csl::Expr m_t   = sm_input::m_t;
+    csl::Tensor M_u = csl::tensor_s(
+            "M_u",
+            {flavorSpace, flavorSpace},
+            csl::matrix_s({{m_u, CSL_0, CSL_0},
+                      {CSL_0, m_c, CSL_0},
+                      {CSL_0, CSL_0, m_t}}));
+
+    replace(Yu, factor*M_u({f_i, f_j}));
+}
+void hSU2_Model::replaceDownYukawa()
+{
+    csl::Tensor Yd = GetYukawa(*this, "Yd");
+    const csl::Space* flavorSpace = GetSpace(Yd);
+    csl::Expr v = sm_input::v;
+    csl::Expr factor = csl::sqrt_s(2) / v;
+    csl::Expr m_d   = sm_input::m_d;
+    csl::Expr m_s   = sm_input::m_s;
+    csl::Expr m_b   = sm_input::m_b;
+    csl::Tensor M_d = csl::tensor_s(
+            "M_d",
+            {flavorSpace, flavorSpace},
+            csl::matrix_s({{m_d, CSL_0, CSL_0},
+                      {CSL_0, m_s, CSL_0},
+                      {CSL_0, CSL_0, m_b}}));
+
+
+    csl::Index f_i = GetIndex(flavorSpace);
+    csl::Index f_j = GetIndex(flavorSpace);
+    csl::Index f_k = GetIndex(flavorSpace);
+
+    buildCKM(flavorSpace);
+
+    replace(Yd({f_i, f_j}),
+            csl::prod_s({factor,
+                         V_CKM({f_i, f_k}), 
+                         M_d({f_k, f_j})}, 
+                         true));
+
+    mty::Particle D_L = getParticle("D_L");
+    csl::Index a1  = DiracIndex();
+    csl::Index A   = GaugeIndex(*this, "SU3c", D_L);
+    replace(D_L({f_j, A, a1}), V_CKM({f_j, f_k}) * D_L({f_k, A, a1}));
+}
+void hSU2_Model::replaceLeptonYukawa()
+{
+    ///////////////////////////////////////////////////
+    // Taking care of Yukawa couplings
+    ///////////////////////////////////////////////////
+
+    csl::Tensor Ye = GetYukawa(*this, "Ye");
+
+    csl::Expr m_e   = sm_input::m_e;
+    csl::Expr m_mu  = sm_input::m_mu;
+    csl::Expr m_tau = sm_input::m_tau;
+
+    const csl::Space* flavorSpace = GetSpace(Ye);
+    csl::Index f_i = GetIndex(flavorSpace);
+    csl::Index f_j = GetIndex(flavorSpace);
+    csl::Expr v = sm_input::v; 
+    csl::Expr factor = csl::sqrt_s(2) / v;
+    csl::Tensor M_e = csl::tensor_s(
+            "M_e",
+            {flavorSpace, flavorSpace},
+            csl::matrix_s({{m_e, CSL_0, CSL_0},
+                      {CSL_0, m_mu, CSL_0},
+                      {CSL_0, CSL_0, m_tau}}));
+
+    replace(Ye, factor*M_e({f_i, f_j}));
 }
 } // End of namespace mty
