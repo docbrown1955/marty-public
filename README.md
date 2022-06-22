@@ -1,4 +1,4 @@
-[](https://img.shields.io/github/stars/docbrown1955/marty-public?style=for-the-badge)
+[![stars](https://img.shields.io/github/stars/docbrown1955/marty-public?style=for-the-badge)]
 # MARTY
 
 ## Summary
