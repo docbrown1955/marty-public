@@ -39,7 +39,7 @@ void ModelBuilder::addAbbreviatedMassExpression(csl::Expr const &abbreviation)
                            return expr->getName() == abbreviation->getName();
                        });
     if (pos != abbreviatedMassExpressions.end()) {
-        *pos == abbreviation;
+        *pos = abbreviation;
     }
     else {
         abbreviatedMassExpressions.push_back(abbreviation);
@@ -97,7 +97,7 @@ void ModelBuilder::replace(csl::Expr const &oldExpression,
     }
 }
 
-void ModelBuilder::replace(csl::Tensor &    oldExpression,
+void ModelBuilder::replace(csl::Tensor     &oldExpression,
                            csl::Expr const &newExpression)
 {
     csl::vector_expr terms
@@ -166,8 +166,8 @@ void ModelBuilder::replace(mty::Particle const &part,
 }
 
 void ModelBuilder::rotateFields(
-    mty::Particle &                        fields,
-    csl::Tensor &                          U,
+    mty::Particle                         &fields,
+    csl::Tensor                           &U,
     std::function<bool(csl::Expr const &)> condition)
 {
     auto uSpaces = U->getSpace();
@@ -175,7 +175,7 @@ void ModelBuilder::rotateFields(
               mty::error::TypeError,
               "Expecting unitary matrix, dimensions do not match.");
 
-    csl::Space const *      space   = uSpaces[0];
+    csl::Space const       *space   = uSpaces[0];
     csl::Tensor             X       = L.getPoint();
     std::vector<csl::Index> indices = fields->getFullSetOfIndices();
     csl::Index              i;
@@ -191,8 +191,8 @@ void ModelBuilder::rotateFields(
 }
 
 void ModelBuilder::checksRotation(
-    std::vector<mty::Particle> const &         fields,
-    std::vector<mty::Particle> const &         newFields,
+    std::vector<mty::Particle> const          &fields,
+    std::vector<mty::Particle> const          &newFields,
     std::vector<std::vector<csl::Expr>> const &rotation)
 {
     HEPAssert(fields.size() > 1,
@@ -233,9 +233,9 @@ void ModelBuilder::checksRotation(
 }
 
 void ModelBuilder::fillDependencies(
-    std::vector<csl::Expr> &                          kinetic,
-    std::vector<csl::Expr> &                          mass,
-    std::vector<csl::Expr> &                          interaction,
+    std::vector<csl::Expr>                           &kinetic,
+    std::vector<csl::Expr>                           &mass,
+    std::vector<csl::Expr>                           &interaction,
     std::function<bool(Lagrangian::TermType const &)> dependencyFunc)
 {
     kinetic     = clearDependencies(L.kinetic, dependencyFunc);
@@ -244,7 +244,7 @@ void ModelBuilder::fillDependencies(
 }
 
 std::vector<csl::Expr> ModelBuilder::getRotationTerms(
-    std::vector<mty::Particle> const &         newFields,
+    std::vector<mty::Particle> const          &newFields,
     std::vector<std::vector<csl::Expr>> const &rotation) const
 {
     std::vector<csl::Index> indices = newFields[0]->getFullSetOfIndices();
@@ -298,7 +298,7 @@ ModelBuilder::getFullMassMatrix(std::vector<mty::Particle> const &fields) const
 void ModelBuilder::fillDependenciesForRotation(
     std::vector<csl::Expr> &kinetic,
     std::vector<csl::Expr> &interaction,
-    mty::Particle const &   field)
+    mty::Particle const    &field)
 {
     std::vector<csl::Expr> mass;
     fillDependencies(
@@ -314,8 +314,8 @@ void ModelBuilder::fillDependenciesForRotation(
 }
 
 void ModelBuilder::fillDependenciesForRotation(
-    std::vector<csl::Expr> &          kinetic,
-    std::vector<csl::Expr> &          interaction,
+    std::vector<csl::Expr>           &kinetic,
+    std::vector<csl::Expr>           &interaction,
     std::vector<mty::Particle> const &fields)
 {
     std::vector<csl::Expr> mass;
@@ -334,7 +334,7 @@ void ModelBuilder::fillDependenciesForRotation(
 
 void ModelBuilder::applyRotation(mty::Particle const &field,
                                  mty::Particle const &newField,
-                                 csl::Expr const &    rotation)
+                                 csl::Expr const     &rotation)
 {
     std::vector<csl::Expr> kineticTerms;
     std::vector<csl::Expr> interactionTerms;
@@ -366,7 +366,7 @@ void ModelBuilder::applyRotation(mty::Particle const &field,
 
 void ModelBuilder::applyRotation(std::vector<mty::Particle> const &fields,
                                  std::vector<mty::Particle> const &newFields,
-                                 std::vector<csl::Expr> const &    rotations)
+                                 std::vector<csl::Expr> const     &rotations)
 {
     std::vector<csl::Expr> kineticTerms;
     std::vector<csl::Expr> interactionTerms;
@@ -403,10 +403,10 @@ void ModelBuilder::applyRotation(std::vector<mty::Particle> const &fields,
 }
 
 void ModelBuilder::diagonalizeWithSpectrum(
-    std::vector<mty::Particle> const &         fields,
-    std::vector<mty::Particle> const &         newFields,
+    std::vector<mty::Particle> const          &fields,
+    std::vector<mty::Particle> const          &newFields,
     std::vector<std::vector<csl::Expr>> const &mixing,
-    std::vector<csl::Expr> const &             massMatrix)
+    std::vector<csl::Expr> const              &massMatrix)
 {
     [[maybe_unused]] std::vector<csl::Expr> terms
         = clearDependencies(L.mass, [&](Lagrangian::TermType const &term) {
@@ -433,13 +433,13 @@ void ModelBuilder::diagonalizeWithSpectrum(
 }
 
 void ModelBuilder::bidiagonalizeWithSpectrum(
-    std::vector<mty::Particle> const &         fields1,
-    std::vector<mty::Particle> const &         newFields1,
+    std::vector<mty::Particle> const          &fields1,
+    std::vector<mty::Particle> const          &newFields1,
     std::vector<std::vector<csl::Expr>> const &mixing1,
-    std::vector<mty::Particle> const &         fields2,
-    std::vector<mty::Particle> const &         newFields2,
+    std::vector<mty::Particle> const          &fields2,
+    std::vector<mty::Particle> const          &newFields2,
     std::vector<std::vector<csl::Expr>> const &mixing2,
-    std::vector<csl::Expr> const &             massMatrix)
+    std::vector<csl::Expr> const              &massMatrix)
 {
     auto l = clearDependencies(L.mass, [&](Lagrangian::TermType const &term) {
         for (const auto &field : term->getContent()) {
@@ -482,8 +482,8 @@ void ModelBuilder::bidiagonalizeWithSpectrum(
 }
 
 void ModelBuilder::rotateFields(
-    std::vector<mty::Particle> const &         fields,
-    std::vector<mty::Particle> const &         newFields,
+    std::vector<mty::Particle> const          &fields,
+    std::vector<mty::Particle> const          &newFields,
     std::vector<std::vector<csl::Expr>> const &rotation,
     bool                                       diagonalizeMasses,
     int                                        nMassLessFields)
@@ -531,11 +531,11 @@ void ModelBuilder::rotateFields(
 }
 
 void ModelBuilder::rotateFields(
-    std::vector<mty::Particle> const &         fields1,
-    std::vector<mty::Particle> const &         newFields1,
+    std::vector<mty::Particle> const          &fields1,
+    std::vector<mty::Particle> const          &newFields1,
     std::vector<std::vector<csl::Expr>> const &rotation1,
-    std::vector<mty::Particle> const &         fields2,
-    std::vector<mty::Particle> const &         newFields2,
+    std::vector<mty::Particle> const          &fields2,
+    std::vector<mty::Particle> const          &newFields2,
     std::vector<std::vector<csl::Expr>> const &rotation2,
     int                                        nMassLessFields)
 {
@@ -692,8 +692,8 @@ void ModelBuilder::birotateFields(std::vector<mty::Particle> const &fields1,
 }
 
 void ModelBuilder::rotateFields(
-    std::vector<std::string> const &           fields,
-    std::vector<std::string> const &           newFields,
+    std::vector<std::string> const            &fields,
+    std::vector<std::string> const            &newFields,
     std::vector<std::vector<csl::Expr>> const &rotation,
     bool                                       diagonalizeMasses,
     int                                        nMassLessFields)
@@ -714,11 +714,11 @@ void ModelBuilder::rotateFields(
 }
 
 void ModelBuilder::rotateFields(
-    std::vector<std::string> const &           fields1,
-    std::vector<std::string> const &           newFields1,
+    std::vector<std::string> const            &fields1,
+    std::vector<std::string> const            &newFields1,
     std::vector<std::vector<csl::Expr>> const &rotation1,
-    std::vector<std::string> const &           fields2,
-    std::vector<std::string> const &           newFields2,
+    std::vector<std::string> const            &fields2,
+    std::vector<std::string> const            &newFields2,
     std::vector<std::vector<csl::Expr>> const &rotation2,
     int                                        nMassLessFields)
 {
@@ -1005,7 +1005,7 @@ bool isMassTerm(csl::Expr const &prod, csl::Expr const &field)
     return false;
 }
 
-auto replaceMajorana(csl::Expr &          expr,
+auto replaceMajorana(csl::Expr           &expr,
                      mty::Particle const &xi,
                      mty::Particle        Lambda)
 {
@@ -1090,7 +1090,7 @@ void ModelBuilder::clearProjectorsInMass()
     }
 }
 
-void ModelBuilder::doPromoteToMajorana(mty::Particle &    particle,
+void ModelBuilder::doPromoteToMajorana(mty::Particle     &particle,
                                        std::string const &newParticleName)
 {
     std::shared_ptr<mty::WeylFermion> weylFermion
@@ -1166,7 +1166,7 @@ void ModelBuilder::findAbreviation(csl::Expr &product)
     }
 }
 
-void ModelBuilder::integrateOutParticle(mty::Particle const &  particle,
+void ModelBuilder::integrateOutParticle(mty::Particle const   &particle,
                                         std::vector<csl::Expr> newInteractions)
 {
     replace(particle, CSL_0);
@@ -1488,8 +1488,8 @@ void ModelBuilder::breakGaugeSymmetry(std::string const &brokenGroup)
 }
 
 void ModelBuilder::breakGaugeSymmetry(
-    std::string const &                          brokenGroup,
-    std::vector<std::string> const &             brokenFields,
+    std::string const                           &brokenGroup,
+    std::vector<std::string> const              &brokenFields,
     std::vector<std::vector<std::string>> const &newNames)
 {
     std::vector<mty::Particle> particles(brokenFields.size());
@@ -1501,7 +1501,7 @@ void ModelBuilder::breakGaugeSymmetry(
 }
 
 void ModelBuilder::breakGaugeSymmetry(
-    std::string const &               brokenGroup,
+    std::string const                &brokenGroup,
     std::vector<mty::Particle> const &brokenFields)
 {
     std::vector<std::vector<std::string>> newNames(brokenFields.size());
@@ -1518,7 +1518,7 @@ void ModelBuilder::breakGaugeSymmetry(
 }
 
 void ModelBuilder::breakGaugeSymmetry(
-    std::string const &             brokenGroup,
+    std::string const              &brokenGroup,
     std::vector<std::string> const &brokenFields)
 {
     std::vector<mty::Particle> parts;
@@ -1529,16 +1529,16 @@ void ModelBuilder::breakGaugeSymmetry(
 }
 
 void ModelBuilder::breakGaugeSymmetry(
-    std::string const &                          brokenGroup,
-    std::vector<mty::Particle> const &           brokenFields,
+    std::string const                           &brokenGroup,
+    std::vector<mty::Particle> const            &brokenFields,
     std::vector<std::vector<std::string>> const &newNames)
 {
     breakGaugeSymmetry(getGroup(brokenGroup), brokenFields, newNames);
 }
 
 void ModelBuilder::breakGaugeSymmetry(
-    Group *                                      brokenGroup,
-    std::vector<mty::Particle> const &           brokenFields,
+    Group                                       *brokenGroup,
+    std::vector<mty::Particle> const            &brokenFields,
     std::vector<std::vector<std::string>> const &newNames)
 {
     for (const auto &p : brokenFields)
@@ -1590,7 +1590,7 @@ void ModelBuilder::breakFlavorSymmetry(std::string const &brokenGroup)
     breakFlavorSymmetry(brokenGroup, brokenFields, newNames);
 }
 
-void ModelBuilder::breakFlavorSymmetry(std::string const &        brokenGroup,
+void ModelBuilder::breakFlavorSymmetry(std::string const         &brokenGroup,
                                        std::vector<size_t> const &subGroups,
                                        std::vector<std::string>   newFlavors)
 {
@@ -1623,8 +1623,8 @@ void ModelBuilder::breakFlavorSymmetry(std::string const &        brokenGroup,
 }
 
 void ModelBuilder::breakFlavorSymmetry(
-    std::string const &                          flavorName,
-    std::vector<mty::Particle> const &           brokenFields,
+    std::string const                           &flavorName,
+    std::vector<mty::Particle> const            &brokenFields,
     std::vector<std::vector<std::string>> const &newNames)
 {
     if (brokenFields.empty())
@@ -1641,11 +1641,11 @@ void ModelBuilder::breakFlavorSymmetry(
 }
 
 void ModelBuilder::breakFlavorSymmetry(
-    std::string const &                          flavorName,
-    std::vector<size_t> const &                  subGroups,
-    std::vector<mty::Particle> const &           brokenFields,
+    std::string const                           &flavorName,
+    std::vector<size_t> const                   &subGroups,
+    std::vector<mty::Particle> const            &brokenFields,
     std::vector<std::vector<std::string>> const &newNames,
-    std::vector<std::string> const &             newFlavorNames)
+    std::vector<std::string> const              &newFlavorNames)
 {
     size_t dim = std::accumulate(subGroups.begin(), subGroups.end(), 0);
     mty::FlavorGroup *brokenFlavor = nullptr;
@@ -1711,8 +1711,8 @@ void ModelBuilder::breakFlavorSymmetry(
 
 void ModelBuilder::replaceTermInLagrangian(
     std::vector<Lagrangian::TermType> &lagrangian,
-    size_t &                           i,
-    csl::vector_expr &                 newTerms)
+    size_t                            &i,
+    csl::vector_expr                  &newTerms)
 {
     std::vector<Lagrangian::TermType> newMass;
     newMass.reserve(newTerms.size());
@@ -1730,7 +1730,7 @@ void ModelBuilder::replaceTermInLagrangian(
 }
 
 void ModelBuilder::breakLagrangian(mty::Particle const &init,
-                                   csl::Space const *   brokenSpace)
+                                   csl::Space const    *brokenSpace)
 {
     breakLagrangian(
         init,
@@ -1739,8 +1739,8 @@ void ModelBuilder::breakLagrangian(mty::Particle const &init,
 }
 
 static std::vector<csl::Expr>
-expandBrokenIndices(csl::Expr const &                      init,
-                    csl::Space const *                     brokenSpace,
+expandBrokenIndices(csl::Expr const                       &init,
+                    csl::Space const                      *brokenSpace,
                     std::vector<csl::Space const *> const &newSpace)
 {
     // Expanding all broken indices because for now the breakSpace method
@@ -1759,8 +1759,8 @@ expandBrokenIndices(csl::Expr const &                      init,
 }
 
 void ModelBuilder::breakLagrangian(
-    mty::Particle const &                  init,
-    csl::Space const *                     brokenSpace,
+    mty::Particle const                   &init,
+    csl::Space const                      *brokenSpace,
     std::vector<csl::Space const *> const &newSpace)
 {
     for (size_t i = 0; i != L.kinetic.size(); ++i)
@@ -1815,7 +1815,7 @@ ModelBuilder::uniqueContent(InteractionTerm const &term)
 
 std::vector<mty::Particle>::const_iterator
 ModelBuilder::findInContent(std::vector<mty::Particle> const &content,
-                            mty::Particle const &             field)
+                            mty::Particle const              &field)
 {
     return std::find_if(
         content.begin(), content.end(), [&](mty::Particle const &field2) {
@@ -1824,7 +1824,7 @@ ModelBuilder::findInContent(std::vector<mty::Particle> const &content,
 }
 
 bool ModelBuilder::fieldInContent(std::vector<mty::Particle> const &content,
-                                  mty::Particle const &             field)
+                                  mty::Particle const              &field)
 {
     return findInContent(content, field) != content.end();
 }
@@ -1905,7 +1905,7 @@ csl::Expr ModelBuilder::getMassMatrixOf(MassBlock const &block)
     return massMatrix;
 }
 
-bool ModelBuilder::diagonalizeExplicitely(MassBlock const &      block,
+bool ModelBuilder::diagonalizeExplicitely(MassBlock const       &block,
                                           std::vector<Particle> &newFields,
                                           bool                   forceDetZero)
 {
@@ -2066,7 +2066,7 @@ void ModelBuilder::diagonalizeMassMatrices()
 
 void ModelBuilder::diagonalizeYukawa(std::string const &nameYukawa,
                                      std::vector<std::string> const &nameMass,
-                                     csl::Expr const &               factor)
+                                     csl::Expr const                &factor)
 {
     csl::vector_expr diagonal(nameMass.size());
     for (size_t i = 0; i != nameMass.size(); ++i) {
@@ -2077,8 +2077,8 @@ void ModelBuilder::diagonalizeYukawa(std::string const &nameYukawa,
 }
 void ModelBuilder::diagonalizeYukawa(std::string const &nameYukawa,
                                      std::vector<std::string> const &nameMass,
-                                     csl::Expr const &               factor,
-                                     csl::Tensor &                   mixing,
+                                     csl::Expr const                &factor,
+                                     csl::Tensor                    &mixing,
                                      std::vector<Particle>           mixed)
 {
     csl::vector_expr diagonal(nameMass.size());
@@ -2087,7 +2087,7 @@ void ModelBuilder::diagonalizeYukawa(std::string const &nameYukawa,
     }
     diagonalizeYukawa(nameYukawa, diagonal, mixing, mixed);
 }
-void ModelBuilder::diagonalizeYukawa(std::string const &           nameYukawa,
+void ModelBuilder::diagonalizeYukawa(std::string const            &nameYukawa,
                                      std::vector<csl::Expr> const &diagonal,
                                      csl::Tensor                   mixing,
                                      std::vector<mty::Particle>    mixed)
@@ -2166,7 +2166,7 @@ void ModelBuilder::applyDiagonalizationData(csl::LibraryGenerator &lib,
 }
 
 void ModelBuilder::applyDiagonalizationData(
-    csl::LibraryGenerator &                           lib,
+    csl::LibraryGenerator                            &lib,
     std::function<bool(mty::Spectrum const &)> const &cond) const
 {
     for (const auto &s : spectra) {
@@ -2176,7 +2176,7 @@ void ModelBuilder::applyDiagonalizationData(
         std::vector<std::string>           masses;
         std::vector<std::string>           expressions;
         std::vector<std::string>           dependencies;
-        std::vector<mty::Particle> const & parts    = s.getParticles();
+        std::vector<mty::Particle> const  &parts    = s.getParticles();
         Spectrum::matrix<csl::Expr> const &initMix  = s.getMixings();
         Spectrum::matrix<csl::Expr> const &initMix2 = s.getMixings2();
         Spectrum::matrix<csl::Expr> const &initMass = s.getMassTerms();
@@ -2231,8 +2231,8 @@ void ModelBuilder::applyDiagonalizationData(
 }
 
 void ModelBuilder::writeMatrix(Spectrum::matrix<csl::Expr> const &m,
-                               std::ostream &                     out,
-                               std::string const &                indent) const
+                               std::ostream                      &out,
+                               std::string const                 &indent) const
 {
     out << indent << "{\n";
     for (size_t i1 = 0; i1 != m.size1(); ++i1) {
@@ -2252,7 +2252,7 @@ void ModelBuilder::writeSpectrum(std::ostream &out, int indentSize) const
     std::string indent  = std::string(indentSize, ' ');
     std::string indent2 = indent + indent;
     for (const auto &s : spectra) {
-        std::vector<mty::Particle> const & parts    = s.getParticles();
+        std::vector<mty::Particle> const  &parts    = s.getParticles();
         Spectrum::matrix<csl::Expr> const &initMix  = s.getMixings();
         Spectrum::matrix<csl::Expr> const &initMix2 = s.getMixings2();
         Spectrum::matrix<csl::Expr> const &initMass = s.getMassTerms();
@@ -2372,7 +2372,7 @@ std::vector<csl::Expr> ModelBuilder::clearDependencies(
 }
 
 std::vector<csl::Expr> ModelBuilder::clearDependencies(
-    std::vector<Lagrangian::TermType> &               terms,
+    std::vector<Lagrangian::TermType>                &terms,
     std::function<bool(Lagrangian::TermType const &)> dependencyFunc)
 {
     std::vector<csl::Expr> res;
