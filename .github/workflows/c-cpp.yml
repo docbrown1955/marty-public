@@ -39,6 +39,7 @@ jobs:
     - name: run-tests
       run: |
         cd test-suite
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
         ./launch_tests.sh
   build-and-test-ubuntu-clang:
     runs-on: ubuntu-latest
@@ -69,7 +70,6 @@ jobs:
         exit 0
         source marty_env.sh
         cd test-suite
-        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$usr/local/lib
         ./launch_tests.sh
   build-and-test-macos:
     if: ${{ false }}
