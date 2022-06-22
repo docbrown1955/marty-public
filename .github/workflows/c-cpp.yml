@@ -12,7 +12,7 @@ on:
       - review_requested
 
 jobs:
-  build-and-test-ubuntu:
+  build-and-test-ubuntu-gcc:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -23,7 +23,37 @@ jobs:
         mkdir build
         cd build
         export CXX=g++-11
-        export CC=gcc-11 
+        export CC=gcc-11
+        export FC=gfortran-11
+        cmake ..
+    - name: make
+      run: |
+        cd build
+        make
+    - name: install
+      run: |
+        cd build
+        sudo make install
+    - name: download-tests
+      run: git clone https://github.com/docbrown1955/test-suite.git
+    - name: run-tests
+      run: |
+        exit 0
+        source marty_env.sh
+        cd test-suite
+        ./launch_tests.sh
+  build-and-test-ubuntu-clang:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: dependencies
+      run: sudo apt-get install coreutils build-essential clang clang++ gfortran libgsl-dev libgslcblas0 qt5-default dvipng cmake texlive texlive-latex-extra texlive-luatex -y
+    - name: configure
+      run: |
+        mkdir build
+        cd build
+        export CXX=clang++
+        export CC=clang
         export FC=gfortran-11
         cmake ..
     - name: make
@@ -57,7 +87,7 @@ jobs:
         cd build
         export PATH=$PATH:/usr/local:/usr/local/texlive/:/usr/local/texlive/2022:/usr/local/texlive/2022/bin
         export CXX=g++-11
-        export CC=gcc-11 
+        export CC=gcc-11
         export FC=gfortran-11
         export PATH=$PATH:/usr/texbin/:/Library/TeX/bin:/usr/local:/usr/local/texlive:/usr/local/texlive/2022:/usr/local/texlive/2022/bin
         cmake ..
