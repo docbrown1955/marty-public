@@ -110,7 +110,7 @@ FeynmanRule::FeynmanRule(mty::Model &model, TermType const &t_term)
     csl::ScopedProperty p2(&mty::option::applyInsertionOrdering, false);
     FeynOptions         options;
     options.setFeynmanRuleMode();
-    Kinematics kinematics(GetInsertion(insertions), momenta);
+    Kinematics kinematics(GetInsertion(insertions), momenta, false);
     auto       res = model.computeAmplitude(
         Order::TreeLevel, GetInsertion(insertions), kinematics, options);
     if (res.empty()) {
@@ -158,7 +158,7 @@ std::vector<QuantumField> const &FeynmanRule::getFieldProduct() const
 }
 
 csl::Expr
-FeynmanRule::getFieldProduct(csl::Tensor const &                 point,
+FeynmanRule::getFieldProduct(csl::Tensor const                  &point,
                              std::vector<csl::Tensor>::iterator &first,
                              std::vector<csl::Tensor>::iterator  last)
 {

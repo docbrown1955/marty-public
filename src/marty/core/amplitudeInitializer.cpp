@@ -24,10 +24,10 @@
 namespace mty {
 
 AmplitudeInitializer::AmplitudeInitializer(
-    mty::Model const *                      t_model,
-    mty::FeynOptions const &                t_options,
-    Kinematics const &                      t_kinematics,
-    std::vector<mty::QuantumField> const &  t_insertions,
+    mty::Model const                       *t_model,
+    mty::FeynOptions const                 &t_options,
+    Kinematics const                       &t_kinematics,
+    std::vector<mty::QuantumField> const   &t_insertions,
     std::vector<mty::Lagrangian::TermType> &t_lagrangian)
     : model(t_model),
       options(t_options),
@@ -40,10 +40,10 @@ AmplitudeInitializer::AmplitudeInitializer(
 }
 
 AmplitudeInitializer::AmplitudeInitializer(
-    mty::Model const *                     t_model,
-    mty::FeynOptions const &               t_options,
-    Kinematics const &                     t_kinematics,
-    std::vector<mty::QuantumField> const & t_insertions,
+    mty::Model const                      *t_model,
+    mty::FeynOptions const                &t_options,
+    Kinematics const                      &t_kinematics,
+    std::vector<mty::QuantumField> const  &t_insertions,
     std::vector<mty::FeynmanRule const *> &t_feynmanRules)
     : model(t_model),
       options(t_options),
@@ -99,7 +99,7 @@ Amplitude AmplitudeInitializer::fullQuantumCalculation(
     }
     Amplitude res{options, kinematics};
     for (size_t index = 0; index != terms.size(); ++index) {
-        const auto &             termPos  = terms[index];
+        const auto              &termPos  = terms[index];
         std::vector<csl::Tensor> vertices = getVertices(termPos.size());
         for (size_t i = 0; i != termPos.size(); ++i) {
             lagrangian[termPos[i]]->setPoint(vertices[i]);
@@ -165,7 +165,7 @@ Amplitude AmplitudeInitializer::ruledCalculation(
         csl::option::applySelfContractions = false;
         ///////////////////////////////:
 
-        const auto &             termPos = terms[index];
+        const auto              &termPos = terms[index];
         std::vector<FeynmanRule> localRules;
         localRules.reserve(termPos.size());
         // std::cout << "For rules:" << '\n';
@@ -231,9 +231,9 @@ Amplitude AmplitudeInitializer::ruledCalculation(
 }
 
 void AmplitudeInitializer::simplifyFullQuantumCalculation(
-    mty::FeynmanDiagram &             diagram,
-    csl::PseudoIntegral const &       integral,
-    std::vector<size_t> const &       posTerms,
+    mty::FeynmanDiagram              &diagram,
+    csl::PseudoIntegral const        &integral,
+    std::vector<size_t> const        &posTerms,
     std::vector<std::vector<size_t>> &externalSym)
 {
     csl::Expr           res = integral.applyOn(diagram.getExpression());
@@ -274,10 +274,10 @@ void AmplitudeInitializer::simplifyFullQuantumCalculation(
 }
 
 void AmplitudeInitializer::simplifyRuledCalculation(
-    mty::FeynmanDiagram &           diagram,
-    csl::PseudoIntegral const &     integral,
+    mty::FeynmanDiagram            &diagram,
+    csl::PseudoIntegral const      &integral,
     std::vector<csl::Tensor> const &witnessVertices,
-    FeynruleMomentum &              momentumMapping)
+    FeynruleMomentum               &momentumMapping)
 {
     applyMomentumVertices(
         witnessVertices, momentumMapping, diagram.getExpression());
@@ -334,7 +334,7 @@ void AmplitudeInitializer::removeZeroDiagrams(
 
 csl::Expr AmplitudeInitializer::getLSZInsertions(
     std::vector<mty::QuantumField> const &insertions,
-    Kinematics &                          kinematics,
+    Kinematics                           &kinematics,
     bool                                  feynRuleCalculation)
 {
     auto const &momenta = kinematics.getMomenta();
@@ -375,8 +375,8 @@ std::vector<csl::Tensor> AmplitudeInitializer::getVertices(size_t N)
     return vertices;
 }
 
-static bool compareFields(QuantumField const &    A,
-                          QuantumField const &    B,
+static bool compareFields(QuantumField const     &A,
+                          QuantumField const     &B,
                           [[maybe_unused]] size_t pos)
 {
     if (A.isSelfConjugate() != B.isSelfConjugate())
@@ -390,8 +390,8 @@ static bool compareFields(QuantumField const &    A,
 
 void AmplitudeInitializer::orderInsertions(
     std::vector<mty::QuantumField> &insertions,
-    Kinematics &                    kinematics,
-    FeynOptions &                   options)
+    Kinematics                     &kinematics,
+    FeynOptions                    &options)
 {
     std::vector<size_t> indices(kinematics.size());
     std::iota(begin(indices), end(indices), 0);
@@ -430,12 +430,12 @@ void AmplitudeInitializer::orderInsertions(
 }
 
 void AmplitudeInitializer::initMomentumVertices(
-    std::vector<FeynmanRule> &      localRules,
-    std::map<csl::Tensor, size_t> & vertexIds,
+    std::vector<FeynmanRule>       &localRules,
+    std::map<csl::Tensor, size_t>  &vertexIds,
     std::vector<csl::Tensor> const &vertices,
-    std::vector<csl::Tensor> &      witnessVertices,
-    csl::PseudoIntegral &           integral,
-    std::vector<csl::Expr> &        fieldVertices)
+    std::vector<csl::Tensor>       &witnessVertices,
+    csl::PseudoIntegral            &integral,
+    std::vector<csl::Expr>         &fieldVertices)
 {
     size_t index = 0;
     for (size_t i = 0; i != localRules.size(); ++i) {
@@ -500,7 +500,7 @@ AmplitudeInitializer::getExternalSymmetries(csl::Expr &fieldProd) const
 }
 
 std::vector<csl::Expr>
-AmplitudeInitializer::applyExternalSymmetries(csl::Expr const &   res,
+AmplitudeInitializer::applyExternalSymmetries(csl::Expr const    &res,
                                               std::vector<size_t> perm) const
 {
     const size_t nIndices = insertions[perm[0]].getIndexStructureView().size();
@@ -605,7 +605,7 @@ AmplitudeInitializer::applyExternalSymmetries(csl::Expr const &   res,
 }
 
 std::vector<csl::Expr> AmplitudeInitializer::applyAllExternalSymmetries(
-    std::vector<csl::Expr> const &             init,
+    std::vector<csl::Expr> const              &init,
     std::vector<std::vector<size_t>>::iterator first,
     std::vector<std::vector<size_t>>::iterator last) const
 {
@@ -624,14 +624,19 @@ std::vector<csl::Expr> AmplitudeInitializer::applyAllExternalSymmetries(
 
 void AmplitudeInitializer::applyMomentumVertices(
     std::vector<csl::Tensor> const &witnessVertices,
-    FeynruleMomentum &              momentumMapping,
-    csl::Expr &                     amplitude)
+    FeynruleMomentum               &momentumMapping,
+    csl::Expr                      &amplitude)
 {
+    std::cout << "HERE\n";
+    std::cout << amplitude << std::endl;
+    std::cout << momentumMapping << std::endl;
     for (const auto &w : witnessVertices) {
         auto optReplacement = momentumMapping.pop(w);
         if (optReplacement) {
             csl::Tensor momentum = optReplacement->momentum;
             csl::Expr   factor   = optReplacement->factor;
+            std::cout << "Replacing " << w->getName() << " by "
+                      << momentum->getName() << std::endl;
             csl::ForEachLeaf(amplitude, [&](csl::Expr &el) {
                 if (el->getType() == csl::Type::TensorElement
                     and el->getParent_info() == w.get()) {

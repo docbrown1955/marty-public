@@ -29,7 +29,8 @@ Kinematics::Kinematics(std::vector<mty::Insertion> const &t_insertions)
 }
 
 Kinematics::Kinematics(std::vector<mty::Insertion> const &t_insertions,
-                       std::vector<csl::Tensor> const &   t_momenta)
+                       std::vector<csl::Tensor> const    &t_momenta,
+                       bool                               initSquaredMomenta)
     : insertions(t_insertions),
       momenta(t_momenta),
       indices(defaultIndices(insertions.size()))
@@ -39,11 +40,15 @@ Kinematics::Kinematics(std::vector<mty::Insertion> const &t_insertions,
               "Expecting same number of insertions and momenta, got "
                   + std::to_string(insertions.size()) + " and "
                   + std::to_string(momenta.size()) + ".")
+
+        if (initSquaredMomenta)
+    {
         initMomentaSquared(indices);
+    }
 }
 
 Kinematics::Kinematics(std::vector<mty::Insertion> const &t_insertions,
-                       std::vector<size_t> const &        t_indices)
+                       std::vector<size_t> const         &t_indices)
     : insertions(t_insertions), indices(t_indices)
 {
     momenta.resize(insertions.size());
@@ -163,8 +168,8 @@ void Kinematics::initMomentaSquared(std::vector<size_t> const &indices)
             s = CSL_UNDEF;
 }
 
-void Kinematics::addContraction(csl::Tensor &    p1,
-                                csl::Tensor &    p2,
+void Kinematics::addContraction(csl::Tensor     &p1,
+                                csl::Tensor     &p2,
                                 csl::Expr const &res)
 {
     const csl::Index mu = csl::Minkowski.generateIndex();
@@ -277,7 +282,7 @@ Kinematics Kinematics::applyIndices(std::vector<size_t> const &t_indices) const
     return kin;
 }
 
-void Kinematics::replace(csl::Expr &       expr,
+void Kinematics::replace(csl::Expr        &expr,
                          Kinematics const &k1,
                          Kinematics const &k2)
 {

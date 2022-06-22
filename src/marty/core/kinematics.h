@@ -64,7 +64,8 @@ class Kinematics {
      * same size as \b t_insertions.
      */
     Kinematics(std::vector<mty::Insertion> const &t_insertions,
-               std::vector<csl::Tensor> const &   t_momenta);
+               std::vector<csl::Tensor> const    &t_momenta,
+               bool                               initSquaredMomenta = true);
 
     /**
      * @brief Initializes the object from insertions and indices for
@@ -83,7 +84,7 @@ class Kinematics {
      * @param indices      Indices to initialize momenta names.
      */
     Kinematics(std::vector<mty::Insertion> const &t_insertions,
-               std::vector<size_t> const &        indices);
+               std::vector<size_t> const         &indices);
 
     /**
      * @return the size of the kinematics objects i.e. the number of

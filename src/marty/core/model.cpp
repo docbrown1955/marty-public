@@ -622,7 +622,7 @@ WilsonSet Model::getWilsonCoefficients(Amplitude const   &ampl,
         csl::Expr &a = coefs[i];
         Wilson    &w = wilsons[i];
         csl::matcher::compress(a, 2);
-        if (isMinimal) {
+        if (isMinimal && !a->isIndexed()) {
             a = csl::Abbrev::makeAbbreviation("Cw", a);
         }
         else if (mode == DecompositionMode::Matching) {
