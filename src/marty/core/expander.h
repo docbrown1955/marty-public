@@ -37,41 +37,38 @@ enum Order { TreeLevel, OneLoop };
 class Expander {
 
   public:
-    Expander(mty::Model const *                            t_model,
-             FeynOptions const &                           t_options,
+    Expander(FeynOptions const                            &t_options,
              std::vector<mty::Lagrangian::TermType> const &lagrangian,
-             std::vector<mty::QuantumField> const &        t_insertions);
+             std::vector<mty::QuantumField> const         &t_insertions);
 
     std::vector<std::vector<size_t>> findNonZeroDiagrams();
 
     template <class... Args>
-    static std::vector<std::vector<size_t>> getDiagrams(Args &&... args)
+    static std::vector<std::vector<size_t>> getDiagrams(Args &&...args)
     {
         Expander exp(std::forward<Args>(args)...);
         return exp.findNonZeroDiagrams();
     }
 
   private:
-    bool contractionPossible(std::vector<size_t> const &      fieldPos,
-                             std::vector<bool> const &        insertionsPaired,
+    bool contractionPossible(std::vector<size_t> const       &fieldPos,
+                             std::vector<bool> const         &insertionsPaired,
                              std::vector<QuantumField> const &newFields,
-                             std::vector<bool> &              newPairing,
+                             std::vector<bool>               &newPairing,
                              int                              order,
                              int                              maxOrder,
                              size_t                           nLoops,
                              size_t maxInteractionLegs);
 
     void addVertexCarefully(size_t                               iTerm,
-                            std::vector<size_t> const &          terms,
-                            std::vector<std::vector<size_t>> &   numbers,
-                            std::vector<std::vector<bool>> &     newPairings,
-                            std::vector<bool> const &            pairing,
+                            std::vector<size_t> const           &terms,
+                            std::vector<std::vector<size_t>>    &numbers,
+                            std::vector<std::vector<bool>>      &newPairings,
+                            std::vector<bool> const             &pairing,
                             std::map<std::vector<size_t>, bool> &vertexMap);
 
   private:
-    mty::Model const *model;
-
-    FeynOptions const &                    options;
+    FeynOptions const                     &options;
     std::vector<mty::Lagrangian::TermType> effectiveLagrangian;
     std::vector<mty::QuantumField>         insertions;
 };

@@ -27,14 +27,14 @@ namespace csl {
 
 namespace eval {
 
-typedef std::bitset<6> mode;
+using mode = std::bitset<6>;
 
-constexpr static mode base(0);
-const static mode     literal(mode(1) | base);
-const static mode     numerical(mode(2) | base);
-const static mode     indicial(mode(4) | base);
-const static mode     abbreviation(mode(8) | base);
-const static mode all(base | literal | numerical | indicial | abbreviation);
+constexpr inline mode base(0);
+const inline mode     literal(mode(1) | base);
+const inline mode     numerical(mode(2) | base);
+const inline mode     indicial(mode(4) | base);
+const inline mode     abbreviation(mode(8) | base);
+const inline mode all(base | literal | numerical | indicial | abbreviation);
 
 /*!
  * \brief Tells if the defined mode is contained in the user_mode.

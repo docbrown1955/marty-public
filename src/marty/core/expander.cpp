@@ -21,12 +21,10 @@
 
 namespace mty {
 
-Expander::Expander(mty::Model const *                            t_model,
-                   FeynOptions const &                           t_options,
+Expander::Expander(FeynOptions const                            &t_options,
                    std::vector<mty::Lagrangian::TermType> const &lagrangian,
-                   std::vector<mty::QuantumField> const &        t_insertions)
-    : model(t_model),
-      options(t_options),
+                   std::vector<mty::QuantumField> const         &t_insertions)
+    : options(t_options),
       effectiveLagrangian(lagrangian),
       insertions(t_insertions)
 {
@@ -138,9 +136,9 @@ std::vector<std::vector<size_t>> Expander::findNonZeroDiagrams()
 }
 
 bool Expander::contractionPossible(std::vector<size_t> const &fieldPos,
-                                   std::vector<bool> const &  insertionsPaired,
+                                   std::vector<bool> const   &insertionsPaired,
                                    std::vector<QuantumField> const &newFields,
-                                   std::vector<bool> &              newPairing,
+                                   std::vector<bool>               &newPairing,
                                    int                              order,
                                    int                              maxOrder,
                                    size_t                           nLoops,
@@ -235,10 +233,10 @@ bool Expander::contractionPossible(std::vector<size_t> const &fieldPos,
 
 void Expander::addVertexCarefully(
     size_t                               iTerm,
-    std::vector<size_t> const &          terms,
-    std::vector<std::vector<size_t>> &   numbers,
-    std::vector<std::vector<bool>> &     newPairing,
-    const std::vector<bool> &            pairing,
+    std::vector<size_t> const           &terms,
+    std::vector<std::vector<size_t>>    &numbers,
+    std::vector<std::vector<bool>>      &newPairing,
+    const std::vector<bool>             &pairing,
     std::map<std::vector<size_t>, bool> &vertexMap)
 {
     // We insert the new number, keeping elements sorted in ascending order.

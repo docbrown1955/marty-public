@@ -697,7 +697,8 @@ void LibraryGenerator::printMakefile() const
     if (hasGlobalFile())
         makefile << " -lgsl -lgslcblas";
     makefile << "\n\n";
-    print_libmakefile_data(makefile, quadruple, STRINGIFY(MARTY_CXX));
+    print_libmakefile_data(
+        makefile, quadruple, STRINGIFY(MARTY_CXX), optimize);
     makefile.close();
 }
 

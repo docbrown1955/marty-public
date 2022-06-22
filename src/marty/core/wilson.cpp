@@ -110,7 +110,7 @@ void WilsonOperator::setExpression(csl::Expr const &t_expression)
             }
             if (!mty::option::decomposeInLocalOperator)
                 return;
-            csl::IndexStructure &   structure = field->getIndexStructureView();
+            csl::IndexStructure    &structure = field->getIndexStructureView();
             std::vector<csl::Index> indices   = structure.getIndex();
             csl::Index              polar     = indices.front();
             indices.erase(indices.begin());
@@ -222,9 +222,9 @@ void WilsonSet::mergeSorted(std::vector<Wilson> &wilsons)
 /*************************************************/
 ///////////////////////////////////////////////////
 
-void parseStructures(csl::Expr &             arg,
+void parseStructures(csl::Expr              &arg,
                      std::vector<csl::Expr> &inOperator,
-                     csl::IndexStructure &   quantumStructure)
+                     csl::IndexStructure    &quantumStructure)
 {
     if (IsOfType<PolarizationField>(arg) or IsOfType<QuantumField>(arg)) {
         quantumStructure += arg->getIndexStructureView();
@@ -307,11 +307,11 @@ std::vector<Wilson> parseSum(csl::Expr const &sum,
 }
 
 static std::vector<Wilson> applyFactor(std::vector<Wilson> &&wilsons,
-                                       csl::Expr const &     factor)
+                                       csl::Expr const      &factor)
 {
     for (auto &w : wilsons)
         w.coef.setCoefficient(factor * w.coef.getCoefficient());
-    return wilsons;
+    return std::move(wilsons);
 }
 
 std::vector<Wilson> sglSimplifyForWilson(csl::Expr const &op,
@@ -468,7 +468,7 @@ void addSortedWilson(Wilson const &wil, std::vector<Wilson> &wilsons)
 }
 
 WilsonSet match(std::vector<csl::Expr> &fullAmplitudes,
-                csl::Expr const &       operatorFactor,
+                csl::Expr const        &operatorFactor,
                 bool                    standardBasis,
                 bool                    squaredAfter)
 {
