@@ -1,5 +1,5 @@
 ![GitHub Repo stars](https://img.shields.io/github/stars/docbrown1955/marty-public?logo=GitHub&style=flat-square)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/docbrown1955/marty-public/build)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/docbrown1955/marty-public/build?logo=GitHub&style=flat-square)
 # MARTY
 
 ## Summary
