@@ -38,9 +38,6 @@ class Library : public csl::LibraryGenerator {
 #if !(defined __APPLE__ || defined __MACH__)
         // If we are not on MacOS, add -lgfortran
         addLibrary("-lgfortran");
-        setGccCompiler();
-#else
-        setClangCompiler();
 #endif
         if (csl::LibraryGenerator::isQuadruplePrecision()) {
             addLibrary("-looptools-quad");
