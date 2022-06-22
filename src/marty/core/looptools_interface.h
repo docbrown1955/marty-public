@@ -2,12 +2,6 @@
 
 #include "looptools_patch.h"
 
-#ifdef __cplusplus
-#define _MTY_INLINE inline
-#else
-#define _MTY_INLINE static inline
-#endif
-
 _MTY_INLINE lti_complex_t mtylt_A0iC(int id, lti_complex_t m1)
 {
 #ifdef __cplusplus

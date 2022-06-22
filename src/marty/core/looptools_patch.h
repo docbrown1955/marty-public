@@ -8,40 +8,46 @@
 #include <stdbool.h>
 #endif
 
+#ifdef __cplusplus
+#define _MTY_INLINE inline
+#else
+#define _MTY_INLINE static inline
+#endif
+
 #if defined __cplusplus && defined QUAD
     using lti_real_t    = __float128;
     using lti_complex_t = __complex128;
-    inline auto lt_real(lti_complex_t const &z) { return crealq(z); }
-    inline auto lt_imag(lti_complex_t const &z) { return cimagq(z); }
-    inline auto lt_pow(lti_real_t const &x, int n) { return powq(x, n); }
-    inline ComplexType ensure_std_complex(lti_complex_t const &z) {
+    _MTY_INLINE auto lt_real(lti_complex_t const &z) { return crealq(z); }
+    _MTY_INLINE auto lt_imag(lti_complex_t const &z) { return cimagq(z); }
+    _MTY_INLINE auto lt_pow(lti_real_t const &x, int n) { return powq(x, n); }
+    _MTY_INLINE ComplexType ensure_std_complex(lti_complex_t const &z) {
         return ToComplex2(crealq(z), cimagq(z));
     }
 #elif defined __cplusplus
     using lti_real_t    = double;
     using lti_complex_t = std::complex<double>;
-    inline auto lt_real(lti_complex_t const &z) { return (z).real(); }
-    inline auto lt_imag(lti_complex_t const &z) { return (z).imag(); }
-    inline auto lt_pow(lti_real_t const &x, int n) { return std::pow(x, n); }
-    inline ComplexType ensure_std_complex(lti_complex_t const &z) {
+    _MTY_INLINE auto lt_real(lti_complex_t const &z) { return (z).real(); }
+    _MTY_INLINE auto lt_imag(lti_complex_t const &z) { return (z).imag(); }
+    _MTY_INLINE auto lt_pow(lti_real_t const &x, int n) { return std::pow(x, n); }
+    _MTY_INLINE ComplexType ensure_std_complex(lti_complex_t const &z) {
         return ToComplex2(z.real(), z.imag());
     }
 #elif defined QUAD
     typedef __float128 lti_real_t;
     typedef __complex128 lti_complex_t;
-    inline lti_real_t lt_real(lti_complex_t z) { return crealq(z); }
-    inline lti_real_t lt_imag(lti_complex_t z) { return cimagq(z); }
-    inline lti_real_t lt_pow(lti_real_t x, int n) { return powq(x, n); }
-    inline ComplexType ensure_std_complex(lti_complex_t z) { 
+    _MTY_INLINE lti_real_t lt_real(lti_complex_t z) { return crealq(z); }
+    _MTY_INLINE lti_real_t lt_imag(lti_complex_t z) { return cimagq(z); }
+    _MTY_INLINE lti_real_t lt_pow(lti_real_t x, int n) { return powq(x, n); }
+    _MTY_INLINE ComplexType ensure_std_complex(lti_complex_t z) { 
         return ToComplex2(crealq(z), cimagq(z)); 
     }
 #else
     typedef double lti_real_t;
     typedef double complex lti_complex_t;
-    inline lti_real_t lt_real(lti_complex_t z) { return creal(z); }
-    inline lti_real_t lt_imag(lti_complex_t z) { return cimag(z); }
-    inline lti_real_t lt_pow(lti_real_t x, int n) { return pow(x, n); }
-    inline ComplexType ensure_std_complex(lti_complex_t z) { 
+    _MTY_INLINE lti_real_t lt_real(lti_complex_t z) { return creal(z); }
+    _MTY_INLINE lti_real_t lt_imag(lti_complex_t z) { return cimag(z); }
+    _MTY_INLINE lti_real_t lt_pow(lti_real_t x, int n) { return pow(x, n); }
+    _MTY_INLINE ComplexType ensure_std_complex(lti_complex_t z) { 
         return ToComplex2(creal(z), cimag(z)); 
     }
 #endif
@@ -62,7 +68,7 @@ typedef struct IntegrationParams {
 } integration_params_t;
 #endif
 
-inline integration_params_t* getIntegrationParameters()
+_MTY_INLINE integration_params_t* getIntegrationParameters()
 {
     static bool init = false;
     static integration_params_t params;
@@ -78,12 +84,12 @@ inline integration_params_t* getIntegrationParameters()
 }
 
 
-inline lti_real_t abs_re(lti_complex_t value) {
+_MTY_INLINE lti_real_t abs_re(lti_complex_t value) {
     const lti_real_t re = lt_real(value);
     return (re < 0) ? -re : re;
 }
 
-inline void regulateC(
+_MTY_INLINE void regulateC(
         lti_complex_t *p1_2,
         lti_complex_t *p2_2,
         lti_complex_t *p3_2,
@@ -116,7 +122,7 @@ inline void regulateC(
     }
 }
 
-inline lti_real_t scaleFactorA(int id, lti_real_t scale)
+_MTY_INLINE lti_real_t scaleFactorA(int id, lti_real_t scale)
 {
     switch(id) {
         case aa0:
@@ -128,7 +134,7 @@ inline lti_real_t scaleFactorA(int id, lti_real_t scale)
     }
 }
 
-inline lti_real_t scaleFactorB(int id, lti_real_t scale)
+_MTY_INLINE lti_real_t scaleFactorB(int id, lti_real_t scale)
 {
     switch(id) {
         case bb00:
@@ -141,7 +147,7 @@ inline lti_real_t scaleFactorB(int id, lti_real_t scale)
     }
 }
 
-inline lti_real_t scaleFactorC(int id, lti_real_t scale)
+_MTY_INLINE lti_real_t scaleFactorC(int id, lti_real_t scale)
 {
     switch(id) {
         case cc00:
@@ -160,7 +166,7 @@ inline lti_real_t scaleFactorC(int id, lti_real_t scale)
     }
 }
 
-inline lti_real_t scaleFactorD(int id, lti_real_t scale)
+_MTY_INLINE lti_real_t scaleFactorD(int id, lti_real_t scale)
 {
     if (id  == dd0000 || (id >= dd00001 && id <= dd00003))
         return 1;
@@ -172,7 +178,7 @@ inline lti_real_t scaleFactorD(int id, lti_real_t scale)
     return scale*scale;
 }
 
-inline lti_real_t scaleFactorE(int id, lti_real_t scale)
+_MTY_INLINE lti_real_t scaleFactorE(int id, lti_real_t scale)
 {
     if (id  == ee0000)
         return scale;
@@ -183,7 +189,7 @@ inline lti_real_t scaleFactorE(int id, lti_real_t scale)
     return scale*scale*scale;
 }
 
-inline lti_complex_t rescaledC(
+_MTY_INLINE lti_complex_t rescaledC(
         lti_real_t scale,
         lti_real_t preFactor,
         lti_complex_t (*lt_func)(
