@@ -54,7 +54,7 @@ jobs:
         cd build
         export CXX=clang++
         export CC=clang
-        export FC=gfortran-11
+        export FC=gfortran
         cmake ..
     - name: make
       run: |
