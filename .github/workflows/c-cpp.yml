@@ -38,8 +38,6 @@ jobs:
       run: git clone https://github.com/docbrown1955/test-suite.git
     - name: run-tests
       run: |
-        exit 0
-        source marty_env.sh
         cd test-suite
         ./launch_tests.sh
   build-and-test-ubuntu-clang:
