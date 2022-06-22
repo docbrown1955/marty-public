@@ -4,7 +4,7 @@
 
 namespace mty {
 
-class Wilson;
+struct Wilson;
 class Kinematics;
 class Amplitude;
 
@@ -37,6 +37,6 @@ bool requiresPenguinPatch(Amplitude const &amplitude);
  * @param kinematics Kinematica of the process.
  */
 void applyPenguinPatch(std::vector<Wilson> &wilsons,
-                       Kinematics const &   kinematics);
+                       Kinematics const    &kinematics);
 
 } // namespace mty

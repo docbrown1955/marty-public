@@ -157,7 +157,7 @@ Model::computeAmplitude(std::vector<Lagrangian::TermType> &lagrangian,
         field.setPoint(Xi);
     }
     std::vector<std::vector<size_t>> terms
-        = Expander::getDiagrams(this, options, lagrangian, quantumInsertions);
+        = Expander::getDiagrams(options, lagrangian, quantumInsertions);
     if (rules.empty()) {
         return AmplitudeInitializer::getAmplitude(
             terms, this, options, kinematics, quantumInsertions, lagrangian);

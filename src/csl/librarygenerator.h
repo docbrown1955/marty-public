@@ -48,11 +48,6 @@ class LibraryGenerator {
         }
     };
 
-    enum Compiler {
-        gcc,
-        clang,
-    };
-
     inline static int nDigits = std::numeric_limits<double>::max_digits10 - 2;
     inline static std::string realType      = "double";
     inline static std::string crealType     = "double";
@@ -131,19 +126,20 @@ class LibraryGenerator {
         return uniqueParamStruct;
     }
 
+    bool getOptimization() const
+    {
+        return optimize;
+    }
+
     void cleanExistingSources() const;
-    void setClangCompiler()
-    {
-        compiler = clang;
-    }
-    void setGccCompiler()
-    {
-        compiler = gcc;
-    }
     void setName(std::string const &t_name);
     void setUniqueParamStruct(bool t_par)
     {
         uniqueParamStruct = t_par;
+    }
+    void setOptimization(bool optimize)
+    {
+        this->optimize = optimize;
     }
     void setPath(std::string const &t_path);
     void setIPath(std::vector<std::string> const &t_path);
@@ -232,9 +228,9 @@ class LibraryGenerator {
   protected:
     std::string name;
 
-    Compiler compiler;
-
     std::string path;
+
+    bool optimize = true;
 
     std::set<std::string> IPath;
 

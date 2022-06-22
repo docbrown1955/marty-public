@@ -39,7 +39,7 @@ void ModelBuilder::addAbbreviatedMassExpression(csl::Expr const &abbreviation)
                            return expr->getName() == abbreviation->getName();
                        });
     if (pos != abbreviatedMassExpressions.end()) {
-        *pos == abbreviation;
+        *pos = abbreviation;
     }
     else {
         abbreviatedMassExpressions.push_back(abbreviation);
