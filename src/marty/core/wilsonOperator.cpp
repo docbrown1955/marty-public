@@ -14,12 +14,11 @@
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "wilsonOperator.h"
-#include "error.h"
 #include "model.h"
 
 namespace mty {
 
-csl::Expr getWilsonCoefficient(WilsonSet const &          wilsons,
+csl::Expr getWilsonCoefficient(WilsonSet const           &wilsons,
                                std::vector<Wilson> const &contributions)
 {
     std::vector<csl::Expr> terms;
@@ -34,7 +33,7 @@ csl::Expr getWilsonCoefficient(WilsonSet const &          wilsons,
     return csl::sum_s(terms);
 }
 
-csl::Expr getWilsonCoefficient(WilsonSet const &             wilsons,
+csl::Expr getWilsonCoefficient(WilsonSet const              &wilsons,
                                std::vector<csl::Expr> const &contributions)
 {
     std::vector<Wilson> wilcontrib(contributions.size());
@@ -45,7 +44,7 @@ csl::Expr getWilsonCoefficient(WilsonSet const &             wilsons,
 }
 
 csl::Expr getWilsonCoefficient(WilsonSet const &wilsons,
-                               Wilson const &   contributions)
+                               Wilson const    &contributions)
 {
     return getWilsonCoefficient(wilsons, std::vector<Wilson>{contributions});
 }
@@ -57,7 +56,7 @@ csl::Expr getWilsonCoefficient(WilsonSet const &wilsons,
                                 std::vector<csl::Expr>{contributions});
 }
 
-csl::Expr getWilsonCoefficient(Model const &    model,
+csl::Expr getWilsonCoefficient(Model const     &model,
                                WilsonSet const &wilsons,
                                DiracCoupling    coupling)
 {
