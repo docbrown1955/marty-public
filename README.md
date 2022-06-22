@@ -1,4 +1,5 @@
-![stars](https://img.shields.io/github/stars/docbrown1955/marty-public?style=for-the-badge)
+![GitHub Repo stars](https://img.shields.io/github/stars/docbrown1955/marty-public?logo=GitHub&style=flat-square)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/docbrown1955/marty-public/build)
 # MARTY
 
 ## Summary
