@@ -627,16 +627,11 @@ void AmplitudeInitializer::applyMomentumVertices(
     FeynruleMomentum               &momentumMapping,
     csl::Expr                      &amplitude)
 {
-    std::cout << "HERE\n";
-    std::cout << amplitude << std::endl;
-    std::cout << momentumMapping << std::endl;
     for (const auto &w : witnessVertices) {
         auto optReplacement = momentumMapping.pop(w);
         if (optReplacement) {
             csl::Tensor momentum = optReplacement->momentum;
             csl::Expr   factor   = optReplacement->factor;
-            std::cout << "Replacing " << w->getName() << " by "
-                      << momentum->getName() << std::endl;
             csl::ForEachLeaf(amplitude, [&](csl::Expr &el) {
                 if (el->getType() == csl::Type::TensorElement
                     and el->getParent_info() == w.get()) {
