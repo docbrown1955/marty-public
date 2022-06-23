@@ -386,7 +386,7 @@ void SM_Model::addGaugeFixingTerms()
 
     csl::Expr cosW = csl::cos_s(theta_W);
     csl::Expr g    = e_em / csl::sin_s(theta_W);
-    Particle  h0   = getParticle("h0");
+    Particle  h0   = getParticle("h");
     Particle  G0   = getParticle("G0");
     Particle  Gp   = getParticle("Gp");
     csl::Expr ap   = csl::constant_s("ap");
