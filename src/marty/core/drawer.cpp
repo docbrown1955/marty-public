@@ -212,9 +212,9 @@ static constexpr bool enableApp = true;
 void Drawer::launchViewer(std::vector<drawer::LatexLinker> const &links)
 {
     if constexpr (enableApp) {
-        drawer::LatexLinker::saveMultiple("graphs.json", links);
-        [[maybe_unused]] int res = system("grafed-gui graphs.json >/dev/null "
-                                          "2>&1 & sleep 0.5");
+        drawer::LatexLinker::saveMultiple("/tmp/graphs.json", links);
+        [[maybe_unused]] int res = system("grafed-gui /tmp/graphs.json "
+                                          ">/dev/null 2>&1 & sleep 0.5");
     }
 }
 
