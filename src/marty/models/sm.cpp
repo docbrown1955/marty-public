@@ -38,6 +38,11 @@ SM_Model::SM_Model(bool initialize)
 void SM_Model::init()
 {
     initContent();
+    getToLowEnergyLagrangian();
+}
+
+void SM_Model::getToLowEnergyLagrangian()
+{
     gaugeSymmetryBreaking();
     HiggsVEVExpansion();
     diagonalizeSMMassMatrices();

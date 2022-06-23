@@ -38,8 +38,9 @@ class SM_Model : public mty::Model {
     SM_Model(bool init = true);
 
     void init();
-
     void initContent();
+    void getToLowEnergyLagrangian();
+
     void initGauge();
     void initFermions();
     void initHiggsPotential();
