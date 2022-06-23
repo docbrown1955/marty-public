@@ -14,7 +14,6 @@ void GTHDM_Model::init()
 {
     initContent();
     gaugeSymmetryBreaking();
-    replaceWboson();
     replaceHiggs();
     diagonalize2By2Matrices();
     GTHDM_Model::replaceYukawas(); // replaces the same function from 2HDM
@@ -76,7 +75,7 @@ void GTHDM_Model::replaceYukawas()
     mty::Particle D_L = GetParticle(*this, "D_L");
     mty::Particle D_R = GetParticle(*this, "D_R");
     csl::Index    a1  = DiracIndex();
-    csl::Index    A   = GaugeIndex(*this, "SU3c", D_L);
+    csl::Index    A   = GaugeIndex(*this, "C", D_L);
     Replaced(*this, D_L({f_j, A, a1}), V_CKM({f_j, f_k}) * D_L({f_k, A, a1}));
     Replaced(*this, D_R({f_i, A, a1}), V_CKM({f_i, f_j}) * D_R({f_j, A, a1}));
 

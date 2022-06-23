@@ -213,9 +213,8 @@ void Drawer::launchViewer(std::vector<drawer::LatexLinker> const &links)
 {
     if constexpr (enableApp) {
         drawer::LatexLinker::saveMultiple("graphs.json", links);
-        [[maybe_unused]] int res = system("grafed-gui graphs.json "
-                                          "&>/dev/null");
-        res                      = system("sleep 0.5");
+        [[maybe_unused]] int res = system("grafed-gui graphs.json >/dev/null "
+                                          "2>&1 & sleep 0.5");
     }
 }
 
