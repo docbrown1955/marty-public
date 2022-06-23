@@ -64,6 +64,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 add_subdirectory(dep)
 add_subdirectory(src)
 add_subdirectory(examples)
+add_subdirectory(tests)
 
 add_library(csl SHARED)
 target_link_libraries(csl csl-core)
