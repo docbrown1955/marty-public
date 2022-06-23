@@ -26,6 +26,7 @@ using namespace csl;
 
 namespace mty {
 
+// Write the SM initialization
 SM_Model::SM_Model(bool initialize) : mty::Model("models/files/SM.json")
 {
     getParticle("G")->setDrawType(drawer::ParticleType::Gluon);
