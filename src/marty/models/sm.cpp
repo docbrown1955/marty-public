@@ -58,42 +58,42 @@ void SM_Model::initContent()
 
 void SM_Model::initGauge()
 {
-    addGaugedGroup(group::Type::SU, "SU3c", 3, g_s);
-    addGaugedGroup(group::Type::SU, "SU2L", 2, csl::constant_s("g_L"));
-    addGaugedGroup(group::Type::U1, "U1Y", csl::constant_s("g_Y"));
+    addGaugedGroup(group::Type::SU, "C", 3, g_s);
+    addGaugedGroup(group::Type::SU, "L", 2, csl::constant_s("g_L"));
+    addGaugedGroup(group::Type::U1, "Y", csl::constant_s("g_Y"));
     addFlavorGroup("SM_flavor", 3);
     Model::init();
-    renameParticle("A_U1Y", "B");
-    renameParticle("A_SU2L", "W");
-    renameParticle("A_SU3c", "G");
+    renameParticle("A_Y", "B");
+    renameParticle("A_L", "W");
+    renameParticle("A_C", "G");
     getParticle("G")->setDrawType(drawer::ParticleType::Gluon);
 }
 
 void SM_Model::initFermions()
 {
     Particle Q = weylfermion_s("Q", *this, Chirality::Left);
-    Q->setGroupRep("SU3c", {1, 0});
-    Q->setGroupRep("SU2L", 1);
-    Q->setGroupRep("U1Y", {1, 6});
+    Q->setGroupRep("C", {1, 0});
+    Q->setGroupRep("L", 1);
+    Q->setGroupRep("Y", {1, 6});
     Q->setFundamentalFlavorRep("SM_flavor");
 
     Particle U = weylfermion_s("U_R", *this, Chirality::Right);
-    U->setGroupRep("SU3c", {1, 0});
-    U->setGroupRep("U1Y", {2, 3});
+    U->setGroupRep("C", {1, 0});
+    U->setGroupRep("Y", {2, 3});
     U->setFundamentalFlavorRep("SM_flavor");
 
     Particle D = weylfermion_s("D_R", *this, Chirality::Right);
-    D->setGroupRep("SU3c", {1, 0});
-    D->setGroupRep("U1Y", {-1, 3});
+    D->setGroupRep("C", {1, 0});
+    D->setGroupRep("Y", {-1, 3});
     D->setFundamentalFlavorRep("SM_flavor");
 
     Particle L = weylfermion_s("L", *this, Chirality::Left);
-    L->setGroupRep("SU2L", 1);
-    L->setGroupRep("U1Y", {-1, 2});
+    L->setGroupRep("L", 1);
+    L->setGroupRep("Y", {-1, 2});
     L->setFundamentalFlavorRep("SM_flavor");
 
     Particle E = weylfermion_s("E_R", *this, Chirality::Right);
-    E->setGroupRep("U1Y", -1);
+    E->setGroupRep("Y", -1);
     E->setFundamentalFlavorRep("SM_flavor");
 
     addParticles({Q, U, D, L, E});
@@ -102,12 +102,12 @@ void SM_Model::initFermions()
 void SM_Model::initHiggsPotential()
 {
     Particle H = scalarboson_s("H", *this);
-    H->setGroupRep("SU2L", 1);
-    H->setGroupRep("U1Y", {1, 2});
+    H->setGroupRep("L", 1);
+    H->setGroupRep("Y", {1, 2});
     addParticle(H);
 
-    csl::Index i = generateIndex("SU2L", H);
-    csl::Index j = generateIndex("SU2L", H);
+    csl::Index i = generateIndex("L", H);
+    csl::Index j = generateIndex("L", H);
 
     csl::Expr mh  = sm_input::m_h;
     csl::Expr H2  = csl::GetComplexConjugate(H(i)) * H(i);
@@ -131,12 +131,12 @@ void SM_Model::initYukawas()
     Yd->setComplexProperty(ComplexProperty::Complex);
     Tensor Ye("Ye", {flavorSpace, flavorSpace});
     Ye->setComplexProperty(ComplexProperty::Complex);
-    Tensor eps = getVectorSpace("SU2L", "Q")->getEpsilon();
+    Tensor eps = getVectorSpace("L", "Q")->getEpsilon();
     Index  I   = flavorSpace->generateIndex();
     Index  J   = flavorSpace->generateIndex();
-    Index  a   = generateIndex("SU3c", "Q");
-    Index  i   = generateIndex("SU2L", "Q");
-    Index  j   = generateIndex("SU2L", "Q");
+    Index  a   = generateIndex("C", "Q");
+    Index  i   = generateIndex("L", "Q");
+    Index  j   = generateIndex("L", "Q");
     Index  al  = DiracIndex();
 
     Particle Q = getParticle("Q");
@@ -169,8 +169,8 @@ void SM_Model::gaugeSymmetryBreaking()
     // Breaking gauge SU(2)_L symmetry, renaming
     ///////////////////////////////////////////////////
 
-    BreakGaugeSymmetry(*this, "U1Y");
-    BreakGaugeSymmetry(*this, "SU2L");
+    BreakGaugeSymmetry(*this, "Y");
+    BreakGaugeSymmetry(*this, "L");
     renameParticle("Q_1", "U_L");
     renameParticle("Q_2", "D_L");
     renameParticle("L_1", "Nu_L");
@@ -224,7 +224,7 @@ void SM_Model::HiggsVEVExpansion()
     Particle H1 = getParticle("H_1");
     Particle H2 = getParticle("H_2");
 
-    Particle h0 = scalarboson_s("h0 ; h^0", *this); // SM Higgs boson
+    Particle h0 = scalarboson_s("h", *this); // SM Higgs boson
     Particle Gp = scalarboson_s("Gp ; G^+", *this);
     Particle G0 = scalarboson_s("G0 ; G^0", *this);
     h0->setSelfConjugate(true);
@@ -326,7 +326,7 @@ void SM_Model::replaceDownYukawa()
 
     mty::Particle D_L = getParticle("D_L");
     csl::Index    a1  = DiracIndex();
-    csl::Index    A   = GaugeIndex(*this, "SU3c", D_L);
+    csl::Index    A   = GaugeIndex(*this, "C", D_L);
     replace(D_L({f_j, A, a1}), V_CKM({f_j, f_k}) * D_L({f_k, A, a1}));
 }
 
