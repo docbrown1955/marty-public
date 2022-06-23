@@ -1,11 +1,9 @@
-
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/docbrown1955/marty-public?color=blue&logo=GitHub&logoColor=blue&style=flat-square)
-![GitHub commits since latest release (by date)](https://img.shields.io/github/commits-since/docbrown1955/marty-public/latest?logo=GitHub&style=flat-square)
+# ![MARTY Logo](assets/logo_marty_black.png#gh-light-mode-only) ![MARTY Logo](assets/logo_marty_white.png#gh-dark-mode-only)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/docbrown1955/marty-public?color=blue&logo=GitHub&logoColor=blue&style=flat-square) ![GitHub commits since latest release (by date)](https://img.shields.io/github/commits-since/docbrown1955/marty-public/latest?logo=GitHub&style=flat-square)
 
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/docbrown1955/marty-public/build?logo=GitHub&style=flat-square)
-
+![Lines of code](https://img.shields.io/tokei/lines/github/docbrown1955/marty-public?logo=GitHub&style=flat-square)
 ![GitHub Repo stars](https://img.shields.io/github/stars/docbrown1955/marty-public?logo=GitHub&style=flat-square)
-# MARTY
 
 ## Summary
 
