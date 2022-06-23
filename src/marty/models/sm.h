@@ -39,6 +39,12 @@ class SM_Model : public mty::Model {
 
     void init();
 
+    void initContent();
+    void initGauge();
+    void initFermions();
+    void initHiggsPotential();
+    void initYukawas();
+
     void HiggsVEVExpansion();
     void diagonalizeSMMassMatrices();
     void gaugeSymmetryBreaking();

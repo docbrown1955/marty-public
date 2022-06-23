@@ -27,16 +27,87 @@ using namespace csl;
 namespace mty {
 
 // Write the SM initialization
-SM_Model::SM_Model(bool initialize) : mty::Model("models/files/SM.json")
+SM_Model::SM_Model(bool initialize)
 {
+    if (initialize) {
+        SM_Model::init();
+        refresh();
+    }
+}
+
+void SM_Model::init()
+{
+    initContent();
+    gaugeSymmetryBreaking();
+    HiggsVEVExpansion();
+    diagonalizeSMMassMatrices();
+    replaceLeptonYukawa();
+    replaceUpYukawa();
+    replaceDownYukawa();
+    flavorSymmetryBreaking();
+    adjust();
+}
+
+void SM_Model::initContent()
+{
+    initGauge();
+    initFermions();
+    initHiggsPotential();
+    initYukawas();
+}
+
+void SM_Model::initGauge()
+{
+    addGaugedGroup(group::Type::SU, "SU3c", 3, g_s);
+    addGaugedGroup(group::Type::SU, "SU2L", 2, csl::constant_s("g_L"));
+    addGaugedGroup(group::Type::U1, "U1Y", csl::constant_s("g_Y"));
+    addFlavorGroup("SM_flavor", 3);
+    Model::init();
+    renameParticle("A_U1Y", "B");
+    renameParticle("A_SU2L", "W");
+    renameParticle("A_SU3c", "G");
     getParticle("G")->setDrawType(drawer::ParticleType::Gluon);
-    replace(getScalarCoupling("g_s"), g_s);
-    getGaugedGroup("SU3c")->setCouplingConstant(g_s);
+}
 
-    Particle H = GetParticle(*this, "H");
+void SM_Model::initFermions()
+{
+    Particle Q = weylfermion_s("Q", *this, Chirality::Left);
+    Q->setGroupRep("SU3c", {1, 0});
+    Q->setGroupRep("SU2L", 1);
+    Q->setGroupRep("U1Y", {1, 6});
+    Q->setFundamentalFlavorRep("SM_flavor");
 
-    csl::Index i = GaugeIndex(*this, "SU2L", H);
-    csl::Index j = GaugeIndex(*this, "SU2L", H);
+    Particle U = weylfermion_s("U_R", *this, Chirality::Right);
+    U->setGroupRep("SU3c", {1, 0});
+    U->setGroupRep("U1Y", {2, 3});
+    U->setFundamentalFlavorRep("SM_flavor");
+
+    Particle D = weylfermion_s("D_R", *this, Chirality::Right);
+    D->setGroupRep("SU3c", {1, 0});
+    D->setGroupRep("U1Y", {-1, 3});
+    D->setFundamentalFlavorRep("SM_flavor");
+
+    Particle L = weylfermion_s("L", *this, Chirality::Left);
+    L->setGroupRep("SU2L", 1);
+    L->setGroupRep("U1Y", {-1, 2});
+    L->setFundamentalFlavorRep("SM_flavor");
+
+    Particle E = weylfermion_s("E_R", *this, Chirality::Right);
+    E->setGroupRep("U1Y", -1);
+    E->setFundamentalFlavorRep("SM_flavor");
+
+    addParticles({Q, U, D, L, E});
+}
+
+void SM_Model::initHiggsPotential()
+{
+    Particle H = scalarboson_s("H", *this);
+    H->setGroupRep("SU2L", 1);
+    H->setGroupRep("U1Y", {1, 2});
+    addParticle(H);
+
+    csl::Index i = generateIndex("SU2L", H);
+    csl::Index j = generateIndex("SU2L", H);
 
     csl::Expr mh  = sm_input::m_h;
     csl::Expr H2  = csl::GetComplexConjugate(H(i)) * H(i);
@@ -49,23 +120,47 @@ SM_Model::SM_Model(bool initialize) : mty::Model("models/files/SM.json")
     // later on: m   = m_h / sqrt(2)
     //           lam = mh^2 / (2*v^2)
     //           (With H0 -> (v + h0) / sqrt(2))
-
-    if (initialize) {
-        init();
-        refresh();
-    }
 }
 
-void SM_Model::init()
+void SM_Model::initYukawas()
 {
-    gaugeSymmetryBreaking();
-    HiggsVEVExpansion();
-    diagonalizeSMMassMatrices();
-    replaceLeptonYukawa();
-    replaceUpYukawa();
-    replaceDownYukawa();
-    flavorSymmetryBreaking();
-    adjust();
+    auto  *flavorSpace = getVectorSpace("SM_flavor", "Q");
+    Tensor Yu("Yu", {flavorSpace, flavorSpace});
+    Yu->setComplexProperty(ComplexProperty::Complex);
+    Tensor Yd("Yd", {flavorSpace, flavorSpace});
+    Yd->setComplexProperty(ComplexProperty::Complex);
+    Tensor Ye("Ye", {flavorSpace, flavorSpace});
+    Ye->setComplexProperty(ComplexProperty::Complex);
+    Tensor eps = getVectorSpace("SU2L", "Q")->getEpsilon();
+    Index  I   = flavorSpace->generateIndex();
+    Index  J   = flavorSpace->generateIndex();
+    Index  a   = generateIndex("SU3c", "Q");
+    Index  i   = generateIndex("SU2L", "Q");
+    Index  j   = generateIndex("SU2L", "Q");
+    Index  al  = DiracIndex();
+
+    Particle Q = getParticle("Q");
+    Particle U = getParticle("U_R");
+    Particle D = getParticle("D_R");
+    Particle L = getParticle("L");
+    Particle E = getParticle("E_R");
+    Particle H = getParticle("H");
+
+    addLagrangianTerm(Yu({I, J}) * GetComplexConjugate(H(i)) * eps({i, j})
+                          * GetComplexConjugate(Q({I, a, j, al}))
+                          * U({J, a, al}),
+                      true);
+    addLagrangianTerm(-Yd({I, J}) * H(i)
+                          * GetComplexConjugate(Q({I, a, i, al}))
+                          * D({J, a, al}),
+                      true);
+    addLagrangianTerm(-Ye({I, J}) * H(i) * GetComplexConjugate(L({I, i, al}))
+                          * E({J, al}),
+                      true);
+
+    addTensorCoupling(Ye);
+    addTensorCoupling(Yu);
+    addTensorCoupling(Yd);
 }
 
 void SM_Model::gaugeSymmetryBreaking()
