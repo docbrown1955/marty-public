@@ -64,20 +64,21 @@ std::pair<csl::Expr, csl::Expr> Z2_coef(int charge);
 csl::Expr Z2_mass_coef(csl::Expr const &v1, csl::Expr const &v2, int charge);
 
 template <int type>
-class THDM_Model : public mty::Model {
+class THDM_Model : public mty::SM_Model {
 
   public:
     THDM_Model(bool initialize = true);
     ~THDM_Model() override;
 
     void init();
+
     void initContent();
-    void gaugeSymmetryBreaking();
-    void replaceWboson();
+    void initHiggsSector();
+    void initYukawas();
+
     void replaceHiggs();
     void diagonalize2By2Matrices();
     void replaceYukawas();
-    void flavorSymmetryBreaking();
     void adjust();
 
     template <int t_type>
@@ -94,8 +95,7 @@ class THDM_Model : public mty::Model {
 };
 
 template <int type>
-THDM_Model<type>::THDM_Model(bool initialize)
-    : mty::Model("models/files/2HDM.json")
+THDM_Model<type>::THDM_Model(bool initialize) : SM_Model(false)
 {
     if (initialize)
         init();
@@ -105,19 +105,25 @@ template <int type>
 void THDM_Model<type>::init()
 {
     initContent();
-    gaugeSymmetryBreaking();
-    replaceWboson();
+    SM_Model::gaugeSymmetryBreaking();
     replaceHiggs();
     diagonalize2By2Matrices();
     replaceYukawas();
-    flavorSymmetryBreaking();
+    SM_Model::flavorSymmetryBreaking();
     adjust();
 }
-
 template <int type>
 void THDM_Model<type>::initContent()
 {
-    getParticle("G")->setDrawType(drawer::ParticleType::Gluon);
+    SM_Model::initGauge();
+    SM_Model::initFermions();
+    THDM_Model<type>::initHiggsSector();
+    THDM_Model<type>::initYukawas();
+}
+
+template <int type>
+void THDM_Model<type>::initHiggsSector()
+{
     m11     = csl::constant_s("m_11");
     m12     = csl::constant_s("m_12");
     m22     = csl::constant_s("m_22");
@@ -127,11 +133,18 @@ void THDM_Model<type>::initContent()
     lambda4 = csl::constant_s("lambda_4");
     lambda5 = csl::constant_s("lambda_5");
 
-    Particle Phi1 = GetParticle(*this, "\\Phi _1");
-    Particle Phi2 = GetParticle(*this, "\\Phi _2");
+    Particle Phi1 = scalarboson_s("Phi1 ; \\Phi_{1}", *this);
+    Phi1->setSelfConjugate(false);
+    Phi1->setGroupRep("L", 1);
+    Phi1->setGroupRep("Y", {1, 2});
+    Particle Phi2 = scalarboson_s("Phi2 ; \\Phi_{2}", *this);
+    Phi2->setSelfConjugate(false);
+    Phi2->setGroupRep("L", 1);
+    Phi2->setGroupRep("Y", {1, 2});
+    addParticles({Phi1, Phi2});
 
-    csl::Index i = GaugeIndex(*this, "SU2L", Phi1);
-    csl::Index j = GaugeIndex(*this, "SU2L", Phi1);
+    csl::Index i = GaugeIndex(*this, "L", Phi1);
+    csl::Index j = GaugeIndex(*this, "L", Phi1);
 
     csl::Expr s11 = csl::GetComplexConjugate(Phi1(i)) * Phi1(i);
     csl::Expr s12 = csl::GetComplexConjugate(Phi1(i)) * Phi2(i);
@@ -161,61 +174,69 @@ void THDM_Model<type>::initContent()
 }
 
 template <int type>
-void THDM_Model<type>::gaugeSymmetryBreaking()
+void THDM_Model<type>::initYukawas()
 {
-    ///////////////////////////////////////////////////
-    // Breaking gauge SU(2)_L symmetry, renaming
-    ///////////////////////////////////////////////////
+    auto       *flavorSpace = getVectorSpace("SM_flavor", "Q");
+    csl::Tensor Y1u("Y1u", {flavorSpace, flavorSpace});
+    csl::Tensor Y1d("Y1d", {flavorSpace, flavorSpace});
+    csl::Tensor Y1e("Y1e", {flavorSpace, flavorSpace});
+    Y1u->setComplexProperty(csl::ComplexProperty::Complex);
+    Y1d->setComplexProperty(csl::ComplexProperty::Complex);
+    Y1e->setComplexProperty(csl::ComplexProperty::Complex);
+    csl::Tensor Y2u("Y2u", {flavorSpace, flavorSpace});
+    csl::Tensor Y2d("Y2d", {flavorSpace, flavorSpace});
+    csl::Tensor Y2e("Y2e", {flavorSpace, flavorSpace});
+    Y2u->setComplexProperty(csl::ComplexProperty::Complex);
+    Y2d->setComplexProperty(csl::ComplexProperty::Complex);
+    Y2e->setComplexProperty(csl::ComplexProperty::Complex);
+    csl::Tensor eps = getVectorSpace("L", "Q")->getEpsilon();
+    csl::Index  I   = flavorSpace->generateIndex();
+    csl::Index  J   = flavorSpace->generateIndex();
+    csl::Index  a   = generateIndex("C", "Q");
+    csl::Index  i   = generateIndex("L", "Q");
+    csl::Index  j   = generateIndex("L", "Q");
+    csl::Index  al  = DiracIndex();
 
-    BreakGaugeSymmetry(*this, "U1Y");
-    BreakGaugeSymmetry(*this,
-                       "SU2L",
-                       {"\\Phi _1", "\\Phi _2", "W", "Q", "L"},
-                       {{"\\Phi _{10}", "\\Phi _{11}"},
-                        {"\\Phi _{20}", "\\Phi _{21}"},
-                        {"W^1", "W^2", "W_3"},
-                        {"U_L", "D_L"},
-                        {"\\Nu _L", "E_L"}});
-}
+    Particle Q    = getParticle("Q");
+    Particle U    = getParticle("U_R");
+    Particle D    = getParticle("D_R");
+    Particle L    = getParticle("L");
+    Particle E    = getParticle("E_R");
+    Particle Phi1 = getParticle("Phi1");
+    Particle Phi2 = getParticle("Phi2");
 
-template <int type>
-void THDM_Model<type>::replaceWboson()
-{
-    ///////////////////////////////////////////////////
-    // Replacements to get SM particles W +-
-    ///////////////////////////////////////////////////
+    addLagrangianTerm(
+        Y1u({I, J}) * csl::GetComplexConjugate(Phi1(i)) * eps({i, j})
+            * csl::GetComplexConjugate(Q({I, a, j, al})) * U({J, a, al}),
+        true);
+    addLagrangianTerm(-Y1d({I, J}) * Phi1(i)
+                          * csl::GetComplexConjugate(Q({I, a, i, al}))
+                          * D({J, a, al}),
+                      true);
+    addLagrangianTerm(-Y1e({I, J}) * Phi1(i)
+                          * csl::GetComplexConjugate(L({I, i, al}))
+                          * E({J, al}),
+                      true);
 
-    Particle W1   = GetParticle(*this, "W^1");
-    Particle W2   = GetParticle(*this, "W^2");
-    Particle W_SM = W1->generateSimilar("W");
-    W_SM->setSelfConjugate(false);
+    addLagrangianTerm(
+        Y2u({I, J}) * csl::GetComplexConjugate(Phi2(i)) * eps({i, j})
+            * csl::GetComplexConjugate(Q({I, a, j, al})) * U({J, a, al}),
+        true);
+    addLagrangianTerm(-Y2d({I, J}) * Phi2(i)
+                          * csl::GetComplexConjugate(Q({I, a, i, al}))
+                          * D({J, a, al}),
+                      true);
+    addLagrangianTerm(-Y2e({I, J}) * Phi2(i)
+                          * csl::GetComplexConjugate(L({I, i, al}))
+                          * E({J, al}),
+                      true);
 
-    Particle cW1 = getParticle("c_W^1");
-    Particle cW2 = getParticle("c_W^2");
-    Particle cWp = W_SM->getGhostBoson();
-    cWp->setName("c_Wp ; c_{+}");
-    Particle cWm = ghostboson_s("c_Wm; c_{-}", W_SM, true);
-    W_SM->setConjugatedGhostBoson(cWm);
-
-    csl::Index mu    = MinkowskiIndex();
-    csl::Index nu    = MinkowskiIndex();
-    csl::Expr  W_p   = W_SM(+mu);
-    csl::Expr  W_m   = csl::GetComplexConjugate(W_SM(+mu));
-    csl::Expr  F_W_p = W_SM({+mu, +nu});
-    csl::Expr  F_W_m = csl::GetComplexConjugate(W_SM({+mu, +nu}));
-
-    auto W1_expr = [](csl::Expr const &Wp, csl::Expr const &Wm) {
-        return (Wp + Wm) / csl::sqrt_s(2);
-    };
-    auto W2_expr = [](csl::Expr const &Wp, csl::Expr const &Wm) {
-        return CSL_I * (Wp - Wm) / csl::sqrt_s(2);
-    };
-    replace(W1, W1_expr(W_p, W_m));
-    replace(W2, W2_expr(W_p, W_m));
-    replace(W1->getFieldStrength(), W1_expr(F_W_p, F_W_m));
-    replace(W2->getFieldStrength(), W2_expr(F_W_p, F_W_m));
-    replace(cW1, W1_expr(cWp, cWm));
-    replace(cW2, W2_expr(cWp, cWm));
+    addTensorCoupling(Y1e);
+    addTensorCoupling(Y1u);
+    addTensorCoupling(Y1d);
+    addTensorCoupling(Y2e);
+    addTensorCoupling(Y2u);
+    addTensorCoupling(Y2d);
 }
 
 template <int type>
@@ -231,10 +252,10 @@ void THDM_Model<type>::replaceHiggs()
     v        = csl::constant_s("v");
     v2       = v1 * tan_beta;
 
-    Particle Phi_10 = GetParticle(*this, "\\Phi _{10}");
-    Particle Phi_11 = GetParticle(*this, "\\Phi _{11}");
-    Particle Phi_20 = GetParticle(*this, "\\Phi _{20}");
-    Particle Phi_21 = GetParticle(*this, "\\Phi _{21}");
+    Particle Phi_10 = GetParticle(*this, "Phi1_1");
+    Particle Phi_11 = GetParticle(*this, "Phi1_2");
+    Particle Phi_20 = GetParticle(*this, "Phi2_1");
+    Particle Phi_21 = GetParticle(*this, "Phi2_2");
 
     Particle phi1_c = scalarboson_s("phi_1", *this);
     Particle phi2_c = scalarboson_s("phi_2", *this);
@@ -303,7 +324,7 @@ void THDM_Model<type>::diagonalize2By2Matrices()
 
     mty::Particle rho_u = getParticle("rho_1");
     mty::Particle rho_d = getParticle("rho_2");
-    mty::Particle h     = scalarboson_s("h0; h^0", *this);
+    mty::Particle h     = scalarboson_s("h; h^0", *this);
     mty::Particle H     = scalarboson_s("H0; H^0", *this);
     mty::SetSelfConjugate(h, true);
     mty::SetSelfConjugate(H, true);
@@ -318,8 +339,8 @@ void THDM_Model<type>::diagonalize2By2Matrices()
     Rename(*this, "B", "A");
     Rename(*this, "W_3", "Z");
 
-    gY             = GetCoupling(*this, "gY");
-    gL             = GetCoupling(*this, "gL");
+    gY             = GetCoupling(*this, "g_Y");
+    gL             = GetCoupling(*this, "g_L");
     theta_Weinberg = csl::constant_s("theta_W");
     e              = csl::constant_s("e_em");
 
@@ -398,7 +419,7 @@ void THDM_Model<type>::replaceYukawas()
     Replaced(*this, Ye1, e_mass_coef * M_e({f_i, f_j}));
     Replaced(*this, Yu1, u_mass_coef * M_u({f_i, f_j}));
     Replaced(*this,
-             Yd1,
+             Yd1({f_i, f_j}),
              d_mass_coef
                  * csl::prod_s(
                      {V_CKM({f_i, f_k}),
@@ -409,31 +430,10 @@ void THDM_Model<type>::replaceYukawas()
     mty::Particle D_L = GetParticle(*this, "D_L");
     mty::Particle D_R = GetParticle(*this, "D_R");
     csl::Index    a1  = DiracIndex();
-    csl::Index    A   = GaugeIndex(*this, "SU3c", D_L);
+    csl::Index    A   = GaugeIndex(*this, "C", D_L);
     Replaced(*this, D_L({f_j, A, a1}), V_CKM({f_j, f_k}) * D_L({f_k, A, a1}));
     Replaced(*this, D_R({f_i, A, a1}), V_CKM({f_i, f_j}) * D_R({f_j, A, a1}));
     Replaced(*this, 1 + csl::pow_s(tan_beta, -2), v * v / (v2 * v2));
-}
-
-template <int type>
-void THDM_Model<type>::flavorSymmetryBreaking()
-{
-    ///////////////////////////////////////////////////
-    // Finally breaking SM flavor symmetry
-    // to get the 3 fermion generations
-    ///////////////////////////////////////////////////
-
-    BreakFlavorSymmetry(
-        *this,
-        "SM_flavor",
-        {"U_L", "U_R", "D_L", "D_R", "E_L", "E_R", "\\Nu _L"},
-        {{"u_L", "c_L", "t_L"},
-         {"u_R", "c_R", "t_R"},
-         {"d_L", "s_L", "b_L"},
-         {"d_R", "s_R", "b_R"},
-         {"e_L", "mu_L;\\mu_L", "tau_L;\\tau_L"},
-         {"e_R", "mu_R;\\mu_R", "tau_R;\\tau_R"},
-         {"nu_e;\\nu_{eL}", "nu_mu;\\nu_{\\mu L}", "nu_tau;\\nu_{\\tau L}"}});
 }
 
 template <int type>

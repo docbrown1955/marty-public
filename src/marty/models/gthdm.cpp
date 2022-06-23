@@ -14,7 +14,6 @@ void GTHDM_Model::init()
 {
     initContent();
     gaugeSymmetryBreaking();
-    replaceWboson();
     replaceHiggs();
     diagonalize2By2Matrices();
     GTHDM_Model::replaceYukawas(); // replaces the same function from 2HDM
