@@ -13,6 +13,8 @@ set(LLVM_COMPILERS 0)
 set(REQUIRED_COMPILER_VERSION 0)
 set(IDENTICAL_COMPILER_VERSION 0)
 
+enable_testing()
+
 find_package(GSL REQUIRED)
 
 # Dependencies for GRAFED
