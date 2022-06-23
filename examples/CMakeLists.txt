@@ -1,5 +1,3 @@
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../src/marty/core)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../src/marty/models/pmssm)
 add_executable(gettingStarted.x gettingStarted.cpp)
 target_link_libraries(gettingStarted.x marty)
 add_executable(sample2HDM.x sample2HDM.cpp)
