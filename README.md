@@ -1,6 +1,6 @@
 
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/docbrown1955/marty-public?color=blue&logo=GitHub&logoColor=blue&style=flat-square)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/docbrown1955/marty-public/build?logo=GitHub&style=flat-square)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/docbrown1955/marty-public/build?label=tests&logo=GitHub&style=flat-square)
 ![GitHub Repo stars](https://img.shields.io/github/stars/docbrown1955/marty-public?logo=GitHub&style=flat-square)
 # MARTY
 
