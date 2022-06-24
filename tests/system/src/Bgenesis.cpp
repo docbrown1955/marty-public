@@ -125,7 +125,7 @@ int main()
 
     Particle XX = diracfermion_s("XX", toyModel);
     XX->setSelfConjugate(true);
-    XX->setGroupRep("Q", {0});
+    XX->setGroupRep("Q", 0);
 
     toyModel.addParticle(uLs);
     toyModel.addParticle(uRs);
