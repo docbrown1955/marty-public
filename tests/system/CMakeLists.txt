@@ -1,3 +1,7 @@
+if(CMAKE_COMPILER_IS_GNUCXX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
+endif()
+
 function(ADD_SYSTEM_TEST DISPLAY_NAME NAME)
     set(CLEANUP_NAME "CLEANUP_${DISPLAY_NAME}")
     add_executable(${NAME}.x src/${NAME}.cpp)
