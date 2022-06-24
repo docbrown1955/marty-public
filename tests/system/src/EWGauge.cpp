@@ -18,7 +18,7 @@ int main()
         {Incoming("W"), Incoming("Z"), Outgoing("W"), Outgoing("Z")});
     // Show(ampl);
     auto noHiggs = ampl.filterOut(
-        [&](FeynmanDiagram const &diag) { return !diag.contains("h0"); });
+        [&](FeynmanDiagram const &diag) { return !diag.contains("h"); });
     auto V4 = noHiggs.filterOut([&](FeynmanDiagram const &diag) {
         return !diag.isMediator("W") && !diag.isMediator("Gp");
     });
@@ -43,9 +43,8 @@ int main()
     [[maybe_unused]] int sysres = system("rm -rf libs/EWGauge");
     lib.print();
     sysres = system("cp libsrc/example_ewgauge.cpp libs/EWGauge/script");
-    sysres = system("cp libsrc/kinematics.h EWGauge/include");
-    sysres = system("cd libs/EWGauge; make && "
-                    "bin/example_ewgauge.x>/dev/null");
+    sysres = system("cp libsrc/kinematics.h libs/EWGauge/include");
+    sysres = system("cd libs/EWGauge; make && bin/example_ewgauge.x");
     return assert_equal(
         "data/output/EWgauge.txt", "libs/EWGauge/data.txt", 1e-3);
 }
