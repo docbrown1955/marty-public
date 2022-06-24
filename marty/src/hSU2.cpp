@@ -801,9 +801,9 @@ void hSU2_Model::rotateFermions(){
         true);
    static const std::vector<std::pair<std::string,std::string>> names = {
      {"{Q_L}_0_1","t_L"}, {"{Q_L}_0_2","b_L"},
-     // {"{U_R}_0", "t_R"}, {"{U_R}_0","b_R"},
-     // {"{D_R}_1", "{d_R}_1"}, {"{U_R}_1","{u_R}_1"},
-     // {"{D_R}_2", "{d_R}_2"}, {"{U_R}_2","{u_R}_2"},
+     {"{U_R}_0", "t_R"}, {"{D_R}_0","b_R"},
+     {"{D_R}_1", "{d_R}_1"}, {"{U_R}_1","{u_R}_1"},
+     {"{D_R}_2", "{d_R}_2"}, {"{U_R}_2","{u_R}_2"},
      {"{Q_L}_i_1_1","{u_L}_1"}, {"{Q_L}_i_1_2", "{d_L}_1"},
      {"{Q_L}_i_2_1","{u_L}_2"}, {"{Q_L}_i_2_2", "{d_L}_2"},
      {"{L_L}_0_1","\\nu_\\tau"},{"{L_L}_0_2","\\tau_L"},
@@ -823,7 +823,8 @@ void hSU2_Model::rotateFermions(){
 
 void hSU2_Model::replaceUpYukawa()
 {
-    csl::Tensor Yu = GetYukawa(*this, "Yu");
+    // csl::Tensor Yu = GetYukawa(*this, "Yu");
+    csl::Tensor Yu("Yu",{&Euclid_R3,&Euclid_R3});
     const csl::Space* flavorSpace = GetSpace(Yu);
     csl::Index f_i = GetIndex(flavorSpace);
     csl::Index f_j = GetIndex(flavorSpace);
@@ -843,7 +844,7 @@ void hSU2_Model::replaceUpYukawa()
 }
 void hSU2_Model::replaceDownYukawa()
 {
-    csl::Tensor Yd = GetYukawa(*this, "Yd");
+    csl::Tensor Yd("Yd", {&Euclid_R3,&Euclid_R3});
     const csl::Space* flavorSpace = GetSpace(Yd);
     csl::Expr v = sm_input::v;
     csl::Expr factor = csl::sqrt_s(2) / v;
@@ -870,10 +871,8 @@ void hSU2_Model::replaceDownYukawa()
                          M_d({f_k, f_j})}, 
                          true));
 
-    mty::Particle D_L = getParticle("D_L");
-    csl::Index a1  = DiracIndex();
-    csl::Index A   = GaugeIndex(*this, "SU3c", D_L);
-    replace(D_L({f_j, A, a1}), V_CKM({f_j, f_k}) * D_L({f_k, A, a1}));
+    
+  birotateFields({"{d_L}_1", "{d_L}_2", "b_L"}, {"{d_R}_1", "{d_R}_2", "b_R"});
 }
 void hSU2_Model::replaceLeptonYukawa()
 {
@@ -881,7 +880,7 @@ void hSU2_Model::replaceLeptonYukawa()
     // Taking care of Yukawa couplings
     ///////////////////////////////////////////////////
 
-    csl::Tensor Ye = GetYukawa(*this, "Ye");
+    csl::Tensor Ye("Ye",{&Euclid_R3,&Euclid_R3});
 
     csl::Expr m_e   = sm_input::m_e;
     csl::Expr m_mu  = sm_input::m_mu;

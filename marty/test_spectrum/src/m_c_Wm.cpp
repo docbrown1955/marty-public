@@ -1,7 +1,7 @@
 #include "clooptools.h"
 #include "marty/looptools_init.h"
 #include <cmath>
-#include "m_Gp.h"
+#include "m_c_Wm.h"
 #include "common.h"
 
 #include "params.h"
@@ -9,11 +9,11 @@
 
 namespace test_spectrum {
 
-complex_t m_Gp(
+complex_t m_c_Wm(
         param_t const &
         )
 {
     clearcache();
-    return 80.379;
+    return 78.9970845343289;
 }
 } // End of namespace test_spectrum
