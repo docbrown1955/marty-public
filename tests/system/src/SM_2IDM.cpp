@@ -494,7 +494,7 @@ int main()
     ///////////////////////////////////////////////////
 
     TIDMLib.generateSpectrum(TIDM);
-    TIDMLib.print();
+    TIDMLib.build();
 
     return assert_binary("SM_2IDM");
 }
