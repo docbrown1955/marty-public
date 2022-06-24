@@ -37,7 +37,7 @@ jobs:
     - name: test
       run: |
         cd build
-        ctest
+        sudo ctest --output-on-failure
   build-and-test-ubuntu-clang:
     runs-on: ubuntu-latest
     steps:
