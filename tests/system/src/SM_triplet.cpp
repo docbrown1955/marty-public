@@ -413,7 +413,6 @@ int main()
     mty::Library         myLib("SM_triplet", "libs");
     myLib.addFunction("squared_ampl0", squared_ampl0);
     myLib.addFunction("squared_ampl1", squared_ampl1);
-    myLib.generateSpectrum(toyModel);
     myLib.build();
 
     return assert_binary("SM_triplet");
