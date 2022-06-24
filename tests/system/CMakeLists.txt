@@ -1,3 +1,6 @@
+# Always Release mode to speed up testing
+# Comment to compile in debug mode
+set(CMAKE_BUILD_TYPE Release)
 
 function(ADD_SYSTEM_TEST DISPLAY_NAME NAME)
     set(CLEANUP_NAME "CLEANUP_${DISPLAY_NAME}")
