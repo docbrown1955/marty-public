@@ -1,21 +1,19 @@
 #pragma once
 
-#include "params.h"
 #include "global.h"
-#include "lhaData.h"
+#include "marty/lha/lha.h"
+#include "params.h"
 
-inline void readSpectrum(
-        c9_mssm::param_t         &param,
-        mty::lha::LHAFileData const &data
-        )
+inline void readSpectrum(c9_mssm::param_t            &param,
+                         mty::lha::LHAFileData const &data)
 {
-    param.e_em = std::sqrt(4*M_PI * data.getValue("SMINPUTS", 1).value());
-    param.M_W = 80.385;
-    param.M_Z = data.getValue("SMINPUTS", 4).value();
-    param.m_b = data.getValue("SMINPUTS", 5).value();
-    param.m_s = 0.150;
-    param.m_t = data.getValue("SMINPUTS", 6).value();
-    param.m_mu = 0; // 0.1;
+    param.e_em    = std::sqrt(4 * M_PI * data.getValue("SMINPUTS", 1).value());
+    param.M_W     = 80.385;
+    param.M_Z     = data.getValue("SMINPUTS", 4).value();
+    param.m_b     = data.getValue("SMINPUTS", 5).value();
+    param.m_s     = 0.150;
+    param.m_t     = data.getValue("SMINPUTS", 6).value();
+    param.m_mu    = 0; // 0.1;
     param.theta_W = crealq(cacosq(param.M_W / param.M_Z));
 
     param.beta = std::atan(data.getValue("MINPAR", 3).value());
@@ -38,19 +36,19 @@ inline void readSpectrum(
     // param.M_qtR = data.getValue("EXTPAR", 46).value();
     // param.M_tauR = data.getValue("EXTPAR", 36).value();
 
-    param.Finite = 1;
+    param.Finite   = 1;
     param.reg_prop = 0;
     // param.reg_int = 1e-2;
 
     param.m_snu_e = data.getValue("MASS", 1000012).value();
-    param.m_su_L = data.getValue("MASS", 1000002).value();
-    param.m_su_R = data.getValue("MASS", 2000002).value();
-    param.m_sc_L = data.getValue("MASS", 1000004).value();
-    param.m_sc_R = data.getValue("MASS", 2000004).value();
-    param.m_C1p = data.getValue("MASS", 1000024).value();
-    param.m_C2p = data.getValue("MASS", 1000037).value();
-    param.m_st_L = data.getValue("MASS", 1000006).value();
-    param.m_st_R = data.getValue("MASS", 2000006).value();
+    param.m_su_L  = data.getValue("MASS", 1000002).value();
+    param.m_su_R  = data.getValue("MASS", 2000002).value();
+    param.m_sc_L  = data.getValue("MASS", 1000004).value();
+    param.m_sc_R  = data.getValue("MASS", 2000004).value();
+    param.m_C1p   = data.getValue("MASS", 1000024).value();
+    param.m_C2p   = data.getValue("MASS", 1000037).value();
+    param.m_st_L  = data.getValue("MASS", 1000006).value();
+    param.m_st_R  = data.getValue("MASS", 2000006).value();
 
     param.U_Wm1 = data.getValue("Umix", 1, 1).value();
     param.U_d1  = data.getValue("Umix", 1, 2).value();
@@ -70,11 +68,7 @@ inline void readSpectrum(
     // updateSpectrum(param);
 }
 
-bool comp(
-        std::string const &name,
-        double a,
-        double b
-        )
+bool comp(std::string const &name, double a, double b)
 {
     if (b == 0) {
         if (a != 0) {
@@ -91,60 +85,57 @@ bool comp(
     return true;
 }
 
-inline void readSpectrum2(
-        c9_mssm::param_t         &param,
-        mty::lha::LHAFileData const &data
-        )
+inline void readSpectrum2(c9_mssm::param_t            &param,
+                          mty::lha::LHAFileData const &data)
 {
     double MZ = data.getValue("ADDIT", 0).value();
     // double MW = data.getValue("ADDIT", 1).value();
     // double gL = data.getValue("ADDIT", 2).value();
     // double gY = data.getValue("ADDIT", 3).value();
-    double sw2 = data.getValue("ADDIT", 4).value();
+    double sw2    = data.getValue("ADDIT", 4).value();
     double m_st_L = data.getValue("ADDIT", 5).value();
     double m_st_R = data.getValue("ADDIT", 6).value();
 
     double m_C1p = data.getValue("ADDIT", 7).value();
     double m_C2p = data.getValue("ADDIT", 8).value();
-    double U_Wm1  = data.getValue("ADDIT", 9).value();
+    double U_Wm1 = data.getValue("ADDIT", 9).value();
     double U_d1  = data.getValue("ADDIT", 10).value();
-    double U_Wm2  = data.getValue("ADDIT", 11).value();
+    double U_Wm2 = data.getValue("ADDIT", 11).value();
     double U_d2  = data.getValue("ADDIT", 12).value();
 
-    double V_Wp1  = data.getValue("ADDIT", 13).value();
-    double V_u1  = data.getValue("ADDIT", 14).value();
-    double V_Wp2  = data.getValue("ADDIT", 15).value();
-    double V_u2  = data.getValue("ADDIT", 16).value();
-    double U_st_00  = data.getValue("ADDIT", 17).value();
-    double U_st_10  = data.getValue("ADDIT", 18).value();
-    double U_st_01  = data.getValue("ADDIT", 19).value();
+    double V_Wp1   = data.getValue("ADDIT", 13).value();
+    double V_u1    = data.getValue("ADDIT", 14).value();
+    double V_Wp2   = data.getValue("ADDIT", 15).value();
+    double V_u2    = data.getValue("ADDIT", 16).value();
+    double U_st_00 = data.getValue("ADDIT", 17).value();
+    double U_st_10 = data.getValue("ADDIT", 18).value();
+    double U_st_01 = data.getValue("ADDIT", 19).value();
 
-    double U_st_11  = data.getValue("ADDIT", 20).value();
-    double m_u1 = data.getValue("ADDIT", 21).value();
-    double m_u2 = data.getValue("ADDIT", 22).value();
-    double m_sc_L = data.getValue("ADDIT", 23).value();
-    double m_sc_R = data.getValue("ADDIT", 24).value();
-    double tanb = data.getValue("ADDIT", 25).value();
+    double U_st_11 = data.getValue("ADDIT", 20).value();
+    double m_u1    = data.getValue("ADDIT", 21).value();
+    double m_u2    = data.getValue("ADDIT", 22).value();
+    double m_sc_L  = data.getValue("ADDIT", 23).value();
+    double m_sc_R  = data.getValue("ADDIT", 24).value();
+    double tanb    = data.getValue("ADDIT", 25).value();
     // double GF = data.getValue("SMINPUTS", 2).value();
     double alpha_em = data.getValue("SMINPUTS", 1).value();
-    double e_em = std::sqrt(4*M_PI/alpha_em);
-    double thetaW = std::asin(std::sqrt(sw2));
+    double e_em     = std::sqrt(4 * M_PI / alpha_em);
+    double thetaW   = std::asin(std::sqrt(sw2));
 
-
-    param.M_A = data.getValue("EXTPAR", 26).value();
+    param.M_A  = data.getValue("EXTPAR", 26).value();
     param.e_em = e_em;
-    //param.M_W = MW;
-    param.M_W = MZ * std::cos(thetaW);
-    param.M_Z = MZ;
-    param.m_b = data.getValue("SMINPUTS", 5).value();
-    param.m_s = 0.150;
-    param.m_t = data.getValue("SMINPUTS", 6).value();
-    param.m_mu = 0; // 0.1;
+    // param.M_W = MW;
+    param.M_W     = MZ * std::cos(thetaW);
+    param.M_Z     = MZ;
+    param.m_b     = data.getValue("SMINPUTS", 5).value();
+    param.m_s     = 0.150;
+    param.m_t     = data.getValue("SMINPUTS", 6).value();
+    param.m_mu    = 0; // 0.1;
     param.theta_W = thetaW;
 
     param.beta = std::atan(tanb);
 
-    param.Finite = 1;
+    param.Finite   = 1;
     param.reg_prop = 0;
     // param.reg_int = 1e-2;
 
