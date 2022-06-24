@@ -25,8 +25,8 @@
  * @version 2.0
  * @date 2020-08-31
  */
-#ifndef LHA_H_INCLUDED
-#define LHA_H_INCLUDED
+#if (defined __cplusplus) && !(defined MTY_LHA_H_INCLUDED)
+#define MTY_LHA_H_INCLUDED
 
 #include "lhaBlocks.h"
 #include "lhaData.h"
