@@ -54,6 +54,8 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wpedantic")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
+enable_testing()
+
 add_compile_definitions(MARTY_CXX=${CMAKE_CXX_COMPILER})
 add_compile_definitions(MARTY_CC=${CMAKE_C_COMPILER})
 add_compile_definitions(MARTY_FC=${CMAKE_Fortran_COMPILER})
@@ -64,6 +66,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 add_subdirectory(dep)
 add_subdirectory(src)
 add_subdirectory(examples)
+add_subdirectory(tests)
 
 add_library(csl SHARED)
 target_link_libraries(csl csl-core)

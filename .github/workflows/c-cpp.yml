@@ -34,13 +34,11 @@ jobs:
       run: |
         cd build
         sudo make install
-    - name: download-tests
-      run: git clone https://github.com/docbrown1955/test-suite.git
-    - name: run-tests
+    - name: test
       run: |
-        cd test-suite
-        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
-        ./launch_tests.sh
+        cd build
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib
+        ctest --output-on-failure
   build-and-test-ubuntu-clang:
     runs-on: ubuntu-latest
     steps:
@@ -63,14 +61,6 @@ jobs:
       run: |
         cd build
         sudo make install
-    - name: download-tests
-      run: git clone https://github.com/docbrown1955/test-suite.git
-    - name: run-tests
-      run: |
-        exit 0
-        source marty_env.sh
-        cd test-suite
-        ./launch_tests.sh
   build-and-test-macos:
     if: ${{ false }}
     runs-on: macos-latest
