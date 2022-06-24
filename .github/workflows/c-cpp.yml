@@ -37,7 +37,8 @@ jobs:
     - name: test
       run: |
         cd build
-        sudo ctest --output-on-failure
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib
+        ctest --output-on-failure
   build-and-test-ubuntu-clang:
     runs-on: ubuntu-latest
     steps:
