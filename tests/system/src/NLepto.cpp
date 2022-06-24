@@ -338,6 +338,7 @@ int main()
     }
     myLib.generateSpectrum(toyModel);
 
+    [[maybe_unused]] int sysres = system("rm -rf libs/NLepto");
     myLib.build();
 
     return assert_binary("NLepto");
