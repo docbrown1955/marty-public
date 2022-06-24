@@ -79,7 +79,7 @@ compare(char const *file1, char const *file2, double eps)
     while (!f1.eof()) {
         auto diff_i = compare(readLine(f1), readLine(f2), eps);
         if (diff_i.first == -1 || diff_i.second == -1) {
-            std::cout << ERRORFONT << "Error: size mismatch in results"
+            std::cout << ERRORFONT << "Error: size mismatch in results at line " << n+1
                       << RESET << '\n';
             return {-1, -1};
         }

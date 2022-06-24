@@ -1,5 +1,4 @@
 #include "gg_to_tt.h"
-#include <iomanip>
 #include <fstream>
 
 using namespace std;
@@ -60,10 +59,8 @@ int main() {
     // Fixed parameters
     double mt = 172.76;//172; // PDG 2020 direct measurements
     double alphas_mZ = 0.1179; // PDG 2020
-    int prec = 5; // significative digits
 
     std::ofstream fout("data.txt");
-    fout << left;
     for (double E_CM = 400; E_CM < 5000; E_CM += 25) {
         for (double theta = M_PI/20; theta < M_PI; theta += M_PI/20) {
             // Definitions
@@ -108,11 +105,10 @@ int main() {
             double conversion = 2.56819e-9; // GeV-2 to pb
             dsigma          /= conversion; 
             dsigmaPDG_value /= conversion;
-            fout << setw(prec + 8) << E_CM;
-            fout << setw(prec + 5) << theta;
-            fout << setw(prec + 10) << dsigma;
-            fout << setw(prec + 10) << dsigmaPDG_value;
-            fout << endl;
+            fout << E_CM << " ";
+            fout << theta << " ";
+            fout << dsigma << " ";
+            fout << dsigmaPDG_value << endl;
         }
     }
     fout.close();
