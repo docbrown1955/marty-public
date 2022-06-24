@@ -1,30 +1,28 @@
-#pragma once 
+#pragma once
 
-#include <sstream>
+#include <fstream>
 #include <iostream>
+#include <sstream>
 
 constexpr auto resetfont   = "\033[0m";
 constexpr auto errorfont   = "\033[1m\033[31m";
 constexpr auto successfont = "\033[1m\033[32m";
 constexpr auto testfont    = "\033[1m\033[34m";
 
-template<class ...Printable>
-std::string buildMessage(
-        Printable &&...printables
-        )
+template <class... Printable>
+std::string buildMessage(Printable &&...printables)
 {
     if constexpr (sizeof...(Printable) > 0) {
         std::ostringstream sout;
-        ( sout << ... << printables );
+        (sout << ... << printables);
         return sout.str();
     }
     return "";
 }
 struct Result {
 
-    template<class ...Args>
-    Result(bool t_success, Args &&...args)
-        :success(t_success)
+    template <class... Args>
+    Result(bool t_success, Args &&...args) : success(t_success)
     {
         message = buildMessage(std::forward<Args>(args)...);
     }
@@ -34,15 +32,19 @@ struct Result {
 };
 
 class EnsureIO {
-public:
-    EnsureIO() {
+  public:
+    EnsureIO()
+    {
         disabled = std::cout.rdstate() == std::ios_base::failbit;
         std::cout.clear();
     }
-    ~EnsureIO() {
-        if (disabled) std::cout.setstate(std::ios_base::failbit);
+    ~EnsureIO()
+    {
+        if (disabled)
+            std::cout.setstate(std::ios_base::failbit);
     }
-private:
+
+  private:
     bool disabled;
 };
 
@@ -60,15 +62,11 @@ inline void error(std::string_view message)
     std::cout << message << '\n';
 }
 
-template<class BaseCallable, class ...Params>
-int test(
-        std::string_view message, 
-        BaseCallable && callable,
-        Params       && ...params
-        )
+template <class BaseCallable, class... Params>
+int test(std::string_view message, BaseCallable &&callable, Params &&...params)
 {
     const Result res = callable(std::forward<Params>(params)...);
-    EnsureIO e;
+    EnsureIO     e;
     std::cout << testfont << "Test : " << resetfont << message << '\n';
     if (res.success) {
         success(res.message);
@@ -80,3 +78,17 @@ int test(
     }
 }
 
+inline int assert_binary(std::string const &libName)
+{
+    std::string lowerLibName = libName;
+    for (char &c : lowerLibName) {
+        c = tolower(c);
+    }
+    std::string binaryFileName
+        = "libs/" + libName + "/bin/example_" + lowerLibName + ".x";
+    std::ifstream file(binaryFileName);
+    if (!file) {
+        return 1;
+    }
+    return 0;
+}
