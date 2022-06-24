@@ -40,19 +40,19 @@ int main()
     toyModel.renameParticle("A_Y", "B");
 
     Particle H = scalarboson_s("H", toyModel);
-    H->setGroupRep("L", {1});
+    H->setGroupRep("L", 1);
     H->setGroupRep("Y", {-1, 2});
 
     Particle et = scalarboson_s("et", toyModel);
-    et->setGroupRep("L", {1});
+    et->setGroupRep("L", 1);
     et->setGroupRep("Y", {-1, 2});
 
     Particle Del = scalarboson_s("Del", toyModel);
-    Del->setGroupRep("L", {2});
+    Del->setGroupRep("L", 2);
     Del->setGroupRep("Y", {-1, 1});
 
     Particle Li = weylfermion_s("L_L", toyModel, Chirality::Left);
-    Li->setGroupRep("L", {1});
+    Li->setGroupRep("L", 1);
     Li->setGroupRep("Y", {-1, 2});
     Li->setFundamentalFlavorRep("SM_flavor");
 
@@ -61,7 +61,7 @@ int main()
     Ei->setFundamentalFlavorRep("SM_flavor");
 
     Particle Ni = weylfermion_s("N", toyModel, Chirality::Right);
-    Ni->setGroupRep("Y", {0});
+    Ni->setGroupRep("Y", 0);
     Ni->setFundamentalFlavorRep("SM_flavor");
     Ni->setSelfConjugate(true);
 
@@ -414,7 +414,7 @@ int main()
     myLib.addFunction("squared_ampl0", squared_ampl0);
     myLib.addFunction("squared_ampl1", squared_ampl1);
     myLib.generateSpectrum(toyModel);
-    myLib.print();
+    myLib.build();
 
     return assert_binary("SM_triplet");
 }
