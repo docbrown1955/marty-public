@@ -46,10 +46,9 @@ int calculate(Model &model, gauge::Type gauge)
     sysres = system("cp libsrc/example_c7_sm.cpp libs/C7_SM/script");
     sysres = system("cd libs/C7_SM; make && bin/example_c7_sm.x");
     std::cout.clear();
-    int assertion = assert_equal("data/output/C7_SM.txt",
-                                 "libs/C7_SM/C7_SM.txt",
-                                 (gauge == gauge::Unitary) ? 1e-3 : 1e-5);
-    return assertion;
+    return assert_equal("data/output/C7_SM.txt",
+                        "libs/C7_SM/C7_SM.txt",
+                        (gauge == gauge::Unitary) ? 1e-3 : 1e-5);
 }
 
 int main()
