@@ -62,7 +62,7 @@ hSU2_Model::hSU2_Model(
     std::cout << "Checking Hermiticity ..." << std::endl;
     // checkHermiticity();
     refresh();
-    getFeynmanRules();
+    Model::computeFeynmanRules();
 
     if (save) {
       std::ostream &out = save;
@@ -358,7 +358,6 @@ void hSU2_Model::initInteractions(){
         * GetComplexConjugate(X(ih[1]))
         * U_R[a_u]({a,al})
         ,true);
-    refresh();
   }
   std::cout << "Up quark sector interactions complete..." << std::endl;
   // Down sector 
@@ -649,8 +648,12 @@ void hSU2_Model::breakSMSymmetry(){
     h0->setSelfConjugate(true);
     G0->setSelfConjugate(true);
 
+    std::cout << *this << std::endl;
+    std::cin.get();
     replace(H1, Gp());
     replace(H2, (h0() + CSL_I*G0() + v)/csl::sqrt_s(2));
+    std::cout << *this << std::endl;
+    std::cin.get();
 
     ///////////////////////////////////////////////////
     // Diagonalizing what can be
