@@ -21,6 +21,7 @@ int main(){
   cout << "Calculating Spectrum..." << endl;
   
   mty::Library lib("test_spectrum");
+  lib.cleanExistingSources();
   lib.generateSpectrum(horizSU2);
   lib.print();
   

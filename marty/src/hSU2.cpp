@@ -299,7 +299,7 @@ void hSU2_Model::initInteractions(){
   // Interaction terms : 
   // up sector
   addLagrangianTerm(
-      y_u 
+      - y_u 
       * GetComplexConjugate(Qi({a,il[0],I, al}))
       * eps({il[0],il[1]})
       * GetComplexConjugate(H(il[1]))
@@ -307,7 +307,7 @@ void hSU2_Model::initInteractions(){
       true); // Add also the complex conjugate of this term
 
   addLagrangianTerm(
-      lambda_u 
+      - lambda_u 
       * GetComplexConjugate(Psi_uL({a,ih[0],al})) 
       * Y(A)
       * half_sigma({A, ih[0], ih[1]}) 
@@ -315,7 +315,7 @@ void hSU2_Model::initInteractions(){
       ,true);
 
   addLagrangianTerm(
-      tilde_lambda_u
+      - tilde_lambda_u
       * GetComplexConjugate(Psi_uL({a,ih[0],al})) 
       * eps({il[0],il[1]})
       * Y(A)
@@ -326,7 +326,7 @@ void hSU2_Model::initInteractions(){
 
   Expr y_u0 = constant_s("y_u0");
   addLagrangianTerm(
-      y_u0 
+      - y_u0 
       * GetComplexConjugate(Q0({a,il[0],al}))
       * eps({il[0],il[1]})
       * GetComplexConjugate(H(il[1]))
@@ -346,13 +346,13 @@ void hSU2_Model::initInteractions(){
 
   for(int a_u = 0; a_u < 3; a_u++){
     addLagrangianTerm(
-        K_u[a_u]
+        - K_u[a_u]
         * GetComplexConjugate(Psi_uL({a,I,al}))
         * X(I)
         * U_R[a_u]({a,al})
         ,true);
     addLagrangianTerm(
-        tK_u[a_u]
+        - tK_u[a_u]
         * GetComplexConjugate(Psi_uL({a,ih[0],al}))
         * eps_h({ih[0],ih[1]})
         * GetComplexConjugate(X(ih[1]))
@@ -364,14 +364,14 @@ void hSU2_Model::initInteractions(){
   // Down sector 
   // No charge conjugation on Higgs
   addLagrangianTerm(
-      y_d
+      - y_d
       * GetComplexConjugate(Qi({a,Il,I, al}))
      // * eps({il[0],il[1]})
       * H(Il)
       * Psi_dR({a,I,al}),
       true); // Add also the complex conjugate of this term
   addLagrangianTerm( 
-      lambda_d 
+      - lambda_d 
       * GetComplexConjugate(Psi_dL({a,ih[0],al})) 
       * Y(A)
       * half_sigma({A, ih[0], ih[1]}) 
@@ -379,7 +379,7 @@ void hSU2_Model::initInteractions(){
       ,true);
 
   addLagrangianTerm(
-      tilde_lambda_d
+      - tilde_lambda_d
       * GetComplexConjugate(Psi_dL({a,ih[0],al})) 
       * eps({il[0],il[1]})
       * Y(A)
@@ -390,7 +390,7 @@ void hSU2_Model::initInteractions(){
 
   Expr y_d0 = constant_s("y_d0");
   addLagrangianTerm(
-      y_d0 
+      - y_d0 
       * GetComplexConjugate(Q0({a,Il,al}))
       * H(Il)
       * D0({a,al})
@@ -409,13 +409,13 @@ void hSU2_Model::initInteractions(){
 
   for(int a_d = 0; a_d < 3; a_d++){
     addLagrangianTerm(
-        K_d[a_d]
+        - K_d[a_d]
         * GetComplexConjugate(Psi_dL({a,I,al}))
         * X(I)
         * D_R[a_d]({a,al})
         ,true);
     addLagrangianTerm(
-        tK_d[a_d]
+        - tK_d[a_d]
         * GetComplexConjugate(Psi_dL({a,ih[0],al}))
         * eps_h({ih[0],ih[1]})
         * GetComplexConjugate(X(ih[1]))
@@ -424,14 +424,14 @@ void hSU2_Model::initInteractions(){
   }
   // Lepton sector
   addLagrangianTerm(
-      y_l
+      - y_l
       * GetComplexConjugate(Li({Il,I, al}))
       * H(Il)
       * Psi_lR({I,al}),
       true); // Add also the complex conjugate of this term
 
   addLagrangianTerm(
-      lambda_l 
+      - lambda_l 
       * GetComplexConjugate(Psi_lL({ih[0],al})) 
       * Y(A)
       * half_sigma({A, ih[0], ih[1]}) 
@@ -439,7 +439,7 @@ void hSU2_Model::initInteractions(){
       ,true);
 
   addLagrangianTerm(
-      tilde_lambda_l
+      - tilde_lambda_l
       * GetComplexConjugate(Psi_lL({ih[0],al})) 
       * eps({il[0],il[1]})
       * Y(A)
@@ -450,7 +450,7 @@ void hSU2_Model::initInteractions(){
 
   Expr y_l0 = constant_s("y_l0");
   addLagrangianTerm(
-      y_l0
+      - y_l0
       * GetComplexConjugate(L0({Il,al}))
       * H(Il)
       * E0({al})
@@ -469,13 +469,13 @@ void hSU2_Model::initInteractions(){
 
   for(int a_l = 0; a_l < 3; a_l++){
     addLagrangianTerm(
-        K_l[a_l]
+        - K_l[a_l]
         * GetComplexConjugate(Psi_lL({J,al}))
         * X(J)
         * E_R[a_l]({al})
         ,true);
     addLagrangianTerm(
-        tK_l[a_l]
+        - tK_l[a_l]
         * GetComplexConjugate(Psi_lL({ih[0],al}))
         * eps_h({ih[0],ih[1]})
         * GetComplexConjugate(X(ih[1]))
@@ -487,17 +487,17 @@ void hSU2_Model::initInteractions(){
   csl::Expr m_psi_d = hSU2_input::M_D;
   csl::Expr m_psi_l = hSU2_input::M_L;
   addLagrangianTerm(
-       m_psi_u 
+       - m_psi_u 
        * GetComplexConjugate(Psi_uL({a,J,al}))
        * Psi_uR({a,J,al})
        , true);
   addLagrangianTerm(
-       m_psi_d
+       - m_psi_d
        * GetComplexConjugate(Psi_dL({a,J,al}))
        * Psi_dR({a,J,al})
        , true);
   addLagrangianTerm(
-       m_psi_l 
+       - m_psi_l 
        * GetComplexConjugate(Psi_lL({J,al}))
        * Psi_lR({J,al})
        ,true);
