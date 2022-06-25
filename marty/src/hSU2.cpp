@@ -107,29 +107,28 @@ void hSU2_Model::initGauge(){
     renameParticle("A_X", "V");
     renameParticle("A_Y", "B");
     renameCoupling("g_L", "g");
-    renameCoupling("g_Y", "g'");
     B  = getParticle("B");
     Wi = getParticle("W");
     G  = getParticle("G");
     V  = getParticle("V");
     g_s = getScalarCoupling("g_s");
     g_L = getScalarCoupling("g");
-    g_Y = getScalarCoupling("g'");
+    g_Y = getScalarCoupling("g_Y");
     g_X = getScalarCoupling("g_X");
 
     getParticle("G")->setDrawType(drawer::ParticleType::Gluon);
 }
 void hSU2_Model::initLeptons(){
   std::cout << "Initializing Leptons" << std::endl;
-  Li = weylfermion_s("{L_L}_i",*this,Chirality::Left);
-  L0 = weylfermion_s("{L_L}_0",*this,Chirality::Left);
+  Li = weylfermion_s("L_L",*this,Chirality::Left);
+  L0 = weylfermion_s("l_L",*this,Chirality::Left);
 
-  E0 = weylfermion_s("{E_R}_0",*this,Chirality::Right);
-  E1 = weylfermion_s("{E_R}_1",*this,Chirality::Right);
-  E2 = weylfermion_s("{E_R}_2",*this,Chirality::Right);
+  E0 = weylfermion_s("e_R_0",*this,Chirality::Right);
+  E1 = weylfermion_s("e_R_1",*this,Chirality::Right);
+  E2 = weylfermion_s("e_R_2",*this,Chirality::Right);
 
-  Psi_lL = weylfermion_s("\\Psi_{lL}", *this, Chirality::Left);
-  Psi_lR = weylfermion_s("\\Psi_{lR}", *this, Chirality::Right);
+  Psi_lL = weylfermion_s("Psi_lL", *this, Chirality::Left);
+  Psi_lR = weylfermion_s("Psi_lR", *this, Chirality::Right);
   Li->setGroupRep("L",1);
   Li->setGroupRep("Y",{-1,2});
   Li->setGroupRep("X",1);
@@ -151,17 +150,17 @@ void hSU2_Model::initLeptons(){
 }
 void hSU2_Model::initQuarks(){
   std::cout << "Initializing quarks" << std::endl;
-  Qi = weylfermion_s("{Q_L}_i",*this,Chirality::Left);
-  Q0 = weylfermion_s("{Q_L}_0",*this, Chirality::Left);
+  Qi = weylfermion_s("Q_L",*this,Chirality::Left);
+  Q0 = weylfermion_s("q_L",*this, Chirality::Left);
   
-  U0 = weylfermion_s("{U_R}_0",*this, Chirality::Right);
-  D0 = weylfermion_s("{D_R}_0",*this, Chirality::Right);
+  U0 = weylfermion_s("u_R_0",*this, Chirality::Right);
+  D0 = weylfermion_s("d_R_0",*this, Chirality::Right);
   
-  U1 = weylfermion_s("{U_R}_1",*this, Chirality::Right);
-  D1 = weylfermion_s("{D_R}_1",*this, Chirality::Right);
+  U1 = weylfermion_s("u_R_1",*this, Chirality::Right);
+  D1 = weylfermion_s("d_R_1",*this, Chirality::Right);
   
-  U2 = weylfermion_s("{U_R}_2",*this, Chirality::Right);
-  D2 = weylfermion_s("{D_R}_2",*this, Chirality::Right);
+  U2 = weylfermion_s("u_R_2",*this, Chirality::Right);
+  D2 = weylfermion_s("d_R_2",*this, Chirality::Right);
 
   Qi->setGroupRep("C",{1,0});
   Qi->setGroupRep("L", 1); 
@@ -202,10 +201,10 @@ void hSU2_Model::initQuarks(){
   addParticle(D1);
   addParticle(D2);
 
-  Psi_uL = weylfermion_s("\\Psi_{uL}",*this, Chirality::Left);
-  Psi_uR = weylfermion_s("\\Psi_{uR}",*this, Chirality::Right);
-  Psi_dL = weylfermion_s("\\Psi_{dL}",*this, Chirality::Left);
-  Psi_dR = weylfermion_s("\\Psi_{dR}",*this, Chirality::Right);
+  Psi_uL = weylfermion_s("Psi_uL",*this, Chirality::Left);
+  Psi_uR = weylfermion_s("Psi_uR",*this, Chirality::Right);
+  Psi_dL = weylfermion_s("Psi_dL",*this, Chirality::Left);
+  Psi_dR = weylfermion_s("Psi_dR",*this, Chirality::Right);
   X = scalarboson_s("X",*this);
   Y = scalarboson_s("Y",*this);
 
@@ -282,20 +281,20 @@ void hSU2_Model::initInteractions(){
   auto al = DiracIndex();
 
   csl::Tensor half_sigma = getGenerator("X", Psi_uL); // SU(2)_X generators
-  csl::Tensor eps = getVectorSpace("L", "{Q_L}_i")->getEpsilon(); // = i * sigma^2
-  csl::Tensor eps_h = getVectorSpace("X", "{Q_L}_i")->getEpsilon(); // = i * sigma^2
+  csl::Tensor eps = getVectorSpace("L", "Q_L")->getEpsilon(); // = i * sigma^2
+  csl::Tensor eps_h = getVectorSpace("X", "Q_L")->getEpsilon(); // = i * sigma^2
 
   Expr y_u = constant_s("y_u");
-  Expr lambda_u = constant_s("\\lambda_u");
-  Expr tilde_lambda_u = constant_s("\\tilde{\\lambda}_u");
+  Expr lambda_u = constant_s("lam_u");
+  Expr tilde_lambda_u = constant_s("tlam_u");
  
   Expr y_d = constant_s("y_d");
-  Expr lambda_d = constant_s("\\lambda_d");
-  Expr tilde_lambda_d = constant_s("\\tilde{\\lambda}_d");
+  Expr lambda_d = constant_s("lam_d");
+  Expr tilde_lambda_d = constant_s("tlam_d");
   
   Expr y_l = constant_s("y_l");
-  Expr lambda_l = constant_s("\\lambda_l");
-  Expr tilde_lambda_l = constant_s("\\tilde{\\lambda}_l");
+  Expr lambda_l = constant_s("lam_l");
+  Expr tilde_lambda_l = constant_s("tlam_l");
 
   // Interaction terms : 
   // up sector
@@ -325,7 +324,7 @@ void hSU2_Model::initInteractions(){
       * Psi_uR({a,ih[1],al})
       ,true );
 
-  Expr y_u0 = constant_s("y_{u0}");
+  Expr y_u0 = constant_s("y_u0");
   addLagrangianTerm(
       y_u0 
       * GetComplexConjugate(Q0({a,il[0],al}))
@@ -389,7 +388,7 @@ void hSU2_Model::initInteractions(){
       * Psi_dR({a,ih[1],al})
       ,true );
 
-  Expr y_d0 = constant_s("y_{d0}");
+  Expr y_d0 = constant_s("y_d0");
   addLagrangianTerm(
       y_d0 
       * GetComplexConjugate(Q0({a,Il,al}))
@@ -449,7 +448,7 @@ void hSU2_Model::initInteractions(){
       * Psi_lR({ih[1],al})
       ,true );
 
-  Expr y_l0 = constant_s("y_{l0}");
+  Expr y_l0 = constant_s("y_l0");
   addLagrangianTerm(
       y_l0
       * GetComplexConjugate(L0({Il,al}))
@@ -747,69 +746,69 @@ void hSU2_Model::addGaugeSMFixingTerms(){
     }
 }
 void hSU2_Model::rotateFermions(){
-    Particle Q_0_1 = getParticle("{Q_L}_0_1");
-    Particle Q_1_1 = getParticle("{Q_L}_i_1_1");
-    Particle Q_2_1 = getParticle("{Q_L}_i_2_1");
+    Particle Q_0_1 = getParticle("q_L_1");
+    Particle Q_1_1 = getParticle("Q_L_1_1");
+    Particle Q_2_1 = getParticle("Q_L_2_1");
 
-    Particle U_0 = getParticle("{U_R}_0");
-    Particle U_1 = getParticle("{U_R}_1");
-    Particle U_2 = getParticle("{U_R}_2");
+    Particle U_0 = getParticle("u_R_0");
+    Particle U_1 = getParticle("u_R_1");
+    Particle U_2 = getParticle("u_R_2");
     
-    Particle Psi_uL_1 = getParticle("\\Psi_{uL}_1");
-    Particle Psi_uR_1 = getParticle("\\Psi_{uR}_1");
-    Particle Psi_uL_2 = getParticle("\\Psi_{uL}_2");
-    Particle Psi_uR_2 = getParticle("\\Psi_{uR}_2");
+    Particle Psi_uL_1 = getParticle("Psi_uL_1");
+    Particle Psi_uR_1 = getParticle("Psi_uR_1");
+    Particle Psi_uL_2 = getParticle("Psi_uL_2");
+    Particle Psi_uR_2 = getParticle("Psi_uR_2");
 
     birotateFields(
         {Q_1_1, Q_2_1, Q_0_1, Psi_uL_1, Psi_uL_2},
         {U_1, U_2, U_0, Psi_uR_1, Psi_uR_2},
         true);
 
-    Particle Q_0_2 = getParticle("{Q_L}_0_2");
-    Particle Q_1_2 = getParticle("{Q_L}_i_1_2");
-    Particle Q_2_2 = getParticle("{Q_L}_i_2_2");
+    Particle Q_0_2 = getParticle("q_L_2");
+    Particle Q_1_2 = getParticle("Q_L_1_2");
+    Particle Q_2_2 = getParticle("Q_L_2_2");
 
-    Particle D_0 = getParticle("{D_R}_0");
-    Particle D_1 = getParticle("{D_R}_1");
-    Particle D_2 = getParticle("{D_R}_2");
+    Particle D_0 = getParticle("d_R_0");
+    Particle D_1 = getParticle("d_R_1");
+    Particle D_2 = getParticle("d_R_2");
     
-    Particle Psi_dL_1 = getParticle("\\Psi_{dL}_1");
-    Particle Psi_dR_1 = getParticle("\\Psi_{dR}_1");
-    Particle Psi_dL_2 = getParticle("\\Psi_{dL}_2");
-    Particle Psi_dR_2 = getParticle("\\Psi_{dR}_2");
+    Particle Psi_dL_1 = getParticle("Psi_dL_1");
+    Particle Psi_dR_1 = getParticle("Psi_dR_1");
+    Particle Psi_dL_2 = getParticle("Psi_dL_2");
+    Particle Psi_dR_2 = getParticle("Psi_dR_2");
 
     birotateFields(
         {Q_1_2, Q_2_2, Q_0_2, Psi_dL_1, Psi_dL_2},
         {D_1, D_2, D_0, Psi_dR_1, Psi_dR_2},
         true);
-    Particle L_0_2 = getParticle("{L_L}_0_2");
-    Particle L_1_2 = getParticle("{L_L}_i_1_2");
-    Particle L_2_2 = getParticle("{L_L}_i_2_2");
+    Particle L_0_2 = getParticle("l_L_2");
+    Particle L_1_2 = getParticle("L_L_1_2");
+    Particle L_2_2 = getParticle("L_L_2_2");
    
-    Particle E_0 = getParticle("{E_R}_0");
-    Particle E_1 = getParticle("{E_R}_1");
-    Particle E_2 = getParticle("{E_R}_2");
+    Particle E_0 = getParticle("e_R_0");
+    Particle E_1 = getParticle("e_R_1");
+    Particle E_2 = getParticle("e_R_2");
 
-    Particle Psi_lL_1 = getParticle("\\Psi_{lL}_1");
-    Particle Psi_lR_1 = getParticle("\\Psi_{lR}_1");
-    Particle Psi_lL_2 = getParticle("\\Psi_{lL}_2");
-    Particle Psi_lR_2 = getParticle("\\Psi_{lR}_2");
+    Particle Psi_lL_1 = getParticle("Psi_lL_1");
+    Particle Psi_lR_1 = getParticle("Psi_lR_1");
+    Particle Psi_lL_2 = getParticle("Psi_lL_2");
+    Particle Psi_lR_2 = getParticle("Psi_lR_2");
 
     birotateFields(
         {L_1_2, L_2_2, L_0_2, Psi_lL_1, Psi_lL_2},
         {E_1, E_2, E_0, Psi_lR_1, Psi_lR_2},
         true);
    static const std::vector<std::pair<std::string,std::string>> names = {
-     {"{Q_L}_0_1","t_L"}, {"{Q_L}_0_2","b_L"},
-     {"{U_R}_0", "t_R"}, {"{D_R}_0","b_R"},
-     {"{D_R}_1", "{d_R}_1"}, {"{U_R}_1","{u_R}_1"},
-     {"{D_R}_2", "{d_R}_2"}, {"{U_R}_2","{u_R}_2"},
-     {"{Q_L}_i_1_1","{u_L}_1"}, {"{Q_L}_i_1_2", "{d_L}_1"},
-     {"{Q_L}_i_2_1","{u_L}_2"}, {"{Q_L}_i_2_2", "{d_L}_2"},
-     {"{L_L}_0_1","\\nu_\\tau"},{"{L_L}_0_2","\\tau_L"},
-     {"{L_L}_i_1_1","\\nu_1"}, {"{L_L}_i_1_2","l_1"},
-     {"{L_L}_i_2_1","\\nu_2"}, {"{L_L}_i_2_2","l_2"},
-     {"{E_R}_0","\\tau_R"},{"{E_R}_1","{e_R}_1"},{"{E_R}_2","{e_R}_2"}
+     {"q_L_1","t_L"}, {"q_L_2","b_L"},
+     {"u_R_0", "t_R"}, {"d_R_0","b_R"},
+     {"d_R_1", "d_R1 ; {d_R}_1"}, {"u_R_1","u_R1 ; {u_R}_1"},
+     {"d_R_2", "d_R2 ; {d_R}_2"}, {"u_R_2","u_R2 ; {u_R}_2"},
+     {"Q_L_1_1","u_L1 ; {u_L}_1"}, {"Q_L_1_2", "d_L1 ; {d_L}_1"},
+     {"Q_L_2_1","u_L2 ; {u_L}_2"}, {"Q_L_2_2", "d_L2 ; {d_L}_2"},
+     {"l_L_1","nut ; \\nu_{\\tau}"},{"l_L_2","tau_L ; \\tau_L"},
+     {"L_L_1_1","nu1 ; \\nu_1"}, {"L_L_1_2","l_1"},
+     {"L_L_2_1","nu2 ; \\nu_2"}, {"L_L_2_2","l_2"},
+     {"e_R_0","tau_R ; \\tau_R"},{"e_R_1","e_R1 ; {e_R}_1"},{"e_R_2","e_R2 ; {e_R}_2"}
    };
    for (const auto [previous, next]: names)
      renameParticle(previous,next);
@@ -872,7 +871,7 @@ void hSU2_Model::replaceDownYukawa()
                          true));
 
     
-  birotateFields({"{d_L}_1", "{d_L}_2", "b_L"}, {"{d_R}_1", "{d_R}_2", "b_R"});
+  birotateFields({"d_L1", "d_L2", "b_L"}, {"d_R1", "d_R2", "b_R"});
 }
 void hSU2_Model::replaceLeptonYukawa()
 {
