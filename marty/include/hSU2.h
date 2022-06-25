@@ -195,7 +195,6 @@ namespace mty{
        void replaceUpYukawa();
        void replaceDownYukawa();
        void replaceLeptonYukawa();
-        void computeFeynmanRules();
 
 
     private:
