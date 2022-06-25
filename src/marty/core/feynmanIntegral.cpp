@@ -15,7 +15,6 @@
 
 #include "feynmanIntegral.h"
 #include "clooptools.h"
-#include "localTerms.h"
 #include "looptools_extension.h"
 #include "mrtError.h"
 #include "mrtInterface.h"
@@ -2511,9 +2510,9 @@ bool FeynmanIntegral::operator<(csl::Expr_info other) const
 csl::Expr FeynmanIntegral::getDivergentFactor() const
 {
     if (loopToolsId == -1) {
-        return mty::FiniteFlag
-               * getLocalTerm(
-                   type, integralIndices, getMomenta(), getMasses());
+        std::cerr << "Warning: locql term of " << copy() << " is unknown."
+                  << std::endl;
+        return CSL_0;
     }
     return mty::FiniteFlag
            * mty::getDivergentFactor(type, loopToolsId, argument);
