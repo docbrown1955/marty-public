@@ -53,6 +53,13 @@ hSU2_Model::hSU2_Model(
     gatherhSU2Inputs();
     std::cout << "Getting to low energy Lagrangian ..." << std::endl;
     getToLowEnergyLagrangian();
+
+    std::cout << "Finalizing Model building ..." << std::endl;
+    refresh();
+
+    std::cout << "Computing Feynman Rules ..." << std::endl;
+    Model::computeFeynmanRules();
+
     if (save) {
       save << "****************************" << std::endl;
       save << "**    Final Lagrangian    **" << std::endl;
@@ -61,16 +68,13 @@ hSU2_Model::hSU2_Model(
     }
     std::cout << "Checking Hermiticity ..." << std::endl;
     // checkHermiticity();
-    refresh();
-    Model::computeFeynmanRules();
 
     if (save) {
       std::ostream &out = save;
-      mty::Display(ComputeFeynmanRules(*this), out);
+      mty::Display(getFeynmanRules(), out);
       mty::DisplayAbbreviations(out);
-    }
-    if (save)
       save.close();
+    }
 
   } // End of base constructor for hSU2 class 
 
@@ -648,12 +652,8 @@ void hSU2_Model::breakSMSymmetry(){
     h0->setSelfConjugate(true);
     G0->setSelfConjugate(true);
 
-    std::cout << *this << std::endl;
-    std::cin.get();
     replace(H1, Gp());
     replace(H2, (h0() + CSL_I*G0() + v)/csl::sqrt_s(2));
-    std::cout << *this << std::endl;
-    std::cin.get();
 
     ///////////////////////////////////////////////////
     // Diagonalizing what can be

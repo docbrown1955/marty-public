@@ -10,14 +10,7 @@ int main(){
   cout << "Declaring class" << endl;
 
   mty::hSU2_Model horizSU2("savefile.out");
-  horizSU2.refresh();
-  cout << horizSU2 << endl;
-      auto hSU2_rules = horizSU2.getFeynmanRules(); // Rules in terminal
 
-  // cout << "Displaying Feynman Rules for 'X' Particle" << endl ;
-  // for (auto rule : hSU2_rules) {
-  //   if (rule.contains(horizSU2.getParticle("X"))) Display(rule);
-  // }
   cout << "Calculating Spectrum..." << endl;
   
   mty::Library lib("test_spectrum");
