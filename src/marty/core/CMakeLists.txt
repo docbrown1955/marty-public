@@ -96,8 +96,6 @@ set(ALL_SOURCES
     lagrangian.h
     lhaBuiltIn.h
     lhaBuiltIn.cpp
-    localTerms.cpp
-    localTerms.h
     looptools_extension.cpp
     looptools_extension.h
     looptools_init.h
