@@ -76,8 +76,8 @@ void PMSSM_LEM::initContent()
         = csl::sqrt_s(csl::pow_s(M_A * M_A - m_Z * m_Z, 2)
                       + csl::pow_s(2 * M_A * m_Z * csl::sin_s(2 * beta), 2));
     abbreviatedMassExpressions.push_back(csl::Abbrev::makeAbbreviation(
-        "m_h0", csl::sqrt_s(CSL_HALF * (mh2_mean - mh2_dev))));
-    m_h0 = csl::constant_s("m_h0");
+        "m_h", csl::sqrt_s(CSL_HALF * (mh2_mean - mh2_dev))));
+    m_h0 = csl::constant_s("m_h");
     abbreviatedMassExpressions.push_back(csl::Abbrev::makeAbbreviation(
         "m_H0", csl::sqrt_s(CSL_HALF * (mh2_mean + mh2_dev))));
     m_H0                    = csl::constant_s("m_H0");
@@ -441,7 +441,7 @@ void PMSSM_LEM::initContent()
     Hp->setMass(m_Hp);
     addParticle(Hp, false);
 
-    h0 = mty::scalarboson_s("h0 ; h^0", *this);
+    h0 = mty::scalarboson_s("h ; h^0", *this);
     h0->setSelfConjugate(true);
     h0->setMass(m_h0);
     addParticle(h0, false);
