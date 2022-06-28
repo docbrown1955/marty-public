@@ -152,7 +152,7 @@ int main()
           V_cd, V_cb, V_cs,    V_td, V_ts,     V_tb})
         value->setValue(CSL_UNDEF);
 
-    pmssm.getParticle("h0")->setEnabledInDiagrams(false);
+    pmssm.getParticle("h")->setEnabledInDiagrams(false);
     pmssm.getParticle("H0")->setEnabledInDiagrams(false);
     pmssm.getParticle("Hp")->setEnabledInDiagrams(false);
     pmssm.getParticle("W")->setEnabledInDiagrams(false);
