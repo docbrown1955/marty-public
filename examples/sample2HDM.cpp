@@ -35,14 +35,15 @@ int main()
     FeynOptions options;
     options.setTopology(Topology::Box);
     options.addFilter(filter::forceParticleCombination({"W", "t"}));
-    options.addFilter(filter::disableParticles({"u_L", "c_L", "H^+", "G^+"}));
+    options.addFilter(filter::disableParticles({"u_L", "c_L", "Hp", "Gp"}));
     options.setFermionOrder({3, 0, 1, 2});
     mty::option::keepOnlyFirstMassInLoop = true;
-    auto ampl                            = THDM.computeAmplitude(OneLoop,
+
+    auto ampl = THDM.computeAmplitude(OneLoop,
                                       {Incoming("d"),
-                                                                  Incoming(AntiPart("s")),
-                                                                  Outgoing(AntiPart("d")),
-                                                                  Outgoing("s")},
+                                       Incoming(AntiPart("s")),
+                                       Outgoing(AntiPart("d")),
+                                       Outgoing("s")},
                                       options);
     Display(ampl);
     Show(ampl);
