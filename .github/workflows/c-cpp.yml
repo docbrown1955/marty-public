@@ -44,7 +44,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: dependencies
-      run: sudo apt-get install coreutils build-essential gfortran libgsl-dev libgslcblas0 qt5-default dvipng cmake texlive texlive-latex-extra texlive-luatex -y
+      run: sudo apt-get install coreutils build-essential clang gfortran libgsl-dev libgslcblas0 qt5-default dvipng cmake texlive texlive-latex-extra texlive-luatex -y
     - name: configure
       run: |
         mkdir build
@@ -61,6 +61,11 @@ jobs:
       run: |
         cd build
         sudo make install
+    - name: test
+      run: |
+        cd build
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib
+        ctest --output-on-failure
   build-and-test-macos:
     runs-on: macos-latest
     steps:
@@ -76,11 +81,11 @@ jobs:
         export CPATH=$CPATH:/usr/local/include
         export C_INCLUDE_PATH=$C_INCLUDE_PATH:/usr/local/include
         export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/lib
-        export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:/usr/local/lib
+        export DYLD_FALLBACK_LIBRARY_PATH=$DYLD_FALLBACK_LIBRARY_PATH:/usr/local/lib
         export CXX=g++-11
         export CC=gcc-11
         export FC=gfortran-11
-        cmake .. -DQt5_DIR=$(brew --prefix qt5)/lib/cmake/Qt5
+        cmake .. -DQt5_DIR=$(brew --prefix qt5)/lib/cmake/Qt5 -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)/lib/cmake
     - name: make
       run: |
         cd build
@@ -88,20 +93,21 @@ jobs:
         export CPATH=$CPATH:/usr/local/include
         export C_INCLUDE_PATH=$C_INCLUDE_PATH:/usr/local/include
         export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/lib
-        export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:/usr/local/lib
+        export DYLD_FALLBACK_LIBRARY_PATH=$DYLD_FALLBACK_LIBRARY_PATH:/usr/local/lib
+        export CXX=g++-11
+        export CC=gcc-11
+        export FC=gfortran-11
         make
     - name: install
       run: |
         cd build
         sudo make install
-    - name: download-tests
-      run: git clone https://github.com/docbrown1955/test-suite.git
-    - name: run-tests
+    - name: test
       run: |
         export PATH=$PATH:/usr/local/bin
         export CPATH=$CPATH:/usr/local/include
         export C_INCLUDE_PATH=$C_INCLUDE_PATH:/usr/local/include
         export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/lib
-        export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:/usr/local/lib
+        export DYLD_FALLBACK_LIBRARY_PATH=$DYLD_FALLBACK_LIBRARY_PATH:/usr/local/lib
         cd build
-        ctest
+        ctest --output-on-failure
