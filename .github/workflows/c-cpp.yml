@@ -62,27 +62,33 @@ jobs:
         cd build
         sudo make install
   build-and-test-macos:
-    if: ${{ false }}
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v3
     - name: dependencies
       run: |
-        brew install --cask mactex
-        brew install coreutils gcc@11 gsl qt5 cmake imagemagick
+        brew install coreutils gcc@11 gsl qt5 cmake imagemagick texlive octave
     - name: configure
       run: |
         mkdir build
         cd build
-        export PATH=$PATH:/usr/local:/usr/local/texlive/:/usr/local/texlive/2022:/usr/local/texlive/2022/bin
+        export PATH=$PATH:/usr/local/bin
+        export CPATH=$CPATH:/usr/local/include
+        export C_INCLUDE_PATH=$C_INCLUDE_PATH:/usr/local/include
+        export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/lib
+        export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:/usr/local/lib
         export CXX=g++-11
         export CC=gcc-11
         export FC=gfortran-11
-        export PATH=$PATH:/usr/texbin/:/Library/TeX/bin:/usr/local:/usr/local/texlive:/usr/local/texlive/2022:/usr/local/texlive/2022/bin
         cmake ..
     - name: make
       run: |
         cd build
+        export PATH=$PATH:/usr/local/bin
+        export CPATH=$CPATH:/usr/local/include
+        export C_INCLUDE_PATH=$C_INCLUDE_PATH:/usr/local/include
+        export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/lib
+        export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:/usr/local/lib
         make
     - name: install
       run: |
@@ -92,7 +98,10 @@ jobs:
       run: git clone https://github.com/docbrown1955/test-suite.git
     - name: run-tests
       run: |
-        exit 0
-        source marty_env.sh
-        cd test-suite
-        ./launch_tests.sh
+        export PATH=$PATH:/usr/local/bin
+        export CPATH=$CPATH:/usr/local/include
+        export C_INCLUDE_PATH=$C_INCLUDE_PATH:/usr/local/include
+        export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/lib
+        export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:/usr/local/lib
+        cd build
+        ctest
