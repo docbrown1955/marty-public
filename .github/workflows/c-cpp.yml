@@ -39,7 +39,7 @@ jobs:
         cd build
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib
         ctest --output-on-failure
-  build-and-test-ubuntu-clang:
+  build-ubuntu-clang:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -97,9 +97,7 @@ jobs:
       run: |
         cd build
         sudo make install
-    - name: download-tests
-      run: git clone https://github.com/docbrown1955/test-suite.git
-    - name: run-tests
+    - name: test
       run: |
         export PATH=$PATH:/usr/local/bin
         export CPATH=$CPATH:/usr/local/include
@@ -107,4 +105,4 @@ jobs:
         export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/lib
         export DYLD_FALLBACK_LIBRARY_PATH=$DYLD_FALLBACK_LIBRARY_PATH:/usr/local/lib
         cd build
-        ctest
+        ctest --output-on-failure
