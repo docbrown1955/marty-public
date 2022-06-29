@@ -39,7 +39,7 @@ jobs:
         cd build
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib
         ctest --output-on-failure
-  build-ubuntu-clang:
+  build-and-test-ubuntu-clang:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
