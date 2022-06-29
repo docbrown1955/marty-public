@@ -44,7 +44,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: dependencies
-      run: sudo apt-get install coreutils build-essential gfortran libgsl-dev libgslcblas0 qt5-default dvipng cmake texlive texlive-latex-extra texlive-luatex -y
+      run: sudo apt-get install coreutils build-essential clang gfortran libgsl-dev libgslcblas0 qt5-default dvipng cmake texlive texlive-latex-extra texlive-luatex -y
     - name: configure
       run: |
         mkdir build
@@ -61,6 +61,11 @@ jobs:
       run: |
         cd build
         sudo make install
+    - name: test
+      run: |
+        cd build
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib
+        ctest --output-on-failure
   build-and-test-macos:
     runs-on: macos-latest
     steps:

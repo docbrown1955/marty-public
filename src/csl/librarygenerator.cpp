@@ -51,6 +51,12 @@ void LibraryGenerator::setQuadruplePrecision(bool t_quadruple)
 {
     quadruple = t_quadruple;
     if (quadruple) {
+#if !(defined MARTY_QUADRUPLE_ENABLED) || !(MARTY_QUADRUPLE_ENABLED)
+        CALL_SMERROR_SPEC(CSLError::NotImplementedError,
+                          "The quadruple precision cannot be used because it "
+                          "has "
+                          "been disabled during the compilation of MARTY.");
+#endif
         realType     = "__float128";
         complexType  = "__complex128";
         ccomplexType = "__complex128";

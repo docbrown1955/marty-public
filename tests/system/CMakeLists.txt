@@ -16,6 +16,16 @@ function(ADD_SYSTEM_TEST DISPLAY_NAME NAME)
         PROPERTIES FIXTURES_CLEANUP "${CLEANUP_NAME}")
 endfunction()
 
+function(ADD_QUAD_SYSTEM_TEST DISPLAY_NAME NAME)
+    if(NOT QUADRUPLE_ENABLED)
+        message(WARNING
+            "The system test \"${DISPLAY_NAME}\" cannot be compiled because the quadruple precision feature has been disabled."
+        )
+    else()
+        ADD_SYSTEM_TEST(${DISPLAY_NAME} ${NAME})
+    endif()
+endfunction()
+
 ADD_SYSTEM_TEST("basic-feynman-integrals" FItests)
 ADD_SYSTEM_TEST("majorana-loops-simplifications" majoranaLoop)
 ADD_SYSTEM_TEST("relative-sign-of-fermion-number-violating-interactions" testConjugation)
@@ -23,25 +33,33 @@ ADD_SYSTEM_TEST("relative-sign-of-fermion-number-violating-interactions" testCon
 ADD_SYSTEM_TEST("decay-widths_Standard-Model" widthsSM)
 ADD_SYSTEM_TEST("muon-pair-production-lep_Standard-Model" Zmumu)
 ADD_SYSTEM_TEST("top-pair-production-lhc_Standard-Model" gg_to_tt)
-ADD_SYSTEM_TEST("electro-weak-gauge-cancellations" EWGauge)
+ADD_QUAD_SYSTEM_TEST("electro-weak-gauge-cancellations" EWGauge)
 
-ADD_SYSTEM_TEST("muon-magnetic-moment_Standard-Model" gm2SM)
-ADD_SYSTEM_TEST("muon-magnetic-moment_Super-Symmetry" gm2PMSSM)
+ADD_QUAD_SYSTEM_TEST("muon-magnetic-moment_Standard-Model" gm2SM)
+ADD_QUAD_SYSTEM_TEST("muon-magnetic-moment_Super-Symmetry" gm2PMSSM)
 
 ADD_SYSTEM_TEST("c7_Standard-Model" C7_SM)
-ADD_SYSTEM_TEST("c7_Super-Symmetry" C7_PMSSM)
+ADD_QUAD_SYSTEM_TEST("c7_Super-Symmetry" C7_PMSSM)
 ADD_SYSTEM_TEST("c8_Standard-Model" C8_SM)
-ADD_SYSTEM_TEST("c8_Super-Symmetry" C8_PMSSM)
-ADD_SYSTEM_TEST("c9_Standard-Model" C9_SM)
-ADD_SYSTEM_TEST("c9_Super-Symmetry" C9_MSSM)
-ADD_SYSTEM_TEST("wilson-coefficients_GTHDM-Model" wilsons_GTHDM)
+ADD_QUAD_SYSTEM_TEST("c8_Super-Symmetry" C8_PMSSM)
+ADD_QUAD_SYSTEM_TEST("c9_Standard-Model" C9_SM)
+ADD_QUAD_SYSTEM_TEST("c9_Super-Symmetry" C9_MSSM)
+ADD_QUAD_SYSTEM_TEST("wilson-coefficients_GTHDM-Model" wilsons_GTHDM)
 ADD_SYSTEM_TEST("bs-mixing_Standard-Model" BsMixingSM)
 ADD_SYSTEM_TEST("bs-mixing_VLQ-Model-5-6" BsMixingVLQ_5_6)
-ADD_SYSTEM_TEST("bs-mixing_VLQ-Model-7-8" BsMixingVLQ_7_8)
+
+if(APPLE)
+    message(WARNING
+        "One VLQ test cannot be ran because it has not been setup on MacOS yet."
+    )
+else()
+    ADD_SYSTEM_TEST("bs-mixing_VLQ-Model-7-8" BsMixingVLQ_7_8)
+endif()
+
 ADD_SYSTEM_TEST("bs-mixing_VLQ-Model-9-10" BsMixingVLQ_9_10)
 ADD_SYSTEM_TEST("bs-mixing_VLQ-Model-10-11" BsMixingVLQ_10_11)
 
 ADD_SYSTEM_TEST("lepto-genesis" NLepto)
-ADD_SYSTEM_TEST("baryo-genesis" Bgenesis)
+ADD_QUAD_SYSTEM_TEST("baryo-genesis" Bgenesis)
 ADD_SYSTEM_TEST("TIDM-Model" SM_2IDM)
 ADD_SYSTEM_TEST("lepto-genesis_SU2-Triplet-Model" SM_triplet)
