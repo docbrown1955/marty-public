@@ -20,7 +20,7 @@ int main()
     Rename(ElectroWeak, "A_U1_Y", "B");
     Particle W       = GetParticle(ElectroWeak, "W");
     Particle B       = GetParticle(ElectroWeak, "B");
-    Particle ghost_W = GetParticle(ElectroWeak, "c_A_SU2_L");
+    Particle ghost_W = GetParticle(ElectroWeak, "c_W");
 
     std::cout << ElectroWeak << std::endl;
 
@@ -99,7 +99,7 @@ int main()
                        {{"H0", "H1"},
                         {"W1", "W2", "W3"},
                         {"u_L", "d_L"},
-                        {"\\nu _{eL}", "e_L"},
+                        {"nue ; \\nu_{e_L}", "e_L"},
                         {"c_W1", "c_W2", "c_W3"}});
 
     ///////////////////////////////////////////////////
@@ -132,10 +132,7 @@ int main()
     Particle H0 = GetParticle(ElectroWeak, "H0");
     Particle H1 = GetParticle(ElectroWeak, "H1");
 
-    Particle h   = scalarboson_s("h", ElectroWeak);
-    Particle pi0 = scalarboson_s("\\pi _0", ElectroWeak);
-    Particle pic = scalarboson_s("\\pi _c", ElectroWeak);
-    SetSelfConjugate(pi0, true);
+    Particle h = scalarboson_s("h", ElectroWeak);
     SetSelfConjugate(h, true);
 
     Replaced(ElectroWeak, H0, CSL_0);
@@ -150,11 +147,11 @@ int main()
 
     DiagonalizeMassMatrices(ElectroWeak);
 
-    Rename(ElectroWeak, "B_mix", "A");
-    Rename(ElectroWeak, "W3_mix", "Z");
+    Rename(ElectroWeak, "B", "A");
+    Rename(ElectroWeak, "W3", "Z");
 
     csl::Expr e      = constant_s("e");
-    csl::Expr thetaW = constant_s("\\theta_W");
+    csl::Expr thetaW = constant_s("theta_W");
     csl::Expr g      = GetCoupling(ElectroWeak, "g");
     csl::Expr g_p    = GetCoupling(ElectroWeak, "g'");
     Replaced(ElectroWeak, pow_s(g, 2) + pow_s(g_p, 2), pow_s(g * g_p / e, 2));

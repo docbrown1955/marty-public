@@ -966,7 +966,7 @@ void MSSM_Model::diagonalize2By2Matrices()
 
     mty::Particle rho_u = getParticle("rho_u");
     mty::Particle rho_d = getParticle("rho_d");
-    mty::Particle h     = scalarboson_s("h0; h^0", *this);
+    mty::Particle h     = scalarboson_s("h; h^0", *this);
     mty::Particle H     = scalarboson_s("H0; H^0", *this);
     mty::SetSelfConjugate(h, true);
     mty::SetSelfConjugate(H, true);

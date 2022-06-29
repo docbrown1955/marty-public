@@ -16,7 +16,7 @@ int main()
     options.setWilsonOperatorCoefficient(-e_em / (4 * m_mu));
     options.addFilters(
         filter::disableParticles(
-            {"W", "Z", "H0", "h0", "A0", "Gp", "G0", "Hp"}),
+            {"W", "Z", "H0", "h", "A0", "Gp", "G0", "Hp"}),
         [&](FeynmanDiagram const &diag) { return !diag.isInLoop("A"); });
 
     Library::setQuadruplePrecision(true);
