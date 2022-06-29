@@ -8,7 +8,7 @@
 ## Summary
 
 `MARTY` is a C++ program automating perturbative calculations for beyond the Standard Model scenarios.
-Models can be built using the user interface. For any model, squared amplitudes and Wilson coefficients
+Models can be built using the C++ user interface. For any model, squared amplitudes and Wilson coefficients
 can be calculated at the tree level or the one-loop level.
 
 `MARTY` is a code generator. Analytical expressions, squared amplitudes or Wilson coefficients are
