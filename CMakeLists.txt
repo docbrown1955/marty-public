@@ -61,6 +61,19 @@ add_compile_definitions(MARTY_CC=${CMAKE_C_COMPILER})
 add_compile_definitions(MARTY_FC=${CMAKE_Fortran_COMPILER})
 add_compile_definitions(MARTY_INSTALL_PATH=${CMAKE_INSTALL_PREFIX})
 
+if((NOT CMAKE_COMPILER_IS_GNUCXX) OR(NOT CMAKE_COMPILER_IS_GNUCC))
+    message(WARNING
+        "Quadruple precision for numerical library generation can only be used with GNU compilers for now."
+        " The compilers defined are not GNU (${CMAKE_C_COMPILER} and ${CMAKE_CXX_COMPILER}), change the C/C++ compilers to GNU to enable quadruple precision."
+        " The build procedure will continue normally but the quadruple precision feature has been disabled."
+    )
+    add_compile_definitions(MARTY_QUADRUPLE_ENABLED=0)
+    set(QUADRUPLE_ENABLED 0)
+else()
+    add_compile_definitions(MARTY_QUADRUPLE_ENABLED=1)
+    set(QUADRUPLE_ENABLED 1)
+endif()
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 add_subdirectory(dep)
