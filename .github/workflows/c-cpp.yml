@@ -80,7 +80,7 @@ jobs:
         export CXX=g++-11
         export CC=gcc-11
         export FC=gfortran-11
-        cmake .. -DQt5_DIR=$(brew --prefix qt5)/lib/cmake/Qt5
+        cmake .. -DQt5_DIR=$(brew --prefix qt5)/lib/cmake/Qt5 -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)/lib/cmake
     - name: make
       run: |
         cd build
