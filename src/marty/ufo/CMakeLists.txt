@@ -7,8 +7,6 @@ set(ALL_SOURCES
     field.h
     lorentzcoupling.h
     marty-ufo.h
-    model_sqed.cpp
-    model_sqed.h
     parsefactors.cpp
     parsefactors.h
     simplifiedvertex.cpp
