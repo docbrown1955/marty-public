@@ -6,9 +6,6 @@
 #pragma once
 
 // Main package include directives
-#include "vertexinfo.h"
-#include "ufosmdata.h"
 #include "simplifiedvertex.h"
-
-// Include directives for models
-#include "model_sqed.h"
+#include "ufosmdata.h"
+#include "vertexinfo.h"
