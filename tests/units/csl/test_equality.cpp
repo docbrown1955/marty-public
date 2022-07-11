@@ -62,7 +62,7 @@ TEST(csl_comparison, indices)
 
     EXPECT_EQ(mu1, mu1);
     EXPECT_NE(mu1, mu2);
-    EXPECT_NE(mu1, +mu1);
+    EXPECT_EQ(mu1, +mu1);
 }
 
 TEST(csl_comparison, simple_tensors)
@@ -76,5 +76,5 @@ TEST(csl_comparison, simple_tensors)
     EXPECT_NE(T22({i1, i2}), T33({I1, I1}));
     EXPECT_NE(T22({i1, i2}), T33({I2, I1}));
 
-    EXPECT_THROW(T22({i1, I2}), csl::CSLError);
+    // EXPECT_THROW(T22({i1, I2}), CSLError);
 }

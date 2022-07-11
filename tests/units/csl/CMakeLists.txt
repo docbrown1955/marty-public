@@ -1,3 +1,1 @@
 ADD_UNIT_TEST(test_equality)
-
-SETUP_TARGET_FOR_COVERAGE(units)
