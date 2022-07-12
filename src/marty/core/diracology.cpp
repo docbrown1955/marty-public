@@ -312,28 +312,6 @@ DiracSpace::simplifyChain(csl::vector_expr const &tensors) const
         std::cerr << csl::prod_s(tensors, true) << '\n';
         throw ex;
     }
-
-    auto aligned = alignOpen(tensors);
-    aligned.cutsBtwCycles.push_back(aligned.tensors.size());
-    auto indices = getBorderOfChains(aligned.tensors, aligned.cutsBtwCycles);
-    csl::Expr               factor = CSL_1;
-    std::vector<csl::Index> tensorsIndices
-        = exprToIndex(aligned.tensors, aligned.cutsBtwCycles);
-    applyUniqueChiralityStructure(
-        tensorsIndices, aligned.cutsBtwCycles, factor);
-    auto chains
-        = simplifyGammaProd(tensorsIndices, aligned.cutsBtwCycles, factor);
-
-    std::vector<csl::Expr> terms;
-    terms.reserve(chains.size());
-    for (const auto &c : chains) {
-        auto newTensors
-            = applyChainIndices(c.indices, c.cuts, c.fiertzFlipping, indices);
-        newTensors.push_back(c.factor);
-        terms.push_back(csl::prod_s(newTensors));
-    }
-
-    return terms;
 }
 
 size_t DiracSpace::getSpinorDimension(size_t spaceTimeDim)
@@ -496,18 +474,6 @@ csl::Index DiracSpace::index() const
 csl::Index DiracSpace::st_index() const
 {
     return spaceTime->generateIndex();
-}
-
-void DiracSpace::flipChirality(csl::Index &tensor) const
-{
-    tensor = (isP_L(tensor)) ? dim + 3 : dim + 2;
-}
-
-csl::Index DiracSpace::flippedChirality(csl::Index const &tensor) const
-{
-    auto flipped{tensor};
-    flipChirality(flipped);
-    return flipped;
 }
 
 csl::Index DiracSpace::getSpaceTimeIndex(csl::Expr const &tensor) const
