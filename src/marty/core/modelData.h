@@ -70,16 +70,6 @@ class ModelData {
      * no support for another space that csl::Minkowski yet.
      */
     inline static csl::Space const *defaultSpaceTime = &csl::Minkowski;
-    /*!
-     * \brief Default quantum number for particles when not given.
-     * \details When defining a quantum number in a model, for example the
-     * baryonic number B, you may define it for any particle. If you do
-     * nothing, the default number is zero. If you define it, you can either
-     * give the quantum number, or nothing. It the latter case, the defined
-     * quantum number is equal to defaultQuantumNumber. \sa
-     * getQuantumNumbers(), addQuantumNumber(), setQuantumNumbers()
-     */
-    inline static int defaultQuantumNumber = 1;
 
   public:
     ///////////////////////////////////////////////////
@@ -1048,29 +1038,6 @@ class ModelData {
     template <class GroupType, class FieldType>
     mty::Generator getGenerator(GroupType &&group, FieldType &&field) const;
 
-    /**
-     * @brief Returns a quantum number (const reference) given its name.
-     *
-     * @details If the quantum number does not exist, this function prints an
-     * error message and stops the program.
-     *
-     * @param t_name Name of the quantum number to get
-     *
-     * @return The quantum number of name \b t_name
-     */
-    mty::QuantumNumber const &getQuantumNumber(std::string_view name) const;
-    /**
-     * @brief Returns a quantum number (reference) given its name.
-     *
-     * @details If the quantum number does not exist, this function prints an
-     * error message and stops the program.
-     *
-     * @param t_name Name of the quantum number to get
-     *
-     * @return The quantum number of name \b t_name
-     */
-    mty::QuantumNumber &getQuantumNumber(std::string_view name);
-
     ///////////////////////////////////////////////////
     // Model building
     ///////////////////////////////////////////////////
@@ -1642,16 +1609,6 @@ class ModelData {
     std::vector<mty::Particle> particles;
 
     /**
-     * @brief List of quantum numbers in the model.
-     *
-     * @details Particles can have different eigenvalues for these quantum
-     * numbers (0 by default, if not given).
-     *
-     * @sa getQuantumNumbers(), getQuantumNumber(), addQuantumNumber()
-     */
-    std::vector<mty::QuantumNumber> quantumNumbers;
-
-    /**
      * @brief Lists of scalar couplings of the model.
      *
      * @sa getScalarCouplings(), getScalarCoupling(), addScalarCoupling()
@@ -1689,27 +1646,6 @@ class ModelData {
 ///////////////////////////////////////////////////
 // Template functions for ModelData setters
 ///////////////////////////////////////////////////
-
-template <class FieldType>
-void ModelData::addQuantumNumber(std::string_view              name,
-                                 std::vector<FieldType> const &fields,
-                                 std::vector<int> const       &values,
-                                 bool                          conserved)
-{
-    std::vector<mty::Particle> parts;
-    parts.reserve(fields.size());
-    for (FieldType const &f : fields)
-        parts.push_back(getParticle(f));
-    addQuantumNumber(name, parts, values, conserved);
-}
-template <class FieldType>
-void ModelData::addQuantumNumber(std::string_view                 name,
-                                 std::initializer_list<FieldType> fields,
-                                 std::vector<int> const          &values,
-                                 bool                             conserved)
-{
-    addQuantumNumber(name, std::vector<FieldType>(fields), values, conserved);
-}
 
 ///////////////////////////////////////////////////
 // Template functions for ModelData finders
