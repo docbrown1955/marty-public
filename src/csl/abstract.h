@@ -58,7 +58,6 @@ class IndexStructure;
 class Space;
 class AbstractParent;
 class TensorParent;
-class Equation;
 class ContractionChain;
 class LibDependency;
 
@@ -208,10 +207,6 @@ class Abstract {
      * \return \b False else.
      */
     virtual bool isIndexed() const;
-
-    /*! \return The properties of the object.
-     */
-    virtual const std::vector<Equation *> &getProperties() const;
 
     virtual bool isReal() const;
 
@@ -477,16 +472,6 @@ class Abstract {
      * \param t_commutable Must be \b true if the abstract can commute.
      */
     virtual void setCommutable(bool t_commutable);
-
-    /*! \brief Adds a property to the object.
-     * \param property The new property to add in \b props.
-     */
-    virtual void addProperty(Equation *property);
-
-    /*! \brief Removes a property to the object.
-     * \param property Property to remove from \b props.
-     */
-    virtual void removeProperty(Equation *property);
 
     /*************************************************/
     // Modifiers for specializations                 //
@@ -1026,17 +1011,6 @@ class Abstract {
      */
     virtual std::optional<Expr> getPolynomialTerm(Expr_info t_variable,
                                                   int       order) const;
-
-    /*! \brief Calculates and returns all possible alternate forms of the
-     * expression in terms of simplifications. For example 1-sin^2(x) is one of
-     * the alternate forms of cos^2(x).
-     * \details Those alternate forms are then compared in terms of simplicity,
-     * this allows automatic simplification. Alternates are tried to simplify,
-     * and the bests are chosed. More details and algorithms in file
-     * alternateForms.cpp.
-     * \return A std::vector containing the alternate forms of the expression.
-     */
-    virtual csl::vector_expr getAlternateForms() const;
 
     /*! \brief Apply the operator on an \b operand, iif the expression is an
      * operator.

@@ -1,29 +1,28 @@
 // This file is part of MARTY.
-// 
+//
 // MARTY is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // MARTY is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 /*!
- * @file 
+ * @file
  * @author Grégoire Uhlrich
  * @version 1.3
- 
+
  * \brief
  */
 #ifndef TENSORFIELD_H_INCLUDED
 #define TENSORFIELD_H_INCLUDED
 
-#include "field.h"
 #include "parent.h"
 #include "indicial.h"
 
@@ -62,7 +61,7 @@ class TensorFieldParent: public TensorParent{
                 Args&& ...args);
 
     ~TensorFieldParent(){};
-    
+
     std::vector<Parent> breakSpace(
             const Space*                     broken,
             const std::vector<const Space*>& newSpace,
@@ -355,12 +354,12 @@ class TDerivativeElement: public Operator<TensorFieldElement>{
 
     /*!
      * \brief Checks for index contractions in the product. Applies Einstein's
-     * summation convention and sums automatically repeated indices. This 
+     * summation convention and sums automatically repeated indices. This
      * function is called after the construction in order to leave a correct
      * expression.
      */
     void selfCheckIndexStructure();
-    
+
     void replaceIndexInPlace(
          Index const &oldIndex,
          Index const &newIndex) override;

@@ -17,7 +17,6 @@
 #include "../sgl/sgl.h"
 #include "diracology.h"
 #include "fermionChain.h"
-#include "fermionCurrent.h"
 #include "interactionTerm.h"
 #include "model.h"
 #include "mrtInterface.h"

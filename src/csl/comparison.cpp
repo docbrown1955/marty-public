@@ -76,7 +76,7 @@ string Arbitrary::printLaTeX(int) const
 
 optional<Expr> Arbitrary::evaluate(csl::eval::mode) const
 {
-    callError(cslError::ArbitraryEvaluated, "Arbitrary::valuate()");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return nullopt;
 }
 

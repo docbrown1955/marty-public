@@ -19,7 +19,6 @@
 #include "error.h"
 #include "hardFactor.h"
 #include "interface.h"
-#include "libraryexpander.h"
 #include "libraryfunction.h"
 #include "librarygenerator.h"
 #include "literal.h"

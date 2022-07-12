@@ -345,9 +345,7 @@ Expr const &AbstractVectorial::getArgument(const vector<int> &indices) const
 {
     const int size = indices.size();
     if (size > dim or size == 0) {
-        callWarning(cslError::InvalidDimension,
-                    "AbstractVectorial::getArgument",
-                    size);
+        CALL_SMERROR_SPEC(CSLError::IndexError, std::to_string(size));
         return CSL_0;
     }
     else if (size == 1)
@@ -466,11 +464,7 @@ void AbstractVectorial::setArgument(const Expr        &expr,
 {
     const int size = indices.size();
     if (size == 0 or size > dim) {
-        callWarning(cslError::InvalidDimension,
-                    "AbstractVectorial::setArgument(const Expr&, const "
-                    "vector<int>&)",
-                    size);
-        return;
+        CALL_SMERROR_SPEC(CSLError::IndexError, std::to_string(size));
     }
     if (size == 1)
         argument[indices[0]] = expr;

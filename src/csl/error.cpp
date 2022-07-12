@@ -15,15 +15,6 @@
 
 #include "error.h"
 
-namespace csl {
-
-void callError(cslError::Error error, const std::string &caller)
-{
-    callError(error, caller, 0);
-}
-
-} // namespace csl
-
 std::ostream &operator<<(std::ostream &fout, CSLError error)
 {
     switch (error) {
@@ -81,7 +72,6 @@ std::ostream &operator<<(std::ostream &fout, CSLError error)
     }
     return fout;
 }
-
 void CallErrorImpl(CSLError         error,
                    std::string_view func,
                    std::string_view file,

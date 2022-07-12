@@ -34,10 +34,6 @@ namespace csl {
  */
 class AbstractLiteral : public Complexified {
 
-  protected:
-    /*! Pointers to the specific properties of the object. */
-    std::vector<Equation *> props;
-
   public:
     AbstractLiteral();
 
@@ -46,19 +42,10 @@ class AbstractLiteral : public Complexified {
         return csl::PrimaryType::Literal;
     }
 
-    size_t memoryOverhead() const override;
-
     std::vector<Parent> getSubSymbols() const override;
-
-    const std::vector<Equation *> &getProperties() const override;
-
-    void addProperty(Equation *property) override;
-
-    void removeProperty(Equation *property) override;
 };
 
-inline AbstractLiteral::AbstractLiteral()
-    : Complexified(), props(std::vector<Equation *>(0))
+inline AbstractLiteral::AbstractLiteral() : Complexified()
 {
 }
 

@@ -101,13 +101,6 @@ class Index {
      */
     Index();
 
-    /*!
-     * \brief Constructor that initializes only the name of the Index.
-     *
-     * \param t_name Name of the Index.
-     */
-    explicit Index(const std::string &t_name, unsigned short t_id = 0);
-
     Index(char value);
 
     /*!

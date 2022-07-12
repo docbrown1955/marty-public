@@ -74,10 +74,8 @@ Permutation::Permutation(int n, const std::vector<std::vector<int>> &list)
             for (auto element = cycle->begin() + 1; element != cycle->end();
                  ++element) {
                 if (indicesLeft[*element] < 0 or indicesLeft[*element] >= n)
-                    callError(cslError::OutOfBounds,
-                              "Permutation::Permutation(const "
-                              "init_list<init_list<int> >& list)",
-                              *element);
+                    CALL_SMERROR_SPEC(CSLError::IndexError,
+                                      std::to_string(*element));
                 ///////////////////////////////////////////
                 ///////////////////////////////////////////
                 // If the cycle is valid :
@@ -153,9 +151,9 @@ void Permutation::applyRedefinition(const vector<size_t> &redefinition)
 {
     if (not(redefinition.size() == size())) {
         cout << size() << "  " << redefinition.size() << endl;
-        callError(cslError::UndefinedBehaviour,
-                  "Permutation::applyRedefinition()",
-                  "Applying redefinition on a permutation of different size!");
+        CALL_SMERROR_SPEC(CSLError::RuntimeError,
+                          "Applying redefinition on a permutation of "
+                          "different size!");
     }
     size_t max = 0;
     for (auto &element : *this) {
@@ -411,9 +409,7 @@ int Symmetry::getSymmetryOf(int i, int j) const
 void Symmetry::addSymmetry(const Permutation &newPermutation, int sym)
 {
     if (dim != -1 and dim < (int) newPermutation.size()) {
-        callError(cslError::SymmetryMismatch,
-                  "Symmetry::addSymmetry(const Permutation& newPermutation, "
-                  "int sym)");
+        CALL_SMERROR(CSLError::RuntimeError);
     }
     // If the object was not completely initialized we initialize it from
     // the size of the new (and first) permutation
@@ -433,9 +429,7 @@ void Symmetry::addSymmetry(const Permutation &newPermutation, int sym)
     if (pos != permutation.end()) {
         if (sym == (*pos).getSymmetry())
             return;
-        callError(cslError::SymmetryMismatch,
-                  "Symmetry::addSymmetry(const Permutation& newPermutation, "
-                  "int sym)");
+        CALL_SMERROR(CSLError::RuntimeError);
     }
     Permutation foo = newPermutation;
     foo.setSymmetry(sym);

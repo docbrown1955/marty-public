@@ -19,13 +19,11 @@
 #include "commutation.h"
 #include "comparison.h"
 #include "counter.h"
-#include "equation.h"
 #include "error.h"
 #include "interface.h"
 #include "literal.h"
 #include "numerical.h"
 #include "options.h"
-#include "property.h"
 #include "replace.h"
 #include "scopedProperty.h"
 #include "space.h"
@@ -77,23 +75,18 @@ void nameTensor(const string &name, Expr &tensor, bool first)
 {
     if (tensor->getPrimaryType() != csl::PrimaryType::Vectorial)
         return;
-    // if (tensor->getPrimaryType() != csl::PrimaryType::Vectorial)
-    //     callError(cslError::UndefinedBehaviour,
-    //             "nameTensor(const string&, Expr&)");
     if (tensor->getDim() == 1) {
         if (first)
             for (auto arg = tensor->begin(); arg != tensor->end(); ++arg) {
                 ostringstream sout;
                 sout << distance(tensor->begin(), arg);
                 (*arg) = constant_s(name + "_" + sout.str());
-                // (*arg)->setElementary(true);
             }
         else
             for (auto arg = tensor->begin(); arg != tensor->end(); ++arg) {
                 ostringstream sout;
                 sout << distance(tensor->begin(), arg);
                 (*arg) = constant_s(name + "," + sout.str() + "}");
-                // (*arg)->setElementary(true);
             }
     }
     else {
@@ -223,8 +216,7 @@ IndexStructure SelfContraction::getFreeContractionIndex(const Expr &expr,
                                                         int index) const
 {
     if (index != 0 and index != 1)
-        callError(cslError::UndefinedBehaviour,
-                  "SelfContraction::getFreeContractionIndex()");
+        CALL_SMERROR(CSLError::RuntimeError);
     IndexStructure structure;
     IndexStructure exprStructure = expr->getIndexStructure();
     for (size_t i = 0; i != exprStructure.size(); ++i) {
@@ -265,8 +257,7 @@ Expr SelfContraction::applyIndices(const Expr            &A,
         std::cout << *this << std::endl;
         std::cout << targetContraction << std::endl;
         res->print();
-        callError(cslError::UndefinedBehaviour,
-                  "SelfContraction::applyIndices()");
+        CALL_SMERROR(CSLError::RuntimeError);
     }
 
     csl::IndexStructure intermediateA = structA;
@@ -416,9 +407,8 @@ ContractionChain::ContractionChain(const Expr &expr, const Expr &res)
     }
     else if (not IsIndicialTensor(expr) and expr != CSL_0) {
         expr->print();
-        callError(cslError::UndefinedBehaviour,
-                  "ContractionChain::ContractionChain()",
-                  "Only indicial tensors can be treated");
+        CALL_SMERROR_SPEC(CSLError::TypeError,
+                          "Only indicial tensors can be treated");
     }
     else {
         *this = ContractionChain(csl::vector_expr(1, expr), res);
@@ -428,9 +418,7 @@ ContractionChain::ContractionChain(const Expr &expr, const Expr &res)
 Expr ContractionChain::getResult() const
 {
     if (not specialContraction)
-        callError(cslError::UndefinedBehaviour,
-                  "ContractionChain::getResult()",
-                  "No defined contraction...");
+        CALL_SMERROR_SPEC(CSLError::RuntimeError, "No defined contraction...");
     if (resultOfContraction == CSL_UNDEF and cycleTrace) {
         return scalarFactor * traceSpace->calculateTrace(contractedTensors);
     }
@@ -1111,9 +1099,10 @@ void TensorParent::addSymmetry(int i1, int i2)
 
     int dim = space.size();
     if (i1 < 0 or i2 < 0 or i1 >= dim or i2 >= dim)
-        callError(cslError::OutOfBounds,
-                  "TensorParent::addSymmetry(int i1, int i2)",
-                  (i1 < 0 or i1 >= dim) ? i1 : i2);
+        CALL_SMERROR_SPEC(CSLError::IndexError,
+                          "Index "
+                              + std::to_string((i1 < 0 or i1 >= dim) ? i1 : i2)
+                              + " out of bounds.");
     symmetry.addSymmetry(Permutation(dim, {i1, i2}), 1);
 }
 void TensorParent::addAntiSymmetry(int i1, int i2)
@@ -1124,9 +1113,10 @@ void TensorParent::addAntiSymmetry(int i1, int i2)
         fullySymmetric = false;
     int dim = space.size();
     if (i1 < 0 or i2 < 0 or i1 >= dim or i2 >= dim)
-        callError(cslError::OutOfBounds,
-                  "TensorElement::addAntiSymmetry(int i1, int i2)",
-                  (i1 < 0 or i1 >= dim) ? i1 : i2);
+        CALL_SMERROR_SPEC(CSLError::IndexError,
+                          "Index "
+                              + std::to_string((i1 < 0 or i1 >= dim) ? i1 : i2)
+                              + " out of bounds.");
     symmetry.addSymmetry(Permutation(dim, {i1, i2}), -1);
 }
 
@@ -1152,11 +1142,6 @@ bool TensorParent::dependsExplicitlyOn(Expr_info expr) const
     return false;
 }
 
-const vector<Equation *> &TensorParent::getProperties() const
-{
-    return props;
-}
-
 void TensorParent::addSelfContraction(
     const Expr                                    &A,
     const Expr                                    &B,
@@ -1174,13 +1159,9 @@ void TensorParent::addSelfContraction(
         return;
     }
     if (not IsIndicialTensor(A) or not IsIndicialTensor(B))
-        callError(cslError::BadSelfContraction,
-                  "TensorParent::addSelfContraction(const Expr&, const Expr&, "
-                  "const Expr&)");
+        CALL_SMERROR(CSLError::RuntimeError);
     if (A->getParent_info() != this and B->getParent_info() != this)
-        callError(cslError::BadSelfContraction,
-                  "TensorParent::addSelfContraction(const Expr&, const Expr&, "
-                  "const Expr&)");
+        CALL_SMERROR(CSLError::RuntimeError);
     if (A->getParent_info() != this) {
         addSelfContraction(B, A, res, condition);
         return;
@@ -1254,12 +1235,6 @@ vector<ContractionChain> TensorParent::getContractionProperties() const
 void TensorParent::addContractionProperty(csl::vector_expr const &leftHandSide,
                                           const Expr &rightHandSide)
 {
-    // if (rightHandSide != CSL_0
-    //         and leftHandSide->getFreeIndexStructure()
-    //             != rightHandSide->getFreeIndexStructure())
-    //     callError(cslError::UndefinedBehaviour,
-    //             "TensorParent::addContractionProperty");
-    //
     chainContraction.push_back(
         ContractionChain(prod_s(leftHandSide), rightHandSide));
 }
@@ -1358,9 +1333,8 @@ void TensorParent::addHermitianProperty(const Space *t_space,
                                         const Expr  &res)
 {
     if (getDim(t_space) > 2)
-        callError(cslError::InvalidITensor,
-                  "addHermitianProperty()",
-                  "hermitian property for more than 2 indices");
+        CALL_SMERROR_SPEC(CSLError::MathError,
+                          "hermitian property for more than 2 indices");
     IndexStructure structure = init->getIndexStructure();
     int            pos       = -1;
     for (size_t i = 0; i != structure.size(); ++i) {
@@ -1387,9 +1361,8 @@ void TensorParent::addTransposedProperty(const Space *t_space,
                                          const Expr  &res)
 {
     if (getDim(t_space) != 2)
-        callError(cslError::InvalidITensor,
-                  "addTransposedProperty()",
-                  "transposed property for more than 2 indices");
+        CALL_SMERROR_SPEC(CSLError::MathError,
+                          "transposed property for more than 2 indices");
     IndexStructure structure = init->getIndexStructure();
     int            pos       = -1;
     for (size_t i = 0; i != structure.size(); ++i) {
@@ -1417,8 +1390,7 @@ void TensorParent::setSymmetry(const Symmetry &t_symmetry)
     if (t_symmetry == Symmetry())
         symmetry.clear();
     else if (t_symmetry.getDim() != (int) space.size())
-        callError(cslError::BadSymmetry,
-                  "TensorParent::setSymmetry(const Symmetry& t_symmetry)");
+        CALL_SMERROR(CSLError::RuntimeError);
     symmetry           = t_symmetry;
     fullySymmetric     = false;
     fullyAntiSymmetric = false;
@@ -1429,8 +1401,7 @@ void TensorParent::setTensor(const Expr &t_tensor)
     if (valued and not tensor->matchShape(t_tensor.get(), true)) {
         cout << *this << endl;
         t_tensor->print();
-        callError(cslError::InvalidIndicialParent,
-                  "TensorParent::setTensor(const Expr&)");
+        CALL_SMERROR(CSLError::RuntimeError);
     }
     size_t i = 0;
     for (const auto &dim : t_tensor->getShape()) {
@@ -1440,8 +1411,7 @@ void TensorParent::setTensor(const Expr &t_tensor)
             cout << dim << "  " << space[i - 1]->getDim() << endl;
             cout << *this << endl;
             t_tensor->print();
-            callError(cslError::InvalidIndicialParent,
-                      "TensorParent::setTensor(const Expr&)");
+            CALL_SMERROR(CSLError::RuntimeError);
         }
     }
     valued = true;
@@ -1456,8 +1426,7 @@ void TensorParent::setTrace(const Expr &t_trace)
 void TensorParent::setElementary(bool t_elementary)
 {
     if (not valued)
-        callError(cslError::UndefinedBehaviour,
-                  "TensorParent::setElementary(bool)");
+        CALL_SMERROR(CSLError::RuntimeError);
     tensor->setElementary(t_elementary);
 }
 
@@ -1578,8 +1547,7 @@ Expr TensorParent::contraction(const Abstract *self, Expr_info B) const
     self->print();
     B->print();
     // We did not find the proper contraction: Error
-    callError(cslError::NoContractionProperty,
-              "TensorParent::contraction(const Expr&, const Expr&)");
+    CALL_SMERROR(CSLError::RuntimeError);
     return CSL_UNDEF;
 }
 
@@ -1597,11 +1565,9 @@ void TensorParent::checkIndexRequest(const vector<Index> &request)
         ostringstream sizeMismatch;
         sizeMismatch << request.size() << " given, " << space.size()
                      << " requested.";
-        callError(cslError::InvalidITensor,
-                  "TensorParent::checkIndexRequest(const vector<Index>& "
-                  "request) const"
-                      + (string) ": size does not match: "
-                      + sizeMismatch.str());
+        CALL_SMERROR_SPEC(CSLError::IndexError,
+                          (string) ": size does not match: "
+                              + sizeMismatch.str());
     }
     for (auto index = request.begin(); index != request.end(); ++index)
         if (index->getSpace() != space[distance(request.begin(), index)]) {
@@ -1609,11 +1575,10 @@ void TensorParent::checkIndexRequest(const vector<Index> &request)
             for (const auto &i : request)
                 std::cout << i << std::endl;
             cout << *this << endl;
-            callError(cslError::InvalidITensor,
-                      "TensorParent::checkIndexRequest(const vector<Index>& "
-                      "request) const"
-                          + (string) ": space \""
-                          + index->getSpace()->getName() + "\" mismatch.");
+            CALL_SMERROR_SPEC(CSLError::IndexError,
+                              "size does not match: " + (string) ": space \""
+                                  + index->getSpace()->getName()
+                                  + "\" mismatch.");
         }
 }
 
@@ -1776,7 +1741,7 @@ vector<Parent> TensorParent::breakSpace(const Space                 *broken,
         return pos->second;
 
     if (std::accumulate(pieces.begin(), pieces.end(), 0) != broken->getDim())
-        callError(cslError::UndefinedBehaviour, "TensorParent::breakSpace()");
+        CALL_SMERROR(CSLError::RuntimeError);
 
     vector<Parent>              res;
     vector<size_t>              posBroken;
@@ -1932,8 +1897,7 @@ MetricParent::MetricParent(const Space  *t_space,
         or t_tensor->getShape() != vector<int>(2, t_space->getDim())) {
         std::cout << t_tensor->getType() << std::endl;
         t_tensor->print();
-        callError(cslError::InvalidIndicialParent,
-                  "TensorParent(const string&, const Space*, const Expr&)");
+        CALL_SMERROR(CSLError::RuntimeError);
     }
     // Trace(metric) = D, D the space-time dimension
     trace  = int_s(space[0]->getDim());
@@ -1963,8 +1927,7 @@ Expr MetricParent::contraction(const Abstract *self, Expr_info B) const
     if (not hasContractionProperty(self, B)) {
         self->print();
         B->print();
-        callError(cslError::NoContractionProperty,
-                  "TensorParent::contraction(Expr_info, Expr_info)");
+        CALL_SMERROR(CSLError::RuntimeError);
     }
     if (self == B and self->getIndexStructure()[0].getType() == cslIndex::Dummy
         and self->getIndexStructure()[1].getType() == cslIndex::Dummy) {
@@ -1992,8 +1955,7 @@ Expr MetricParent::contraction(const Abstract *self, Expr_info B) const
 
     self->print();
     B->print();
-    callError(cslError::NoContractionProperty,
-              "TensorParent::contraction(const Expr&, const Expr&)");
+    CALL_SMERROR(CSLError::RuntimeError);
     return CSL_UNDEF;
 }
 
@@ -2076,8 +2038,7 @@ Expr DeltaParent::contraction(const Abstract *self, Expr_info B) const
     if (not hasContractionProperty(self, B)) {
         self->print();
         B->print();
-        callError(cslError::NoContractionProperty,
-                  "TensorParent::contraction(Expr_info, Expr_info)");
+        CALL_SMERROR(CSLError::RuntimeError);
     }
     if (self == B and self->getIndexStructure()[0].getType() == cslIndex::Dummy
         and self->getIndexStructure()[1].getType() == cslIndex::Dummy) {
@@ -2104,8 +2065,7 @@ Expr DeltaParent::contraction(const Abstract *self, Expr_info B) const
     // property.
     self->print();
     copy_B->print();
-    callError(cslError::NoContractionProperty,
-              "TensorParent::contraction(const Expr&, const Expr&)");
+    CALL_SMERROR(CSLError::RuntimeError);
     return CSL_UNDEF;
 }
 
@@ -2252,9 +2212,7 @@ TensorElement::TensorElement(const Expr &expr)
     : AbstractElement(expr->getParent()), index(expr->getIndexStructure())
 {
     if (parent and parent->getPrimaryType() != cslParent::Indicial)
-        callError(cslError::InvalidITensor,
-                  "TensorElement::TensorElement(const string&,bool,\
-                const Index&,AbstractParent*const");
+        CALL_SMERROR(CSLError::RuntimeError);
     selfCheckIndexStructure();
 }
 
@@ -2267,8 +2225,7 @@ Index TensorElement::getIndex(int i) const
 {
     if (i >= 0 and i < (int) index.size())
         return index[i];
-    callError(
-        cslError::OutOfBounds, "TensorElement::getIndex(int i) const", i);
+    CALL_SMERROR(CSLError::RuntimeError);
     return Index();
 }
 
@@ -2286,9 +2243,8 @@ Expr &TensorElement::applySelfStructureOn(Expr &expr) const
     if (not(index.size() == structure.size())) {
         print();
         expr->print();
-        callError(cslError::InvalidITensor,
-                  "TensorElement::applySelfStructureOn()",
-                  "wrong number of free indices to apply structure");
+        CALL_SMERROR_SPEC(CSLError::MathError,
+                          "wrong number of free indices to apply structure");
     }
     Replace(expr, structure, index);
     // for (size_t i = 0; i != index.size(); ++i) {
@@ -2410,21 +2366,6 @@ bool TensorElement::dependsOn(Parent_info t_parent) const
 bool TensorElement::dependsExplicitlyOn(Expr_info expr) const
 {
     return parent->dependsExplicitlyOn(expr);
-}
-
-const std::vector<Equation *> &TensorElement::getProperties() const
-{
-    return parent->getProperties();
-}
-
-void TensorElement::addProperty(Equation *property)
-{
-    parent->addProperty(property);
-}
-
-void TensorElement::removeProperty(Equation *property)
-{
-    parent->removeProperty(property);
 }
 
 bool TensorElement::compareWithDummy(Expr_info          expr,
@@ -2614,7 +2555,7 @@ TensorElement::applyBrokenIndices(vector<Parent>              &brokenParents,
         print();
         cout << brokenParents.size() << " for "
              << correspondingStructure.size() << " structures.\n";
-        callError(cslError::UndefinedBehaviour, "applyBrokenIndices()");
+        CALL_SMERROR(CSLError::RuntimeError);
     }
 
     csl::vector_expr res(brokenParents.size());
@@ -2677,10 +2618,8 @@ void TensorElement::setIndexStructure(const IndexStructure &t_index)
 {
     const size_t nIndices = index.size();
     if (nIndices != t_index.size())
-        callWarning(cslError::InvalidDimension,
-                    "TensorElement::setIndexStructure(const "
-                    "std::vector<Index>&)",
-                    t_index.size());
+        CALL_SMERROR_SPEC(CSLError::IndexError,
+                          std::to_string(t_index.size()));
     else
         index = IndexStructure(t_index);
     adjustMetricDeltaParent();
@@ -2714,11 +2653,9 @@ bool TensorElement::hasChainContractionProperty() const
 Expr TensorElement::applyPermutation(const Permutation &permutation) const
 {
     const int nIndices = index.size();
-    if (nIndices != (int) permutation.size())
-        callWarning(cslError::InvalidDimension,
-                    "TensorElement::applyPermutation(const vector<int>& "
-                    "permutations) const",
-                    permutation.size());
+    if (nIndices < (int) permutation.size())
+        CALL_SMERROR_SPEC(CSLError::IndexError,
+                          std::to_string(permutation.size()));
     else {
         IndexStructure newIndex(nIndices);
         for (int i = 0; i != nIndices; ++i)
@@ -3076,8 +3013,7 @@ void ISum::selfCheckIndexStructure()
             std::cerr << csl::Evaluated(argument[i], csl::eval::abbreviation)
                       << '\n';
             std::cerr << csl::Evaluated(*arg, csl::eval::abbreviation) << '\n';
-            callError(cslError::InvalidIndicialSum,
-                      "Sum::selfCheckIndexStructure() const");
+            CALL_SMERROR(CSLError::RuntimeError);
         }
 }
 
@@ -3573,9 +3509,7 @@ void IProd::setArgument(const Expr &t_argument, int iArg)
 {
     if (iArg < 0 or iArg >= (int) argument.size()) {
         print();
-        callError(cslError::OutOfBounds,
-                  "Expr& AbstractMultiFunc::getArgument(int iArg) const",
-                  iArg);
+        CALL_SMERROR(CSLError::IndexError);
     }
 
     argument[iArg] = t_argument;

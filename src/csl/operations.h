@@ -166,8 +166,6 @@ class Sum : public AbstractMultiFunc {
 
     bool operator==(Expr_info expr) const override;
 
-    csl::vector_expr getAlternateForms() const override;
-
     bool operator<(const Abstract *expr) const override;
 
   protected:
@@ -478,8 +476,6 @@ class Prod : public AbstractMultiFunc {
 
     virtual bool partialComparison(Expr_info expr) const;
 
-    csl::vector_expr getAlternateForms() const override;
-
     bool operator<(const Abstract *expr) const override;
 };
 
@@ -626,8 +622,6 @@ class Pow : public AbstractDuoFunc {
     int getParity(Expr_info t_variable) const override;
 
     bool operator==(Expr_info expr) const override;
-
-    csl::vector_expr getAlternateForms() const override;
 
     bool operator<(const Abstract *expr) const override;
 };
@@ -906,9 +900,6 @@ Expr tensor_s(const std::vector<int> &shape, const Expr &filler);
 inline Integral::Integral(const Expr &leftOperand, const Expr &rightOperand)
     : Integral()
 {
-    //    if (rightOperand->getDim() > 0)
-    //       callError(cslError::UndefinedBehaviour,
-    //               "Integral::Integral(const Expr&, const Expr&)");
     argument[0] = leftOperand;
     argument[1] = rightOperand;
     inf         = -CSL_INF;

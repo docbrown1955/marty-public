@@ -38,7 +38,7 @@ T pointer_to_object(const Expr &expr)
     if (typeid(T) != typeid(pointed)) {
         std::cout << typeid(T).name() << "\n"
                   << typeid(pointed).name() << "\n";
-        callError(cslError::UndefinedBehaviour, "pointer_cast(const Expr&).");
+        CALL_SMERROR(CSLError::RuntimeError);
     }
 
     return *static_cast<T *>(expr.get());
@@ -49,8 +49,7 @@ T &pointer_to_object_ref(const Expr &expr)
 {
     auto const &pointed = *expr;
     if (typeid(T) != typeid(pointed))
-        callError(cslError::UndefinedBehaviour,
-                  "pointer_cast_ref(const Expr&).");
+        CALL_SMERROR(CSLError::RuntimeError);
 
     return *static_cast<T *>(expr.get());
 }
@@ -60,8 +59,7 @@ T *shared_to_raw_ptr(const Expr_c &expr)
 {
     auto const &pointed = *expr;
     if (typeid(T) != typeid(pointed))
-        callError(cslError::UndefinedBehaviour,
-                  "shared_to_raw_ptr(const Expr_c&).");
+        CALL_SMERROR(CSLError::RuntimeError);
 
     return static_cast<T *>(expr.get());
 }

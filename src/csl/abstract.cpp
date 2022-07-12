@@ -83,14 +83,6 @@ bool Abstract::getAllDependencies() const
     return false;
 }
 
-const vector<Equation *> &Abstract::getProperties() const
-{
-    static std::vector<Equation *> empty;
-    print();
-    CALL_SMERROR(CSLError::AbstractCallError);
-    return empty;
-}
-
 void Abstract::printCode(int, std::ostream &) const
 {
     print();
@@ -356,18 +348,6 @@ bool Abstract::compareWithDummy(Expr_info expr, bool keepAllCosntraints) const
 {
     std::map<Index, Index> m;
     return compareWithDummy(expr, m, keepAllCosntraints);
-}
-
-void Abstract::addProperty(Equation *)
-{
-    print();
-    CALL_SMERROR(CSLError::AbstractCallError);
-}
-
-void Abstract::removeProperty(Equation *)
-{
-    print();
-    CALL_SMERROR(CSLError::AbstractCallError);
 }
 
 void Abstract::setFullySymmetric()
@@ -995,11 +975,6 @@ Expr &Abstract::operator[](int)
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
     return undef;
-}
-
-csl::vector_expr Abstract::getAlternateForms() const
-{
-    return csl::vector_expr();
 }
 
 Expr Abstract::applyOperator(const Expr &, bool) const

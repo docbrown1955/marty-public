@@ -23,7 +23,6 @@
 #include "graph.h"
 #include "insertion.h"
 #include "interactionTerm.h"
-#include "jsonToPhysics.h"
 #include "mrtError.h"
 #include "mrtInterface.h"
 #include "mrtOptions.h"

@@ -18,7 +18,6 @@
 #include "booleanOperators.h"
 #include "commutation.h"
 #include "comparison.h"
-#include "field.h"
 #include "indicial.h"
 #include "literal.h"
 #include "mathFunctions.h"
@@ -27,7 +26,6 @@
 #include "operations.h"
 #include "options.h"
 #include "pseudoIntegral.h"
-#include "scalar.h"
 #include "tensorField.h"
 #include "vector.h"
 
@@ -688,7 +686,6 @@ bool AbstractDuoFunc::operator<(Expr_info expr) const
     case csl::Type::Variable:
     case csl::Type::IntFactorial:
     case csl::Type::Factorial:
-    case csl::Type::Scalar:
     case csl::Type::RealPart:
     case csl::Type::ImaginaryPart:
     case csl::Type::Exp:
@@ -730,7 +727,6 @@ bool AbstractMultiFunc::operator<(const Abstract *expr) const
     case csl::Type::NoType:
     case csl::Type::Variable:
     case csl::Type::Factorial:
-    case csl::Type::Scalar:
     case csl::Type::RealPart:
     case csl::Type::ImaginaryPart:
     case csl::Type::Exp:
@@ -810,7 +806,6 @@ bool Angle::operator<(const Abstract *expr) const
     case csl::Type::Variable:
     case csl::Type::Exp:
     case csl::Type::BooleanOperator:
-    case csl::Type::Scalar:
     case csl::Type::RealPart:
     case csl::Type::ImaginaryPart:
         return false;
@@ -851,7 +846,6 @@ bool Commutator::operator<(const Abstract *expr) const
     case csl::Type::Variable:
     case csl::Type::Exp:
     case csl::Type::BooleanOperator:
-    case csl::Type::Scalar:
     case csl::Type::RealPart:
     case csl::Type::ImaginaryPart:
     case csl::Type::StandardDuo:
@@ -860,44 +854,6 @@ bool Commutator::operator<(const Abstract *expr) const
         return false;
 
     case csl::Type::Commutator:
-        return ruleO2(this, expr);
-
-    case csl::Type::Polynomial:
-        return operator<(expr->getRegularExpression().get());
-    case csl::Type::Sum:
-        return sumRule(this, expr);
-    case csl::Type::Prod:
-        return prodRule(this, expr);
-    case csl::Type::Pow:
-        return powRule(this, expr);
-
-    default:
-        return true;
-    }
-}
-
-bool Scalar::operator<(const Abstract *expr) const
-{
-    csl::Type type = expr->getType();
-    convertScalarFuncType(expr, type);
-
-    switch (type) {
-
-    case csl::Type::Integer:
-    case csl::Type::Float:
-    case csl::Type::IntFraction:
-    case csl::Type::Complex:
-    case csl::Type::NumericalEval:
-    case csl::Type::IntFactorial:
-    case csl::Type::Imaginary:
-    case csl::Type::Constant:
-    case csl::Type::NoType:
-    case csl::Type::Variable:
-    case csl::Type::Exp:
-    case csl::Type::BooleanOperator:
-        return false;
-
-    case csl::Type::Scalar:
         return ruleO2(this, expr);
 
     case csl::Type::Polynomial:
@@ -933,7 +889,6 @@ bool Derivative::operator<(const Abstract *expr) const
     case csl::Type::Variable:
     case csl::Type::Exp:
     case csl::Type::BooleanOperator:
-    case csl::Type::Scalar:
     case csl::Type::RealPart:
     case csl::Type::ImaginaryPart:
     case csl::Type::Angle:
@@ -978,7 +933,6 @@ bool Integral::operator<(const Abstract *expr) const
     case csl::Type::Variable:
     case csl::Type::Exp:
     case csl::Type::BooleanOperator:
-    case csl::Type::Scalar:
     case csl::Type::RealPart:
     case csl::Type::ImaginaryPart:
     case csl::Type::Angle:
@@ -1159,41 +1113,9 @@ bool TensorElement::operator<(const Abstract *expr) const
     case csl::Type::Vector:
     case csl::Type::Matrix:
     case csl::Type::HighDTensor:
-    case csl::Type::ScalarField:
     case csl::Type::TensorFieldElement:
     case csl::Type::TDerivativeElement:
         return true;
-
-    default:
-        return false;
-    }
-}
-
-bool ScalarField::operator<(const Abstract *expr) const
-{
-    csl::Type type = expr->getType();
-    switch (type) {
-
-    case csl::Type::Polynomial:
-        return operator<(expr->getRegularExpression().get());
-    case csl::Type::Sum:
-        return sumRule(this, expr);
-    case csl::Type::Prod:
-        return prodRule(this, expr);
-    case csl::Type::Pow:
-        return powRule(this, expr);
-
-    case csl::Type::ScalarIntegral:
-    case csl::Type::VectorIntegral:
-    case csl::Type::Vector:
-    case csl::Type::Matrix:
-    case csl::Type::HighDTensor:
-    case csl::Type::TensorFieldElement:
-    case csl::Type::TDerivativeElement:
-        return true;
-
-    case csl::Type::ScalarField:
-        return ruleO5(this, expr);
 
     default:
         return false;

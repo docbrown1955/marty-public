@@ -70,16 +70,6 @@ class ModelData {
      * no support for another space that csl::Minkowski yet.
      */
     inline static csl::Space const *defaultSpaceTime = &csl::Minkowski;
-    /*!
-     * \brief Default quantum number for particles when not given.
-     * \details When defining a quantum number in a model, for example the
-     * baryonic number B, you may define it for any particle. If you do
-     * nothing, the default number is zero. If you define it, you can either
-     * give the quantum number, or nothing. It the latter case, the defined
-     * quantum number is equal to defaultQuantumNumber. \sa
-     * getQuantumNumbers(), addQuantumNumber(), setQuantumNumbers()
-     */
-    inline static int defaultQuantumNumber = 1;
 
   public:
     ///////////////////////////////////////////////////
@@ -126,7 +116,7 @@ class ModelData {
      * \param t_gauge  Gauge now owned by the Model.
      * \param t_flavor Flavor now owned by the Model.
      */
-    ModelData(std::unique_ptr<Gauge> && t_gauge,
+    ModelData(std::unique_ptr<Gauge>  &&t_gauge,
               std::unique_ptr<Flavor> &&t_flavor);
     /*!
      * \brief Constructor with 3 parameters.
@@ -150,14 +140,9 @@ class ModelData {
      * \param t_particles Particles to add to the Model after intializing the
      * gauge and flavor.
      */
-    ModelData(std::unique_ptr<Gauge> && t_gauge,
+    ModelData(std::unique_ptr<Gauge>  &&t_gauge,
               std::unique_ptr<Flavor> &&t_flavor,
-              std::vector<Particle> &   t_particles);
-    /*!
-     * \brief Creates a model from a model file (.json).
-     * \sa jsonToPhysics.h, JSONToHEP
-     */
-    ModelData(std::string const &nameFile);
+              std::vector<Particle>    &t_particles);
 
     /*!
      * \brief Destructor
@@ -216,11 +201,11 @@ class ModelData {
     virtual void saveModel(std::ostream &out, int indent = 4);
 
     void saveModelFunction(std::string_view name,
-                           std::ostream &   out,
+                           std::ostream    &out,
                            int              indent = 0);
 
     void saveModelFunctionWithRef(std::string_view name,
-                                  std::ostream &   out,
+                                  std::ostream    &out,
                                   int              indent = 0);
 
     void saveModelFile(std::string_view name, std::string const &fileName);
@@ -323,19 +308,6 @@ class ModelData {
     std::vector<mty::Particle>
     getPhysicalParticles(std::function<bool(mty::Particle)> const &predicate
                          = [](mty::Particle) { return true; }) const;
-
-    /*!
-     * \brief Returns the list of quantum numbers.
-     * \return The quantum numbers of the model.
-     * \sa quantumNumber.h
-     */
-    std::vector<mty::QuantumNumber> const &getQuantumNumbers() const;
-    /*!
-     * \brief Returns the list of quantum numbers.
-     * \return The quantum numbers of the model.
-     * \sa quantumNumber.h
-     */
-    std::vector<mty::QuantumNumber> &getQuantumNumbers();
 
     /*!
      * \brief Returns the scalar couplings (gauge coupling typically) of the
@@ -594,117 +566,6 @@ class ModelData {
      * @param tensorCoupling New tensorial coupling constant.
      */
     void addTensorCoupling(csl::Parent const &tensorCoupling);
-
-    /**
-     * @brief Adds a new quantum number to a model, giving eigenvalues for
-     * particles also.
-     *
-     * @details You must give a list of particles, and a list of eigenvalues.
-     * The list of eigenvalues may be empty: in this case, all eigenvalues are
-     * considered to be 1 by default. All particles not present in \b fields
-     * have 0 eigenvalue. Optionally, you may set \b conserved to false if you
-     * do not want this quantum number to interfere in calculations. Here is a
-     * code snippet that shows how to use this function, considering for
-     * example a quark q, and a lepton l (both of type mty::Particle). \code
-     * model.addQuantumNumber("F", {l, q}, {}, false);
-     * // l and q have fermionic number F = 1, and it is not
-     * // used in calculations
-     * model.addQuantumNumber("B", {l, q}, {0, 1});
-     * // Baryonic number
-     * model.addQuantumNumber("L", {l, q}, {1, 0});
-     * // Leptonic number
-     * \endcode
-     *
-     * @param name      Name of the quantum number
-     * @param fields    List of fields for which a non-trivial eigenvalue is
-     * defined
-     * @param values    Eigenvalues for the fields (all 1 if the list is empty)
-     * @param conserved Boolean (default = true) that tells if the quantum
-     * number must be conserved in calculations.
-     */
-    void addQuantumNumber(std::string_view                  name,
-                          std::vector<mty::Particle> const &fields,
-                          std::vector<int> const &          values,
-                          bool                              conserved = true);
-    /**
-     * @brief Adds a new quantum number to a model, giving eigenvalues for
-     * particles also.
-     *
-     * @details You must give a list of particles, and a list of eigenvalues.
-     * The list of eigenvalues may be empty: in this case, all eigenvalues are
-     * considered to be 1 by default. All particles not present in \b fields
-     * have 0 eigenvalue. Optionally, you may set \b conserved to false if you
-     * do not want this quantum number to interfere in calculations. Here is a
-     * code snippet that shows how to use this function, considering for
-     * example a quark q, and a lepton l (both of type mty::Particle). \code
-     * model.addQuantumNumber("F", {l, q}, {}, false);
-     * // l and q have fermionic number F = 1, and it is not
-     * // used in calculations
-     * model.addQuantumNumber("B", {l, q}, {0, 1});
-     * // Baryonic number
-     * model.addQuantumNumber("L", {l, q}, {1, 0});
-     * // Leptonic number
-     * \endcode
-     *
-     * @tparam FieldType mty::Particle or any valid type for the getParticle()
-     * function
-     * @param name      Name of the quantum number
-     * @param fields    List of fields for which a non-trivial eigenvalue is
-     * defined
-     * @param values    Eigenvalues for the fields (all 1 if the list is empty)
-     * @param conserved Boolean (default = true) that tells if the quantum
-     * number must be conserved in calculations.
-     */
-    template <class FieldType>
-    void addQuantumNumber(std::string_view              name,
-                          std::vector<FieldType> const &fields,
-                          std::vector<int> const &      values,
-                          bool                          conserved = true);
-    /**
-     * @brief Adds a new quantum number to a model, giving eigenvalues for
-     * particles also.
-     *
-     * @details You must give a list of particles, and a list of eigenvalues.
-     * The list of eigenvalues may be empty: in this case, all eigenvalues are
-     * considered to be 1 by default. All particles not present in \b fields
-     * have 0 eigenvalue. Optionally, you may set \b conserved to false if you
-     * do not want this quantum number to interfere in calculations. Here is a
-     * code snippet that shows how to use this function, considering for
-     * example a quark q, and a lepton l (both of type mty::Particle). \code
-     * model.addQuantumNumber("F", {l, q}, {}, false);
-     * // l and q have fermionic number F = 1, and it is not
-     * // used in calculations
-     * model.addQuantumNumber("B", {l, q}, {0, 1});
-     * // Baryonic number
-     * model.addQuantumNumber("L", {l, q}, {1, 0});
-     * // Leptonic number
-     * \endcode
-     *
-     * @tparam FieldType mty::Particle or any valid type for the getParticle()
-     * function
-     * @param name      Name of the quantum number
-     * @param fields    List of fields for which a non-trivial eigenvalue is
-     * defined
-     * @param values    Eigenvalues for the fields (all 1 if the list is empty)
-     * @param conserved Boolean (default = true) that tells if the quantum
-     * number must be conserved in calculations.
-     */
-    template <class FieldType>
-    void addQuantumNumber(std::string_view                 name,
-                          std::initializer_list<FieldType> fields,
-                          std::vector<int> const &         values,
-                          bool                             conserved = true);
-
-    /**
-     * @brief Sets the quantum numbers of the model.
-     *
-     * @details This function should in principle not be used. It replaces the
-     * entire set of quantum numbers, without defining eigenvalues for
-     * particles. Consider using addQuantumNumber() instead.
-     *
-     * @param numbers New quantum numbers
-     */
-    void setQuantumNumbers(std::vector<mty::QuantumNumber> const &numbers);
 
     ///////////////////////////////////////////////////
     // Content
@@ -1157,8 +1018,8 @@ class ModelData {
      */
     template <class GroupType, class FieldType>
     csl::Index generateIndex(std::string_view nameIndex,
-                             GroupType &&     group,
-                             FieldType &&     field) const;
+                             GroupType      &&group,
+                             FieldType      &&field) const;
 
     /**
      * @brief Returns the generator coresponding to the representation of a
@@ -1176,29 +1037,6 @@ class ModelData {
      */
     template <class GroupType, class FieldType>
     mty::Generator getGenerator(GroupType &&group, FieldType &&field) const;
-
-    /**
-     * @brief Returns a quantum number (const reference) given its name.
-     *
-     * @details If the quantum number does not exist, this function prints an
-     * error message and stops the program.
-     *
-     * @param t_name Name of the quantum number to get
-     *
-     * @return The quantum number of name \b t_name
-     */
-    mty::QuantumNumber const &getQuantumNumber(std::string_view name) const;
-    /**
-     * @brief Returns a quantum number (reference) given its name.
-     *
-     * @details If the quantum number does not exist, this function prints an
-     * error message and stops the program.
-     *
-     * @param t_name Name of the quantum number to get
-     *
-     * @return The quantum number of name \b t_name
-     */
-    mty::QuantumNumber &getQuantumNumber(std::string_view name);
 
     ///////////////////////////////////////////////////
     // Model building
@@ -1330,8 +1168,8 @@ class ModelData {
      * @param mass  Name of the mass for the fermion.
      */
     template <class FieldType1, class FieldType2>
-    void addFermionicMass(FieldType1 &&    left,
-                          FieldType2 &&    right,
+    void addFermionicMass(FieldType1     &&left,
+                          FieldType2     &&right,
                           std::string_view mass);
     /**
      * @brief Adds a fermionic mass to the model.
@@ -1356,8 +1194,8 @@ class ModelData {
      * @param mass  Mass for the fermion.
      */
     template <class FieldType1, class FieldType2>
-    void addFermionicMass(FieldType1 &&    left,
-                          FieldType2 &&    right,
+    void addFermionicMass(FieldType1     &&left,
+                          FieldType2     &&right,
                           csl::Expr const &mass);
     /**
      * @brief Adds a fermionic mass to the model.
@@ -1421,7 +1259,7 @@ class ModelData {
      * @param out       Output stream (std::cout, standard stream by default)
      */
     void printSubPart(std::vector<std::string> const &particles,
-                      std::ostream &                  out = std::cout) const;
+                      std::ostream                   &out = std::cout) const;
     /**
      * @brief Prints a sub part of the Lagrangian including some particles.
      *
@@ -1437,7 +1275,7 @@ class ModelData {
      * @param out       Output stream (std::cout, standard stream by default)
      */
     void printSubPart(std::string const &particle,
-                      std::ostream &     out = std::cout) const;
+                      std::ostream      &out = std::cout) const;
 
     /**
      * @brief Prints the model.
@@ -1474,28 +1312,28 @@ class ModelData {
     // Write functions
     ///////////////////////////////////////////////////
 
-    void writeHeader(std::ostream &            out,
+    void writeHeader(std::ostream             &out,
                      int                       indentSize,
                      std::vector<csl::Parent> &defined);
-    void writeGauge(std::ostream &            out,
+    void writeGauge(std::ostream             &out,
                     int                       indentSize,
                     std::vector<csl::Parent> &defined);
-    void writeFlavor(std::ostream &            out,
+    void writeFlavor(std::ostream             &out,
                      int                       indentSize,
                      std::vector<csl::Parent> &defined);
-    void writeMassAndWidth(std::ostream &            out,
+    void writeMassAndWidth(std::ostream             &out,
                            int                       indentSize,
                            std::vector<csl::Parent> &defined);
-    void writeParticles(std::ostream &            out,
+    void writeParticles(std::ostream             &out,
                         int                       indentSize,
                         std::vector<csl::Parent> &defined);
-    void writeDependencies(std::ostream &            out,
+    void writeDependencies(std::ostream             &out,
                            int                       indentSize,
                            std::vector<csl::Parent> &defined,
-                           std::vector<csl::Expr> &  kinetic,
-                           std::vector<csl::Expr> &  mass,
-                           std::vector<csl::Expr> &  interac);
-    void writeLagrangian(std::ostream &                out,
+                           std::vector<csl::Expr>   &kinetic,
+                           std::vector<csl::Expr>   &mass,
+                           std::vector<csl::Expr>   &interac);
+    void writeLagrangian(std::ostream                 &out,
                          int                           indentSize,
                          std::vector<csl::Expr> const &kinetic,
                          std::vector<csl::Expr> const &mass,
@@ -1526,7 +1364,7 @@ class ModelData {
      * @sa getGroupIrrep()
      */
     mty::Irrep doGetGroupIrrep(mty::Particle const &part,
-                               mty::Group const *   group) const;
+                               mty::Group const    *group) const;
     /**
      * @brief Actually returns the charge representation of a particle for a
      * U(1) group.
@@ -1539,7 +1377,7 @@ class ModelData {
      * @sa getCharge()
      */
     csl::Expr doGetCharge(mty::Particle const &particle,
-                          mty::Group const *   group) const;
+                          mty::Group const    *group) const;
 
     /**
      * @brief Actually returns the flavor representation of a particle.
@@ -1563,7 +1401,7 @@ class ModelData {
      * @sa getFlavorIrrep()
      */
     mty::Irrep doGetFlavorIrrep(mty::Particle const &part,
-                                mty::Group const *   flavor) const;
+                                mty::Group const    *flavor) const;
 
     /**
      * @brief Actually returns the vector space corresponding to a particle's
@@ -1577,7 +1415,7 @@ class ModelData {
      *
      * @sa getVectorSpace()
      */
-    csl::Space const *doGetVectorSpace(mty::Group const *   group,
+    csl::Space const *doGetVectorSpace(mty::Group const    *group,
                                        mty::Particle const &irrep) const;
 
     /**
@@ -1593,7 +1431,7 @@ class ModelData {
      * @sa getVectorSpace()
      */
     csl::Space const *doGetVectorSpace(mty::FlavorGroup const *group,
-                                       mty::Particle const &   irrep) const;
+                                       mty::Particle const    &irrep) const;
 
     /**
      * @brief Actually returns a csl::Index corresponding to a particle's
@@ -1607,7 +1445,7 @@ class ModelData {
      *
      * @sa generateIndex()
      */
-    csl::Index doGenerateIndex(mty::Group const *   group,
+    csl::Index doGenerateIndex(mty::Group const    *group,
                                mty::Particle const &fieldRep) const;
 
     /**
@@ -1637,7 +1475,7 @@ class ModelData {
      * @sa generateIndex()
      */
     csl::Index doGenerateIndex(std::string_view     nameIndex,
-                               mty::Group const *   group,
+                               mty::Group const    *group,
                                mty::Particle const &fieldRep) const;
 
     /**
@@ -1653,7 +1491,7 @@ class ModelData {
      *
      * @sa generateIndex()
      */
-    mty::Generator doGetGenerator(mty::Group const *   group,
+    mty::Generator doGetGenerator(mty::Group const    *group,
                                   mty::Particle const &fieldRep) const;
 
     /*
@@ -1675,7 +1513,7 @@ class ModelData {
      * @sa addBosonicMass()
      */
     void doAddBosonicMass(mty::Particle const &particle,
-                          csl::Expr const &    mass);
+                          csl::Expr const     &mass);
 
     /*
      * @brief Actually adds a fermionic mass term to the Lagrangian.
@@ -1700,7 +1538,7 @@ class ModelData {
      */
     void doAddFermionicMass(mty::Particle const &left,
                             mty::Particle const &right,
-                            csl::Expr const &    mass);
+                            csl::Expr const     &mass);
     /*
      * @brief Actually adds a fermionic mass term to the Lagrangian.
      *
@@ -1720,7 +1558,7 @@ class ModelData {
      * @sa addFermionicMass()
      */
     void doAddFermionicMass(mty::Particle const &diracFermion,
-                            csl::Expr const &    mass);
+                            csl::Expr const     &mass);
 
     /**
      * @brief Actually renames a particle.
@@ -1771,16 +1609,6 @@ class ModelData {
     std::vector<mty::Particle> particles;
 
     /**
-     * @brief List of quantum numbers in the model.
-     *
-     * @details Particles can have different eigenvalues for these quantum
-     * numbers (0 by default, if not given).
-     *
-     * @sa getQuantumNumbers(), getQuantumNumber(), addQuantumNumber()
-     */
-    std::vector<mty::QuantumNumber> quantumNumbers;
-
-    /**
      * @brief Lists of scalar couplings of the model.
      *
      * @sa getScalarCouplings(), getScalarCoupling(), addScalarCoupling()
@@ -1818,27 +1646,6 @@ class ModelData {
 ///////////////////////////////////////////////////
 // Template functions for ModelData setters
 ///////////////////////////////////////////////////
-
-template <class FieldType>
-void ModelData::addQuantumNumber(std::string_view              name,
-                                 std::vector<FieldType> const &fields,
-                                 std::vector<int> const &      values,
-                                 bool                          conserved)
-{
-    std::vector<mty::Particle> parts;
-    parts.reserve(fields.size());
-    for (FieldType const &f : fields)
-        parts.push_back(getParticle(f));
-    addQuantumNumber(name, parts, values, conserved);
-}
-template <class FieldType>
-void ModelData::addQuantumNumber(std::string_view                 name,
-                                 std::initializer_list<FieldType> fields,
-                                 std::vector<int> const &         values,
-                                 bool                             conserved)
-{
-    addQuantumNumber(name, std::vector<FieldType>(fields), values, conserved);
-}
 
 ///////////////////////////////////////////////////
 // Template functions for ModelData finders
@@ -1915,7 +1722,7 @@ mty::FlavorIrrep ModelData::getFlavorIrrep(FieldType &&field) const
 }
 
 template <class FlavorType, class FieldType>
-mty::Irrep ModelData::getFlavorIrrep(FieldType && field,
+mty::Irrep ModelData::getFlavorIrrep(FieldType  &&field,
                                      FlavorType &&flavor) const
 {
     constexpr bool field_valid
@@ -2025,8 +1832,8 @@ std::vector<csl::Index> ModelData::generateIndices(size_t      nIndices,
 
 template <class GroupType, class FieldType>
 csl::Index ModelData::generateIndex(std::string_view nameIndex,
-                                    GroupType &&     group,
-                                    FieldType &&     field) const
+                                    GroupType      &&group,
+                                    FieldType      &&field) const
 {
     constexpr bool group_valid
         = std::is_convertible<GroupType, mty::Group const *>::value;
@@ -2098,8 +1905,8 @@ void ModelData::addBosonicMass(FieldType &&field, csl::Expr const &mass)
 }
 
 template <class FieldType1, class FieldType2>
-void ModelData::addFermionicMass(FieldType1 &&    left,
-                                 FieldType2 &&    right,
+void ModelData::addFermionicMass(FieldType1     &&left,
+                                 FieldType2     &&right,
                                  std::string_view mass)
 {
     constexpr bool field1_valid
@@ -2123,8 +1930,8 @@ void ModelData::addFermionicMass(FieldType1 &&    left,
                                 mass);
 }
 template <class FieldType1, class FieldType2>
-void ModelData::addFermionicMass(FieldType1 &&    left,
-                                 FieldType2 &&    right,
+void ModelData::addFermionicMass(FieldType1     &&left,
+                                 FieldType2     &&right,
                                  csl::Expr const &mass)
 {
     constexpr bool field1_valid
@@ -2148,7 +1955,7 @@ void ModelData::addFermionicMass(FieldType1 &&    left,
                                 mass);
 }
 template <class FieldType>
-void ModelData::addFermionicMass(FieldType &&     diracFermion,
+void ModelData::addFermionicMass(FieldType      &&diracFermion,
                                  std::string_view mass)
 {
     constexpr bool field_valid
@@ -2161,7 +1968,7 @@ void ModelData::addFermionicMass(FieldType &&     diracFermion,
                          mass);
 }
 template <class FieldType>
-void ModelData::addFermionicMass(FieldType &&     diracFermion,
+void ModelData::addFermionicMass(FieldType      &&diracFermion,
                                  csl::Expr const &mass)
 {
     constexpr bool field_valid

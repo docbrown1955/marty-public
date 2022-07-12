@@ -11,7 +11,6 @@ set(ALL_SOURCES
     alloc_monitor.cpp
     alloc_monitor.h
     allocator.h
-    alternateForms.cpp
     booleanOperators.cpp
     booleanOperators.h
     buildingBlock.cpp
@@ -34,16 +33,10 @@ set(ALL_SOURCES
     element.h
     enum.cpp
     enum.h
-    equation.cpp
-    equation.h
     error.cpp
     error.h
     evaluation.cpp
     evaluation.h
-    field.cpp
-    field.h
-    floatFormatter.cpp
-    floatFormatter.h
     functional.cpp
     functional.h
     hardComparison.cpp
@@ -72,8 +65,6 @@ set(ALL_SOURCES
     librarydependency.h
     libraryevaluator.cpp
     libraryevaluator.h
-    libraryexpander.cpp
-    libraryexpander.h
     libraryfunction.cpp
     libraryfunction.h
     librarygenerator.cpp
@@ -110,18 +101,11 @@ set(ALL_SOURCES
     partialExpand.h
     patternMatch.cpp
     patternMatch.h
-    precision.cpp
-    precision_float.h
-    precision_int.h
     progressBar.h
-    property.cpp
-    property.h
     pseudoIntegral.cpp
     pseudoIntegral.h
     replace.cpp
     replace.h
-    scalar.cpp
-    scalar.h
     scalarFunc.cpp
     scalarFunc.h
     scopedProperty.h

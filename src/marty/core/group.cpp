@@ -99,8 +99,7 @@ string AbstractGroup::getName() const
 
 SemiSimpleAlgebra *AbstractGroup::getAlgebra() const
 {
-    callError(cslError::AbstractFuncCalled,
-              "AbstractGroup::getAlgebra() const");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return nullptr;
 }
 
@@ -120,9 +119,7 @@ mty::Irrep AbstractGroup::getAdjointRep() const
 
 AlgebraState AbstractGroup::getHighestWeight(const csl::Space *) const
 {
-    callError(cslError::AbstractFuncCalled,
-              "AbstractGroup::getHighestWeight(const csl::Space* t_space) "
-              "const");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return AlgebraState();
 }
 
@@ -137,7 +134,7 @@ SemiSimpleGroup::SemiSimpleGroup(const string &t_name) : AbstractGroup(t_name)
 }
 
 SemiSimpleGroup::SemiSimpleGroup(const SemiSimpleAlgebra &t_algebra,
-                                 const string &           t_name)
+                                 const string            &t_name)
     : AbstractGroup(t_name)
 {
     setAlgebra(t_algebra);

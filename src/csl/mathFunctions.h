@@ -346,8 +346,6 @@ class Cos : public AbstractFunc {
     std::optional<Expr> derive(Expr_info expr) const override;
 
     int getParity(Expr_info t_variable) const override;
-
-    csl::vector_expr getAlternateForms() const override;
 };
 
 /*! \fn Expr cos_s(const Expr& expr)
@@ -431,8 +429,6 @@ class Sin : public AbstractFunc {
     std::optional<Expr> derive(Expr_info expr) const override;
 
     int getParity(Expr_info t_variable) const override;
-
-    csl::vector_expr getAlternateForms() const override;
 };
 
 /*! \fn Expr sin_s(const Expr& expr)
@@ -516,8 +512,6 @@ class Tan : public AbstractFunc {
     std::optional<Expr> derive(Expr_info expr) const override;
 
     int getParity(Expr_info t_variable) const override;
-
-    csl::vector_expr getAlternateForms() const override;
 };
 
 /*! \fn Expr tan_s(const Expr& expr)
@@ -919,8 +913,6 @@ class Cosh : public AbstractFunc {
     std::optional<Expr> derive(Expr_info expr) const override;
 
     int getParity(Expr_info t_variable) const override;
-
-    csl::vector_expr getAlternateForms() const override;
 };
 
 /*! \fn Expr cosh_s(const Expr& expr)
@@ -1004,8 +996,6 @@ class Sinh : public AbstractFunc {
     std::optional<Expr> derive(Expr_info expr) const override;
 
     int getParity(Expr_info t_variable) const override;
-
-    csl::vector_expr getAlternateForms() const override;
 };
 
 /*! \fn Expr sinh_s(const Expr& expr)
@@ -1089,8 +1079,6 @@ class Tanh : public AbstractFunc {
     std::optional<Expr> derive(Expr_info expr) const override;
 
     int getParity(Expr_info t_variable) const override;
-
-    csl::vector_expr getAlternateForms() const override;
 };
 
 /*! \fn Expr tanh_s(const Expr& expr)
