@@ -11,7 +11,6 @@ set(ALL_SOURCES
     alloc_monitor.cpp
     alloc_monitor.h
     allocator.h
-    alternateForms.cpp
     booleanOperators.cpp
     booleanOperators.h
     buildingBlock.cpp
