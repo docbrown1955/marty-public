@@ -42,7 +42,7 @@ Chirality operator!(Chirality init)
     return Chirality::None;
 }
 
-vector<const Space *> getSpaceRepresentations(Gauge *           gauge,
+vector<const Space *> getSpaceRepresentations(Gauge            *gauge,
                                               const GaugeIrrep &irrep)
 {
     HEPAssert(irrep.getGauge() == gauge,
@@ -91,7 +91,7 @@ std::ostream &operator<<(std::ostream &out, ParticleType type)
 
 QuantumFieldParent::QuantumFieldParent(const std::string &t_name,
                                        int                t_spin,
-                                       Gauge *            t_gauge)
+                                       Gauge             *t_gauge)
     : QuantumFieldParent(
         t_name, t_spin, t_gauge->getTrivialRep(), FlavorIrrep())
 {
@@ -99,14 +99,14 @@ QuantumFieldParent::QuantumFieldParent(const std::string &t_name,
 
 QuantumFieldParent::QuantumFieldParent(const std::string &t_name,
                                        int                t_spin,
-                                       const GaugeIrrep & t_irrep)
+                                       const GaugeIrrep  &t_irrep)
     : QuantumFieldParent(t_name, t_spin, t_irrep, FlavorIrrep())
 {
 }
 
 QuantumFieldParent::QuantumFieldParent(const std::string &t_name,
                                        int                t_spin,
-                                       Gauge *            t_gauge,
+                                       Gauge             *t_gauge,
                                        bool               t_isSelfConjugate)
     : QuantumFieldParent(
         t_name, t_spin, t_gauge->getTrivialRep(), FlavorIrrep())
@@ -116,7 +116,7 @@ QuantumFieldParent::QuantumFieldParent(const std::string &t_name,
 
 QuantumFieldParent::QuantumFieldParent(const std::string &t_name,
                                        int                t_spin,
-                                       const GaugeIrrep & t_irrep,
+                                       const GaugeIrrep  &t_irrep,
                                        bool               t_isSelfConjugate)
     : QuantumFieldParent(t_name, t_spin, t_irrep, FlavorIrrep())
 {
@@ -125,7 +125,7 @@ QuantumFieldParent::QuantumFieldParent(const std::string &t_name,
 
 QuantumFieldParent::QuantumFieldParent(const std::string &t_name,
                                        int                t_spin,
-                                       const GaugeIrrep & t_irrep,
+                                       const GaugeIrrep  &t_irrep,
                                        const FlavorIrrep &t_flavorRep)
     : TensorFieldParent(t_name, &Minkowski, vector<const Space *>()),
       bosonic(t_spin % 2 == 0),
@@ -135,7 +135,6 @@ QuantumFieldParent::QuantumFieldParent(const std::string &t_name,
       irrep(t_irrep),
       flavor(t_flavorRep.getFlavor()),
       flavorRep(t_flavorRep),
-      qNumbers(),
       propagator()
 {
     valued = false;
@@ -159,7 +158,7 @@ QuantumFieldParent::QuantumFieldParent(const std::string &t_name,
     initIndexSpaces();
 }
 
-QuantumFieldParent::QuantumFieldParent(const string &            t_name,
+QuantumFieldParent::QuantumFieldParent(const string             &t_name,
                                        const QuantumFieldParent *other)
     : QuantumFieldParent(
         t_name, other->getSpinDimension(), other->irrep, other->flavorRep)
@@ -303,7 +302,7 @@ void QuantumFieldParent::setDiracParent(Particle const & /*diracFermion*/)
 
 csl::Expr applyDerivative(QuantumField const &A,
                           QuantumField const &B,
-                          csl::Expr const &   prop)
+                          csl::Expr const    &prop)
 {
     csl::IndexStructure structA = A.getDerivativeStructure();
     csl::IndexStructure structB = B.getDerivativeStructure();
@@ -324,7 +323,7 @@ csl::Expr applyDerivative(QuantumField const &A,
 
 csl::Expr QuantumFieldParent::getPropagator(QuantumField const &self,
                                             QuantumField const &other,
-                                            csl::Tensor &       P,
+                                            csl::Tensor        &P,
                                             bool                external) const
 {
     auto prop = propagator.find(other.getQuantumParent());
@@ -340,7 +339,7 @@ csl::Expr QuantumFieldParent::getPropagator(QuantumField const &self,
 
 csl::Expr QuantumFieldParent::getInvPropagator(QuantumField const &other,
                                                QuantumField const &self,
-                                               csl::Tensor &       P,
+                                               csl::Tensor        &P,
                                                bool external) const
 {
     auto prop = propagator.find(other.getQuantumParent());
@@ -709,21 +708,6 @@ vector<Index> QuantumFieldParent::getFullSetOfIndices() const
     return indices;
 }
 
-QuantumNumber::Value
-QuantumFieldParent::getQuantumNumber(QuantumNumber const *number) const
-{
-    return qNumbers[number->getID()];
-}
-
-QuantumNumber::Value
-QuantumFieldParent::getQuantumNumber(QuantumField const * instance,
-                                     QuantumNumber const *number) const
-{
-    if (instance->isComplexConjugate())
-        return -qNumbers[number->getID()];
-    return qNumbers[number->getID()];
-}
-
 csl::Expr QuantumFieldParent::getInstance(Tensor point)
 {
     vector<Index> indices = getFullSetOfIndices();
@@ -769,8 +753,8 @@ void QuantumFieldParent::setSelfConjugate(bool t_selfConjugate)
 {
     selfConjugate = t_selfConjugate;
     complexProp   = (selfConjugate and isBosonic())
-                      ? csl::ComplexProperty::Real
-                      : csl::ComplexProperty::Complex;
+                        ? csl::ComplexProperty::Real
+                        : csl::ComplexProperty::Complex;
     applyToRelatives(
         [&](Particle p) { p->setSelfConjugate(t_selfConjugate); });
 }
@@ -804,7 +788,7 @@ void QuantumFieldParent::setGaugeIrrep(GaugeIrrep const &newRep)
         setGroupRep((*gauge)[i], newRep[i]);
 }
 
-void QuantumFieldParent::setGroupRep(const std::string &     group,
+void QuantumFieldParent::setGroupRep(const std::string      &group,
                                      std::vector<int> const &highestWeight)
 {
     HEPAssert(gauge,
@@ -879,7 +863,7 @@ void QuantumFieldParent::setFundamentalFlavorRep(
                  "Group " + flavorGroup + " not found in model.")
 }
 void QuantumFieldParent::setFlavorRep(const FlavorGroup *group,
-                                      const Irrep &      newRep)
+                                      const Irrep       &newRep)
 {
     applyToRelatives([&](Particle p) { p->setFlavorRep(group, newRep); });
     symmetry.clear();
@@ -914,20 +898,13 @@ void QuantumFieldParent::setFlavorRep(const FlavorGroup *group,
                      + "QuantumFieldParent::setFlavorRep()");
 }
 
-void QuantumFieldParent::addQuantumNumber(QuantumNumber const &number,
-                                          QuantumNumber::Value value)
-{
-    applyToRelatives([&](Particle p) { p->addQuantumNumber(number, value); });
-    qNumbers[number.getID()] = value;
-}
-
 void QuantumFieldParent::setPropagator(QuantumFieldParent const *other,
                                        Propagator_func           prop)
 {
     propagator[other] = prop;
 }
 
-void QuantumFieldParent::setBrokenParts(const Space *           broken,
+void QuantumFieldParent::setBrokenParts(const Space            *broken,
                                         const vector<Particle> &parts)
 {
     brokenParts[broken] = vector<Parent>(parts.size());
@@ -936,7 +913,7 @@ void QuantumFieldParent::setBrokenParts(const Space *           broken,
 }
 
 std::vector<csl::Parent>
-QuantumFieldParent::breakSpace(const csl::Space *                     broken,
+QuantumFieldParent::breakSpace(const csl::Space                      *broken,
                                const std::vector<const csl::Space *> &newSpace,
                                const std::vector<size_t> &pieces) const
 {
@@ -975,7 +952,7 @@ csl::Expr QuantumFieldParent::operator()(Index t_index, const Tensor &t_point)
 }
 
 csl::Expr QuantumFieldParent::operator()(vector<int> const &indices,
-                                         const Tensor &     t_point)
+                                         const Tensor      &t_point)
 {
     return (*this)(integerToIndices(indices), t_point);
 }
@@ -991,7 +968,7 @@ csl::Expr QuantumFieldParent::operator()(vector<Index> indices,
 
 csl::Expr QuantumFieldParent::operator()(Index              polarization,
                                          const vector<int> &indices,
-                                         const Tensor &     t_point)
+                                         const Tensor      &t_point)
 {
     return (*this)(polarization, integerToIndices(indices), t_point);
 }
@@ -1105,7 +1082,7 @@ void QuantumFieldParent::breakParticle(
     if (!brokenParts.empty())
         return;
     std::vector<mty::Particle> newParticles;
-    csl::Space const *         repSpace
+    csl::Space const          *repSpace
         = brokenGroup->getVectorSpace(getGroupIrrep(brokenGroup));
     size_t nParts = repSpace->getDim();
     newParticles.reserve(nParts);
@@ -1120,9 +1097,9 @@ void QuantumFieldParent::breakParticle(
 }
 
 void QuantumFieldParent::breakParticle(
-    mty::FlavorGroup *                     brokenFlavor,
+    mty::FlavorGroup                      *brokenFlavor,
     std::vector<mty::FlavorGroup *> const &subGroups,
-    std::vector<std::string> const &       names)
+    std::vector<std::string> const        &names)
 {
     applyToRelatives(
         [&](Particle p) { p->breakParticle(brokenFlavor, subGroups, names); });
@@ -1163,8 +1140,8 @@ QuantumField::QuantumField(const Tensor &t_vector, const Parent &t_parent)
     }
 }
 
-QuantumField::QuantumField(const Tensor &            t_vector,
-                           const Parent &            t_parent,
+QuantumField::QuantumField(const Tensor             &t_vector,
+                           const Parent             &t_parent,
                            const std::vector<Index> &indices)
     : TensorFieldElement(t_vector, t_parent, indices), partnerShip()
 {
@@ -1175,8 +1152,8 @@ QuantumField::QuantumField(const Tensor &            t_vector,
     }
 }
 
-QuantumField::QuantumField(const Tensor &        t_vector,
-                           const Parent &        t_parent,
+QuantumField::QuantumField(const Tensor         &t_vector,
+                           const Parent         &t_parent,
                            const IndexStructure &indices)
     : TensorFieldElement(t_vector, t_parent, indices), partnerShip()
 {
@@ -1338,7 +1315,7 @@ csl::IndexStructure QuantumField::getDerivativeStructure() const
 }
 
 csl::Expr QuantumField::getPropagator(const QuantumField &other,
-                                      Tensor &            vertex) const
+                                      Tensor             &vertex) const
 {
     if (not isExactlyContractiblewith(other))
         return CSL_0;
@@ -1619,22 +1596,22 @@ csl::Expr QuantumField::matrixChargeConjugation(csl::Expr_info other) const
     return int_s(sign) * newField.copy();
 }
 
-void AddCustomPropagator(QuantumFieldParent *                left,
-                         QuantumFieldParent *                right,
+void AddCustomPropagator(QuantumFieldParent                 *left,
+                         QuantumFieldParent                 *right,
                          QuantumFieldParent::Propagator_func propagator)
 {
     left->setPropagator(right, propagator);
     right->setPropagator(left, propagator);
 }
 
-void AddCustomPropagator(QuantumFieldParent *                autoProp,
+void AddCustomPropagator(QuantumFieldParent                 *autoProp,
                          QuantumFieldParent::Propagator_func propagator)
 {
     autoProp->setPropagator(autoProp, propagator);
 }
 
 void projectOnChirality(const QuantumField &field,
-                        csl::Expr &         expression,
+                        csl::Expr          &expression,
                         csl::Index          alpha)
 {
     if (field.getChirality() == Chirality::None)
@@ -1648,8 +1625,8 @@ void projectOnChirality(const QuantumField &field,
 }
 
 csl::Expr getMomentumSum(const vector<QuantumField> &insertions,
-                         const vector<Tensor> &      impulsions,
-                         const Index &               index)
+                         const vector<Tensor>       &impulsions,
+                         const Index                &index)
 {
     csl::Expr sum = CSL_0;
     for (size_t i = 0; i != insertions.size(); ++i) {

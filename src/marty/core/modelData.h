@@ -320,19 +320,6 @@ class ModelData {
                          = [](mty::Particle) { return true; }) const;
 
     /*!
-     * \brief Returns the list of quantum numbers.
-     * \return The quantum numbers of the model.
-     * \sa quantumNumber.h
-     */
-    std::vector<mty::QuantumNumber> const &getQuantumNumbers() const;
-    /*!
-     * \brief Returns the list of quantum numbers.
-     * \return The quantum numbers of the model.
-     * \sa quantumNumber.h
-     */
-    std::vector<mty::QuantumNumber> &getQuantumNumbers();
-
-    /*!
      * \brief Returns the scalar couplings (gauge coupling typically) of the
      * model.
      * \details When a gauge group is created, a gauge coupling constant comes
@@ -589,117 +576,6 @@ class ModelData {
      * @param tensorCoupling New tensorial coupling constant.
      */
     void addTensorCoupling(csl::Parent const &tensorCoupling);
-
-    /**
-     * @brief Adds a new quantum number to a model, giving eigenvalues for
-     * particles also.
-     *
-     * @details You must give a list of particles, and a list of eigenvalues.
-     * The list of eigenvalues may be empty: in this case, all eigenvalues are
-     * considered to be 1 by default. All particles not present in \b fields
-     * have 0 eigenvalue. Optionally, you may set \b conserved to false if you
-     * do not want this quantum number to interfere in calculations. Here is a
-     * code snippet that shows how to use this function, considering for
-     * example a quark q, and a lepton l (both of type mty::Particle). \code
-     * model.addQuantumNumber("F", {l, q}, {}, false);
-     * // l and q have fermionic number F = 1, and it is not
-     * // used in calculations
-     * model.addQuantumNumber("B", {l, q}, {0, 1});
-     * // Baryonic number
-     * model.addQuantumNumber("L", {l, q}, {1, 0});
-     * // Leptonic number
-     * \endcode
-     *
-     * @param name      Name of the quantum number
-     * @param fields    List of fields for which a non-trivial eigenvalue is
-     * defined
-     * @param values    Eigenvalues for the fields (all 1 if the list is empty)
-     * @param conserved Boolean (default = true) that tells if the quantum
-     * number must be conserved in calculations.
-     */
-    void addQuantumNumber(std::string_view                  name,
-                          std::vector<mty::Particle> const &fields,
-                          std::vector<int> const           &values,
-                          bool                              conserved = true);
-    /**
-     * @brief Adds a new quantum number to a model, giving eigenvalues for
-     * particles also.
-     *
-     * @details You must give a list of particles, and a list of eigenvalues.
-     * The list of eigenvalues may be empty: in this case, all eigenvalues are
-     * considered to be 1 by default. All particles not present in \b fields
-     * have 0 eigenvalue. Optionally, you may set \b conserved to false if you
-     * do not want this quantum number to interfere in calculations. Here is a
-     * code snippet that shows how to use this function, considering for
-     * example a quark q, and a lepton l (both of type mty::Particle). \code
-     * model.addQuantumNumber("F", {l, q}, {}, false);
-     * // l and q have fermionic number F = 1, and it is not
-     * // used in calculations
-     * model.addQuantumNumber("B", {l, q}, {0, 1});
-     * // Baryonic number
-     * model.addQuantumNumber("L", {l, q}, {1, 0});
-     * // Leptonic number
-     * \endcode
-     *
-     * @tparam FieldType mty::Particle or any valid type for the getParticle()
-     * function
-     * @param name      Name of the quantum number
-     * @param fields    List of fields for which a non-trivial eigenvalue is
-     * defined
-     * @param values    Eigenvalues for the fields (all 1 if the list is empty)
-     * @param conserved Boolean (default = true) that tells if the quantum
-     * number must be conserved in calculations.
-     */
-    template <class FieldType>
-    void addQuantumNumber(std::string_view              name,
-                          std::vector<FieldType> const &fields,
-                          std::vector<int> const       &values,
-                          bool                          conserved = true);
-    /**
-     * @brief Adds a new quantum number to a model, giving eigenvalues for
-     * particles also.
-     *
-     * @details You must give a list of particles, and a list of eigenvalues.
-     * The list of eigenvalues may be empty: in this case, all eigenvalues are
-     * considered to be 1 by default. All particles not present in \b fields
-     * have 0 eigenvalue. Optionally, you may set \b conserved to false if you
-     * do not want this quantum number to interfere in calculations. Here is a
-     * code snippet that shows how to use this function, considering for
-     * example a quark q, and a lepton l (both of type mty::Particle). \code
-     * model.addQuantumNumber("F", {l, q}, {}, false);
-     * // l and q have fermionic number F = 1, and it is not
-     * // used in calculations
-     * model.addQuantumNumber("B", {l, q}, {0, 1});
-     * // Baryonic number
-     * model.addQuantumNumber("L", {l, q}, {1, 0});
-     * // Leptonic number
-     * \endcode
-     *
-     * @tparam FieldType mty::Particle or any valid type for the getParticle()
-     * function
-     * @param name      Name of the quantum number
-     * @param fields    List of fields for which a non-trivial eigenvalue is
-     * defined
-     * @param values    Eigenvalues for the fields (all 1 if the list is empty)
-     * @param conserved Boolean (default = true) that tells if the quantum
-     * number must be conserved in calculations.
-     */
-    template <class FieldType>
-    void addQuantumNumber(std::string_view                 name,
-                          std::initializer_list<FieldType> fields,
-                          std::vector<int> const          &values,
-                          bool                             conserved = true);
-
-    /**
-     * @brief Sets the quantum numbers of the model.
-     *
-     * @details This function should in principle not be used. It replaces the
-     * entire set of quantum numbers, without defining eigenvalues for
-     * particles. Consider using addQuantumNumber() instead.
-     *
-     * @param numbers New quantum numbers
-     */
-    void setQuantumNumbers(std::vector<mty::QuantumNumber> const &numbers);
 
     ///////////////////////////////////////////////////
     // Content

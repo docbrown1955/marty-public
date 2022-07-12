@@ -569,15 +569,6 @@ std::vector<mty::Particle> ModelData::getPhysicalParticles(
     return physicalParticles;
 }
 
-std::vector<QuantumNumber> const &ModelData::getQuantumNumbers() const
-{
-    return quantumNumbers;
-}
-std::vector<QuantumNumber> &ModelData::getQuantumNumbers()
-{
-    return quantumNumbers;
-}
-
 std::vector<csl::Expr> const &ModelData::getScalarCouplings() const
 {
     return scalarCouplings;
@@ -779,28 +770,6 @@ void ModelData::addTensorCoupling(csl::Parent const &coupling)
               "Expecting a tensor as tensor coupling in model, "
                   + toString(coupling->getName()) + " given.");
     tensorCouplings.push_back(tensor);
-}
-
-void ModelData::addQuantumNumber(std::string_view                  t_name,
-                                 std::vector<mty::Particle> const &fields,
-                                 std::vector<int> const           &values,
-                                 bool                              conserved)
-{
-    HEPAssert(fields.size() == values.size() or values.empty(),
-              mty::error::ValueError,
-              "Expecting 1 value per particle for quantum numbers.");
-    mty::QuantumNumber q(std::string(t_name), conserved);
-    for (size_t i = 0; i != fields.size(); ++i) {
-        int number = (values.empty()) ? defaultQuantumNumber : values[i];
-        fields[i]->addQuantumNumber(q, number);
-    }
-    quantumNumbers.push_back(q);
-}
-
-void ModelData::setQuantumNumbers(
-    std::vector<mty::QuantumNumber> const &numbers)
-{
-    quantumNumbers = numbers;
 }
 
 ///////////////////////////////////////////////////
@@ -1143,28 +1112,6 @@ mty::Generator ModelData::doGetGenerator(mty::Group const    *group,
                                          mty::Particle const &part) const
 {
     return group->getGaugedGroup()->getGenerator(part->getGroupIrrep(group));
-}
-
-mty::QuantumNumber const &
-ModelData::getQuantumNumber(std::string_view t_name) const
-{
-    for (const auto &number : quantumNumbers)
-        if (number.getName() == t_name)
-            return number;
-    CallHEPError(mty::error::NameError,
-                 "Quantum number \"" + toString(t_name)
-                     + "\" not found in model.");
-    return quantumNumbers[0];
-}
-mty::QuantumNumber &ModelData::getQuantumNumber(std::string_view t_name)
-{
-    for (auto &number : quantumNumbers)
-        if (number.getName() == t_name)
-            return number;
-    CallHEPError(mty::error::NameError,
-                 "Quantum number \"" + toString(t_name)
-                     + "\" not found in model.");
-    return quantumNumbers[0];
 }
 
 ///////////////////////////////////////////////////

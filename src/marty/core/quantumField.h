@@ -27,7 +27,6 @@
 #include "gauge.h"
 #include "iterable.h"
 #include "mrtError.h"
-#include "quantumNumber.h"
 #include <typeinfo>
 
 namespace mty {
@@ -274,14 +273,6 @@ class QuantumFieldParent : public csl::TensorFieldParent {
      * \brief Representation of the field in the flavor \b flavor.
      */
     FlavorIrrep flavorRep;
-
-    /*!
-     * \brief List of quantum numbers of the field.
-     * \details Quantum numbers may be used to discard null diagrams more
-     * quickly and speed up computations. See QuantumNumber and
-     * Expander::Options.
-     */
-    mutable std::map<QuantumNumber::ID, QuantumNumber::Value> qNumbers;
 
     /*!
      * \brief Contains all propagators for the field with other.
@@ -876,36 +867,6 @@ class QuantumFieldParent : public csl::TensorFieldParent {
     std::vector<csl::Index> getFullSetOfIndices() const;
 
     /*!
-     * \brief Returns the quantum number of the field with respect to \b
-     * number. \details Each field may have different values for quantum
-     * numbers (quarks have baryonic number +1/3, fermionic number +1, lepton
-     * number 0). This function returns the value associated to the field for a
-     * given QuantumNumber. \param number QuantumNumber from which we want the
-     * field's value. \return The value of the QuantumNumber for the field. \sa
-     * #qNumbers.
-     */
-    QuantumNumber::Value getQuantumNumber(QuantumNumber const *number) const;
-
-    /*!
-     * \brief Returns the quantum number of an instance of the field with
-     * respect to \b number.
-     * \details The difference with getQuantumNumber(QuantumNumber const*) is
-     * that if the instance of the field is complex conjugated, the function
-     * returns -1 times the value of the quantum number. For example, to take
-     * the same example as in getQuantumNumber(QuantumNumber const*), a
-     * conjugated quark \f$ \bar{q} \f$ has -1/3 baryon number, -1 fermion
-     * number and 0 lepton number.getQuantumNumber(QuantumNumber const*)
-     * \param instance Instance of the field we want the quantum number, may be
-     * conjugated or not.
-     * \param number   QuantumNumber from which we want the field's value.
-     * \return The value of the QuantumNumber for the field, with a minus sign
-     * if the field is complex conjugated.
-     * \sa #qNumbers.
-     */
-    QuantumNumber::Value getQuantumNumber(QuantumField const  *instance,
-                                          QuantumNumber const *number) const;
-
-    /*!
      * \brief Returns an instance of the quantum field as an expression.
      * \details This function generates a set of indices through
      * getFullSetOfIndices(), and uses a space-time point by default or given
@@ -1065,15 +1026,6 @@ class QuantumFieldParent : public csl::TensorFieldParent {
      */
     void setFlavorRep(const FlavorGroup *group, const Irrep &newRep);
     void setFundamentalFlavorRep(std::string const &flavorGroup);
-
-    /*!
-     * \brief Adds a non trivial quantum number to the particle.
-     * \param number QuantumNumber for which we set the value (for the field).
-     * \param value  Value of the quantum number of the field.
-     * \sa #qNumbers, QuantumNumber, getQuantumNumber().
-     */
-    void addQuantumNumber(QuantumNumber const &number,
-                          QuantumNumber::Value value);
 
     /*!
      * \brief Sets broken parts (from gauge of flavor symmetry full breaking)

@@ -54,7 +54,6 @@
 #include "group.h"
 #include "groupIndices.h"
 #include "insertion.h"
-#include "jsonToPhysics.h"
 #include "kinematics.h"
 #include "lhaBuiltIn.h"
 #include "model.h"

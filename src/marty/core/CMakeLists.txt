@@ -77,8 +77,6 @@ set(ALL_SOURCES
     interactionTerm.h
     iterable.cpp
     iterable.h
-    jsonToPhysics.cpp
-    jsonToPhysics.h
     kinematics.cpp
     kinematics.h
     lagrangian.cpp
@@ -109,7 +107,6 @@ set(ALL_SOURCES
     mrtUtils.h
     mrtlog.h
     mtylibrary.h
-    mtyversion.h
     operatorBasis.h
     penguinpatch.cpp
     penguinpatch.h
@@ -121,8 +118,6 @@ set(ALL_SOURCES
     quantumField.h
     quantumFieldTheory.cpp
     quantumFieldTheory.h
-    quantumNumber.cpp
-    quantumNumber.h
     representation.cpp
     representation.h
     scalarField.cpp
