@@ -40,7 +40,6 @@
 #include "operator.h"
 #include "options.h"
 #include "parent.h"
-#include "scalar.h"
 #include "sort.h"
 #include "tensorField.h"
 #include "vector.h"

@@ -26,7 +26,6 @@
 #include "operations.h"
 #include "options.h"
 #include "pseudoIntegral.h"
-#include "scalar.h"
 #include "tensorField.h"
 #include "vector.h"
 
@@ -687,7 +686,6 @@ bool AbstractDuoFunc::operator<(Expr_info expr) const
     case csl::Type::Variable:
     case csl::Type::IntFactorial:
     case csl::Type::Factorial:
-    case csl::Type::Scalar:
     case csl::Type::RealPart:
     case csl::Type::ImaginaryPart:
     case csl::Type::Exp:
@@ -729,7 +727,6 @@ bool AbstractMultiFunc::operator<(const Abstract *expr) const
     case csl::Type::NoType:
     case csl::Type::Variable:
     case csl::Type::Factorial:
-    case csl::Type::Scalar:
     case csl::Type::RealPart:
     case csl::Type::ImaginaryPart:
     case csl::Type::Exp:
@@ -809,7 +806,6 @@ bool Angle::operator<(const Abstract *expr) const
     case csl::Type::Variable:
     case csl::Type::Exp:
     case csl::Type::BooleanOperator:
-    case csl::Type::Scalar:
     case csl::Type::RealPart:
     case csl::Type::ImaginaryPart:
         return false;
@@ -850,7 +846,6 @@ bool Commutator::operator<(const Abstract *expr) const
     case csl::Type::Variable:
     case csl::Type::Exp:
     case csl::Type::BooleanOperator:
-    case csl::Type::Scalar:
     case csl::Type::RealPart:
     case csl::Type::ImaginaryPart:
     case csl::Type::StandardDuo:
@@ -859,44 +854,6 @@ bool Commutator::operator<(const Abstract *expr) const
         return false;
 
     case csl::Type::Commutator:
-        return ruleO2(this, expr);
-
-    case csl::Type::Polynomial:
-        return operator<(expr->getRegularExpression().get());
-    case csl::Type::Sum:
-        return sumRule(this, expr);
-    case csl::Type::Prod:
-        return prodRule(this, expr);
-    case csl::Type::Pow:
-        return powRule(this, expr);
-
-    default:
-        return true;
-    }
-}
-
-bool Scalar::operator<(const Abstract *expr) const
-{
-    csl::Type type = expr->getType();
-    convertScalarFuncType(expr, type);
-
-    switch (type) {
-
-    case csl::Type::Integer:
-    case csl::Type::Float:
-    case csl::Type::IntFraction:
-    case csl::Type::Complex:
-    case csl::Type::NumericalEval:
-    case csl::Type::IntFactorial:
-    case csl::Type::Imaginary:
-    case csl::Type::Constant:
-    case csl::Type::NoType:
-    case csl::Type::Variable:
-    case csl::Type::Exp:
-    case csl::Type::BooleanOperator:
-        return false;
-
-    case csl::Type::Scalar:
         return ruleO2(this, expr);
 
     case csl::Type::Polynomial:
@@ -932,7 +889,6 @@ bool Derivative::operator<(const Abstract *expr) const
     case csl::Type::Variable:
     case csl::Type::Exp:
     case csl::Type::BooleanOperator:
-    case csl::Type::Scalar:
     case csl::Type::RealPart:
     case csl::Type::ImaginaryPart:
     case csl::Type::Angle:
@@ -977,7 +933,6 @@ bool Integral::operator<(const Abstract *expr) const
     case csl::Type::Variable:
     case csl::Type::Exp:
     case csl::Type::BooleanOperator:
-    case csl::Type::Scalar:
     case csl::Type::RealPart:
     case csl::Type::ImaginaryPart:
     case csl::Type::Angle:

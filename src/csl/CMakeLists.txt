@@ -106,8 +106,6 @@ set(ALL_SOURCES
     pseudoIntegral.h
     replace.cpp
     replace.h
-    scalar.cpp
-    scalar.h
     scalarFunc.cpp
     scalarFunc.h
     scopedProperty.h
