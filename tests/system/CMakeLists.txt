@@ -12,8 +12,7 @@ function(ADD_SYSTEM_TEST DISPLAY_NAME NAME)
     add_test(NAME "${CLEANUP_NAME}"
         COMMAND bash -c "rm -rf libs/${NAME}"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-    set_tests_properties("${DISPLAY_NAME}"
-        PROPERTIES FIXTURES_CLEANUP "${CLEANUP_NAME}")
+    set_tests_properties(${DISPLAY_NAME} PROPERTIES LABELS system)
 endfunction()
 
 function(ADD_QUAD_SYSTEM_TEST DISPLAY_NAME NAME)

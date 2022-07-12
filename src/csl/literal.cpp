@@ -538,7 +538,7 @@ bool Variable::operator==(Expr_info expr) const
     if (not Complexified::operator==(expr))
         return false;
 
-    return parent->getName() == expr->getName();
+    return parent.get() == expr->getParent_info();
 }
 
 optional<Expr> Variable::derive(Expr_info expr) const

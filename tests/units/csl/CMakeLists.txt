@@ -1,0 +1,1 @@
+ADD_UNIT_TEST(test_equality)
