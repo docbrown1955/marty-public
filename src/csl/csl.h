@@ -74,7 +74,6 @@
 
 #include "librarydependency.h"
 #include "libraryevaluator.h"
-#include "libraryexpander.h"
 #include "libraryfunction.h"
 #include "librarygenerator.h"
 #include "librarytensor.h"

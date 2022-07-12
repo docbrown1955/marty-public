@@ -157,10 +157,10 @@ bool PseudoIntegral::evaluateDelta(int                  index,
     Expr            variable(integ->getVariable());
     AbstractParent &indicialVariable = *integ->getParent();
     if (indicialVariable.getSpace().size() != 1)
-        callError(cslError::UndefinedBehaviour,
-                  "TensorParent\"" + string(indicialVariable.getName())
-                      + "\" variable of a VectorIntegral may be "
-                      + "1-dimensionnal only.");
+        CALL_SMERROR_SPEC(CSLError::TypeError,
+                          "TensorParent\"" + string(indicialVariable.getName())
+                              + "\" variable of a VectorIntegral may be "
+                              + "1-dimensionnal only.");
 
     const Space *spaceVariable = indicialVariable.getSpace()[0];
     Index        fooIndex      = spaceVariable->generateIndex("foo");
@@ -206,10 +206,10 @@ bool PseudoIntegral::evaluateExpProduct(
     Expr            variable(integ->getVariable());
     AbstractParent &indicialVariable = *integ->getParent();
     if (indicialVariable.getSpace().size() != 1)
-        callError(cslError::UndefinedBehaviour,
-                  "TensorParent\"" + string(indicialVariable.getName())
-                      + "\" variable of a VectorIntegral may be "
-                      + "1-dimensionnal only.");
+        CALL_SMERROR_SPEC(CSLError::MathError,
+                          "TensorParent\"" + string(indicialVariable.getName())
+                              + "\" variable of a VectorIntegral may be "
+                              + "1-dimensionnal only.");
 
     const Space *spaceVariable = indicialVariable.getSpace()[0];
     Index        fooIndex      = spaceVariable->generateIndex("foo");
@@ -462,12 +462,6 @@ optional<Expr> AbstractIntegral::evaluate(csl::eval::mode user_mode) const
 
 optional<Expr> AbstractIntegral::derive(Expr_info) const
 {
-    // if (derivative_s(expr,getVariable()) != CSL_0) {
-    //     callError(cslError::UndefinedBehaviour,
-    //         "AbstractIntegral::derive(Expr_info expr)",
-    //         "\"deriving an integral whose variable depends on the
-    //         argument\"");
-    // }
     return AbstractFunc::evaluate();
 }
 
@@ -723,7 +717,7 @@ Parent_info VectorIntegral::getParent_info() const
 void VectorIntegral::setParent(const Parent &t_variable)
 {
     if (t_variable->getPrimaryType() != cslParent::Indicial)
-        callError(cslError::UndefinedBehaviour, "VectorIntegral::setParent()");
+        CALL_SMERROR(CSLError::RuntimeError);
     Parent old_variable = variables;
     variables           = std::dynamic_pointer_cast<TensorParent>(t_variable);
     Replace(argument, old_variable, variables);

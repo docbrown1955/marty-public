@@ -113,15 +113,14 @@ void AbstractParent::setComplexProperty(csl::ComplexProperty t_prop)
 int AbstractParent::getDim() const
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled, "AbstractParent::getDim() const");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return 0;
 }
 
 int AbstractParent::getDim(const Space *) const
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::getDim(const Space* t_space) const");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return 0;
 }
 
@@ -166,22 +165,19 @@ void AbstractParent::printPropDefinition(std::ostream &out,
 void AbstractParent::enableEvaluation()
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::enableEvaluation() const");
+    CALL_SMERROR(CSLError::AbstractCallError);
 }
 
 void AbstractParent::disableEvaluation()
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::disableEvaluation()");
+    CALL_SMERROR(CSLError::AbstractCallError);
 }
 
 void AbstractParent::toggleEvaluation()
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::toggleEvaluation()");
+    CALL_SMERROR(CSLError::AbstractCallError);
 }
 
 optional<Expr> AbstractParent::evaluate(Expr_info, csl::eval::mode) const
@@ -192,23 +188,20 @@ optional<Expr> AbstractParent::evaluate(Expr_info, csl::eval::mode) const
 Expr const &AbstractParent::getEncapsulated() const
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::getEncapsulated() const");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return CSL_UNDEF;
 }
 
 Expr AbstractParent::getExactEncapsulated(Expr_info) const
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::getExactEncapsulated() const");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return CSL_UNDEF;
 }
 
 void AbstractParent::setEncapsulated(Expr const &)
 {
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::setEncapsulated(Expr const&)");
+    CALL_SMERROR(CSLError::AbstractCallError);
 }
 
 vector<const Space *> AbstractParent::getSpace() const
@@ -219,109 +212,95 @@ vector<const Space *> AbstractParent::getSpace() const
 const Space *AbstractParent::getFieldSpace() const
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "Space* AbstractParent::getFieldSpace() const");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return nullptr;
 }
 
 void AbstractParent::setFieldSpace(const Space *)
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "Space* AbstractParent::getFieldSpace() const");
+    CALL_SMERROR(CSLError::AbstractCallError);
 }
 
 bool AbstractParent::getFullySymmetric() const
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::getFullySymmetric() const");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return 0;
 }
 
 bool AbstractParent::getFullyAntiSymmetric() const
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::getFullyAntiSymmetric() const");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return 0;
 }
 
 vector<Permutation> AbstractParent::getPermutation() const
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "::::vector<Permutation> getPermutation() const");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return {};
 }
 
 bool AbstractParent::isValued() const
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::isValued() const");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return 0;
 }
 
 Expr AbstractParent::getTensor() const
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::getTensor() const");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return nullptr;
 }
 
 Expr AbstractParent::getTensor(Expr_info) const
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::getTensor(Expr_info) const");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return nullptr;
 }
 
 Expr AbstractParent::getTrace() const
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::getTrace() const");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return nullptr;
 }
 
 bool AbstractParent::dependsOn(Expr_info) const
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::dependsOn(Expr_info expr) const");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return false;
 }
 
 bool AbstractParent::dependsExplicitlyOn(Expr_info) const
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::dependsExplicitlyOn(Expr_info expr) const");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return false;
 }
 
 void AbstractParent::addSpace(const Space *)
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::addSpace(Space& s)");
+    CALL_SMERROR(CSLError::AbstractCallError);
 }
 
 void AbstractParent::setFullySymmetric()
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::setFullySymmetric()");
+    CALL_SMERROR(CSLError::AbstractCallError);
 }
 
 void AbstractParent::setFullyAntiSymmetric()
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::setFullyAntiSymmetric()");
+    CALL_SMERROR(CSLError::AbstractCallError);
 }
 
 bool AbstractParent::isTraceLessIn(csl::Space const *) const
@@ -341,52 +320,44 @@ void AbstractParent::removeTraceLessNess(csl::Space const *)
 void AbstractParent::addSymmetry(int, int)
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::addSymmetry(int i1, int i2)");
+    CALL_SMERROR(CSLError::AbstractCallError);
 }
 
 void AbstractParent::addAntiSymmetry(int, int)
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::addAntiSymmetry(int i1, int i2)");
+    CALL_SMERROR(CSLError::AbstractCallError);
 }
 
 void AbstractParent::setSymmetry(const Symmetry &)
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::setSymmetry(const Symmetry& t_symetry)");
+    CALL_SMERROR(CSLError::AbstractCallError);
 }
 
 void AbstractParent::setTensor(const Expr &)
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::setTensor(const Expr& t_tensor)");
+    CALL_SMERROR(CSLError::AbstractCallError);
 }
 
 void AbstractParent::setTrace(const Expr &)
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::setTrace(const Expr& t_tensor)");
+    CALL_SMERROR(CSLError::AbstractCallError);
 }
 
 bool AbstractParent::hasContractionProperty(const Abstract *, Expr_info) const
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "::hasContractionProperty(const Abstract* self");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return false;
 }
 
 Expr AbstractParent::contraction(const Abstract *, Expr_info) const
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::contraction(const Abstract* self, Expr_info B) "
-              "const");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return false;
 }
 
@@ -397,17 +368,13 @@ void AbstractParent::addSelfContraction(
     optional<function<bool(Expr_info, Expr_info)>>)
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::addSelfContraction(const Expr& A, const Expr& "
-              "B, const Expr& res)");
+    CALL_SMERROR(CSLError::AbstractCallError);
 }
 
 void AbstractParent::removeSelfContraction(const Expr &, const Expr &)
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::removeSelfContraction(const Expr& A, const "
-              "Expr& B, const Expr& res)");
+    CALL_SMERROR(CSLError::AbstractCallError);
 }
 
 bool AbstractParent::hasChainContractionProperty() const
@@ -418,8 +385,7 @@ bool AbstractParent::hasChainContractionProperty() const
 vector<ContractionChain> AbstractParent::getContractionProperties() const
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::getContractionProperties() consy");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return {};
 }
 
@@ -427,16 +393,14 @@ void AbstractParent::addContractionProperty(csl::vector_expr const &,
                                             const Expr &)
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::addContractionProperty()");
+    CALL_SMERROR(CSLError::AbstractCallError);
 }
 
 void AbstractParent::removeContractionProperty(csl::vector_expr const &,
                                                const Expr &)
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::removeContractionProperty()");
+    CALL_SMERROR(CSLError::AbstractCallError);
 }
 
 optional<Expr> AbstractParent::getComplexProperty(Expr_info) const
@@ -459,8 +423,7 @@ optional<Expr> AbstractParent::getTransposedProperty(Expr_info,
 void AbstractParent::addComplexProperty(const Expr &, const Expr &)
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::addComplexProperty(const Expr& res)");
+    CALL_SMERROR(CSLError::AbstractCallError);
 }
 
 void AbstractParent::addHermitianProperty(const Space *,
@@ -468,9 +431,7 @@ void AbstractParent::addHermitianProperty(const Space *,
                                           const Expr &)
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::addHermitianProperty(const Space* space,"
-                  + (string) "const Expr& res)");
+    CALL_SMERROR(CSLError::AbstractCallError);
 }
 
 void AbstractParent::addTransposedProperty(const Space *,
@@ -478,9 +439,7 @@ void AbstractParent::addTransposedProperty(const Space *,
                                            const Expr &)
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::addTransposedProperty(const Space* space,"
-                  + (string) "const Expr& res)");
+    CALL_SMERROR(CSLError::AbstractCallError);
 }
 
 vector<Parent> AbstractParent::getBrokenParts(const Space *) const
@@ -500,54 +459,49 @@ vector<Parent> AbstractParent::breakSpace(const Space *,
 Expr AbstractParent::operator()(Index)
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::operator()(const Index& index)");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return CSL_UNDEF;
 }
 
 Expr AbstractParent::operator()(const Tensor &)
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::operator()(const Tensor& point)");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return CSL_UNDEF;
 }
 
 Expr AbstractParent::operator()(Index, const Tensor &)
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::operator()(Index index, const Tensor& point)");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return CSL_UNDEF;
 }
 
 Expr AbstractParent::operator()(std::vector<Index>)
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::operator()(const std::vector<Index>& indices)");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return CSL_UNDEF;
 }
 
 Expr AbstractParent::operator()(const std::vector<int> &)
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::operator()(const std::vector<int>& indices)");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return CSL_UNDEF;
 }
 
 Expr AbstractParent::operator()(const std::vector<int> &, const Tensor &)
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled, "AbstractParent::operator()()");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return CSL_UNDEF;
 }
 
 Expr AbstractParent::operator()(std::vector<Index>, const Tensor &)
 {
     std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled, "AbstractParent::operator()()");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return CSL_UNDEF;
 }
 

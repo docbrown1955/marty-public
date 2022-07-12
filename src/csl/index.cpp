@@ -48,7 +48,7 @@ Index::Index(char t_value) : Index()
 }
 
 Index::Index(const std::string &t_name,
-             const Space *      t_space,
+             const Space       *t_space,
              unsigned short     t_id)
     : space(t_space), id(t_id), nameOrValue(-1), type(cslIndex::Free)
 {
@@ -119,9 +119,10 @@ void Index::setValue(char t_value)
 {
     if (t_value < 0 or (space and t_value >= space->getDim())) {
         std::cout << (int) t_value << " " << space->getName() << std::endl;
-        callError(cslError::UndefinedBehaviour,
-                  "Index::setValue(). Setting a wrong value for Index: ",
-                  t_value);
+        CALL_SMERROR_SPEC(CSLError::IndexError,
+                          "Index::setValue(). Setting a wrong value for "
+                          "Index: "
+                              + std::to_string(static_cast<int>(t_value)));
     }
     nameOrValue = t_value;
     type        = cslIndex::Fixed;
@@ -231,9 +232,7 @@ bool Index::testContraction(const Index &t_index) const
     if (space->getSignedIndex())
         if (not(getSign() xor t_index.getSign())) {
             cout << *this << " " << t_index << endl;
-            callError(cslError::BadContraction,
-                      "Index::testContraction(Index&)",
-                      *this);
+            CALL_SMERROR(CSLError::RuntimeError);
         }
 
     return true;
@@ -440,9 +439,10 @@ IndexStructure IndexStructure::getSinglePermutation(int i1, int i2) const
 {
     const int size = index.size();
     if (i1 < 0 or i2 < 0 or i1 >= size or i2 >= size) {
-        callError(cslError::OutOfBounds,
-                  "IndexStructure::getSinglePermutation(int i1, int i2) const",
-                  ((i1 < 0 or size) ? i1 : i2));
+        CALL_SMERROR_SPEC(CSLError::IndexError,
+                          "IndexStructure::getSinglePermutation(int i1, int "
+                          "i2) const"
+                              + std::to_string((i1 < 0 or size) ? i1 : i2));
     }
     // Creates a copy of *this and permutes indices in position i1 and i2,
     // then returns the new IndexStructure
@@ -455,11 +455,9 @@ IndexStructure IndexStructure::getSinglePermutation(int i1, int i2) const
 IndexStructure
 IndexStructure::getPermutation(const vector<int> &permutation) const
 {
-    if (permutation.size() != index.size()) {
-        callWarning(cslError::InvalidDimension,
-                    "IndexStructure::getPermutation(const vector<int>& "
-                    "permutation) const",
-                    permutation.size());
+    if (permutation.size() >= index.size()) {
+        CALL_SMERROR_SPEC(CSLError::IndexError,
+                          std::to_string(permutation.size()));
     }
     // Applies the permutation on copies of the indices of *this,
     // creates a new IndexStructure with this permutation and returns it.
@@ -472,31 +470,7 @@ IndexStructure::getPermutation(const vector<int> &permutation) const
 
 IndexStructure &IndexStructure::operator+=(const Index &newIndex)
 {
-    // bool contracted = false;
-    // for (auto& i : index) {
-    //    if (i == newIndex) {
-    //        if (i.getFree()) {
-    //            // If the index is equal to an already existing index,
-    //            // Einstein convention: summation
-    //            i.setFree(false);
-    //            ++nIndices;
-    //            index.push_back(i);
-    //            return *this;
-    //        }
-    //        else if (not contracted)
-    //            contracted = true;
-    //        //else // Index equal to a dummy index: Error
-    //        //    callError(cslError::ContractDummy,
-    //        //            "IndexStructure::operator+=(const Index&
-    //        newIndex)",
-    //        //            i.getName()+"<->"+newIndex.getName());
-    //    }
-    //}
-    //// New index (not already present: we add it simply)
     Index t_new = newIndex;
-    // for (auto& i : index)
-    //    if (i->testContraction(*t_new))
-    //        break;
     index.push_back(t_new);
 
     return *this;
@@ -520,9 +494,9 @@ const std::vector<Index> &IndexStructure::getIndexView() const
 void IndexStructure::setIndex(const Index &newIndex, int iIndex)
 {
     if (iIndex < 0 or iIndex >= (int) index.size())
-        callError(cslError::OutOfBounds,
-                  "IndexStructure::setIndex(const Index&, int)",
-                  iIndex);
+        CALL_SMERROR_SPEC(CSLError::IndexError,
+                          "IndexStructure::setIndex(const Index&, int)"
+                              + std::to_string(iIndex));
     index[iIndex] = newIndex;
 }
 
@@ -590,7 +564,7 @@ bool IndexStructure::compareWithDummy(const IndexStructure &structure) const
 }
 
 bool IndexStructure::compareWithDummy(const IndexStructure &structure,
-                                      map<Index, Index> &   constraints,
+                                      map<Index, Index>    &constraints,
                                       bool keepAllCosntraints) const
 {
     // Here we search an exact match of the two structures, to a

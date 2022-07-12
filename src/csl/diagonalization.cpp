@@ -52,9 +52,9 @@ void Diagonalizer::diagonalize()
     // Initialization of gsl
     const size_t               n           = init_matrix.size();
     gsl_eigen_hermv_workspace *workspace   = gsl_eigen_hermv_alloc(n);
-    gsl_matrix_complex *       init_gsl    = csl_to_gsl(init_matrix);
-    gsl_vector *               eigenValues = gsl_vector_alloc(n);
-    gsl_matrix_complex *       transfer    = gsl_matrix_complex_alloc(n, n);
+    gsl_matrix_complex        *init_gsl    = csl_to_gsl(init_matrix);
+    gsl_vector                *eigenValues = gsl_vector_alloc(n);
+    gsl_matrix_complex        *transfer    = gsl_matrix_complex_alloc(n, n);
 
     // Diagonalization
     gsl_eigen_hermv(init_gsl, eigenValues, transfer, workspace);
@@ -348,8 +348,7 @@ void Diagonalizer::checkSquareHermitian()
 {
     vector<int> shape = init_matrix.getShape();
     if (shape[0] != shape[1]) {
-        callError(cslError::UndefinedBehaviour,
-                  "Diagonalizer::checkSquareHermitian().");
+        CALL_SMERROR(CSLError::RuntimeError);
     }
     for (size_t i = 0; i != init_matrix.size(); ++i)
         for (size_t j = i; j != init_matrix.size(); ++j)
@@ -378,8 +377,7 @@ double Diagonalizer::extractNumber(const Expr &number)
 
     if (number->getPrimaryType() != csl::PrimaryType::Numerical) {
         number->print();
-        callError(cslError::UndefinedBehaviour,
-                  "Diagonalizer::extractNumber(const Expr&).");
+        CALL_SMERROR(CSLError::RuntimeError);
     }
     return number->evaluateScalar();
 }
@@ -393,8 +391,7 @@ gsl_complex Diagonalizer::csl_to_gsl(const Expr &expr)
     if (expr->getType() == csl::Type::Sum) {
         if (expr->getNArgs() > 2) {
             expr->print();
-            callError(cslError::UndefinedBehaviour,
-                      "Diagonalizer::csl_to_gsl(const Expr&).");
+            CALL_SMERROR(CSLError::RuntimeError);
         }
         realPart = extractNumber((*expr)[0]);
         if (expr->size() > 1) {

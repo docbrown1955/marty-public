@@ -39,15 +39,15 @@ void Replace(csl::Expr &expr, csl::Parent const &from, csl::Parent const &to)
         expr, std::vector<csl::Parent>{from}, std::vector<csl::Parent>{to});
 }
 
-void Replace(csl::Expr &        expr,
+void Replace(csl::Expr         &expr,
              csl::Parent const &from,
-             csl::Expr const &  to_init)
+             csl::Expr const   &to_init)
 {
     csl::Replace(
         expr, std::vector<csl::Parent>{from}, std::vector<csl::Expr>{to_init});
 }
 
-void Replace(csl::Expr &                     expr,
+void Replace(csl::Expr                      &expr,
              std::vector<csl::Parent> const &from,
              std::vector<csl::Parent> const &to)
 {
@@ -65,7 +65,7 @@ void Replace(csl::Expr &                     expr,
         });
 }
 
-void Replace(csl::Expr &                   expr,
+void Replace(csl::Expr                    &expr,
              std::vector<csl::Expr> const &from,
              std::vector<csl::Expr> const &to)
 {
@@ -94,7 +94,7 @@ void Replace(csl::Expr &                   expr,
         });
 }
 
-void ReplaceIndicial(csl::Expr &                   expr,
+void ReplaceIndicial(csl::Expr                    &expr,
                      std::vector<csl::Expr> const &from,
                      std::vector<csl::Expr> const &to)
 {
@@ -134,9 +134,9 @@ void ReplaceIndicial(csl::Expr &                   expr,
         });
 }
 
-void Replace(csl::Expr &                     expr,
+void Replace(csl::Expr                      &expr,
              std::vector<csl::Parent> const &from,
-             std::vector<csl::Expr> const &  to_init,
+             std::vector<csl::Expr> const   &to_init,
              bool                            refresh)
 {
     if (from.empty())
@@ -173,7 +173,7 @@ void Replace(csl::Expr &                     expr,
 // Index replacements
 ///////////////////////////////////////////////////
 
-csl::Expr Replaced(csl::Expr const & expr,
+csl::Expr Replaced(csl::Expr const  &expr,
                    csl::Index const &from,
                    csl::Index const &to,
                    bool              refresh)
@@ -181,7 +181,7 @@ csl::Expr Replaced(csl::Expr const & expr,
     return expr->replaceIndex(from, to, refresh).value_or(expr);
 }
 
-csl::Expr Replaced(csl::Expr const &              expr,
+csl::Expr Replaced(csl::Expr const               &expr,
                    std::vector<csl::Index> const &from,
                    std::vector<csl::Index> const &to,
                    bool                           refresh)
@@ -204,7 +204,7 @@ csl::Expr Replaced(csl::Expr const &              expr,
     return expr->replaceIndices(from, to, refresh).value_or(expr);
 }
 
-csl::Expr Replaced(csl::Expr const &          expr,
+csl::Expr Replaced(csl::Expr const           &expr,
                    csl::IndexStructure const &from,
                    csl::IndexStructure const &to,
                    bool                       refresh)
@@ -216,7 +216,7 @@ csl::Expr Replaced(csl::Expr const &          expr,
 // Abbreviation treatment
 ///////////////////////////////////////////////////
 
-bool hasWeakDependency(csl::Expr const &                             expr,
+bool hasWeakDependency(csl::Expr const                              &expr,
                        std::function<bool(csl::Expr const &)> const &predicate)
 {
     return csl::AnyOfNodes(expr, [&](csl::Expr const &sub) {
@@ -258,7 +258,7 @@ void applyThroughAbbreviations(csl::Expr &expr, replacementRule const &rule)
 ///////////////////////////////////////////////////
 
 std::optional<csl::Expr>
-scalarReplacement(csl::Expr const &             expr,
+scalarReplacement(csl::Expr const              &expr,
                   std::vector<csl::Expr> const &from,
                   std::vector<csl::Expr> const &ccFrom,
                   std::vector<csl::Expr> const &to,
@@ -297,10 +297,10 @@ scalarReplacement(csl::Expr const &             expr,
 }
 
 std::optional<csl::Expr>
-indicialReplacement(csl::Expr const &                    expr,
-                    std::vector<csl::Expr> const &       from,
+indicialReplacement(csl::Expr const                     &expr,
+                    std::vector<csl::Expr> const        &from,
                     std::vector<csl::Parent_info> const &parentFrom,
-                    std::vector<csl::Expr> const &       to,
+                    std::vector<csl::Expr> const        &to,
                     bool                                 isPredicate)
 {
     auto parent = expr->getParent_info();
@@ -335,7 +335,7 @@ indicialReplacement(csl::Expr const &                    expr,
 }
 
 std::optional<csl::Expr>
-tensorReplacement(csl::Expr const &               expr,
+tensorReplacement(csl::Expr const                &expr,
                   std::vector<csl::Parent> const &from,
                   std::vector<csl::Parent> const &to,
                   bool                            isPredicate)
@@ -375,9 +375,9 @@ tensorReplacement(csl::Expr const &               expr,
 }
 
 std::optional<csl::Expr>
-tensorExpressionReplacement(csl::Expr const &               expr,
+tensorExpressionReplacement(csl::Expr const                &expr,
                             std::vector<csl::Parent> const &from,
-                            std::vector<csl::Expr> const &  to,
+                            std::vector<csl::Expr> const   &to,
                             bool                            isPredicate)
 {
     csl::Parent_info parent = expr->getParent_info();
@@ -431,14 +431,13 @@ void ApplyIndices(csl::Expr &expr, csl::IndexStructure const &freeStructure)
         std::cout << freeStructure << std::endl;
         std::cout << expr->getIndexStructure() << std::endl;
         std::cout << freeExprStructure << std::endl;
-        callError(cslError::UndefinedBehaviour,
-                  "ApplyIndices(const csl::Expr&, const IndexStructure&)");
+        CALL_SMERROR(CSLError::RuntimeError);
     }
     csl::Replace(expr, freeExprStructure, freeStructure);
     csl::RenameIndices(expr);
 }
 
-void ApplyIndices(csl::Expr &                expr,
+void ApplyIndices(csl::Expr                 &expr,
                   csl::IndexStructure const &from,
                   csl::IndexStructure const &to)
 {
@@ -448,8 +447,7 @@ void ApplyIndices(csl::Expr &                expr,
         std::cout << from << std::endl;
         std::cout << expr->getIndexStructure() << std::endl;
         std::cout << to << std::endl;
-        callError(cslError::UndefinedBehaviour,
-                  "ApplyIndices(const csl::Expr&, const IndexStructure&)");
+        CALL_SMERROR(CSLError::RuntimeError);
     }
     csl::Replace(expr, from, to);
 }

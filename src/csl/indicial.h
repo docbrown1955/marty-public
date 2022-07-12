@@ -885,8 +885,6 @@ class TensorElement : public AbstractElement {
 
     csl::vector_expr getPermutations(bool optimize = true) const override;
 
-    csl::vector_expr getAlternateForms() const override;
-
     Expr getCanonicalPermutation() const override;
 
     void print(int           mode    = 0,

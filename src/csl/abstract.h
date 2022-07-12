@@ -1012,17 +1012,6 @@ class Abstract {
     virtual std::optional<Expr> getPolynomialTerm(Expr_info t_variable,
                                                   int       order) const;
 
-    /*! \brief Calculates and returns all possible alternate forms of the
-     * expression in terms of simplifications. For example 1-sin^2(x) is one of
-     * the alternate forms of cos^2(x).
-     * \details Those alternate forms are then compared in terms of simplicity,
-     * this allows automatic simplification. Alternates are tried to simplify,
-     * and the bests are chosed. More details and algorithms in file
-     * alternateForms.cpp.
-     * \return A std::vector containing the alternate forms of the expression.
-     */
-    virtual csl::vector_expr getAlternateForms() const;
-
     /*! \brief Apply the operator on an \b operand, iif the expression is an
      * operator.
      * \param operand Operand of the operator.

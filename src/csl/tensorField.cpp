@@ -83,8 +83,7 @@ void TensorFieldParent::printDefinition(std::ostream &out,
 void TensorFieldParent::checkFieldRequest(TensorParent *t_point)
 {
     if (t_point->getSpace() != vector<const Space *>(1, spaceField))
-        callError(cslError::BadFieldInitialization,
-                  "FieldParent::operator()(const TensorParent& vector)");
+        CALL_SMERROR(CSLError::RuntimeError);
 }
 
 const Space *TensorFieldParent::getFieldSpace() const
@@ -639,8 +638,7 @@ void TensorFieldElement::setPoint(const Tensor &t_point)
 {
     if (t_point->getSpace()
         != vector<const Space *>(1, parent->getFieldSpace()))
-        callError(cslError::BadFieldInitialization,
-                  "TensorFieldElement::setPoint(const Tensor&)");
+        CALL_SMERROR(CSLError::RuntimeError);
     point = t_point;
 }
 
@@ -842,9 +840,7 @@ void TDerivativeElement::selfCheckIndexStructure()
                 if (fooStruct[k].getFree()
                     and index[0].testContraction(fooStruct[k])) {
                     if (contractionFound)
-                        callError(cslError::UndefinedBehaviour,
-                                  "TDerivativeElement::"
-                                  "selfCheckIndexStructure()");
+                        CALL_SMERROR(CSLError::RuntimeError);
                     contractionFound = true;
                     operand          = ContractIndex(operand, fooStruct[k]);
                     index[0].setFree(false);

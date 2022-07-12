@@ -977,11 +977,6 @@ Expr &Abstract::operator[](int)
     return undef;
 }
 
-csl::vector_expr Abstract::getAlternateForms() const
-{
-    return csl::vector_expr();
-}
-
 Expr Abstract::applyOperator(const Expr &, bool) const
 {
     print();

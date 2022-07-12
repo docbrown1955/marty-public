@@ -24,7 +24,7 @@ namespace csl {
 
 bool Space::applyMetric = true;
 
-Space::Space(const std::string &             t_name,
+Space::Space(const std::string              &t_name,
              int                             t_dim,
              std::vector<std::string> const &defaultNames)
     : name(t_name),
@@ -46,10 +46,10 @@ Space::Space(const std::string &             t_name,
 }
 
 // const Space with metric
-Space::Space(const std::string &             t_name,
+Space::Space(const std::string              &t_name,
              int                             t_dim,
-             const std::string &             name_metric,
-             const Expr &                    t_metric,
+             const std::string              &name_metric,
+             const Expr                     &t_metric,
              std::vector<std::string> const &defaultNames)
     : name(t_name),
       dim(t_dim),
@@ -163,9 +163,7 @@ std::string Space::getName() const
 
 bool Space::hasSpecialTraceProperty(const csl::vector_expr &) const
 {
-    callError(cslError::AbstractFuncCalled,
-              "Space::hasSpecialTraceProperty(const csl::vector_expr& "
-              "tensors) const");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return false;
 }
 
@@ -291,8 +289,7 @@ string Space::getProperVectorName(const string &initialName) const
 
 Expr Space::calculateTrace(csl::vector_expr) const
 {
-    callError(cslError::AbstractFuncCalled,
-              "Space::calculateTrace(const csl::vector_expr& tensors) const");
+    CALL_SMERROR(CSLError::AbstractCallError);
     return CSL_UNDEF;
 }
 
