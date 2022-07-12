@@ -19,13 +19,11 @@
 #include "commutation.h"
 #include "comparison.h"
 #include "counter.h"
-#include "equation.h"
 #include "error.h"
 #include "interface.h"
 #include "literal.h"
 #include "numerical.h"
 #include "options.h"
-#include "property.h"
 #include "replace.h"
 #include "scopedProperty.h"
 #include "space.h"
@@ -1150,11 +1148,6 @@ bool TensorParent::dependsExplicitlyOn(Expr_info expr) const
     // if (valued)
     //     return tensor->dependsExplicitlyOn(expr);
     return false;
-}
-
-const vector<Equation *> &TensorParent::getProperties() const
-{
-    return props;
 }
 
 void TensorParent::addSelfContraction(
@@ -2410,21 +2403,6 @@ bool TensorElement::dependsOn(Parent_info t_parent) const
 bool TensorElement::dependsExplicitlyOn(Expr_info expr) const
 {
     return parent->dependsExplicitlyOn(expr);
-}
-
-const std::vector<Equation *> &TensorElement::getProperties() const
-{
-    return parent->getProperties();
-}
-
-void TensorElement::addProperty(Equation *property)
-{
-    parent->addProperty(property);
-}
-
-void TensorElement::removeProperty(Equation *property)
-{
-    parent->removeProperty(property);
 }
 
 bool TensorElement::compareWithDummy(Expr_info          expr,

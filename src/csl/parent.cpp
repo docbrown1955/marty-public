@@ -14,7 +14,6 @@
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "parent.h"
-#include "equation.h"
 #include "index.h"
 #include "indicial.h"
 
@@ -304,15 +303,6 @@ bool AbstractParent::dependsExplicitlyOn(Expr_info) const
     return false;
 }
 
-const std::vector<Equation *> &AbstractParent::getProperties() const
-{
-    static const vector<Equation *> empty;
-    std::cout << getName() << ": type " << getType() << std::endl;
-    callError(cslError::AbstractFuncCalled,
-              "AbstractParent::std::vector<Equation*>& getProperties() const");
-    return empty;
-}
-
 void AbstractParent::addSpace(const Space *)
 {
     std::cout << getName() << ": type " << getType() << std::endl;
@@ -447,23 +437,6 @@ void AbstractParent::removeContractionProperty(csl::vector_expr const &,
     std::cout << getName() << ": type " << getType() << std::endl;
     callError(cslError::AbstractFuncCalled,
               "AbstractParent::removeContractionProperty()");
-}
-
-void AbstractParent::addProperty(Equation *property)
-{
-    for (const auto &p : props)
-        if (*p == *property)
-            return;
-    props.push_back(property);
-}
-
-void AbstractParent::removeProperty(Equation *property)
-{
-    for (auto iter = props.begin(); iter != props.end(); ++iter)
-        if (*iter == property) {
-            props.erase(iter);
-            return;
-        }
 }
 
 optional<Expr> AbstractParent::getComplexProperty(Expr_info) const

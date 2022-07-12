@@ -33,8 +33,6 @@ set(ALL_SOURCES
     element.h
     enum.cpp
     enum.h
-    equation.cpp
-    equation.h
     error.cpp
     error.h
     evaluation.cpp
@@ -113,8 +111,6 @@ set(ALL_SOURCES
     precision_float.h
     precision_int.h
     progressBar.h
-    property.cpp
-    property.h
     pseudoIntegral.cpp
     pseudoIntegral.h
     replace.cpp

@@ -17,7 +17,6 @@
 #include "abreviation.h"
 #include "commutation.h"
 #include "comparison.h"
-#include "equation.h"
 #include "error.h"
 #include "librarygenerator.h"
 #include "operations.h"
@@ -33,36 +32,9 @@ namespace csl {
 /*************************************************/
 ///////////////////////////////////////////////////
 
-size_t AbstractLiteral::memoryOverhead() const
-{
-    return sizeof(Equation) * props.size();
-}
-
 std::vector<Parent> AbstractLiteral::getSubSymbols() const
 {
     return {};
-}
-
-const vector<Equation *> &AbstractLiteral::getProperties() const
-{
-    return props;
-}
-
-void AbstractLiteral::addProperty(Equation *property)
-{
-    for (const auto &p : props)
-        if (p == property)
-            return;
-    props.push_back(property);
-}
-
-void AbstractLiteral::removeProperty(Equation *property)
-{
-    for (auto p_iter = props.begin(); p_iter != props.end(); ++p_iter)
-        if (*p_iter == property) {
-            props.erase(p_iter);
-            break;
-        }
 }
 
 ///////////////////////////////////////////////////

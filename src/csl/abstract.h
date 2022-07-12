@@ -58,7 +58,6 @@ class IndexStructure;
 class Space;
 class AbstractParent;
 class TensorParent;
-class Equation;
 class ContractionChain;
 class LibDependency;
 
@@ -208,10 +207,6 @@ class Abstract {
      * \return \b False else.
      */
     virtual bool isIndexed() const;
-
-    /*! \return The properties of the object.
-     */
-    virtual const std::vector<Equation *> &getProperties() const;
 
     virtual bool isReal() const;
 
@@ -477,16 +472,6 @@ class Abstract {
      * \param t_commutable Must be \b true if the abstract can commute.
      */
     virtual void setCommutable(bool t_commutable);
-
-    /*! \brief Adds a property to the object.
-     * \param property The new property to add in \b props.
-     */
-    virtual void addProperty(Equation *property);
-
-    /*! \brief Removes a property to the object.
-     * \param property Property to remove from \b props.
-     */
-    virtual void removeProperty(Equation *property);
 
     /*************************************************/
     // Modifiers for specializations                 //

@@ -94,11 +94,6 @@ class AbstractParent : public std::enable_shared_from_this<AbstractParent> {
 
     csl::ComplexProperty complexProp = csl::ComplexProperty::Real;
 
-    /*! Properties of the parent in a form of a list (std::vector) of
-     * equations.
-     */
-    std::vector<Equation *> props;
-
   public:
     /*! \brief Default constructor, parent with no name.
      */
@@ -149,16 +144,6 @@ class AbstractParent : public std::enable_shared_from_this<AbstractParent> {
     void setCommutable(bool t_commutable);
 
     virtual void setComplexProperty(csl::ComplexProperty t_prop);
-
-    /*! \brief Adds a property for the parent.
-     * \param prop Equation defining the new property.
-     */
-    void addProperty(Equation *prop);
-
-    /*! \brief Removes a property.
-     * \param prop Property to remove.
-     */
-    void removeProperty(Equation *prop);
 
     /*! \return The primary type of the parent.
      */
@@ -257,10 +242,6 @@ class AbstractParent : public std::enable_shared_from_this<AbstractParent> {
      */
     virtual bool dependsExplicitlyOn(Expr_info expr) const;
 
-    /*! \return props.
-     */
-    virtual const std::vector<Equation *> &getProperties() const;
-
     /*! \brief Adds a dimension to an TensorParent in a specific vector space.
      * \param t_space Space in which we add an index.
      */
@@ -327,11 +308,11 @@ class AbstractParent : public std::enable_shared_from_this<AbstractParent> {
     virtual std::vector<ContractionChain> getContractionProperties() const;
 
     virtual void addContractionProperty(csl::vector_expr const &leftHandSide,
-                                        const Expr &            rightHandSide);
+                                        const Expr             &rightHandSide);
 
     virtual void
     removeContractionProperty(csl::vector_expr const &leftHandSide,
-                              const Expr &            rightHandSide);
+                              const Expr             &rightHandSide);
 
     /*! \brief Adds a contraction property between an Element and another that
      * share the parent (*this).
@@ -340,9 +321,9 @@ class AbstractParent : public std::enable_shared_from_this<AbstractParent> {
      * \return res The result of the contraction.
      */
     virtual void addSelfContraction(
-        const Expr &                                             A,
-        const Expr &                                             B,
-        const Expr &                                             res,
+        const Expr                                              &A,
+        const Expr                                              &B,
+        const Expr                                              &res,
         std::optional<std::function<bool(Expr_info, Expr_info)>> condition
         = std::nullopt);
 
@@ -359,19 +340,19 @@ class AbstractParent : public std::enable_shared_from_this<AbstractParent> {
     virtual void addComplexProperty(const Expr &init, const Expr &res);
 
     virtual void addHermitianProperty(const Space *space,
-                                      const Expr & init,
-                                      const Expr & res);
+                                      const Expr  &init,
+                                      const Expr  &res);
 
     virtual void addTransposedProperty(const Space *space,
-                                       const Expr & init,
-                                       const Expr & res);
+                                       const Expr  &init,
+                                       const Expr  &res);
 
     virtual std::vector<Parent> getBrokenParts(const Space *broken) const;
 
     virtual std::vector<Parent>
-    breakSpace(const Space *                     broken,
+    breakSpace(const Space                      *broken,
                const std::vector<const Space *> &newSpace,
-               const std::vector<size_t> &       pieces) const;
+               const std::vector<size_t>        &pieces) const;
 
     /*! \brief Generate the Element for an TensorParent of dimension 1 (a
      * single index).
@@ -396,7 +377,7 @@ class AbstractParent : public std::enable_shared_from_this<AbstractParent> {
     virtual Expr operator()(std::vector<Index> indices, const Tensor &point);
 
     virtual Expr operator()(const std::vector<int> &indices,
-                            const Tensor &          point);
+                            const Tensor           &point);
 
     /*! \function std::ostream& operator<<(std::ostream& fout ,
      *                                    const AbstractParent& p)
@@ -412,13 +393,13 @@ class Parent : public std::shared_ptr<AbstractParent> {
     INHERIT_SHARED_PTR_CONSTRUCTOR(Parent, AbstractParent)
 
     template <class... Args>
-    inline Expr operator()(Args &&... args)
+    inline Expr operator()(Args &&...args)
     {
         return (**this)(args...);
     }
 
     template <class... Args>
-    inline Expr operator()(std::vector<Index> indices, Args &&... args)
+    inline Expr operator()(std::vector<Index> indices, Args &&...args)
     {
         return (**this)(indices, args...);
     }
