@@ -27,7 +27,6 @@
 #ifndef MODE_H_INCLUDED
 #define MODE_H_INCLUDED
 
-#include "doc_brown_link.h"
 #include "expander.h"
 #include "feynmanRule.h"
 #include "gaugedGroup.h"
@@ -72,16 +71,16 @@ class Model : public ModelBuilder {
     ///////////////////////////////////////////////////
 
     template <class... Args>
-    explicit Model(Args &&... args) : ModelBuilder(std::forward<Args>(args)...)
+    explicit Model(Args &&...args) : ModelBuilder(std::forward<Args>(args)...)
     {
         current = this;
     }
 
     ~Model() override = default;
 
-    Model(Model &&other) = delete;
-    Model &operator=(Model &&other) = delete;
-    Model(Model const &other)       = delete;
+    Model(Model &&other)                 = delete;
+    Model &operator=(Model &&other)      = delete;
+    Model(Model const &other)            = delete;
     Model &operator=(Model const &other) = delete;
 
     ///////////////////////////////////////////////////
@@ -92,7 +91,7 @@ class Model : public ModelBuilder {
 
     std::vector<mty::FeynmanRule> const &getFeynmanRules();
 
-    mty::FeynmanRule &      getFeynmanRule(size_t pos);
+    mty::FeynmanRule       &getFeynmanRule(size_t pos);
     mty::FeynmanRule const &getFeynmanRule(size_t pos) const;
 
     ///////////////////////////////////////////////////
@@ -109,19 +108,19 @@ class Model : public ModelBuilder {
 
     mty::Amplitude computeAmplitude(int                         order,
                                     std::vector<mty::Insertion> insertions,
-                                    FeynOptions &               options);
+                                    FeynOptions                &options);
 
     mty::Amplitude computeAmplitude(int                         order,
                                     std::vector<mty::Insertion> insertions,
-                                    Kinematics const &          kinematics,
-                                    FeynOptions &               options);
+                                    Kinematics const           &kinematics,
+                                    FeynOptions                &options);
 
     mty::Amplitude computeAmplitude(int                         order,
                                     std::vector<mty::Insertion> insertions);
 
     mty::Amplitude computeAmplitude(int                         order,
                                     std::vector<mty::Insertion> insertions,
-                                    Kinematics const &          kinematics);
+                                    Kinematics const           &kinematics);
 
     mty::Amplitude
     computePartialAmplitude(int                         order,
@@ -131,7 +130,7 @@ class Model : public ModelBuilder {
     mty::Amplitude
     computePartialAmplitude(int                         order,
                             std::vector<mty::Insertion> insertions,
-                            Kinematics const &          kinematics,
+                            Kinematics const           &kinematics,
                             FeynOptions                 options = {});
 
     /**
@@ -155,15 +154,15 @@ class Model : public ModelBuilder {
     mty::Amplitude
     computeAmplitude(std::vector<Lagrangian::TermType> &lagrangian,
                      std::vector<Insertion>             insertions,
-                     Kinematics const &                 kinematics,
+                     Kinematics const                  &kinematics,
                      FeynOptions                        options,
                      std::vector<FeynmanRule const *>   rules = {});
 
     mty::Amplitude
     computeAmplitude(std::vector<FeynmanRule const *> &feynRules,
-                     std::vector<Insertion> const &    insertions,
-                     Kinematics const &                kinematics,
-                     FeynOptions const &               options);
+                     std::vector<Insertion> const     &insertions,
+                     Kinematics const                 &kinematics,
+                     FeynOptions const                &options);
 
     csl::Expr computeSquaredAmplitude(Amplitude const &ampl,
                                       bool applyDegreesOfFreedomFactor = true);
@@ -209,12 +208,12 @@ class Model : public ModelBuilder {
 
     void computeModelWidths(int order, mty::FeynOptions options = {});
 
-    WilsonSet getWilsonCoefficients(Amplitude const &  ampl,
+    WilsonSet getWilsonCoefficients(Amplitude const   &ampl,
                                     FeynOptions const &feynOptions,
                                     DecompositionMode  mode
                                     = DecompositionMode::Matching);
 
-    WilsonSet getWilsonCoefficients(Amplitude const & ampl,
+    WilsonSet getWilsonCoefficients(Amplitude const  &ampl,
                                     DecompositionMode mode
                                     = DecompositionMode::Matching);
 
@@ -231,16 +230,16 @@ class Model : public ModelBuilder {
 
     WilsonSet computeWilsonCoefficients_2Fermions_1Vector(
         std::vector<Insertion> const &insertions,
-        FeynOptions const &           feynOptions = {});
+        FeynOptions const            &feynOptions = {});
 
     WilsonSet computeWilsonBoxes_4Fermions(Kinematics const &kinematics,
                                            FeynOptions       feynOptions = {});
 
     WilsonSet computeSingleWilsonPenguin_4Fermions(
-        Kinematics const &               kinematics,
+        Kinematics const                &kinematics,
         std::pair<size_t, size_t> const &treeCoupling,
         std::pair<size_t, size_t> const &loopCoupling,
-        Insertion const &                mediator,
+        Insertion const                 &mediator,
         FeynOptions                      feynOptions = {});
 
     WilsonSet computeWilsonPenguins_4Fermions(Kinematics const &kinematics,
@@ -250,8 +249,8 @@ class Model : public ModelBuilder {
     computeWilsonCoefficients_4Fermions(std::vector<Insertion> insertions,
                                         FeynOptions feynOptions = {});
 
-    Amplitude connectAmplitudes(Amplitude const &  M1,
-                                Amplitude const &  M2,
+    Amplitude connectAmplitudes(Amplitude const   &M1,
+                                Amplitude const   &M2,
                                 FeynOptions const &options = {});
 
     static void projectOnBasis(csl::Expr &expr, OperatorBasis basis);
@@ -284,14 +283,14 @@ class Model : public ModelBuilder {
     getMomentumReplacement(Amplitude const &M, size_t replacedMomentum) const;
 
     void replaceMomentumForLink(
-        Amplitude &                            M,
+        Amplitude                             &M,
         std::pair<csl::Expr, csl::Expr> const &pReplacement) const;
 
-    bool mediatorToPropagator(csl::Expr &          prod,
+    bool mediatorToPropagator(csl::Expr           &prod,
                               KinematicLink const &link) const;
 
-    csl::Expr connectMediator(csl::Expr const &    M1,
-                              csl::Expr const &    M2,
+    csl::Expr connectMediator(csl::Expr const     &M1,
+                              csl::Expr const     &M2,
                               KinematicLink const &link) const;
 
   protected:

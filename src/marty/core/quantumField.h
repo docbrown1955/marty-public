@@ -23,7 +23,6 @@
 #define QUANTUMFIELD_H
 
 #include "../../grafed/core/latexLink.h"
-#include "doc_brown_link.h"
 #include "flavor.h"
 #include "gauge.h"
 #include "iterable.h"
@@ -329,7 +328,7 @@ class QuantumFieldParent : public csl::TensorFieldParent {
      */
     QuantumFieldParent(const std::string &t_name,
                        int                t_spin,
-                       const GaugeIrrep & irrep);
+                       const GaugeIrrep  &irrep);
 
     /*!
      * \brief Constructor with 4 parameters.
@@ -344,7 +343,7 @@ class QuantumFieldParent : public csl::TensorFieldParent {
      */
     QuantumFieldParent(const std::string &t_name,
                        int                t_spin,
-                       Gauge *            t_gauge,
+                       Gauge             *t_gauge,
                        bool               t_isSelfConjugate);
 
     /*!
@@ -359,7 +358,7 @@ class QuantumFieldParent : public csl::TensorFieldParent {
      */
     QuantumFieldParent(const std::string &t_name,
                        int                t_spin,
-                       const GaugeIrrep & irrep,
+                       const GaugeIrrep  &irrep,
                        bool               t_isSelfConjugate);
 
     /*!
@@ -374,7 +373,7 @@ class QuantumFieldParent : public csl::TensorFieldParent {
      */
     QuantumFieldParent(const std::string &t_name,
                        int                t_spin,
-                       const GaugeIrrep & irrep,
+                       const GaugeIrrep  &irrep,
                        const FlavorIrrep &flavorRep);
 
     /*!
@@ -382,7 +381,7 @@ class QuantumFieldParent : public csl::TensorFieldParent {
      * name. \param t_name Name of the field. \param other  Ohter field to
      * copy.
      */
-    QuantumFieldParent(const std::string &       t_name,
+    QuantumFieldParent(const std::string        &t_name,
                        const QuantumFieldParent *other);
 
     /*!
@@ -511,7 +510,7 @@ class QuantumFieldParent : public csl::TensorFieldParent {
      */
     virtual csl::Expr getPropagator(QuantumField const &self,
                                     QuantumField const &other,
-                                    csl::Tensor &       P,
+                                    csl::Tensor        &P,
                                     bool                external) const;
 
     /*!
@@ -527,7 +526,7 @@ class QuantumFieldParent : public csl::TensorFieldParent {
      */
     virtual csl::Expr getInvPropagator(QuantumField const &other,
                                        QuantumField const &self,
-                                       csl::Tensor &       P,
+                                       csl::Tensor        &P,
                                        bool                external) const;
 
     /*!
@@ -574,7 +573,7 @@ class QuantumFieldParent : public csl::TensorFieldParent {
     virtual Particle getVectorBoson() const;
 
     virtual GaugedGroup const *getGaugedGroup() const;
-    virtual GaugedGroup *      getGaugedGroup();
+    virtual GaugedGroup       *getGaugedGroup();
 
     /*!
      * \brief For a GaugeBoson, returns the associated Golstone boson of there
@@ -903,7 +902,7 @@ class QuantumFieldParent : public csl::TensorFieldParent {
      * if the field is complex conjugated.
      * \sa #qNumbers.
      */
-    QuantumNumber::Value getQuantumNumber(QuantumField const * instance,
+    QuantumNumber::Value getQuantumNumber(QuantumField const  *instance,
                                           QuantumNumber const *number) const;
 
     /*!
@@ -1048,7 +1047,7 @@ class QuantumFieldParent : public csl::TensorFieldParent {
      * SemiSimpleAlgebra, SemiSimpleAlgebra::highestWeightRep(),
      * setFlavorRep().
      */
-    void setGroupRep(std::string const &     group,
+    void setGroupRep(std::string const      &group,
                      std::vector<int> const &highestWeight);
 
     void setGroupRep(std::string const &group, int charge);
@@ -1085,7 +1084,7 @@ class QuantumFieldParent : public csl::TensorFieldParent {
      * left). \param broken      Space that is broken in several parts. \param
      * brokenParts New particles arising from the symmmetry breaking.
      */
-    virtual void setBrokenParts(const csl::Space *           broken,
+    virtual void setBrokenParts(const csl::Space            *broken,
                                 const std::vector<Particle> &brokenParts);
 
     /*!
@@ -1099,9 +1098,9 @@ class QuantumFieldParent : public csl::TensorFieldParent {
      * \return The set of tensors arising after the symmetry breaking.
      */
     std::vector<csl::Parent>
-    breakSpace(const csl::Space *                     broken,
+    breakSpace(const csl::Space                      *broken,
                const std::vector<const csl::Space *> &newSpace,
-               const std::vector<size_t> &            pieces) const override;
+               const std::vector<size_t>             &pieces) const override;
 
     /*!
      * \brief Assignment operator (c++ default).
@@ -1117,7 +1116,7 @@ class QuantumFieldParent : public csl::TensorFieldParent {
      * \param obj  QuantumFieldParent to display (basically).
      * \return A reference to \b fout.
      */
-    friend std::ostream &operator<<(std::ostream &            fout,
+    friend std::ostream &operator<<(std::ostream             &fout,
                                     const QuantumFieldParent &obj);
 
     /*!
@@ -1151,7 +1150,7 @@ class QuantumFieldParent : public csl::TensorFieldParent {
      * \sa QuantumField.
      */
     csl::Expr operator()(std::vector<int> const &indices,
-                         const csl::Tensor &     t_point) override;
+                         const csl::Tensor      &t_point) override;
 
     /*!
      * \brief Generates an instance of the field as a symbolic expression.
@@ -1163,7 +1162,7 @@ class QuantumFieldParent : public csl::TensorFieldParent {
      * \sa QuantumField.
      */
     csl::Expr operator()(std::vector<csl::Index> indices,
-                         const csl::Tensor &     t_point) override;
+                         const csl::Tensor      &t_point) override;
 
     /*!
      * \brief Generates an instance of the PolarizationField as a symbolic
@@ -1176,7 +1175,7 @@ class QuantumFieldParent : public csl::TensorFieldParent {
      */
     csl::Expr operator()(csl::Index              polarization,
                          std::vector<int> const &indices,
-                         const csl::Tensor &     t_point);
+                         const csl::Tensor      &t_point);
 
     /*!
      * \brief Generates an instance of the field as a symbolic expression.
@@ -1246,16 +1245,16 @@ class QuantumFieldParent : public csl::TensorFieldParent {
      */
     csl::Expr operator()(csl::Index              polarization,
                          std::vector<csl::Index> indices,
-                         const csl::Tensor &     momentum);
+                         const csl::Tensor      &momentum);
 
     operator csl::Expr();
 
-    virtual void breakParticle(mty::Group *                    brokenGroup,
+    virtual void breakParticle(mty::Group                     *brokenGroup,
                                std::vector<std::string> const &newNames);
     virtual void
-    breakParticle(mty::FlavorGroup *                     brokenFlavor,
+    breakParticle(mty::FlavorGroup                      *brokenFlavor,
                   std::vector<mty::FlavorGroup *> const &subGroups,
-                  std::vector<std::string> const &       names);
+                  std::vector<std::string> const        &names);
 
   protected:
     void addRelative(std::weak_ptr<mty::QuantumFieldParent> const &particle);
@@ -1317,8 +1316,8 @@ class QuantumFieldParent : public csl::TensorFieldParent {
      * QuantumFieldParent::propagator, Propagator_func, quantumFieldTheory.h.
      */
     friend void
-    AddCustomPropagator(QuantumFieldParent *                left,
-                        QuantumFieldParent *                right,
+    AddCustomPropagator(QuantumFieldParent                 *left,
+                        QuantumFieldParent                 *right,
                         QuantumFieldParent::Propagator_func propagator);
 
     /*!
@@ -1332,7 +1331,7 @@ class QuantumFieldParent : public csl::TensorFieldParent {
      * quantumFieldTheory.h.
      */
     friend void
-    AddCustomPropagator(QuantumFieldParent *                field,
+    AddCustomPropagator(QuantumFieldParent                 *field,
                         QuantumFieldParent::Propagator_func propagator);
 };
 
@@ -1371,7 +1370,7 @@ class Particle : public std::shared_ptr<QuantumFieldParent> {
      * QuantumField. \sa QuantumFieldParent::operator()().
      */
     template <class... Args>
-    inline csl::Expr operator()(Args &&... args)
+    inline csl::Expr operator()(Args &&...args)
     {
         return (**this)(std::forward<Args>(args)...);
     }
@@ -1387,7 +1386,7 @@ class Particle : public std::shared_ptr<QuantumFieldParent> {
     template <class... Args>
     inline csl::Expr operator()(const csl::Index &polar,
                                 const csl::Index &index,
-                                Args &&... args)
+                                Args &&...args)
     {
         return (**this)(polar, index, std::forward<Args>(args)...);
     }
@@ -1401,7 +1400,7 @@ class Particle : public std::shared_ptr<QuantumFieldParent> {
      */
     template <class... Args>
     inline csl::Expr operator()(const std::vector<int> &indices,
-                                Args &&... args)
+                                Args &&...args)
     {
         return (**this)(indices, std::forward<Args>(args)...);
     }
@@ -1415,7 +1414,7 @@ class Particle : public std::shared_ptr<QuantumFieldParent> {
      */
     template <class... Args>
     inline csl::Expr operator()(std::initializer_list<int> indices,
-                                Args &&... args)
+                                Args &&...args)
     {
         return (**this)(indices, std::forward<Args>(args)...);
     }
@@ -1429,9 +1428,9 @@ class Particle : public std::shared_ptr<QuantumFieldParent> {
      * QuantumFieldParent::operator()().
      */
     template <class... Args>
-    inline csl::Expr operator()(const csl::Index &      polar,
+    inline csl::Expr operator()(const csl::Index       &polar,
                                 const std::vector<int> &indices,
-                                Args &&... args)
+                                Args &&...args)
     {
         return (**this)(polar, indices, std::forward<Args>(args)...);
     }
@@ -1445,9 +1444,9 @@ class Particle : public std::shared_ptr<QuantumFieldParent> {
      * QuantumFieldParent::operator()().
      */
     template <class... Args>
-    inline csl::Expr operator()(const csl::Index &             polar,
+    inline csl::Expr operator()(const csl::Index              &polar,
                                 const std::vector<csl::Index> &indices,
-                                Args &&... args)
+                                Args &&...args)
     {
         return (**this)(polar, indices, std::forward<Args>(args)...);
     }
@@ -1461,9 +1460,9 @@ class Particle : public std::shared_ptr<QuantumFieldParent> {
      * QuantumFieldParent::operator()().
      */
     template <class... Args>
-    inline csl::Expr operator()(const csl::Index &         polar,
+    inline csl::Expr operator()(const csl::Index          &polar,
                                 std::initializer_list<int> indices,
-                                Args &&... args)
+                                Args &&...args)
     {
         return (**this)(polar, indices, std::forward<Args>(args)...);
     }
@@ -1477,9 +1476,9 @@ class Particle : public std::shared_ptr<QuantumFieldParent> {
      * QuantumFieldParent::operator()().
      */
     template <class... Args>
-    inline csl::Expr operator()(const csl::Index &                polar,
+    inline csl::Expr operator()(const csl::Index                 &polar,
                                 std::initializer_list<csl::Index> indices,
-                                Args &&... args)
+                                Args &&...args)
     {
         return (**this)(polar, indices, std::forward<Args>(args)...);
     }
@@ -1493,7 +1492,7 @@ class Particle : public std::shared_ptr<QuantumFieldParent> {
      */
     template <class... Args>
     inline csl::Expr operator()(const std::vector<csl::Index> &indices,
-                                Args &&... args)
+                                Args &&...args)
     {
         return (**this)(indices, std::forward<Args>(args)...);
     }
@@ -1507,7 +1506,7 @@ class Particle : public std::shared_ptr<QuantumFieldParent> {
      */
     template <class... Args>
     inline csl::Expr operator()(std::initializer_list<csl::Index> indices,
-                                Args &&... args)
+                                Args &&...args)
     {
         return (**this)(indices, std::forward<Args>(args)...);
     }
@@ -1618,8 +1617,8 @@ class QuantumField : public csl::TensorFieldElement {
      * field.
      * \param indices  Set of indices of the tensor.
      */
-    QuantumField(const csl::Tensor &            t_vector,
-                 const csl::Parent &            t_parent,
+    QuantumField(const csl::Tensor             &t_vector,
+                 const csl::Parent             &t_parent,
                  const std::vector<csl::Index> &indices);
 
     /*!
@@ -1629,13 +1628,13 @@ class QuantumField : public csl::TensorFieldElement {
      * field.
      * \param indices  Set of indices of the tensor.
      */
-    QuantumField(const csl::Tensor &        t_vector,
-                 const csl::Parent &        t_parent,
+    QuantumField(const csl::Tensor         &t_vector,
+                 const csl::Parent         &t_parent,
                  const csl::IndexStructure &indices);
 
   public:
     template <typename... Args>
-    friend csl::Expr quantumfield_s(Args &&... args);
+    friend csl::Expr quantumfield_s(Args &&...args);
 
     /*!
      * \brief Default constructor. Initializes no parent and no space-time
@@ -1916,7 +1915,7 @@ class QuantumField : public csl::TensorFieldElement {
      * quantumFieldTheory.h.
      */
     csl::Expr getPropagator(const QuantumField &other,
-                            csl::Tensor &       vertex) const;
+                            csl::Tensor        &vertex) const;
 
     /*!
      * \brief Returns the expression of the LSZ insertion corresponding to the
@@ -2181,7 +2180,7 @@ void QuantumFieldParent::applyToRelatives(Func &&func)
  * \return The expression of the field.
  */
 template <typename... Args>
-csl::Expr quantumfield_s(Args &&... args)
+csl::Expr quantumfield_s(Args &&...args)
 {
     auto field = csl::make_shared<QuantumField>(std::forward<Args>(args)...);
     field->getCanonicalPermutation();
@@ -2207,8 +2206,8 @@ csl::Expr quantumfield_s(Args &&... args)
  * \return The expression of the momentum sum.
  */
 csl::Expr getMomentumSum(const std::vector<QuantumField> &insertions,
-                         const std::vector<csl::Tensor> & impulsions,
-                         const csl::Index &               index);
+                         const std::vector<csl::Tensor>  &impulsions,
+                         const csl::Index                &index);
 
 /*!
  * \brief Overload of operator<< for QuantumField. Calls QuantumField::print().

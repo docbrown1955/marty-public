@@ -20,21 +20,14 @@ set(ALL_SOURCES
     builtinOperators.h
     cache.h
     callback.h
-    checkpoint.h
     colorSimplification.cpp
     colorSimplification.h
     colorSpace.cpp
     colorSpace.h
-    csldatahandler.cpp
-    csldatahandler.h
-    datalist.h
     dimensionalRegularization.cpp
     dimensionalRegularization.h
     diracology.cpp
     diracology.h
-    doc_brown_link.h
-    docbrown.cpp
-    docbrown.h
     doubleVector.h
     drawer.cpp
     drawer.h
@@ -60,8 +53,6 @@ set(ALL_SOURCES
     feynmanRule.h
     feynruleMomentum.cpp
     feynruleMomentum.h
-    fileData.cpp
-    fileData.h
     filters.h
     flavor.cpp
     flavor.h

@@ -36,7 +36,6 @@
 #include "colorSimplification.h"
 #include "colorSpace.h"
 #include "diracology.h"
-#include "doc_brown_link.h"
 #include "drawer.h"
 #include "expander.h"
 #include "fermionChain.h"
