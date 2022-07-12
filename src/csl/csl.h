@@ -27,7 +27,6 @@
 #include "cslcomplex.h"
 #include "diagonalization.h"
 #include "evaluation.h"
-#include "field.h"
 #include "functional.h"
 #include "indicial.h"
 #include "indicialExpander.h"

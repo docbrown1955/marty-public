@@ -18,7 +18,6 @@
 #include "commutation.h"
 #include "comparison.h"
 #include "cslcomplex.h"
-#include "field.h"
 #include "indicial.h"
 #include "mathFunctions.h"
 #include "operations.h"

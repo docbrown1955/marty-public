@@ -18,7 +18,6 @@
 #include "booleanOperators.h"
 #include "commutation.h"
 #include "comparison.h"
-#include "field.h"
 #include "indicial.h"
 #include "literal.h"
 #include "mathFunctions.h"
@@ -1159,41 +1158,9 @@ bool TensorElement::operator<(const Abstract *expr) const
     case csl::Type::Vector:
     case csl::Type::Matrix:
     case csl::Type::HighDTensor:
-    case csl::Type::ScalarField:
     case csl::Type::TensorFieldElement:
     case csl::Type::TDerivativeElement:
         return true;
-
-    default:
-        return false;
-    }
-}
-
-bool ScalarField::operator<(const Abstract *expr) const
-{
-    csl::Type type = expr->getType();
-    switch (type) {
-
-    case csl::Type::Polynomial:
-        return operator<(expr->getRegularExpression().get());
-    case csl::Type::Sum:
-        return sumRule(this, expr);
-    case csl::Type::Prod:
-        return prodRule(this, expr);
-    case csl::Type::Pow:
-        return powRule(this, expr);
-
-    case csl::Type::ScalarIntegral:
-    case csl::Type::VectorIntegral:
-    case csl::Type::Vector:
-    case csl::Type::Matrix:
-    case csl::Type::HighDTensor:
-    case csl::Type::TensorFieldElement:
-    case csl::Type::TDerivativeElement:
-        return true;
-
-    case csl::Type::ScalarField:
-        return ruleO5(this, expr);
 
     default:
         return false;

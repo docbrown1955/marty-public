@@ -37,8 +37,6 @@ set(ALL_SOURCES
     error.h
     evaluation.cpp
     evaluation.h
-    field.cpp
-    field.h
     floatFormatter.cpp
     floatFormatter.h
     functional.cpp
