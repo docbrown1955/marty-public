@@ -65,8 +65,6 @@ set(ALL_SOURCES
     librarydependency.h
     libraryevaluator.cpp
     libraryevaluator.h
-    libraryexpander.cpp
-    libraryexpander.h
     libraryfunction.cpp
     libraryfunction.h
     librarygenerator.cpp
