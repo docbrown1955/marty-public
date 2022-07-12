@@ -15,7 +15,6 @@
 
 #include "modelData.h"
 #include "diracology.h"
-#include "jsonToPhysics.h"
 #include "model.h"
 #include "quantumFieldTheory.h"
 
@@ -36,7 +35,7 @@ ModelData::ModelData(std::unique_ptr<Gauge> &&t_gauge)
 {
     init();
 }
-ModelData::ModelData(std::unique_ptr<Gauge> && t_gauge,
+ModelData::ModelData(std::unique_ptr<Gauge>  &&t_gauge,
                      std::unique_ptr<Flavor> &&t_flavor)
     : spaceTime(defaultSpaceTime),
       gauge(std::move(t_gauge)),
@@ -44,18 +43,13 @@ ModelData::ModelData(std::unique_ptr<Gauge> && t_gauge,
 {
     init();
 }
-ModelData::ModelData(std::unique_ptr<Gauge> && t_gauge,
+ModelData::ModelData(std::unique_ptr<Gauge>  &&t_gauge,
                      std::unique_ptr<Flavor> &&t_flavor,
-                     std::vector<Particle> &   t_particles)
+                     std::vector<Particle>    &t_particles)
     : ModelData(std::move(t_gauge), std::move(t_flavor))
 {
     for (const auto &part : t_particles)
         addParticle(part);
-}
-ModelData::ModelData(std::string const &nameFile)
-{
-    std::unique_ptr<Model> model = JSONToHEP::readModel(nameFile);
-    *this                        = std::move(*model);
 }
 
 ModelData::~ModelData()
@@ -165,7 +159,7 @@ void ModelData::saveModel(std::ostream &out, int indentSize)
     writeDependencies(out, indentSize, defined, kinetic, mass, interac);
     writeLagrangian(out, indentSize, kinetic, mass, interac);
 }
-void ModelData::writeHeader(std::ostream &            out,
+void ModelData::writeHeader(std::ostream             &out,
                             int                       indentSize,
                             std::vector<csl::Parent> &defined)
 {
@@ -182,7 +176,7 @@ void ModelData::writeHeader(std::ostream &            out,
     defined.push_back(mty::dirac4.sigma);
 }
 
-void ModelData::writeGauge(std::ostream &            out,
+void ModelData::writeGauge(std::ostream             &out,
                            int                       indentSize,
                            std::vector<csl::Parent> &defined)
 {
@@ -256,7 +250,7 @@ void ModelData::writeFlavor(std::ostream &out,
     OUT << END;
 }
 
-void ModelData::writeMassAndWidth(std::ostream &            out,
+void ModelData::writeMassAndWidth(std::ostream             &out,
                                   int                       indentSize,
                                   std::vector<csl::Parent> &defined)
 {
@@ -288,7 +282,7 @@ void ModelData::writeMassAndWidth(std::ostream &            out,
     }
 }
 
-void ModelData::writeParticles(std::ostream &            out,
+void ModelData::writeParticles(std::ostream             &out,
                                int                       indentSize,
                                std::vector<csl::Parent> &defined)
 {
@@ -327,12 +321,12 @@ void ModelData::writeParticles(std::ostream &            out,
         }
 }
 
-void ModelData::writeDependencies(std::ostream &            out,
+void ModelData::writeDependencies(std::ostream             &out,
                                   int                       indentSize,
                                   std::vector<csl::Parent> &defined,
-                                  std::vector<csl::Expr> &  kinetic,
-                                  std::vector<csl::Expr> &  mass,
-                                  std::vector<csl::Expr> &  interac)
+                                  std::vector<csl::Expr>   &kinetic,
+                                  std::vector<csl::Expr>   &mass,
+                                  std::vector<csl::Expr>   &interac)
 {
     std::string                           indent(indentSize, ' ');
     std::set<csl::AbstractParent const *> parents;
@@ -426,7 +420,7 @@ void ModelData::writeDependencies(std::ostream &            out,
     OUT << END << END;
 }
 
-void ModelData::writeLagrangian(std::ostream &                out,
+void ModelData::writeLagrangian(std::ostream                 &out,
                                 int                           indentSize,
                                 std::vector<csl::Expr> const &kinetic,
                                 std::vector<csl::Expr> const &mass,
@@ -478,7 +472,7 @@ void ModelData::writeLagrangian(std::ostream &                out,
 }
 
 void ModelData::saveModelFunction(std::string_view name,
-                                  std::ostream &   out,
+                                  std::ostream    &out,
                                   int              indentSize)
 {
     std::string indent(indentSize, ' ');
@@ -490,7 +484,7 @@ void ModelData::saveModelFunction(std::string_view name,
 }
 
 void ModelData::saveModelFunctionWithRef(std::string_view name,
-                                         std::ostream &   out,
+                                         std::ostream    &out,
                                          int              indentSize)
 {
     std::string indent(indentSize, ' ');
@@ -789,7 +783,7 @@ void ModelData::addTensorCoupling(csl::Parent const &coupling)
 
 void ModelData::addQuantumNumber(std::string_view                  t_name,
                                  std::vector<mty::Particle> const &fields,
-                                 std::vector<int> const &          values,
+                                 std::vector<int> const           &values,
                                  bool                              conserved)
 {
     HEPAssert(fields.size() == values.size() or values.empty(),
@@ -968,7 +962,7 @@ mty::FlavorGroup *ModelData::getFlavorGroup(std::string_view t_name)
 }
 
 static void particleNotFound(std::vector<mty::Particle> const &particles,
-                             std::string const &               name)
+                             std::string const                &name)
 {
     std::cerr << "Candidates are :" << std::endl;
     for (const auto &p : particles) {
@@ -1077,12 +1071,12 @@ mty::GaugeIrrep ModelData::doGetGaugeIrrep(mty::Particle const &part) const
     return part->getGaugeIrrep();
 }
 mty::Irrep ModelData::doGetGroupIrrep(mty::Particle const &part,
-                                      mty::Group const *   group) const
+                                      mty::Group const    *group) const
 {
     return part->getGroupIrrep(group);
 }
 csl::Expr ModelData::doGetCharge(mty::Particle const &particle,
-                                 mty::Group const *   group) const
+                                 mty::Group const    *group) const
 {
     return particle->getGroupIrrep(group).getCharge();
 }
@@ -1093,7 +1087,7 @@ mty::FlavorIrrep ModelData::doGetFlavorIrrep(mty::Particle const &part) const
     return part->getFlavorIrrep();
 }
 mty::Irrep ModelData::doGetFlavorIrrep(mty::Particle const &part,
-                                       mty::Group const *   flav) const
+                                       mty::Group const    *flav) const
 {
     HEPAssert(flavor, mty::error::KeyError, "There is no flavor in the model");
     for (const auto &flavGroup : *flavor)
@@ -1107,7 +1101,7 @@ mty::Irrep ModelData::doGetFlavorIrrep(mty::Particle const &part,
     return Irrep();
 }
 
-const csl::Space *ModelData::doGetVectorSpace(mty::Group const *   group,
+const csl::Space *ModelData::doGetVectorSpace(mty::Group const    *group,
                                               mty::Particle const &field) const
 {
     return group->getVectorSpace(getGroupIrrep(field, group));
@@ -1119,7 +1113,7 @@ const csl::Space *ModelData::doGetVectorSpace(mty::FlavorGroup const *group,
     return group->getVectorSpace(getFlavorIrrep(field, group));
 }
 
-csl::Index ModelData::doGenerateIndex(mty::Group const *   group,
+csl::Index ModelData::doGenerateIndex(mty::Group const    *group,
                                       mty::Particle const &part) const
 {
     csl::Space const *vectorSpace = getVectorSpace(group, part);
@@ -1138,14 +1132,14 @@ csl::Index ModelData::doGenerateIndex(mty::Group const *group) const
         " a particle for gauge representation indices.") return csl::Index();
 }
 csl::Index ModelData::doGenerateIndex(std::string_view     nameIndex,
-                                      mty::Group const *   group,
+                                      mty::Group const    *group,
                                       mty::Particle const &part) const
 {
     csl::Space const *vectorSpace = getVectorSpace(group, part);
     return vectorSpace->generateIndex(std::string(nameIndex));
 }
 
-mty::Generator ModelData::doGetGenerator(mty::Group const *   group,
+mty::Generator ModelData::doGetGenerator(mty::Group const    *group,
                                          mty::Particle const &part) const
 {
     return group->getGaugedGroup()->getGenerator(part->getGroupIrrep(group));
@@ -1258,7 +1252,7 @@ void ModelData::addLagrangianTerm(mty::Lagrangian::TermType const &term, bool)
 }
 
 void ModelData::doAddBosonicMass(mty::Particle const &particle,
-                                 csl::Expr const &    mass)
+                                 csl::Expr const     &mass)
 {
     particle->setMass(mass);
     for (size_t i = 0; i != L.mass.size(); ++i)
@@ -1276,7 +1270,7 @@ void ModelData::doAddBosonicMass(mty::Particle const &particle,
 
 void ModelData::doAddFermionicMass(mty::Particle const &left,
                                    mty::Particle const &right,
-                                   csl::Expr const &    mass)
+                                   csl::Expr const     &mass)
 {
     left->setMass(mass);
     right->setMass(mass);
@@ -1295,7 +1289,7 @@ void ModelData::doAddFermionicMass(mty::Particle const &left,
     doAddFermionicMass(left, right, csl::constant_s(std::string(mass)));
 }
 void ModelData::doAddFermionicMass(mty::Particle const &diracFermion,
-                                   csl::Expr const &    mass)
+                                   csl::Expr const     &mass)
 {
     doAddBosonicMass(diracFermion, mass);
 }
@@ -1357,12 +1351,12 @@ void ModelData::renameCoupling(std::string_view name, std::string_view newName)
 ///////////////////////////////////////////////////
 
 void ModelData::printSubPart(std::initializer_list<std::string> particleNames,
-                             std::ostream &                     out) const
+                             std::ostream                      &out) const
 {
     printSubPart(std::vector<std::string>(particleNames), out);
 }
 void ModelData::printSubPart(std::vector<std::string> const &particleNames,
-                             std::ostream &                  out) const
+                             std::ostream                   &out) const
 {
     std::vector<mty::Particle> particles(particleNames.size());
     for (size_t i = 0; i != particles.size(); ++i)
@@ -1375,8 +1369,8 @@ void ModelData::printSubPart(std::vector<std::string> const &particleNames,
         for (const auto &part : particles) {
             bool found = false;
             auto fs    = (part->getFieldStrength())
-                          ? part->getFieldStrength().get()
-                          : nullptr;
+                             ? part->getFieldStrength().get()
+                             : nullptr;
             for (const auto &field : content)
                 if (field.getQuantumParent() == part.get()
                     or field.getQuantumParent() == fs) {
@@ -1392,7 +1386,7 @@ void ModelData::printSubPart(std::vector<std::string> const &particleNames,
     }
 }
 void ModelData::printSubPart(std::string const &particle,
-                             std::ostream &     out) const
+                             std::ostream      &out) const
 {
     printSubPart({particle}, out);
 }
