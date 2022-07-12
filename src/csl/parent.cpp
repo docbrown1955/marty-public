@@ -21,9 +21,40 @@ using namespace std;
 
 namespace csl {
 
+std::pair<std::string, std::string> getRegularAndLatexNames(std::string t_name)
+{
+    for (size_t i = 0; i != t_name.size(); ++i) {
+        if (t_name[i] == ';') {
+            if (i > 0 and t_name[i - 1] == '\\') {
+                t_name.erase(i - 1);
+            }
+            else if (i + 1 != t_name.size()) {
+                std::string reg(t_name.begin(), t_name.begin() + i);
+                std::string latex(t_name.begin() + i + 1, t_name.end());
+                for (size_t i = reg.size(); i-- > 0;) {
+                    if (reg[i] == ' ')
+                        reg.erase(reg.begin() + i);
+                    else
+                        break;
+                }
+                for (size_t i = 0; i != latex.size(); ++i) {
+                    if (latex[i] == ' ') {
+                        latex.erase(latex.begin() + i);
+                        --i;
+                    }
+                    else
+                        break;
+                }
+                return {reg, (latex.empty() ? reg : latex)};
+            }
+        }
+    }
+    return {t_name, t_name};
+}
+
 AbstractParent::AbstractParent(const string &t_name) : commutable(true)
 {
-    setName(t_name);
+    AbstractParent::setName(t_name);
 }
 
 AbstractParent::AbstractParent() : commutable(true)
@@ -63,36 +94,9 @@ csl::ComplexProperty AbstractParent::getComplexProp() const
 
 void AbstractParent::setName(string t_name)
 {
-    for (size_t i = 0; i != t_name.size(); ++i) {
-        if (t_name[i] == ';') {
-            if (i > 0 and t_name[i - 1] == '\\') {
-                t_name.erase(i - 1);
-            }
-            else if (i + 1 != t_name.size()) {
-                std::string reg(t_name.begin(), t_name.begin() + i);
-                std::string latex(t_name.begin() + i + 1, t_name.end());
-                for (size_t i = reg.size(); i-- > 0;) {
-                    if (reg[i] == ' ')
-                        reg.erase(reg.begin() + i);
-                    else
-                        break;
-                }
-                for (size_t i = 0; i != latex.size(); ++i) {
-                    if (latex[i] == ' ') {
-                        latex.erase(latex.begin() + i);
-                        --i;
-                    }
-                    else
-                        break;
-                }
-                name      = reg;
-                latexName = (latex.empty()) ? reg : latex;
-                return;
-            }
-        }
-    }
-    name      = t_name;
-    latexName = t_name;
+    const auto [reg, latex] = getRegularAndLatexNames(t_name);
+    this->name              = reg;
+    this->latexName         = latex;
 }
 
 void AbstractParent::setLatexName(const string &t_name)

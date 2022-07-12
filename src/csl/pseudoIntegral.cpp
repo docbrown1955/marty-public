@@ -501,13 +501,13 @@ ScalarIntegral::ScalarIntegral() : AbstractIntegral()
 
 ScalarIntegral::ScalarIntegral(const Expr &t_variable) : AbstractIntegral()
 {
-    setVariable(t_variable);
+    ScalarIntegral::setVariable(t_variable);
 }
 
 ScalarIntegral::ScalarIntegral(const Expr &operand, const Expr &t_variable)
     : AbstractIntegral(operand)
 {
-    setVariable(t_variable);
+    ScalarIntegral::setVariable(t_variable);
 }
 
 ScalarIntegral::ScalarIntegral(const Expr &t_variable,
@@ -515,7 +515,7 @@ ScalarIntegral::ScalarIntegral(const Expr &t_variable,
                                const Expr &t_sup)
     : AbstractIntegral(CSL_1, t_inf, t_sup)
 {
-    setVariable(t_variable);
+    ScalarIntegral::setVariable(t_variable);
 }
 
 ScalarIntegral::ScalarIntegral(const Expr &operand,
@@ -524,7 +524,7 @@ ScalarIntegral::ScalarIntegral(const Expr &operand,
                                const Expr &t_sup)
     : AbstractIntegral(operand, t_inf, t_sup)
 {
-    setVariable(t_variable);
+    ScalarIntegral::setVariable(t_variable);
 }
 
 ScalarIntegral::ScalarIntegral(const Expr &operand,

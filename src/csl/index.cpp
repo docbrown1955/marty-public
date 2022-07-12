@@ -36,12 +36,6 @@ Index::Index() : space(nullptr), id(0), nameOrValue(0), type(cslIndex::Free)
     setSign(false);
 }
 
-Index::Index(const std::string &t_name, unsigned short t_id) : Index()
-{
-    setName(t_name);
-    id = t_id;
-}
-
 Index::Index(char t_value) : Index()
 {
     setValue(t_value);
