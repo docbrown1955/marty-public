@@ -37,8 +37,6 @@ set(ALL_SOURCES
     error.h
     evaluation.cpp
     evaluation.h
-    floatFormatter.cpp
-    floatFormatter.h
     functional.cpp
     functional.h
     hardComparison.cpp
@@ -105,9 +103,6 @@ set(ALL_SOURCES
     partialExpand.h
     patternMatch.cpp
     patternMatch.h
-    precision.cpp
-    precision_float.h
-    precision_int.h
     progressBar.h
     pseudoIntegral.cpp
     pseudoIntegral.h

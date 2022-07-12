@@ -57,7 +57,6 @@
 #include "interface_indicial.h"
 #include "partialExpand.h"
 #include "patternMatch.h"
-#include "precision_float.h"
 #include "pseudoIntegral.h"
 #include "replace.h"
 #include "simplification.h"
