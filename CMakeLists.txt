@@ -65,6 +65,12 @@ SET(CMAKE_SHARED_LINKER_FLAGS_COVERAGE
 
 enable_testing()
 
+if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+    set(ENABLE_COVERAGE 1)
+else()
+    set(ENABLE_COVERAGE 0)
+endif()
+
 add_compile_definitions(MARTY_CXX=${CMAKE_CXX_COMPILER})
 add_compile_definitions(MARTY_CC=${CMAKE_C_COMPILER})
 add_compile_definitions(MARTY_FC=${CMAKE_Fortran_COMPILER})

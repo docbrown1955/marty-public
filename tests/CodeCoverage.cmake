@@ -39,10 +39,31 @@
 #
 
 # Check prereqs
-FIND_PROGRAM(GCOV_PATH gcov-11)
-FIND_PROGRAM(LCOV_PATH lcov)
+if(NOT GCOV_PATH)
+    if("$ENV{GCOV_PATH}" STREQUAL "")
+        FIND_PROGRAM(GCOV_PATH gcov)
+    else()
+        set(GCOV_PATH $ENV{GCOV_PATH})
+    endif()
+endif()
+
+if(NOT GCOVR_PATH)
+    if("$ENV{GCOVR_PATH}" STREQUAL "")
+        FIND_PROGRAM(GCOVR_PATH gcovr PATHS ${CMAKE_SOURCE_DIR}/tests)
+    else()
+        set(GCOVR_PATH $ENV{GCOVR_PATH})
+    endif()
+endif()
+
+if(NOT LCOV_PATH)
+    if("$ENV{LCOV_PATH}" STREQUAL "")
+        FIND_PROGRAM(LCOV_PATH lcov)
+    else()
+        set(LCOV_PATH $ENV{LCOV_PATH})
+    endif()
+endif()
+
 FIND_PROGRAM(GENHTML_PATH genhtml)
-FIND_PROGRAM(GCOVR_PATH gcovr PATHS ${CMAKE_SOURCE_DIR}/tests)
 
 IF(NOT GCOV_PATH)
     MESSAGE(FATAL_ERROR "gcov not found! Aborting...")
