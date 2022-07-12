@@ -57,22 +57,8 @@ Expr G(int index, bool loop = false)
     return res;
 }
 
-csl::Expr Tr(std::vector<int> indices)
-{
-    std::vector<csl::Expr> matrices(indices.size());
-    for (size_t i = 0; i != matrices.size(); ++i) {
-        if (i + 1 == matrices.size())
-            matrices[i] = G(indices[i], true);
-        else
-            matrices[i] = G(indices[i]);
-    }
-    Expr init = csl::prod_s(matrices);
-    return mty::dirac4.calculateTrace(init);
-}
-
 int main()
 {
-
     // Model building
     Model toyModel;
     toyModel.addGaugedGroup(group::Type::SU, "C", 3);
