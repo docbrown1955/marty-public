@@ -35,8 +35,6 @@ set(ALL_SOURCES
     expander.h
     fermionChain.cpp
     fermionChain.h
-    fermionCurrent.cpp
-    fermionCurrent.h
     fermionFlow.cpp
     fermionFlow.h
     fermionOrder.cpp
