@@ -46,6 +46,7 @@ class AbstractNumerical : public AbstractBuildingBlock {
 
     Expr                getNumericalFactor() const override;
     std::optional<Expr> getTerm() const override;
+    std::optional<Expr> getComplexArgument() const override;
 
     bool dependsOn(Expr_info) const override
     {

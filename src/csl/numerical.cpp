@@ -71,6 +71,11 @@ std::vector<Parent> AbstractNumerical::getSubSymbols() const
     return {};
 }
 
+std::optional<Expr> AbstractNumerical::getComplexArgument() const
+{
+    return evaluateScalar() < 0 ? CSL_PI : CSL_0;
+}
+
 ///////////////////////////////////////////////////
 /*************************************************/
 // Class Float                                  //
@@ -754,7 +759,9 @@ bool IntFraction::operator==(Expr_info expr) const
 
 Expr float_s(long double value)
 {
-    if (value == round(value))
+    if (abs(value) < static_cast<long double>(
+            abs(std::numeric_limits<long long>::min()))
+        && value == round(value))
         return int_s(value);
     return csl::make_shared<Float, alloc_float>(value);
 }
@@ -776,9 +783,6 @@ Expr int_s(long long int value)
 
 Expr autonumber_s(long double value)
 {
-    if (value == round(value))
-        return int_s(value);
-
     return float_s(value);
 }
 
@@ -937,7 +941,7 @@ Expr Complex::getImaginaryPart() const
 std::optional<Expr> Complex::getComplexArgument() const
 {
     if (imag == CSL_0)
-        return CSL_0;
+        return (real->evaluateScalar() >= 0) ? CSL_0 : CSL_PI;
     if (real == CSL_0)
         return imag->evaluateScalar() < 0 ? -CSL_PI / 2 : CSL_PI / 2;
     return csl::make_shared<Angle>(real, imag);
