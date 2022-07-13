@@ -955,7 +955,7 @@ std::optional<Expr> Complex::getComplexModulus() const
 std::optional<Expr> Complex::getComplexConjugate() const
 {
     if (imag == CSL_0)
-        return std::nullopt;
+        return real;
     return csl::make_shared<Complex, alloc_complex>(real, -imag);
 }
 
