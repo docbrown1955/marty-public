@@ -2,6 +2,19 @@
 #include <csl.h>
 #include <gtest/gtest.h>
 
+TEST(csl_numbers, abstract)
+{
+    using namespace data;
+    ASSERT_TRUE(csl::int_s(5)->getSubSymbols().empty());
+    ASSERT_TRUE(csl::float_s(5.3)->getSubSymbols().empty());
+    ASSERT_TRUE(csl::intfraction_s(1, 5)->getSubSymbols().empty());
+    ASSERT_TRUE(csl::complex_s(1, 5)->getSubSymbols().empty());
+    ASSERT_FALSE(csl::int_s(5)->dependsOn(a.get()));
+    ASSERT_FALSE(csl::int_s(5)->dependsExplicitlyOn(a.get()));
+    ASSERT_FALSE(csl::int_s(5)->dependsOn(a->getParent_info()));
+    ASSERT_FALSE(csl::int_s(5)->dependsExplicitlyOn(a->getParent_info()));
+}
+
 TEST(csl_numbers, integers)
 {
     ASSERT_EQ(static_cast<int>(csl::int_s(1)->evaluateScalar()), 1);
@@ -13,6 +26,10 @@ TEST(csl_numbers, integers)
     ASSERT_TRUE(csl::int_s(0)->getType() == csl::Type::Integer);
     ASSERT_TRUE(csl::int_s(0)->getPrimaryType()
                 == csl::PrimaryType::Numerical);
+
+    auto a = csl::int_s(5);
+    a->setValue(4);
+    ASSERT_EQ(static_cast<int>(a->evaluateScalar()), 4);
 }
 TEST(csl_numbers, integer_constants)
 {
@@ -49,6 +66,10 @@ TEST(csl_numbers, floats)
     ASSERT_TRUE(csl::float_s(0.5)->getType() == csl::Type::Float);
     ASSERT_TRUE(csl::float_s(0.5)->getPrimaryType()
                 == csl::PrimaryType::Numerical);
+
+    auto a = csl::float_s(5.5);
+    a->setValue(3.2);
+    ASSERT_DOUBLE_EQ(a->evaluateScalar(), 3.2);
 }
 TEST(csl_numbers, float_constants)
 {
@@ -68,18 +89,36 @@ TEST(csl_numbers, floats_complex)
 
 TEST(csl_numbers, rationals)
 {
-    csl::Expr f1 = csl::intfraction_s(3, 5);
+    csl::Expr f1 = csl::intfraction_s(-1, 3);
     csl::Expr f2 = csl::intfraction_s(3, 6);
     csl::Expr f3 = csl::intfraction_s(6, 3);
+    csl::Expr f4 = csl::intfraction_s(4, -12);
+    csl::Expr f5 = csl::intfraction_s(-4, -12);
+    csl::Expr f6 = csl::make_shared<csl::IntFraction>(4, -12);
+    csl::Expr f7 = csl::make_shared<csl::IntFraction>(-4, -12);
 
     ASSERT_EQ(f1->getType(), csl::Type::IntFraction);
-    ASSERT_EQ(f1->getNum(), 3);
-    ASSERT_EQ(f1->getDenom(), 5);
+    ASSERT_EQ(f1->getNum(), -1);
+    ASSERT_EQ(f1->getDenom(), 3);
     ASSERT_EQ(f2->getType(), csl::Type::IntFraction);
     ASSERT_EQ(f2->getNum(), 1);
     ASSERT_EQ(f2->getDenom(), 2);
     ASSERT_EQ(f3->getType(), csl::Type::Integer);
     ASSERT_EQ(static_cast<int>(f3->evaluateScalar()), 2);
+    ASSERT_EQ(f4->getType(), csl::Type::IntFraction);
+    ASSERT_EQ(f4->getNum(), -1);
+    ASSERT_EQ(f4->getDenom(), 3);
+    ASSERT_EQ(f5->getType(), csl::Type::IntFraction);
+    ASSERT_EQ(f5->getNum(), 1);
+    ASSERT_EQ(f5->getDenom(), 3);
+    ASSERT_EQ(f6->getType(), csl::Type::IntFraction);
+    ASSERT_EQ(f6->getNum(), -1);
+    ASSERT_EQ(f6->getDenom(), 3);
+    ASSERT_EQ(f7->getType(), csl::Type::IntFraction);
+    ASSERT_EQ(f7->getNum(), 1);
+    ASSERT_EQ(f7->getDenom(), 3);
+    ASSERT_EQ(csl::intfraction_s(5, 0), CSL_INF);
+    ASSERT_EQ(csl::intfraction_s(0, 0), CSL_INF);
 
     ASSERT_EQ(f1->getPrimaryType(), csl::PrimaryType::Numerical);
     ASSERT_TRUE(csl::IsIntFraction(f1));
@@ -178,7 +217,7 @@ TEST(csl_numbers, complex)
         csl::GetComplexConjugate(csl::make_shared<csl::Complex>(-1, 0))
             ->evaluateScalar(),
         -1);
-    // ASSERT_THROW(csl::complex_s(1, 1)->evaluateScalar(), CSLError);
+    ASSERT_THROW(csl::complex_s(1, 1)->evaluateScalar(), CSLError);
 
     ASSERT_EQ(csl::GetComplexConjugate(csl::complex_s(0, 1)),
               csl::complex_s(0, -1));
@@ -188,6 +227,9 @@ TEST(csl_numbers, complex)
               csl::complex_s(1, 0));
     ASSERT_EQ(csl::GetComplexConjugate(csl::complex_s(1, 1)),
               csl::complex_s(1, -1));
+
+    ASSERT_EQ(csl::complex_s(csl::complex_s(1, 2), csl::complex_s(4, 8)),
+              csl::complex_s(1 - 8, 2 + 4));
 }
 
 TEST(csl_numbers, evaluation)
@@ -224,13 +266,93 @@ TEST(csl_numbers, print)
     PRINT_EXPR(float_)
     PRINT_EXPR(rational_)
     PRINT_EXPR(complex_)
+    PRINT_EXPR(-int_)
+    PRINT_EXPR(-float_)
+    PRINT_EXPR(-rational_)
+    PRINT_EXPR(-complex_)
+    PRINT_EXPR((csl::make_shared<csl::Complex>(0, 1)));
+    PRINT_EXPR((csl::make_shared<csl::Complex>(1, 0)));
 }
 
-TEST(csl_numbers, operations)
+TEST(csl_numbers, operations1)
 {
     ASSERT_EQ(csl::intfraction_s(2, 4) * csl::complex_s(1, 1)
                   - csl::complex_s(0, csl::intfraction_s(1, 2)),
               csl::intfraction_s(15423, 30846));
     ASSERT_EQ(csl::pow_s(4, csl::intfraction_s(1, 2)), CSL_2);
     ASSERT_EQ(csl::pow_s(9, csl::intfraction_s(1, 2)), 1 + CSL_2);
+    ASSERT_DOUBLE_EQ(csl::pow_s(3.5, 3)->evaluateScalar(), std::pow(3.5, 3));
+    ASSERT_DOUBLE_EQ(csl::pow_s(3.5, 3)->evaluateScalar(), std::pow(3.5, 3));
+    ASSERT_DOUBLE_EQ(csl::pow_s(5, 3)->evaluateScalar(), std::pow(5, 3));
+    ASSERT_DOUBLE_EQ(csl::pow_s(5, 3.4)->evaluateScalar(), std::pow(5, 3.4));
+    ASSERT_DOUBLE_EQ(csl::pow_s(csl::intfraction_s(1, 2), 3)->evaluateScalar(),
+                     std::pow(0.5, 3));
+    ASSERT_DOUBLE_EQ(csl::pow_s(4, csl::intfraction_s(1, 2))->evaluateScalar(),
+                     std::pow(4, 0.5));
+    ASSERT_DOUBLE_EQ(
+        csl::pow_s(2.4, csl::intfraction_s(1, 2))->evaluateScalar(),
+        std::pow(2.4, 0.5));
+
+    csl::Expr res;
+    res        = csl::Evaluated(csl::pow_s(csl::complex_s(1, 2), 4));
+    double mod = std::sqrt(1 * 1 + 2 * 2);
+    double arg = std::atan2(2, 1);
+    ASSERT_DOUBLE_EQ(csl::GetRealPart(res)->evaluateScalar(),
+                     std::cos(4 * arg) * std::pow(mod, 4));
+    ASSERT_DOUBLE_EQ(csl::GetImaginaryPart(res)->evaluateScalar(),
+                     std::sin(4 * arg) * std::pow(mod, 4));
+
+    res = csl::Evaluated(csl::pow_s(csl::complex_s(1, 2), 5.6));
+    ASSERT_DOUBLE_EQ(csl::GetRealPart(res)->evaluateScalar(),
+                     std::cos(5.6 * arg) * std::pow(mod, 5.6));
+    ASSERT_DOUBLE_EQ(csl::GetImaginaryPart(res)->evaluateScalar(),
+                     std::sin(5.6 * arg) * std::pow(mod, 5.6));
+
+    res = csl::Evaluated(
+        csl::pow_s(csl::complex_s(1, 2), csl::intfraction_s(1, 3)));
+    ASSERT_DOUBLE_EQ(csl::GetRealPart(res)->evaluateScalar(),
+                     std::cos(1. / 3 * arg) * std::pow(mod, 1. / 3));
+    ASSERT_DOUBLE_EQ(csl::GetImaginaryPart(res)->evaluateScalar(),
+                     std::sin(1. / 3 * arg) * std::pow(mod, 1. / 3));
+}
+
+TEST(csl_numbers, operations2)
+{
+    ASSERT_DOUBLE_EQ((csl::int_s(5) * 3)->evaluateScalar(), 5 * 3);
+    ASSERT_DOUBLE_EQ((csl::int_s(5) * 124.4)->evaluateScalar(), 5 * 124.4);
+    ASSERT_DOUBLE_EQ(
+        (csl::int_s(5) * csl::intfraction_s(2, 3))->evaluateScalar(),
+        5 * 2. / 3);
+    ASSERT_DOUBLE_EQ((csl::float_s(5.5) * 3)->evaluateScalar(), 5.5 * 3);
+    ASSERT_DOUBLE_EQ((csl::float_s(5.5) * 124.4)->evaluateScalar(),
+                     5.5 * 124.4);
+    ASSERT_DOUBLE_EQ(
+        (csl::float_s(5.5) * csl::intfraction_s(2, 3))->evaluateScalar(),
+        5.5 * 2. / 3);
+    ASSERT_DOUBLE_EQ((csl::intfraction_s(5, 7) * 3)->evaluateScalar(),
+                     5. / 7 * 3);
+    ASSERT_DOUBLE_EQ((csl::intfraction_s(5, 7) * 124.4)->evaluateScalar(),
+                     5. / 7 * 124.4);
+    ASSERT_DOUBLE_EQ((csl::intfraction_s(5, 7) * csl::intfraction_s(2, 3))
+                         ->evaluateScalar(),
+                     5. / 7 * 2. / 3);
+
+    ASSERT_DOUBLE_EQ((csl::int_s(5) / 3)->evaluateScalar(), 5. / 3);
+    ASSERT_DOUBLE_EQ((csl::int_s(5) / 124.4)->evaluateScalar(), 5 / 124.4);
+    ASSERT_DOUBLE_EQ(
+        (csl::int_s(5) / csl::intfraction_s(2, 3))->evaluateScalar(),
+        5 / (2. / 3));
+    ASSERT_DOUBLE_EQ((csl::float_s(5.5) / 3)->evaluateScalar(), 5.5 / 3);
+    ASSERT_DOUBLE_EQ((csl::float_s(5.5) / 124.4)->evaluateScalar(),
+                     5.5 / 124.4);
+    ASSERT_DOUBLE_EQ(
+        (csl::float_s(5.5) / csl::intfraction_s(2, 3))->evaluateScalar(),
+        5.5 / (2. / 3));
+    ASSERT_DOUBLE_EQ((csl::intfraction_s(5, 7) / 3)->evaluateScalar(),
+                     5. / 7. / 3);
+    ASSERT_DOUBLE_EQ((csl::intfraction_s(5, 7) / 124.4)->evaluateScalar(),
+                     5. / 7. / 124.4);
+    ASSERT_DOUBLE_EQ((csl::intfraction_s(5, 7) / csl::intfraction_s(2, 3))
+                         ->evaluateScalar(),
+                     5. / 7. / (2. / 3));
 }
