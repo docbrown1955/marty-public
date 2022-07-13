@@ -34,7 +34,6 @@
 #include "lock.h"
 #include "mathFunctions.h"
 #include "numerical.h"
-#include "numericalEval.h"
 #include "objectSymmetry.h"
 #include "operations.h"
 #include "operator.h"

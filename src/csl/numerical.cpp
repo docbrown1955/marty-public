@@ -19,7 +19,6 @@
 #include "interface.h"
 #include "librarygenerator.h"
 #include "mathFunctions.h"
-#include "numericalEval.h"
 #include "operations.h"
 #include "utils.h"
 
@@ -141,15 +140,6 @@ Expr Float::refresh() const
     return autonumber_s(value);
 }
 
-void Float::operator=(int t_value)
-{
-    value = t_value;
-}
-void Float::operator=(double t_value)
-{
-    value = t_value;
-}
-
 bool Float::operator==(Expr_info expr) const
 {
     if (expr->getName() == Comparator::dummyName())
@@ -167,18 +157,12 @@ bool Float::operator==(Expr_info expr) const
             return true;
         return false;
     }
-    else if (type == csl::Type::NumericalEval) {
-        return false;
-    }
 
     return (value == expr->evaluateScalar());
 }
 
 Expr Float::multiplication_own(const Expr &expr, bool) const
 {
-    if (expr->getType() == csl::Type::NumericalEval)
-        return csl::make_shared<NumericalEval>(evaluateScalar())
-            ->multiplication_own(expr);
     if (expr->getType() == csl::Type::Complex)
         return expr->multiplication_own(copy());
     if (not expr or expr->getPrimaryType() != csl::PrimaryType::Numerical)
@@ -208,9 +192,6 @@ Expr Float::multiplication_own(const Expr &expr, bool) const
 
 Expr Float::division_own(const Expr &expr) const
 {
-    if (expr->getType() == csl::Type::NumericalEval)
-        return csl::make_shared<NumericalEval>(evaluateScalar())
-            ->division_own(expr);
     if (expr->getType() == csl::Type::Complex) {
         return copy() * GetComplexConjugate(expr)
                / (pow_s(GetComplexModulus(expr), CSL_2));
@@ -272,9 +253,6 @@ Expr Float::exponentiation_own(const Expr &expr) const
 
 Expr Float::addition_own(const Expr &expr) const
 {
-    if (expr->getType() == csl::Type::NumericalEval)
-        return csl::make_shared<NumericalEval>(evaluateScalar())
-            ->addition_own(expr);
     if (expr->getType() == csl::Type::Complex)
         return expr->addition_own(copy());
     if (not expr or expr->getPrimaryType() != csl::PrimaryType::Numerical)
@@ -363,11 +341,6 @@ unique_Expr Integer::copy_unique() const
     return make_unique<Integer>(value);
 }
 
-void Integer::operator=(long long int t_value)
-{
-    value = t_value;
-}
-
 bool Integer::operator==(Expr_info expr) const
 {
     if (expr == this)
@@ -387,9 +360,6 @@ bool Integer::operator==(Expr_info expr) const
 
 Expr Integer::multiplication_own(const Expr &expr, bool) const
 {
-    if (expr->getType() == csl::Type::NumericalEval)
-        return csl::make_shared<NumericalEval>(evaluateScalar())
-            ->multiplication_own(expr);
     if (expr->getType() == csl::Type::Complex)
         return expr->multiplication_own(copy());
     if (expr == nullptr
@@ -418,9 +388,6 @@ Expr Integer::multiplication_own(const Expr &expr, bool) const
 
 Expr Integer::addition_own(const Expr &expr) const
 {
-    if (expr->getType() == csl::Type::NumericalEval)
-        return csl::make_shared<NumericalEval>(evaluateScalar())
-            ->addition_own(expr);
     if (expr->getType() == csl::Type::Complex)
         return expr->addition_own(copy());
     if (expr == nullptr
@@ -450,9 +417,6 @@ Expr Integer::addition_own(const Expr &expr) const
 
 Expr Integer::division_own(const Expr &expr) const
 {
-    if (expr->getType() == csl::Type::NumericalEval)
-        return csl::make_shared<NumericalEval>(evaluateScalar())
-            ->division_own(expr);
     if (expr->getType() == csl::Type::Complex) {
         return copy() * GetComplexConjugate(expr)
                / (pow_s(GetComplexModulus(expr), CSL_2));
@@ -481,9 +445,6 @@ Expr Integer::division_own(const Expr &expr) const
 
 Expr Integer::exponentiation_own(const Expr &expr) const
 {
-    if (expr->getType() == csl::Type::NumericalEval)
-        return csl::make_shared<NumericalEval>(evaluateScalar())
-            ->exponentiation_own(expr);
     if (expr->getType() == csl::Type::Complex)
         return expr->exponentiation_own(copy());
     if (not expr or expr->getPrimaryType() != csl::PrimaryType::Numerical)
@@ -629,9 +590,6 @@ Expr IntFraction::refresh() const
 
 Expr IntFraction::multiplication_own(const Expr &expr, bool) const
 {
-    if (expr->getType() == csl::Type::NumericalEval)
-        return csl::make_shared<NumericalEval>(evaluateScalar())
-            ->multiplication_own(expr);
     if (expr->getType() == csl::Type::Complex)
         return expr->multiplication_own(copy());
     if (expr == nullptr
@@ -653,9 +611,6 @@ Expr IntFraction::multiplication_own(const Expr &expr, bool) const
 
 Expr IntFraction::addition_own(const Expr &expr) const
 {
-    if (expr->getType() == csl::Type::NumericalEval)
-        return csl::make_shared<NumericalEval>(evaluateScalar())
-            ->addition_own(expr);
     if (expr->getType() == csl::Type::Complex)
         return expr->addition_own(copy());
     if (expr == nullptr
@@ -676,9 +631,6 @@ Expr IntFraction::addition_own(const Expr &expr) const
 
 Expr IntFraction::division_own(const Expr &expr) const
 {
-    if (expr->getType() == csl::Type::NumericalEval)
-        return csl::make_shared<NumericalEval>(evaluateScalar())
-            ->division_own(expr);
     if (expr->getType() == csl::Type::Complex) {
         return copy() * GetComplexConjugate(expr)
                / (pow_s(GetComplexModulus(expr), CSL_2));
@@ -724,18 +676,6 @@ optional<Expr> IntFraction::derive(Expr_info) const
 {
     return CSL_0;
 }
-
-void IntFraction::operator=(long long int t_value)
-{
-    num   = t_value;
-    denom = 1;
-}
-void IntFraction::operator=(double t_value)
-{
-    num   = t_value;
-    denom = 1;
-}
-
 bool IntFraction::operator==(Expr_info expr) const
 {
     if (expr == this)
@@ -759,8 +699,8 @@ bool IntFraction::operator==(Expr_info expr) const
 
 Expr float_s(long double value)
 {
-    if (abs(value) < static_cast<long double>(
-            abs(std::numeric_limits<long long>::min()))
+    if (abs(value) < abs(
+            static_cast<long double>(std::numeric_limits<long long>::min()))
         && value == round(value))
         return int_s(value);
     return csl::make_shared<Float, alloc_float>(value);
@@ -971,9 +911,6 @@ Expr Complex::refresh() const
 
 Expr Complex::multiplication_own(const Expr &expr, bool) const
 {
-    if (expr->getType() == csl::Type::NumericalEval)
-        return csl::complex_s(expr->multiplication_own(real),
-                              expr->multiplication_own(imag));
     if (expr->getType() != csl::Type::Complex)
         return complex_s(real->multiplication_own(expr),
                          imag->multiplication_own(expr));
@@ -986,8 +923,6 @@ Expr Complex::multiplication_own(const Expr &expr, bool) const
 
 Expr Complex::addition_own(const Expr &expr) const
 {
-    if (expr->getType() == csl::Type::NumericalEval)
-        return csl::complex_s(expr->addition_own(real), imag);
     if (expr->getType() != csl::Type::Complex)
         return complex_s(real->addition_own(expr), imag);
 
@@ -998,9 +933,6 @@ Expr Complex::addition_own(const Expr &expr) const
 
 Expr Complex::division_own(const Expr &expr) const
 {
-    if (expr->getType() == csl::Type::NumericalEval)
-        return csl::complex_s(real->division_own(expr),
-                              imag->division_own(expr));
     if (expr->getType() != csl::Type::Complex) {
         return complex_s(real->division_own(expr), imag->division_own(expr));
     }

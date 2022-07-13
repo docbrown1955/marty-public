@@ -1055,15 +1055,15 @@ Prod::Prod(const Expr &leftOperand,
         and leftOperand->getType() == csl::Type::Prod
         and rightOperand->getType() != csl::Type::Prod) {
         argument = leftOperand->getVectorArgument();
-        insert(rightOperand, true); // rightOperand inserted to the right
-                                    // of leftOperand
+        Prod::insert(rightOperand, true); // rightOperand inserted to the right
+                                          // of leftOperand
     }
     else if (not option::freezeMerge and not explicitProd
              and rightOperand->getType() == csl::Type::Prod
              and leftOperand->getType() != csl::Type::Prod) {
         argument = rightOperand->getVectorArgument();
-        insert(leftOperand, false); // leftOperand inserted to the left
-                                    // of rightOperand
+        Prod::insert(leftOperand, false); // leftOperand inserted to the left
+                                          // of rightOperand
     }
     else {
         argument    = csl::vector_expr(2);
@@ -1072,7 +1072,7 @@ Prod::Prod(const Expr &leftOperand,
         if (not option::freezeMerge and not explicitProd) {
             mergeProducts();
             orderTerms();
-            mergeTerms();
+            Prod::mergeTerms();
         }
         else
             mergeProducts();
@@ -1567,9 +1567,9 @@ void Prod::insert(const Expr &expr, bool side)
     //}
 
     if (side)
-        rightInsert(expr);
+        Prod::rightInsert(expr);
     else
-        leftInsert(expr);
+        Prod::leftInsert(expr);
 }
 void Prod::leftInsert(const Expr &expr)
 {
@@ -1811,7 +1811,7 @@ bool Prod::mergeTerms()
         argument.push_back(CSL_1);
         return false;
     }
-    bool indexed           = isIndexed();
+    bool indexed           = Prod::isIndexed();
     bool remergeNumericals = false;
     for (size_t i = 0; i + 1 < argument.size(); i++) {
         if (indexed and argument[i]->isIndexed()
@@ -3032,12 +3032,6 @@ Expr pow_s(const Expr &leftOperand, const Expr &rightOperand)
         }
         return prod_s(terms);
     }
-    if (leftOperand->getType() == csl::Type::NumericalEval
-        and rightOperand->getPrimaryType() == csl::PrimaryType::Numerical)
-        return leftOperand->exponentiation_own(rightOperand);
-    if (rightOperand->getType() == csl::Type::NumericalEval
-        and leftOperand->getPrimaryType() == csl::PrimaryType::Numerical)
-        return leftOperand->exponentiation_own(rightOperand);
 
     if (leftOperand->isInteger()
         and rightOperand->getType() == csl::Type::IntFraction) {
@@ -3097,11 +3091,6 @@ Expr pow_s(const Expr &leftOperand, const Expr &rightOperand)
         return arg0;
 
     return foo;
-}
-
-Expr pow_s(Expr const &leftOperand, int value)
-{
-    return pow_s(leftOperand, int_s(value));
 }
 
 Expr sqrt_s(const Expr &operand)

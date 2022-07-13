@@ -1338,27 +1338,6 @@ Expr operator/(const Expr &a, const Expr &b)
     return csl::fraction_s(a, b);
 }
 
-// Expr operator^(double a, const Expr& b)
-//{
-//    return csl::pow_s(csl::autonumber_s(a), b);
-//}
-// Expr operator^(const Expr& a, double b)
-//{
-//    return csl::pow_s(a, csl::autonumber_s(b));
-//}
-// Expr operator^(int a, const Expr& b)
-//{
-//    return csl::pow_s(csl::autonumber_s(a), b);
-//}
-// Expr operator^(const Expr& a, int b)
-//{
-//    return csl::pow_s(a, csl::autonumber_s(b));
-//}
-// Expr operator^(const Expr& a, const Expr& b)
-//{
-//    return csl::pow_s(a,b);
-//}
-
 bool operator==(const Expr &a, const Expr &b)
 {
     return (a.get() == b.get()) or (*a == b);

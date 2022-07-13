@@ -1406,17 +1406,6 @@ Expr fraction_s(const Expr &leftOperand, const Expr &rightOperand);
  */
 Expr pow_s(const Expr &leftOperand, const Expr &rightOperand);
 
-/*! \fn
- * \brief Returns the \b exponentiation of the two operands, applying basic
- * simplifications.
- * \details This function possibly returns an object different from a Pow
- * object if the simplification requires so. For example x^1 -> x that is a
- * Variable. \param leftOperand  Left operand. \param rightOperand Right
- * (integer) operand. \return The exponentiation of \b leftOperand and \b
- * rightOperand.
- */
-Expr pow_s(const Expr &leftOperand, int value);
-
 Expr sqrt_s(const Expr &operand);
 
 Expr sqrt_s(int number);

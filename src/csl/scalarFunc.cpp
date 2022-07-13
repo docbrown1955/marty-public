@@ -19,7 +19,6 @@
 #include "indicial.h"
 #include "interface.h"
 #include "mathFunctions.h"
-#include "numericalEval.h"
 #include "replace.h"
 
 using namespace std;
@@ -256,27 +255,6 @@ optional<Expr> AbstractFunc::expand_if(
 Expr AbstractFunc::evalNumerical(Expr const &arg) const
 {
     Expr result = copy();
-    if (arg->getType() == csl::Type::NumericalEval) {
-        Expr foo_var = variable_s("foo");
-        result->setArgument(foo_var);
-        Expr f_prime = Derived(result, foo_var.get());
-        Replace(f_prime, foo_var, autonumber_s(arg->evaluateScalar()));
-        f_prime = Evaluated(f_prime);
-        Expr delta_plus;
-        Expr delta_minus;
-        if (f_prime->evaluateScalar() < 0) {
-            delta_plus  = -f_prime * autonumber_s(arg->getDeltaMinus());
-            delta_minus = f_prime * autonumber_s(arg->getDeltaPlus());
-        }
-        else {
-            delta_minus = -f_prime * autonumber_s(arg->getDeltaMinus());
-            delta_plus  = f_prime * autonumber_s(arg->getDeltaPlus());
-        }
-        result->setArgument(autonumber_s(arg->evaluateScalar()));
-        return numericaleval_s(result->evaluateScalar(),
-                               delta_plus->evaluateScalar(),
-                               delta_minus->evaluateScalar());
-    }
     result->setArgument(arg);
     return autonumber_s(result->evaluateScalar());
 }

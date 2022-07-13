@@ -22,7 +22,6 @@
 #include "literal.h"
 #include "mathFunctions.h"
 #include "numerical.h"
-#include "numericalEval.h"
 #include "operations.h"
 #include "options.h"
 #include "pseudoIntegral.h"
@@ -385,25 +384,6 @@ bool Complex::operator<(const Abstract *expr) const
     }
 }
 
-bool NumericalEval::operator<(const Abstract *expr) const
-{
-    csl::Type type = expr->getType();
-    switch (type) {
-
-    case csl::Type::Integer:
-    case csl::Type::Float:
-    case csl::Type::IntFraction:
-    case csl::Type::Complex:
-        return false;
-
-    case csl::Type::NumericalEval:
-        return evalRule(this, expr);
-
-    default:
-        return true;
-    }
-}
-
 bool IntFactorial::operator<(const Abstract *expr) const
 {
     csl::Type type = expr->getType();
@@ -413,7 +393,6 @@ bool IntFactorial::operator<(const Abstract *expr) const
     case csl::Type::Float:
     case csl::Type::IntFraction:
     case csl::Type::Complex:
-    case csl::Type::NumericalEval:
         return false;
 
     case csl::Type::IntFactorial:
@@ -442,7 +421,6 @@ bool Imaginary::operator<(const Abstract *expr) const
     case csl::Type::Float:
     case csl::Type::IntFraction:
     case csl::Type::Complex:
-    case csl::Type::NumericalEval:
     case csl::Type::IntFactorial:
     case csl::Type::Imaginary:
         return false;
@@ -461,7 +439,6 @@ bool Constant::operator<(const Abstract *expr) const
     case csl::Type::Float:
     case csl::Type::IntFraction:
     case csl::Type::Complex:
-    case csl::Type::NumericalEval:
     case csl::Type::IntFactorial:
     case csl::Type::Imaginary:
         return false;
@@ -492,7 +469,6 @@ bool Arbitrary::operator<(const Abstract *expr) const
     case csl::Type::Float:
     case csl::Type::IntFraction:
     case csl::Type::Complex:
-    case csl::Type::NumericalEval:
     case csl::Type::IntFactorial:
     case csl::Type::Imaginary:
     case csl::Type::Constant:
@@ -523,7 +499,6 @@ bool Variable::operator<(const Abstract *expr) const
     case csl::Type::Float:
     case csl::Type::IntFraction:
     case csl::Type::Complex:
-    case csl::Type::NumericalEval:
     case csl::Type::IntFactorial:
     case csl::Type::Imaginary:
     case csl::Type::Constant:
@@ -567,7 +542,6 @@ bool Sum::operator<(const Abstract *expr) const
     case csl::Type::Float:
     case csl::Type::IntFraction:
     case csl::Type::Complex:
-    case csl::Type::NumericalEval:
     case csl::Type::Imaginary:
         return false;
 
@@ -598,7 +572,6 @@ bool Prod::operator<(const Abstract *expr) const
     case csl::Type::Float:
     case csl::Type::IntFraction:
     case csl::Type::Complex:
-    case csl::Type::NumericalEval:
     case csl::Type::Imaginary:
         return false;
 
@@ -616,7 +589,6 @@ bool Pow::operator<(const Abstract *expr) const
     case csl::Type::Float:
     case csl::Type::IntFraction:
     case csl::Type::Complex:
-    case csl::Type::NumericalEval:
     case csl::Type::Imaginary:
         return false;
 
@@ -642,7 +614,6 @@ bool AbstractFunc::operator<(const Abstract *expr) const
     case csl::Type::Float:
     case csl::Type::IntFraction:
     case csl::Type::Complex:
-    case csl::Type::NumericalEval:
     case csl::Type::IntFactorial:
     case csl::Type::Imaginary:
     case csl::Type::Constant:
@@ -679,7 +650,6 @@ bool AbstractDuoFunc::operator<(Expr_info expr) const
     case csl::Type::Float:
     case csl::Type::IntFraction:
     case csl::Type::Complex:
-    case csl::Type::NumericalEval:
     case csl::Type::Imaginary:
     case csl::Type::Constant:
     case csl::Type::NoType:
@@ -720,7 +690,6 @@ bool AbstractMultiFunc::operator<(const Abstract *expr) const
     case csl::Type::Float:
     case csl::Type::IntFraction:
     case csl::Type::Complex:
-    case csl::Type::NumericalEval:
     case csl::Type::IntFactorial:
     case csl::Type::Imaginary:
     case csl::Type::Constant:
@@ -762,7 +731,6 @@ bool BooleanOperator::operator<(const Abstract *expr) const
     case csl::Type::Float:
     case csl::Type::IntFraction:
     case csl::Type::Complex:
-    case csl::Type::NumericalEval:
     case csl::Type::IntFactorial:
     case csl::Type::Imaginary:
     case csl::Type::Constant:
@@ -798,7 +766,6 @@ bool Angle::operator<(const Abstract *expr) const
     case csl::Type::Float:
     case csl::Type::IntFraction:
     case csl::Type::Complex:
-    case csl::Type::NumericalEval:
     case csl::Type::IntFactorial:
     case csl::Type::Imaginary:
     case csl::Type::Constant:
@@ -838,7 +805,6 @@ bool Commutator::operator<(const Abstract *expr) const
     case csl::Type::Float:
     case csl::Type::IntFraction:
     case csl::Type::Complex:
-    case csl::Type::NumericalEval:
     case csl::Type::IntFactorial:
     case csl::Type::Imaginary:
     case csl::Type::Constant:
@@ -881,7 +847,6 @@ bool Derivative::operator<(const Abstract *expr) const
     case csl::Type::Float:
     case csl::Type::IntFraction:
     case csl::Type::Complex:
-    case csl::Type::NumericalEval:
     case csl::Type::IntFactorial:
     case csl::Type::Imaginary:
     case csl::Type::Constant:
@@ -925,7 +890,6 @@ bool Integral::operator<(const Abstract *expr) const
     case csl::Type::Float:
     case csl::Type::IntFraction:
     case csl::Type::Complex:
-    case csl::Type::NumericalEval:
     case csl::Type::IntFactorial:
     case csl::Type::Imaginary:
     case csl::Type::Constant:

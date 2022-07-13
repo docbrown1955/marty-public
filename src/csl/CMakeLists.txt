@@ -85,8 +85,6 @@ set(ALL_SOURCES
     multipermutation.h
     numerical.cpp
     numerical.h
-    numericalEval.cpp
-    numericalEval.h
     objectSymmetry.h
     operations.cpp
     operations.h

@@ -16,7 +16,6 @@
 #include "variableParent.h"
 #include "literal.h"
 #include "numerical.h"
-#include "numericalEval.h"
 #include "utils.h"
 
 using namespace std;
