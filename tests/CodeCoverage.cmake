@@ -116,11 +116,11 @@ FUNCTION(SETUP_TARGET_FOR_COVERAGE _targetname)
         ${LCOV_PATH} --directory . --zerocounters
 
         # Run tests
-        COMMAND ctest -L ${_targetname}
+        COMMAND ctest -L ${_targetname} --output-on-failure
 
         # Capturing lcov counters and generating report
         COMMAND ${LCOV_PATH} --directory . --capture --output-file ${_outputname}.info --gcov-tool ${GCOV_PATH}
-        COMMAND ${LCOV_PATH} --remove ${_outputname}.info 'build/*' 'tests/*' '/usr/*' '**/gtest/*' --output-file ${_outputname}.info.cleaned --gcov-tool ${GCOV_PATH}
+        COMMAND ${LCOV_PATH} --remove ${_outputname}.info 'build/*' 'tests/*' '/usr/*' '**/gtest*' --output-file ${_outputname}.info.cleaned --gcov-tool ${GCOV_PATH}
         COMMAND ${GENHTML_PATH} -o ${_outputname} ${_outputname}.info.cleaned
         COMMAND ${CMAKE_COMMAND} -E remove ${_outputname}.info ${_outputname}.info.cleaned
 

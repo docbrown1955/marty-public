@@ -10,12 +10,12 @@ add_custom_command(
     COMMAND export CFLAGS=-fPIC
     COMMAND export CXXFLAGS=-fPIC
     COMMAND rm -rf build
-    COMMAND ./configure FFLAGS="-fPIC"
-    COMMAND make
+    COMMAND ./configure FFLAGS="-fPIC" > /dev/null 2>&1
+    COMMAND make > /dev/null 2>&1
     COMMAND cp build/libooptools.a ${PROJECT_BINARY_DIR}/libooptools-static.a
     COMMAND cp build/clooptools.h ${PROJECT_BINARY_DIR}/
     COMMAND cp build/clooptools.h ${PROJECT_SOURCE_DIR}/src/
-    COMMAND ${CMAKE_Fortran_COMPILER} -shared build/*.o -o ${PROJECT_BINARY_DIR}/libooptools.so
+    COMMAND ${CMAKE_Fortran_COMPILER} -shared build/*.o -o ${PROJECT_BINARY_DIR}/libooptools.so > /dev/null 2>&1
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 add_custom_command(
@@ -24,10 +24,10 @@ add_custom_command(
     COMMAND export CFLAGS=-fPIC
     COMMAND export CXXFLAGS=-fPIC
     COMMAND rm -rf build-quad
-    COMMAND ./configure --quad FFLAGS="-fpic"
-    COMMAND make
+    COMMAND ./configure --quad FFLAGS="-fpic" > /dev/null 2>&1
+    COMMAND make > /dev/null 2>&1
     COMMAND cp build-quad/libooptools-quad.a ${PROJECT_BINARY_DIR}/libooptools-quad-static.a
-    COMMAND ${CMAKE_Fortran_COMPILER} -shared build-quad/*.o -o ${PROJECT_BINARY_DIR}/libooptools-quad.so
+    COMMAND ${CMAKE_Fortran_COMPILER} -shared build-quad/*.o -o ${PROJECT_BINARY_DIR}/libooptools-quad.so > /dev/null 2>&1
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
