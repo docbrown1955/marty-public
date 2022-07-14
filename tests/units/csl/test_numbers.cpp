@@ -279,19 +279,48 @@ TEST(csl_numbers, operations1)
     ASSERT_EQ(csl::intfraction_s(2, 4) * csl::complex_s(1, 1)
                   - csl::complex_s(0, csl::intfraction_s(1, 2)),
               csl::intfraction_s(15423, 30846));
-    ASSERT_EQ(csl::pow_s(4, csl::intfraction_s(1, 2)), CSL_2);
-    ASSERT_EQ(csl::pow_s(9, csl::intfraction_s(1, 2)), 1 + CSL_2);
-    ASSERT_DOUBLE_EQ(csl::pow_s(3.5, 3)->evaluateScalar(), std::pow(3.5, 3));
-    ASSERT_DOUBLE_EQ(csl::pow_s(3.5, 3)->evaluateScalar(), std::pow(3.5, 3));
-    ASSERT_DOUBLE_EQ(csl::pow_s(5, 3)->evaluateScalar(), std::pow(5, 3));
-    ASSERT_DOUBLE_EQ(csl::pow_s(5, 3.4)->evaluateScalar(), std::pow(5, 3.4));
-    ASSERT_DOUBLE_EQ(csl::pow_s(csl::intfraction_s(1, 2), 3)->evaluateScalar(),
-                     std::pow(0.5, 3));
-    ASSERT_DOUBLE_EQ(csl::pow_s(4, csl::intfraction_s(1, 2))->evaluateScalar(),
-                     std::pow(4, 0.5));
+    ASSERT_EQ(csl::int_s(4)->exponentiation_own(csl::intfraction_s(1, 2)),
+              CSL_2);
+    ASSERT_EQ(csl::int_s(9)->exponentiation_own(csl::intfraction_s(1, 2)),
+              1 + CSL_2);
     ASSERT_DOUBLE_EQ(
-        csl::pow_s(2.4, csl::intfraction_s(1, 2))->evaluateScalar(),
-        std::pow(2.4, 0.5));
+        csl::float_s(3.5)->exponentiation_own(3)->evaluateScalar(),
+        std::pow(3.5, 3));
+    ASSERT_DOUBLE_EQ(
+        csl::float_s(3.5)->exponentiation_own(3)->evaluateScalar(),
+        std::pow(3.5, 3));
+    ASSERT_DOUBLE_EQ(csl::int_s(5)->exponentiation_own(3)->evaluateScalar(),
+                     std::pow(5, 3));
+    ASSERT_DOUBLE_EQ(csl::int_s(5)->exponentiation_own(3.4)->evaluateScalar(),
+                     std::pow(5, 3.4));
+    ASSERT_DOUBLE_EQ(csl::int_s(5)
+                         ->exponentiation_own(csl::make_shared<csl::Float>(3.))
+                         ->evaluateScalar(),
+                     std::pow(5, 3.));
+    ASSERT_DOUBLE_EQ(
+        csl::intfraction_s(1, 2)->exponentiation_own(3)->evaluateScalar(),
+        std::pow(0.5, 3));
+    ASSERT_DOUBLE_EQ(
+        csl::intfraction_s(1, 2)->exponentiation_own(-3)->evaluateScalar(),
+        std::pow(0.5, -3));
+    ASSERT_DOUBLE_EQ(
+        csl::intfraction_s(1, 2)->exponentiation_own(4.5)->evaluateScalar(),
+        std::pow(0.5, 4.5));
+    ASSERT_DOUBLE_EQ(
+        csl::intfraction_s(1, 2)->exponentiation_own(-4.5)->evaluateScalar(),
+        std::pow(0.5, -4.5));
+    ASSERT_DOUBLE_EQ(csl::int_s(4)
+                         ->exponentiation_own(csl::intfraction_s(1, 2))
+                         ->evaluateScalar(),
+                     std::pow(4, 0.5));
+    ASSERT_DOUBLE_EQ(csl::float_s(2.4)
+                         ->exponentiation_own(csl::intfraction_s(1, 2))
+                         ->evaluateScalar(),
+                     std::pow(2.4, 0.5));
+    ASSERT_DOUBLE_EQ(csl::float_s(2.4)
+                         ->exponentiation_own(csl::intfraction_s(1, 3))
+                         ->evaluateScalar(),
+                     std::pow(2.4, 1. / 3));
 
     csl::Expr res;
     res        = csl::Evaluated(csl::pow_s(csl::complex_s(1, 2), 4));
@@ -318,41 +347,184 @@ TEST(csl_numbers, operations1)
 
 TEST(csl_numbers, operations2)
 {
-    ASSERT_DOUBLE_EQ((csl::int_s(5) * 3)->evaluateScalar(), 5 * 3);
-    ASSERT_DOUBLE_EQ((csl::int_s(5) * 124.4)->evaluateScalar(), 5 * 124.4);
+    ASSERT_DOUBLE_EQ((csl::int_s(5)->addition_own(3))->evaluateScalar(),
+                     5 + 3);
+    ASSERT_DOUBLE_EQ((csl::int_s(5)->addition_own(124.4))->evaluateScalar(),
+                     5 + 124.4);
+    ASSERT_DOUBLE_EQ((csl::int_s(5)->addition_own(csl::intfraction_s(2, 3)))
+                         ->evaluateScalar(),
+                     5 + 2. / 3);
+    ASSERT_DOUBLE_EQ((csl::float_s(5.5)->addition_own(3))->evaluateScalar(),
+                     5.5 + 3);
     ASSERT_DOUBLE_EQ(
-        (csl::int_s(5) * csl::intfraction_s(2, 3))->evaluateScalar(),
+        (csl::float_s(5.5)->addition_own(124.4))->evaluateScalar(),
+        5.5 + 124.4);
+    ASSERT_DOUBLE_EQ(
+        (csl::float_s(5.5)->addition_own(csl::intfraction_s(2, 3)))
+            ->evaluateScalar(),
+        5.5 + 2. / 3);
+    ASSERT_DOUBLE_EQ((csl::make_shared<csl::Float>(5.)->addition_own(
+                          csl::intfraction_s(2, 3)))
+                         ->evaluateScalar(),
+                     5. + 2. / 3);
+    ASSERT_DOUBLE_EQ(
+        (csl::intfraction_s(5, 7)->addition_own(3))->evaluateScalar(),
+        5. / 7 + 3);
+    ASSERT_DOUBLE_EQ(
+        (csl::intfraction_s(5, 7)->addition_own(124.4))->evaluateScalar(),
+        5. / 7 + 124.4);
+    ASSERT_DOUBLE_EQ(
+        (csl::intfraction_s(5, 7)->addition_own(csl::intfraction_s(2, 3)))
+            ->evaluateScalar(),
+        5. / 7 + 2. / 3);
+
+    ASSERT_DOUBLE_EQ((csl::int_s(5)->multiplication_own(3))->evaluateScalar(),
+                     5 * 3);
+    ASSERT_DOUBLE_EQ(
+        (csl::int_s(5)->multiplication_own(124.4))->evaluateScalar(),
+        5 * 124.4);
+    ASSERT_DOUBLE_EQ(
+        (csl::int_s(5)->multiplication_own(csl::intfraction_s(2, 3)))
+            ->evaluateScalar(),
         5 * 2. / 3);
-    ASSERT_DOUBLE_EQ((csl::float_s(5.5) * 3)->evaluateScalar(), 5.5 * 3);
-    ASSERT_DOUBLE_EQ((csl::float_s(5.5) * 124.4)->evaluateScalar(),
-                     5.5 * 124.4);
     ASSERT_DOUBLE_EQ(
-        (csl::float_s(5.5) * csl::intfraction_s(2, 3))->evaluateScalar(),
+        (csl::float_s(5.5)->multiplication_own(3))->evaluateScalar(), 5.5 * 3);
+    ASSERT_DOUBLE_EQ(
+        (csl::float_s(5.5)->multiplication_own(124.4))->evaluateScalar(),
+        5.5 * 124.4);
+    ASSERT_DOUBLE_EQ(
+        (csl::float_s(5.5)->multiplication_own(csl::intfraction_s(2, 3)))
+            ->evaluateScalar(),
         5.5 * 2. / 3);
-    ASSERT_DOUBLE_EQ((csl::intfraction_s(5, 7) * 3)->evaluateScalar(),
-                     5. / 7 * 3);
-    ASSERT_DOUBLE_EQ((csl::intfraction_s(5, 7) * 124.4)->evaluateScalar(),
+    ASSERT_DOUBLE_EQ((csl::make_shared<csl::Float>(5.)->multiplication_own(
+                          csl::intfraction_s(2, 3)))
+                         ->evaluateScalar(),
+                     5. * 2. / 3);
+    ASSERT_DOUBLE_EQ(
+        (csl::intfraction_s(5, 7)->multiplication_own(3))->evaluateScalar(),
+        5. / 7 * 3);
+    ASSERT_DOUBLE_EQ((csl::intfraction_s(5, 7)->multiplication_own(124.4))
+                         ->evaluateScalar(),
                      5. / 7 * 124.4);
-    ASSERT_DOUBLE_EQ((csl::intfraction_s(5, 7) * csl::intfraction_s(2, 3))
+    ASSERT_DOUBLE_EQ((csl::intfraction_s(5, 7)->multiplication_own(
+                          csl::intfraction_s(2, 3)))
                          ->evaluateScalar(),
                      5. / 7 * 2. / 3);
 
-    ASSERT_DOUBLE_EQ((csl::int_s(5) / 3)->evaluateScalar(), 5. / 3);
-    ASSERT_DOUBLE_EQ((csl::int_s(5) / 124.4)->evaluateScalar(), 5 / 124.4);
-    ASSERT_DOUBLE_EQ(
-        (csl::int_s(5) / csl::intfraction_s(2, 3))->evaluateScalar(),
-        5 / (2. / 3));
-    ASSERT_DOUBLE_EQ((csl::float_s(5.5) / 3)->evaluateScalar(), 5.5 / 3);
-    ASSERT_DOUBLE_EQ((csl::float_s(5.5) / 124.4)->evaluateScalar(),
-                     5.5 / 124.4);
-    ASSERT_DOUBLE_EQ(
-        (csl::float_s(5.5) / csl::intfraction_s(2, 3))->evaluateScalar(),
-        5.5 / (2. / 3));
-    ASSERT_DOUBLE_EQ((csl::intfraction_s(5, 7) / 3)->evaluateScalar(),
-                     5. / 7. / 3);
-    ASSERT_DOUBLE_EQ((csl::intfraction_s(5, 7) / 124.4)->evaluateScalar(),
-                     5. / 7. / 124.4);
-    ASSERT_DOUBLE_EQ((csl::intfraction_s(5, 7) / csl::intfraction_s(2, 3))
+    ASSERT_DOUBLE_EQ((csl::int_s(5)->division_own(3))->evaluateScalar(),
+                     5. / 3);
+    ASSERT_DOUBLE_EQ((csl::int_s(5)->division_own(124.4))->evaluateScalar(),
+                     5 / 124.4);
+    ASSERT_DOUBLE_EQ((csl::int_s(5)->division_own(csl::intfraction_s(2, 3)))
                          ->evaluateScalar(),
-                     5. / 7. / (2. / 3));
+                     5 / (2. / 3));
+    ASSERT_DOUBLE_EQ((csl::float_s(5.5)->division_own(3))->evaluateScalar(),
+                     5.5 / 3);
+    ASSERT_DOUBLE_EQ(
+        (csl::float_s(5.5)->division_own(124.4))->evaluateScalar(),
+        5.5 / 124.4);
+    ASSERT_DOUBLE_EQ(
+        (csl::float_s(5.5)->division_own(csl::intfraction_s(2, 3)))
+            ->evaluateScalar(),
+        5.5 / (2. / 3));
+    ASSERT_DOUBLE_EQ(
+        (csl::float_s(5.5)->division_own(csl::intfraction_s(2, 3)))
+            ->evaluateScalar(),
+        5.5 / (2. / 3));
+    ASSERT_DOUBLE_EQ((csl::make_shared<csl::Float>(5.)->division_own(
+                          csl::intfraction_s(2, 3)))
+                         ->evaluateScalar(),
+                     5. / (2. / 3));
+    ASSERT_DOUBLE_EQ(
+        (csl::intfraction_s(5, 7)->division_own(3))->evaluateScalar(),
+        5. / 7. / 3);
+    ASSERT_DOUBLE_EQ(
+        (csl::intfraction_s(5, 7)->division_own(124.4))->evaluateScalar(),
+        5. / 7. / 124.4);
+    ASSERT_DOUBLE_EQ(
+        (csl::intfraction_s(5, 7)->division_own(csl::intfraction_s(2, 3)))
+            ->evaluateScalar(),
+        5. / 7. / (2. / 3));
+}
+
+TEST(csl_numbers, operations3)
+{
+    csl::Expr cplx = csl::complex_s(3, 4);
+    ASSERT_EQ(csl::GetRealPart(CSL_2->addition_own(cplx)), csl::int_s(5));
+    ASSERT_EQ(csl::GetImaginaryPart(CSL_2->addition_own(cplx)), csl::int_s(4));
+    ASSERT_EQ(csl::GetRealPart(CSL_2->multiplication_own(cplx)),
+              csl::int_s(6));
+    ASSERT_EQ(csl::GetImaginaryPart(CSL_2->multiplication_own(cplx)),
+              csl::int_s(8));
+    ASSERT_EQ(csl::GetRealPart(CSL_2->division_own(cplx)), csl::int_s(6) / 25);
+    ASSERT_EQ(csl::GetImaginaryPart(CSL_2->division_own(cplx)),
+              csl::int_s(-8) / 25);
+
+    csl::Expr pi = csl::float_s(M_PI);
+    ASSERT_DOUBLE_EQ(
+        csl::GetRealPart(pi->addition_own(cplx))->evaluateScalar(), M_PI + 3);
+    ASSERT_DOUBLE_EQ(
+        csl::GetImaginaryPart(pi->addition_own(cplx))->evaluateScalar(), 4);
+    ASSERT_DOUBLE_EQ(
+        csl::GetRealPart(pi->multiplication_own(cplx))->evaluateScalar(),
+        M_PI * 3);
+    ASSERT_DOUBLE_EQ(
+        csl::GetImaginaryPart(pi->multiplication_own(cplx))->evaluateScalar(),
+        M_PI * 4);
+    ASSERT_DOUBLE_EQ(
+        csl::GetRealPart(pi->division_own(cplx))->evaluateScalar(),
+        M_PI * 3 / 25);
+    ASSERT_DOUBLE_EQ(
+        csl::GetImaginaryPart(pi->division_own(cplx))->evaluateScalar(),
+        -M_PI * 4 / 25);
+
+    csl::Expr frac = csl::intfraction_s(1, -3);
+    ASSERT_DOUBLE_EQ(
+        csl::GetRealPart(frac->addition_own(cplx))->evaluateScalar(),
+        (-1. / 3) + 3);
+    ASSERT_DOUBLE_EQ(
+        csl::GetImaginaryPart(frac->addition_own(cplx))->evaluateScalar(), 4);
+    ASSERT_DOUBLE_EQ(
+        csl::GetRealPart(frac->multiplication_own(cplx))->evaluateScalar(),
+        (-1. / 3) * 3);
+    ASSERT_DOUBLE_EQ(csl::GetImaginaryPart(frac->multiplication_own(cplx))
+                         ->evaluateScalar(),
+                     (-1. / 3) * 4);
+    ASSERT_DOUBLE_EQ(
+        csl::GetRealPart(frac->division_own(cplx))->evaluateScalar(),
+        (-1. / 3) * 3 / 25);
+    ASSERT_DOUBLE_EQ(
+        csl::GetImaginaryPart(frac->division_own(cplx))->evaluateScalar(),
+        1. / 3 * 4 / 25);
+}
+
+TEST(csl_numbers, errors)
+{
+    ASSERT_THROW(csl::int_s(2)->addition_own(data::a), CSLError);
+    ASSERT_THROW(csl::int_s(2)->multiplication_own(data::a), CSLError);
+    ASSERT_THROW(csl::int_s(2)->division_own(data::a), CSLError);
+    ASSERT_THROW(csl::int_s(2)->exponentiation_own(data::a), CSLError);
+    ASSERT_THROW(csl::float_s(2.5)->addition_own(data::a), CSLError);
+    ASSERT_THROW(csl::float_s(2.5)->multiplication_own(data::a), CSLError);
+    ASSERT_THROW(csl::float_s(2.5)->division_own(data::a), CSLError);
+    ASSERT_THROW(csl::float_s(2.5)->exponentiation_own(data::a), CSLError);
+    ASSERT_THROW(csl::intfraction_s(2, 5)->addition_own(data::a), CSLError);
+    ASSERT_THROW(csl::intfraction_s(2, 5)->multiplication_own(data::a),
+                 CSLError);
+    ASSERT_THROW(csl::intfraction_s(2, 5)->division_own(data::a), CSLError);
+    ASSERT_THROW(csl::intfraction_s(2, 5)->exponentiation_own(data::a),
+                 CSLError);
+    ASSERT_THROW(csl::complex_s(2, 5)->addition_own(data::a), CSLError);
+    ASSERT_THROW(csl::complex_s(2, 5)->multiplication_own(data::a), CSLError);
+    ASSERT_THROW(csl::complex_s(2, 5)->division_own(data::a), CSLError);
+    ASSERT_THROW(csl::complex_s(2, 5)->exponentiation_own(data::a), CSLError);
+}
+
+TEST(csl_numbers, derivative)
+{
+    using namespace data;
+    ASSERT_EQ(csl::int_s(2)->derive(a.get()).value(), CSL_0);
+    ASSERT_EQ(csl::float_s(2.5)->derive(a.get()).value(), CSL_0);
+    ASSERT_EQ(csl::intfraction_s(2, 5)->derive(a.get()).value(), CSL_0);
+    ASSERT_EQ(csl::complex_s(2, 5)->derive(a.get()).value(), CSL_0);
 }
