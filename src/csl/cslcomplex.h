@@ -39,6 +39,11 @@ class RealPart : public Operator<AbstractFunc> {
 
     csl::Type getType() const override;
 
+    bool getCommutable() const override
+    {
+        return true;
+    }
+
     bool operatorAppliesOn(Expr_info arg) const override;
 
     Expr getOperand() const override;
@@ -81,6 +86,11 @@ class ImaginaryPart : public Operator<AbstractFunc> {
     ImaginaryPart(const Expr &t_argument);
 
     ~ImaginaryPart(){};
+
+    bool getCommutable() const override
+    {
+        return true;
+    }
 
     csl::Type getType() const override;
 

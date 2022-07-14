@@ -1807,6 +1807,9 @@ bool Angle::operator==(Expr_info expr) const
     }
     if (expr->getType() != csl::Type::Angle)
         return false;
+    auto f1 = fraction_s(argument[0], argument[1]);
+    auto f2 = fraction_s(expr->getArgument(0), expr->getArgument(1));
+    cout << f1 << " " << f2 << " : " << (f1 == f2) << endl;
     return (*fraction_s(argument[0], argument[1])
             == fraction_s(expr->getArgument(0), expr->getArgument(1)));
 }

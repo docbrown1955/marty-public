@@ -6,9 +6,16 @@ TEST(csl_comparison, numbers)
 {
     EXPECT_EQ(csl::int_s(3), 3);
     EXPECT_EQ(csl::intfraction_s(3, 2), csl::intfraction_s(6, 4));
+    EXPECT_EQ(csl::int_s(3),
+              (csl::Expr) csl::make_shared<csl::IntFraction>(-9, -3));
+    EXPECT_NE(csl::int_s(3),
+              (csl::Expr) csl::make_shared<csl::IntFraction>(9, -3));
     EXPECT_NE(csl::int_s(3), 2);
+    EXPECT_NE(csl::int_s(3), 2.5);
     EXPECT_NE(csl::intfraction_s(3, 2), csl::intfraction_s(5, 4));
     EXPECT_DOUBLE_EQ(csl::intfraction_s(7, 3)->evaluateScalar(), 7. / 3);
+    EXPECT_EQ((csl::Expr) csl::make_shared<csl::Float>(0.),
+              (csl::Expr) csl::make_shared<csl::Complex>(0., 0.));
 }
 
 TEST(csl_comparison, variables)
