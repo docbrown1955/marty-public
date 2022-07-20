@@ -25,8 +25,8 @@ FeynmanDiagram::FeynmanDiagram(mty::Model const &t_model)
 }
 
 FeynmanDiagram::FeynmanDiagram(mty::Model const &t_model,
-                               csl::Expr const & t_expression,
-                               diagram_t const & t_diagram)
+                               csl::Expr const  &t_expression,
+                               diagram_t const  &t_diagram)
     : model(&t_model),
       expression(csl::DeepCopy(t_expression)),
       diagram(t_diagram)
@@ -91,31 +91,31 @@ void FeynmanDiagram::loadParticlesFromVertices(
 {
     std::vector<csl::Tensor> loopVertices(vertices.size());
     auto                     first = vertices[0][0];
-    int                      path  = mty::wick::Graph::walk(
+
+    mty::wick::Graph::LoopInformation loopInfo = mty::wick::Graph::walk(
         loopVertices.begin(), loopVertices.begin(), first, vertices);
-    if (path == -1) {
-        cycleLength = 0;
+    if (loopInfo.isInvalid()) {
+        cycleLength            = 0;
+        externalPropagatorLoop = false;
         loopVertices.clear();
     }
     else {
-        cycleLength = path;
+        externalPropagatorLoop
+            = loopInfo.isExternalCorrection && loopInfo.nLegs == 2;
+        cycleLength = loopInfo.nLegs;
     }
     for (const auto &vertex : vertices) {
         for (const auto &node : vertex) {
-            // Internal Fields
             if (node->field->isExternal()
                 || node->partner.lock()->field->isExternal()) {
                 addParticle(*node->field, External);
                 continue;
             }
-            csl::Tensor pA = node->field->getPoint();
-            csl::Tensor pB = node->partner.lock()->field->getPoint();
-            auto posA = std::find(begin(loopVertices), end(loopVertices), pA);
-            auto posB = std::find(begin(loopVertices), end(loopVertices), pB);
-            auto type
-                = (posA == end(loopVertices) && posB == end(loopVertices))
-                      ? Mediator
-                      : Loop;
+            // Internal Fields
+            auto pos  = std::find(begin(loopInfo.loopFields),
+                                 end(loopInfo.loopFields),
+                                 node->field);
+            auto type = (pos == loopInfo.loopFields.end()) ? Mediator : Loop;
             addParticle(*node->field, type);
         }
     }
@@ -156,7 +156,7 @@ FeynmanDiagram FeynmanDiagram::copy() const
 
 FeynmanDiagram FeynmanDiagram::combine(FeynmanDiagram const &A,
                                        FeynmanDiagram const &B,
-                                       Particle const &      mediator)
+                                       Particle const       &mediator)
 {
     std::vector<mty::wick::Vertex> newVertices = A.diagram->getVertices();
     newVertices.insert(newVertices.end(),

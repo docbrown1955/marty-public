@@ -371,7 +371,7 @@ class ConnectedComponent {
      * \param c    ConnectedComponent to display.
      * \return The modified stream.
      */
-    friend std::ostream &operator<<(std::ostream &            fout,
+    friend std::ostream &operator<<(std::ostream             &fout,
                                     const ConnectedComponent &c);
 
   private:
@@ -384,6 +384,23 @@ class ConnectedComponent {
  * connect them in all possible ways returning the set of all possible Graph.
  */
 class Graph {
+
+  public:
+    struct LoopInformation {
+        int                                    nLegs;
+        bool                                   isExternalCorrection;
+        std::vector<mty::QuantumField const *> loopFields;
+
+        static LoopInformation invalid()
+        {
+            return LoopInformation{-1, false, {}};
+        }
+
+        bool isInvalid() const
+        {
+            return nLegs < 0;
+        }
+    };
 
   public:
     using Expr_type = std::pair<csl::Expr, ConjugationList>;
@@ -399,14 +416,14 @@ class Graph {
      * contractions.
      */
     explicit Graph(const std::vector<mty::QuantumField> &field,
-                   std::map<csl::Tensor, size_t> &       vertexIds,
+                   std::map<csl::Tensor, size_t>        &vertexIds,
                    bool                                  ruleMode);
 
     /*!
      * \brief Constructor with one parameter.
      * \param expr csl csl::Expr converted into fields (convertExprToFields()).
      */
-    explicit Graph(const csl::Expr &              expr,
+    explicit Graph(const csl::Expr               &expr,
                    std::map<csl::Tensor, size_t> &vertexIds,
                    bool                           ruleMode);
 
@@ -546,7 +563,7 @@ class Graph {
      */
     std::vector<std::shared_ptr<Graph>> contractionStep() const;
 
-    bool compare(const Graph &                       other,
+    bool compare(const Graph                        &other,
                  std::map<csl::Tensor, csl::Tensor> &mapping,
                  bool                                fieldBlind = false) const;
 
@@ -565,20 +582,22 @@ class Graph {
     friend std::ostream &operator<<(std::ostream &fout, const Graph &g);
 
     static Vertex const *getVertexOf(std::shared_ptr<Node> const &node,
-                                     std::vector<Vertex> const &  vertices);
+                                     std::vector<Vertex> const   &vertices);
 
     static std::vector<std::shared_ptr<Node>>
     nextNodes(std::shared_ptr<Node> const &node,
-              std::vector<Vertex> const &  vertices);
+              std::vector<Vertex> const   &vertices);
 
-    static int countExternalLegs(std::vector<csl::Tensor>::iterator first,
-                                 std::vector<csl::Tensor>::iterator last,
-                                 std::vector<Vertex> const &        vertices);
+    static std::pair<int, bool>
+    countExternalLegs(std::vector<csl::Tensor>::iterator first,
+                      std::vector<csl::Tensor>::iterator last,
+                      std::vector<Vertex> const         &vertices);
 
-    static int walk(std::vector<csl::Tensor>::iterator first,
-                    std::vector<csl::Tensor>::iterator last,
-                    std::shared_ptr<Node> const &      node,
-                    std::vector<Vertex> const &        vertices);
+    static LoopInformation walk(std::vector<csl::Tensor>::iterator first,
+                                std::vector<csl::Tensor>::iterator last,
+                                std::shared_ptr<Node> const       &node,
+                                std::vector<Vertex> const         &vertices,
+                                LoopInformation previous = {});
 
   private:
     /*!
@@ -601,9 +620,9 @@ class Graph {
     void initConnectedComponent();
 
     Expr_type
-    getPartialExpression(std::vector<std::shared_ptr<Node>> &  nodes,
+    getPartialExpression(std::vector<std::shared_ptr<Node>>   &nodes,
                          const std::vector<mty::QuantumField> &initialOrder,
-                         mty::FeynruleMomentum &               witnessMapping,
+                         mty::FeynruleMomentum                &witnessMapping,
                          csl::Expr const &globalFactor) const;
 
     csl::ObjectSymmetry<const mty::QuantumField *>
@@ -615,7 +634,7 @@ class Graph {
     copyNodes(const std::vector<std::shared_ptr<Node>> &toCopy);
 
     static void applySymmetry(
-        std::vector<std::shared_ptr<Node>> &                     nodes,
+        std::vector<std::shared_ptr<Node>>                      &nodes,
         const csl::ObjectPermutation<const mty::QuantumField *> &permutation);
 
     /*!
@@ -677,19 +696,19 @@ class Graph {
     bool contractConnected(const mty::QuantumField *field, int indexVertex);
 
     static void addFoundNode(const std::shared_ptr<Node> &newNode,
-                             std::vector<csl::Tensor> &   foundNodes);
+                             std::vector<csl::Tensor>    &foundNodes);
 
     static void sortNodes(std::vector<std::shared_ptr<Node>> &nodes);
 
     static bool
-    compareFieldsDummyPoint(const mty::QuantumField *           fieldA,
-                            const mty::QuantumField *           fieldB,
+    compareFieldsDummyPoint(const mty::QuantumField            *fieldA,
+                            const mty::QuantumField            *fieldB,
                             std::map<csl::Tensor, csl::Tensor> &constraints,
                             bool fieldBlind = false);
 
     static bool compareNodesWithConstraints(
-        const Node *                        nodeA,
-        const Node *                        nodeB,
+        const Node                         *nodeA,
+        const Node                         *nodeB,
         std::map<csl::Tensor, csl::Tensor> &constraints,
         bool                                fieldBlind = false);
 
@@ -757,28 +776,28 @@ class WickCalculator {
 
   public:
     static csl::Expr applyWickTheoremOnDiagram(
-        const Graph &                       diagram,
+        const Graph                        &diagram,
         std::vector<mty::FeynruleMomentum> &witnessMapping,
         bool                                ruleMode = true);
 
     static csl::vector_expr applyWickTheoremOnDiagrams(
         const std::vector<std::shared_ptr<Graph>> &diagrams,
-        std::vector<mty::FeynruleMomentum> &       witnessMapping,
+        std::vector<mty::FeynruleMomentum>        &witnessMapping,
         bool                                       ruleMode = true);
 
     static std::vector<mty::FeynmanDiagram>
-    getDiagrams(mty::Model const *                  model,
-                FeynOptions const &                 options,
-                const csl::Expr &                   initialExpr,
-                std::map<csl::Tensor, size_t> &     vertexIds,
+    getDiagrams(mty::Model const                   *model,
+                FeynOptions const                  &options,
+                const csl::Expr                    &initialExpr,
+                std::map<csl::Tensor, size_t>      &vertexIds,
                 std::vector<mty::FeynruleMomentum> &witnessMapping,
                 bool symmetriseExternalLegs = false,
                 bool ruleMode               = true);
 
     static std::vector<mty::FeynmanDiagram>
-    getDiagrams(mty::Model const *             model,
-                FeynOptions const &            options,
-                const csl::Expr &              initialExpr,
+    getDiagrams(mty::Model const              *model,
+                FeynOptions const             &options,
+                const csl::Expr               &initialExpr,
                 std::map<csl::Tensor, size_t> &vertexIds,
                 bool                           symmetriseExternalLegs = false,
                 bool                           ruleMode               = true);
@@ -936,7 +955,7 @@ bool areExactlyContractible(const mty::QuantumField &f1,
  * \param node Node to display in a std::shared_ptr.
  * \return The modified flux.
  */
-std::ostream &operator<<(std::ostream &               fout,
+std::ostream &operator<<(std::ostream                &fout,
                          const std::shared_ptr<Node> &node);
 
 /*!
@@ -950,12 +969,12 @@ std::ostream &operator<<(std::ostream &               fout,
 bool operator==(const std::shared_ptr<Node> &A,
                 const std::shared_ptr<Node> &B);
 
-bool comparePriority(const std::shared_ptr<Node> &   A,
-                     const std::shared_ptr<Node> &   B,
+bool comparePriority(const std::shared_ptr<Node>    &A,
+                     const std::shared_ptr<Node>    &B,
                      const std::vector<csl::Tensor> &foundNodes);
 
-bool internal_comparePriority(const std::shared_ptr<Node> &   A,
-                              const std::shared_ptr<Node> &   B,
+bool internal_comparePriority(const std::shared_ptr<Node>    &A,
+                              const std::shared_ptr<Node>    &B,
                               const std::vector<csl::Tensor> &foundNodes);
 
 /*!
@@ -987,7 +1006,7 @@ int countFermions(std::vector<const mty::QuantumField *>::const_iterator begin,
  * different order. \return The sign cost of the permutation of \b B in order
  * to Transform it into \b A.
  */
-int getCommutationSign(const std::vector<mty::QuantumField> & A,
+int getCommutationSign(const std::vector<mty::QuantumField>  &A,
                        std::vector<const mty::QuantumField *> B);
 
 int getCommutationSign(const std::vector<const mty::QuantumField *> &A,

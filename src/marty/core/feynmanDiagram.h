@@ -79,8 +79,8 @@ class FeynmanDiagram {
     FeynmanDiagram(mty::Model const &t_model);
 
     FeynmanDiagram(mty::Model const &t_model,
-                   csl::Expr const & t_expression,
-                   diagram_t const & t_diagram);
+                   csl::Expr const  &t_expression,
+                   diagram_t const  &t_diagram);
 
     /**
      * @brief Tells if the diagram vanishes.
@@ -323,6 +323,20 @@ class FeynmanDiagram {
     }
 
     /**
+     * @brief Tells if at least one external leg is loop-corrected in the
+     * diagram.
+     *
+     * @return true   If an external leg receives a loop correction
+     * @return false  Otherwise
+     *
+     * @sa #externalPropagatorLoop
+     */
+    bool hasExternalLegCorrections() const
+    {
+        return externalPropagatorLoop;
+    }
+
+    /**
      * @brief Tells if a particle is an external particle in the diagram.
      *
      * @details This function can take any type that can be forwarded to
@@ -454,7 +468,7 @@ class FeynmanDiagram {
      */
     static FeynmanDiagram combine(FeynmanDiagram const &A,
                                   FeynmanDiagram const &B,
-                                  Particle const &      mediator);
+                                  Particle const       &mediator);
 
   private:
     /**
@@ -539,6 +553,12 @@ class FeynmanDiagram {
      * is at one-loop.
      */
     int cycleLength;
+
+    /**
+     * @brief Tell if an external leg is loop-corrected in the diagram
+     * (useful to filter-out external leg correction diagrams in amplitudes).
+     */
+    bool externalPropagatorLoop;
 
     /**
      * @brief Number of loops in the diagram.
