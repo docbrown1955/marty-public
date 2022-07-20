@@ -2137,8 +2137,6 @@ bool Prod::operator==(Expr_info expr) const
         if (int test = testDummy(expr); test != -1)
             return test;
     }
-    print();
-    expr->print();
     const auto sz = size();
     if (sz == 1)
         return *argument[0] == expr;
@@ -2146,7 +2144,6 @@ bool Prod::operator==(Expr_info expr) const
         return false;
     if (sz != expr->size())
         return false;
-    cout << "COMPARING\n";
 
     vector<size_t> indicesLeft(sz);
     for (size_t i = 0; i != sz; ++i)
@@ -2162,22 +2159,15 @@ bool Prod::operator==(Expr_info expr) const
         Expr const &arg     = argument[i];
         for (size_t j = 0; j != indicesLeft.size(); ++j) {
             Expr const &foo = expr->getArgument(indicesLeft[j]);
-            cout << " FOO " << foo << endl;
             if (option::checkCommutations and *Commutation(arg, foo) != CSL_0)
                 break;
             if (*arg == foo.get()) {
-                cout << "EQUAL\n";
                 indicesLeft.erase(indicesLeft.begin() + j);
-                cout << arg << " matched\n";
                 matched = true;
                 break;
             }
-            else {
-                cout << "DIFFERENT\n";
-            }
         }
         if (not matched) {
-            cout << arg << " not matched\n";
             if (not dummySearch)
                 return false;
             if (Comparator::getDummyComparisonActive())
@@ -3010,14 +3000,10 @@ bool Pow::operator==(Expr_info expr) const
         if (int test = testDummy(expr); test != -1)
             return test;
     }
-    print();
-    expr->print();
     if (expr->getType() != csl::Type::Pow)
         return false;
-    auto res = (*argument[0] == expr->getArgument(0).get()
-                && *argument[1] == expr->getArgument(1).get());
-    cout << res << endl;
-    return res;
+    return (*argument[0] == expr->getArgument(0).get()
+            && *argument[1] == expr->getArgument(1).get());
 }
 
 Expr pow_s(const Expr &leftOperand, const Expr &rightOperand)

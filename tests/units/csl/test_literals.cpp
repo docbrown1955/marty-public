@@ -29,7 +29,7 @@ TEST(csl_literals, variables)
     cst2.imag = csl::make_shared<csl::ImaginaryPart>(cst2.expr);
     cst2.mod  = csl::sqrt_s(cst2.real * cst2.real + cst2.imag * cst2.imag);
     cst2.arg  = csl::angle_s(cst2.real, cst2.imag);
-    cst2.conjugate = data::c1->copy();
+    cst2.conjugate = data::z1->copy();
     cst2.conjugate->setConjugated(true);
     TEST_EXPECTATION(cst2)
 }
