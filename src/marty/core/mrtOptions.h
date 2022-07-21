@@ -38,29 +38,30 @@ inline bool amputateExternalLegs = false;
 // Options on amplitude computation
 ///////////////////////////////////////////////////
 
-inline bool simplifyAmplitudes        = true;
-inline bool orderExternalFermions     = false;
-inline bool discardLowerOrders        = true;
-inline bool evaluateFermionTraces     = true;
-inline bool excludeTadpoles           = true;
-inline bool excludeMassCorrections    = false;
-inline bool excludeTriangles          = false;
-inline bool excludeBoxes              = false;
-inline bool excludePentagons          = false;
-inline bool computeFirstIntegral      = true;
-inline bool dimensionalRegularization = true;
-inline bool searchAbreviations        = true;
-inline bool expandAbbreviations       = false;
-inline bool applyFermionChain         = false;
-inline bool abbreviateColorStructures = true;
-inline bool decomposeInOperators      = false;
-inline bool decomposeInLocalOperator  = true;
-inline bool applyEquationsOfMotion    = true;
-inline bool addLocalTerms             = true;
-inline bool verboseAmplitude          = true;
-inline bool testRepresentations       = true;
-inline bool keepOnlyFirstMassInLoop   = false;
-inline bool useMassiveSimplifications = true;
+inline bool simplifyAmplitudes             = true;
+inline bool orderExternalFermions          = false;
+inline bool discardLowerOrders             = true;
+inline bool evaluateFermionTraces          = true;
+inline bool excludeExternalLegsCorrections = false;
+inline bool excludeTadpoles                = true;
+inline bool excludeMassCorrections         = false;
+inline bool excludeTriangles               = false;
+inline bool excludeBoxes                   = false;
+inline bool excludePentagons               = false;
+inline bool computeFirstIntegral           = true;
+inline bool dimensionalRegularization      = true;
+inline bool searchAbreviations             = true;
+inline bool expandAbbreviations            = false;
+inline bool applyFermionChain              = false;
+inline bool abbreviateColorStructures      = true;
+inline bool decomposeInOperators           = false;
+inline bool decomposeInLocalOperator       = true;
+inline bool applyEquationsOfMotion         = true;
+inline bool addLocalTerms                  = true;
+inline bool verboseAmplitude               = true;
+inline bool testRepresentations            = true;
+inline bool keepOnlyFirstMassInLoop        = false;
+inline bool useMassiveSimplifications      = true;
 
 // This one is a reference ! Only to have this option available in mty::option
 inline bool &keepEvanescentOperators = sgl::option::keepEvanescentOperators;

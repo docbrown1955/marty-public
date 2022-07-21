@@ -485,7 +485,7 @@ Graph::Graph()
 {
 }
 
-Graph::Graph(const vector<QuantumField> &   field,
+Graph::Graph(const vector<QuantumField>    &field,
              std::map<csl::Tensor, size_t> &vertexIds,
              bool                           t_ruleMode)
     : Graph()
@@ -529,14 +529,14 @@ Graph::Graph(const vector<QuantumField> &   field,
     initConnectedComponent();
 }
 
-Graph::Graph(const csl::Expr &              expr,
+Graph::Graph(const csl::Expr               &expr,
              std::map<csl::Tensor, size_t> &vertexId,
              bool                           t_ruleMode)
     : Graph(convertExprToFields(expr), vertexId, t_ruleMode)
 {
 }
 
-Graph::Graph(Graph const &                             other,
+Graph::Graph(Graph const                              &other,
              std::vector<std::shared_ptr<Node>> const &newNodes)
     : Graph(other)
 {
@@ -687,7 +687,7 @@ bool Graph::isPhysical() const
 
 // Returns the vertex in which one node is
 Vertex const *Graph::getVertexOf(std::shared_ptr<Node> const &node,
-                                 std::vector<Vertex> const &  vertices)
+                                 std::vector<Vertex> const   &vertices)
 {
     auto point = node->field->getPoint().get();
     for (const auto &v : vertices)
@@ -701,7 +701,7 @@ Vertex const *Graph::getVertexOf(std::shared_ptr<Node> const &node,
 // Returns all nodes connected to another node
 std::vector<std::shared_ptr<Node>>
 Graph::nextNodes(std::shared_ptr<Node> const &node,
-                 std::vector<Vertex> const &  vertices)
+                 std::vector<Vertex> const   &vertices)
 {
     auto          partner    = node->partner.lock();
     Vertex const *nextVertex = getVertexOf(partner, vertices);
@@ -715,43 +715,62 @@ Graph::nextNodes(std::shared_ptr<Node> const &node,
     return next;
 }
 
-int Graph::countExternalLegs(std::vector<csl::Tensor>::iterator first,
-                             std::vector<csl::Tensor>::iterator last,
-                             std::vector<Vertex> const &        vertices)
+std::pair<int, bool>
+Graph::countExternalLegs(std::vector<csl::Tensor>::iterator first,
+                         std::vector<csl::Tensor>::iterator last,
+                         std::vector<Vertex> const         &vertices)
 {
-    int nExt = 0;
+    int  nExt     = 0;
+    bool external = false;
     while (first != last) {
         auto pos = std::find_if(
             vertices.begin(), vertices.end(), [&](Vertex const &vertex) {
                 return vertex[0]->field->getPoint().get() == first->get();
             });
+        if (!external) {
+            for (const auto &node : *pos) {
+                if (node->partner.lock()->field->isExternal()) {
+                    external = true;
+                    break;
+                }
+            }
+        }
         nExt += pos->size() - 2;
         ++first;
     }
-    return nExt;
+    return {nExt, external};
 }
 
-int Graph::walk(std::vector<csl::Tensor>::iterator first,
-                std::vector<csl::Tensor>::iterator last,
-                std::shared_ptr<Node> const &      node,
-                std::vector<Vertex> const &        vertices)
+Graph::LoopInformation Graph::walk(std::vector<csl::Tensor>::iterator first,
+                                   std::vector<csl::Tensor>::iterator last,
+                                   std::shared_ptr<Node> const       &node,
+                                   std::vector<Vertex> const         &vertices,
+                                   LoopInformation                    previous)
 {
     *last = node->field->getPoint();
     for (auto iter = first; iter != last; ++iter)
         if (iter->get() == last->get()) {
-            return countExternalLegs(iter, last, vertices);
+            auto [length, external] = countExternalLegs(iter, last, vertices);
+            previous.nLegs          = length;
+            previous.isExternalCorrection = external;
+            previous.loopFields = std::vector<mty::QuantumField const *>(
+                previous.loopFields.begin() + 2 * std::distance(first, iter),
+                previous.loopFields.end());
+            return previous;
         }
     ++last;
+    previous.loopFields.push_back(node->field);
+    previous.loopFields.push_back(node->partner.lock()->field);
     auto next = nextNodes(node, vertices);
     if (next.empty())
-        return -1;
+        return LoopInformation::invalid();
     for (const auto &nextNode : next) {
-        int res = walk(first, last, nextNode, vertices);
-        if (res != -1) {
+        LoopInformation res = walk(first, last, nextNode, vertices, previous);
+        if (res.nLegs != -1) {
             return res;
         }
     }
-    return -1;
+    return LoopInformation::invalid();
 }
 
 bool Graph::isValid() const
@@ -762,10 +781,11 @@ bool Graph::isValid() const
         && !mty::option::excludeTriangles && !mty::option::excludeBoxes
         && !mty::option::excludePentagons)
         return true;
-    auto const &             vertices = connectedCompo.getVertices();
+    auto const              &vertices = connectedCompo.getVertices();
     std::vector<csl::Tensor> points(vertices.size());
     auto                     first = vertices[0][0];
-    auto cycleLength = walk(points.begin(), points.begin(), first, vertices);
+    auto [cycleLength, _, __]
+        = walk(points.begin(), points.begin(), first, vertices);
     if (cycleLength == 1 && mty::option::excludeMassCorrections)
         return false;
     if (cycleLength == 2 && mty::option::excludeMassCorrections)
@@ -795,10 +815,10 @@ int Graph::getFieldDimension() const
 }
 
 Graph::Expr_type
-Graph::getPartialExpression(vector<shared_ptr<Node>> &  nodes,
+Graph::getPartialExpression(vector<shared_ptr<Node>>   &nodes,
                             const vector<QuantumField> &initialOrder,
-                            mty::FeynruleMomentum &     witnessMapping,
-                            csl::Expr const &           globalFactor) const
+                            mty::FeynruleMomentum      &witnessMapping,
+                            csl::Expr const            &globalFactor) const
 {
     HEPAssert(nodes.size() % 2 == 0,
               mty::error::RuntimeError,
@@ -1019,7 +1039,7 @@ Graph::copyNodes(const vector<shared_ptr<Node>> &toCopy)
 }
 
 void Graph::applySymmetry(
-    vector<shared_ptr<Node>> &                     nodes,
+    vector<shared_ptr<Node>>                      &nodes,
     const ObjectPermutation<const QuantumField *> &permutation)
 {
     for (auto &node : nodes)
@@ -1044,8 +1064,8 @@ vector<int> Graph::getContractibleIntVertices(const QuantumField *field) const
     for (size_t i = 0; i != independentVertices.size(); ++i) {
         const int begin = independentVertices[i];
         const int end   = (i != independentVertices.size() - 1)
-                            ? independentVertices[i + 1]
-                            : intVertex.size();
+                              ? independentVertices[i + 1]
+                              : intVertex.size();
         for (int index = begin; index != end; ++index) {
             if (intVertex[index].getDegeneracy(field) > 0) {
                 vertices.push_back(index);
@@ -1173,8 +1193,8 @@ std::vector<std::shared_ptr<Graph>> Graph::contractionStep() const
     return nonZeroDiagrams;
 }
 
-bool Graph::compareFieldsDummyPoint(const QuantumField *           fieldA,
-                                    const QuantumField *           fieldB,
+bool Graph::compareFieldsDummyPoint(const QuantumField            *fieldA,
+                                    const QuantumField            *fieldB,
                                     map<csl::Tensor, csl::Tensor> &constraints,
                                     bool                           fieldBlind)
 {
@@ -1215,8 +1235,8 @@ bool Graph::compareFieldsDummyPoint(const QuantumField *           fieldA,
 }
 
 bool Graph::compareNodesWithConstraints(
-    const Node *                   nodeA,
-    const Node *                   nodeB,
+    const Node                    *nodeA,
+    const Node                    *nodeB,
     map<csl::Tensor, csl::Tensor> &constraints,
     bool                           fieldBlind)
 {
@@ -1287,7 +1307,7 @@ bool Graph::compareNodesWithConstraints(
 }
 
 void Graph::addFoundNode(const shared_ptr<Node> &newNode,
-                         vector<csl::Tensor> &   foundNodes)
+                         vector<csl::Tensor>    &foundNodes)
 {
     const QuantumField *f1     = newNode->field;
     const QuantumField *f2     = newNode->partner.lock()->field;
@@ -1322,7 +1342,7 @@ void Graph::sortNodes(vector<shared_ptr<Node>> &nodes)
     }
 }
 
-bool Graph::compare(const Graph &                       other,
+bool Graph::compare(const Graph                        &other,
                     std::map<csl::Tensor, csl::Tensor> &constraints,
                     bool                                fieldBlind) const
 {
@@ -1480,7 +1500,7 @@ void WickCalculator::eliminateNonPhysicalDiagrams(
         }
 }
 
-void WickCalculator::calculateDiagrams(Model const *      model,
+void WickCalculator::calculateDiagrams(Model const       *model,
                                        FeynOptions const &options)
 {
     int dim = initialDiagram.getFieldDimension();
@@ -1538,14 +1558,14 @@ void WickCalculator::calculateDiagrams(Model const *      model,
 }
 
 csl::Expr WickCalculator::applyWickTheoremOnDiagram(
-    const Graph &                       diagram,
+    const Graph                        &diagram,
     std::vector<mty::FeynruleMomentum> &witnessMapping,
     bool                                ruleMode)
 {
     if (ruleMode) {
-        auto res = (witnessMapping.empty())
-                       ? diagram.getExpression()
-                       : diagram.getExpression(witnessMapping[0]);
+        auto                   res = (witnessMapping.empty())
+                                         ? diagram.getExpression()
+                                         : diagram.getExpression(witnessMapping[0]);
         std::vector<csl::Expr> terms;
         terms.reserve(res.size());
         for (const auto &el : res)
@@ -1560,16 +1580,16 @@ csl::Expr WickCalculator::applyWickTheoremOnDiagram(
 
 csl::vector_expr WickCalculator::applyWickTheoremOnDiagrams(
     const std::vector<std::shared_ptr<Graph>> &diagrams,
-    std::vector<mty::FeynruleMomentum> &       witnessMapping,
+    std::vector<mty::FeynruleMomentum>        &witnessMapping,
     bool                                       ruleMode)
 {
     return convertGraphsToCorrelators(diagrams, witnessMapping, ruleMode);
 }
 
 std::vector<mty::FeynmanDiagram>
-WickCalculator::getDiagrams(mty::Model const *             model,
-                            FeynOptions const &            options,
-                            const csl::Expr &              initial,
+WickCalculator::getDiagrams(mty::Model const              *model,
+                            FeynOptions const             &options,
+                            const csl::Expr               &initial,
                             std::map<csl::Tensor, size_t> &vertexIds,
                             bool symmetrizeExternalLegs,
                             bool ruleMode)
@@ -1585,10 +1605,10 @@ WickCalculator::getDiagrams(mty::Model const *             model,
 }
 
 std::vector<mty::FeynmanDiagram>
-WickCalculator::getDiagrams(mty::Model const *                  model,
-                            FeynOptions const &                 options,
-                            const csl::Expr &                   initial,
-                            std::map<csl::Tensor, size_t> &     vertexIds,
+WickCalculator::getDiagrams(mty::Model const                   *model,
+                            FeynOptions const                  &options,
+                            const csl::Expr                    &initial,
+                            std::map<csl::Tensor, size_t>      &vertexIds,
                             std::vector<mty::FeynruleMomentum> &witnessMapping,
                             bool symmetrizeExternalLegs,
                             bool ruleMode)
@@ -1799,7 +1819,7 @@ bool operator==(const shared_ptr<Node> &A, const shared_ptr<Node> &B)
 
 bool comparePriority(const shared_ptr<Node> &A,
                      const shared_ptr<Node> &B,
-                     const vector<Tensor> &  foundNodes)
+                     const vector<Tensor>   &foundNodes)
 {
     if (not internal_comparePriority(A, A->partner.lock(), foundNodes))
         return false;
@@ -1810,7 +1830,7 @@ bool comparePriority(const shared_ptr<Node> &A,
 
 bool internal_comparePriority(const shared_ptr<Node> &A,
                               const shared_ptr<Node> &B,
-                              const vector<Tensor> &  foundNodes)
+                              const vector<Tensor>   &foundNodes)
 {
     bool extA = A->field->isExternal();
     bool extB = B->field->isExternal();
@@ -1904,7 +1924,7 @@ int getCommutationSign(const std::vector<const mty::QuantumField *> &A,
     return getCommutationSign(A_static, B);
 }
 
-int getCommutationSign(const std::vector<QuantumField> & A,
+int getCommutationSign(const std::vector<QuantumField>  &A,
                        std::vector<const QuantumField *> B)
 {
     int sign = 1;

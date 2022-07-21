@@ -148,6 +148,13 @@ void FeynOptions::initDefaultFilters()
         }
         return true;
     });
+    addDiagramFilter([=](FeynmanDiagram const &diagram) {
+        if (excludeExternalLegCorrections
+            && diagram.hasExternalLegCorrections()) {
+            return false;
+        }
+        return true;
+    });
 }
 
 } // namespace mty
