@@ -754,12 +754,13 @@ Graph::LoopInformation Graph::walk(std::vector<csl::Tensor>::iterator first,
             previous.nLegs          = length;
             previous.isExternalCorrection = external;
             previous.loopFields = std::vector<mty::QuantumField const *>(
-                previous.loopFields.begin() + std::distance(first, iter),
-                previous.loopFields.end() - 1);
+                previous.loopFields.begin() + 2 * std::distance(first, iter),
+                previous.loopFields.end());
             return previous;
         }
     ++last;
     previous.loopFields.push_back(node->field);
+    previous.loopFields.push_back(node->partner.lock()->field);
     auto next = nextNodes(node, vertices);
     if (next.empty())
         return LoopInformation::invalid();
