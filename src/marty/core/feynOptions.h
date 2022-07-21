@@ -314,7 +314,7 @@ class FeynOptions {
      * @param ...next  Next filters.
      */
     template <class First, class... Next>
-    void addFilters(First &&first, Next &&... next)
+    void addFilters(First &&first, Next &&...next)
     {
         addFilter(std::forward<First>(first));
         addFilters(std::forward<Next>(next)...);
@@ -406,6 +406,9 @@ class FeynOptions {
      * of different diagrams in a process and is then physically irrelevant.
      */
     bool orderInsertions{mty::option::applyInsertionOrdering};
+
+    bool excludeExternalLegCorrections{
+        mty::option::excludeExternalLegsCorrections};
 
     /**
      * @brief Boolean telling if external fermions must be ordered in the
