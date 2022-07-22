@@ -50,6 +50,10 @@
         "stdexcept": "cpp",
         "stop_token": "cpp",
         "thread": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "cstring": "cpp",
+        "forward_list": "cpp",
+        "unordered_set": "cpp",
+        "typeindex": "cpp"
     }
 }

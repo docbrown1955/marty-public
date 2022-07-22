@@ -19,7 +19,6 @@
 #include "interface.h"
 #include "librarygenerator.h"
 #include "mathFunctions.h"
-#include "numericalEval.h"
 #include "operations.h"
 #include "utils.h"
 
@@ -69,6 +68,11 @@ void AbstractNumerical::printCode(int mode, std::ostream &out) const
 std::vector<Parent> AbstractNumerical::getSubSymbols() const
 {
     return {};
+}
+
+std::optional<Expr> AbstractNumerical::getComplexArgument() const
+{
+    return evaluateScalar() < 0 ? CSL_PI : CSL_0;
 }
 
 ///////////////////////////////////////////////////
@@ -136,15 +140,6 @@ Expr Float::refresh() const
     return autonumber_s(value);
 }
 
-void Float::operator=(int t_value)
-{
-    value = t_value;
-}
-void Float::operator=(double t_value)
-{
-    value = t_value;
-}
-
 bool Float::operator==(Expr_info expr) const
 {
     if (expr->getName() == Comparator::dummyName())
@@ -162,22 +157,14 @@ bool Float::operator==(Expr_info expr) const
             return true;
         return false;
     }
-    else if (type == csl::Type::NumericalEval) {
-        return false;
-    }
 
     return (value == expr->evaluateScalar());
 }
 
 Expr Float::multiplication_own(const Expr &expr, bool) const
 {
-    if (expr->getType() == csl::Type::NumericalEval)
-        return csl::make_shared<NumericalEval>(evaluateScalar())
-            ->multiplication_own(expr);
     if (expr->getType() == csl::Type::Complex)
         return expr->multiplication_own(copy());
-    if (not expr or expr->getPrimaryType() != csl::PrimaryType::Numerical)
-        return CSL_0;
 
     switch (expr->getType()) {
     case csl::Type::Integer:
@@ -195,23 +182,17 @@ Expr Float::multiplication_own(const Expr &expr, bool) const
         break;
 
     default:
-        cout << "Warning: numerical type \"" << expr->getType();
-        cout << "\" not recognized in number oeprations.\n";
-        return CSL_0;
+        CALL_SMERROR(CSLError::TypeError);
+        return CSL_UNDEF;
     }
 }
 
 Expr Float::division_own(const Expr &expr) const
 {
-    if (expr->getType() == csl::Type::NumericalEval)
-        return csl::make_shared<NumericalEval>(evaluateScalar())
-            ->division_own(expr);
     if (expr->getType() == csl::Type::Complex) {
         return copy() * GetComplexConjugate(expr)
                / (pow_s(GetComplexModulus(expr), CSL_2));
     }
-    if (not expr or expr->getPrimaryType() != csl::PrimaryType::Numerical)
-        return CSL_0;
 
     switch (expr->getType()) {
     case csl::Type::Integer:
@@ -226,9 +207,8 @@ Expr Float::division_own(const Expr &expr) const
         break;
 
     default:
-        cout << "Warning: numerical type \"" << expr->getType();
-        cout << "\" not recognized in number oeprations.\n";
-        return CSL_0;
+        CALL_SMERROR(CSLError::TypeError);
+        return CSL_UNDEF;
     }
 }
 
@@ -236,8 +216,6 @@ Expr Float::exponentiation_own(const Expr &expr) const
 {
     if (expr->getType() == csl::Type::Complex)
         return csl::make_shared<Pow, alloc_pow>(copy(), expr);
-    if (not expr or expr->getPrimaryType() != csl::PrimaryType::Numerical)
-        return CSL_0;
 
     double value2 = expr->evaluateScalar();
     switch (expr->getType()) {
@@ -259,21 +237,15 @@ Expr Float::exponentiation_own(const Expr &expr) const
         break;
 
     default:
-        cout << "Warning: numerical type \"" << expr->getType();
-        cout << "\" not recognized in number oeprations.\n";
-        return CSL_0;
+        CALL_SMERROR(CSLError::TypeError);
+        return CSL_UNDEF;
     }
 }
 
 Expr Float::addition_own(const Expr &expr) const
 {
-    if (expr->getType() == csl::Type::NumericalEval)
-        return csl::make_shared<NumericalEval>(evaluateScalar())
-            ->addition_own(expr);
     if (expr->getType() == csl::Type::Complex)
         return expr->addition_own(copy());
-    if (not expr or expr->getPrimaryType() != csl::PrimaryType::Numerical)
-        return CSL_0;
 
     switch (expr->getType()) {
     case csl::Type::Integer:
@@ -292,9 +264,8 @@ Expr Float::addition_own(const Expr &expr) const
         break;
 
     default:
-        cout << "Warning: numerical type \"" << expr->getType();
-        cout << "\" not recognized in number oeprations.\n";
-        return CSL_0;
+        CALL_SMERROR(CSLError::TypeError);
+        return CSL_UNDEF;
     }
 }
 
@@ -358,11 +329,6 @@ unique_Expr Integer::copy_unique() const
     return make_unique<Integer>(value);
 }
 
-void Integer::operator=(long long int t_value)
-{
-    value = t_value;
-}
-
 bool Integer::operator==(Expr_info expr) const
 {
     if (expr == this)
@@ -376,20 +342,16 @@ bool Integer::operator==(Expr_info expr) const
         return value == static_cast<int>(expr->evaluateScalar());
     else if (type == csl::Type::Float)
         return value == expr->evaluateScalar();
+    else if (type == csl::Type::IntFraction)
+        return value == expr->getNum() && expr->getDenom() == 1;
 
     return false;
 }
 
 Expr Integer::multiplication_own(const Expr &expr, bool) const
 {
-    if (expr->getType() == csl::Type::NumericalEval)
-        return csl::make_shared<NumericalEval>(evaluateScalar())
-            ->multiplication_own(expr);
     if (expr->getType() == csl::Type::Complex)
         return expr->multiplication_own(copy());
-    if (expr == nullptr
-        or expr->getPrimaryType() != csl::PrimaryType::Numerical)
-        return CSL_0;
 
     switch (expr->getType()) {
     case csl::Type::Integer:
@@ -405,84 +367,58 @@ Expr Integer::multiplication_own(const Expr &expr, bool) const
         break;
 
     default:
-        cout << "Warning: numerical type \"" << expr->getType();
-        cout << "\" not recognized in number oeprations.\n";
-        return CSL_0;
+        CALL_SMERROR(CSLError::TypeError);
+        return CSL_UNDEF;
     }
 }
 
 Expr Integer::addition_own(const Expr &expr) const
 {
-    if (expr->getType() == csl::Type::NumericalEval)
-        return csl::make_shared<NumericalEval>(evaluateScalar())
-            ->addition_own(expr);
     if (expr->getType() == csl::Type::Complex)
         return expr->addition_own(copy());
-    if (expr == nullptr
-        or expr->getPrimaryType() != csl::PrimaryType::Numerical)
-        return CSL_0;
 
     switch (expr->getType()) {
     case csl::Type::Integer:
         return autonumber_s(value + expr->evaluateScalar());
-        break;
 
     case csl::Type::Float:
         return autonumber_s(value + expr->evaluateScalar());
-        break;
 
     case csl::Type::IntFraction:
         return intfraction_s(value * expr->getDenom() + expr->getNum(),
                              expr->getDenom());
-        break;
 
     default:
-        cout << "Warning: numerical type \"" << expr->getType();
-        cout << "\" not recognized in number oeprations.\n";
-        return CSL_0;
+        CALL_SMERROR(CSLError::TypeError);
+        return CSL_UNDEF;
     }
 }
 
 Expr Integer::division_own(const Expr &expr) const
 {
-    if (expr->getType() == csl::Type::NumericalEval)
-        return csl::make_shared<NumericalEval>(evaluateScalar())
-            ->division_own(expr);
     if (expr->getType() == csl::Type::Complex) {
         return copy() * GetComplexConjugate(expr)
                / (pow_s(GetComplexModulus(expr), CSL_2));
     }
-    if (not expr or expr->getPrimaryType() != csl::PrimaryType::Numerical)
-        return CSL_0;
 
     switch (expr->getType()) {
     case csl::Type::Integer:
     case csl::Type::Float:
         return autonumber_s(value * 1. / expr->evaluateScalar());
-        break;
 
     case csl::Type::IntFraction:
-        if (value == round(value))
-            return intfraction_s(value * expr->getDenom(), expr->getNum());
-        return float_s(value * 1. / expr->evaluateScalar());
-        break;
+        return intfraction_s(value * expr->getDenom(), expr->getNum());
 
     default:
-        cout << "Warning: numerical type \"" << expr->getType();
-        cout << "\" not recognized in number oeprations.\n";
-        return CSL_0;
+        CALL_SMERROR(CSLError::TypeError);
+        return CSL_UNDEF;
     }
 }
 
 Expr Integer::exponentiation_own(const Expr &expr) const
 {
-    if (expr->getType() == csl::Type::NumericalEval)
-        return csl::make_shared<NumericalEval>(evaluateScalar())
-            ->exponentiation_own(expr);
     if (expr->getType() == csl::Type::Complex)
         return expr->exponentiation_own(copy());
-    if (not expr or expr->getPrimaryType() != csl::PrimaryType::Numerical)
-        return CSL_0;
 
     double value2 = expr->evaluateScalar();
     switch (expr->getType()) {
@@ -491,24 +427,20 @@ Expr Integer::exponentiation_own(const Expr &expr) const
             return autonumber_s(pow(value, expr->evaluateScalar()));
         else
             return intfraction_s(1, pow(value, -value2));
-        break;
 
     case csl::Type::Float:
         if (value2 > 0 or value2 != round(value2))
             return autonumber_s(pow(value, expr->evaluateScalar()));
         else
             return intfraction_s(1, pow(value, -value2));
-        break;
 
     case csl::Type::IntFraction:
     case csl::Type::Complex:
-        return csl::make_shared<Pow, alloc_pow>(copy(), expr);
-        break;
+        return pow_s(copy(), expr);
 
     default:
-        cout << "Warning: numerical type \"" << expr->getType();
-        cout << "\" not recognized in number oeprations.\n";
-        return CSL_0;
+        CALL_SMERROR(CSLError::TypeError);
+        return CSL_UNDEF;
     }
 }
 
@@ -624,20 +556,15 @@ Expr IntFraction::refresh() const
 
 Expr IntFraction::multiplication_own(const Expr &expr, bool) const
 {
-    if (expr->getType() == csl::Type::NumericalEval)
-        return csl::make_shared<NumericalEval>(evaluateScalar())
-            ->multiplication_own(expr);
     if (expr->getType() == csl::Type::Complex)
         return expr->multiplication_own(copy());
-    if (expr == nullptr
-        or expr->getPrimaryType() != csl::PrimaryType::Numerical)
-        return CSL_0;
-
     double value = expr->evaluateScalar();
     if (expr->isInteger()) // Integer
         return intfraction_s(num * value, denom);
     else if (expr->getType() == csl::Type::Float)
         return float_s(evaluateScalar() * value);
+    else if (expr->getType() != csl::Type::IntFraction)
+        CALL_SMERROR(CSLError::TypeError);
 
     // Fraction
     int t_num   = expr->getNum();
@@ -648,19 +575,15 @@ Expr IntFraction::multiplication_own(const Expr &expr, bool) const
 
 Expr IntFraction::addition_own(const Expr &expr) const
 {
-    if (expr->getType() == csl::Type::NumericalEval)
-        return csl::make_shared<NumericalEval>(evaluateScalar())
-            ->addition_own(expr);
     if (expr->getType() == csl::Type::Complex)
         return expr->addition_own(copy());
-    if (expr == nullptr
-        or expr->getPrimaryType() != csl::PrimaryType::Numerical)
-        return CSL_0;
     double value = expr->evaluateScalar();
     if (expr->isInteger())
         return intfraction_s(num + denom * value, denom);
     else if (expr->getType() == csl::Type::Float)
         return float_s(evaluateScalar() + value);
+    else if (expr->getType() != csl::Type::IntFraction)
+        CALL_SMERROR(CSLError::TypeError);
 
     // Fraction
     int t_num   = expr->getNum();
@@ -671,22 +594,18 @@ Expr IntFraction::addition_own(const Expr &expr) const
 
 Expr IntFraction::division_own(const Expr &expr) const
 {
-    if (expr->getType() == csl::Type::NumericalEval)
-        return csl::make_shared<NumericalEval>(evaluateScalar())
-            ->division_own(expr);
     if (expr->getType() == csl::Type::Complex) {
         return copy() * GetComplexConjugate(expr)
                / (pow_s(GetComplexModulus(expr), CSL_2));
     }
-    if (expr == nullptr
-        or expr->getPrimaryType() != csl::PrimaryType::Numerical)
-        return CSL_0;
 
     double value = expr->evaluateScalar();
     if (expr->isInteger()) // Integer
         return intfraction_s(num, denom * value);
     else if (expr->getType() == csl::Type::Float)
         return float_s(evaluateScalar() * 1. / value);
+    else if (expr->getType() != csl::Type::IntFraction)
+        CALL_SMERROR(CSLError::TypeError);
 
     // Fraction
     int t_num   = expr->getNum();
@@ -699,9 +618,6 @@ Expr IntFraction::exponentiation_own(const Expr &expr) const
 {
     if (expr->getType() == csl::Type::Complex)
         return csl::make_shared<Pow, alloc_pow>(copy(), expr);
-    if (expr == nullptr
-        or expr->getPrimaryType() != csl::PrimaryType::Numerical)
-        return CSL_0;
 
     double value = expr->evaluateScalar();
     if (expr->isInteger() and value > 0) // Integer
@@ -711,6 +627,8 @@ Expr IntFraction::exponentiation_own(const Expr &expr) const
                              pow(num, (int) (-value)));
     else if (expr->getType() == csl::Type::Float)
         return float_s(pow(evaluateScalar(), value));
+    else if (!csl::IsNumerical(expr))
+        CALL_SMERROR(CSLError::TypeError);
 
     return csl::make_shared<Pow, alloc_pow>(intfraction_s(num, denom), expr);
 }
@@ -719,18 +637,6 @@ optional<Expr> IntFraction::derive(Expr_info) const
 {
     return CSL_0;
 }
-
-void IntFraction::operator=(long long int t_value)
-{
-    num   = t_value;
-    denom = 1;
-}
-void IntFraction::operator=(double t_value)
-{
-    num   = t_value;
-    denom = 1;
-}
-
 bool IntFraction::operator==(Expr_info expr) const
 {
     if (expr == this)
@@ -754,7 +660,9 @@ bool IntFraction::operator==(Expr_info expr) const
 
 Expr float_s(long double value)
 {
-    if (value == round(value))
+    if (abs(value) < abs(
+            static_cast<long double>(std::numeric_limits<long long>::min()))
+        && value == round(value))
         return int_s(value);
     return csl::make_shared<Float, alloc_float>(value);
 }
@@ -776,9 +684,6 @@ Expr int_s(long long int value)
 
 Expr autonumber_s(long double value)
 {
-    if (value == round(value))
-        return int_s(value);
-
     return float_s(value);
 }
 
@@ -937,7 +842,7 @@ Expr Complex::getImaginaryPart() const
 std::optional<Expr> Complex::getComplexArgument() const
 {
     if (imag == CSL_0)
-        return CSL_0;
+        return (real->evaluateScalar() >= 0) ? CSL_0 : CSL_PI;
     if (real == CSL_0)
         return imag->evaluateScalar() < 0 ? -CSL_PI / 2 : CSL_PI / 2;
     return csl::make_shared<Angle>(real, imag);
@@ -951,7 +856,7 @@ std::optional<Expr> Complex::getComplexModulus() const
 std::optional<Expr> Complex::getComplexConjugate() const
 {
     if (imag == CSL_0)
-        return std::nullopt;
+        return real;
     return csl::make_shared<Complex, alloc_complex>(real, -imag);
 }
 
@@ -967,9 +872,6 @@ Expr Complex::refresh() const
 
 Expr Complex::multiplication_own(const Expr &expr, bool) const
 {
-    if (expr->getType() == csl::Type::NumericalEval)
-        return csl::complex_s(expr->multiplication_own(real),
-                              expr->multiplication_own(imag));
     if (expr->getType() != csl::Type::Complex)
         return complex_s(real->multiplication_own(expr),
                          imag->multiplication_own(expr));
@@ -982,8 +884,6 @@ Expr Complex::multiplication_own(const Expr &expr, bool) const
 
 Expr Complex::addition_own(const Expr &expr) const
 {
-    if (expr->getType() == csl::Type::NumericalEval)
-        return csl::complex_s(expr->addition_own(real), imag);
     if (expr->getType() != csl::Type::Complex)
         return complex_s(real->addition_own(expr), imag);
 
@@ -994,9 +894,6 @@ Expr Complex::addition_own(const Expr &expr) const
 
 Expr Complex::division_own(const Expr &expr) const
 {
-    if (expr->getType() == csl::Type::NumericalEval)
-        return csl::complex_s(real->division_own(expr),
-                              imag->division_own(expr));
     if (expr->getType() != csl::Type::Complex) {
         return complex_s(real->division_own(expr), imag->division_own(expr));
     }
@@ -1007,6 +904,8 @@ Expr Complex::division_own(const Expr &expr) const
 
 Expr Complex::exponentiation_own(const Expr &expr) const
 {
+    if (!csl::IsNumerical(expr))
+        CALL_SMERROR(CSLError::TypeError);
     if (expr->getType() == csl::Type::Complex)
         return csl::make_shared<Pow, alloc_pow>(copy(), expr);
     csl::Expr arg = getComplexArgument().value();

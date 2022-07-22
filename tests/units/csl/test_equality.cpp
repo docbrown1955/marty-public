@@ -1,33 +1,21 @@
+#include "csltestdata.h"
 #include <csl.h>
 #include <gtest/gtest.h>
-
-namespace data {
-
-inline const csl::Expr a = csl::constant_s("a");
-inline const csl::Expr b = csl::constant_s("b");
-inline const csl::Expr x = csl::variable_s("x");
-inline const csl::Expr y = csl::variable_s("y");
-
-inline const csl::Index i1  = csl::Euclid_R2.generateIndex("i");
-inline const csl::Index i2  = csl::Euclid_R2.generateIndex("i");
-inline const csl::Index I1  = csl::Euclid_R3.generateIndex("I");
-inline const csl::Index I2  = csl::Euclid_R3.generateIndex("I");
-inline const csl::Index mu1 = csl::Minkowski.generateIndex("mu");
-inline const csl::Index mu2 = csl::Minkowski.generateIndex("mu");
-
-inline csl::Tensor T22("T22", {&csl::Euclid_R2, &csl::Euclid_R2});
-inline csl::Tensor T33("T33", {&csl::Euclid_R3, &csl::Euclid_R3});
-inline csl::Tensor T23("T23", {&csl::Euclid_R2, &csl::Euclid_R3});
-
-} // namespace data
 
 TEST(csl_comparison, numbers)
 {
     EXPECT_EQ(csl::int_s(3), 3);
     EXPECT_EQ(csl::intfraction_s(3, 2), csl::intfraction_s(6, 4));
+    EXPECT_EQ(csl::int_s(3),
+              (csl::Expr) csl::make_shared<csl::IntFraction>(-9, -3));
+    EXPECT_NE(csl::int_s(3),
+              (csl::Expr) csl::make_shared<csl::IntFraction>(9, -3));
     EXPECT_NE(csl::int_s(3), 2);
+    EXPECT_NE(csl::int_s(3), 2.5);
     EXPECT_NE(csl::intfraction_s(3, 2), csl::intfraction_s(5, 4));
     EXPECT_DOUBLE_EQ(csl::intfraction_s(7, 3)->evaluateScalar(), 7. / 3);
+    EXPECT_EQ((csl::Expr) csl::make_shared<csl::Float>(0.),
+              (csl::Expr) csl::make_shared<csl::Complex>(0., 0.));
 }
 
 TEST(csl_comparison, variables)

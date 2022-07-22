@@ -46,6 +46,7 @@ class AbstractNumerical : public AbstractBuildingBlock {
 
     Expr                getNumericalFactor() const override;
     std::optional<Expr> getTerm() const override;
+    std::optional<Expr> getComplexArgument() const override;
 
     bool dependsOn(Expr_info) const override
     {
@@ -155,11 +156,6 @@ class Integer : public AbstractNumerical {
      */
     std::optional<Expr> derive(Expr_info expr) const override;
 
-    /*! \brief Sets value to t_value
-     * \param t_value
-     */
-    void operator=(long long int t_value);
-
     bool operator==(Expr_info expr) const override;
 
     bool operator<(const Abstract *expr) const override;
@@ -246,16 +242,6 @@ class Float : public AbstractNumerical {
      * \return \b 0
      */
     std::optional<Expr> derive(Expr_info expr) const override;
-
-    /*! \brief Sets value to t_value
-     * \param t_value
-     */
-    void operator=(int t_value);
-
-    /*! \brief Sets value to t_value
-     * \param t_value
-     */
-    void operator=(double t_value) override;
 
     bool operator==(Expr_info expr) const override;
 
@@ -360,16 +346,6 @@ class IntFraction : public AbstractNumerical {
      * \return \b 0
      */
     std::optional<Expr> derive(Expr_info expr) const override;
-
-    /*! \brief Sets num to t_value and denom to 1.
-     * \param t_value
-     */
-    void operator=(long long int t_value);
-
-    /*! \brief Sets num to t_value and denom to 1.
-     * \param t_value
-     */
-    void operator=(double t_value) override;
 
     bool operator==(Expr_info expr) const override;
 
