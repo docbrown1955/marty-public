@@ -519,7 +519,7 @@ void MainWidget::exportPDF()
     int            code = pdfDialog.exec();
     if (code == QDialog::Accepted) {
         QPdfWriter printer(pdfDialog.getSaveFile());
-        printer.setPageSize(QPrinter::A4);
+        printer.setPageSize(QPageSize(QPageSize::A4));
         printer.setPageOrientation(QPageLayout::Portrait);
         QPainter painter(&printer);
         auto     option = pdfDialog.getOptions();
