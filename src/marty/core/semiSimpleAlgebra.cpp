@@ -278,7 +278,7 @@ void SemiSimpleAlgebra::generateWeylGroup()
     vector<vector<int>> newRoots(0);
 
     // Getting all initial roots reflection of a simple root onto another.
-    for (int i = 0; i != l; ++i)
+    for (int i = 0; i < l; ++i)
         for (int j = 0; j != l; ++j)
             if (i != j) {
                 vector<int> r = weylReflection(i, j);
