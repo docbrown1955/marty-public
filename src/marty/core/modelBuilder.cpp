@@ -1101,7 +1101,7 @@ void ModelBuilder::doPromoteToMajorana(mty::Particle     &particle,
     HEPAssert(weylFermion,
               mty::error::TypeError,
               "Expecting a vector boson, "
-                  + std::string(weylFermion->getName()) + " given.");
+                  + std::string(particle->getName()) + " given.");
     HEPAssert(weylFermion->isSelfConjugate(),
               mty::error::PhysicsError,
               "Cannot promote a non self-conjugate Weyl fermion to a Majorana "
