@@ -28,6 +28,7 @@ endfunction()
 ADD_SYSTEM_TEST("basic-feynman-integrals" FItests)
 ADD_SYSTEM_TEST("majorana-loops-simplifications" majoranaLoop)
 ADD_SYSTEM_TEST("relative-sign-of-fermion-number-violating-interactions" testConjugation)
+ADD_SYSTEM_TEST("simple-spectrum-generation" simpleSpectrum)
 
 ADD_SYSTEM_TEST("decay-widths_Standard-Model" widthsSM)
 ADD_SYSTEM_TEST("muon-pair-production-lep_Standard-Model" Zmumu)

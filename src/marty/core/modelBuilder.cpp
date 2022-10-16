@@ -1355,6 +1355,7 @@ void ModelBuilder::gatherMass(Particle const &part)
             }
         csl::Expr mass = L.mass[massTerms[0]]->getMass();
         if (!mass->isBuildingBlock()) {
+            csl::ScopedProperty prop(&csl::Abbrev::avoidDuplicates, false);
             std::string name = "m_" + std::string(part->getName());
             csl::Expr   abbreviatedMass
                 = csl::Abbrev::makeAbbreviation(name, mass);
