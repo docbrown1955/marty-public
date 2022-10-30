@@ -62,7 +62,7 @@ force: $(BLD)/timestamp
 
 $(BLD)/timestamp:
 	-mkdir $(BLD)
-	find "`cd $(SRC) ; pwd`" -follow -exec ln -sf {} $(BLD) \;
+	cp `find ${SRC} -type f` ${BLD}
 	touch $(BLD)/timestamp
 
 clean:
