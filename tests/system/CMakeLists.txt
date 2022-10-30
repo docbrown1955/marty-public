@@ -25,6 +25,7 @@ function(ADD_QUAD_SYSTEM_TEST DISPLAY_NAME NAME)
     endif()
 endfunction()
 
+ADD_SYSTEM_TEST("lha-reader" test_lha_reader)
 ADD_SYSTEM_TEST("basic-feynman-integrals" FItests)
 ADD_SYSTEM_TEST("majorana-loops-simplifications" majoranaLoop)
 ADD_SYSTEM_TEST("relative-sign-of-fermion-number-violating-interactions" testConjugation)
