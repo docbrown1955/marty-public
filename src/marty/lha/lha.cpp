@@ -25,6 +25,7 @@ LHAFileData Reader::readFile(std::string const &fileName)
     std::ifstream f(fileName, std::ios::in);
     if (!f) {
         std::cerr << "Error: File \"" + fileName + "\" not found.\n";
+        return {};
     }
     auto res = readFile(f);
     f.close();
@@ -45,6 +46,9 @@ LHAFileData Reader::readFile(std::ifstream &in)
         }
         else if (isValueLine(currentLine) and !currentType.empty()) {
             data.addElement(currentType, readValue(currentLine));
+        }
+        else if (isSingleValueLine(currentLine) and !currentType.empty()) {
+            data.addElement(currentType, readSingleValue(currentLine));
         }
         else if (!currentLine.empty()) {
             currentType.clear();
@@ -143,6 +147,13 @@ bool Reader::isValueLine(std::vector<std::string> const &line)
     return line.size() == 2 or isPositiveInteger(line[1]);
 }
 
+bool Reader::isSingleValueLine(std::vector<std::string> const &line)
+{
+    if (line.size() != 1)
+        return false;
+    return isNumber(line[0]);
+}
+
 LHAElement Reader::readValue(std::vector<std::string> const &line)
 {
     LHAElement element;
@@ -150,6 +161,15 @@ LHAElement Reader::readValue(std::vector<std::string> const &line)
     element.value = std::stold(line.back());
     if (line.size() == 3)
         element.id_sup = std::stoull(line[1]);
+
+    return element;
+}
+
+LHAElement Reader::readSingleValue(std::vector<std::string> const &line)
+{
+    LHAElement element;
+    element.id 	  = 0;
+    element.value = std::stold(line[0]);
 
     return element;
 }

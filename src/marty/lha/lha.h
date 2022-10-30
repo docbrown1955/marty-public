@@ -128,6 +128,20 @@ class Reader {
     static bool isNumber(std::string const &str);
 
     /**
+     * @brief Tells if a line contains a 'single' value.
+     *
+     * @details This function treats the particular case (thank you again lha
+     * format ;)) when a block contains a single value that has no id.
+     *
+     * @param line Line to test.
+     *
+     * @return \b True  if the line is the definition of a 'single' value.
+     *
+     * @sa isPositiveInteger(), isNumber()
+     */
+    static bool isSingleValueLine(std::vector<std::string> const &line);
+
+    /**
      * @brief Tells if a line contains a value.
      *
      * @details This function considers that the line defines a value if
@@ -141,6 +155,20 @@ class Reader {
      * @sa isPositiveInteger(), isNumber()
      */
     static bool isValueLine(std::vector<std::string> const &line);
+
+    /**
+     * @brief Reads a line and returns the LHAElement corresponding to it.
+     *
+     * @details This function must only be called if isSingleValueLine() 
+     * returns true for it. Otherwise it is undefined behaviour.
+     *
+     * @param line Line to parse into a LHAElement.
+     *
+     * @return The corresponding LHAElement, including ids and the value.
+     *
+     * @sa LHAElement, isSingleValueLine()
+     */
+    static LHAElement readSingleValue(std::vector<std::string> const &line);
 
     /**
      * @brief Reads a line and returns the LHAElement corresponding to it.
