@@ -23,11 +23,11 @@ In the following some possibilities to get started easily with `MARTY`, once ins
 
 ## Installation
 
-The following procedure is relevant since `MARTY-2.0`. To build and install older versions please refer to the [website](https://marty.in2p3.fr/download.html).
+The following procedure is relevant since `MARTY-1.6`. To build and install older versions please refer to the [website](https://marty.in2p3.fr/download.html).
 
 ### Dependencies
 
-Since `MARTY-2.0` the dependency installations are longer supported by the automated build procedure, it is the user responsibility to install the required dependencies on his/her particular system.
+Since `MARTY-1.6` the dependency installations are longer supported by the automated build procedure, it is the user responsibility to install the required dependencies on his/her particular system.
 
 Library dependencies (needed at compile-time):
  - `Qt5` (needed for the `GRAFED` Graphical User Interface)
