@@ -69,7 +69,7 @@ If the default compilers on the system do not meet the above requirements, compi
     export CC=gcc-7
     export FC=gfortran-7
 ```
-Any version greater than 7 can be used but all the three compilers must use **the same version**.
+Any version greater than 7 can be used but all the three compilers must use **the same version**, compatibility has been validated up to `gcc-12/g++-12/gfortran-12`.
 
 ### Build and install `MARTY`
 
