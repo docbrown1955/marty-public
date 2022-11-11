@@ -460,7 +460,7 @@ void Model::computeModelWidths(int                                orderLeft,
         if (width != CSL_0) {
             std::string name      = "Gamma_" + p.getField()->getName();
             csl::Expr abbreviated = csl::Abbrev::makeAbbreviation(name, width);
-            addAbbreviatedMassExpression(abbreviated);
+            addAbbreviatedMassExpression(p.getField(), abbreviated);
             p.getField()->setWidth(csl::constant_s(name));
         }
     }
