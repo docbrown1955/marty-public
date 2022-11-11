@@ -122,7 +122,13 @@ class ModelBuilder : public ModelData {
         return abbreviatedMassExpressions;
     }
 
-    void addAbbreviatedMassExpression(csl::Expr const &abbreviation);
+    void addAbbreviatedMassExpression(
+        mty::Particle const &particle,
+        csl::Expr     const &abbreviation);
+
+    void addAbbreviatedMassExpression(
+        mty::QuantumFieldParent const *particle,
+        csl::Expr               const &abbreviation);
 
     ///////////////////////////////////////////////////
     // Replacements

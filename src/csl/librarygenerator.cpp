@@ -282,8 +282,7 @@ void LibraryGenerator::print() const
     updateDiagonalization();
     setupDirectory();
     printSource();
-    if (hasGlobalFile())
-        printGlobal();
+    printGlobal();
     if (uniqueParamStruct) {
         std::shared_ptr<LibraryGroup> dummy
             = std::make_shared<LibraryGroup>("", false);
@@ -382,7 +381,10 @@ void LibraryGenerator::printGlobal() const
     source << "namespace " << regLibName() << " {\n\n";
     source << '\n';
 
-    source << "void updateSpectrum(param_t &params)\n";
+    if (!diagData.empty() || !massExpressions.empty())
+        source << "void updateSpectrum(param_t &params)\n";
+    else
+        source << "void updateSpectrum(param_t &)\n";
     source << "{\n";
     if (!diagData.empty()) {
         source << indent(1) << "updateDiagonalization(params);\n";
@@ -591,10 +593,8 @@ void LibraryGenerator::printHeader() const
         globalHeader << "#define CSL_LIB_" << name << "_GLOBAL_H_INCLUDED\n\n";
     globalHeader << "#include \"common.h\"\n";
     globalHeader << "#include \"librarytensor.h\"\n";
-    if (hasGlobalFile()) {
-        globalHeader << "#include \"global.h\"\n";
-        globalHeader << "#include \"libdiagonalization.h\"\n";
-    }
+    globalHeader << "#include \"global.h\"\n";
+    globalHeader << "#include \"libdiagonalization.h\"\n";
     globalHeader << "#include \"libcomplexop.h\"\n";
     globalHeader << '\n';
     for (const auto &g : groups) {
@@ -769,8 +769,7 @@ void LibraryGenerator::printMakefile() const
                      == clang_str.compare(
                          0, std::string::npos, STRINGIFY(MARTY_CXX), 5));
     dependencies.printLib(makefile, is_clang);
-    if (hasGlobalFile())
-        makefile << " -lgsl -lgslcblas";
+    makefile << " -lgsl -lgslcblas";
     makefile << "\n\n";
     print_libmakefile_data(makefile,
                            quadruple,
@@ -784,14 +783,14 @@ void LibraryGenerator::printPythonDir() const
 {
     // std::string pythonPath = path + "/python";
     std::ofstream file;
-    if (hasGlobalFile()) {
-        file.open(path + "/" + incDir + "/libdiagonalization.h");
-        print_libdiagonalization_hdata(file);
-        file.close();
-        file.open(path + "/" + srcDir + "/libdiagonalization.cpp");
-        print_libdiagonalization_cppdata(file);
-        file.close();
-    }
+
+    file.open(path + "/" + incDir + "/libdiagonalization.h");
+    print_libdiagonalization_hdata(file);
+    file.close();
+    file.open(path + "/" + srcDir + "/libdiagonalization.cpp");
+    print_libdiagonalization_cppdata(file);
+    file.close();
+
     file.open(path + "/" + incDir + "/libcomplexop.h");
     print_libcomplexop_hdata(file);
     file.close();
@@ -879,105 +878,6 @@ std::string LibraryGenerator::getGroupFileName(LibraryGroup const &g) const
     return res;
 }
 
-// std::string LibraryGenerator::getHeaders() const
-// {
-//     std::ostringstream sout;
-//     sout << "\"" << incDir << "/librarytensor.h\",\n";
-//     sout << "\"" << incDir << "/libcomplexop.h\",\n";
-//     sout << "\"" << incDir << "/common.h\",\n";
-//     if (hasGlobalFile()) {
-//         sout << "\"" << incDir << "/global.h\",\n";
-//         sout << "\"" << incDir << "/libdiagonalization.h\",\n";
-//     }
-//     for (const auto &f : functions) {
-//         sout << "\"" << incDir << "/" << getFunctionFileName(f)
-//              << ".h\",\n";
-//     }
-//     return sout.str();
-// }
-
-// std::string LibraryGenerator::getSources() const
-// {
-//     std::ostringstream sout;
-//     sout << name << "_pylink.cpp\n";
-//     sout << srcDir << "/common.cpp\n";
-//     if (hasGlobalFile()) {
-//         sout << srcDir << "/libdiagonalization.cpp\n";
-//         sout << srcDir << "/global.cpp\n";
-//     }
-//     for (const auto &f : functions)
-//         sout << srcDir << "/" << getFunctionFileName(f)
-//              << ".cpp\n";
-
-//     return sout.str();
-// }
-
-// void LibraryGenerator::printGenerator() const
-// {
-//     LibraryGenerator::file generator(path + "/generator.py");
-//     generator << "#!/usr/bin/python\n";
-//     generator << "# -*- coding: utf-8 -*-\n";
-//     generator << "\n";
-//     generator << "from pygccxml import parser\n";
-//     generator << "from pyplusplus import module_builder\n";
-//     generator << "\n";
-//     generator << "# Configurations que vous pouvez avoir à "
-//               << "changer sur votre système\n";
-//     generator << "generator_path = \"/usr/bin/castxml\"\n";
-//     generator << "generator_name = \"castxml\"\n";
-//     generator << "compiler = \"gnu\"\n";
-//     generator << "compiler_path = \"/usr/bin/gcc\" \n";
-//     generator << "\n";
-//     generator << "# Créé une configuration pour CastXML\n";
-//     generator << "xml_generator_config = "
-//               << "parser.xml_generator_configuration_t(\n";
-//     generator << "xml_generator_path=generator_path,\n";
-//     generator << "xml_generator=generator_name,\n";
-//     generator << "compiler=compiler,\n";
-//     generator << "compiler_path=compiler_path)\n";
-//     generator << "\n";
-//     generator << "# Liste de tous les fichiers d'en-tête "
-//               << "de votre bibliothèque\n";
-//     generator << "header_collection = [" << getHeaders() << "]\n";
-//     generator << "\n";
-//     generator << "# Analyse les fichiers sources et créé un objet "
-//               << "module_builder\n";
-//     generator << "builder = module_builder.module_builder_t(\n";
-//     generator << "header_collection,\n";
-//     generator << "xml_generator_path=generator_path,\n";
-//     generator << "xml_generator_config=xml_generator_config)\n";
-//     generator << "\n";
-//     generator << "# Détecte automatiquement les propriétés et les "
-//               << "accesseurs/mutateurs associés\n";
-//     generator << "builder.classes().add_properties(exclude_accessors=True)
-//     \n"; generator << "\n"; generator << "# Définit un nom pour le
-//     module\n"; generator << "builder.build_code_creator(module_name=\"" <<
-//     name
-//               << "\")\n";
-//     generator << "\n";
-//     generator << "# Écrit le fichier d'interface C++\n";
-//     generator << "builder.write_module('" << name
-//         << "_pylink.cpp')\n";
-// }
-
-// void LibraryGenerator::printPythonTest() const
-// {
-//     std::string fileName = path + "/python/" + name + ".py";
-//     if (auto file = std::ifstream(fileName); file) {
-//         file.close();
-//         return;
-//     }
-//     LibraryGenerator::file test(fileName);
-//     test << "#!/usr/bin/python\n";
-//     test << "# -*- coding: utf-8 -*-\n";
-//     test << "\n";
-//     test << "import numpy as np\n";
-//     test << "import matplotlib.pyplot as plt\n";
-//     test << "import " << name << "\n";
-//     test << '\n';
-//     test << "if __name__ == '__main__':";
-// }
-
 void LibraryGenerator::updateDiagonalization() const
 {
     // Here cut identical masses and mixings
@@ -991,16 +891,6 @@ void LibraryGenerator::updateDiagonalization() const
         // cutSimilar(diag.masses);
         cutSimilar(diag.dependencies);
     }
-    // for (auto &f : functions) {
-    //     for (const auto &diag : diagData) {
-    //         for (const auto &name : diag.mixings)
-    //             f.removeParameter(name);
-    //         for (const auto &name : diag.masses)
-    //             f.removeParameter(name);
-    //         for (const auto &name : diag.dependencies)
-    //             f.removeParameter(name);
-    //     }
-    // }
 }
 
 bool LibraryGenerator::needLibraryTensor() const

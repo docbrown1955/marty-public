@@ -117,10 +117,6 @@ class LibraryGenerator {
     std::set<std::string>        &getLPath();
     LibDependency                 getDependencies() const;
     std::shared_ptr<LibraryGroup> getGroup(std::string_view name) const;
-    bool                          hasGlobalFile() const
-    {
-        return !diagData.empty() || !massExpressions.empty();
-    }
     bool hasUniqueParamStruct() const
     {
         return uniqueParamStruct;

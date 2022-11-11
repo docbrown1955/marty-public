@@ -30,8 +30,15 @@ namespace mty {
 // Replacement functions
 ///////////////////////////////////////////////////
 
-void ModelBuilder::addAbbreviatedMassExpression(csl::Expr const &abbreviation)
+void ModelBuilder::addAbbreviatedMassExpression(
+        mty::QuantumFieldParent const *particle,
+        csl::Expr               const &abbreviation)
 {
+    // Do not include ghosts and goldstones in the spectrum
+    if (mty::IsOfType<GhostBoson>(particle) 
+            || mty::IsOfType<GoldstoneBoson>(particle)) {
+        return;
+    }
     auto pos
         = std::find_if(abbreviatedMassExpressions.begin(),
                        abbreviatedMassExpressions.end(),
@@ -44,6 +51,14 @@ void ModelBuilder::addAbbreviatedMassExpression(csl::Expr const &abbreviation)
     else {
         abbreviatedMassExpressions.push_back(abbreviation);
     }
+}
+
+void ModelBuilder::addAbbreviatedMassExpression(
+        mty::Particle const &particle,
+        csl::Expr     const &abbreviation
+        )
+{
+    addAbbreviatedMassExpression(particle.get(), abbreviation);
 }
 
 void ModelBuilder::replace(csl::Expr const &oldExpression,
@@ -1360,7 +1375,7 @@ void ModelBuilder::gatherMass(Particle const &part)
             csl::Expr   abbreviatedMass
                 = csl::Abbrev::makeAbbreviation(name, mass);
             mass = csl::constant_s(name);
-            addAbbreviatedMassExpression(abbreviatedMass);
+            addAbbreviatedMassExpression(part, abbreviatedMass);
         }
         part->setMass(mass);
         std::vector<mty::QuantumField> content
