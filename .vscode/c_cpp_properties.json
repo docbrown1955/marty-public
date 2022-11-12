@@ -4,13 +4,13 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/usr/include/x86_64-linux-gnu/c++/10/",
+                "/usr/include/x86_64-linux-gnu/c++/11/",
                 "/usr/include/x86_64-linux-gnu/"
             ],
             "defines": [],
             "configurationProvider": "ms-vscode.cmake-tools",
             "compilerArgs": [],
-            "compilerPath": "/usr/bin/g++-10",
+            "compilerPath": "/usr/bin/g++-11",
             "intelliSenseMode": "linux-gcc-x64",
             "cppStandard": "c++17",
             "cStandard": "c17"
