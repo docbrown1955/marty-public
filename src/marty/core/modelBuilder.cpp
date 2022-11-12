@@ -30,35 +30,42 @@ namespace mty {
 // Replacement functions
 ///////////////////////////////////////////////////
 
-void ModelBuilder::addAbbreviatedMassExpression(
+csl::Expr ModelBuilder::abbreviateMassExpression(
+        std::string             const &prefix,
         mty::QuantumFieldParent const *particle,
-        csl::Expr               const &abbreviation)
+        csl::Expr               const &mass)
 {
+    csl::ScopedProperty prop(&csl::Abbrev::avoidDuplicates, false);
+    std::string massName = prefix + std::string(particle->getName());
+    csl::Expr   abbreviatedMass
+        = csl::Abbrev::makeAbbreviation(massName, mass);
     // Do not include ghosts and goldstones in the spectrum
     if (mty::IsOfType<GhostBoson>(particle) 
             || mty::IsOfType<GoldstoneBoson>(particle)) {
-        return;
+        return abbreviatedMass;
     }
     auto pos
         = std::find_if(abbreviatedMassExpressions.begin(),
                        abbreviatedMassExpressions.end(),
                        [&](csl::Expr const &expr) {
-                           return expr->getName() == abbreviation->getName();
+                           return expr->getName() == abbreviatedMass->getName();
                        });
     if (pos != abbreviatedMassExpressions.end()) {
-        *pos = abbreviation;
+        *pos = abbreviatedMass;
     }
     else {
-        abbreviatedMassExpressions.push_back(abbreviation);
+        abbreviatedMassExpressions.push_back(abbreviatedMass);
     }
+    return csl::constant_s(massName);
 }
 
-void ModelBuilder::addAbbreviatedMassExpression(
+csl::Expr ModelBuilder::abbreviateMassExpression(
+        std::string   const &prefix,
         mty::Particle const &particle,
-        csl::Expr     const &abbreviation
+        csl::Expr     const &mass
         )
 {
-    addAbbreviatedMassExpression(particle.get(), abbreviation);
+    return abbreviateMassExpression(prefix, particle.get(), mass);
 }
 
 void ModelBuilder::replace(csl::Expr const &oldExpression,
@@ -1370,12 +1377,7 @@ void ModelBuilder::gatherMass(Particle const &part)
             }
         csl::Expr mass = L.mass[massTerms[0]]->getMass();
         if (!mass->isBuildingBlock()) {
-            csl::ScopedProperty prop(&csl::Abbrev::avoidDuplicates, false);
-            std::string name = "m_" + std::string(part->getName());
-            csl::Expr   abbreviatedMass
-                = csl::Abbrev::makeAbbreviation(name, mass);
-            mass = csl::constant_s(name);
-            addAbbreviatedMassExpression(part, abbreviatedMass);
+            mass = abbreviateMassExpression("m_", part, mass);
         }
         part->setMass(mass);
         std::vector<mty::QuantumField> content

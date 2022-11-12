@@ -458,10 +458,9 @@ void Model::computeModelWidths(int                                orderLeft,
     for (const auto &p : insertions) {
         auto width = computeWidth(orderLeft, orderRight, p, options);
         if (width != CSL_0) {
-            std::string name      = "Gamma_" + p.getField()->getName();
-            csl::Expr abbreviated = csl::Abbrev::makeAbbreviation(name, width);
-            addAbbreviatedMassExpression(p.getField(), abbreviated);
-            p.getField()->setWidth(csl::constant_s(name));
+            auto abbrevWidth = abbreviateMassExpression(
+                    "Gamma_", p.getField(), width);
+            p.getField()->setWidth(abbrevWidth);
         }
     }
 }
@@ -470,7 +469,7 @@ void Model::computeModelWidths(int              orderLeft,
                                int              orderRight,
                                mty::FeynOptions options)
 {
-    auto                   particles = getPhysicalParticles([&](Particle p) {
+    auto particles = getPhysicalParticles([&](Particle p) {
         return !IsOfType<GhostBoson>(p) && !IsOfType<GoldstoneBoson>(p);
     });
     std::vector<Insertion> insertions;
