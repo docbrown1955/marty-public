@@ -434,4 +434,42 @@ void SM_Model::addGaugeFixingTerms()
     }
 }
 
+namespace sm_input {
+
+static std::vector<csl::Expr> const &_generate_sm_param_values()
+{
+    static bool init = false;
+
+    static std::vector<csl::Expr> _values(all_params.size());
+    if (!init) {
+        std::transform(
+            all_params.begin(),
+            all_params.end(),
+            _values.begin(),
+            [&](csl::Expr const &expr) {
+                return expr->evaluate(csl::eval::literal).value_or(CSL_UNDEF);
+            });
+        init = true;
+    }
+    return _values;
+}
+
+static std::vector<csl::Expr> const &sm_param_values
+    = _generate_sm_param_values();
+
+void undefineNumericalValues()
+{
+    for (std::size_t i = 0; i != all_params.size(); ++i) {
+        csl::Expr(all_params[i])->setValue(CSL_UNDEF);
+    }
+}
+
+void redefineNumericalValues()
+{
+    for (std::size_t i = 0; i != all_params.size(); ++i) {
+        csl::Expr(all_params[i])->setValue(sm_param_values[i]);
+    }
+}
+} // namespace sm_input
+
 } // End of namespace mty

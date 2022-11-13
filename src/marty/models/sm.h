@@ -323,6 +323,66 @@ inline csl::Expr V_ub = csl::constant_s(
                             csl::eval::literal | csl::eval::numerical),
     csl::ComplexProperty::Complex);
 
+inline const std::vector<csl::Expr> all_params = {
+    // 14 scalar parameters
+    alpha_em,
+    alpha_s,
+    M_Z,
+    M_W,
+    m_h,
+    m_e,
+    m_mu,
+    m_tau,
+    m_u,
+    m_d,
+    m_c,
+    m_s,
+    m_t,
+    m_b,
+
+    // CKM (dof: 3 angles + 1 phase)
+    V_ud,
+    V_us,
+    V_ub,
+    V_cd,
+    V_cs,
+    V_cb,
+    V_td,
+    V_ts,
+    V_tb,
+
+    // Secondary parameters
+    e_em,
+    G_F,
+    g_s,
+    v,
+    theta_W,
+    s2_theta_W,
+    Gamma_W,
+    Gamma_Z,
+    Gamma_h,
+    Gamma_t,
+};
+
+/*
+ * @brief Removes all numerical values from the SM parameters (in the
+ * `all_inputs` vector).
+ *
+ * @details This can be used to avoid numerical evaluation before the
+ * library generation and therefore allow the parameters to be tuned
+ * in the latter libraries.
+ */
+void undefineNumericalValues();
+
+/*
+ * @brief Redefine all numerical values from the SM parameters (in the
+ * `all_inputs` vector).
+ *
+ * @details This can be used after a call to `undefineNumericalValues()`
+ * to recover all the numerical values of the SM parameters.
+ */
+void redefineNumericalValues();
+
 } // End of namespace mty::sm_input
 
 #endif
