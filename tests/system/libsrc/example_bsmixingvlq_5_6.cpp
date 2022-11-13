@@ -42,8 +42,6 @@ int main() {
     params.e_em = std::sqrt(4*M_PI / 137);
     params.M_W = 80.379;
     params.M_Z = 91.2;
-    params.m_Gp = params.M_W;
-    params.m_G0 = params.M_Z;
     // params.xi = 1;
     // params.xi_W = 1;
     // params.xi_Z = 1;
@@ -85,15 +83,12 @@ int main() {
     params.V_ub = 1.;
     params.m_b_L = 1.;
     params.m_c_L = 1.;
-    params.m_c_Z = 1.;
     params.m_d_L = 1.;
     params.m_s_L = 1.;
     params.m_t_L = 1.;
     params.m_u_L = 1.;
     params.m_Ds_L = 1.;
     params.m_Us_L = 1.;
-    params.m_c_Wm = 1.;
-    params.m_c_Wp = 1.;
     params.U_d_00 = 1.;
     params.U_d_01 = 1.;
     params.U_d_02 = 1.;

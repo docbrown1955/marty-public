@@ -27,8 +27,6 @@ int main()
     param.alpha_em = 1. / 137;
     param.M_W      = 80.379;
     param.M_Z      = 91.2;
-    param.m_Gp     = 80.379;
-    param.m_G0     = 91.2;
     param.theta_W  = acosq(param.M_W / param.M_Z);
     std::ofstream real("real.txt");
     std::ofstream imag("imag.txt");

@@ -63,6 +63,10 @@ class Library : public csl::LibraryGenerator {
             }
         }
         for (const auto &particle : model.getParticles()) {
+            if (IsOfType<GhostBoson>(particle)
+                    || IsOfType<GoldstoneBoson>(particle)) {
+                continue;
+            }
             csl::Expr mass  = particle->getMass();
             csl::Expr width = particle->getWidth();
             if (csl::IsLiteral(mass)) {

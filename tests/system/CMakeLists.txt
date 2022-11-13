@@ -48,15 +48,7 @@ ADD_QUAD_SYSTEM_TEST("c9_Super-Symmetry" C9_MSSM)
 ADD_QUAD_SYSTEM_TEST("wilson-coefficients_GTHDM-Model" wilsons_GTHDM)
 ADD_SYSTEM_TEST("bs-mixing_Standard-Model" BsMixingSM)
 ADD_SYSTEM_TEST("bs-mixing_VLQ-Model-5-6" BsMixingVLQ_5_6)
-
-if(APPLE)
-    message(WARNING
-        "One VLQ test cannot be ran because it has not been setup on MacOS yet."
-    )
-else()
-    ADD_SYSTEM_TEST("bs-mixing_VLQ-Model-7-8" BsMixingVLQ_7_8)
-endif()
-
+ADD_SYSTEM_TEST("bs-mixing_VLQ-Model-7-8" BsMixingVLQ_7_8)
 ADD_SYSTEM_TEST("bs-mixing_VLQ-Model-9-10" BsMixingVLQ_9_10)
 ADD_SYSTEM_TEST("bs-mixing_VLQ-Model-10-11" BsMixingVLQ_10_11)
 
