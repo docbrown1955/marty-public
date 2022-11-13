@@ -16,3 +16,4 @@ function(ADD_UNIT_TEST NAME)
 endfunction()
 
 add_subdirectory(csl)
+add_subdirectory(marty)
