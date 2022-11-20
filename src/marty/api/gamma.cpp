@@ -1,5 +1,5 @@
 #include "gamma.h"
-#include "marty/sgl.h"
+#include "marty/sgl/sgl.h"
 
 #include <map>
 
