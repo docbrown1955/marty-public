@@ -816,7 +816,11 @@ std::tuple<GExpr, IndexChain, IndexChain> basisElement(size_t i, bool chiral)
 
 GExpr IndexChain::applyGeneralFierz(IndexChain const &other, bool chiral) const
 {
-    if (psiL->isHappyWith(*other.psiL) || psiR->isHappyWith(*other.psiR)) {
+    if (psiL && other.psiL && psiL->isHappyWith(*other.psiL)) {
+        auto [sign, conj] = other.conjugated();
+        return cslexpr_s(sign) * applyGeneralFierz(conj, chiral);
+    }
+    if (psiR && other.psiR && psiR->isHappyWith(*other.psiR)) {
         auto [sign, conj] = other.conjugated();
         return cslexpr_s(sign) * applyGeneralFierz(conj, chiral);
     }
