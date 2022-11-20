@@ -4,10 +4,22 @@
 #include <iostream>
 #include <sstream>
 
+#include "marty.h"
+
 constexpr auto resetfont   = "\033[0m";
 constexpr auto errorfont   = "\033[1m\033[31m";
 constexpr auto successfont = "\033[1m\033[32m";
 constexpr auto testfont    = "\033[1m\033[34m";
+
+void defineLibPath(mty::Library &lib)
+{
+#ifdef MARTY_LIBRARY_PATH
+    lib.addLPath(MARTY_LIBRARY_PATH);
+#endif
+#ifdef MARTY_INCLUDE_PATH
+    lib.addIPath(MARTY_INCLUDE_PATH);
+#endif
+}
 
 template <class... Printable>
 std::string buildMessage(Printable &&...printables)

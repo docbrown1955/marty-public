@@ -1,4 +1,5 @@
 #include "comparedata.h"
+#include "testutility.h"
 #include "vectorlike.h"
 #include <map>
 
@@ -119,6 +120,7 @@ int main()
     Library              lib("BsMixingVLQ_5_6", "libs");
     lib.generateSpectrum(model);
     calculateMixingCoefficients(model, lib, "b", "s", BosonFilter::NoBoson);
+    defineLibPath(lib);
     lib.print();
 
     sysres = system("cp libsrc/example_bsmixingvlq_5_6.cpp "

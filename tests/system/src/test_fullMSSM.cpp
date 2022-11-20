@@ -1,4 +1,5 @@
 #include "comparedata.h"
+#include "testutility.h"
 #include "marty/models/pmssm_lem.h"
 #include <fstream>
 #include <marty.h>
@@ -92,6 +93,7 @@ int main()
     calculateProcesses(pmssm, lib, feynman_processes, false);
     calculateProcesses(pmssm, lib, unitary_processes, true);
 
+    defineLibPath(lib);
     lib.print();
 
     return 0;

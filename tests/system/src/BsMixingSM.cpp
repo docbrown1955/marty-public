@@ -1,4 +1,5 @@
 #include "comparedata.h"
+#include "testutility.h"
 #include "marty.h"
 #include "marty/models/sm.h"
 
@@ -60,6 +61,7 @@ int main()
     mty::Library         lib("BsMixingSM", "libs");
     lib.addFunction("C1", C1);
     lib.addFunction("C2", C2);
+    defineLibPath(lib);
     lib.print();
 
     sysres = system("cp libsrc/example_bsmixingsm.cpp libs/BsMixingSM/script");

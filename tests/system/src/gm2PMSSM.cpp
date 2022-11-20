@@ -1,4 +1,5 @@
 #include "comparedata.h"
+#include "testutility.h"
 #include "marty.h"
 #include "marty/models/pmssm_lem.h"
 
@@ -55,6 +56,7 @@ int main()
     }
 
     [[maybe_unused]] int sysres = system("rm -rf libs/gm2PMSSM");
+    defineLibPath(lib);
     lib.print();
     sysres = system("cp libsrc/example_gm2pmssm.cpp libs/gm2PMSSM/script");
     sysres = system("cd libs/gm2PMSSM; make && bin/example_gm2pmssm.x");

@@ -14,6 +14,7 @@
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "comparedata.h"
+#include "testutility.h"
 #include "marty.h"
 #include "marty/models/sm.h"
 
@@ -219,6 +220,7 @@ int main()
     getC9Tot(SM, lib);
 
     [[maybe_unused]] int sysres = system("rm -rf libs/C9_SM");
+    defineLibPath(lib);
     lib.print();
     sysres = system("cp libsrc/example_c9_sm.cpp libs/C9_SM/script");
     sysres = system("cd libs/C9_SM; make && bin/example_c9_sm.x ");

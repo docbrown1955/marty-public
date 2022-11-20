@@ -1,4 +1,5 @@
 #include "comparedata.h"
+#include "testutility.h"
 #include <marty.h>
 #include <marty/models/sm.h>
 
@@ -21,6 +22,7 @@ int main()
     [[maybe_unused]] int sysres = system("rm -rf libs/modelwidthLib");
     mty::Library         widthLib("modelwidthLib", "libs");
     widthLib.generateSpectrum(sm);
+    defineLibPath(widthLib);
     widthLib.print();
 
     sysres = system("cp libsrc/example_modelwidthlib.cpp "

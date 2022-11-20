@@ -323,12 +323,7 @@ int main()
     myLib.addFunction("squared_ampl1", squared_ampl1);
     myLib.addFunction("squared_ampl2", squared_ampl2);
     myLib.generateSpectrum(toyModel);
-    /*
-    myLib.addIPath("<marty-installation-path>/include");
-    myLib.addIPath("<csl-installation-path>/include");
-    myLib.addLPath("<marty-installation-path>/lib");
-    myLib.addLPath("<csl-installation-path>/lib");
-    */
+    defineLibPath(myLib);
     myLib.build();
     assert_binary("Bgenesis");
 

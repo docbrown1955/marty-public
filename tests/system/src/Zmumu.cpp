@@ -3,6 +3,7 @@
  * tree-level, in a custom model with a photon-like boson and a Z-like boson.
  */
 #include "comparedata.h"
+#include "testutility.h"
 #include "marty/models/sm.h"
 #include <marty.h>
 
@@ -94,6 +95,7 @@ int main()
         name += (elChirality == Left) ? 'L' : 'R';
         lib.addFunction(name, squaredChiral);
     }
+    defineLibPath(lib);
     lib.print();
 
     sysres = system("cp libsrc/example_zmumu.cpp libsrc/kinematics.h "

@@ -1,4 +1,5 @@
 #include "comparedata.h"
+#include "testutility.h"
 #include "marty/models/pmssm_lem.h"
 #include <marty.h>
 
@@ -60,6 +61,7 @@ int main()
     wilsonLib.addFunction("C7", CC7);
     wilsonLib.addFunction("C7_p", CC7p);
     wilsonLib.generateSpectrum(pmssm_model);
+    defineLibPath(wilsonLib);
     wilsonLib.print();
 
     sysres = system("cp libsrc/example_c7_pmssm.cpp libs/C7_PMSSM/script");

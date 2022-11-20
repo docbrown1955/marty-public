@@ -4,6 +4,7 @@
  * un-physical polarizations from the results.
  */
 #include "comparedata.h"
+#include "testutility.h"
 #include "marty/models/sm.h"
 #include <marty.h>
 
@@ -84,6 +85,7 @@ int main()
     lib.addFunction("M2", s_gg);
     lib.addFunction("M2_ghost", s_cc1);
     lib.addFunction("M2_ghostc", s_cc2);
+    defineLibPath(lib);
     lib.print();
 
     sysres = system("cp libsrc/example_gg_to_tt.cpp libs/gg_to_tt/script");
