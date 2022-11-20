@@ -2,8 +2,9 @@
 #include "marty/sgl/sgl.h"
 #include "marty/sgl/sgloptions.h"
 
-#include <map>
 #include <iostream>
+#include <map>
+#include <set>
 
 namespace mty::gamma_api {
 
@@ -12,14 +13,22 @@ class IndexManager {
   public:
     static csl::Index getMinkoIndex(int mu);
     static csl::Index getDiracIndex(int mu);
+    static Expr       renameIndices(Expr expr);
+
+    static bool isMinkoIndexName(std::string_view indexName);
 
   private:
     IndexManager() = delete;
     static std::string createDiracIndexName(int mu);
     static std::string createMinkoIndexName(int mu);
+    static void        renameIndicesImpl(Expr                             &expr,
+                                         std::map<csl::Index, csl::Index> &renaming,
+                                         std::set<int> &goodIndices);
 
-    static inline std::map<int, csl::Index> diracIndices = {};
-    static inline std::map<int, csl::Index> minkoIndices = {};
+    static constexpr char                   minkoIndexPrefix = 'm';
+    static constexpr char                   diracIndexPrefix = 'd';
+    static inline std::map<int, csl::Index> diracIndices     = {};
+    static inline std::map<int, csl::Index> minkoIndices     = {};
 };
 
 void keepSymbolic4D(bool symbolic)
@@ -82,23 +91,24 @@ Expr chain(std::vector<Expr> const &gammas, int iLeft, int iRight)
 
 Expr simplified(Expr const &expr)
 {
-    return sgl::CSLSimplified(sgl::Simplified(expr, false));
+    return IndexManager::renameIndices(
+        sgl::CSLSimplified(sgl::Simplified(expr, false)));
 }
 
 sgl::IndexChain const *getIndexChainAssert(Expr const &expr);
 
-Expr applySingleFierz(Expr const &chain1, Expr const & chain2)
+Expr applySingleFierz(Expr const &chain1, Expr const &chain2)
 {
     auto left  = getIndexChainAssert(chain1);
     auto right = getIndexChainAssert(chain2);
-    return left->applyGeneralFierz(*right);
+    return IndexManager::renameIndices(left->applyGeneralFierz(*right));
 }
 
-Expr applyDoubleFierz(Expr const &chain1, Expr const & chain2)
+Expr applyDoubleFierz(Expr const &chain1, Expr const &chain2)
 {
     auto left  = getIndexChainAssert(chain1);
     auto right = getIndexChainAssert(chain2);
-    return left->applyGeneralFierzTwice(*right);
+    return IndexManager::renameIndices(left->applyGeneralFierzTwice(*right));
 }
 
 sgl::IndexChain const *getIndexChainAssert(Expr const &expr)
@@ -106,11 +116,11 @@ sgl::IndexChain const *getIndexChainAssert(Expr const &expr)
     if (!expr.get()) {
         throw GammaAPIError("Invalid expression error (null).");
     }
-    auto ptr = dynamic_cast<sgl::IndexChain const*>(expr.get());
+    auto ptr = dynamic_cast<sgl::IndexChain const *>(expr.get());
     if (!ptr) {
-	throw GammaAPIError(
-            "Expression given is not a pure gamma-index chain: ", 
-            expr);
+        throw GammaAPIError("Expression given is not a pure gamma-index "
+                            "chain: ",
+                            expr);
     }
     return ptr;
 }
@@ -140,12 +150,69 @@ csl::Index IndexManager::getDiracIndex(int mu)
 
 std::string IndexManager::createMinkoIndexName(int mu)
 {
-    return "m" + std::to_string(mu);
+    return IndexManager::minkoIndexPrefix + std::to_string(mu);
 }
 
 std::string IndexManager::createDiracIndexName(int mu)
 {
-    return "d" + std::to_string(mu);
+    return IndexManager::diracIndexPrefix + std::to_string(mu);
+}
+
+bool IndexManager::isMinkoIndexName(std::string_view indexName)
+{
+    if (indexName.empty()) {
+        return false;
+    }
+    return indexName[0] == IndexManager::minkoIndexPrefix
+           && std::any_of(indexName.begin() + 1, indexName.end(), [](char c) {
+                  return isdigit(c);
+              });
+}
+
+Expr IndexManager::renameIndices(Expr expr)
+{
+    std::map<csl::Index, csl::Index> renaming;
+    std::set<int>                    goodIndices;
+    IndexManager::renameIndicesImpl(expr, renaming, goodIndices);
+    int maxIndex = 1;
+    for (auto &[oldIndex, newIndex] : renaming) {
+        while (goodIndices.find(maxIndex) != goodIndices.end()) {
+            ++maxIndex;
+        }
+        if (newIndex == csl::Index{}) {
+            newIndex = IndexManager::getMinkoIndex(maxIndex++);
+        }
+        expr->replace(oldIndex, newIndex);
+        expr->replace(+oldIndex, +newIndex);
+    }
+    return expr;
+}
+
+void IndexManager::renameIndicesImpl(
+    Expr                             &expr,
+    std::map<csl::Index, csl::Index> &renaming,
+    std::set<int>                    &goodIndices)
+{
+    for (std::size_t i = 0; i != expr->size(); ++i) {
+        IndexManager::renameIndicesImpl(
+            expr->argument(i), renaming, goodIndices);
+    }
+    if (dynamic_cast<sgl::AbstractGeneralizedIndex const *>(expr.get())) {
+        for (csl::Index const &i : expr->indices()) {
+            if (i.getType() == cslIndex::Type::Fixed) {
+                continue;
+            }
+            if (auto pos = renaming.find(i); pos == renaming.end()) {
+                if (IndexManager::isMinkoIndexName(i.getName())) {
+                    goodIndices.insert(std::atoi(i.getName().data() + 1));
+                }
+                else {
+                    // Ensure we use only lower indices in the map
+                    renaming[-i] = csl::Index{};
+                }
+            }
+        }
+    }
 }
 
 } // namespace mty::gamma_api
