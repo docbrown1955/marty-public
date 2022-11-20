@@ -1,7 +1,9 @@
 #include "gamma.h"
 #include "marty/sgl/sgl.h"
+#include "marty/sgl/sgloptions.h"
 
 #include <map>
+#include <iostream>
 
 namespace mty::gamma_api {
 
@@ -19,6 +21,11 @@ class IndexManager {
     static inline std::map<int, csl::Index> diracIndices = {};
     static inline std::map<int, csl::Index> minkoIndices = {};
 };
+
+void keepSymbolic4D(bool symbolic)
+{
+    sgl::option::keepEvanescentOperators = symbolic;
+}
 
 Expr g(int mu, int nu)
 {
@@ -71,6 +78,41 @@ Expr chain(std::vector<Expr> const &gammas, int iLeft, int iRight)
     return sgl::indexchain_s(gammas,
                              IndexManager::getDiracIndex(iLeft),
                              IndexManager::getDiracIndex(iRight));
+}
+
+Expr simplified(Expr const &expr)
+{
+    return sgl::CSLSimplified(sgl::Simplified(expr, false));
+}
+
+sgl::IndexChain const *getIndexChainAssert(Expr const &expr);
+
+Expr applySingleFierz(Expr const &chain1, Expr const & chain2)
+{
+    auto left  = getIndexChainAssert(chain1);
+    auto right = getIndexChainAssert(chain2);
+    return left->applyGeneralFierz(*right);
+}
+
+Expr applyDoubleFierz(Expr const &chain1, Expr const & chain2)
+{
+    auto left  = getIndexChainAssert(chain1);
+    auto right = getIndexChainAssert(chain2);
+    return left->applyGeneralFierzTwice(*right);
+}
+
+sgl::IndexChain const *getIndexChainAssert(Expr const &expr)
+{
+    if (!expr.get()) {
+        throw GammaAPIError("Invalid expression error (null).");
+    }
+    auto ptr = dynamic_cast<sgl::IndexChain const*>(expr.get());
+    if (!ptr) {
+	throw GammaAPIError(
+            "Expression given is not a pure gamma-index chain: ", 
+            expr);
+    }
+    return ptr;
 }
 
 ////
