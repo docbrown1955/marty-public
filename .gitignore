@@ -2,4 +2,3 @@ marty_env.sh
 build/*
 .vscode
 *.sw[p-z]
-f++.in
