@@ -55,11 +55,10 @@ Expr gamma(int mu)
     return sgl::gammaindex_s(IndexManager::getMinkoIndex(mu));
 }
 
-Expr sigma(int mu, int nu)
+Expr gamma(int mu, int nu)
 {
-    return CSL_I
-           * sgl::gammaindex_s({IndexManager::getMinkoIndex(mu),
-                                IndexManager::getMinkoIndex(nu)});
+    return sgl::gammaindex_s(
+        {IndexManager::getMinkoIndex(mu), IndexManager::getMinkoIndex(nu)});
 }
 
 Expr gamma5()
@@ -89,40 +88,213 @@ Expr chain(std::vector<Expr> const &gammas, int iLeft, int iRight)
                              IndexManager::getDiracIndex(iRight));
 }
 
-Expr simplified(Expr const &expr)
+Expr ordered(Expr expr)
 {
-    return IndexManager::renameIndices(
-        sgl::CSLSimplified(sgl::Simplified(expr, false)));
+    auto mustSwap = [](Expr const &l, Expr const &r) {
+        auto lchain = dynamic_cast<sgl::IndexChain const *>(l.get());
+        auto rchain = dynamic_cast<sgl::IndexChain const *>(r.get());
+        if (!lchain || !rchain) {
+            return false;
+        }
+        auto [al, bl] = lchain->getBorderIndices();
+        auto [ar, br] = rchain->getBorderIndices();
+        return csl::IndexStructure({ar, br}) < csl::IndexStructure({al, bl});
+    };
+    if (dynamic_cast<sgl::Prod const *>(expr.get())) {
+        for (std::size_t i = 0; i != expr->size(); ++i) {
+            for (std::size_t j = i + 1; j < expr->size(); ++j) {
+                if (mustSwap(expr->argument(i), expr->argument(j))) {
+                    std::swap(expr->argument(i), expr->argument(j));
+                }
+            }
+        }
+    }
+    else {
+        for (std::size_t i = 0; i != expr->size(); ++i) {
+            ordered(expr->argument(i));
+        }
+    }
+    return expr;
 }
 
-sgl::IndexChain const *getIndexChainAssert(Expr const &expr);
+Expr simplified(Expr const &expr)
+{
+    Expr clean = IndexManager::renameIndices(
+        ordered(sgl::CSLSimplified(sgl::Simplified(expr, false))));
+    return IndexManager::renameIndices(sgl::Simplified(clean, false));
+}
+
+std::pair<Expr, sgl::IndexChain const *> getIndexChainAssert(Expr const &expr);
 
 Expr applySingleFierz(Expr const &chain1, Expr const &chain2)
 {
-    auto left  = getIndexChainAssert(chain1);
-    auto right = getIndexChainAssert(chain2);
-    return IndexManager::renameIndices(left->applyGeneralFierz(*right));
+    auto [fl, left]  = getIndexChainAssert(chain1);
+    auto [fr, right] = getIndexChainAssert(chain2);
+    return fl * fr
+           * IndexManager::renameIndices(left->applyGeneralFierz(*right));
 }
 
 Expr applyDoubleFierz(Expr const &chain1, Expr const &chain2)
 {
-    auto left  = getIndexChainAssert(chain1);
-    auto right = getIndexChainAssert(chain2);
-    return IndexManager::renameIndices(left->applyGeneralFierzTwice(*right));
+    auto [fl, left]  = getIndexChainAssert(chain1);
+    auto [fr, right] = getIndexChainAssert(chain2);
+    return fl * fr
+           * IndexManager::renameIndices(left->applyGeneralFierzTwice(*right));
 }
 
-sgl::IndexChain const *getIndexChainAssert(Expr const &expr)
+std::pair<Expr, sgl::IndexChain const *> getIndexChainAssert(Expr const &expr)
 {
     if (!expr.get()) {
         throw GammaAPIError("Invalid expression error (null).");
     }
     auto ptr = dynamic_cast<sgl::IndexChain const *>(expr.get());
     if (!ptr) {
-        throw GammaAPIError("Expression given is not a pure gamma-index "
-                            "chain: ",
-                            expr);
+        if (auto prod = dynamic_cast<sgl::Prod const *>(expr.get());
+            !prod || prod->size() != 2) {
+            throw GammaAPIError("Expression given is not a pure gamma-index "
+                                "chain: ",
+                                expr);
+        }
+        else {
+            auto expr
+                = dynamic_cast<sgl::CSLExpr const *>(prod->argument(0).get());
+            auto chain = dynamic_cast<sgl::IndexChain const *>(
+                prod->argument(1).get());
+            if (!expr || !chain) {
+                throw GammaAPIError("Expression given is not a pure "
+                                    "gamma-index "
+                                    "chain: ",
+                                    expr);
+            }
+            return {expr->copy(), chain};
+        }
     }
-    return ptr;
+    return {sgl::cslexpr_s(CSL_1), ptr};
+}
+
+////
+// Latex conversion
+////
+
+static std::string generateLatexImpl(Expr const &expr);
+
+static std::string generateLatex(csl::Expr const &expr)
+{
+    return expr->printLaTeX(0);
+}
+
+static std::string generateLatex(sgl::AbstractMultiFunction const *func,
+                                 std::string const                &sep)
+{
+    std::string res;
+    for (std::size_t i = 0; i != func->size(); ++i) {
+        res += generateLatexImpl(func->argument(i));
+        if (!sep.empty() && i + 1 < func->size()) {
+            res += sep;
+        }
+    }
+    return res;
+}
+
+static std::string generateLatex(csl::Index const &index)
+{
+    std::string_view name = index.getName();
+    return "\\mu_{" + std::string(name.begin() + 1, name.end()) + "}";
+}
+
+static std::string generateLatex(std::vector<csl::Index> const &indices)
+{
+    std::string res;
+    for (const auto &index : indices) {
+        res += generateLatex(index);
+    }
+    return res;
+}
+
+static std::string generateLatex(sgl::GammaIndex const *index)
+{
+    if (index->isDelta()) {
+        return "";
+    }
+    if (index->isGamma5()) {
+        return "\\gamma^{5}";
+    }
+    if (index->isGammaMu()) {
+        return "\\gamma^{" + generateLatex(index->indices()) + "}";
+    }
+    if (index->isSigma()) {
+        return "\\gamma^{" + generateLatex(index->indices()) + "}";
+    }
+    if (index->isP_L()) {
+        return "P_L";
+    }
+    if (index->isP_R()) {
+        return "P_R";
+    }
+    if (index->isC()) {
+        return "C";
+    }
+    throw GammaAPIError(
+        "Gamma index ", index->copy(), " is invalid for latex printing.");
+}
+
+static std::string generateLatex(sgl::MetricIndex const *index)
+{
+    return "g^{" + generateLatex(index->indices()) + "}";
+}
+
+static std::string generateLatex(sgl::EpsilonIndex const *index)
+{
+    return "\\epsilon^{" + generateLatex(index->indices()) + "}";
+}
+
+static std::string generateLatex(sgl::IndexChain const *chain)
+{
+    const auto [a, b] = chain->getBorderIndices();
+    if (a != b) {
+        std::string_view a_str = a.getName();
+        std::string_view b_str = b.getName();
+        std::string      indexString
+            = std::string(a_str.begin() + 1, a_str.end())
+              + std::string(b_str.begin() + 1, b_str.end());
+        return "\\left(" + generateLatex(chain, "") + "\\right)_{"
+               + indexString + "}";
+    }
+    else {
+        return "\\mathrm{Tr}\\left(" + generateLatex(chain, "") + "\\right)";
+    }
+}
+
+static std::string generateLatexImpl(Expr const &expr)
+{
+    if (auto p = dynamic_cast<sgl::Sum const *>(expr.get()); p) {
+        return "&" + generateLatex(p, "\\\\& + ");
+    }
+    if (auto p = dynamic_cast<sgl::Prod const *>(expr.get()); p) {
+        return generateLatex(p, "");
+    }
+    if (auto p = dynamic_cast<sgl::IndexChain const *>(expr.get()); p) {
+        return generateLatex(p);
+    }
+    if (auto p = dynamic_cast<sgl::GammaIndex const *>(expr.get()); p) {
+        return generateLatex(p);
+    }
+    if (auto p = dynamic_cast<sgl::MetricIndex const *>(expr.get()); p) {
+        return generateLatex(p);
+    }
+    if (auto p = dynamic_cast<sgl::EpsilonIndex const *>(expr.get()); p) {
+        return generateLatex(p);
+    }
+    if (auto p = dynamic_cast<sgl::CSLExpr const *>(expr.get()); p) {
+        return generateLatex(p->expr());
+    }
+    throw GammaAPIError(
+        "Expression ", expr, " is invalid for latex printing.");
+}
+
+std::string generateLatex(Expr const &expr)
+{
+    return generateLatexImpl(expr);
 }
 
 ////
