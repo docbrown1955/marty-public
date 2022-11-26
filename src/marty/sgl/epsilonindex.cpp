@@ -54,12 +54,39 @@ csl::Expr EpsilonIndex::getFactor() const
 {
     if (isZero())
         return CSL_0;
-    return CSL_1;
+    csl::Expr               sign    = CSL_1;
+    std::vector<csl::Index> indices = m_indices;
+    for (size_t i = 0; i != indices.size(); ++i) {
+        size_t min = i;
+        for (size_t j = i + 1; j != indices.size(); ++j) {
+            if (indices[j] < indices[min])
+                min = j;
+        }
+        if (min != i) {
+            std::swap(indices[i], indices[min]);
+            sign *= -1;
+        }
+    }
+    return sign;
 }
 
 GExpr EpsilonIndex::getTerm() const
 {
-    return (isZero() ? CSL_0 : copy());
+    if (isZero())
+        return cslexpr_s(CSL_0);
+
+    std::vector<csl::Index> indices = m_indices;
+    for (size_t i = 0; i != indices.size(); ++i) {
+        size_t min = i;
+        for (size_t j = i + 1; j != indices.size(); ++j) {
+            if (indices[j] < indices[min])
+                min = j;
+        }
+        if (min != i) {
+            std::swap(indices[i], indices[min]);
+        }
+    }
+    return epsilonindex_s(indices[0], indices[1], indices[2], indices[3]);
 }
 
 csl::Expr EpsilonIndex::toCSL(TensorSet const &) const
@@ -167,16 +194,14 @@ GExpr EpsilonIndex::chisholmIdentity2(csl::Index const &mu,
             sign *= -1;
         return sign * chisholmIdentity2B(rho, tau, a, b);
     }
-    int sign = (i_nu & 1) ? 1 : -1;
-    sign *= (i_mu & 1) ? -1 : 1;
-    if (i_mu < i_nu)
-        sign *= -1;
+    int parity = (i_mu + i_nu) % 2 + (i_mu < i_nu);
+    int sign   = (parity & 1) ? -1 : 1;
     return sign * chisholmIdentity2A(rho, a, b);
 }
 
 GExpr EpsilonIndex::chisholmIdentity2A(std::vector<csl::Index> const &rho,
-                                       csl::Index const &             a,
-                                       csl::Index const &             b) const
+                                       csl::Index const              &a,
+                                       csl::Index const              &b) const
 {
     LOG("Factor :", cslexpr_s(-CSL_I * (sgl::DMinko - 2)))
     LOG("Structure res: ",
@@ -192,9 +217,9 @@ GExpr EpsilonIndex::chisholmIdentity2A(std::vector<csl::Index> const &rho,
 }
 
 GExpr EpsilonIndex::chisholmIdentity2B(std::vector<csl::Index> const &rho,
-                                       csl::Index const &             nu,
-                                       csl::Index const &             a,
-                                       csl::Index const &             b) const
+                                       csl::Index const              &nu,
+                                       csl::Index const              &a,
+                                       csl::Index const              &b) const
 {
     LOG("Factor :", cslexpr_s(-CSL_I))
     LOG("Structure res: ",
@@ -242,7 +267,7 @@ GExpr EpsilonIndex::propertyWith(GExpr const &other) const
         auto const &arg = indexChain->argument(i);
         for (const auto &index : arg->indices())
             if (contains(index)) {
-                auto const &                 indices = arg->indices();
+                auto const                  &indices = arg->indices();
                 std::pair<GExpr, IndexChain> cut     = indexChain->cut(i);
                 auto [a, b] = cut.second.getBorderIndices();
                 if (indices.size() == 1)
