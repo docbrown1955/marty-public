@@ -318,11 +318,11 @@ bool Index::operator<(const Index &t_index) const
     //     return true;
     // else if (not (t_index.type < type)) {
     if (type != cslIndex::Fixed) {
-        auto valueA = std::abs(nameOrValue);
-        auto valueB = std::abs(t_index.nameOrValue);
-        if (valueA < valueB)
+        std::string_view nameA = getName();
+        std::string_view nameB = t_index.getName();
+        if (nameA < nameB)
             return true;
-        else if (not(valueB < valueA)) {
+        else if (not(nameB < nameA)) {
             return id < t_index.id;
         }
     }
