@@ -131,7 +131,8 @@ Expr applySingleFierz(Expr const &chain1, Expr const &chain2)
     auto [fl, left]  = getIndexChainAssert(chain1);
     auto [fr, right] = getIndexChainAssert(chain2);
     return fl * fr
-           * IndexManager::renameIndices(left->applyGeneralFierz(*right));
+           * IndexManager::renameIndices(
+               simplified(left->applyGeneralFierz(*right)));
 }
 
 Expr applyDoubleFierz(Expr const &chain1, Expr const &chain2)
@@ -139,7 +140,8 @@ Expr applyDoubleFierz(Expr const &chain1, Expr const &chain2)
     auto [fl, left]  = getIndexChainAssert(chain1);
     auto [fr, right] = getIndexChainAssert(chain2);
     return fl * fr
-           * IndexManager::renameIndices(left->applyGeneralFierzTwice(*right));
+           * IndexManager::renameIndices(
+               simplified(left->applyGeneralFierzTwice(*right)));
 }
 
 std::pair<Expr, sgl::IndexChain const *> getIndexChainAssert(Expr const &expr)
@@ -170,6 +172,17 @@ std::pair<Expr, sgl::IndexChain const *> getIndexChainAssert(Expr const &expr)
         }
     }
     return {sgl::cslexpr_s(CSL_1), ptr};
+}
+
+////
+// Standard printing
+////
+
+std::string generateString(Expr const &expr)
+{
+    std::ostringstream sout;
+    sout << expr;
+    return sout.str();
 }
 
 ////
