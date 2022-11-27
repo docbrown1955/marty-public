@@ -48,4 +48,3 @@ set(ALL_SOURCES
 )
 
 add_library(sgl OBJECT ${ALL_SOURCES})
-set_property(TARGET sgl PROPERTY POSITION_INDEPENDENT_CODE 1)

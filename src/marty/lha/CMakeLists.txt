@@ -11,3 +11,9 @@ set(ALL_SOURCES
 
 add_library(marty-lha-obj OBJECT ${ALL_SOURCES})
 set_property(TARGET marty-lha-obj PROPERTY POSITION_INDEPENDENT_CODE 1)
+
+add_library(marty-lha SHARED)
+target_link_libraries(marty-lha marty-lha-obj)
+
+add_library(marty-lha-static STATIC)
+target_link_libraries(marty-lha-static marty-lha-obj)
