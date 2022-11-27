@@ -71,8 +71,6 @@ else()
     set(ENABLE_COVERAGE 0)
 endif()
 
-set_property(GLOBAL PROPERTY POSITION_INDEPENDENT_CODE 1)
-
 add_compile_definitions(MARTY_CXX=${CMAKE_CXX_COMPILER})
 add_compile_definitions(MARTY_CC=${CMAKE_C_COMPILER})
 add_compile_definitions(MARTY_FC=${CMAKE_Fortran_COMPILER})

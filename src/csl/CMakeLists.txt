@@ -137,6 +137,7 @@ set(ALL_SOURCES
 )
 
 add_library(csl-core OBJECT ${ALL_SOURCES})
+set_property(TARGET csl-core PROPERTY POSITION_INDEPENDENT_CODE 1)
 
 add_library(csl SHARED)
 target_link_libraries(csl PUBLIC 

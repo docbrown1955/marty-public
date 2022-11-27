@@ -16,3 +16,4 @@ set(ALL_SOURCES
 )
 
 add_library(marty-ufo OBJECT ${ALL_SOURCES})
+set_property(TARGET marty-ufo PROPERTY POSITION_INDEPENDENT_CODE 1)

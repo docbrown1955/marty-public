@@ -12,3 +12,4 @@ set(ALL_SOURCES
 )
 
 add_library(grafed-core OBJECT ${ALL_SOURCES})
+set_property(TARGET grafed-core PROPERTY POSITION_INDEPENDENT_CODE 1)
