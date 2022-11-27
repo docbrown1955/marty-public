@@ -94,9 +94,12 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 add_subdirectory(dep)
 add_subdirectory(src)
 add_subdirectory(examples)
+add_subdirectory(python)
 add_subdirectory(tests)
 
 install(TARGETS marty marty-static csl csl-static marty-lha marty-lha-static marty-gamma-api
+    DESTINATION lib)
+install(PROGRAMS ${CMAKE_BINARY_DIR}/pymartyc.so
     DESTINATION lib)
 install(DIRECTORY src/
     DESTINATION include
