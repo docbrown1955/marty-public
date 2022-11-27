@@ -38,7 +38,6 @@ Expr gamma5();
 Expr P_L();
 Expr P_R();
 Expr C();
-Expr p(int mu);
 
 // Create a chain of gamma matrices
 Expr chain(std::vector<Expr> const &gammas, int iLeft, int iRight);
@@ -49,6 +48,7 @@ Expr applySingleFierz(Expr const &chain1, Expr const &chain2);
 
 Expr applyDoubleFierz(Expr const &chain1, Expr const &chain2);
 
+std::string generateString(Expr const &expr);
 std::string generateLatex(Expr const &expr);
 
 template <class... Args>
