@@ -15,6 +15,9 @@ void defineLibPath(mty::Library &lib)
 {
 #ifdef MARTY_LIBRARY_PATH
     lib.addLPath(MARTY_LIBRARY_PATH);
+    lib.addLPath(MARTY_LIBRARY_PATH "/..");
+    lib.addLPath(MARTY_LIBRARY_PATH "/marty");
+    lib.addLPath(MARTY_LIBRARY_PATH "/marty/lha");
 #endif
 #ifdef MARTY_INCLUDE_PATH
     lib.addIPath(MARTY_INCLUDE_PATH);
