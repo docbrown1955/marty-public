@@ -1,7 +1,5 @@
 import sys
-
-sys.path.append("/mnt/d/marty/marty-public/build/src/pybinding/")
-import pymartyc
+from .._internal import pymartyc
 
 
 class Expr:
