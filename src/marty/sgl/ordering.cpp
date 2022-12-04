@@ -57,7 +57,7 @@ bool contractedOrder(GExpr const &A, GExpr const &B)
         std::cerr << "IndexChain, should'nt." << std::endl;
         std::cerr << A << std::endl;
         std::cerr << B << std::endl;
-        throw Exception::MathError;
+        throw MathError("Should not get contracted order for gamma or index chain: ", A, B);
     }
     // The tensorset is guaranteed to be useless, default constructed
     TensorSet tset;

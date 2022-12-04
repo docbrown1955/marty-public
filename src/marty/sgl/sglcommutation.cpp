@@ -103,7 +103,7 @@ Commutation commute(GammaIndex const &mu,
         return res;
     }
     if (inverseCall)
-        throw Exception::MathError;
+        throw MathError("Called twice inverse call: would result in infinite recursion");
     LOG("Taking swapped commutation")
     auto res = commute(nu, mu, a, b, true);
     std::swap(res.left, res.right);

@@ -79,31 +79,31 @@ size_t AbstractLiteral::size() const
 GExpr const &AbstractLiteral::argument(size_t) const
 {
     errorPrint();
-    throw Exception::AbstractCall;
+    throw AbstractCallError{};
 }
 GExpr &AbstractLiteral::argument(size_t)
 {
     errorPrint();
-    throw Exception::AbstractCall;
+    throw AbstractCallError{};
 }
 AbstractGammaSym::iterator AbstractLiteral::begin()
 {
     errorPrint();
-    throw Exception::AbstractCall;
+    throw AbstractCallError{};
 }
 AbstractGammaSym::const_iterator AbstractLiteral::begin() const
 {
     errorPrint();
-    throw Exception::AbstractCall;
+    throw AbstractCallError{};
 }
 AbstractGammaSym::iterator AbstractLiteral::end()
 {
     errorPrint();
-    throw Exception::AbstractCall;
+    throw AbstractCallError{};
 }
 AbstractGammaSym::const_iterator AbstractLiteral::end() const
 {
     errorPrint();
-    throw Exception::AbstractCall;
+    throw AbstractCallError{};
 }
 } // namespace sgl

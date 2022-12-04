@@ -44,7 +44,7 @@ bool AbstractGammaSym::hasPropertyWith(GExpr const &) const
 GExpr AbstractGammaSym::propertyWith(GExpr const &) const
 {
     errorPrint();
-    throw Exception::AbstractCall;
+    throw AbstractCallError{};
 }
 
 GExpr AbstractGammaSym::simplify()
@@ -55,23 +55,23 @@ GExpr AbstractGammaSym::simplify()
 std::vector<csl::Index> const &AbstractGammaSym::indices() const
 {
     errorPrint();
-    throw Exception::AbstractCall;
+    throw AbstractCallError{};
 }
 std::vector<csl::Index> &AbstractGammaSym::indices()
 {
     errorPrint();
-    throw Exception::AbstractCall;
+    throw AbstractCallError{};
 }
 
 csl::Expr const &AbstractGammaSym::expr() const
 {
     errorPrint();
-    throw Exception::AbstractCall;
+    throw AbstractCallError{};
 }
 csl::Expr &AbstractGammaSym::expr()
 {
     errorPrint();
-    throw Exception::AbstractCall;
+    throw AbstractCallError{};
 }
 
 GExpr::GExpr(csl::Expr const &expr) : GExpr(cslexpr_s(expr))
@@ -126,7 +126,8 @@ GExpr &operator/=(GExpr &A, GExpr const &B)
     if (!IsType<CSLExpr>(B)) {
         A->errorPrint();
         B->errorPrint();
-        throw Exception::MathError;
+        throw MathError("Cannot use operator/=() with a non-CSL expression: ",
+                        B);
     }
     A = sgl::prod_s({A, cslexpr_s(1 / B->expr())});
     return A;

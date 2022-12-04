@@ -57,7 +57,7 @@ void AbstractGeneralizedIndex::replace(csl::Index const &i,
                                        csl::Index const &j)
 {
     if (self().use_count() > 2) {
-        throw Exception::IndexError;
+        throw IndexError("Invalid index replacement in a shared expression.");
     }
     if (i != j)
         std::replace(m_indices.begin(), m_indices.end(), i, j);

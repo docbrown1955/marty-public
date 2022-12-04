@@ -69,7 +69,7 @@ static void cutIndex(std::vector<GammaIndex> &init, size_t i)
         }
         n += genIndex.indices().size();
     }
-    throw Exception::MathError;
+    throw MathError("Internal SGL Math Error");
 }
 
 static void cutIndices(std::vector<GammaIndex> &init, size_t i, size_t j)
