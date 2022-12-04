@@ -39,7 +39,7 @@ IndexChain::IndexChain(csl::Index const &t_a, csl::Index const &t_b)
 {
 }
 
-IndexChain::IndexChain(GExpr const &     mu,
+IndexChain::IndexChain(GExpr const      &mu,
                        csl::Index const &t_a,
                        csl::Index const &t_b)
     : AbstractMultiFunction(mu), a(t_a), b(t_b)
@@ -47,8 +47,8 @@ IndexChain::IndexChain(GExpr const &     mu,
 }
 
 IndexChain::IndexChain(std::vector<GExpr> const &mu,
-                       csl::Index const &        t_a,
-                       csl::Index const &        t_b)
+                       csl::Index const         &t_a,
+                       csl::Index const         &t_b)
     : a(t_a), b(t_b)
 {
     m_argument.reserve(mu.size());
@@ -64,16 +64,16 @@ IndexChain::IndexChain(Field const &t_a, csl::Index const &t_b)
 {
 }
 
-IndexChain::IndexChain(GExpr const &     mu,
-                       Field const &     t_a,
+IndexChain::IndexChain(GExpr const      &mu,
+                       Field const      &t_a,
                        csl::Index const &t_b)
     : AbstractMultiFunction(mu), a(t_a.index), b(t_b), psiL(field_s(t_a))
 {
 }
 
 IndexChain::IndexChain(std::vector<GExpr> const &mu,
-                       Field const &             t_a,
-                       csl::Index const &        t_b)
+                       Field const              &t_a,
+                       csl::Index const         &t_b)
     : a(t_a.index), b(t_b), psiL(field_s(t_a))
 {
     m_argument.reserve(mu.size());
@@ -89,16 +89,16 @@ IndexChain::IndexChain(csl::Index const &t_a, Field const &t_b)
 {
 }
 
-IndexChain::IndexChain(GExpr const &     mu,
+IndexChain::IndexChain(GExpr const      &mu,
                        csl::Index const &t_a,
-                       Field const &     t_b)
+                       Field const      &t_b)
     : AbstractMultiFunction(mu), a(t_a), b(t_b.index), psiR(field_s(t_b))
 {
 }
 
 IndexChain::IndexChain(std::vector<GExpr> const &mu,
-                       csl::Index const &        t_a,
-                       Field const &             t_b)
+                       csl::Index const         &t_a,
+                       Field const              &t_b)
     : a(t_a), b(t_b.index), psiR(field_s(t_b))
 {
     m_argument.reserve(mu.size());
@@ -125,8 +125,8 @@ IndexChain::IndexChain(GExpr const &mu, Field const &t_a, Field const &t_b)
 }
 
 IndexChain::IndexChain(std::vector<GExpr> const &mu,
-                       Field const &             t_a,
-                       Field const &             t_b)
+                       Field const              &t_a,
+                       Field const              &t_b)
     : a(t_a.index), b(t_b.index), psiL(field_s(t_a)), psiR(field_s(t_b))
 {
     m_argument.reserve(mu.size());
@@ -139,9 +139,7 @@ std::optional<GExpr> IndexChain::checkGammaAndConjugation() const
     for (const auto &arg : m_argument)
         if (!IsType<GammaIndex>(arg)
             && (!IsType<CSLExpr>(arg) || arg->expr() != CSL_0)) {
-            std::cerr << copy() << std::endl;
-            std::cerr << arg << std::endl;
-            throw Exception::MathError;
+            throw MathError("Argument of chain is not a gamma index: ", arg);
         }
     if (m_argument.empty())
         return std::nullopt;
@@ -271,7 +269,10 @@ GExpr IndexChain::mergeConjugateChain(IndexChain const &other) const
         // Checking that one conjugation matrix allows the connection
         if (!isC(m_argument.back())) {
             if (!isC(other.m_argument.back()))
-                throw sgl::Exception::MathError;
+                throw MathError("Conjugation matrices do not match current "
+                                "indices: ",
+                                copy(),
+                                other.copy());
             return other.mergeConjugateChain(*this);
         }
         IndexChain cpy{*this};
@@ -281,7 +282,9 @@ GExpr IndexChain::mergeConjugateChain(IndexChain const &other) const
         sign *= -1;
         return cslexpr_s(sign) * chain.mergeChain(other);
     }
-    throw sgl::Exception::MathError;
+    throw MathError("Contracting index chains that have no index in common:",
+                    copy(),
+                    other.copy());
 }
 
 bool IndexChain::hasPropertyWith(GExpr const &other) const
@@ -305,7 +308,8 @@ GExpr IndexChain::propertyWith(GExpr const &other) const
         LOG("Merge result :", res)
         return res;
     }
-    throw sgl::Exception::MathError;
+    throw MathError("Invalid property in index chain index. The hasProperty()",
+                    " method returned true but no property is found");
     // // Fierz to mix chains
     // SCOPELOG
     // LOG("Applying fermion order", copy(), other)
@@ -389,7 +393,8 @@ csl::Expr IndexChain::toCSL(TensorSet const &tensors) const
             j = i.rename();
         auto gamma = ConvertTo<GammaIndex>(m_argument[k]);
         if (!gamma)
-            throw Exception::TypeError;
+            throw TypeError("Argument of a chain is not a gamma index: ",
+                            m_argument[k]);
         terms[k] = gamma->buildTensor(tensors, i, j);
         i        = j;
     }
@@ -404,7 +409,7 @@ std::pair<GExpr, IndexChain> IndexChain::cut(size_t pos, size_t len) const
     LOG("Cutting at pos", pos, "(len =", len, ")in", copy())
     if (pos >= m_argument.size() || pos + len > m_argument.size()) {
         if (pos != 0 || len != 0)
-            throw Exception::IndexError;
+            throw IndexError("Internal SGL Index Error");
     }
     std::vector<GExpr> leftArgs(m_argument.begin(), m_argument.begin() + pos);
     std::vector<GExpr> rightArgs(m_argument.begin() + pos + len,
@@ -430,7 +435,12 @@ std::pair<GExpr, IndexChain> IndexChain::cut(size_t pos, size_t len) const
 void IndexChain::erase(size_t pos, size_t len)
 {
     if (pos >= m_argument.size() || pos + len > m_argument.size())
-        throw Exception::IndexError;
+        throw IndexError("Cannot erase ",
+                         len,
+                         " indices at pos ",
+                         pos,
+                         " for chain of size ",
+                         m_argument.size());
     m_argument.erase(m_argument.begin() + pos, m_argument.begin() + pos + len);
 }
 
@@ -649,7 +659,7 @@ GExpr IndexChain::applyEOM(MomentumIndex const &p) const
             return p.copy() * moveIndex(i, target);
         }
     }
-    throw Exception::MathError;
+    throw MathError("Could not apply EOM on chain: ", copy());
 }
 
 GExpr IndexChain::simplify()
@@ -687,7 +697,8 @@ GExpr IndexChain::calculateStandardTrace() const
             errorPrint();
             LOG("Bad argument :", gam->copy())
             std::cerr << copy() << '\n';
-            throw Exception::TypeError;
+            throw TypeError("Expression is not a gamma index in a chain: ",
+                            arg);
         }
         if (gam->isGammaMu() || gam->isSigma()) {
             LOG("Argument :", gam->copy())
@@ -695,7 +706,7 @@ GExpr IndexChain::calculateStandardTrace() const
         }
         else if (indices.size() != m_argument.size() - 1) {
             std::cerr << copy() << '\n';
-            throw Exception::MathError;
+            throw MathError("Internal SGL Math Error");
         }
     }
 
@@ -713,7 +724,9 @@ GExpr IndexChain::calculateChiralTrace() const
         if (!gam) {
             errorPrint();
             LOG("Bad argument :", gam->copy())
-            throw Exception::TypeError;
+            throw TypeError("Argument in an index chain is not a gamma "
+                            "index: ",
+                            arg);
         }
         if (gam->isGammaMu() || gam->isSigma()) {
             LOG("Argument :", gam->copy())
@@ -721,7 +734,7 @@ GExpr IndexChain::calculateChiralTrace() const
         }
         else if (indices.size() != m_argument.size() - 1) {
             errorPrint();
-            throw Exception::MathError;
+            throw MathError("Internal SGL Math Error");
         }
     }
 
@@ -775,7 +788,7 @@ std::tuple<GExpr, IndexChain, IndexChain> chiralBasisElement(size_t i)
                 IndexChain(gammaindex_s({mu, nu}), e[0], e[1]),
                 IndexChain(gammaindex_s({+mu, +nu}), e[2], e[3])};
     default:
-        throw Exception::IndexError;
+        throw IndexError("No element ", i, " in the chiral basis (up to 4)");
     }
 }
 
@@ -805,7 +818,7 @@ std::tuple<GExpr, IndexChain, IndexChain> standardBasisElement(size_t i)
                 IndexChain(gammaindex_s({mu, nu}), e[0], e[1]),
                 IndexChain(gammaindex_s({+mu, +nu}), e[2], e[3])};
     default:
-        throw Exception::IndexError;
+        throw IndexError("No element ", i, " in the standard basis (up to 4)");
     }
 }
 

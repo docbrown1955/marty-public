@@ -144,9 +144,7 @@ csl::Expr GammaIndex::buildTensor(TensorSet const  &tensors,
     }
     auto pos = tensors.gamma.find(m_indices.size());
     if (pos == tensors.gamma.end()) {
-        std::cerr << "Index of size " << m_indices.size() << " not found !"
-                  << std::endl;
-        throw Exception::MathError;
+        throw MathError("Index of size ", m_indices.size(), " not found");
     }
     csl::Tensor             gamma = pos->second;
     std::vector<csl::Index> indices(m_indices);
@@ -158,7 +156,7 @@ csl::Expr GammaIndex::buildTensor(TensorSet const  &tensors,
 
 csl::Expr GammaIndex::toCSL(TensorSet const &) const
 {
-    throw Exception::MathError;
+    throw MathError("Cannot convert gamma index into CSL (only possible in a chain)");
 }
 
 void GammaIndex::print(std::ostream &out) const

@@ -22,37 +22,48 @@
  */
 #pragma once
 
+#include <exception>
 #include <iostream>
+#include <sstream>
+#include <string>
 
 namespace sgl {
 
-enum class Exception {
-    AbstractCall,
-    MathError,
-    TypeError,
-    IndexError,
-    ValueError,
+class [[nodiscard]] Exception : public std::exception {
+  public:
+    Exception() = default;
+
+    template <class... Args>
+    explicit Exception(Args &&...args)
+    {
+        std::ostringstream sout;
+        (sout << ... << std::forward<Args>(args));
+        _msg = sout.str();
+    }
+
+    char const *what() const noexcept override
+    {
+        return _msg.c_str();
+    }
+
+  private:
+    std::string _msg;
 };
 
-inline std::ostream &operator<<(std::ostream &out, Exception ex)
-{
-    switch (ex) {
-    case Exception::AbstractCall:
-        out << "AbstractCall";
-        break;
-    case Exception::MathError:
-        out << "MathError";
-        break;
-    case Exception::TypeError:
-        out << "TypeError";
-        break;
-    case Exception::IndexError:
-        out << "IndexError";
-        break;
-    case Exception::ValueError:
-        out << "ValueError";
-        break;
-    }
-    return out;
-}
+class AbstractCallError : public Exception {
+    using Exception::Exception;
+};
+class MathError : public Exception {
+    using Exception::Exception;
+};
+class TypeError : public Exception {
+    using Exception::Exception;
+};
+class IndexError : public Exception {
+    using Exception::Exception;
+};
+class ValueError : public Exception {
+    using Exception::Exception;
+};
+
 } // namespace sgl

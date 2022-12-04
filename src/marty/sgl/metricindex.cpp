@@ -84,7 +84,8 @@ GExpr MetricIndex::propertyWith(GExpr const &other) const
         return res;
     }
     errorPrint();
-    throw Exception::MathError;
+    throw MathError("Invalid property in metric index. The hasProperty()",
+                    " method returned true but no property is found");
 }
 
 void MetricIndex::print(std::ostream &out) const

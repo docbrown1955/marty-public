@@ -306,10 +306,10 @@ DiracSpace::simplifyChain(csl::vector_expr const &tensors) const
         sgl::Simplify(sglTest);
         return {sgl::sgl_to_csl(sglTest, tensorset)};
     }
-    catch (sgl::Exception ex) {
-        std::cerr << ex << std::endl;
+    catch (sgl::Exception const &ex) {
         std::cerr << "Exception occured during simplification of : " << '\n';
         std::cerr << csl::prod_s(tensors, true) << '\n';
+        std::cerr << ex.what() << std::endl;
         throw ex;
     }
 }

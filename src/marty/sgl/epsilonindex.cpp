@@ -50,12 +50,9 @@ GExpr EpsilonIndex::refresh() const
         m_indices[0], m_indices[1], m_indices[2], m_indices[3]);
 }
 
-csl::Expr EpsilonIndex::getFactor() const
+csl::Expr orderIndices(std::vector<csl::Index> &indices)
 {
-    if (isZero())
-        return CSL_0;
-    csl::Expr               sign    = CSL_1;
-    std::vector<csl::Index> indices = m_indices;
+    csl::Expr sign = CSL_1;
     for (size_t i = 0; i != indices.size(); ++i) {
         size_t min = i;
         for (size_t j = i + 1; j != indices.size(); ++j) {
@@ -70,22 +67,22 @@ csl::Expr EpsilonIndex::getFactor() const
     return sign;
 }
 
+csl::Expr EpsilonIndex::getFactor() const
+{
+    if (isZero())
+        return CSL_0;
+    std::vector<csl::Index> indices = m_indices;
+    csl::Expr               sign    = orderIndices(indices);
+    return sign;
+}
+
 GExpr EpsilonIndex::getTerm() const
 {
     if (isZero())
         return cslexpr_s(CSL_0);
 
     std::vector<csl::Index> indices = m_indices;
-    for (size_t i = 0; i != indices.size(); ++i) {
-        size_t min = i;
-        for (size_t j = i + 1; j != indices.size(); ++j) {
-            if (indices[j] < indices[min])
-                min = j;
-        }
-        if (min != i) {
-            std::swap(indices[i], indices[min]);
-        }
-    }
+    orderIndices(indices);
     return epsilonindex_s(indices[0], indices[1], indices[2], indices[3]);
 }
 
@@ -122,7 +119,8 @@ GExpr EpsilonIndex::chisholmIdentity1(csl::Index const &mu,
     }
     if (nu.size() != 3) {
         LOG("Less that three other indices...")
-        throw Exception::MathError;
+        throw MathError("Chisholm identity called with a broken epsilon: ",
+                        copy());
     }
     int   sign   = ((4 - i_mu) & 1) ? 1 : -1;
     GExpr factor = cslexpr_s(-sign * CSL_I);
@@ -184,7 +182,9 @@ GExpr EpsilonIndex::chisholmIdentity2(csl::Index const &mu,
     if (rho.size() != 2) {
         if (rho.size() != 3) {
             LOG("Not two indices ...")
-            throw Exception::MathError;
+            throw MathError("Called wring chisholm idendity or with a broken "
+                            "epsilon: ",
+                            copy());
         }
         const size_t     m_one = static_cast<size_t>(-1);
         int              sign  = (i_mu == m_one) ? -1 : 1;
@@ -277,7 +277,9 @@ GExpr EpsilonIndex::propertyWith(GExpr const &other) const
                            * chisholmIdentity2(indices[0], indices[1], a, b);
             }
     }
-    throw Exception::MathError;
+    throw MathError("Unknown property for epsilon tensor, the hasProperty() "
+                    "returned true",
+                    " but no property is found.");
 }
 
 void EpsilonIndex::print(std::ostream &out) const
