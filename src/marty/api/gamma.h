@@ -29,6 +29,8 @@ using Expr = sgl::GExpr;
 
 void keepSymbolic4D(bool symbolic);
 
+extern Expr DMinko;
+
 // Single expressions
 Expr g(int mu, int nu);
 Expr eps(int mu, int nu, int rho, int sig);
@@ -41,6 +43,7 @@ Expr C();
 
 // Create a chain of gamma matrices
 Expr chain(std::vector<Expr> const &gammas, int iLeft, int iRight);
+Expr trace(std::vector<Expr> const &gammas);
 
 Expr simplified(Expr const &expr);
 
