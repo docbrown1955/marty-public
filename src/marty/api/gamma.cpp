@@ -31,6 +31,8 @@ class IndexManager {
     static inline std::map<int, csl::Index> minkoIndices     = {};
 };
 
+Expr DMinko = sgl::cslexpr_s(csl::DMinko);
+
 void keepSymbolic4D(bool symbolic)
 {
     sgl::option::keepEvanescentOperators = symbolic;
@@ -86,6 +88,11 @@ Expr chain(std::vector<Expr> const &gammas, int iLeft, int iRight)
     return sgl::indexchain_s(gammas,
                              IndexManager::getDiracIndex(iLeft),
                              IndexManager::getDiracIndex(iRight));
+}
+
+Expr trace(std::vector<Expr> const &gammas)
+{
+    return simplified(chain(gammas, 0, 0));
 }
 
 Expr ordered(Expr expr)
