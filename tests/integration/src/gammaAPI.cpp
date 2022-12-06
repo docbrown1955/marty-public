@@ -23,6 +23,7 @@ const static sgl::TensorSet tensorSet
 
 TEST(marty_gamma_api, equality)
 {
+    keepSymbolic4D(false);
     COMPARE_SGL_EXPR(EXPECT_NE, expr_s(0), expr_s(1));
     COMPARE_SGL_EXPR(EXPECT_NE, g(0, 1), g(0, 2));
     COMPARE_SGL_EXPR(EXPECT_NE, g(0, 0), g(0, 1));
@@ -73,6 +74,7 @@ static int sign_of(std::array<int, 4> eps_indices)
 
 TEST(marty_gamma_api, metric_contractions)
 {
+    keepSymbolic4D(false);
     {
         auto expr        = g(0, 1) * g(0, 2);
         auto expr_simpli = g(1, 2);
@@ -283,6 +285,11 @@ TEST(marty_gamma_api, simple_traces)
 {
     keepSymbolic4D(true);
     {
+        auto tr        = trace({});
+        auto tr_simpli = expr_s(4);
+        COMPARE_SGL_EXPR(EXPECT_EQ, tr, tr_simpli);
+    }
+    {
         auto tr        = trace({gamma(0)});
         auto tr_simpli = expr_s(0);
         COMPARE_SGL_EXPR(EXPECT_EQ, tr, tr_simpli);
@@ -314,6 +321,30 @@ TEST(marty_gamma_api, simple_traces)
         COMPARE_SGL_EXPR(EXPECT_EQ, tr, tr_simpli);
     }
     {
+        auto tr        = trace({gamma5()});
+        auto tr_simpli = expr_s(0);
+        COMPARE_SGL_EXPR(EXPECT_EQ, tr, tr_simpli);
+    }
+    {
+        auto tr        = trace({P_L()});
+        auto tr_simpli = expr_s(2);
+        COMPARE_SGL_EXPR(EXPECT_EQ, tr, tr_simpli);
+    }
+    {
+        auto tr        = trace({P_R()});
+        auto tr_simpli = expr_s(2);
+        COMPARE_SGL_EXPR(EXPECT_EQ, tr, tr_simpli);
+    }
+    {
+        EXPECT_THROW(trace({C()}), sgl::MathError);
+    }
+    {
+        EXPECT_THROW(trace({gamma(0), C()}), sgl::MathError);
+    }
+    {
+        EXPECT_THROW(trace({gamma(0), gamma5(), C()}), sgl::MathError);
+    }
+    {
         auto tr        = trace({gamma(0), gamma5()});
         auto tr_simpli = expr_s(0);
         COMPARE_SGL_EXPR(EXPECT_EQ, tr, tr_simpli);
@@ -337,10 +368,208 @@ TEST(marty_gamma_api, simple_traces)
 
 TEST(marty_gamma_api, complex_traces)
 {
+    keepSymbolic4D(false);
+    {
+        auto tr = 2 * trace({gamma(0), gamma(1), gamma(2), gamma(3), P_L()});
+        auto tr_simpli
+            = 4 * (g(0, 1) * g(2, 3) + g(0, 3) * g(1, 2) - g(0, 2) * g(1, 3))
+              - expr_s(-4 * CSL_I) * eps(0, 1, 2, 3);
+        COMPARE_SGL_EXPR(EXPECT_EQ, tr, tr_simpli);
+    }
+    {
+        auto tr = 2 * trace({gamma(0), gamma(1), gamma(2), gamma(3), P_R()});
+        auto tr_simpli
+            = 4 * (g(0, 1) * g(2, 3) + g(0, 3) * g(1, 2) - g(0, 2) * g(1, 3))
+              + expr_s(-4 * CSL_I) * eps(0, 1, 2, 3);
+        COMPARE_SGL_EXPR(EXPECT_EQ, tr, tr_simpli);
+    }
+    {
+        auto tr = 2 * trace({gamma(2), gamma(3), P_L(), gamma(0), gamma(1)});
+        auto tr_simpli
+            = 4 * (g(0, 1) * g(2, 3) + g(0, 3) * g(1, 2) - g(0, 2) * g(1, 3))
+              - expr_s(-4 * CSL_I) * eps(0, 1, 2, 3);
+        COMPARE_SGL_EXPR(EXPECT_EQ, tr, tr_simpli);
+    }
+    {
+        auto tr = 2 * trace({gamma(2), gamma(3), P_R(), gamma(0), gamma(1)});
+        auto tr_simpli
+            = 4 * (g(0, 1) * g(2, 3) + g(0, 3) * g(1, 2) - g(0, 2) * g(1, 3))
+              + expr_s(-4 * CSL_I) * eps(0, 1, 2, 3);
+        COMPARE_SGL_EXPR(EXPECT_EQ, tr, tr_simpli);
+    }
+    {
+        auto tr
+            = 2
+              * trace({gamma(2), gamma(3), P_R(), gamma(0), P_R(), gamma(1)});
+        auto tr_simpli = expr_s(0);
+        COMPARE_SGL_EXPR(EXPECT_EQ, tr, tr_simpli);
+    }
+    {
+        auto tr
+            = 2
+              * trace({gamma(2), gamma(3), P_R(), P_L(), gamma(0), gamma(1)});
+        auto tr_simpli = expr_s(0);
+        COMPARE_SGL_EXPR(EXPECT_EQ, tr, tr_simpli);
+    }
+    {
+        auto tr
+            = 2 * trace({gamma(2), gamma(3), gamma(0), gamma(1), gamma(4)});
+        auto tr_simpli = expr_s(0);
+        COMPARE_SGL_EXPR(EXPECT_EQ, tr, tr_simpli);
+    }
+
+    // 6-gamma matrices chiral traces
+    Expr D      = expr_s(4);
+    Expr factor = expr_s(-4 * CSL_I);
+    {
+        auto tr = g(0, 1)
+                  * trace({gamma(0),
+                           gamma(1),
+                           gamma(2),
+                           gamma(3),
+                           gamma(4),
+                           gamma(5),
+                           gamma5()});
+        auto tr_simpli = D * factor * eps(2, 3, 4, 5);
+        COMPARE_SGL_EXPR(EXPECT_EQ, simplified(tr), tr_simpli);
+    }
+    {
+        auto tr = g(0, 2)
+                  * trace({gamma(0),
+                           gamma(1),
+                           gamma(2),
+                           gamma(3),
+                           gamma(4),
+                           gamma(5),
+                           gamma5()});
+        auto tr_simpli = (2 - D) * factor * eps(1, 3, 4, 5);
+        COMPARE_SGL_EXPR(EXPECT_EQ, simplified(tr), tr_simpli);
+    }
+    {
+        auto tr = g(0, 3)
+                  * trace({gamma(0),
+                           gamma(1),
+                           gamma(2),
+                           gamma(3),
+                           gamma(4),
+                           gamma(5),
+                           gamma5()});
+        auto tr_simpli = expr_s(CSL_0); // this trace cancels
+        COMPARE_SGL_EXPR(EXPECT_EQ, simplified(tr), tr_simpli);
+    }
+    {
+        auto tr = g(0, 4)
+                  * trace({gamma(0),
+                           gamma(1),
+                           gamma(2),
+                           gamma(3),
+                           gamma(4),
+                           gamma(5),
+                           gamma5()});
+        auto tr_simpli = (D - 2) * factor * eps(1, 2, 3, 5);
+        COMPARE_SGL_EXPR(EXPECT_EQ, simplified(tr), tr_simpli);
+    }
+    {
+        auto tr = g(0, 5)
+                  * trace({gamma(0),
+                           gamma(1),
+                           gamma(2),
+                           gamma(3),
+                           gamma(4),
+                           gamma(5),
+                           gamma5()});
+        auto tr_simpli = -D * factor * eps(1, 2, 3, 4);
+        COMPARE_SGL_EXPR(EXPECT_EQ, simplified(tr), tr_simpli);
+    }
 }
 
 TEST(marty_gamma_api, chisholm_identities)
 {
+}
+
+TEST(marty_gamma_api, conjugation_identities)
+{
+    keepSymbolic4D(false);
+    {
+        auto c          = chain({C(), gamma(0), C()}, 1, 0);
+        auto c_simpli   = chain({gamma(0)}, 0, 1);
+        auto c_simpli_T = chain({gamma(0)}, 1, 0);
+        COMPARE_SGL_EXPR(EXPECT_EQ, simplified(c), c_simpli);
+        COMPARE_SGL_EXPR(EXPECT_NE, simplified(c), c_simpli_T);
+    }
+    {
+        auto c          = chain({C(), C(), C()}, 1, 0);
+        auto c_simpli   = expr_s(-1) * chain({C()}, 0, 1);
+        auto c_simpli_T = expr_s(-1) * chain({C()}, 1, 0);
+        COMPARE_SGL_EXPR(EXPECT_NE, simplified(c), c_simpli);
+        COMPARE_SGL_EXPR(EXPECT_EQ, simplified(c), c_simpli_T);
+    }
+    {
+        auto c          = chain({C(), gamma5(), C()}, 1, 0);
+        auto c_simpli   = expr_s(-1) * chain({gamma5()}, 0, 1);
+        auto c_simpli_T = expr_s(-1) * chain({gamma5()}, 1, 0);
+        COMPARE_SGL_EXPR(EXPECT_EQ, simplified(c), c_simpli);
+        COMPARE_SGL_EXPR(EXPECT_NE, simplified(c), c_simpli_T);
+    }
+    {
+        auto c          = chain({C(), P_L(), C()}, 1, 0);
+        auto c_simpli   = expr_s(-1) * chain({P_L()}, 0, 1);
+        auto c_simpli_T = expr_s(-1) * chain({P_L()}, 1, 0);
+        COMPARE_SGL_EXPR(EXPECT_EQ, simplified(c), c_simpli);
+        COMPARE_SGL_EXPR(EXPECT_NE, simplified(c), c_simpli_T);
+    }
+    {
+        auto c          = chain({C(), P_R(), C()}, 1, 0);
+        auto c_simpli   = expr_s(-1) * chain({P_R()}, 0, 1);
+        auto c_simpli_T = expr_s(-1) * chain({P_R()}, 1, 0);
+        COMPARE_SGL_EXPR(EXPECT_EQ, simplified(c), c_simpli);
+        COMPARE_SGL_EXPR(EXPECT_NE, simplified(c), c_simpli_T);
+    }
+    {
+        auto c          = chain({C(), gamma(0, 1), C()}, 1, 0);
+        auto c_simpli   = chain({gamma(0, 1)}, 0, 1);
+        auto c_simpli_T = chain({gamma(0, 1)}, 1, 0);
+        COMPARE_SGL_EXPR(EXPECT_EQ, simplified(c), c_simpli);
+        COMPARE_SGL_EXPR(EXPECT_NE, simplified(c), c_simpli_T);
+    }
+    {
+        auto c        = chain({C(), gamma(0)}, 1, 0) * chain({gamma(1)}, 1, 2);
+        auto c_simpli = chain({C(), gamma(0), gamma(1)}, 0, 2);
+        COMPARE_SGL_EXPR(EXPECT_EQ, simplified(c), c_simpli);
+    }
+    {
+        auto c = chain({gamma(0), C()}, 1, 0) * chain({C(), gamma(1)}, 1, 2);
+        auto c_simpli = expr_s(-1) * chain({gamma(0), gamma(1)}, 0, 2);
+        COMPARE_SGL_EXPR(EXPECT_EQ, simplified(c), c_simpli);
+    }
+    {
+        auto c        = chain({gamma(1)}, 1, 2) * chain({C(), gamma(0)}, 1, 0);
+        auto c_simpli = chain({C(), gamma(0), gamma(1)}, 0, 2);
+        COMPARE_SGL_EXPR(EXPECT_EQ, simplified(c), c_simpli);
+    }
+    {
+        auto c = chain({C(), gamma(1)}, 1, 2) * chain({gamma(0), C()}, 1, 0);
+        auto c_simpli = expr_s(-1) * chain({gamma(0), gamma(1)}, 0, 2);
+        COMPARE_SGL_EXPR(EXPECT_EQ, simplified(c), c_simpli);
+    }
+    {
+        auto c = chain({C(),
+                        gamma(1),
+                        gamma5(),
+                        gamma(0),
+                        gamma5(),
+                        C(),
+                        C(),
+                        P_L(),
+                        gamma(2, 3),
+                        P_L(),
+                        C()},
+                       1,
+                       0);
+
+        auto c_simpli = chain({gamma(2, 3), gamma(0), gamma(1), P_L()}, 0, 1);
+        COMPARE_SGL_EXPR(EXPECT_EQ, simplified(c), simplified(c_simpli));
+    }
 }
 
 TEST(marty_gamma_api, simple_fierz_identities)
