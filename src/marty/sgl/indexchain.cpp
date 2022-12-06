@@ -704,9 +704,8 @@ GExpr IndexChain::calculateStandardTrace() const
             LOG("Argument :", gam->copy())
             indices.push_back(*gam);
         }
-        else if (indices.size() != m_argument.size() - 1) {
-            std::cerr << copy() << '\n';
-            throw MathError("Internal SGL Math Error");
+        else if (gam->isC() || (indices.size() != m_argument.size() - 1)) {
+            throw MathError("Unexpected index in trace: ", copy());
         }
     }
 
@@ -732,9 +731,8 @@ GExpr IndexChain::calculateChiralTrace() const
             LOG("Argument :", gam->copy())
             indices.push_back(*gam);
         }
-        else if (indices.size() != m_argument.size() - 1) {
-            errorPrint();
-            throw MathError("Internal SGL Math Error");
+        else if (gam->isC() || (indices.size() != m_argument.size() - 1)) {
+            throw MathError("Unexpected index in trace: ", copy());
         }
     }
 
