@@ -116,6 +116,16 @@ static std::vector<GammaIndex> cutIndices(std::vector<GammaIndex> const &init,
     return out.str();
 }
 
+void checkNoCMatrix(std::vector<GammaIndex> const &indices)
+{
+    for (const auto &index : indices) {
+        if (index.isC()) {
+            throw MathError("Encountered Conjugation matrix C in a trace.",
+                            " This should not happen.");
+        }
+    }
+}
+
 GExpr standardTrace(std::vector<GammaIndex> const &indices,
                     csl::Expr const               &Ddirac)
 {
@@ -124,6 +134,7 @@ GExpr standardTrace(std::vector<GammaIndex> const &indices,
     auto         gam = gammas(indices);
     const size_t N   = gam.size();
     LOG(N, "gamma matrices")
+    checkNoCMatrix(indices);
     if (N == 0)
         return cslexpr_s(Ddirac);
     if (N % 2 == 1 || indices.size() == 1)
@@ -162,6 +173,7 @@ GExpr chiralTrace(std::vector<GammaIndex> const &indices,
     const std::vector<csl::Index> gam  = gammas(indices);
     const size_t                  N    = gam.size();
     const static auto             zero = cslexpr_s(CSL_0);
+    checkNoCMatrix(indices);
     if (N % 2 == 1 || N < 4)
         return zero;
     if (N == 4) {
@@ -171,11 +183,10 @@ GExpr chiralTrace(std::vector<GammaIndex> const &indices,
     std::vector<GExpr> terms;
     terms.reserve(N);
     for (size_t i = 0; i != gam.size() - 1; ++i) {
-        int globalSign = (i % 4 >= 2) ? -1 : 1;
         for (size_t j = i + 1; j != gam.size(); ++j) {
             if (isAntiSymmetric(i, j, indices))
                 continue;
-            int sign = ((i + j + 1) % 2 == 1) ? -globalSign : globalSign;
+            int sign = ((1 + j - i) % 2 == 1) ? -1 : 1;
             std::vector<GammaIndex> recursiveMinkoIndices(indices);
             cutIndices(recursiveMinkoIndices, i, j);
             terms.push_back(
