@@ -88,6 +88,11 @@ PYBIND11_MODULE(pymartyc, m)
               &mty::gamma_api::simplified),
           "Simplify an expression applying gamma-matrix identities",
           py::arg("expr"));
+    m.def("order",
+          static_cast<mty::gamma_api::Expr (*)(mty::gamma_api::Expr const &)>(
+              &mty::gamma_api::ordered),
+          "Order chains of gamma-matrices",
+          py::arg("expr"));
     m.def("single_fierz",
           static_cast<mty::gamma_api::Expr (*)(mty::gamma_api::Expr const &,
                                                mty::gamma_api::Expr const &,

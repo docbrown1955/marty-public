@@ -51,6 +51,10 @@ def simplify(expr: Expr) -> Expr:
     return Expr(pymartyc.simplify(expr._expr))
 
 
+def order(expr: Expr) -> Expr:
+    return Expr(pymartyc.order(expr._expr))
+
+
 def single_fierz(left_current: Expr, right_current: Expr) -> Expr:
     return Expr(pymartyc.single_fierz(left_current._expr, right_current._expr))
 
