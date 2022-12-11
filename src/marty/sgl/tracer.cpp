@@ -186,7 +186,7 @@ GExpr chiralTrace(std::vector<GammaIndex> const &indices,
         for (size_t j = i + 1; j != gam.size(); ++j) {
             if (isAntiSymmetric(i, j, indices))
                 continue;
-            int sign = ((1 + j - i) % 2 == 1) ? -1 : 1;
+            int                     sign = ((1 + j - i) % 2 == 1) ? -1 : 1;
             std::vector<GammaIndex> recursiveMinkoIndices(indices);
             cutIndices(recursiveMinkoIndices, i, j);
             terms.push_back(
