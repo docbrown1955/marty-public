@@ -671,6 +671,7 @@ GExpr IndexChain::simplify()
 
 GExpr IndexChain::calculateTrace() const
 {
+    std::cout << "Trace for " << copy() << std::endl;
     if (m_argument.empty())
         return cslexpr_s(diracSpace->getDim());
     if (isGamma5(m_argument.back())) {
@@ -782,7 +783,7 @@ std::tuple<GExpr, IndexChain, IndexChain> chiralBasisElement(size_t i)
             IndexChain({gammaindex_s(mu), IndexChain::P_R()}, e[0], e[1]),
             IndexChain({gammaindex_s(+mu), IndexChain::P_L()}, e[2], e[3])};
     case 4:
-        return {cslexpr_s(-CSL_HALF),
+        return {cslexpr_s(-CSL_1) / 4,
                 IndexChain(gammaindex_s({mu, nu}), e[0], e[1]),
                 IndexChain(gammaindex_s({+mu, +nu}), e[2], e[3])};
     default:
@@ -812,7 +813,7 @@ std::tuple<GExpr, IndexChain, IndexChain> standardBasisElement(size_t i)
             IndexChain({gammaindex_s(mu), IndexChain::gamma5()}, e[0], e[1]),
             IndexChain({IndexChain::gamma5(), gammaindex_s(+mu)}, e[2], e[3])};
     case 4:
-        return {cslexpr_s(-1),
+        return {cslexpr_s(-1) / 2,
                 IndexChain(gammaindex_s({mu, nu}), e[0], e[1]),
                 IndexChain(gammaindex_s({+mu, +nu}), e[2], e[3])};
     default:
