@@ -12,6 +12,7 @@ from .gamma import (
     simplify,
     single_fierz,
     double_fierz,
+    trace,
 )
 from .print import print_latex, print_equation
 
@@ -29,6 +30,7 @@ __all__ = [
     "simplify",
     "single_fierz",
     "double_fierz",
+    "trace",
     "print_latex",
     "print_equation",
 ]

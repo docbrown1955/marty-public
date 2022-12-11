@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import sys
 from .._internal import pymartyc
+from typing import Union
 
 
 class Expr:

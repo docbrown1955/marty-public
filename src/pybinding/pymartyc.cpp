@@ -25,6 +25,10 @@ PYBIND11_MODULE(pymartyc, m)
         });
 
     py::class_<mty::gamma_api::Expr>(m, "GExpr");
+    py::enum_<mty::gamma_api::FierzBasis>(m, "FierzBasis")
+        .value("Standard", mty::gamma_api::FierzBasis::Standard)
+        .value("Chiral", mty::gamma_api::FierzBasis::Chiral)
+        .export_values();
     m.def("g",
           &mty::gamma_api::g,
           "Minkowski metric - 2 indices",
@@ -73,6 +77,12 @@ PYBIND11_MODULE(pymartyc, m)
           py::arg("gamma_chain"),
           py::arg("left_current_index"),
           py::arg("right_current_index"));
+    m.def("trace",
+          static_cast<mty::gamma_api::Expr (*)(
+              std::vector<mty::gamma_api::Expr> const &)>(
+              &mty::gamma_api::trace),
+          "Calculate the trace of a chain of gamma matrices.",
+          py::arg("gamma_chain"));
     m.def("simplify",
           static_cast<mty::gamma_api::Expr (*)(mty::gamma_api::Expr const &)>(
               &mty::gamma_api::simplified),
@@ -80,18 +90,22 @@ PYBIND11_MODULE(pymartyc, m)
           py::arg("expr"));
     m.def("single_fierz",
           static_cast<mty::gamma_api::Expr (*)(mty::gamma_api::Expr const &,
-                                               mty::gamma_api::Expr const &)>(
+                                               mty::gamma_api::Expr const &,
+                                               mty::gamma_api::FierzBasis)>(
               &mty::gamma_api::applySingleFierz),
           "Apply once the Fierz identity",
           py::arg("left_chain"),
-          py::arg("right_chain"));
+          py::arg("right_chain"),
+          py::arg("basis") = mty::gamma_api::FierzBasis::Chiral);
     m.def("double_fierz",
           static_cast<mty::gamma_api::Expr (*)(mty::gamma_api::Expr const &,
-                                               mty::gamma_api::Expr const &)>(
+                                               mty::gamma_api::Expr const &,
+                                               mty::gamma_api::FierzBasis)>(
               &mty::gamma_api::applyDoubleFierz),
           "Apply twice the Fierz identity",
           py::arg("left_chain"),
-          py::arg("right_chain"));
+          py::arg("right_chain"),
+          py::arg("basis") = mty::gamma_api::FierzBasis::Chiral);
     m.def("generate_string",
           static_cast<std::string (*)(mty::gamma_api::Expr const &)>(
               &mty::gamma_api::generateString),

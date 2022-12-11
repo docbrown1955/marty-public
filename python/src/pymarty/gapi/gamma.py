@@ -37,7 +37,9 @@ def C() -> Expr:
     return Expr(pymartyc.C())
 
 
-def chain(gammas: List[int], left_current_index: int, right_current_index: int) -> Expr:
+def chain(
+    gammas: List[Expr], left_current_index: int, right_current_index: int
+) -> Expr:
     return Expr(
         pymartyc.chain(
             [expr._expr for expr in gammas], left_current_index, right_current_index
@@ -55,3 +57,7 @@ def single_fierz(left_current: Expr, right_current: Expr) -> Expr:
 
 def double_fierz(left_current: Expr, right_current: Expr) -> Expr:
     return Expr(pymartyc.double_fierz(left_current._expr, right_current._expr))
+
+
+def trace(gammas: List[Expr]) -> Expr:
+    return Expr(pymartyc.trace([expr._expr for expr in gammas]))

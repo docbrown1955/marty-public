@@ -671,7 +671,6 @@ GExpr IndexChain::simplify()
 
 GExpr IndexChain::calculateTrace() const
 {
-    std::cout << "Trace for " << copy() << std::endl;
     if (m_argument.empty())
         return cslexpr_s(diracSpace->getDim());
     if (isGamma5(m_argument.back())) {

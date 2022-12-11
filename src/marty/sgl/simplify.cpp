@@ -33,7 +33,7 @@ void SimplifyChain(GExpr &init)
     LOG("Simplify Chain for", init)
     bool simplified = false;
     sgl::transform<IndexChain>(init, [&simplified](GExpr &sub) {
-        auto const *         ptr = dynamic_cast<IndexChain const *>(sub.get());
+        auto const          *ptr = dynamic_cast<IndexChain const *>(sub.get());
         std::optional<GExpr> reduced = ptr->reduceStep();
         if (reduced) {
             sub = *reduced;
@@ -106,23 +106,29 @@ void SimplifyTrace(GExpr &init)
 
 void OrderChains(GExpr &init)
 {
+    auto order_chain = [](GExpr const &prod, GExpr &arg) {
+        auto const &chain = ConvertTo<IndexChain>(arg);
+        if (chain->isTrace())
+            return false;
+        auto conjugation
+            = std::find_if(arg->begin(), arg->end(), IndexChain::isC);
+        if (conjugation != arg->end())
+            return false;
+        for (size_t i = 0; i != arg->size(); ++i) {
+            size_t simp = simplest(prod, arg, i);
+            if (simp != i) {
+                arg = chain->moveIndex(simp, i);
+                return true;
+            }
+        }
+        return false;
+    };
     sgl::transform<sgl::Prod>(init, [&](GExpr &prod) {
         for (auto &arg : prod) {
             if (!IsType<IndexChain>(arg))
                 continue;
-            auto const &chain = ConvertTo<IndexChain>(arg);
-            if (chain->isTrace())
-                continue;
-            auto conjugation
-                = std::find_if(arg->begin(), arg->end(), IndexChain::isC);
-            if (conjugation != arg->end())
-                continue;
-            for (size_t i = 0; i != arg->size(); ++i) {
-                size_t simp = simplest(prod, arg, i);
-                if (simp != i) {
-                    arg = chain->moveIndex(simp, i);
-                    return true;
-                }
+            if (order_chain(prod, arg)) {
+                return true;
             }
         }
         return false;

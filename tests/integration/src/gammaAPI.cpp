@@ -707,10 +707,7 @@ TEST(marty_gamma_api, simple_fierz_identities)
         COMPARE_SGL_EXPR(EXPECT_EQ, fierz, fierz_result);
     }
     {
-        std::cout << "###########################\n";
         auto t = trace({gamma(0, 1), gamma(8, 9), gamma(1), gamma(2), P_R()});
-        std::cout << t << std::endl;
-        std::cout << "{{{{{{{{{{{{{{{{{{{{{{{{{{{{\n";
         auto c1    = chain({P_R(), gamma(0, 1)}, 0, 1);
         auto c2    = chain({P_R(), gamma(1)}, 2, 3);
         auto fierz = applySingleFierz(c1, c2);
