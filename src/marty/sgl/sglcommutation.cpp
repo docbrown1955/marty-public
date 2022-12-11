@@ -47,12 +47,26 @@ Commutation commute(GammaIndex const &mu,
             factor(1),
             nu,
             mu,
-            2 * s * metricindex_s(mu.indices()[0], nu.indices()[0])
-                    * metricindex_s(mu.indices()[1], nu.indices()[1])
-                    * indexchain_s(a, b)
-                - 2 * s * metricindex_s(mu.indices()[0], nu.indices()[1])
-                      * metricindex_s(mu.indices()[1], nu.indices()[0])
-                      * indexchain_s(a, b)};
+            -2 * s * metricindex_s(mu.indices()[0], nu.indices()[0])
+                    * indexchain_s(
+                        {gammaindex_s({mu.indices()[1], nu.indices()[1]})},
+                        a,
+                        b)
+                + 2 * s * metricindex_s(mu.indices()[0], nu.indices()[1])
+                      * indexchain_s(
+                          {gammaindex_s({mu.indices()[1], nu.indices()[0]})},
+                          a,
+                          b)
+                - 2 * s * metricindex_s(mu.indices()[1], nu.indices()[1])
+                      * indexchain_s(
+                          {gammaindex_s({mu.indices()[0], nu.indices()[0]})},
+                          a,
+                          b)
+                + 2 * s * metricindex_s(mu.indices()[1], nu.indices()[0])
+                      * indexchain_s(
+                          {gammaindex_s({mu.indices()[0], nu.indices()[1]})},
+                          a,
+                          b)};
         LOG("Res :", res)
         return res;
     }
@@ -103,7 +117,8 @@ Commutation commute(GammaIndex const &mu,
         return res;
     }
     if (inverseCall)
-        throw MathError("Called twice inverse call: would result in infinite recursion");
+        throw MathError("Called twice inverse call: would result in "
+                        "infinite recursion");
     LOG("Taking swapped commutation")
     auto res = commute(nu, mu, a, b, true);
     std::swap(res.left, res.right);
