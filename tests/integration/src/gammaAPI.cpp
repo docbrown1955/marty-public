@@ -17,9 +17,21 @@ const static sgl::TensorSet tensorSet
                                      {1, mty::dirac4.gamma},
                                      {2, mty::dirac4.sigma}}};
 
-#define COMPARE_SGL_EXPR(ASSERT_MACRO, lhs, rhs)  \
-    ASSERT_MACRO(sgl::sgl_to_csl(lhs, tensorSet), \
-                 sgl::sgl_to_csl(rhs, tensorSet))
+csl::Expr comparableExpr(Expr const &expr)
+{
+    return sgl::sgl_to_csl(expr, tensorSet);
+}
+
+#define COMPARE_SGL_EXPR(ASSERT_MACRO, lhs, rhs) \
+    ASSERT_MACRO(comparableExpr(lhs), comparableExpr(rhs))
+
+#define TEST_ALL_EPSILON_COMBINATIONS                                \
+    for (int m0 = 0; m0 != 4; ++m0)                                  \
+        for (int m1 = 0; m1 != 4; ++m1)                              \
+            for (int m2 = 0; m2 != 4; ++m2)                          \
+                for (int m3 = 0; m3 != 4; ++m3)                      \
+                    if (m0 != m1 && m0 != m2 && m0 != m3 && m1 != m2 \
+                        && m1 != m3 && m2 != m3)
 
 TEST(marty_gamma_api, equality)
 {
@@ -100,11 +112,6 @@ TEST(marty_gamma_api, metric_contractions)
 
 TEST(marty_gamma_api, epsilon_contractions)
 {
-#define TEST_ALL_EPSILON_COMBINATIONS       \
-    for (int m0 = 0; m0 != 4; ++m0)         \
-        for (int m1 = 0; m1 != 4; ++m1)     \
-            for (int m2 = 0; m2 != 4; ++m2) \
-                for (int m3 = 0; m3 != 4; ++m3)
 
     TEST_ALL_EPSILON_COMBINATIONS
     {
@@ -162,7 +169,6 @@ TEST(marty_gamma_api, epsilon_contractions)
                  - g(1, 6) * g(2, 5) * g(3, 4) + g(1, 6) * g(2, 4) * g(3, 5));
         COMPARE_SGL_EXPR(EXPECT_EQ, expr, expr_simpli);
     }
-#undef TEST_ALL_EPSILON_COMBINATIONS
 }
 
 TEST(marty_gamma_api, gamma_contractions)
@@ -485,6 +491,57 @@ TEST(marty_gamma_api, complex_traces)
 
 TEST(marty_gamma_api, chisholm_identities)
 {
+    keepSymbolic4D(false);
+
+    // Simple chisholm identity
+    TEST_ALL_EPSILON_COMBINATIONS
+    {
+        csl::ScopedProperty prop(&sgl::option::orderEspilonIndices, false);
+        auto c = (1 * eps(m0, m1, m2, m3)) * chain({gamma(m3)}, 0, 1);
+        auto c_simpli
+            = -expr_s(CSL_I)
+                  * chain({gamma(m0), gamma(m1), gamma(m2), gamma5()}, 0, 1)
+              + expr_s(CSL_I) * g(m0, m1) * chain({gamma(m2), gamma5()}, 0, 1)
+              - expr_s(CSL_I) * g(m0, m2) * chain({gamma(m1), gamma5()}, 0, 1)
+              + expr_s(CSL_I) * g(m1, m2) * chain({gamma(m0), gamma5()}, 0, 1);
+        auto c_bad_simpli
+            = -expr_s(CSL_I)
+                  * chain({gamma(m0), gamma(m1), gamma(m2), gamma5()}, 0, 1)
+              - expr_s(CSL_I) * g(m0, m1) * chain({gamma(m2), gamma5()}, 0, 1)
+              + expr_s(CSL_I) * g(m0, m2) * chain({gamma(m1), gamma5()}, 0, 1)
+              - expr_s(CSL_I) * g(m1, m2) * chain({gamma(m0), gamma5()}, 0, 1);
+
+        COMPARE_SGL_EXPR(EXPECT_EQ, simplified(c), simplified(c_simpli));
+        COMPARE_SGL_EXPR(EXPECT_NE, simplified(c), c_bad_simpli);
+    }
+
+    // Chisholm identity with sigma tensor
+    TEST_ALL_EPSILON_COMBINATIONS
+    {
+        auto c = eps(m0, m1, m2, m3) * chain({gamma(m3, 4)}, 0, 1);
+        auto c_simpli
+            = expr_s(CSL_I) * g(m0, 4) * chain({gamma(m1, m2), gamma5()}, 0, 1)
+              - expr_s(CSL_I) * g(m1, 4)
+                    * chain({gamma(m0, m2), gamma5()}, 0, 1)
+              + expr_s(CSL_I) * g(m2, 4)
+                    * chain({gamma(m0, m1), gamma5()}, 0, 1);
+        auto c_bad_simpli
+            = expr_s(CSL_I) * g(m0, 4) * chain({gamma(m1, m2)}, 0, 1)
+              - expr_s(CSL_I) * g(m1, 4) * chain({gamma(m0, m2)}, 0, 1)
+              + expr_s(CSL_I) * g(m2, 4) * chain({gamma(m0, m1)}, 0, 1);
+        COMPARE_SGL_EXPR(EXPECT_EQ, simplified(c), c_simpli);
+        COMPARE_SGL_EXPR(EXPECT_NE, simplified(c), c_bad_simpli);
+    }
+
+    // Chisholm identity with fully contracted sigma tensor
+    keepSymbolic4D(true);
+    TEST_ALL_EPSILON_COMBINATIONS
+    {
+        auto c = eps(m0, m1, m2, m3) * chain({gamma(m2, m3)}, 0, 1);
+        auto c_simpli
+            = CSL_I * (2 - D) * chain({gamma(m0, m1), gamma5()}, 0, 1);
+        COMPARE_SGL_EXPR(EXPECT_EQ, simplified(c), c_simpli);
+    }
 }
 
 TEST(marty_gamma_api, conjugation_identities)
