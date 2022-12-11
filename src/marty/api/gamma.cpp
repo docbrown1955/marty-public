@@ -95,7 +95,7 @@ Expr trace(std::vector<Expr> const &gammas)
     return simplified(chain(gammas, 0, 0));
 }
 
-Expr ordered(Expr expr)
+Expr relative_chain_order(Expr expr)
 {
     auto mustSwap = [](Expr const &l, Expr const &r) {
         auto lchain = dynamic_cast<sgl::IndexChain const *>(l.get());
@@ -118,7 +118,7 @@ Expr ordered(Expr expr)
     }
     else {
         for (std::size_t i = 0; i != expr->size(); ++i) {
-            ordered(expr->argument(i));
+            relative_chain_order(expr->argument(i));
         }
     }
     return expr;
@@ -127,28 +127,39 @@ Expr ordered(Expr expr)
 Expr simplified(Expr const &expr)
 {
     Expr clean = IndexManager::renameIndices(
-        ordered(sgl::CSLSimplified(sgl::Simplified(expr, false))));
+        relative_chain_order(sgl::CSLSimplified(sgl::Simplified(expr, false))));
     return IndexManager::renameIndices(sgl::Simplified(clean, false));
+}
+
+Expr ordered(Expr const &expr)
+{
+    auto cpy = expr->copy();
+    sgl::OrderChains(cpy);
+    Expr clean = IndexManager::renameIndices(
+        relative_chain_order(sgl::CSLSimplified(cpy))
+    );
+    return clean;
 }
 
 std::pair<Expr, sgl::IndexChain const *> getIndexChainAssert(Expr const &expr);
 
-Expr applySingleFierz(Expr const &chain1, Expr const &chain2)
+Expr applySingleFierz(Expr const &chain1, Expr const &chain2, FierzBasis basis)
 {
     auto [fl, left]  = getIndexChainAssert(chain1);
     auto [fr, right] = getIndexChainAssert(chain2);
     return fl * fr
-           * IndexManager::renameIndices(
-               simplified(left->applyGeneralFierz(*right)));
+           * IndexManager::renameIndices(simplified(
+               left->applyGeneralFierz(*right, basis == FierzBasis::Chiral)));
 }
 
-Expr applyDoubleFierz(Expr const &chain1, Expr const &chain2)
+Expr applyDoubleFierz(Expr const &chain1, Expr const &chain2, FierzBasis basis)
 {
     auto [fl, left]  = getIndexChainAssert(chain1);
     auto [fr, right] = getIndexChainAssert(chain2);
     return fl * fr
            * IndexManager::renameIndices(
-               simplified(left->applyGeneralFierzTwice(*right)));
+               simplified(left->applyGeneralFierzTwice(
+                   *right, basis == FierzBasis::Chiral)));
 }
 
 std::pair<Expr, sgl::IndexChain const *> getIndexChainAssert(Expr const &expr)
