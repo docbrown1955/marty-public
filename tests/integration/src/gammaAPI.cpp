@@ -631,6 +631,49 @@ TEST(marty_gamma_api, conjugation_identities)
 
 TEST(marty_gamma_api, simple_fierz_identities)
 {
+    keepSymbolic4D(false);
+    csl::ScopedProperty permissiveIndices(
+        &csl::option::permissiveCovariantIndices, true);
+    {
+        auto c1           = chain({P_L()}, 0, 1);
+        auto c2           = chain({P_R()}, 2, 3);
+        auto fierz        = applySingleFierz(c1, c2);
+        auto fierz_result = expr_s(CSL_HALF) * chain({gamma(0), P_R()}, 0, 3)
+                            * chain({gamma(0), P_L()}, 2, 1);
+        COMPARE_SGL_EXPR(EXPECT_EQ, fierz, fierz_result);
+    }
+    {
+        auto c1           = chain({P_R()}, 0, 1);
+        auto c2           = chain({P_L()}, 2, 3);
+        auto fierz        = applySingleFierz(c1, c2);
+        auto fierz_result = expr_s(CSL_HALF) * chain({gamma(0), P_L()}, 0, 3)
+                            * chain({gamma(0), P_R()}, 2, 1);
+        COMPARE_SGL_EXPR(EXPECT_EQ, fierz, fierz_result);
+    }
+    {
+        auto c1    = chain({P_L()}, 0, 1);
+        auto c2    = chain({P_L()}, 2, 3);
+        auto fierz = applySingleFierz(c1, c2);
+        auto fierz_result
+            = expr_s(CSL_HALF) * chain({P_L()}, 0, 3) * chain({P_L()}, 2, 1)
+              - expr_s(CSL_1 / 4) * chain({gamma(0, 1)}, 0, 3)
+                    * chain({gamma(0, 1)}, 2, 1)
+              + expr_s(CSL_1 / 4) * chain({gamma(0, 1)}, 0, 3)
+                    * chain({gamma(0, 1), gamma5()}, 2, 1);
+        COMPARE_SGL_EXPR(EXPECT_EQ, fierz, fierz_result);
+    }
+    {
+        auto c1    = chain({P_R()}, 0, 1);
+        auto c2    = chain({P_R()}, 2, 3);
+        auto fierz = applySingleFierz(c1, c2);
+        auto fierz_result
+            = expr_s(CSL_HALF) * chain({P_R()}, 0, 3) * chain({P_R()}, 2, 1)
+              - expr_s(CSL_1 / 4) * chain({gamma(0, 1)}, 0, 3)
+                    * chain({gamma(0, 1)}, 2, 1)
+              - expr_s(CSL_1 / 4) * chain({gamma(0, 1)}, 0, 3)
+                    * chain({gamma(0, 1), gamma5()}, 2, 1);
+        COMPARE_SGL_EXPR(EXPECT_EQ, fierz, fierz_result);
+    }
 }
 
 TEST(marty_gamma_api, double_fierz_identities)
