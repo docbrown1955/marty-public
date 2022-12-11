@@ -31,6 +31,11 @@ void keepSymbolic4D(bool symbolic);
 
 extern Expr DMinko;
 
+enum class FierzBasis {
+    Standard,
+    Chiral
+};
+
 // Single expressions
 Expr g(int mu, int nu);
 Expr eps(int mu, int nu, int rho, int sig);
@@ -45,11 +50,12 @@ Expr C();
 Expr chain(std::vector<Expr> const &gammas, int iLeft, int iRight);
 Expr trace(std::vector<Expr> const &gammas);
 
+Expr ordered(Expr const &expr);
 Expr simplified(Expr const &expr);
 
-Expr applySingleFierz(Expr const &chain1, Expr const &chain2);
+Expr applySingleFierz(Expr const &chain1, Expr const &chain2, FierzBasis basis = FierzBasis::Chiral);
 
-Expr applyDoubleFierz(Expr const &chain1, Expr const &chain2);
+Expr applyDoubleFierz(Expr const &chain1, Expr const &chain2, FierzBasis basis = FierzBasis::Chiral);
 
 std::string generateString(Expr const &expr);
 std::string generateLatex(Expr const &expr);
