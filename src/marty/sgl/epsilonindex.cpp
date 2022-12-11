@@ -21,6 +21,7 @@
 #include "indexchain.h"
 #include "metricindex.h"
 #include "sgloperations.h"
+#include "sgloptions.h"
 #include "typecast.h"
 
 namespace sgl {
@@ -71,6 +72,8 @@ csl::Expr EpsilonIndex::getFactor() const
 {
     if (isZero())
         return CSL_0;
+    if (!sgl::option::orderEspilonIndices)
+        return CSL_1;
     std::vector<csl::Index> indices = m_indices;
     csl::Expr               sign    = orderIndices(indices);
     return sign;
@@ -81,6 +84,8 @@ GExpr EpsilonIndex::getTerm() const
     if (isZero())
         return cslexpr_s(CSL_0);
 
+    if (!sgl::option::orderEspilonIndices)
+        return copy();
     std::vector<csl::Index> indices = m_indices;
     orderIndices(indices);
     return epsilonindex_s(indices[0], indices[1], indices[2], indices[3]);
@@ -228,32 +233,22 @@ GExpr EpsilonIndex::chisholmIdentity2B(std::vector<csl::Index> const &rho,
                                            gammaindex_s(5)},
                         a,
                         b)))
-    auto const         f = cslexpr_s(-CSL_I);
+    auto const         f = cslexpr_s(CSL_I);
     std::vector<GExpr> terms;
-    terms.reserve(5);
+    terms.reserve(3);
     terms.push_back(
-        f * metricindex_s(rho[0], rho[1])
-        * indexchain_s({gammaindex_s({rho[2], nu}), gammaindex_s(5)}, a, b));
+        f * metricindex_s(rho[0], nu)
+        * indexchain_s(
+            {gammaindex_s({rho[1], rho[2]}), gammaindex_s(5)}, a, b));
     terms.push_back(
-        -f * metricindex_s(rho[0], rho[2])
-        * indexchain_s({gammaindex_s({rho[1], nu}), gammaindex_s(5)}, a, b));
+        -f * metricindex_s(rho[1], nu)
+        * indexchain_s(
+            {gammaindex_s({rho[0], rho[2]}), gammaindex_s(5)}, a, b));
     terms.push_back(
-        f * metricindex_s(rho[1], rho[2])
-        * indexchain_s({gammaindex_s({rho[0], nu}), gammaindex_s(5)}, a, b));
-    terms.push_back(f / 2
-                    * indexchain_s({gammaindex_s(rho[0]),
-                                    gammaindex_s(rho[1]),
-                                    gammaindex_s(rho[2]),
-                                    gammaindex_s(nu)},
-                                   a,
-                                   b));
-    terms.push_back(-f / 2
-                    * indexchain_s({gammaindex_s(nu),
-                                    gammaindex_s(rho[0]),
-                                    gammaindex_s(rho[1]),
-                                    gammaindex_s(rho[2])},
-                                   a,
-                                   b));
+        f * metricindex_s(rho[2], nu)
+        * indexchain_s(
+            {gammaindex_s({rho[0], rho[1]}), gammaindex_s(5)}, a, b));
+
     return sgl::sum_s(terms);
 }
 
