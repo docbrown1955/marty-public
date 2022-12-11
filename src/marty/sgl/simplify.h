@@ -31,7 +31,7 @@ struct TensorSet;
 void SimplifyChain(GExpr &init);
 void SimplifyMomenta(GExpr &init);
 void SimplifyTrace(GExpr &init);
-void OrderChains(GExpr &init);
+bool OrderChains(GExpr &init, GExpr const &containerProd = nullptr);
 
 void ReorderFermionChains(GExpr &init);
 

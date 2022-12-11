@@ -104,35 +104,38 @@ void SimplifyTrace(GExpr &init)
     init = sgl::DeepRefreshed(init);
 }
 
-void OrderChains(GExpr &init)
+bool OrderChainsImpl(GExpr &arg, GExpr const &prod)
 {
-    auto order_chain = [](GExpr const &prod, GExpr &arg) {
-        auto const &chain = ConvertTo<IndexChain>(arg);
-        if (chain->isTrace())
-            return false;
-        auto conjugation
-            = std::find_if(arg->begin(), arg->end(), IndexChain::isC);
-        if (conjugation != arg->end())
-            return false;
-        for (size_t i = 0; i != arg->size(); ++i) {
-            size_t simp = simplest(prod, arg, i);
-            if (simp != i) {
-                arg = chain->moveIndex(simp, i);
-                return true;
-            }
-        }
+    auto const &chain = ConvertTo<IndexChain>(arg);
+    if (chain->isTrace())
         return false;
-    };
-    sgl::transform<sgl::Prod>(init, [&](GExpr &prod) {
-        for (auto &arg : prod) {
-            if (!IsType<IndexChain>(arg))
-                continue;
-            if (order_chain(prod, arg)) {
-                return true;
-            }
-        }
+    auto conjugation = std::find_if(arg->begin(), arg->end(), IndexChain::isC);
+    if (conjugation != arg->end())
         return false;
-    });
+    for (size_t i = 0; i != arg->size(); ++i) {
+        size_t simp = simplest(prod ? prod : cslexpr_s(CSL_UNDEF), arg, i);
+        if (simp != i) {
+            arg = chain->moveIndex(simp, i);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool OrderChains(GExpr &init, GExpr const &containerProd)
+{
+    const size_t sz          = init->size();
+    bool         transformed = false;
+    bool         isProd      = IsType<sgl::Prod>(init);
+    for (size_t i = 0; i != sz; ++i)
+        if (OrderChains(init->argument(i), isProd ? init : nullptr))
+            transformed = true;
+    if (IsType<IndexChain>(init)) {
+        transformed = OrderChainsImpl(init, containerProd) || transformed;
+    }
+    if (transformed)
+        init = init->refresh();
+    return transformed;
 }
 
 void ReorderFermionChains(GExpr &init)
