@@ -44,7 +44,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: dependencies
-      run: sudo apt-get install coreutils build-essential clang gfortran libgsl-dev libgslcblas0 qt5-default dvipng cmake lcov texlive texlive-latex-extra texlive-luatex -y
+      run: sudo apt-get install coreutils build-essential clang gfortran libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng cmake lcov texlive texlive-latex-extra texlive-luatex -y
     - name: configure
       run: |
         mkdir build
