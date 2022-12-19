@@ -1,6 +1,6 @@
 # ![MARTY Logo](assets/logo_marty_black.png#gh-light-mode-only) ![MARTY Logo](assets/logo_marty_white.png#gh-dark-mode-only)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/docbrown1955/marty-public?color=blue&logo=GitHub&logoColor=blue&style=flat-square)](https://github.com/docbrown1955/marty-public/releases) [![GitHub commits since latest release (by date)](https://img.shields.io/github/commits-since/docbrown1955/marty-public/latest?logo=GitHub&style=flat-square)](https://github.com/docbrown1955/marty-public/commits/master)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/docbrown1955/marty-public/build?label=tests&logo=GitHub&style=flat-square)](https://github.com/docbrown1955/marty-public/actions?query=branch%3Amaster)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/status/docbrown1955/marty-public/build?label=tests&logo=GitHub&style=flat-square)](https://github.com/docbrown1955/marty-public/actions?query=branch%3Amaster)
 [![GitHub Repo stars](https://img.shields.io/github/stars/docbrown1955/marty-public?logo=GitHub&logoColor=gold&style=social)](https://github.com/docbrown1955/marty-public/stargazers)
 
 
