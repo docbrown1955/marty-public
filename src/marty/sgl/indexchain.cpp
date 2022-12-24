@@ -913,7 +913,7 @@ GExpr IndexChain::applyGeneralFierzTwice(IndexChain const &other,
                     auto TA              = trace(A, C, B, D);
                     if (TA->isZero())
                         continue;
-                    auto TB = trace(C_dual, E, D_dual, F);
+                    auto TB = trace(D_dual, E, C_dual, F);
                     if (TB->isZero())
                         continue;
                     factors.push_back(sgl::prod_s({fc, fd, fe, ff, TA, TB}));
