@@ -52,6 +52,7 @@ Expr trace(std::vector<Expr> const &gammas);
 
 Expr ordered(Expr const &expr);
 Expr simplified(Expr const &expr);
+Expr project(Expr const &expr, FierzBasis basis);
 
 Expr applySingleFierz(Expr const &chain1, Expr const &chain2, FierzBasis basis = FierzBasis::Chiral);
 

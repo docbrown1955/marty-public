@@ -149,6 +149,10 @@ class IndexChain : public AbstractMultiFunction {
         return a == b && !(psiL || psiR);
     }
 
+    bool isOnBasis(bool chiralBasis) const;
+
+    std::optional<GExpr> projectOnBasis(bool chiralBasis) const;
+
     std::optional<GExpr> checkGammaAndConjugation() const;
 
     static csl::Index easyIndex(int i)
