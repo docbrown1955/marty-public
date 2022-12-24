@@ -933,6 +933,71 @@ GExpr IndexChain::applyGeneralFierzTwice(IndexChain const &other,
     return sgl::sum_s(res);
 }
 
+bool IndexChain::isOnBasis(bool chiralBasis) const
+{
+    if (m_argument.empty()) {
+        // Identity is standard basis
+        return !chiralBasis;
+    }
+    auto last = ConvertTo<GammaIndex>(m_argument.back());
+    if (last->isP_L() || last->isP_R()) {
+        return chiralBasis;
+    }
+    if (m_argument.size() == 1 && last->isSigma()) {
+        // both bases have the sigma-only term
+        return true;
+    }
+    return !chiralBasis;
+}
+
+std::optional<GExpr> IndexChain::projectOnBasis(bool chiralBasis) const
+{
+    if (isOnBasis(chiralBasis)) {
+        return std::nullopt;
+    }
+    if (!chiralBasis && m_argument.size() > 0
+        && ConvertTo<GammaIndex>(m_argument.back())->isGamma5()) {
+        // g5 = PR - PL
+        IndexChain left         = *this;
+        IndexChain right        = *this;
+        left.m_argument.back()  = gammaindex_s(6);
+        right.m_argument.back() = gammaindex_s(7);
+        return right.copy() - left.copy();
+    }
+    else if (!chiralBasis) {
+        // 1 = PR + PL
+        IndexChain left  = *this;
+        IndexChain right = *this;
+        left.m_argument.push_back(gammaindex_s(6));
+        right.m_argument.push_back(gammaindex_s(7));
+        return right.copy() + left.copy();
+    }
+    else if (m_argument.empty()) {
+        return std::nullopt;
+    }
+
+    // standard basis
+    if (ConvertTo<GammaIndex>(m_argument.back())->isP_L()) {
+        // L = (1 - g5) / 2
+        IndexChain id = *this;
+        IndexChain g5 = *this;
+        id.m_argument.erase(id.m_argument.end() - 1);
+        g5.m_argument.back() = gammaindex_s(5);
+        return cslexpr_s(CSL_HALF) * id.copy()
+               - cslexpr_s(CSL_HALF) * g5.copy();
+    }
+    if (ConvertTo<GammaIndex>(m_argument.back())->isP_R()) {
+        // R = (1 + g5) / 2
+        IndexChain id = *this;
+        IndexChain g5 = *this;
+        id.m_argument.erase(id.m_argument.end() - 1);
+        g5.m_argument.back() = gammaindex_s(5);
+        return cslexpr_s(CSL_HALF) * id.copy()
+               + cslexpr_s(CSL_HALF) * g5.copy();
+    }
+    return std::nullopt;
+}
+
 void IndexChain::print(std::ostream &out) const
 {
     if (isTrace())
