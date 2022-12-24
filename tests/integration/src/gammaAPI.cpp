@@ -707,7 +707,6 @@ TEST(marty_gamma_api, simple_fierz_identities)
         COMPARE_SGL_EXPR(EXPECT_EQ, fierz, fierz_result);
     }
     {
-        auto t = trace({gamma(0, 1), gamma(8, 9), gamma(1), gamma(2), P_R()});
         auto c1    = chain({P_R(), gamma(0, 1)}, 0, 1);
         auto c2    = chain({P_R(), gamma(1)}, 2, 3);
         auto fierz = applySingleFierz(c1, c2);
@@ -724,4 +723,93 @@ TEST(marty_gamma_api, simple_fierz_identities)
 
 TEST(marty_gamma_api, double_fierz_identities)
 {
+    keepSymbolic4D(false);
+    // Test of canonical elements: the double Fierz identity should
+    // return the same fermion currents
+    auto test_canonical_double_fierz
+        = [](std::vector<Expr> g1, std::vector<Expr> g2, auto basis) {
+              auto c1           = chain(g1, 0, 1);
+              auto c2           = chain(g2, 2, 3);
+              auto fierz        = applyDoubleFierz(c1, c2, basis);
+              auto fierz_result = c1 * c2;
+              COMPARE_SGL_EXPR(EXPECT_EQ, fierz, fierz_result);
+          };
+    // Test canonical elements in the Chiral basis
+    test_canonical_double_fierz(
+        {P_L()}, {P_L()}, mty::gamma_api::FierzBasis::Chiral);
+    test_canonical_double_fierz(
+        {P_L()}, {P_R()}, mty::gamma_api::FierzBasis::Chiral);
+    test_canonical_double_fierz(
+        {P_L()}, {gamma(0), P_R()}, mty::gamma_api::FierzBasis::Chiral);
+    test_canonical_double_fierz({gamma(1), P_R()},
+                                {gamma(0), P_R()},
+                                mty::gamma_api::FierzBasis::Chiral);
+    test_canonical_double_fierz({gamma(1), P_R()},
+                                {gamma(0), P_L()},
+                                mty::gamma_api::FierzBasis::Chiral);
+    // Not simplified enough
+    // test_canonical_double_fierz(
+    //    {gamma(0, 1)}, {gamma(2, 3)}, mty::gamma_api::FierzBasis::Chiral);
+    test_canonical_double_fierz(
+        {gamma(0, 1)}, {P_L()}, mty::gamma_api::FierzBasis::Chiral);
+    // Not simplified enough
+    // test_canonical_double_fierz(
+    //    {gamma(0, 1)}, {gamma(2), P_L()},
+    //    mty::gamma_api::FierzBasis::Chiral);
+
+    // Test canonical elements in the Standard basis
+    test_canonical_double_fierz({}, {}, mty::gamma_api::FierzBasis::Standard);
+    test_canonical_double_fierz(
+        {}, {gamma5()}, mty::gamma_api::FierzBasis::Standard);
+    test_canonical_double_fierz(
+        {gamma5()}, {gamma5()}, mty::gamma_api::FierzBasis::Standard);
+    test_canonical_double_fierz(
+        {}, {gamma(0)}, mty::gamma_api::FierzBasis::Standard);
+    test_canonical_double_fierz(
+        {gamma5()}, {gamma(0)}, mty::gamma_api::FierzBasis::Standard);
+    test_canonical_double_fierz({gamma5()},
+                                {gamma(0), gamma5()},
+                                mty::gamma_api::FierzBasis::Standard);
+    test_canonical_double_fierz(
+        {gamma(0, 1)}, {}, mty::gamma_api::FierzBasis::Standard);
+
+    test_canonical_double_fierz(
+        {gamma(0, 1)}, {gamma5()}, mty::gamma_api::FierzBasis::Standard);
+    // Not simplified enough
+    // test_canonical_double_fierz(
+    //     {gamma(0, 1)}, {gamma(2)}, mty::gamma_api::FierzBasis::Standard);
+    // test_canonical_double_fierz({gamma(0, 1)},
+    //                             {gamma(2), gamma5()},
+    //                             mty::gamma_api::FierzBasis::Standard);
+
+    csl::ScopedProperty permissiveIndices(
+        &csl::option::permissiveCovariantIndices, true);
+    // Other tests
+    {
+        auto c1 = chain({gamma(0), gamma(1), gamma(2), P_L()}, 0, 1);
+        auto c2 = chain({gamma(2), gamma(1), gamma(0), P_L()}, 2, 3);
+        auto fierz
+            = applyDoubleFierz(c1, c2, mty::gamma_api::FierzBasis::Chiral);
+        auto fierz_result = expr_s(4) * chain({gamma(0), P_L()}, 0, 1)
+                            * chain({gamma(0), P_L()}, 2, 3);
+        COMPARE_SGL_EXPR(EXPECT_EQ, fierz, fierz_result);
+    }
+    {
+        auto c1 = chain({gamma(0), gamma(1), gamma(2), P_L()}, 0, 1);
+        auto c2 = chain({gamma(1), gamma(2), gamma(0), P_L()}, 2, 3);
+        auto fierz
+            = applyDoubleFierz(c1, c2, mty::gamma_api::FierzBasis::Chiral);
+        auto fierz_result = expr_s(4) * chain({gamma(0), P_L()}, 0, 1)
+                            * chain({gamma(0), P_L()}, 2, 3);
+        COMPARE_SGL_EXPR(EXPECT_EQ, fierz, fierz_result);
+    }
+    {
+        auto c1 = chain({gamma(0), gamma(1), gamma(2), P_L()}, 0, 1);
+        auto c2 = chain({gamma(0), gamma(1), gamma(2), P_L()}, 2, 3);
+        auto fierz
+            = applyDoubleFierz(c1, c2, mty::gamma_api::FierzBasis::Chiral);
+        auto fierz_result = expr_s(16) * chain({gamma(0), P_L()}, 0, 1)
+                            * chain({gamma(0), P_L()}, 2, 3);
+        COMPARE_SGL_EXPR(EXPECT_EQ, fierz, fierz_result);
+    }
 }
