@@ -83,7 +83,7 @@ Expr C()
     return sgl::gammaindex_s(8);
 }
 
-Expr chain(std::vector<Expr> const &gammas, int iLeft, int iRight)
+Expr current(std::vector<Expr> const &gammas, int iLeft, int iRight)
 {
     return sgl::indexchain_s(gammas,
                              IndexManager::getDiracIndex(iLeft),
@@ -92,7 +92,7 @@ Expr chain(std::vector<Expr> const &gammas, int iLeft, int iRight)
 
 Expr trace(std::vector<Expr> const &gammas)
 {
-    return simplified(chain(gammas, 0, 0));
+    return simplified(current(gammas, 0, 0));
 }
 
 Expr relative_chain_order(Expr expr)
@@ -144,9 +144,10 @@ Expr project(Expr const &expr, FierzBasis basis)
 {
     Expr res = expr->copy();
     sgl::transform<sgl::IndexChain>(res, [&](sgl::GExpr &el) {
-        auto chain = sgl::ConvertTo<sgl::IndexChain>(el);
-        if (!chain->isOnBasis(basis == FierzBasis::Chiral)) {
-            auto transfo = chain->projectOnBasis(basis == FierzBasis::Chiral);
+        auto current = sgl::ConvertTo<sgl::IndexChain>(el);
+        if (!current->isOnBasis(basis == FierzBasis::Chiral)) {
+            auto transfo
+                = current->projectOnBasis(basis == FierzBasis::Chiral);
             if (transfo) {
                 el = transfo.value();
                 return true;
@@ -191,21 +192,21 @@ std::pair<Expr, sgl::IndexChain const *> getIndexChainAssert(Expr const &expr)
         if (auto prod = dynamic_cast<sgl::Prod const *>(expr.get());
             !prod || prod->size() != 2) {
             throw GammaAPIError("Expression given is not a pure gamma-index "
-                                "chain: ",
+                                "current: ",
                                 expr);
         }
         else {
             auto expr
                 = dynamic_cast<sgl::CSLExpr const *>(prod->argument(0).get());
-            auto chain = dynamic_cast<sgl::IndexChain const *>(
+            auto current = dynamic_cast<sgl::IndexChain const *>(
                 prod->argument(1).get());
-            if (!expr || !chain) {
+            if (!expr || !current) {
                 throw GammaAPIError("Expression given is not a pure "
                                     "gamma-index "
-                                    "chain: ",
+                                    "current: ",
                                     expr);
             }
-            return {expr->copy(), chain};
+            return {expr->copy(), current};
         }
     }
     return {sgl::cslexpr_s(CSL_1), ptr};
@@ -298,20 +299,20 @@ static std::string generateLatex(sgl::EpsilonIndex const *index)
     return "\\epsilon^{" + generateLatex(index->indices()) + "}";
 }
 
-static std::string generateLatex(sgl::IndexChain const *chain)
+static std::string generateLatex(sgl::IndexChain const *current)
 {
-    const auto [a, b] = chain->getBorderIndices();
+    const auto [a, b] = current->getBorderIndices();
     if (a != b) {
         std::string_view a_str = a.getName();
         std::string_view b_str = b.getName();
         std::string      indexString
             = std::string(a_str.begin() + 1, a_str.end())
               + std::string(b_str.begin() + 1, b_str.end());
-        return "\\left(" + generateLatex(chain, "") + "\\right)_{"
+        return "\\left(" + generateLatex(current, "") + "\\right)_{"
                + indexString + "}";
     }
     else {
-        return "\\mathrm{Tr}\\left(" + generateLatex(chain, "") + "\\right)";
+        return "\\mathrm{Tr}\\left(" + generateLatex(current, "") + "\\right)";
     }
 }
 

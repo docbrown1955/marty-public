@@ -47,7 +47,7 @@ Expr P_R();
 Expr C();
 
 // Create a chain of gamma matrices
-Expr chain(std::vector<Expr> const &gammas, int iLeft, int iRight);
+Expr current(std::vector<Expr> const &gammas, int iLeft, int iRight);
 Expr trace(std::vector<Expr> const &gammas);
 
 Expr ordered(Expr const &expr);
