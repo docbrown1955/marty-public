@@ -154,7 +154,7 @@ Expr project(Expr const &expr, FierzBasis basis)
         }
         return false;
     });
-    return res;
+    return simplified(res);
 }
 
 std::pair<Expr, sgl::IndexChain const *> getIndexChainAssert(Expr const &expr);
@@ -176,9 +176,9 @@ Expr applyDoubleFierz(Expr const &chain1, Expr const &chain2, FierzBasis basis)
     auto [fr, right] = getIndexChainAssert(chain2);
     return fl * fr
            * IndexManager::renameIndices(
-               simplified(project(simplified(left->applyGeneralFierzTwice(
-                                      *right, basis == FierzBasis::Chiral)),
-                                  basis)));
+               project(simplified(left->applyGeneralFierzTwice(
+                           *right, basis == FierzBasis::Chiral)),
+                       basis));
 }
 
 std::pair<Expr, sgl::IndexChain const *> getIndexChainAssert(Expr const &expr)

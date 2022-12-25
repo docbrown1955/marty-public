@@ -287,6 +287,68 @@ TEST(marty_gamma_api, simple_simplification)
     COMPARE_SGL_EXPR(EXPECT_NE, simplified(c5), c5_bad_simpli);
 }
 
+TEST(marty_gamma_api, basis_projection)
+{
+    // Project to chiral basis
+    {
+        auto c         = chain({gamma(0)}, 0, 1);
+        auto projected = project(c, FierzBasis::Chiral);
+        auto c_proj
+            = chain({gamma(0), P_L()}, 0, 1) + chain({gamma(0), P_R()}, 0, 1);
+        COMPARE_SGL_EXPR(EXPECT_EQ, projected, c_proj);
+    }
+    {
+        auto c         = chain({gamma(0), gamma5()}, 0, 1);
+        auto projected = project(c, FierzBasis::Chiral);
+        auto c_proj
+            = -chain({gamma(0), P_L()}, 0, 1) + chain({gamma(0), P_R()}, 0, 1);
+        COMPARE_SGL_EXPR(EXPECT_EQ, projected, c_proj);
+    }
+    {
+        auto c         = chain({}, 0, 1);
+        auto projected = project(c, FierzBasis::Chiral);
+        auto c_proj    = chain({P_L()}, 0, 1) + chain({P_R()}, 0, 1);
+        COMPARE_SGL_EXPR(EXPECT_EQ, projected, c_proj);
+    }
+    {
+        auto c         = chain({gamma5()}, 0, 1);
+        auto projected = project(c, FierzBasis::Chiral);
+        auto c_proj    = -chain({P_L()}, 0, 1) + chain({P_R()}, 0, 1);
+        COMPARE_SGL_EXPR(EXPECT_EQ, projected, c_proj);
+    }
+
+    // Project to standard basis
+    {
+        auto c         = chain({P_L()}, 0, 1);
+        auto projected = project(c, FierzBasis::Standard);
+        auto c_proj    = expr_s(CSL_HALF) * chain({}, 0, 1)
+                      - expr_s(CSL_HALF) * chain({gamma5()}, 0, 1);
+        COMPARE_SGL_EXPR(EXPECT_EQ, projected, c_proj);
+    }
+    {
+        auto c         = chain({P_R()}, 0, 1);
+        auto projected = project(c, FierzBasis::Standard);
+        auto c_proj    = expr_s(CSL_HALF) * chain({}, 0, 1)
+                      + expr_s(CSL_HALF) * chain({gamma5()}, 0, 1);
+        COMPARE_SGL_EXPR(EXPECT_EQ, projected, c_proj);
+    }
+    {
+        auto c         = chain({gamma(0), P_L()}, 0, 1);
+        auto projected = project(c, FierzBasis::Standard);
+        auto c_proj    = expr_s(CSL_HALF) * chain({gamma(0)}, 0, 1)
+                      - expr_s(CSL_HALF) * chain({gamma(0), gamma5()}, 0, 1);
+        COMPARE_SGL_EXPR(EXPECT_EQ, projected, c_proj);
+    }
+    {
+        auto c         = chain({gamma(0, 1), gamma(2), P_R()}, 0, 1);
+        auto projected = project(c, FierzBasis::Standard);
+        auto c_proj = expr_s(CSL_HALF) * chain({gamma(0, 1), gamma(2)}, 0, 1)
+                      + expr_s(CSL_HALF)
+                            * chain({gamma(0, 1), gamma(2), gamma5()}, 0, 1);
+        COMPARE_SGL_EXPR(EXPECT_EQ, projected, c_proj);
+    }
+}
+
 TEST(marty_gamma_api, simple_traces)
 {
     keepSymbolic4D(true);
@@ -636,18 +698,25 @@ TEST(marty_gamma_api, simple_fierz_identities)
         &csl::option::permissiveCovariantIndices, true);
     {
         // completeness relation chiral basis
-        auto c1           = chain({}, 0, 1);
-        auto c2           = chain({}, 2, 3);
-        auto fierz        = applySingleFierz(c1, c2, FierzBasis::Chiral);
-        auto fierz_result = expr_s(CSL_HALF)
-                            * (chain({P_L()}, 0, 3) * chain({P_L()}, 2, 1)
-                               + chain({P_R()}, 0, 3) * chain({P_R()}, 2, 1)
-                               + chain({gamma(0), P_R()}, 0, 3)
-                                     * chain({gamma(0), P_L()}, 2, 1)
-                               + chain({gamma(0), P_L()}, 0, 3)
-                                     * chain({gamma(0), P_R()}, 2, 1)
-                               - expr_s(CSL_1 / 4) * chain({gamma(0, 1)}, 0, 3)
-                                     * chain({gamma(0, 1)}, 2, 1));
+        auto c1    = chain({}, 0, 1);
+        auto c2    = chain({}, 2, 3);
+        auto fierz = applySingleFierz(c1, c2, FierzBasis::Chiral);
+        auto fierz_result
+            = expr_s(CSL_HALF)
+              * (chain({P_L()}, 0, 3) * chain({P_L()}, 2, 1)
+                 + chain({P_R()}, 0, 3) * chain({P_R()}, 2, 1)
+                 + chain({gamma(0), P_R()}, 0, 3)
+                       * chain({gamma(0), P_L()}, 2, 1)
+                 + chain({gamma(0), P_L()}, 0, 3)
+                       * chain({gamma(0), P_R()}, 2, 1)
+                 - expr_s(CSL_1 / 4) * chain({gamma(0, 1), P_R()}, 0, 3)
+                       * chain({gamma(0, 1), P_R()}, 2, 1)
+                 - expr_s(CSL_1 / 4) * chain({gamma(0, 1), P_R()}, 0, 3)
+                       * chain({gamma(0, 1), P_L()}, 2, 1)
+                 - expr_s(CSL_1 / 4) * chain({gamma(0, 1), P_L()}, 0, 3)
+                       * chain({gamma(0, 1), P_R()}, 2, 1)
+                 - expr_s(CSL_1 / 4) * chain({gamma(0, 1), P_L()}, 0, 3)
+                       * chain({gamma(0, 1), P_L()}, 2, 1));
         COMPARE_SGL_EXPR(EXPECT_EQ, fierz, fierz_result);
     }
     {
@@ -688,10 +757,10 @@ TEST(marty_gamma_api, simple_fierz_identities)
         auto fierz = applySingleFierz(c1, c2);
         auto fierz_result
             = expr_s(CSL_HALF) * chain({P_L()}, 0, 3) * chain({P_L()}, 2, 1)
-              - expr_s(CSL_1 / 16) * chain({gamma(0, 1)}, 0, 3)
-                    * chain({gamma(0, 1)}, 2, 1)
-              + expr_s(CSL_1 / 16) * chain({gamma(0, 1)}, 0, 3)
-                    * chain({gamma(0, 1), gamma5()}, 2, 1);
+              - expr_s(CSL_1 / 8) * chain({gamma(0, 1), P_R()}, 0, 3)
+                    * chain({gamma(0, 1), P_L()}, 2, 1)
+              - expr_s(CSL_1 / 8) * chain({gamma(0, 1), P_L()}, 0, 3)
+                    * chain({gamma(0, 1), P_L()}, 2, 1);
         COMPARE_SGL_EXPR(EXPECT_EQ, fierz, fierz_result);
     }
     {
@@ -700,23 +769,21 @@ TEST(marty_gamma_api, simple_fierz_identities)
         auto fierz = applySingleFierz(c1, c2);
         auto fierz_result
             = expr_s(CSL_HALF) * chain({P_R()}, 0, 3) * chain({P_R()}, 2, 1)
-              - expr_s(CSL_1 / 16) * chain({gamma(0, 1)}, 0, 3)
-                    * chain({gamma(0, 1)}, 2, 1)
-              - expr_s(CSL_1 / 16) * chain({gamma(0, 1)}, 0, 3)
-                    * chain({gamma(0, 1), gamma5()}, 2, 1);
+              - expr_s(CSL_1 / 8) * chain({gamma(0, 1), P_R()}, 0, 3)
+                    * chain({gamma(0, 1), P_R()}, 2, 1)
+              - expr_s(CSL_1 / 8) * chain({gamma(0, 1), P_L()}, 0, 3)
+                    * chain({gamma(0, 1), P_R()}, 2, 1);
         COMPARE_SGL_EXPR(EXPECT_EQ, fierz, fierz_result);
     }
     {
-        auto c1    = chain({P_R(), gamma(0, 1)}, 0, 1);
-        auto c2    = chain({P_R(), gamma(1)}, 2, 3);
-        auto fierz = applySingleFierz(c1, c2);
-        auto fierz_result
-            = expr_s(3 / CSL_2) * chain({gamma(0), P_L()}, 0, 3)
-                  * chain({P_R()}, 2, 1)
-              - expr_s(CSL_1 / 4) * chain({gamma(1), P_L()}, 0, 3)
-                    * chain({gamma(0, 1)}, 2, 1)
-              - expr_s(CSL_1 / 4) * chain({gamma(1), P_L()}, 0, 3)
-                    * chain({gamma(0, 1), gamma5()}, 2, 1);
+        auto c1           = chain({P_R(), gamma(0, 1)}, 0, 1);
+        auto c2           = chain({P_R(), gamma(1)}, 2, 3);
+        auto fierz        = applySingleFierz(c1, c2);
+        auto fierz_result = expr_s(3 / CSL_2) * chain({gamma(0), P_L()}, 0, 3)
+                                * chain({P_R()}, 2, 1)
+                            - expr_s(CSL_1 / 2)
+                                  * chain({gamma(1), P_L()}, 0, 3)
+                                  * chain({gamma(0, 1), P_R()}, 2, 1);
         COMPARE_SGL_EXPR(EXPECT_EQ, fierz, fierz_result);
     }
 }
@@ -751,7 +818,9 @@ TEST(marty_gamma_api, double_fierz_identities)
     // test_canonical_double_fierz(
     //    {gamma(0, 1)}, {gamma(2, 3)}, mty::gamma_api::FierzBasis::Chiral);
     test_canonical_double_fierz(
-        {gamma(0, 1)}, {P_L()}, mty::gamma_api::FierzBasis::Chiral);
+        {gamma(0, 1), P_L()}, {P_L()}, mty::gamma_api::FierzBasis::Chiral);
+    test_canonical_double_fierz(
+        {gamma(0, 1), P_R()}, {P_L()}, mty::gamma_api::FierzBasis::Chiral);
     // Not simplified enough
     // test_canonical_double_fierz(
     //    {gamma(0, 1)}, {gamma(2), P_L()},
