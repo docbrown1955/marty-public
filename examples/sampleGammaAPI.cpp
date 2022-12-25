@@ -9,7 +9,7 @@ constexpr gapi::Expr (*S)(int, int) = mty::gamma_api::gamma;
 constexpr auto G5                   = mty::gamma_api::gamma5;
 constexpr auto PL                   = mty::gamma_api::P_L;
 constexpr auto PR                   = mty::gamma_api::P_R;
-constexpr auto fchain               = mty::gamma_api::chain;
+constexpr auto fcurrent               = mty::gamma_api::current;
 
 void logLatexEquation(gapi::Expr const &lhs, gapi::Expr const &rhs)
 {
@@ -63,26 +63,26 @@ int main()
     std::cout << eps(0, 1, 2, 3) << std::endl;
     std::cout << eps(0, 0, 2, 3) << std::endl;
 
-    testChainSimplification(fchain({G(1), G5(), G(1)}, 0, 1));
-    testChainSimplification(fchain({G(1), G(2)}, 0, 0));
-    testChainSimplification(fchain({G(1), G(2), G(3), G(4), G5()}, 0, 0));
+    testChainSimplification(fcurrent({G(1), G5(), G(1)}, 0, 1));
+    testChainSimplification(fcurrent({G(1), G(2)}, 0, 0));
+    testChainSimplification(fcurrent({G(1), G(2), G(3), G(4), G5()}, 0, 0));
 
-    testFierzSimplification2(fchain({G(1), PL()}, 0, 1),
-                             fchain({G(1), PR()}, 2, 3));
-    testFierzSimplification2(fchain({G(1), PL()}, 0, 1),
-                             fchain({G(1), PL()}, 2, 3));
-    testFierzSimplification2(fchain({G(1), G(2), G(3), PL()}, 0, 1),
-                             fchain({G(1), G(2), G(3), PL()}, 2, 3));
-    testFierzSimplification2(fchain({G(1), G(2), G(3), PL()}, 0, 1),
-                             fchain({G(1), G(2), G(3), PR()}, 2, 3));
-    testFierzSimplification(fchain({PL()}, 0, 1), fchain({PR()}, 2, 3));
-    testFierzSimplification(fchain({PL()}, 0, 1), fchain({PL()}, 2, 3));
+    testFierzSimplification2(fcurrent({G(1), PL()}, 0, 1),
+                             fcurrent({G(1), PR()}, 2, 3));
+    testFierzSimplification2(fcurrent({G(1), PL()}, 0, 1),
+                             fcurrent({G(1), PL()}, 2, 3));
+    testFierzSimplification2(fcurrent({G(1), G(2), G(3), PL()}, 0, 1),
+                             fcurrent({G(1), G(2), G(3), PL()}, 2, 3));
+    testFierzSimplification2(fcurrent({G(1), G(2), G(3), PL()}, 0, 1),
+                             fcurrent({G(1), G(2), G(3), PR()}, 2, 3));
+    testFierzSimplification(fcurrent({PL()}, 0, 1), fcurrent({PR()}, 2, 3));
+    testFierzSimplification(fcurrent({PL()}, 0, 1), fcurrent({PL()}, 2, 3));
 
-    testChainSimplification(fchain({S(0, 1), S(2, 3), PL()}, 0, 0));
-    testFierzSimplification(fchain({S(0, 1)}, 0, 1),
-                            fchain({S(0, 1), PL()}, 2, 3));
-    testFierzSimplification(fchain({S(0, 1), PL()}, 0, 1),
-                            fchain({S(0, 1), PL()}, 2, 3));
+    testChainSimplification(fcurrent({S(0, 1), S(2, 3), PL()}, 0, 0));
+    testFierzSimplification(fcurrent({S(0, 1)}, 0, 1),
+                            fcurrent({S(0, 1), PL()}, 2, 3));
+    testFierzSimplification(fcurrent({S(0, 1), PL()}, 0, 1),
+                            fcurrent({S(0, 1), PL()}, 2, 3));
 
     return 0;
 }

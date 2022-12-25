@@ -1,3 +1,4 @@
+#include <csl/options.h>
 #include <marty/api/gamma.h>
 #include <marty/core/mrtInterface.h>
 #include <marty/sgl/sgl.h>
@@ -9,21 +10,6 @@ namespace py = pybind11;
 
 PYBIND11_MODULE(pymartyc, m)
 {
-    m.doc() = "some basic example";
-    m.def("minkowski_index",
-          &mty::MinkowskiIndex,
-          "Returns a minkowski index",
-          py::arg("name") = "");
-    m.attr("__version__") = "dev";
-
-    py::class_<csl::Index>(m, "Index")
-        .def_property("name", &csl::Index::getName, &csl::Index::setName)
-        .def("__str__", [](csl::Index const &i) {
-            std::ostringstream sout;
-            sout << i;
-            return sout.str();
-        });
-
     py::class_<mty::gamma_api::Expr>(m, "GExpr");
     py::enum_<mty::gamma_api::FierzBasis>(m, "FierzBasis")
         .value("Standard", mty::gamma_api::FierzBasis::Standard)
@@ -68,10 +54,10 @@ PYBIND11_MODULE(pymartyc, m)
           static_cast<void (*)(bool)>(&mty::gamma_api::keepSymbolic4D),
           "Set the dimension as symbolic or not (D = 4)",
           py::arg("symbolic"));
-    m.def("chain",
+    m.def("current",
           static_cast<mty::gamma_api::Expr (*)(
               std::vector<mty::gamma_api::Expr> const &, int, int)>(
-              &mty::gamma_api::chain),
+              &mty::gamma_api::current),
           "Build a fermion current from a list of gamma matrices and the two "
           "border (Dirac) indices.",
           py::arg("gamma_chain"),
@@ -93,6 +79,13 @@ PYBIND11_MODULE(pymartyc, m)
               &mty::gamma_api::ordered),
           "Order chains of gamma-matrices",
           py::arg("expr"));
+    m.def("project",
+          static_cast<mty::gamma_api::Expr (*)(mty::gamma_api::Expr const &,
+                                               mty::gamma_api::FierzBasis)>(
+              &mty::gamma_api::project),
+          "Project fermion currents on a basis (chiral or not)",
+          py::arg("expr"),
+          py::arg("basis"));
     m.def("single_fierz",
           static_cast<mty::gamma_api::Expr (*)(mty::gamma_api::Expr const &,
                                                mty::gamma_api::Expr const &,
