@@ -34,7 +34,7 @@ inline bool applySelfContractions  = true;
 inline bool applyChainContractions = false;
 
 inline bool fullComparison = true;
-inline bool permissiveCovariantIndices = false;
+inline bool permissiveCovariantIndices = true;
 inline bool printIndexIds  = true;
 
 } // namespace csl::option
