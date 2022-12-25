@@ -12,19 +12,46 @@ on:
       - review_requested
 
 jobs:
-  build-and-test-ubuntu-gcc:
+  build-and-test-ubuntu-gcc12:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
     - name: dependencies
-      run: sudo apt-get install coreutils build-essential gcc-11 g++-11 gfortran-11 libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng lcov cmake texlive texlive-latex-extra texlive-luatex -y
+      run: sudo apt-get install coreutils build-essential gcc-12 g++-12 gfortran-12 libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng lcov cmake texlive texlive-latex-extra texlive-luatex -y
     - name: configure
       run: |
         mkdir build
         cd build
-        export CXX=g++-11
-        export CC=gcc-11
-        export FC=gfortran-11
+        export CXX=g++-12
+        export CC=gcc-12
+        export FC=gfortran-12
+        cmake ..
+    - name: make
+      run: |
+        cd build
+        make
+    - name: install
+      run: |
+        cd build
+        sudo make install
+    - name: test
+      run: |
+        cd build
+        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib
+        ctest --output-on-failure
+  build-and-test-ubuntu-legacy-gcc7:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: dependencies
+      run: sudo apt-get install coreutils build-essential gcc-7 g++-7 gfortran-7 libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng lcov cmake texlive texlive-latex-extra texlive-luatex -y
+    - name: configure
+      run: |
+        mkdir build
+        cd build
+        export CXX=g++-7
+        export CC=gcc-7
+        export FC=gfortran-7
         cmake ..
     - name: make
       run: |
