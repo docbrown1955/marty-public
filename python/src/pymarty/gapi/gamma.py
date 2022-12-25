@@ -3,6 +3,7 @@ from typing import Optional, List
 from .._internal import pymartyc
 
 from .expr import Expr
+from .basis import FierzBasis
 
 
 def set_symbolic_dimension(symbolic: bool) -> None:
@@ -37,11 +38,11 @@ def C() -> Expr:
     return Expr(pymartyc.C())
 
 
-def chain(
+def current(
     gammas: List[Expr], left_current_index: int, right_current_index: int
 ) -> Expr:
     return Expr(
-        pymartyc.chain(
+        pymartyc.current(
             [expr._expr for expr in gammas], left_current_index, right_current_index
         )
     )
@@ -53,6 +54,10 @@ def simplify(expr: Expr) -> Expr:
 
 def order(expr: Expr) -> Expr:
     return Expr(pymartyc.order(expr._expr))
+
+
+def project(expr: Expr, basis: FierzBasis) -> Expr:
+    return Expr(pymartyc.project(expr._expr, basis))
 
 
 def single_fierz(left_current: Expr, right_current: Expr) -> Expr:
