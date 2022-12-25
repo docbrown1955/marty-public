@@ -943,10 +943,6 @@ bool IndexChain::isOnBasis(bool chiralBasis) const
     if (last->isP_L() || last->isP_R()) {
         return chiralBasis;
     }
-    if (m_argument.size() == 1 && last->isSigma()) {
-        // both bases have the sigma-only term
-        return true;
-    }
     return !chiralBasis;
 }
 
@@ -955,7 +951,7 @@ std::optional<GExpr> IndexChain::projectOnBasis(bool chiralBasis) const
     if (isOnBasis(chiralBasis)) {
         return std::nullopt;
     }
-    if (!chiralBasis && m_argument.size() > 0
+    if (chiralBasis && m_argument.size() > 0
         && ConvertTo<GammaIndex>(m_argument.back())->isGamma5()) {
         // g5 = PR - PL
         IndexChain left         = *this;
@@ -964,7 +960,7 @@ std::optional<GExpr> IndexChain::projectOnBasis(bool chiralBasis) const
         right.m_argument.back() = gammaindex_s(7);
         return right.copy() - left.copy();
     }
-    else if (!chiralBasis) {
+    else if (chiralBasis) {
         // 1 = PR + PL
         IndexChain left  = *this;
         IndexChain right = *this;
