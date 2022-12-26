@@ -99,7 +99,7 @@ add_subdirectory(tests)
 
 install(TARGETS marty marty-static csl csl-static marty-lha marty-lha-static marty-gamma-api
     DESTINATION lib)
-install(PROGRAMS ${CMAKE_BINARY_DIR}/pymartyc.so
+install(PROGRAMS "$<TARGET_FILE:_pymarty>"
     DESTINATION lib)
 install(DIRECTORY src/
     DESTINATION include

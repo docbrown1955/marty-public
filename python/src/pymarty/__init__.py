@@ -1,4 +1,3 @@
-from . import gapi
-from ._internal import pymartyc as _pymartyc
+from pymarty._pymarty import gamma_api as gamma_api
 
-__all__ = ["_pymartyc", "gapi"]
+__all__ = ["gamma_api"]
