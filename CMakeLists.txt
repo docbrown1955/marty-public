@@ -71,6 +71,10 @@ else()
     set(ENABLE_COVERAGE 0)
 endif()
 
+if ((NOT PYMARTY_PYTHON_VERSION))
+    set(PYMARTY_PYTHON_VERSION 3.9)
+endif()
+
 add_compile_definitions(MARTY_CXX=${CMAKE_CXX_COMPILER})
 add_compile_definitions(MARTY_CC=${CMAKE_C_COMPILER})
 add_compile_definitions(MARTY_FC=${CMAKE_Fortran_COMPILER})
