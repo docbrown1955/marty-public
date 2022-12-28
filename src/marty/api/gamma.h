@@ -43,6 +43,8 @@ Expr P_L();
 Expr P_R();
 Expr C();
 
+extern Expr DMinko;
+
 // Create a chain of gamma matrices
 Expr current(std::vector<Expr> const &gammas, int iLeft, int iRight);
 Expr trace(std::vector<Expr> const &gammas);

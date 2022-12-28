@@ -1575,10 +1575,12 @@ void TensorParent::checkIndexRequest(const vector<Index> &request)
             for (const auto &i : request)
                 std::cout << i << std::endl;
             cout << *this << endl;
-            CALL_SMERROR_SPEC(CSLError::IndexError,
-                              "size does not match: " + (string) ": space \""
-                                  + index->getSpace()->getName()
-                                  + "\" mismatch.");
+            CALL_SMERROR_SPEC(
+                CSLError::IndexError,
+                "Index space does not match: " + (string) ": space \""
+                    + index->getSpace()->getName() + "\" mismatch with \""
+                    + space[distance(request.begin(), index)]->getName()
+                    + "\".");
         }
 }
 

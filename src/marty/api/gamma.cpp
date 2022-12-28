@@ -126,24 +126,25 @@ Expr relative_chain_order(Expr expr)
 
 Expr simplified(Expr const &expr)
 {
+    Expr res = sgl::DeepCopy(expr);
     Expr clean = IndexManager::renameIndices(relative_chain_order(
-        sgl::CSLSimplified(sgl::Simplified(expr, false))));
+        sgl::CSLSimplified(sgl::Simplified(res, false))));
     return IndexManager::renameIndices(
         sgl::Simplified(sgl::DeepRefreshed(clean), false));
 }
 
 Expr ordered(Expr const &expr)
 {
-    auto cpy = expr->copy();
-    sgl::OrderChains(cpy);
+    Expr res = sgl::DeepCopy(expr);
+    sgl::OrderChains(res);
     Expr clean
-        = IndexManager::renameIndices(relative_chain_order(simplified(cpy)));
+        = IndexManager::renameIndices(relative_chain_order(simplified(res)));
     return clean;
 }
 
 Expr project(Expr const &expr, FierzBasis basis)
 {
-    Expr res = expr->copy();
+    Expr res = sgl::DeepCopy(expr);
     sgl::transform<sgl::IndexChain>(res, [&](sgl::GExpr &el) {
         auto current = sgl::ConvertTo<sgl::IndexChain>(el);
         if (!current->isOnBasis(basis == FierzBasis::Chiral)) {
