@@ -115,7 +115,8 @@ namespace csl {
                 std::string               const &nameContainer,
                 std::vector<LibParameter> const &params,
                 std::ostream &out,
-                int nIndent
+                int nIndent,
+                bool complexParameters
                 );
 
         void printPrintDefinition(

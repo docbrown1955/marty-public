@@ -41,6 +41,11 @@ class InitSanitizer {
         return *this;
     }
 
+    bool hasValue() const
+    {
+        return m_safe;
+    }
+
     operator T() const
     {
         return get();
@@ -60,21 +65,6 @@ class InitSanitizer {
     void reset()
     {
         m_safe = false;
-    }
-
-    void print(std::ostream &out = std::cout) const
-    {
-        if (m_safe)
-            out << name << " = " << m_value << '\n';
-        else
-            out << name << " uninitialized.\n";
-    }
-
-    friend std::ostream &operator<<(std::ostream &       out,
-                                    InitSanitizer const &san)
-    {
-        out << san.m_value;
-        return out;
     }
 
   public:

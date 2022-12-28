@@ -157,7 +157,8 @@ void LibraryGroup::printPrintParameterList(
     std::string const               &nameContainer,
     std::vector<LibParameter> const &params,
     std::ostream                    &out,
-    int                              nIndent)
+    int                              nIndent,
+    bool                             complexParameters)
 {
     constexpr size_t limitParams = 5;
     const auto newParamLine = '\n' + LibraryGenerator::indent(nIndent + 2);
@@ -176,8 +177,25 @@ void LibraryGroup::printPrintParameterList(
     }
     out << "})\n";
     out << LibraryGenerator::indent(nIndent) << "{\n";
-    out << LibraryGenerator::indent(nIndent + 1) << "out << \"  -> \";\n";
-    out << LibraryGenerator::indent(nIndent + 1) << "par->print(out);\n";
+    out << LibraryGenerator::indent(nIndent + 1)
+        << "out << \"  -> \" << par->name << \": \";\n";
+    out << LibraryGenerator::indent(nIndent + 1) << "if (par->hasValue()) {\n";
+    if (complexParameters) {
+        out << LibraryGenerator::indent(nIndent + 2)
+            << "out << static_cast<double>(MTY_REAL(par->get()));\n";
+        out << LibraryGenerator::indent(nIndent + 2)
+            << "out << \" + i*\" << static_cast<double>(MTY_IMAG(par->get())) "
+               "<< '\\n';\n";
+    }
+    else {
+        out << LibraryGenerator::indent(nIndent + 2)
+            << "out << static_cast<double>(par->get()) << '\\n';\n";
+    }
+    out << LibraryGenerator::indent(nIndent + 1) << "}\n";
+    out << LibraryGenerator::indent(nIndent + 1) << "else {\n";
+    out << LibraryGenerator::indent(nIndent + 2)
+        << "out << \"uninitialized\" << '\\n';\n";
+    out << LibraryGenerator::indent(nIndent + 1) << "}\n";
     out << LibraryGenerator::indent(nIndent) << "}\n";
 }
 
@@ -199,11 +217,13 @@ void LibraryGroup::printPrintDefinition(std::ostream &out, int nIndent) const
     out << '\n';
     out << LibraryGenerator::indent(2) << "out << \"param_t struct:\\n\";\n";
     out << LibraryGenerator::indent(2) << "out << \"Real parameters\\n\";\n";
-    printPrintParameterList("real_params", realParams, out, nIndent + 1);
+    printPrintParameterList(
+        "real_params", realParams, out, nIndent + 1, false);
     out << '\n';
     out << LibraryGenerator::indent(2)
         << "out << \"Complex parameters\\n\";\n";
-    printPrintParameterList("complex_params", complexParams, out, nIndent + 1);
+    printPrintParameterList(
+        "complex_params", complexParams, out, nIndent + 1, true);
     out << LibraryGenerator::indent(2) << "out << \"\\n\";\n";
     out << LibraryGenerator::indent(nIndent) << "}\n";
 }
