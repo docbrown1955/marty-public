@@ -1,5 +1,6 @@
 #include <csl/options.h>
 #include <marty/api/gamma.h>
+#include <marty/core/diracology.h>
 #include <marty/core/mrtInterface.h>
 #include <marty/sgl/sgl.h>
 #include <pybind11/operators.h>
@@ -14,9 +15,17 @@ PYBIND11_MODULE(_pymarty, m)
     py::module gapi
         = m.def_submodule("gamma_api", "An API for gamma-matrix calculations");
     py::class_<mty::gamma_api::Expr>(gapi, "Expr")
+        .def(py::init<int>())
+        .def(py::init<float>())
         .def("__str__",
              [](mty::gamma_api::Expr const &expr) {
                  return mty::gamma_api::generateString(expr);
+             })
+        .def("__copy__",
+             [](mty::gamma_api::Expr const &expr) { return expr->copy(); })
+        .def("__deepcopy__",
+             [](mty::gamma_api::Expr const &expr, py::object) {
+                 return sgl::DeepCopy(expr);
              })
         .def("to_latex",
              [](mty::gamma_api::Expr const &expr) {
@@ -34,6 +43,54 @@ PYBIND11_MODULE(_pymarty, m)
              [](mty::gamma_api::Expr const &expr,
                 mty::gamma_api::FierzBasis  basis) {
                  return mty::gamma_api::project(expr, basis);
+             })
+        .def("__len__",
+             [](mty::gamma_api::Expr const &expr) { return expr->size(); })
+        .def("__getitem__",
+             [](mty::gamma_api::Expr const &expr, int index) {
+                 if (static_cast<unsigned int>(index) >= expr->size()) {
+                     throw std::out_of_range("Index " + std::to_string(index)
+                                             + " is out of range of expr of "
+                                               "size "
+                                             + std::to_string(expr->size()));
+                 }
+                 return expr->argument(index);
+             })
+        .def("__eq__",
+             [](mty::gamma_api::Expr const &left,
+                mty::gamma_api::Expr const &right) {
+                 return sgl::sgl_to_csl(left, mty::defaultSGLTensorSet())
+                        == sgl::sgl_to_csl(right, mty::defaultSGLTensorSet());
+             })
+        .def("__ne__",
+             [](mty::gamma_api::Expr const &left,
+                mty::gamma_api::Expr const &right) {
+                 return sgl::sgl_to_csl(left, mty::defaultSGLTensorSet())
+                        != sgl::sgl_to_csl(right, mty::defaultSGLTensorSet());
+             })
+        .def("__lt__",
+             [](mty::gamma_api::Expr const &left,
+                mty::gamma_api::Expr const &right) {
+                 return sgl::sgl_to_csl(left, mty::defaultSGLTensorSet())
+                        < sgl::sgl_to_csl(right, mty::defaultSGLTensorSet());
+             })
+        .def("__gt__",
+             [](mty::gamma_api::Expr const &left,
+                mty::gamma_api::Expr const &right) {
+                 return sgl::sgl_to_csl(left, mty::defaultSGLTensorSet())
+                        > sgl::sgl_to_csl(right, mty::defaultSGLTensorSet());
+             })
+        .def("__le__",
+             [](mty::gamma_api::Expr const &left,
+                mty::gamma_api::Expr const &right) {
+                 return sgl::sgl_to_csl(left, mty::defaultSGLTensorSet())
+                        <= sgl::sgl_to_csl(right, mty::defaultSGLTensorSet());
+             })
+        .def("__ge__",
+             [](mty::gamma_api::Expr const &left,
+                mty::gamma_api::Expr const &right) {
+                 return sgl::sgl_to_csl(left, mty::defaultSGLTensorSet())
+                        >= sgl::sgl_to_csl(right, mty::defaultSGLTensorSet());
              })
         .def(-py::self)
         .def(py::self + py::self)
@@ -60,6 +117,7 @@ PYBIND11_MODULE(_pymarty, m)
         .value("Standard", mty::gamma_api::FierzBasis::Standard)
         .value("Chiral", mty::gamma_api::FierzBasis::Chiral)
         .export_values();
+    gapi.attr("D") = mty::gamma_api::DMinko;
     gapi.def("g",
              &mty::gamma_api::g,
              "Minkowski metric - 2 indices",

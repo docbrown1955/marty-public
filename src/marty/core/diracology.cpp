@@ -55,6 +55,17 @@ csl::Expr bar_s(const csl::Expr &tensor, const DiracSpace *space)
     return csl::GetComplexConjugate(res) * space->gamma({0, beta, alpha});
 }
 
+sgl::TensorSet const &defaultSGLTensorSet()
+{
+    static const sgl::TensorSet tensorSet{
+        dirac4.gamma_chir, dirac4.C_matrix, dirac4.P_L, dirac4.P_R, {
+            {0, dirac4.getDelta()},
+            {1, dirac4.gamma},
+            {2, dirac4.sigma}
+        }};
+    return tensorSet;
+}
+
 ///////////////////////////////////////////////////
 /*************************************************/
 // Class DiracSpace                              //
@@ -295,11 +306,7 @@ void DiracSpace::initProperties()
 csl::vector_expr
 DiracSpace::simplifyChain(csl::vector_expr const &tensors) const
 {
-    sgl::TensorSet tensorset{
-        dirac4.gamma_chir, dirac4.C_matrix, dirac4.P_L, dirac4.P_R, {}};
-    tensorset.gamma[0] = dirac4.delta;
-    tensorset.gamma[1] = dirac4.gamma;
-    tensorset.gamma[2] = dirac4.sigma;
+    sgl::TensorSet tensorset = defaultSGLTensorSet();
     try {
         sgl::GExpr sglTest
             = sgl::csl_to_sgl(csl::prod_s(tensors, true), tensorset);

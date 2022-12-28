@@ -26,6 +26,10 @@
 #include "../../csl/csl.h"
 #include "quantumField.h"
 
+namespace sgl {
+struct TensorSet;
+}
+
 namespace mty {
 
 inline std::shared_ptr<csl::TDerivativeParent> partialMinko_shared
@@ -136,6 +140,8 @@ csl::Expr slashed_s(csl::Tensor       p,
                     const DiracSpace *space = &dirac4);
 
 csl::Expr bar_s(const csl::Expr &tensor, const DiracSpace *space = &dirac4);
+
+sgl::TensorSet const &defaultSGLTensorSet();
 
 } // End of namespace mty
 
