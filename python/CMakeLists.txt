@@ -9,3 +9,6 @@ pytest_discover_tests(
     TEST_SUFFIX ""
     XML_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/report
 )
+
+set(PYMARTY_PATH ${CMAKE_CURRENT_SOURCE_DIR}/src)
+configure_file(tests/conftest.py.in ${CMAKE_CURRENT_SOURCE_DIR}/tests/conftest.py @ONLY)
