@@ -39,19 +39,19 @@ jobs:
         cd build
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib
         ctest --output-on-failure
-  build-and-test-ubuntu-gcc7:
+  build-and-test-ubuntu-gcc9:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v3
     - name: dependencies
-      run: sudo apt-get install coreutils build-essential gcc-7 g++-7 gfortran-7 libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng lcov cmake texlive texlive-latex-extra texlive-luatex -y
+      run: sudo apt-get install coreutils build-essential gcc-9 g++-9 gfortran-9 libgsl-dev libgslcblas0 qt5-default dvipng lcov cmake texlive texlive-latex-extra texlive-luatex -y
     - name: configure
       run: |
         mkdir build
         cd build
-        export CXX=g++-7
-        export CC=gcc-7
-        export FC=gfortran-7
+        export CXX=g++-9
+        export CC=gcc-9
+        export FC=gfortran-9
         cmake ..
     - name: make
       run: |
