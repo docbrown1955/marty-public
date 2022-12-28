@@ -31,7 +31,11 @@ class IndexManager {
     static inline std::map<int, csl::Index> minkoIndices     = {};
 };
 
-Expr DMinko = sgl::cslexpr_s(csl::DMinko);
+Expr DMinko()
+{
+    const static Expr D = sgl::cslexpr_s(csl::DMinko);
+    return D;
+}
 
 void keepSymbolic4D(bool symbolic)
 {
@@ -126,9 +130,9 @@ Expr relative_chain_order(Expr expr)
 
 Expr simplified(Expr const &expr)
 {
-    Expr res = sgl::DeepCopy(expr);
-    Expr clean = IndexManager::renameIndices(relative_chain_order(
-        sgl::CSLSimplified(sgl::Simplified(res, false))));
+    Expr res   = sgl::DeepCopy(expr);
+    Expr clean = IndexManager::renameIndices(
+        relative_chain_order(sgl::CSLSimplified(sgl::Simplified(res, false))));
     return IndexManager::renameIndices(
         sgl::Simplified(sgl::DeepRefreshed(clean), false));
 }

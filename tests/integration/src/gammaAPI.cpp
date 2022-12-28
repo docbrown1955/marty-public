@@ -6,7 +6,7 @@
 
 using namespace mty::gamma_api;
 constexpr auto    expr_s = sgl::cslexpr_s;
-static const auto D      = DMinko;
+static const auto D      = DMinko();
 
 const static sgl::TensorSet tensorSet
     = {mty::dirac4.gamma_chir,
