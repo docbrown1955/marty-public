@@ -9,7 +9,7 @@ set(ALL_SOURCES
 
 add_definitions(-DPYBIND11)
 pybind11_add_module(_pymarty ${ALL_SOURCES} MODULE NO_EXTRAS)
-target_link_libraries(_pymarty PRIVATE marty pybind11::module)
+target_link_libraries(_pymarty PRIVATE marty marty-gamma-api pybind11::module)
 
 set_target_properties(_pymarty
     PROPERTIES

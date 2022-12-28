@@ -117,7 +117,7 @@ PYBIND11_MODULE(_pymarty, m)
         .value("Standard", mty::gamma_api::FierzBasis::Standard)
         .value("Chiral", mty::gamma_api::FierzBasis::Chiral)
         .export_values();
-    gapi.attr("D") = mty::gamma_api::DMinko;
+    gapi.attr("D") = mty::gamma_api::DMinko();
     gapi.def("g",
              &mty::gamma_api::g,
              "Minkowski metric - 2 indices",

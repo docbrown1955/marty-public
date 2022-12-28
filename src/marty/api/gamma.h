@@ -29,8 +29,6 @@ using Expr = sgl::GExpr;
 
 void keepSymbolic4D(bool symbolic);
 
-extern Expr DMinko;
-
 enum class FierzBasis { Standard, Chiral };
 
 // Single expressions
@@ -42,8 +40,7 @@ Expr gamma5();
 Expr P_L();
 Expr P_R();
 Expr C();
-
-extern Expr DMinko;
+Expr DMinko();
 
 // Create a chain of gamma matrices
 Expr current(std::vector<Expr> const &gammas, int iLeft, int iRight);
