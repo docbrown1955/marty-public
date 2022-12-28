@@ -1,6 +1,7 @@
 # ![MARTY Logo](assets/logo_marty_black.png#gh-light-mode-only) ![MARTY Logo](assets/logo_marty_white.png#gh-dark-mode-only)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/docbrown1955/marty-public?color=blue&logo=GitHub&logoColor=blue&style=flat-square)](https://github.com/docbrown1955/marty-public/releases) [![GitHub commits since latest release (by date)](https://img.shields.io/github/commits-since/docbrown1955/marty-public/latest?logo=GitHub&style=flat-square)](https://github.com/docbrown1955/marty-public/commits/master)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/docbrown1955/marty-public/build?label=tests&logo=GitHub&style=flat-square)](https://github.com/docbrown1955/marty-public/actions?query=branch%3Amaster)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/docbrown1955/marty-public/c-cpp.yml?branch=master&label=test&logo=GitHub&style=flat-square)](https://github.com/docbrown1955/marty-public/actions)
+[![GitHub Repo stars](https://img.shields.io/github/stars/docbrown1955/marty-public?logo=GitHub&logoColor=gold&style=social)](https://github.com/docbrown1955/marty-public/stargazers)
 [![GitHub Repo stars](https://img.shields.io/github/stars/docbrown1955/marty-public?logo=GitHub&logoColor=gold&style=social)](https://github.com/docbrown1955/marty-public/stargazers)
 
 
@@ -15,7 +16,10 @@ converted into C++ code in a self-contained library compiled independently of `M
 This code can therefore be used for numerical evaluation in different scenarios to perform a
 phenomenological analysis.
 
-More information can be found on the [website](https://marty.in2p3.fr).
+More information can be found on the [website](https://marty.in2p3.fr). In case you use MARTY for a physics study please cite
+
+MARTY - A C++ framework automating symbolic calculations Beyond the Standard Model
+(Comput. Phys. Commun. [264 (2021) 107928](https://linkinghub.elsevier.com/retrieve/pii/S001046552100062X), arXiv: [2011.02478](https://arxiv.org/abs/2011.02478) [hep-ph])
 
 ## Get Started
 
