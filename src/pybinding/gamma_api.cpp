@@ -14,6 +14,27 @@ PYBIND11_MODULE(_pymarty, m)
     py::module gapi
         = m.def_submodule("gamma_api", "An API for gamma-matrix calculations");
     py::class_<mty::gamma_api::Expr>(gapi, "Expr")
+        .def("__str__",
+             [](mty::gamma_api::Expr const &expr) {
+                 return mty::gamma_api::generateString(expr);
+             })
+        .def("to_latex",
+             [](mty::gamma_api::Expr const &expr) {
+                 return mty::gamma_api::generateLatex(expr);
+             })
+        .def("simplify",
+             [](mty::gamma_api::Expr const &expr) {
+                 return mty::gamma_api::simplified(expr);
+             })
+        .def("order",
+             [](mty::gamma_api::Expr const &expr) {
+                 return mty::gamma_api::ordered(expr);
+             })
+        .def("project",
+             [](mty::gamma_api::Expr const &expr,
+                mty::gamma_api::FierzBasis  basis) {
+                 return mty::gamma_api::project(expr, basis);
+             })
         .def(-py::self)
         .def(py::self + py::self)
         .def(py::self * py::self)
@@ -95,25 +116,6 @@ PYBIND11_MODULE(_pymarty, m)
                  &mty::gamma_api::trace),
              "Calculate the trace of a chain of gamma matrices.",
              py::arg("gamma_chain"));
-    gapi.def(
-        "simplify",
-        static_cast<mty::gamma_api::Expr (*)(mty::gamma_api::Expr const &)>(
-            &mty::gamma_api::simplified),
-        "Simplify an expression applying gamma-matrix identities",
-        py::arg("expr"));
-    gapi.def(
-        "order",
-        static_cast<mty::gamma_api::Expr (*)(mty::gamma_api::Expr const &)>(
-            &mty::gamma_api::ordered),
-        "Order chains of gamma-matrices",
-        py::arg("expr"));
-    gapi.def("project",
-             static_cast<mty::gamma_api::Expr (*)(mty::gamma_api::Expr const &,
-                                                  mty::gamma_api::FierzBasis)>(
-                 &mty::gamma_api::project),
-             "Project fermion currents on a basis (chiral or not)",
-             py::arg("expr"),
-             py::arg("basis"));
     gapi.def("single_fierz",
              static_cast<mty::gamma_api::Expr (*)(mty::gamma_api::Expr const &,
                                                   mty::gamma_api::Expr const &,
@@ -132,14 +134,4 @@ PYBIND11_MODULE(_pymarty, m)
              py::arg("left_chain"),
              py::arg("right_chain"),
              py::arg("basis") = mty::gamma_api::FierzBasis::Chiral);
-    gapi.def("generate_string",
-             static_cast<std::string (*)(mty::gamma_api::Expr const &)>(
-                 &mty::gamma_api::generateString),
-             "Print an expression in a regular string",
-             py::arg("expr"));
-    gapi.def("generate_latex",
-             static_cast<std::string (*)(mty::gamma_api::Expr const &)>(
-                 &mty::gamma_api::generateLatex),
-             "Print an expression as a LaTeX expression",
-             py::arg("expr"));
 }

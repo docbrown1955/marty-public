@@ -9,15 +9,12 @@ from .._pymarty.gamma_api import (
     P_R,
     C,
     current,
-    simplify,
-    order,
-    project,
     single_fierz,
     double_fierz,
     trace,
 )
 from .._pymarty.gamma_api import FierzBasis
-
+from .print_utils import print_latex
 
 __all__ = [
     "Expr",
@@ -30,11 +27,9 @@ __all__ = [
     "P_R",
     "C",
     "current",
-    "simplify",
-    "order",
-    "project",
     "single_fierz",
     "double_fierz",
     "trace",
     "FierzBasis",
+    "print_latex",
 ]

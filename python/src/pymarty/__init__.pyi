@@ -1,3 +1,3 @@
-from .gamma_api import FierzBasis, Expr, gamma
+from . import gamma_api as gamma_api
 
-__all__ = ["FierzBasis", "Expr", "gamma"]
+__all__ = ["gamma_api"]
