@@ -128,15 +128,16 @@ Expr simplified(Expr const &expr)
 {
     Expr clean = IndexManager::renameIndices(relative_chain_order(
         sgl::CSLSimplified(sgl::Simplified(expr, false))));
-    return IndexManager::renameIndices(sgl::Simplified(clean, false));
+    return IndexManager::renameIndices(
+        sgl::Simplified(sgl::DeepRefreshed(clean), false));
 }
 
 Expr ordered(Expr const &expr)
 {
     auto cpy = expr->copy();
     sgl::OrderChains(cpy);
-    Expr clean = IndexManager::renameIndices(
-        relative_chain_order(sgl::CSLSimplified(cpy)));
+    Expr clean
+        = IndexManager::renameIndices(relative_chain_order(simplified(cpy)));
     return clean;
 }
 
@@ -227,19 +228,66 @@ std::string generateString(Expr const &expr)
 // Latex conversion
 ////
 
-static std::string generateLatexImpl(Expr const &expr);
+struct LatexGenerationInfo {
+    int  precedence;
+    bool aligned;
+};
+
+static std::string generateLatexImpl(Expr const         &expr,
+                                     LatexGenerationInfo info);
 
 static std::string generateLatex(csl::Expr const &expr)
 {
     return expr->printLaTeX(0);
 }
 
+static std::string generateLatex(sgl::Sum const     *func,
+                                 LatexGenerationInfo info)
+{
+    std::string res;
+    bool        add_paren = (info.precedence == 1);
+    if (add_paren) {
+        res += "\\bigg(";
+    }
+    bool        printNextNegative = false;
+    std::string alignSep          = (!info.aligned ? "\\\\&" : "");
+    info.aligned                  = true;
+    for (std::size_t i = 0; i != func->size(); ++i) {
+        auto childInfo  = info;
+        info.precedence = 0;
+        if (printNextNegative) {
+            res += generateLatexImpl(-func->argument(i), childInfo);
+        }
+        else {
+            res += generateLatexImpl(func->argument(i), childInfo);
+        }
+        if (i + 1 < func->size()) {
+            auto factor = func->argument(i + 1)->getFactor();
+            if (csl::IsNumerical(factor) && factor->evaluateScalar() < 0) {
+                res += alignSep + " - ";
+                printNextNegative = true;
+            }
+            else {
+                res += alignSep + " + ";
+                printNextNegative = false;
+            }
+        }
+    }
+    if (add_paren) {
+        res += "\\bigg)";
+    }
+    return res;
+}
+
 static std::string generateLatex(sgl::AbstractMultiFunction const *func,
-                                 std::string const                &sep)
+                                 std::string const                &sep,
+                                 LatexGenerationInfo               info)
 {
     std::string res;
     for (std::size_t i = 0; i != func->size(); ++i) {
-        res += generateLatexImpl(func->argument(i));
+        auto childInfo  = info;
+        info.precedence = 1;
+        res += generateLatexImpl(func->argument(i), childInfo);
         if (!sep.empty() && i + 1 < func->size()) {
             res += sep;
         }
@@ -308,21 +356,26 @@ static std::string generateLatex(sgl::IndexChain const *current)
         std::string      indexString
             = std::string(a_str.begin() + 1, a_str.end())
               + std::string(b_str.begin() + 1, b_str.end());
-        return "\\left(" + generateLatex(current, "") + "\\right)_{"
+        return "\\left(" + generateLatex(current, "", {}) + "\\right)_{"
                + indexString + "}";
     }
     else {
-        return "\\mathrm{Tr}\\left(" + generateLatex(current, "") + "\\right)";
+        return "\\mathrm{Tr}\\left(" + generateLatex(current, "", {})
+               + "\\right)";
     }
 }
 
-static std::string generateLatexImpl(Expr const &expr)
+static std::string generateLatexImpl(Expr const         &expr,
+                                     LatexGenerationInfo info)
 {
     if (auto p = dynamic_cast<sgl::Sum const *>(expr.get()); p) {
-        return "&" + generateLatex(p, "\\\\& + ");
+        if (info.aligned) {
+            return generateLatex(p, info);
+        }
+        return "&" + generateLatex(p, info);
     }
     if (auto p = dynamic_cast<sgl::Prod const *>(expr.get()); p) {
-        return generateLatex(p, "");
+        return generateLatex(p, "", info);
     }
     if (auto p = dynamic_cast<sgl::IndexChain const *>(expr.get()); p) {
         return generateLatex(p);
@@ -345,7 +398,8 @@ static std::string generateLatexImpl(Expr const &expr)
 
 std::string generateLatex(Expr const &expr)
 {
-    return generateLatexImpl(expr);
+    LatexGenerationInfo info{0, false};
+    return generateLatexImpl(expr, info);
 }
 
 ////
