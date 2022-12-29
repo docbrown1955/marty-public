@@ -1,4 +1,4 @@
-from typing import Union, Optional, List
+from typing import Union, Optional, List, Dict
 import enum
 
 AnyExpr = Union[int, float, Expr]
@@ -55,12 +55,16 @@ def current(gammas: List[Expr], left_index: int, right_index: int) -> Expr: ...
 # Simplifications
 def trace(gammas: List[Expr]) -> Expr: ...
 def single_fierz(
-    left_current: Expr, right_current: Expr, basis: FierzBasis = FierzBasis.Chiral
-) -> Expr: ...
+    left_current: Union[Expr, List[Expr]],
+    right_current: Union[Expr, List[Expr]],
+    basis: FierzBasis = FierzBasis.Chiral,
+) -> Dict[str, Expr]: ...
 def double_fierz(
-    left_current: Expr, right_current: Expr, basis: FierzBasis = FierzBasis.Chiral
-) -> Expr: ...
-def print_latex(latex_str: str) -> None: ...
+    left_current: Union[Expr, List[Expr]],
+    right_current: Union[Expr, List[Expr]],
+    basis: FierzBasis = FierzBasis.Chiral,
+) -> Dict[str, Expr]: ...
+def print_latex(*args, **kwargs) -> None: ...
 
 __all__ = [
     "Expr",

@@ -197,22 +197,64 @@ PYBIND11_MODULE(_pymarty, m)
                  &mty::gamma_api::trace),
              "Calculate the trace of a chain of gamma matrices.",
              py::arg("gammas"));
-    gapi.def("single_fierz",
-             static_cast<mty::gamma_api::Expr (*)(mty::gamma_api::Expr const &,
-                                                  mty::gamma_api::Expr const &,
-                                                  mty::gamma_api::FierzBasis)>(
-                 &mty::gamma_api::applySingleFierz),
-             "Apply once the Fierz identity",
-             py::arg("left_current"),
-             py::arg("right_current"),
-             py::arg("basis") = mty::gamma_api::FierzBasis::Chiral);
-    gapi.def("double_fierz",
-             static_cast<mty::gamma_api::Expr (*)(mty::gamma_api::Expr const &,
-                                                  mty::gamma_api::Expr const &,
-                                                  mty::gamma_api::FierzBasis)>(
-                 &mty::gamma_api::applyDoubleFierz),
-             "Apply twice the Fierz identity",
-             py::arg("left_current"),
-             py::arg("right_current"),
-             py::arg("basis") = mty::gamma_api::FierzBasis::Chiral);
-}
+    using namespace pybind11::literals;
+    gapi.def(
+        "single_fierz",
+        [](mty::gamma_api::Expr const &left,
+           mty::gamma_api::Expr const &right,
+           mty::gamma_api::FierzBasis  basis) {
+            auto res = mty::gamma_api::applySingleFierz(left, right, basis);
+            return py::dict("rhs"_a = res,
+                            "lhs"_a
+                            = sgl::DeepCopy(left) * sgl::DeepCopy(right));
+        },
+        "Apply once the Fierz identity",
+        py::arg("left_current"),
+        py::arg("right_current"),
+        py::arg("basis") = mty::gamma_api::FierzBasis::Chiral);
+    gapi.def(
+        "double_fierz",
+        [](mty::gamma_api::Expr const &left,
+           mty::gamma_api::Expr const &right,
+           mty::gamma_api::FierzBasis  basis) {
+            return py::dict(
+                "rhs"_a = mty::gamma_api::applyDoubleFierz(left, right, basis),
+                "lhs"_a = sgl::DeepCopy(left) * sgl::DeepCopy(right));
+        },
+        "Apply twice the Fierz identity",
+        py::arg("left_current"),
+        py::arg("right_current"),
+        py::arg("basis") = mty::gamma_api::FierzBasis::Chiral);
+
+    // Let these overloads below: important for overload resolution in pybind
+    gapi.def(
+        "single_fierz",
+        [](std::vector<mty::gamma_api::Expr> const &left,
+           std::vector<mty::gamma_api::Expr> const &right,
+           mty::gamma_api::FierzBasis               basis) {
+            auto l = mty::gamma_api::current(left, 1, 2);
+            auto r = mty::gamma_api::current(right, 3, 4);
+            return py::dict("rhs"_a
+                            = mty::gamma_api::applySingleFierz(l, r, basis),
+                            "lhs"_a = sgl::DeepCopy(l) * sgl::DeepCopy(r));
+        },
+        "Apply once the Fierz identity",
+        py::arg("left_current").noconvert(),
+        py::arg("right_current").noconvert(),
+        py::arg("basis") = mty::gamma_api::FierzBasis::Chiral);
+    gapi.def(
+        "double_fierz",
+        [](std::vector<mty::gamma_api::Expr> const &left,
+           std::vector<mty::gamma_api::Expr> const &right,
+           mty::gamma_api::FierzBasis               basis) {
+            auto l = mty::gamma_api::current(left, 1, 2);
+            auto r = mty::gamma_api::current(right, 3, 4);
+            return py::dict("rhs"_a
+                            = mty::gamma_api::applyDoubleFierz(l, r, basis),
+                            "lhs"_a = sgl::DeepCopy(l) * sgl::DeepCopy(r));
+        },
+        "Apply twice the Fierz identity",
+        py::arg("left_current").noconvert(),
+        py::arg("right_current").noconvert(),
+        py::arg("basis") = mty::gamma_api::FierzBasis::Chiral);
+} // namespace pybind11::literals

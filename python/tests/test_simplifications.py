@@ -48,16 +48,42 @@ def test_simplifications():
         basis=FierzBasis.Chiral
     ) == current([gamma(0, 1), P_R()], 0, 1) - current([gamma(0, 1), P_L()], 0, 1)
 
-    assert double_fierz(
-        left_current=current([gamma(0), gamma(1), gamma(2), P_L()], 0, 1),
-        right_current=current([gamma(2), gamma(1), gamma(0), P_L()], 0, 1),
-        basis=FierzBasis.Chiral,
-    ) == 4 * current([gamma(0), P_L()], 0, 1) * current([gamma(0), P_L()], 0, 1)
+    print(
+        single_fierz(
+            left_current=current([P_R()], 0, 1),
+            right_current=current([P_L()], 2, 3),
+            basis=FierzBasis.Chiral,
+        )["rhs"]
+    )
+    print(
+        Expr(1)
+        / 2
+        * current([gamma(0), P_L()], 0, 3)
+        * current([gamma(0), P_R()], 2, 1)
+    )
 
     assert single_fierz(
         left_current=current([P_R()], 0, 1),
         right_current=current([P_L()], 2, 3),
         basis=FierzBasis.Chiral,
-    ) == Expr(1) / 2 * current([gamma(0), P_L()], 0, 3) * current(
+    )["rhs"] == Expr(1) / 2 * current([gamma(0), P_L()], 0, 3) * current(
         [gamma(0), P_R()], 2, 1
+    )
+    assert double_fierz(
+        left_current=current([gamma(0), gamma(1), gamma(2), P_L()], 0, 1),
+        right_current=current([gamma(2), gamma(1), gamma(0), P_L()], 2, 3),
+        basis=FierzBasis.Chiral,
+    )["rhs"] == 4 * current([gamma(0), P_L()], 0, 1) * current([gamma(0), P_L()], 2, 3)
+
+    assert double_fierz(
+        left_current=[gamma(0), gamma(1), gamma(2), P_L()],
+        right_current=[gamma(2), gamma(1), gamma(0), P_L()],
+        basis=FierzBasis.Chiral,
+    )["rhs"] == 4 * current([gamma(0), P_L()], 1, 2) * current([gamma(0), P_L()], 3, 4)
+    assert single_fierz(
+        left_current=[P_R()],
+        right_current=[P_L()],
+        basis=FierzBasis.Chiral,
+    )["rhs"] == Expr(1) / 2 * current([gamma(0), P_L()], 1, 4) * current(
+        [gamma(0), P_R()], 3, 2
     )
