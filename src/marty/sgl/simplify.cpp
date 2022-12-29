@@ -174,6 +174,8 @@ GExpr Simplified(GExpr const &init, bool applyFierzTwice)
 
 GExpr CSLSimplified(GExpr const &init)
 {
+    csl::ScopedProperty permissiveIndices(
+        &csl::option::permissiveCovariantIndices, true);
     auto      tensorset = buildTensorSet(minkoSpace, diracSpace);
     csl::Expr expr      = sgl_to_csl(init, tensorset);
     if (!sgl::option::keepEvanescentOperators) {
