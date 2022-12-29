@@ -41,6 +41,7 @@ Expr P_L();
 Expr P_R();
 Expr C();
 Expr DMinko();
+Expr imaginaryUnit();
 
 // Create a chain of gamma matrices
 Expr current(std::vector<Expr> const &gammas, int iLeft, int iRight);

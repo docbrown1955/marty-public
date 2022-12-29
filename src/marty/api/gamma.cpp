@@ -37,6 +37,12 @@ Expr DMinko()
     return D;
 }
 
+Expr imaginaryUnit()
+{
+    const static Expr ii = sgl::cslexpr_s(CSL_I);
+    return ii;
+}
+
 void keepSymbolic4D(bool symbolic)
 {
     sgl::option::keepEvanescentOperators = symbolic;

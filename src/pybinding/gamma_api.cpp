@@ -39,11 +39,13 @@ PYBIND11_MODULE(_pymarty, m)
              [](mty::gamma_api::Expr const &expr) {
                  return mty::gamma_api::ordered(expr);
              })
-        .def("project",
-             [](mty::gamma_api::Expr const &expr,
-                mty::gamma_api::FierzBasis  basis) {
-                 return mty::gamma_api::project(expr, basis);
-             })
+        .def(
+            "project",
+            [](mty::gamma_api::Expr const &expr,
+               mty::gamma_api::FierzBasis  basis) {
+                return mty::gamma_api::project(expr, basis);
+            },
+            py::arg("basis"))
         .def("__len__",
              [](mty::gamma_api::Expr const &expr) { return expr->size(); })
         .def("__getitem__",
@@ -62,11 +64,31 @@ PYBIND11_MODULE(_pymarty, m)
                  return sgl::sgl_to_csl(left, mty::defaultSGLTensorSet())
                         == sgl::sgl_to_csl(right, mty::defaultSGLTensorSet());
              })
+        .def("__eq__",
+             [](mty::gamma_api::Expr const &left, int right) {
+                 return sgl::sgl_to_csl(left, mty::defaultSGLTensorSet())
+                        == csl::Expr(right);
+             })
+        .def("__eq__",
+             [](mty::gamma_api::Expr const &left, double right) {
+                 return sgl::sgl_to_csl(left, mty::defaultSGLTensorSet())
+                        == csl::Expr(right);
+             })
         .def("__ne__",
              [](mty::gamma_api::Expr const &left,
                 mty::gamma_api::Expr const &right) {
                  return sgl::sgl_to_csl(left, mty::defaultSGLTensorSet())
                         != sgl::sgl_to_csl(right, mty::defaultSGLTensorSet());
+             })
+        .def("__ne__",
+             [](mty::gamma_api::Expr const &left, int right) {
+                 return sgl::sgl_to_csl(left, mty::defaultSGLTensorSet())
+                        != csl::Expr(right);
+             })
+        .def("__ne__",
+             [](mty::gamma_api::Expr const &left, double right) {
+                 return sgl::sgl_to_csl(left, mty::defaultSGLTensorSet())
+                        != csl::Expr(right);
              })
         .def("__lt__",
              [](mty::gamma_api::Expr const &left,
@@ -117,7 +139,8 @@ PYBIND11_MODULE(_pymarty, m)
         .value("Standard", mty::gamma_api::FierzBasis::Standard)
         .value("Chiral", mty::gamma_api::FierzBasis::Chiral)
         .export_values();
-    gapi.attr("D") = mty::gamma_api::DMinko();
+    gapi.attr("D")              = mty::gamma_api::DMinko();
+    gapi.attr("imaginary_unit") = mty::gamma_api::imaginaryUnit();
     gapi.def("g",
              &mty::gamma_api::g,
              "Minkowski metric - 2 indices",
@@ -189,7 +212,7 @@ PYBIND11_MODULE(_pymarty, m)
                                                   mty::gamma_api::FierzBasis)>(
                  &mty::gamma_api::applyDoubleFierz),
              "Apply twice the Fierz identity",
-             py::arg("left_chain"),
-             py::arg("right_chain"),
+             py::arg("left_current"),
+             py::arg("right_current"),
              py::arg("basis") = mty::gamma_api::FierzBasis::Chiral);
 }

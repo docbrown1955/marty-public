@@ -34,7 +34,8 @@ class Expr:
     def __truediv__(self, o: AnyExpr) -> Expr: ...
     def __rtruediv__(self, o: AnyExpr) -> Expr: ...
 
-D: Expr = ... # Symbol for Minkowski 4D dimension
+D: Expr = ...  # Symbol for Minkowski 4D dimension
+imaginary_unit: Expr = ...  # Symbol for the imaginary unit
 
 # Options
 def set_symbolic_dimension(keep_symbolic: bool) -> None: ...
