@@ -63,8 +63,9 @@ class Prod : public AbstractMultiFunction {
 
     void print(std::ostream &out) const override;
 
-    void  merge();
-    void  applyProperties();
+    void merge();
+    void applyProperties();
+
     GExpr expand();
 };
 
