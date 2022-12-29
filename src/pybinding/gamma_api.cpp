@@ -161,27 +161,27 @@ PYBIND11_MODULE(_pymarty, m)
              "Build a fermion current from a list of gamma matrices and "
              "the two "
              "border (Dirac) indices.",
-             py::arg("gamma_chain"),
-             py::arg("left_current_index"),
-             py::arg("right_current_index"));
+             py::arg("gammas"),
+             py::arg("left_index"),
+             py::arg("right_index"));
     gapi.def("set_symbolic_dimension",
              static_cast<void (*)(bool)>(&mty::gamma_api::keepSymbolic4D),
              "Set the dimension as symbolic or not (D = 4)",
-             py::arg("symbolic"));
+             py::arg("keep_symbolic"));
     gapi.def("trace",
              static_cast<mty::gamma_api::Expr (*)(
                  std::vector<mty::gamma_api::Expr> const &)>(
                  &mty::gamma_api::trace),
              "Calculate the trace of a chain of gamma matrices.",
-             py::arg("gamma_chain"));
+             py::arg("gammas"));
     gapi.def("single_fierz",
              static_cast<mty::gamma_api::Expr (*)(mty::gamma_api::Expr const &,
                                                   mty::gamma_api::Expr const &,
                                                   mty::gamma_api::FierzBasis)>(
                  &mty::gamma_api::applySingleFierz),
              "Apply once the Fierz identity",
-             py::arg("left_chain"),
-             py::arg("right_chain"),
+             py::arg("left_current"),
+             py::arg("right_current"),
              py::arg("basis") = mty::gamma_api::FierzBasis::Chiral);
     gapi.def("double_fierz",
              static_cast<mty::gamma_api::Expr (*)(mty::gamma_api::Expr const &,

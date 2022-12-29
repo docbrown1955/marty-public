@@ -33,7 +33,7 @@ class IndexManager {
 
 Expr DMinko()
 {
-    const static Expr D = sgl::cslexpr_s(csl::DMinko);
+    const static Expr D = sgl::cslexpr_s(sgl::DMinko);
     return D;
 }
 
