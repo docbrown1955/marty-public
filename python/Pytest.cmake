@@ -82,7 +82,7 @@ cmake_parse_arguments(
   # https://docs.pytest.org/en/6.2.x/example/pythoncollection.html#finding-out-what-is-collected
   set(pytest_collection_args --collect-only -q ${_EXTRA_ARGS} ${_COLLECTION_ARGS})
   set(pytest_execution_args ${_EXTRA_ARGS} ${_EXECUTION_ARGS})
-  set(pytest_base_command ${Python_EXECUTABLE} -m pytest)
+  set(pytest_base_command pytest)
 
   execute_process(
     COMMAND ${pytest_base_command} ${pytest_collection_args}
@@ -92,7 +92,8 @@ cmake_parse_arguments(
     RESULT_VARIABLE pytest_collect_result
   )
   if(NOT ${pytest_collect_result} EQUAL 0)
-    message(FATAL_ERROR "Error running Pytest discovery!")
+    message(WARNING "Error running Pytest discovery, tests for the python API will not be ran...")
+    return()
   endif()
 
   # Splits lines into a list variable

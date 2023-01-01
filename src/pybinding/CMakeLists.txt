@@ -1,8 +1,3 @@
-
-find_package(Python3 EXACT ${PYMARTY_PYTHON_VERSION} REQUIRED COMPONENTS Interpreter Development)
-set(PYBIND11_PYTHON_VERSION ${PYMARTY_PYTHON_VERSION} CACHE STRING "")
-find_package(pybind11 CONFIG REQUIRED)
-
 set(ALL_SOURCES
     gamma_api.cpp
 )

@@ -1,4 +1,3 @@
-find_package(Python EXACT ${PYMARTY_PYTHON_VERSION} COMPONENTS Interpreter Development)
 enable_testing()
 
 include(Pytest.cmake)

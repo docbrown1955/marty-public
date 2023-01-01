@@ -16,8 +16,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.10
     - name: dependencies
-      run: sudo apt-get install coreutils build-essential gcc-12 g++-12 gfortran-12 libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng lcov cmake texlive texlive-latex-extra texlive-luatex -y
+      run: |
+        sudo apt-get install coreutils build-essential gcc-12 g++-12 gfortran-12 libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng lcov cmake texlive texlive-latex-extra texlive-luatex -y
+        $CONDA/bin/conda install pybind11
+        $CONDA/bin/conda install pytest
     - name: configure
       run: |
         mkdir build
@@ -43,8 +49,14 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v3
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.10
     - name: dependencies
-      run: sudo apt-get install coreutils build-essential gcc-9 g++-9 gfortran-9 libgsl-dev libgslcblas0 qt5-default dvipng lcov cmake texlive texlive-latex-extra texlive-luatex -y
+      run: |
+        sudo apt-get install coreutils build-essential gcc-9 g++-9 gfortran-9 libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng lcov cmake texlive texlive-latex-extra texlive-luatex -y
+        $CONDA/bin/conda install pybind11
+        $CONDA/bin/conda install pytest
     - name: configure
       run: |
         mkdir build
@@ -70,8 +82,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.10
     - name: dependencies
-      run: sudo apt-get install coreutils build-essential clang gfortran libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng cmake lcov texlive texlive-latex-extra texlive-luatex -y
+      run: |
+        sudo apt-get install coreutils build-essential clang gfortran libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng cmake lcov texlive texlive-latex-extra texlive-luatex -y
+        $CONDA/bin/conda install pybind11
+        $CONDA/bin/conda install pytest
     - name: configure
       run: |
         mkdir build
@@ -100,6 +118,8 @@ jobs:
     - name: dependencies
       run: |
         brew install coreutils gcc@12 gsl qt5 cmake lcov imagemagick texlive octave pkg-config
+        $CONDA/bin/conda install pybind11
+        $CONDA/bin/conda install pytest
     - name: configure
       run: |
         mkdir build
