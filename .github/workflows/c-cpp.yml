@@ -16,15 +16,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: s-weigand/setup-conda@v1
+      with: 
+        activate-conda: true
+        update-conda: true
+    - run: conda --version
+    - run: which python
     - name: dependencies
       run: |
         sudo apt-get install coreutils build-essential gcc-12 g++-12 gfortran-12 libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng lcov cmake texlive texlive-latex-extra texlive-luatex -y
         sudo apt-get install python3
-        conda init bash
         conda env create -f pymarty-conda-env.yml
     - name: configure
       run: |
-        conda init bash
         conda activate pymarty
         mkdir build
         cd build
