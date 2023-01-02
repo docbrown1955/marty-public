@@ -30,7 +30,7 @@ dependencies:
   - icu
   - iniconfig
   - intel-openmp
-  - ipython=8.7.0=py310h06a4308_0
+  - ipython=8.7.0
   - jedi
   - jpeg
   - kiwisolver
@@ -90,12 +90,12 @@ dependencies:
   - ptyprocess
   - pure_eval
   - py
-  - pybind11=2.10.1=py310hdb19cb5_0
-  - pybind11-global=2.10.1=py310hdb19cb5_0
+  - pybind11
+  - pybind11-global
   - pygments
   - pyparsing
   - pyqt
-  - pytest=7.1.2=py310h06a4308_0
+  - pytest=7.1.2
   - python
   - python-dateutil
   - qt-main
