@@ -35,7 +35,7 @@ jobs:
         export CXX=g++-12
         export CC=gcc-12
         export FC=gfortran-12
-        cmake .. -DFORCE_PYMARTY_CONFIG
+        cmake .. -DFORCE_PYMARTY_CONFIG=1
     - name: make
       run: |
         source ${CONDA_PREFIX}/bin/activate pymarty
