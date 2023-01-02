@@ -28,6 +28,9 @@ else()
     message(WARNING "Cannot configure pybindings for MARTY. Python or pybind11 are missing.")
     set(CONFIGURE_PYMARTY OFF)
 endif()
+if (FORCE_PYMARTY_CONFIG AND (NOT CONFIGURE_PYMARTY))
+    message(FATAL_ERROR "The variable FORCE_PYMARTY_CONFIG was set to 1 but pymarty cannot be configured, aborting configuration.")
+endif()
 
 find_package(GSL REQUIRED)
 
