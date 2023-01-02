@@ -29,7 +29,7 @@ jobs:
         conda env create -f pymarty-conda-env.yml
     - name: configure
       run: |
-        conda activate pymarty
+        source ~/anaconda3/bin/activate pymarty
         mkdir build
         cd build
         export CXX=g++-12
@@ -38,20 +38,17 @@ jobs:
         cmake ..
     - name: make
       run: |
-        conda init
-        conda activate pymarty
+        source ~/anaconda3/bin/activate pymarty
         cd build
         make
     - name: install
       run: |
-        conda init
-        conda activate pymarty
+        source ~/anaconda3/bin/activate pymarty
         cd build
         sudo make install
     - name: test
       run: |
-        conda init
-        conda activate pymarty
+        source ~/anaconda3/bin/activate pymarty
         cd build
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib
         ctest --output-on-failure
