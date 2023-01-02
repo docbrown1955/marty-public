@@ -35,7 +35,7 @@ jobs:
         export CXX=g++-12
         export CC=gcc-12
         export FC=gfortran-12
-        cmake ..
+        cmake .. -DFORCE_PYMARTY_CONFIG
     - name: make
       run: |
         source ${CONDA_PREFIX}/bin/activate pymarty
@@ -133,11 +133,8 @@ jobs:
     - name: dependencies
       run: |
         brew install coreutils gcc@12 gsl qt5 cmake lcov imagemagick texlive octave pkg-config
-        conda env create -f pymarty-conda-env.yml
-        source ${CONDA_PREFIX}/bin/activate pymarty
     - name: configure
       run: |
-        source ${CONDA_PREFIX}/bin/activate pymarty
         mkdir build
         cd build
         export PATH=$PATH:/usr/local/bin
@@ -151,7 +148,6 @@ jobs:
         cmake .. -DQt5_DIR=$(brew --prefix qt5)/lib/cmake/Qt5 -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)/lib/cmake
     - name: make
       run: |
-        source ${CONDA_PREFIX}/bin/activate pymarty
         cd build
         export PATH=$PATH:/usr/local/bin
         export CPATH=$CPATH:/usr/local/include
@@ -164,12 +160,10 @@ jobs:
         make
     - name: install
       run: |
-        source ${CONDA_PREFIX}/bin/activate pymarty
         cd build
         sudo make install
     - name: test
       run: |
-        source ${CONDA_PREFIX}/bin/activate pymarty
         export PATH=$PATH:/usr/local/bin
         export CPATH=$CPATH:/usr/local/include
         export C_INCLUDE_PATH=$C_INCLUDE_PATH:/usr/local/include
