@@ -24,6 +24,7 @@ jobs:
         conda env create -f pymarty-conda-env.yml
     - name: configure
       run: |
+        conda init
         conda activate pymarty
         mkdir build
         cd build
@@ -33,16 +34,19 @@ jobs:
         cmake ..
     - name: make
       run: |
+        conda init
         conda activate pymarty
         cd build
         make
     - name: install
       run: |
+        conda init
         conda activate pymarty
         cd build
         sudo make install
     - name: test
       run: |
+        conda init
         conda activate pymarty
         cd build
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib
