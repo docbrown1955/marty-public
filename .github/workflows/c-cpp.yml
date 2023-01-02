@@ -52,7 +52,7 @@ jobs:
         cd build
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib
         ctest --output-on-failure
-  build-and-test-ubuntu-gcc9:
+  build-and-test-ubuntu-gcc10:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v3
@@ -62,7 +62,7 @@ jobs:
         update-conda: true
     - name: dependencies
       run: |
-        sudo apt-get install coreutils build-essential gcc-9 g++-9 gfortran-9 libgsl-dev libgslcblas0 qt5-default dvipng lcov cmake texlive texlive-latex-extra texlive-luatex -y
+        sudo apt-get install coreutils build-essential gcc-10 g++-10 gfortran-10 libgsl-dev libgslcblas0 qt5-default dvipng lcov cmake texlive texlive-latex-extra texlive-luatex -y
         conda env create -f pymarty-conda-env.yml
         source ${CONDA_PREFIX}/bin/activate pymarty
     - name: configure
@@ -70,9 +70,9 @@ jobs:
         source ${CONDA_PREFIX}/bin/activate pymarty
         mkdir build
         cd build
-        export CXX=g++-9
-        export CC=gcc-9
-        export FC=gfortran-9
+        export CXX=g++-10
+        export CC=gcc-10
+        export FC=gfortran-10
         cmake ..
     - name: make
       run: |
