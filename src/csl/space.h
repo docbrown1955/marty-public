@@ -327,7 +327,7 @@ int Space::getDim() const
 
 csl::Expr Space::getSymbolicDim() const
 {
-    return symbolicDim;
+    return symbolicDim == CSL_UNDEF ? csl::int_s(dim) : symbolicDim;
 }
 
 bool Space::getSignedIndex() const

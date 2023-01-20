@@ -42,6 +42,7 @@ Space::Space(const std::string              &t_name,
                         + name + ".");
 
     defaultName = defaultIndexNames.begin();
+    buildEpsilon();
 }
 
 Space::Space(const std::string              &t_name,
@@ -63,7 +64,6 @@ Space::Space(const std::string              &t_name,
                         + name + ".");
 
     defaultName = defaultIndexNames.begin();
-    buildEpsilon();
 }
 
 // const Space with metric
