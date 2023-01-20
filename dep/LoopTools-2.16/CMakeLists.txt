@@ -8,7 +8,7 @@ endif()
 
 add_custom_command(
     OUTPUT
-    ${PROJECT_BINARY_DIR}/clooptools.h
+    ${PROJECT_BINARY_DIR}/src/clooptools.h
     ${PROJECT_BINARY_DIR}/libooptools.so
     ${PROJECT_BINARY_DIR}/libooptools-static.a
     ${PROJECT_SOURCE_DIR}/src/clooptools.h
@@ -19,7 +19,7 @@ add_custom_command(
     COMMAND ./configure FFLAGS="-fPIC" ${LOOPTOOLS_OUTPUT_REDIRECT}
     COMMAND make ${LOOPTOOLS_OUTPUT_REDIRECT}
     COMMAND cp build/libooptools.a ${PROJECT_BINARY_DIR}/libooptools-static.a
-    COMMAND cp build/clooptools.h ${PROJECT_BINARY_DIR}/
+    COMMAND cp build/clooptools.h ${PROJECT_BINARY_DIR}/src
     COMMAND cp build/clooptools.h ${PROJECT_SOURCE_DIR}/src/
     COMMAND ${CMAKE_Fortran_COMPILER} -shared build/*.o -o ${PROJECT_BINARY_DIR}/libooptools.so ${LOOPTOOLS_OUTPUT_REDIRECT}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
