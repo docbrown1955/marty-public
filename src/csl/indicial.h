@@ -553,7 +553,7 @@ class DeltaParent : public TensorParent {
 
     DeltaParent(const DeltaParent &abstract) = delete;
 
-    explicit DeltaParent(const Space *t_space);
+    explicit DeltaParent(const Space *t_space, bool buildTensor=true);
 
     cslParent::Type getType() const override;
 
