@@ -452,6 +452,22 @@ GetVectorSpace(mty::Model &model, GroupType &&group, FieldType &&field)
                                 std::forward<FieldType>(field));
 }
 
+/**
+ * @brief Returns the vector space corresponding to a flavor group.
+ *
+ * @tparam GroupType FlavorGroup* or flavor group name.
+ * @param model Model
+ * @param group Flavor group in which we search the representation.
+ *
+ * @return The vector space of the \b flavor \b group.
+ */
+template <class GroupType>
+csl::Space const *
+GetVectorSpace(mty::Model &model, GroupType &&group)
+{
+    return model.getVectorSpace(std::forward<GroupType>(group));
+}
+
 ///////////////////////////////////////////////////
 /*************************************************/
 // Computation utilities                         //

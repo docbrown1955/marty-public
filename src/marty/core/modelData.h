@@ -917,6 +917,17 @@ class ModelData {
                                      FieldType &&field) const;
 
     /**
+     * @brief Returns the vector space corresponding to a flavor group.
+     *
+     * @tparam GroupType mty::Group* or valid type for the function getFlavorGroup()
+     * @param group Group.
+     *
+     * @return The vector space coresponding to the flavor group.
+     */
+    template <class GroupType>
+    csl::Space const *getVectorSpace(GroupType &&group) const;
+
+    /**
      * @brief Returns an index coresponding to the representation of a field
      * in a given group.
      *
@@ -1399,19 +1410,15 @@ class ModelData {
                                        mty::Particle const &irrep) const;
 
     /**
-     * @brief Actually returns the vector space corresponding to a particle's
-     * representation.
+     * @brief Actually returns the vector space corresponding to a flavor group.
      *
      * @param group Flavor group
-     * @param irrep Particle
      *
-     * @return The vector space of the flavor group representation of \b irrep
-     * in the flavor group \b group.
+     * @return The vector space of the flavor group.
      *
      * @sa getVectorSpace()
      */
-    csl::Space const *doGetVectorSpace(mty::FlavorGroup const *group,
-                                       mty::Particle const    &irrep) const;
+    csl::Space const *doGetVectorSpace(mty::FlavorGroup const *group) const;
 
     /**
      * @brief Actually returns a csl::Index corresponding to a particle's
@@ -1724,6 +1731,19 @@ FlavorFlag ModelData::getFlavorIrrep(FieldType  &&field,
     else
         return getFlavorIrrep(getParticle(std::forward<FieldType>(field)),
                               getFlavorGroup(std::forward<FlavorType>(flavor)));
+}
+
+template <class GroupType>
+csl::Space const *ModelData::getVectorSpace(GroupType &&group) const
+{
+    constexpr bool group_valid
+        = std::is_convertible<GroupType, mty::FlavorGroup const *>::value;
+
+    if constexpr (group_valid) {
+        return doGetVectorSpace(group);
+    }
+    else
+        return getVectorSpace(getFlavorGroup(std::forward<GroupType>(group)));
 }
 
 template <class GroupType, class FieldType>

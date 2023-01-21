@@ -57,7 +57,7 @@ size_t FlavorGroup::getDim() const
     return getVectorSpace()->getDim();
 }
 
-string_view FlavorGroup::getName() const
+string FlavorGroup::getName() const
 {
     return space->getName();
 }

@@ -1594,14 +1594,13 @@ void ModelBuilder::breakGaugeSymmetry(
 void ModelBuilder::breakFlavorSymmetry(std::string const &brokenGroup)
 {
     std::vector<mty::Particle> brokenFields;
-    auto                       group = getGroup(brokenGroup);
+    auto                       group = getFlavorGroup(brokenGroup);
     for (const auto &part : particles)
-        if (getGroupIrrep(part, group) != group->getTrivialRep())
+        if (getFlavorIrrep(part, group) != FlavorFlag::Trivial)
             brokenFields.push_back(part);
     std::vector<std::vector<std::string>> newNames(brokenFields.size());
     for (size_t i = 0; i != brokenFields.size(); ++i) {
-        const size_t size
-            = getGroupIrrep(brokenFields[i], brokenGroup).getDim();
+        const size_t size = group->getDim();
         newNames[i] = std::vector<std::string>(size);
         for (size_t j = 0; j != size; ++j) {
             newNames[i][j] = brokenFields[i]->getName();
@@ -1625,14 +1624,13 @@ void ModelBuilder::breakFlavorSymmetry(std::string const         &brokenGroup,
     if (newFlavors.size() == 1)
         newFlavors[0] = brokenGroup;
     std::vector<mty::Particle> brokenFields;
-    auto                       group = getGroup(brokenGroup);
+    auto                       group = getFlavorGroup(brokenGroup);
     for (const auto &part : particles)
-        if (getGroupIrrep(part, group) != group->getTrivialRep())
+        if (getFlavorIrrep(part, group) != FlavorFlag::Trivial)
             brokenFields.push_back(part);
     std::vector<std::vector<std::string>> newNames(brokenFields.size());
     for (size_t i = 0; i != brokenFields.size(); ++i) {
-        const size_t size
-            = getGroupIrrep(brokenFields[i], brokenGroup).getDim();
+        const size_t size = group->getDim();
         newNames[i] = std::vector<std::string>(size);
         for (size_t j = 0; j != size; ++j) {
             newNames[i][j] = brokenFields[i]->getName();

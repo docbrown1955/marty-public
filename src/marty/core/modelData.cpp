@@ -842,7 +842,10 @@ mty::Group const *ModelData::getGroup(std::string_view t_name) const
             return (*gauge)[i];
     CallHEPError(mty::error::NameError,
                  "Group of name \"" + std::string(t_name)
-                     + "\" not found in model.");
+                     + "\" not found in model. Did you misused "
+                     " generateIndex() or getVectorSpace() given "
+                     "a flavor group ? (no field should be given in "
+                     "this case, only the flavor name).");
     return nullptr;
 }
 mty::Group *ModelData::getGroup(std::string_view t_name)
@@ -852,7 +855,10 @@ mty::Group *ModelData::getGroup(std::string_view t_name)
             return (*gauge)[i];
     CallHEPError(mty::error::NameError,
                  "Group of name \"" + std::string(t_name)
-                     + "\" not found in model.");
+                     + "\" not found in model. Did you misused "
+                     " generateIndex() or getVectorSpace() given "
+                     "a flavor group ? (no field should be given in "
+                     "this case, only the flavor name).");
     return nullptr;
 }
 
@@ -1048,10 +1054,9 @@ const csl::Space *ModelData::doGetVectorSpace(mty::Group const    *group,
     return group->getVectorSpace(getGroupIrrep(field, group));
 }
 
-const csl::Space *ModelData::doGetVectorSpace(mty::FlavorGroup const *group,
-                                              mty::Particle const &field) const
+const csl::Space *ModelData::doGetVectorSpace(mty::FlavorGroup const *group) const
 {
-    return group->getVectorSpace(getFlavorIrrep(field, group));
+    return group->getVectorSpace();
 }
 
 csl::Index ModelData::doGenerateIndex(mty::Group const    *group,

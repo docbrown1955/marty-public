@@ -56,7 +56,7 @@ class FlavorGroup {
 
     size_t getDim() const;
 
-    std::string_view getName() const;
+    std::string getName() const;
 
     csl::Index getCorrespondingIndex(const std::string &       index_name,
                                      const QuantumFieldParent &parent);
