@@ -840,10 +840,6 @@ mty::Group const *ModelData::getGroup(std::string_view t_name) const
     for (size_t i = 0; i != gauge->size(); ++i)
         if ((*gauge)[i]->getName() == t_name)
             return (*gauge)[i];
-    if (flavor)
-        for (size_t i = 0; i != flavor->size(); ++i)
-            if ((*flavor)[i]->getName() == t_name)
-                return (*flavor)[i]->getGroup();
     CallHEPError(mty::error::NameError,
                  "Group of name \"" + std::string(t_name)
                      + "\" not found in model.");
@@ -854,36 +850,12 @@ mty::Group *ModelData::getGroup(std::string_view t_name)
     for (size_t i = 0; i != gauge->size(); ++i)
         if ((*gauge)[i]->getName() == t_name)
             return (*gauge)[i];
-    if (flavor)
-        for (size_t i = 0; i != flavor->size(); ++i)
-            if ((*flavor)[i]->getName() == t_name)
-                return (*flavor)[i]->getGroup();
     CallHEPError(mty::error::NameError,
                  "Group of name \"" + std::string(t_name)
                      + "\" not found in model.");
     return nullptr;
 }
 
-mty::Group const *ModelData::getGroup(FlavorGroup const *flavGroup) const
-{
-    for (const auto &flav : *flavor)
-        if (flav == flavGroup)
-            return flav->getGroup();
-    CallHEPError(mty::error::NameError,
-                 "Flavor group of name \"" + std::string(flavGroup->getName())
-                     + "\" not found in model.");
-    return nullptr;
-}
-mty::Group *ModelData::getGroup(FlavorGroup const *flavGroup)
-{
-    for (const auto &flav : *flavor)
-        if (flav == flavGroup)
-            return flav->getGroup();
-    CallHEPError(mty::error::NameError,
-                 "Flavor group of name \"" + std::string(flavGroup->getName())
-                     + "\" not found in model.");
-    return nullptr;
-}
 mty::GaugedGroup const *
 ModelData::getGaugedGroup(std::string_view t_name) const
 {
@@ -1055,19 +1027,19 @@ mty::FlavorIrrep ModelData::doGetFlavorIrrep(mty::Particle const &part) const
     HEPAssert(flavor, mty::error::KeyError, "There is no flavor in the model");
     return part->getFlavorIrrep();
 }
-mty::Irrep ModelData::doGetFlavorIrrep(mty::Particle const &part,
-                                       mty::Group const    *flav) const
+FlavorFlag ModelData::doGetFlavorIrrep(mty::Particle  const &part,
+                                       mty::FlavorGroup const *flav) const
 {
     HEPAssert(flavor, mty::error::KeyError, "There is no flavor in the model");
     for (const auto &flavGroup : *flavor)
-        if (flavGroup->getGroup() == flav)
+        if (flavGroup == flav)
             return part->getFlavorIrrep(flavGroup);
     HEPAssert(false,
               mty::error::KeyError,
               "Flavor " + toString(flav->getName())
                   + " not found in the model");
 
-    return Irrep();
+    return FlavorFlag::Trivial;
 }
 
 const csl::Space *ModelData::doGetVectorSpace(mty::Group const    *group,
@@ -1088,10 +1060,10 @@ csl::Index ModelData::doGenerateIndex(mty::Group const    *group,
     csl::Space const *vectorSpace = getVectorSpace(group, part);
     return vectorSpace->generateIndex();
 }
-csl::Index ModelData::doGenerateIndex(mty::Group const *group) const
+csl::Index ModelData::doGenerateIndex(mty::FlavorGroup const *group) const
 {
     for (const auto &flavorGroup : *flavor) {
-        if (flavorGroup->getGroup() == group)
+        if (flavorGroup == group)
             return group->getVectorSpace(flavorGroup->getFundamentalRep())
                 ->generateIndex();
     }

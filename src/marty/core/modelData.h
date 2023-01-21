@@ -688,26 +688,6 @@ class ModelData {
     mty::Group *getGroup(std::string_view t_name);
 
     /**
-     * @brief Returns a Group (pointer to const) given its flavor group.
-     *
-     * @param flavGroup Initial flavor group.
-     *
-     * @return The group of flavor \b flavGroup in the model
-     *
-     * @sa getFlavorGroup()
-     */
-    mty::Group const *getGroup(mty::FlavorGroup const *flavGroup) const;
-    /**
-     * @brief Returns a Group (pointer to const) given its flavor group.
-     *
-     * @param flavGroup Initial flavor group.
-     *
-     * @return The group of flavor \b flavGroup in the model
-     *
-     * @sa getFlavorGroup()
-     */
-    mty::Group *getGroup(mty::FlavorGroup const *flavGroup);
-    /**
      * @brief Returns a GaugedGroup (pointer to const) given its name.
      *
      * @param t_name Name of the gauged group to search
@@ -917,7 +897,7 @@ class ModelData {
      * @return The flavor group representation of \b field in \b flavor.
      */
     template <class FlavorType, class FieldType>
-    mty::Irrep getFlavorIrrep(FieldType &&field, FlavorType &&flavor) const;
+    FlavorFlag getFlavorIrrep(FieldType &&field, FlavorType &&flavor) const;
 
     /**
      * @brief Returns the vector space coresponding to the representation of a
@@ -1400,8 +1380,8 @@ class ModelData {
      *
      * @sa getFlavorIrrep()
      */
-    mty::Irrep doGetFlavorIrrep(mty::Particle const &part,
-                                mty::Group const    *flavor) const;
+    FlavorFlag doGetFlavorIrrep(mty::Particle    const &part,
+                                mty::FlavorGroup const *flavor) const;
 
     /**
      * @brief Actually returns the vector space corresponding to a particle's
@@ -1451,7 +1431,7 @@ class ModelData {
     /**
      * @brief Actually returns a csl::Index corresponding to the fundamental
      * representation of a given group.
-     * @param group    Group
+     * @param group    FlavorGroup
      *
      * @return An index corresponding to the fundamental representation
      * of the group \b group.
@@ -1460,7 +1440,7 @@ class ModelData {
      *
      * @sa generateIndex()
      */
-    csl::Index doGenerateIndex(mty::Group const *group) const;
+    csl::Index doGenerateIndex(mty::FlavorGroup const *group) const;
     /**
      * @brief Actually returns a csl::Index corresponding to a particle's
      * representation.
@@ -1722,14 +1702,14 @@ mty::FlavorIrrep ModelData::getFlavorIrrep(FieldType &&field) const
 }
 
 template <class FlavorType, class FieldType>
-mty::Irrep ModelData::getFlavorIrrep(FieldType  &&field,
+FlavorFlag ModelData::getFlavorIrrep(FieldType  &&field,
                                      FlavorType &&flavor) const
 {
     constexpr bool field_valid
         = std::is_convertible<FieldType, mty::Particle const &>::value;
 
     constexpr bool flavor_valid
-        = std::is_convertible<FlavorType, mty::Group const *>::value;
+        = std::is_convertible<FlavorType, mty::FlavorGroup const *>::value;
 
     if constexpr (flavor_valid) {
         if constexpr (field_valid)
@@ -1740,10 +1720,10 @@ mty::Irrep ModelData::getFlavorIrrep(FieldType  &&field,
     }
     else if constexpr (field_valid)
         return getFlavorIrrep(field,
-                              getGroup(std::forward<FlavorType>(flavor)));
+                              getFlavorGroup(std::forward<FlavorType>(flavor)));
     else
         return getFlavorIrrep(getParticle(std::forward<FieldType>(field)),
-                              getGroup(std::forward<FlavorType>(flavor)));
+                              getFlavorGroup(std::forward<FlavorType>(flavor)));
 }
 
 template <class GroupType, class FieldType>
@@ -1797,13 +1777,13 @@ template <class GroupType>
 csl::Index ModelData::generateIndex(GroupType &&group) const
 {
     constexpr bool group_valid
-        = std::is_convertible<GroupType, mty::Group const *>::value;
+        = std::is_convertible<GroupType, mty::FlavorGroup const *>::value;
 
     if constexpr (group_valid) {
         return doGenerateIndex(group);
     }
     else
-        return generateIndex(getGroup(std::forward<GroupType>(group)));
+        return generateIndex(getFlavorGroup(std::forward<GroupType>(group)));
 }
 
 template <class GroupType, class FieldType>

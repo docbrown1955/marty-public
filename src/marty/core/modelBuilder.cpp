@@ -1684,7 +1684,7 @@ void ModelBuilder::breakFlavorSymmetry(
               "Dimension does not match in broken flavor in "
                   + (std::string) "ModelBuilder::breakFlavorSymmetry()");
     for (const auto &p : brokenFields)
-        HEPAssert(p->getFlavorIrrep(brokenFlavor).getDim() > 1,
+        HEPAssert(p->getFlavorIrrep(brokenFlavor),
                   mty::error::ValueError,
                   "Field " + toString(p->getName())
                       + " has no representation "
@@ -1704,7 +1704,7 @@ void ModelBuilder::breakFlavorSymmetry(
                     newFlavorNames[nNonTrivial++],
                     subGroups[i],
                     brokenFlavor->isComplex());
-            newSpaces.push_back(newGroup->getFundamentalSpace());
+            newSpaces.push_back(newGroup->getVectorSpace());
             newFlavorGroups.push_back(newGroup.get());
             flavor->push_back(std::move(newGroup));
         }
@@ -1721,10 +1721,10 @@ void ModelBuilder::breakFlavorSymmetry(
     }
     for (size_t i = 0; i != brokenFields.size(); ++i) {
         breakLagrangian(
-            brokenFields[i], brokenFlavor->getFundamentalSpace(), newSpaces);
+            brokenFields[i], brokenFlavor->getVectorSpace(), newSpaces);
         if (brokenFields[i]->hasFieldStrength())
             breakLagrangian(brokenFields[i]->getFieldStrength(),
-                            brokenFlavor->getFundamentalSpace(),
+                            brokenFlavor->getVectorSpace(),
                             newSpaces);
         removeParticle(brokenFields[i]);
     }

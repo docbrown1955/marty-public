@@ -34,6 +34,19 @@ class QuantumFieldParent;
 class Irrep;
 class FlavorIrrep;
 
+struct FlavorFlag {
+    bool nontrivial;
+
+    FlavorFlag(bool v = false): nontrivial(v) {}
+
+    operator bool() const { return nontrivial; }
+
+    enum Rep {
+        Trivial,
+        Fundamental
+    };
+};
+
 class FlavorGroup {
 
   public:
@@ -48,22 +61,18 @@ class FlavorGroup {
     csl::Index getCorrespondingIndex(const std::string &       index_name,
                                      const QuantumFieldParent &parent);
 
-    const csl::Space *getVectorSpace(const Irrep &irrep) const;
+    const csl::Space *getVectorSpace(FlavorFlag rep = FlavorFlag::Fundamental) const;
 
-    const csl::Space *getFundamentalSpace() const;
+    FlavorFlag getTrivialRep() const;
 
-    Irrep getTrivialRep() const;
-
-    Irrep getFundamentalRep() const;
-
-    SemiSimpleGroup *getGroup() const;
+    FlavorFlag getFundamentalRep() const;
 
     bool isComplex() const;
 
   private:
-    std::string name;
-
-    std::unique_ptr<SemiSimpleGroup> group;
+    bool complexFields;
+    std::unique_ptr<csl::Space> space;
+    static std::unique_ptr<csl::Space> trivialSpace;
 };
 
 class Flavor {
@@ -138,7 +147,7 @@ class Flavor {
 
 class FlavorIrrep {
 
-    IMPLEMENTS_STD_VECTOR(Irrep, rep);
+    IMPLEMENTS_STD_VECTOR(FlavorFlag, rep);
 
   public:
     FlavorIrrep() = default;
@@ -157,7 +166,7 @@ class FlavorIrrep {
 
     void setFundamentalRepresentation(FlavorGroup const *flavorGroup);
 
-    void setRepresentation(FlavorGroup const *flavorGroup, Irrep const &irrep);
+    void setRepresentation(FlavorGroup const *flavorGroup, FlavorFlag const &irrep);
 
     bool operator==(FlavorIrrep const &other) const;
     bool operator!=(FlavorIrrep const &other) const
@@ -171,7 +180,7 @@ class FlavorIrrep {
   private:
     Flavor const *flavors;
 
-    std::vector<Irrep> rep;
+    std::vector<FlavorFlag> rep;
 };
 
 } // End of namespace mty

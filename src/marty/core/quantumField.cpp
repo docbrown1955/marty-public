@@ -196,10 +196,8 @@ void QuantumFieldParent::initIndexSpaces()
     if (flavor) {
         size_t nonTrivialReps = 0;
         for (size_t i = 0; i != flavor->size(); ++i) {
-            const Space *unit_space
-                = (*flavor)[i]->getVectorSpace(flavorRep[i]);
-            if (unit_space and unit_space->getDim() > 0) {
-                space.push_back(unit_space);
+            if (flavorRep[i]) {
+                space.push_back((*flavor)[i]->getVectorSpace());
                 ++nonTrivialReps;
             }
         }
@@ -484,8 +482,7 @@ void QuantumFieldParent::printQuantumDefinition(std::ostream &out,
     }
     if (flavor) {
         for (size_t i = 0; i != flavor->size(); ++i) {
-            mty::Irrep const &rep = flavorRep[i];
-            if (rep == (*flavor)[i]->getTrivialRep())
+            if (!flavorRep[i])
                 continue;
             out << indent << regName << "->setFlavorRep(";
             out << csl::Abstract::regularName((*flavor)[i]->getName()) << ", ";
@@ -597,10 +594,6 @@ Irrep QuantumFieldParent::getGroupIrrep(const Group *group) const
         if ((*gauge)[i] == group)
             return irrep[i];
     }
-    for (size_t i = 0; i != flavor->size(); ++i) {
-        if ((*flavor)[i]->getGroup() == group)
-            return flavorRep[i];
-    }
     if (group == stGroup)
         return spin;
 
@@ -628,10 +621,10 @@ FlavorIrrep QuantumFieldParent::getFlavorIrrep() const
     return flavorRep;
 }
 
-Irrep QuantumFieldParent::getFlavorIrrep(const FlavorGroup *group) const
+bool QuantumFieldParent::getFlavorIrrep(const FlavorGroup *group) const
 {
     if (!flavor)
-        return Irrep();
+        return false;
     for (size_t i = 0; i != flavor->size(); ++i) {
         if ((*flavor)[i] == group)
             return flavorRep[i];
@@ -640,7 +633,7 @@ Irrep QuantumFieldParent::getFlavorIrrep(const FlavorGroup *group) const
         mty::error::ValueError,
         "Taking rep of a flavor group that does not fit in the flavor of \
             the particle");
-    return Irrep();
+    return false;
 }
 
 vector<Index>
@@ -855,7 +848,7 @@ void QuantumFieldParent::setFundamentalFlavorRep(
         [&](Particle p) { p->setFundamentalFlavorRep(flavorGroup); });
     for (const auto &group : *flavor) {
         if (group->getName() == flavorGroup) {
-            setFlavorRep(group, group->getFundamentalRep());
+            setFlavorRep(group, FlavorFlag::Fundamental);
             return;
         }
     }
@@ -863,29 +856,29 @@ void QuantumFieldParent::setFundamentalFlavorRep(
                  "Group " + flavorGroup + " not found in model.")
 }
 void QuantumFieldParent::setFlavorRep(const FlavorGroup *group,
-                                      const Irrep       &newRep)
+                                      FlavorFlag         newRep)
 {
     applyToRelatives([&](Particle p) { p->setFlavorRep(group, newRep); });
     symmetry.clear();
     for (size_t i = 0; i != flavor->size(); ++i) {
         FlavorGroup *flavGroup = (*flavor)[i];
         if (flavGroup == group) {
-            if (newRep.getDim() <= 1 and flavorRep[i].getDim() > 1) {
+            if (!newRep && flavorRep[i]) {
                 for (size_t j = 0; j != space.size(); ++j)
-                    if (space[j] == group->getVectorSpace(flavorRep[i])) {
+                    if (space[j] == group->getVectorSpace()) {
                         space.erase(space.begin() + j);
                         --firstGaugeIndex;
                         --firstSpaceIndex;
                         break;
                     }
             }
-            else if (newRep.getDim() > 1 and flavorRep[i].getDim() <= 1) {
+            else if (newRep && !flavorRep[i]) {
                 size_t nonTrivialFlavor = 0;
                 for (size_t j = 0; j != i; ++j)
-                    if (flavorRep[j].getDim() > 1)
+                    if (flavorRep[j])
                         ++nonTrivialFlavor;
                 space.insert(space.begin() + nonTrivialFlavor,
-                             group->getFundamentalSpace());
+                             group->getVectorSpace());
                 ++firstGaugeIndex;
                 ++firstSpaceIndex;
             }
@@ -1110,14 +1103,14 @@ void QuantumFieldParent::breakParticle(
     for (size_t i = 0; i != subGroups.size(); ++i) {
         Particle newPart = generateSimilar(names[i]);
         newPart->setFlavorRep(brokenFlavor,
-                              brokenFlavor->getGroup()->getTrivialRep());
+                              FlavorFlag::Trivial);
         if (subGroups[i]) {
             newPart->setFlavorRep(subGroups[i],
                                   subGroups[i]->getFundamentalRep());
         }
         newParticles.push_back(newPart);
     }
-    setBrokenParts(brokenFlavor->getFundamentalSpace(), newParticles);
+    setBrokenParts(brokenFlavor->getVectorSpace(), newParticles);
 }
 
 ///////////////////////////////////////////////////

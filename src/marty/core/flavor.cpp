@@ -39,66 +39,53 @@ Flavor::~Flavor()
 /*************************************************/
 ///////////////////////////////////////////////////
 
+std::unique_ptr<csl::Space> FlavorGroup::trivialSpace = std::make_unique<csl::Space>(
+    "trivial_flavor_space",
+    1
+);
+
 FlavorGroup::FlavorGroup(string const &t_name,
                          int           nFlavors,
-                         bool          complexFields)
-    : name(t_name)
+                         bool          t_complexFields)
+    : complexFields(t_complexFields)
 {
-    if (complexFields) {
-        group = make_unique<mty::group::SU>(nFlavors);
-    }
-    else {
-        group = make_unique<mty::group::SO>(nFlavors);
-    }
+    space = std::make_unique<csl::Space>(t_name, nFlavors);
 }
 
 size_t FlavorGroup::getDim() const
 {
-    return getVectorSpace(getFundamentalRep())->getDim();
+    return getVectorSpace()->getDim();
 }
 
 string_view FlavorGroup::getName() const
 {
-    return name;
+    return space->getName();
 }
 
 csl::Index FlavorGroup::getCorrespondingIndex(const string &index_name,
-                                              const QuantumFieldParent &parent)
+                                              const QuantumFieldParent &)
 {
-    return group->getCorrespondingIndex(index_name, parent);
+    return space->generateIndex(index_name);
 }
 
-const csl::Space *FlavorGroup::getVectorSpace(const Irrep &irrep) const
+const csl::Space *FlavorGroup::getVectorSpace(FlavorFlag rep) const
 {
-    return group->getVectorSpace(irrep);
+    return (rep ? space : trivialSpace).get();
 }
 
-const csl::Space *FlavorGroup::getFundamentalSpace() const
+FlavorFlag FlavorGroup::getTrivialRep() const
 {
-    return group->getVectorSpace(getFundamentalRep());
+    return FlavorFlag::Trivial;
 }
 
-Irrep FlavorGroup::getTrivialRep() const
+FlavorFlag FlavorGroup::getFundamentalRep() const
 {
-    std::vector<int> labels(group->getAlgebra()->getOrderL(), 0);
-    return group->highestWeightRep(labels);
-}
-
-Irrep FlavorGroup::getFundamentalRep() const
-{
-    std::vector<int> labels(group->getAlgebra()->getOrderL(), 0);
-    labels[0] = 1;
-    return group->highestWeightRep(labels);
-}
-
-SemiSimpleGroup *FlavorGroup::getGroup() const
-{
-    return group.get();
+    return FlavorFlag::Fundamental;
 }
 
 bool FlavorGroup::isComplex() const
 {
-    return group->getType() == group::Type::SU;
+    return complexFields;
 }
 
 ///////////////////////////////////////////////////
@@ -111,19 +98,15 @@ FlavorIrrep Flavor::getTrivialRep() const
 {
     FlavorIrrep rep(this);
     for (auto &r : rep)
-        r = r.getAlgebra()->getTrivialRep();
+        r = FlavorFlag::Trivial;
     return rep;
 }
 
 FlavorIrrep Flavor::getFundamentalRep() const
 {
     FlavorIrrep rep(this);
-    for (auto &r : rep) {
-        auto             algebra = r.getAlgebra();
-        std::vector<int> labels(algebra->getOrderL(), 0);
-        labels[0] = 1;
-        r         = r.getAlgebra()->highestWeightRep(labels);
-    }
+    for (auto &r : rep)
+        r = FlavorFlag::Fundamental;
     return rep;
 }
 
@@ -138,7 +121,7 @@ FlavorIrrep::FlavorIrrep(Flavor const *t_flavors) : flavors(t_flavors)
     if (flavors) {
         rep.reserve(flavors->size());
         for (const auto &f : *flavors)
-            rep.push_back(f->getGroup()->getTrivialRep());
+            rep.push_back(f->getTrivialRep());
     }
 }
 
@@ -151,13 +134,14 @@ FlavorIrrep::FlavorIrrep(Flavor const *t_flavors, FlavorIrrep const &other)
     rep.reserve(flavors->size());
     size_t i = 0;
     for (const auto &r : other) {
-        HEPAssert((*flavors)[i++]->getGroup()->getAlgebra() == r.getAlgebra(),
+        HEPAssert((*flavors)[i]->getVectorSpace() == (*other.flavors)[i]->getVectorSpace(),
                   mty::error::ValueError,
                   "Flavor groups do not match in flavor replacement");
         rep.push_back(r);
+        ++i;
     }
     for (; i != flavors->size(); ++i)
-        rep.push_back((*flavors)[i]->getGroup()->getTrivialRep());
+        rep.push_back((*flavors)[i]->getTrivialRep());
 }
 
 const Flavor *FlavorIrrep::getFlavor() const
@@ -167,21 +151,17 @@ const Flavor *FlavorIrrep::getFlavor() const
 
 void FlavorIrrep::setTrivialRepresentation(FlavorGroup const *flavorGroup)
 {
-    Irrep rep = flavorGroup->getGroup()->getTrivialRep();
+    auto rep = flavorGroup->getTrivialRep();
     setRepresentation(flavorGroup, rep);
 }
 
 void FlavorIrrep::setFundamentalRepresentation(FlavorGroup const *flavorGroup)
 {
-    int         dim = flavorGroup->getGroup()->getAlgebra()->getOrderL();
-    vector<int> labels(dim, 0);
-    labels[0] = 1;
-    Irrep rep = flavorGroup->getGroup()->highestWeightRep(labels);
-    setRepresentation(flavorGroup, rep);
+    setRepresentation(flavorGroup, FlavorFlag::Fundamental);
 }
 
 void FlavorIrrep::setRepresentation(FlavorGroup const *flavorGroup,
-                                    Irrep const &      irrep)
+                                    FlavorFlag  const &irrep)
 {
     auto pos = find_if(
         flavors->begin(),
@@ -207,21 +187,10 @@ ostream &operator<<(ostream &fout, const FlavorIrrep &irrep)
 {
     fout << "( ";
     for (size_t i = 0; i != irrep.size(); ++i) {
-        if (irrep[i].getAlgebra()
-            and irrep[i].getAlgebra()->getType() != algebra::Type::R)
-            fout << irrep[i].getDim();
-        else if (irrep[i].getAlgebra()) {
-            // U(1) case:
-            // i^th group
-            // first rep (single)
-            // first term of sum (single)
-            // first term of product (single)
-            AlgebraState s = irrep[i][0];
-            cout << s[0];
-            if (s[1] != 1)
-                cout << "/" << s[1];
-        }
-
+        if (irrep[i])
+            fout << (*irrep.flavors)[i]->getDim();
+        else
+            fout << 1;
         if (i != irrep.size() - 1)
             fout << " , ";
     }
