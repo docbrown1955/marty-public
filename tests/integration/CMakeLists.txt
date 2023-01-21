@@ -1,0 +1,6 @@
+function(ADD_INTEGRATION_TEST NAME)
+    set(target ${NAME}.x)
+    add_executable(${target} src/${NAME}.cpp)
+    SETUP_MARTY_TEST_TARGET(${target})
+    SETUP_GTEST_TARGET(${target} integration)
+endfunction()
