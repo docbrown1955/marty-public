@@ -37,8 +37,8 @@ int main() {
     toyModel.addParticle(Psi);
     
     // Dark flavor space
-    Index I = toyModel.generateIndex("dark_flavor", "Psi");
-    Index J = toyModel.generateIndex("dark_flavor", "Psi");
+    Index I = toyModel.generateIndex("dark_flavor");
+    Index J = toyModel.generateIndex("dark_flavor");
     
     // SU(2)L space
     Index i = toyModel.generateIndex("L", "H");

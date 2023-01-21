@@ -159,7 +159,7 @@ void MSSM_Model::initLeptons()
     Ei->setFundamentalFlavorRep("SM_flavor");
 
     addParticles({Li, Ei});
-    flavorSpace = getVectorSpace("SM_flavor", Li);
+    flavorSpace = getVectorSpace("SM_flavor");
 }
 void MSSM_Model::initSLeptons()
 {
@@ -442,8 +442,8 @@ void MSSM_Model::initYukawas()
     csl::Index A = generateIndex("C", Qi);
 
     // SM flavor space
-    csl::Index I = generateIndex("SM_flavor", Li);
-    csl::Index J = generateIndex("SM_flavor", Li);
+    csl::Index I = generateIndex("SM_flavor");
+    csl::Index J = generateIndex("SM_flavor");
 
     // SU(2)L space
     csl::Index  i   = generateIndex("L", Li);
@@ -513,8 +513,8 @@ void MSSM_Model::initTrilinears()
     csl::Index A = generateIndex("C", Qi);
 
     // SM flavor space
-    csl::Index I = generateIndex("SM_flavor", Li);
-    csl::Index J = generateIndex("SM_flavor", Li);
+    csl::Index I = generateIndex("SM_flavor");
+    csl::Index J = generateIndex("SM_flavor");
 
     // SU(2)L space
     csl::Index  i   = generateIndex("L", Li);
@@ -644,10 +644,10 @@ void MSSM_Model::initQuarticFTerms()
     csl::Index A = generateIndex("C", Qi);         \
     csl::Index B = generateIndex("C", Qi);         \
                                                    \
-    csl::Index I = generateIndex("SM_flavor", Li); \
-    csl::Index J = generateIndex("SM_flavor", Li); \
-    csl::Index K = generateIndex("SM_flavor", Li); \
-    csl::Index L = generateIndex("SM_flavor", Li); \
+    csl::Index I = generateIndex("SM_flavor"); \
+    csl::Index J = generateIndex("SM_flavor"); \
+    csl::Index K = generateIndex("SM_flavor"); \
+    csl::Index L = generateIndex("SM_flavor"); \
                                                    \
     csl::Index  i   = generateIndex("L", Li);      \
     csl::Index  j   = generateIndex("L", Li);      \

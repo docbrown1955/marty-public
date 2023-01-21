@@ -176,7 +176,7 @@ void THDM_Model<type>::initHiggsSector()
 template <int type>
 void THDM_Model<type>::initYukawas()
 {
-    auto       *flavorSpace = getVectorSpace("SM_flavor", "Q");
+    auto       *flavorSpace = getVectorSpace("SM_flavor");
     csl::Tensor Y1u("Y1u", {flavorSpace, flavorSpace});
     csl::Tensor Y1d("Y1d", {flavorSpace, flavorSpace});
     csl::Tensor Y1e("Y1e", {flavorSpace, flavorSpace});

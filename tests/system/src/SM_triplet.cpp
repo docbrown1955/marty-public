@@ -73,8 +73,8 @@ int main()
     toyModel.addParticle(Ni);
 
     // SM flavor space
-    Index I = toyModel.generateIndex("SM_flavor", "L_L");
-    Index J = toyModel.generateIndex("SM_flavor", "L_L");
+    Index I = toyModel.generateIndex("SM_flavor");
+    Index J = toyModel.generateIndex("SM_flavor");
 
     // SU(2)L space
     Index  i   = toyModel.generateIndex("L", "L_L");
@@ -87,7 +87,7 @@ int main()
     auto   A     = toyModel.generateIndex("L", "Del");
     auto   B     = toyModel.generateIndex("L", "Del");
 
-    auto   flavorSpace = toyModel.getVectorSpace("SM_flavor", "L_L");
+    auto   flavorSpace = toyModel.getVectorSpace("SM_flavor");
     Tensor Ye          = csl::Tensor("Y_e", {flavorSpace, flavorSpace});
     Ye->setComplexProperty(csl::ComplexProperty::Complex);
 

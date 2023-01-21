@@ -129,7 +129,7 @@ void SM_Model::initHiggsPotential()
 
 void SM_Model::initYukawas()
 {
-    auto  *flavorSpace = getVectorSpace("SM_flavor", "Q");
+    auto  *flavorSpace = getVectorSpace("SM_flavor");
     Tensor Yu("Yu", {flavorSpace, flavorSpace});
     Yu->setComplexProperty(ComplexProperty::Complex);
     Tensor Yd("Yd", {flavorSpace, flavorSpace});

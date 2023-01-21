@@ -214,16 +214,16 @@ void VectorLike_Model::addVectorLike(std::string const &name,
     csl::Index              c        = generateIndex("C", "Q");
     csl::Index              p        = generateIndex("L", "W");
 
-    csl::Tensor Ld("Ld_" + name, getVectorSpace("SM_flavor", "E_R"));
-    csl::Tensor Lu("Lu_" + name, getVectorSpace("SM_flavor", "E_R"));
-    csl::Tensor Lx("Lx_" + name, getVectorSpace("SM_flavor", "E_R"));
-    csl::Tensor Ly("Ly_" + name, getVectorSpace("SM_flavor", "E_R"));
-    csl::Tensor L5u("L5u_" + name, getVectorSpace("SM_flavor", "E_R"));
-    csl::Tensor L5d("L5d_" + name, getVectorSpace("SM_flavor", "E_R"));
-    csl::Tensor LTu("LTu_" + name, getVectorSpace("SM_flavor", "E_R"));
+    csl::Tensor Ld("Ld_" + name, getVectorSpace("SM_flavor"));
+    csl::Tensor Lu("Lu_" + name, getVectorSpace("SM_flavor"));
+    csl::Tensor Lx("Lx_" + name, getVectorSpace("SM_flavor"));
+    csl::Tensor Ly("Ly_" + name, getVectorSpace("SM_flavor"));
+    csl::Tensor L5u("L5u_" + name, getVectorSpace("SM_flavor"));
+    csl::Tensor L5d("L5d_" + name, getVectorSpace("SM_flavor"));
+    csl::Tensor LTu("LTu_" + name, getVectorSpace("SM_flavor"));
     LTu->setComplexProperty(csl::ComplexProperty::Complex);
-    csl::Tensor LTd("LTd_" + name, getVectorSpace("SM_flavor", "E_R"));
-    csl::Index  I = generateIndex("SM_flavor", "E_R");
+    csl::Tensor LTd("LTd_" + name, getVectorSpace("SM_flavor"));
+    csl::Index  I = generateIndex("SM_flavor");
 
     csl::Expr sqrt2 = csl::sqrt_s(2);
 

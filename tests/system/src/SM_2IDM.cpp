@@ -155,7 +155,7 @@ int main()
     // Indices and Tensors
     ///////////////////////////////////////////////////
 
-    auto   flavorSpace = GetVectorSpace(TIDM, "F", "Q_L");
+    auto   flavorSpace = GetVectorSpace(TIDM, "F");
     Tensor eps         = GetEpsilon(GetVectorSpace(TIDM, "L", "Q_L"));
     Tensor delta_flav  = GetDelta(flavorSpace);
     Index  mu          = MinkowskiIndex();
