@@ -1,18 +1,18 @@
-if(CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
-endif()
-
 function(ADD_SYSTEM_TEST DISPLAY_NAME NAME)
     set(CLEANUP_NAME "CLEANUP_${DISPLAY_NAME}")
     add_executable(${NAME}.x src/${NAME}.cpp)
-    target_link_libraries(${NAME}.x marty)
+    SETUP_MARTY_TEST_TARGET(${NAME}.x)
     add_test(NAME "${DISPLAY_NAME}"
         COMMAND ${NAME}.x
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
     add_test(NAME "${CLEANUP_NAME}"
         COMMAND bash -c "rm -rf libs/${NAME}"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    set_property(TEST ${DISPLAY_NAME} PROPERTY 
+        ENVIRONMENT "LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}:${CMAKE_BINARY_DIR}/src/marty/lha")
     set_tests_properties(${DISPLAY_NAME} PROPERTIES LABELS system)
+    set_tests_properties(${CLEANUP_NAME} PROPERTIES LABELS system)
+    set_tests_properties(${CLEANUP_NAME} PROPERTIES DEPENDS ${DISPLAY_NAME})
 endfunction()
 
 function(ADD_QUAD_SYSTEM_TEST DISPLAY_NAME NAME)
