@@ -54,7 +54,13 @@ class FlavorGroup {
                 int                nFlavors,
                 bool               complexFields = true);
 
-    size_t getDim() const;
+    FlavorGroup(std::string const &name,
+                csl::Expr   const &nFlavors,
+                bool               complexFields = true);
+
+    bool hasSymbolicDimension() const;
+
+    csl::Expr getDim() const;
 
     std::string getName() const;
 

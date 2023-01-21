@@ -52,9 +52,22 @@ FlavorGroup::FlavorGroup(string const &t_name,
     space = std::make_unique<csl::Space>(t_name, nFlavors);
 }
 
-size_t FlavorGroup::getDim() const
+FlavorGroup::FlavorGroup(string    const &t_name,
+                         csl::Expr const &nFlavors,
+                         bool             t_complexFields)
+    : complexFields(t_complexFields)
 {
-    return getVectorSpace()->getDim();
+    space = std::make_unique<csl::Space>(t_name, nFlavors);
+}
+
+bool FlavorGroup::hasSymbolicDimension() const 
+{
+    return !csl::IsInteger(getDim());
+}
+
+csl::Expr FlavorGroup::getDim() const
+{
+    return getVectorSpace()->getSymbolicDim();
 }
 
 string FlavorGroup::getName() const
