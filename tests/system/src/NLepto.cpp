@@ -74,7 +74,7 @@ int main()
     Model toyModel;
     toyModel.addGaugedGroup(group::Type::SU, "L", 2);
     toyModel.addGaugedGroup(group::Type::U1, "Y");
-    toyModel.addFlavorGroup("SM_flavor", 3, true);
+    toyModel.addFlavorGroup("SM_flavor", 3);
     toyModel.init();
 
     toyModel.renameParticle("A_L", "W");
