@@ -4,3 +4,5 @@ function(ADD_INTEGRATION_TEST NAME)
     SETUP_MARTY_TEST_TARGET(${target})
     SETUP_GTEST_TARGET(${target} integration)
 endfunction()
+
+ADD_INTEGRATION_TEST(test_flavor_groups)
