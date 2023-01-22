@@ -1709,8 +1709,7 @@ void ModelBuilder::breakFlavorSymmetry(
             std::unique_ptr<mty::FlavorGroup> newGroup
                 = std::make_unique<mty::FlavorGroup>(
                     newFlavorNames[nNonTrivial++],
-                    subGroups[i],
-                    brokenFlavor->isComplex());
+                    subGroups[i]);
             newSpaces.push_back(newGroup->getVectorSpace());
             newFlavorGroups.push_back(newGroup.get());
             flavor->push_back(std::move(newGroup));

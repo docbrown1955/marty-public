@@ -45,17 +45,13 @@ std::unique_ptr<csl::Space> FlavorGroup::trivialSpace = std::make_unique<csl::Sp
 );
 
 FlavorGroup::FlavorGroup(string const &t_name,
-                         int           nFlavors,
-                         bool          t_complexFields)
-    : complexFields(t_complexFields)
+                         int           nFlavors)
 {
     space = std::make_unique<csl::Space>(t_name, nFlavors);
 }
 
 FlavorGroup::FlavorGroup(string    const &t_name,
-                         csl::Expr const &nFlavors,
-                         bool             t_complexFields)
-    : complexFields(t_complexFields)
+                         csl::Expr const &nFlavors)
 {
     space = std::make_unique<csl::Space>(t_name, nFlavors);
 }
@@ -96,10 +92,6 @@ FlavorFlag FlavorGroup::getFundamentalRep() const
     return FlavorFlag::Fundamental;
 }
 
-bool FlavorGroup::isComplex() const
-{
-    return complexFields;
-}
 
 ///////////////////////////////////////////////////
 /*************************************************/

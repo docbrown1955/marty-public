@@ -239,7 +239,7 @@ void ModelData::writeFlavor(std::ostream &out,
     for (const auto &group : *flavor) {
         OUT << "model->addFlavorGroup(" << END;
         OUT2 << "\"" << csl::Abstract::regularLiteral(group->getName())
-             << "\", " << group->getDim() << ", " << group->isComplex() << ");"
+             << "\", " << group->getDim() << ");"
              << END;
     }
     for (size_t i = 0; i != flavor->size(); ++i) {
@@ -625,14 +625,27 @@ void ModelData::addGaugedGroup(group::Type      type,
 }
 
 void ModelData::addFlavorGroup(std::string_view name,
-                               int              nFlavor,
-                               bool             complexFields)
+                               int              nFlavor)
 {
     HEPAssert(particles.empty(),
               mty::error::ModelBuildingError,
               "Cannot add a flavor for a model that already has particles.");
     std::unique_ptr<FlavorGroup> flavorGroup = std::make_unique<FlavorGroup>(
-        std::string(name), nFlavor, complexFields);
+        std::string(name), nFlavor);
+    if (not flavor)
+        flavor = std::make_unique<Flavor>();
+    flavor->addGroup(flavorGroup);
+}
+
+
+void ModelData::addFlavorGroup(std::string_view name,
+                               csl::Expr const &nFlavor)
+{
+    HEPAssert(particles.empty(),
+              mty::error::ModelBuildingError,
+              "Cannot add a flavor for a model that already has particles.");
+    std::unique_ptr<FlavorGroup> flavorGroup = std::make_unique<FlavorGroup>(
+        std::string(name), nFlavor);
     if (not flavor)
         flavor = std::make_unique<Flavor>();
     flavor->addGroup(flavorGroup);

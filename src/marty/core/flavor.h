@@ -51,12 +51,10 @@ class FlavorGroup {
 
   public:
     FlavorGroup(std::string const &name,
-                int                nFlavors,
-                bool               complexFields = true);
+                int                nFlavors);
 
     FlavorGroup(std::string const &name,
-                csl::Expr   const &nFlavors,
-                bool               complexFields = true);
+                csl::Expr   const &nFlavors);
 
     bool hasSymbolicDimension() const;
 
@@ -76,7 +74,6 @@ class FlavorGroup {
     bool isComplex() const;
 
   private:
-    bool complexFields;
     std::unique_ptr<csl::Space> space;
     static std::unique_ptr<csl::Space> trivialSpace;
 };

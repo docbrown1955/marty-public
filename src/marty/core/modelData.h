@@ -414,21 +414,24 @@ class ModelData {
     /**
      * @brief Adds a flavor group to the model.
      *
-     * @details For now, only SU(N) and SO(N) fundamental representations are
-     * enabled for flavor symmetries. For a flavor symmetry between N complex
-     * fields, The fundamental representation of SU(N) is created. For real
-     * fields, the fundamental representation of SO(N) is created.
-     *
      * @param name          Name of the flavor group
      * @param nFlavor       Number of flavors
-     * @param complexFields Boolean (default = true) that tells if the fields
-     * are complex (SU(N) flavor) or not (SO(N) flavor).
      *
      * @sa FlavorGroup, Flavor
      */
     void addFlavorGroup(std::string_view name,
-                        int              nFlavor,
-                        bool             complexFields = true);
+                        int              nFlavor);
+
+    /**
+     * @brief Adds a flavor group to the model.
+     *
+     * @param name          Name of the flavor group
+     * @param nFlavor       Number of flavors (keep the dimension symbolic)
+     *
+     * @sa FlavorGroup, Flavor
+     */
+    void addFlavorGroup(std::string_view name,
+                        csl::Expr const &nFlavor);
 
     /**
      * \brief Sets the flavor of the model.

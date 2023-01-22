@@ -53,7 +53,7 @@ Space::Space(const std::string              &t_name,
       symbolicDim(t_dim),
       signedIndex(false),
       defaultIndexNames(defaultNames),
-      delta(csl::make_shared<DeltaParent>(this)),
+      delta(csl::make_shared<DeltaParent>(this, false)),
       metric(delta),
       inverseMetric(delta)
 {
