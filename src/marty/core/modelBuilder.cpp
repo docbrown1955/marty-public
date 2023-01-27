@@ -1594,14 +1594,16 @@ void ModelBuilder::breakGaugeSymmetry(
 void ModelBuilder::breakFlavorSymmetry(std::string const &brokenGroup)
 {
     std::vector<mty::Particle> brokenFields;
-    auto                       group = getGroup(brokenGroup);
+    auto                       group = getFlavorGroup(brokenGroup);
+    HEPAssert(!group->hasSymbolicDimension(),
+        mty::error::TypeError,
+        "Cannot break a flavor group with a symbolic (undefined) dimension.");
     for (const auto &part : particles)
-        if (getGroupIrrep(part, group) != group->getTrivialRep())
+        if (getFlavorIrrep(part, group) != FlavorFlag::Trivial)
             brokenFields.push_back(part);
     std::vector<std::vector<std::string>> newNames(brokenFields.size());
     for (size_t i = 0; i != brokenFields.size(); ++i) {
-        const size_t size
-            = getGroupIrrep(brokenFields[i], brokenGroup).getDim();
+        const size_t size = static_cast<std::size_t>(std::round(group->getDim()->evaluateScalar()));
         newNames[i] = std::vector<std::string>(size);
         for (size_t j = 0; j != size; ++j) {
             newNames[i][j] = brokenFields[i]->getName();
@@ -1625,14 +1627,16 @@ void ModelBuilder::breakFlavorSymmetry(std::string const         &brokenGroup,
     if (newFlavors.size() == 1)
         newFlavors[0] = brokenGroup;
     std::vector<mty::Particle> brokenFields;
-    auto                       group = getGroup(brokenGroup);
+    auto                       group = getFlavorGroup(brokenGroup);
+    HEPAssert(!group->hasSymbolicDimension(),
+        mty::error::TypeError,
+        "Cannot break a flavor group with a symbolic (undefined) dimension.");
     for (const auto &part : particles)
-        if (getGroupIrrep(part, group) != group->getTrivialRep())
+        if (getFlavorIrrep(part, group) != FlavorFlag::Trivial)
             brokenFields.push_back(part);
     std::vector<std::vector<std::string>> newNames(brokenFields.size());
     for (size_t i = 0; i != brokenFields.size(); ++i) {
-        const size_t size
-            = getGroupIrrep(brokenFields[i], brokenGroup).getDim();
+        const size_t size = static_cast<std::size_t>(std::round(group->getDim()->evaluateScalar()));
         newNames[i] = std::vector<std::string>(size);
         for (size_t j = 0; j != size; ++j) {
             newNames[i][j] = brokenFields[i]->getName();
@@ -1651,6 +1655,9 @@ void ModelBuilder::breakFlavorSymmetry(
     if (brokenFields.empty())
         return;
     mty::FlavorGroup *flavor = getFlavorGroup(flavorName);
+    HEPAssert(!flavor->hasSymbolicDimension(),
+        mty::error::TypeError,
+        "Cannot break a flavor group with a symbolic (undefined) dimension.");
     size_t            dim
         = flavor->getVectorSpace(brokenFields[0]->getFlavorIrrep(flavor))
               ->getDim();
@@ -1679,12 +1686,12 @@ void ModelBuilder::breakFlavorSymmetry(
               mty::error::ValueError,
               "Flavor " + flavorName + " not found in model for "
                   + "symmetry breaking.");
-    HEPAssert(dim == brokenFlavor->getDim(),
+    HEPAssert(csl::int_s(dim) == brokenFlavor->getDim(),
               mty::error::ValueError,
               "Dimension does not match in broken flavor in "
                   + (std::string) "ModelBuilder::breakFlavorSymmetry()");
     for (const auto &p : brokenFields)
-        HEPAssert(p->getFlavorIrrep(brokenFlavor).getDim() > 1,
+        HEPAssert(p->getFlavorIrrep(brokenFlavor),
                   mty::error::ValueError,
                   "Field " + toString(p->getName())
                       + " has no representation "
@@ -1702,9 +1709,8 @@ void ModelBuilder::breakFlavorSymmetry(
             std::unique_ptr<mty::FlavorGroup> newGroup
                 = std::make_unique<mty::FlavorGroup>(
                     newFlavorNames[nNonTrivial++],
-                    subGroups[i],
-                    brokenFlavor->isComplex());
-            newSpaces.push_back(newGroup->getFundamentalSpace());
+                    subGroups[i]);
+            newSpaces.push_back(newGroup->getVectorSpace());
             newFlavorGroups.push_back(newGroup.get());
             flavor->push_back(std::move(newGroup));
         }
@@ -1721,10 +1727,10 @@ void ModelBuilder::breakFlavorSymmetry(
     }
     for (size_t i = 0; i != brokenFields.size(); ++i) {
         breakLagrangian(
-            brokenFields[i], brokenFlavor->getFundamentalSpace(), newSpaces);
+            brokenFields[i], brokenFlavor->getVectorSpace(), newSpaces);
         if (brokenFields[i]->hasFieldStrength())
             breakLagrangian(brokenFields[i]->getFieldStrength(),
-                            brokenFlavor->getFundamentalSpace(),
+                            brokenFlavor->getVectorSpace(),
                             newSpaces);
         removeParticle(brokenFields[i]);
     }

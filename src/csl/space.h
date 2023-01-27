@@ -76,6 +76,8 @@ class Space {
      */
     int dim;
 
+    csl::Expr symbolicDim = CSL_UNDEF;
+
     /*!
      * \brief Property of indices: if true, it means that the metric is non
      * trivial (given by the user at initialization) and that up- or down-
@@ -142,6 +144,17 @@ class Space {
           std::vector<std::string> const &indexNames = {"i", "j", "k", "l"});
 
     /*!
+     * \brief Initializes the name and the dimension of the space, no metric
+     * so only the kronecker delta is relevant, and indices are not signed.
+     *
+     * \param t_name Name of the Space.
+     * \param t_dim Dimension of the Space.
+     */
+    Space(const std::string              &t_name,
+          csl::Expr                const &t_dim,
+          std::vector<std::string> const &indexNames = {"i", "j", "k", "l"});
+
+    /*!
      * \brief Initializes name, dimension of the space. Here the metrix is
      * given by the user (also its explicit tensor, like diag (-1,1,1,1) for
      * the Minkowski Space). This constructor constructs then a Space with
@@ -189,6 +202,11 @@ class Space {
      * \return The dimension of the Space.
      */
     inline int getDim() const;
+    
+    /*!
+     * \return The dimension of the Space.
+     */
+    inline csl::Expr getSymbolicDim() const;
 
     /*!
      * \return \b True if the indices in this Space are signed.
@@ -305,6 +323,11 @@ char Space::getSpecFromIndexName(std::string const &t_name) const
 int Space::getDim() const
 {
     return dim;
+}
+
+csl::Expr Space::getSymbolicDim() const
+{
+    return symbolicDim == CSL_UNDEF ? csl::int_s(dim) : symbolicDim;
 }
 
 bool Space::getSignedIndex() const

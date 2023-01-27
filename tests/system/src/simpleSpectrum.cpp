@@ -16,8 +16,8 @@ int main() {
     Model toyModel;
     toyModel.addGaugedGroup(group::Type::SU, "D", 2);
     toyModel.addGaugedGroup(group::Type::SU, "L", 2);
-    toyModel.addFlavorGroup("dark_flavor", 10,true);
-    //toyModel.addFlavorGroup("Psi_flavor", 2,true);
+    toyModel.addFlavorGroup("dark_flavor", 10);
+    //toyModel.addFlavorGroup("Psi_flavor", 2);
     toyModel.init();
     
     toyModel.renameParticle("A_D", "VD");
@@ -37,8 +37,8 @@ int main() {
     toyModel.addParticle(Psi);
     
     // Dark flavor space
-    Index I = toyModel.generateIndex("dark_flavor", "Psi");
-    Index J = toyModel.generateIndex("dark_flavor", "Psi");
+    Index I = toyModel.generateIndex("dark_flavor");
+    Index J = toyModel.generateIndex("dark_flavor");
     
     // SU(2)L space
     Index i = toyModel.generateIndex("L", "H");

@@ -353,7 +353,7 @@ void VectorBoson::breakParticle(
     std::vector<std::string> const &       names)
 {
     QuantumFieldParent::breakParticle(brokenFlavor, subGroups, names);
-    const auto vSpace = brokenFlavor->getFundamentalSpace();
+    const auto vSpace = brokenFlavor->getVectorSpace();
     updateBrokenFieldStrength(vSpace);
     if (ghost) {
         std::vector<std::string> ghostNames(names.size());

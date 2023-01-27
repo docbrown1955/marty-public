@@ -478,7 +478,7 @@ void DiracFermion::breakParticle(
     std::vector<std::string> const &       names)
 {
     QuantumFieldParent::breakParticle(brokenFlavor, subGroups, names);
-    const auto vSpace = brokenFlavor->getFundamentalSpace();
+    const auto vSpace = brokenFlavor->getVectorSpace();
     updateChiralBrokenParts(vSpace);
 }
 

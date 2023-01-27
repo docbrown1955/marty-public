@@ -45,6 +45,27 @@ Space::Space(const std::string              &t_name,
     buildEpsilon();
 }
 
+Space::Space(const std::string              &t_name,
+             csl::Expr                const &t_dim,
+             std::vector<std::string> const &defaultNames)
+    : name(t_name),
+      dim(-1),
+      symbolicDim(t_dim),
+      signedIndex(false),
+      defaultIndexNames(defaultNames),
+      delta(csl::make_shared<DeltaParent>(this, false)),
+      metric(delta),
+      inverseMetric(delta)
+{
+    CSL_ASSERT_SPEC(not defaultIndexNames.empty(),
+                    CSLError::ValueError,
+                    "You must provide at least one default index name for the "
+                    "space "
+                        + name + ".");
+
+    defaultName = defaultIndexNames.begin();
+}
+
 // const Space with metric
 Space::Space(const std::string              &t_name,
              int                             t_dim,
@@ -194,6 +215,11 @@ Tensor Space::getDelta() const
 
 Tensor Space::getEpsilon() const
 {
+    if (symbolicDim != CSL_UNDEF) {
+        CALL_SMERROR_SPEC(
+            CSLError::TypeError, 
+            "Cannot get epsilon tensor for a space with symbolic dimension (not defined).");
+    }
     return epsilon;
 }
 

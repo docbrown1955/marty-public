@@ -63,7 +63,7 @@ int main()
     Model toyModel;
     toyModel.addGaugedGroup(group::Type::SU, "C", 3);
     toyModel.addGaugedGroup(group::Type::U1, "Q");
-    toyModel.addFlavorGroup("SM_flavor", 3, true);
+    toyModel.addFlavorGroup("SM_flavor", 3);
     toyModel.init();
 
     toyModel.renameParticle("A_C", "G");
@@ -124,9 +124,9 @@ int main()
     toyModel.addParticle(XX);
 
     // SM flavor space
-    Index I = toyModel.generateIndex("SM_flavor", "u_L");
-    Index J = toyModel.generateIndex("SM_flavor", "u_L");
-    Index K = toyModel.generateIndex("SM_flavor", "u_L");
+    Index I = toyModel.generateIndex("SM_flavor");
+    Index J = toyModel.generateIndex("SM_flavor");
+    Index K = toyModel.generateIndex("SM_flavor");
 
     // SU(2)L space
     Index i = toyModel.generateIndex("C", "u_L");
@@ -140,7 +140,7 @@ int main()
 
     auto ii = toyModel.generateIndices(3, "C", "u_L");
 
-    auto   flavorSpace = toyModel.getVectorSpace("SM_flavor", "u_L");
+    auto   flavorSpace = toyModel.getVectorSpace("SM_flavor");
     Tensor Lpp = csl::Tensor("lpp", {flavorSpace, flavorSpace, flavorSpace});
     Lpp->setComplexProperty(csl::ComplexProperty::Complex);
 

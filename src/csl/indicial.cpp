@@ -875,7 +875,7 @@ TensorParent::TensorParent()
       fullySymmetric(false),
       fullyAntiSymmetric(false),
       valued(false),
-      tensor(CSL_0),
+      tensor(CSL_UNDEF),
       trace(CSL_UNDEF),
       conjugateProperty(nullopt)
 {
@@ -888,7 +888,7 @@ TensorParent::TensorParent(const string &t_name)
       fullySymmetric(false),
       fullyAntiSymmetric(false),
       valued(false),
-      tensor(CSL_0),
+      tensor(CSL_UNDEF),
       trace(CSL_UNDEF),
       conjugateProperty(nullopt)
 {
@@ -902,7 +902,7 @@ TensorParent::TensorParent(const string &t_name, const Space *t_space)
       fullySymmetric(false),
       fullyAntiSymmetric(false),
       valued(false),
-      tensor(CSL_0),
+      tensor(CSL_UNDEF),
       trace(CSL_UNDEF),
       conjugateProperty(nullopt)
 {
@@ -2009,10 +2009,13 @@ DeltaParent::DeltaParent() : TensorParent()
 {
 }
 
-DeltaParent::DeltaParent(const Space *t_space)
-    : TensorParent("delta", {t_space, t_space}, identity_s(t_space->getDim()))
+DeltaParent::DeltaParent(const Space *t_space, bool buildTensor)
+    : TensorParent(
+        "delta", 
+        {t_space, t_space}, 
+        buildTensor ? identity_s(t_space->getDim()) : CSL_UNDEF)
 {
-    trace  = int_s(space[0]->getDim());
+    trace  = space[0]->getSymbolicDim();
     valued = true;
     setFullySymmetric();
 }

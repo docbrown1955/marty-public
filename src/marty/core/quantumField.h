@@ -822,7 +822,7 @@ class QuantumFieldParent : public csl::TensorFieldParent {
      * \return The representation of the field in \b group.
      * \sa #flavorRep, getFlavorIrrep(), getGaugeIrrep().
      */
-    Irrep getFlavorIrrep(const FlavorGroup *group) const;
+    bool getFlavorIrrep(const FlavorGroup *group) const;
 
     /*!
      * \brief Returns a set of free space indices corresponding to the field.
@@ -1024,7 +1024,7 @@ class QuantumFieldParent : public csl::TensorFieldParent {
      * changed. \param newRep New representation of the field in \b group. \sa
      * #flavor, getFlavorIrrep(), setGroupRep().
      */
-    void setFlavorRep(const FlavorGroup *group, const Irrep &newRep);
+    void setFlavorRep(const FlavorGroup *group, FlavorFlag newRep);
     void setFundamentalFlavorRep(std::string const &flavorGroup);
 
     /*!
