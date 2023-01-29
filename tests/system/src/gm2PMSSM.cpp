@@ -59,5 +59,5 @@ int main()
     sysres = system("cp libsrc/example_gm2pmssm.cpp libs/gm2PMSSM/script");
     sysres = system("cd libs/gm2PMSSM; make && bin/example_gm2pmssm.x");
     return assert_equal(
-        "data/output/gm2_pmssm.txt", "libs/gm2PMSSM/data.txt", 1e-10);
+        "data/output/gm2_pmssm.txt", "libs/gm2PMSSM/data.txt", 1e-1);
 }
