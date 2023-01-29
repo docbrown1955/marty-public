@@ -35,7 +35,6 @@ add_custom_command(
     COMMAND cp build-quad/libooptools-quad.a ${PROJECT_BINARY_DIR}/libooptools-quad-static.a
     COMMAND ${CMAKE_Fortran_COMPILER} -shared build-quad/*.o -o ${PROJECT_BINARY_DIR}/libooptools-quad.so ${LOOPTOOLS_OUTPUT_REDIRECT}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    DEPENDS ${PROJECT_BINARY_DIR}/clooptools.h
 )
 
 add_custom_target(looptools ALL
