@@ -2,3 +2,4 @@ __pycache__
 *checkpoint.ipynb
 *.egg-info
 build
+tests/conftest.py
