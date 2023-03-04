@@ -138,3 +138,17 @@ set(ALL_SOURCES
 
 add_library(csl-core OBJECT ${ALL_SOURCES})
 set_property(TARGET csl-core PROPERTY POSITION_INDEPENDENT_CODE 1)
+
+add_library(csl SHARED)
+target_link_libraries(csl PUBLIC 
+    csl-core
+    GSL::gsl 
+    GSL::gslcblas
+)
+
+add_library(csl-static STATIC)
+target_link_libraries(csl-static PUBLIC 
+    csl-core
+    GSL::gsl 
+    GSL::gslcblas
+)

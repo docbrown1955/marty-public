@@ -223,7 +223,7 @@ bool Index::testContraction(const Index &t_index) const
         or t_index.type != cslIndex::Free)
         return false;
 
-    if (space->getSignedIndex())
+    if (!csl::option::permissiveCovariantIndices && space->getSignedIndex())
         if (not(getSign() xor t_index.getSign())) {
             cout << *this << " " << t_index << endl;
             CALL_SMERROR(CSLError::RuntimeError);
@@ -234,6 +234,9 @@ bool Index::testContraction(const Index &t_index) const
 
 bool Index::exactMatch(const Index &t_index) const
 {
+    if (csl::option::permissiveCovariantIndices) {
+        return compareWithoutSign(t_index);
+    }
     if (type == cslIndex::Fixed)
         return *this == t_index;
     return (nameOrValue == t_index.nameOrValue and id == t_index.id
@@ -318,11 +321,11 @@ bool Index::operator<(const Index &t_index) const
     //     return true;
     // else if (not (t_index.type < type)) {
     if (type != cslIndex::Fixed) {
-        auto valueA = std::abs(nameOrValue);
-        auto valueB = std::abs(t_index.nameOrValue);
-        if (valueA < valueB)
+        std::string_view nameA = getName();
+        std::string_view nameB = t_index.getName();
+        if (nameA < nameB)
             return true;
-        else if (not(valueB < valueA)) {
+        else if (not(nameB < nameA)) {
             return id < t_index.id;
         }
     }

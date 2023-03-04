@@ -1,6 +1,8 @@
 #include "comparedata.h"
+#include "testutility.h"
 #include "marty/models/sm.h"
 #include <marty.h>
+
 
 using namespace csl;
 using namespace mty;
@@ -41,6 +43,7 @@ int calculate(Model &model, gauge::Type gauge)
     wilsonLib.cleanExistingSources();
     wilsonLib.addFunction("C7", CC7);
     wilsonLib.addFunction("C7_p", CC7p);
+    defineLibPath(wilsonLib);
     wilsonLib.print();
 
     sysres = system("cp libsrc/example_c7_sm.cpp libs/C7_SM/script");

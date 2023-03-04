@@ -21,6 +21,7 @@
 #include "indexchain.h"
 #include "metricindex.h"
 #include "sgloperations.h"
+#include "sgloptions.h"
 #include "typecast.h"
 
 namespace sgl {
@@ -50,16 +51,44 @@ GExpr EpsilonIndex::refresh() const
         m_indices[0], m_indices[1], m_indices[2], m_indices[3]);
 }
 
+csl::Expr orderIndices(std::vector<csl::Index> &indices)
+{
+    csl::Expr sign = CSL_1;
+    for (size_t i = 0; i != indices.size(); ++i) {
+        size_t min = i;
+        for (size_t j = i + 1; j != indices.size(); ++j) {
+            if (indices[j] < indices[min])
+                min = j;
+        }
+        if (min != i) {
+            std::swap(indices[i], indices[min]);
+            sign *= -1;
+        }
+    }
+    return sign;
+}
+
 csl::Expr EpsilonIndex::getFactor() const
 {
     if (isZero())
         return CSL_0;
-    return CSL_1;
+    if (!sgl::option::orderEspilonIndices)
+        return CSL_1;
+    std::vector<csl::Index> indices = m_indices;
+    csl::Expr               sign    = orderIndices(indices);
+    return sign;
 }
 
 GExpr EpsilonIndex::getTerm() const
 {
-    return (isZero() ? CSL_0 : copy());
+    if (isZero())
+        return cslexpr_s(CSL_0);
+
+    if (!sgl::option::orderEspilonIndices)
+        return copy();
+    std::vector<csl::Index> indices = m_indices;
+    orderIndices(indices);
+    return epsilonindex_s(indices[0], indices[1], indices[2], indices[3]);
 }
 
 csl::Expr EpsilonIndex::toCSL(TensorSet const &) const
@@ -95,7 +124,8 @@ GExpr EpsilonIndex::chisholmIdentity1(csl::Index const &mu,
     }
     if (nu.size() != 3) {
         LOG("Less that three other indices...")
-        throw Exception::MathError;
+        throw MathError("Chisholm identity called with a broken epsilon: ",
+                        copy());
     }
     int   sign   = ((4 - i_mu) & 1) ? 1 : -1;
     GExpr factor = cslexpr_s(-sign * CSL_I);
@@ -157,7 +187,9 @@ GExpr EpsilonIndex::chisholmIdentity2(csl::Index const &mu,
     if (rho.size() != 2) {
         if (rho.size() != 3) {
             LOG("Not two indices ...")
-            throw Exception::MathError;
+            throw MathError("Called wring chisholm idendity or with a broken "
+                            "epsilon: ",
+                            copy());
         }
         const size_t     m_one = static_cast<size_t>(-1);
         int              sign  = (i_mu == m_one) ? -1 : 1;
@@ -167,16 +199,14 @@ GExpr EpsilonIndex::chisholmIdentity2(csl::Index const &mu,
             sign *= -1;
         return sign * chisholmIdentity2B(rho, tau, a, b);
     }
-    int sign = (i_nu & 1) ? 1 : -1;
-    sign *= (i_mu & 1) ? -1 : 1;
-    if (i_mu < i_nu)
-        sign *= -1;
+    int parity = (i_mu + i_nu) % 2 + (i_mu < i_nu);
+    int sign   = (parity & 1) ? -1 : 1;
     return sign * chisholmIdentity2A(rho, a, b);
 }
 
 GExpr EpsilonIndex::chisholmIdentity2A(std::vector<csl::Index> const &rho,
-                                       csl::Index const &             a,
-                                       csl::Index const &             b) const
+                                       csl::Index const              &a,
+                                       csl::Index const              &b) const
 {
     LOG("Factor :", cslexpr_s(-CSL_I * (sgl::DMinko - 2)))
     LOG("Structure res: ",
@@ -192,9 +222,9 @@ GExpr EpsilonIndex::chisholmIdentity2A(std::vector<csl::Index> const &rho,
 }
 
 GExpr EpsilonIndex::chisholmIdentity2B(std::vector<csl::Index> const &rho,
-                                       csl::Index const &             nu,
-                                       csl::Index const &             a,
-                                       csl::Index const &             b) const
+                                       csl::Index const              &nu,
+                                       csl::Index const              &a,
+                                       csl::Index const              &b) const
 {
     LOG("Factor :", cslexpr_s(-CSL_I))
     LOG("Structure res: ",
@@ -203,32 +233,22 @@ GExpr EpsilonIndex::chisholmIdentity2B(std::vector<csl::Index> const &rho,
                                            gammaindex_s(5)},
                         a,
                         b)))
-    auto const         f = cslexpr_s(-CSL_I);
+    auto const         f = cslexpr_s(CSL_I);
     std::vector<GExpr> terms;
-    terms.reserve(5);
+    terms.reserve(3);
     terms.push_back(
-        f * metricindex_s(rho[0], rho[1])
-        * indexchain_s({gammaindex_s({rho[2], nu}), gammaindex_s(5)}, a, b));
+        f * metricindex_s(rho[0], nu)
+        * indexchain_s(
+            {gammaindex_s({rho[1], rho[2]}), gammaindex_s(5)}, a, b));
     terms.push_back(
-        -f * metricindex_s(rho[0], rho[2])
-        * indexchain_s({gammaindex_s({rho[1], nu}), gammaindex_s(5)}, a, b));
+        -f * metricindex_s(rho[1], nu)
+        * indexchain_s(
+            {gammaindex_s({rho[0], rho[2]}), gammaindex_s(5)}, a, b));
     terms.push_back(
-        f * metricindex_s(rho[1], rho[2])
-        * indexchain_s({gammaindex_s({rho[0], nu}), gammaindex_s(5)}, a, b));
-    terms.push_back(f / 2
-                    * indexchain_s({gammaindex_s(rho[0]),
-                                    gammaindex_s(rho[1]),
-                                    gammaindex_s(rho[2]),
-                                    gammaindex_s(nu)},
-                                   a,
-                                   b));
-    terms.push_back(-f / 2
-                    * indexchain_s({gammaindex_s(nu),
-                                    gammaindex_s(rho[0]),
-                                    gammaindex_s(rho[1]),
-                                    gammaindex_s(rho[2])},
-                                   a,
-                                   b));
+        f * metricindex_s(rho[2], nu)
+        * indexchain_s(
+            {gammaindex_s({rho[0], rho[1]}), gammaindex_s(5)}, a, b));
+
     return sgl::sum_s(terms);
 }
 
@@ -242,7 +262,7 @@ GExpr EpsilonIndex::propertyWith(GExpr const &other) const
         auto const &arg = indexChain->argument(i);
         for (const auto &index : arg->indices())
             if (contains(index)) {
-                auto const &                 indices = arg->indices();
+                auto const                  &indices = arg->indices();
                 std::pair<GExpr, IndexChain> cut     = indexChain->cut(i);
                 auto [a, b] = cut.second.getBorderIndices();
                 if (indices.size() == 1)
@@ -252,7 +272,9 @@ GExpr EpsilonIndex::propertyWith(GExpr const &other) const
                            * chisholmIdentity2(indices[0], indices[1], a, b);
             }
     }
-    throw Exception::MathError;
+    throw MathError("Unknown property for epsilon tensor, the hasProperty() "
+                    "returned true",
+                    " but no property is found.");
 }
 
 void EpsilonIndex::print(std::ostream &out) const

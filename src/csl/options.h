@@ -33,8 +33,9 @@ inline bool canonicalSumNumericalFactor = true;
 inline bool applySelfContractions  = true;
 inline bool applyChainContractions = false;
 
-inline bool fullComparison = true;
-inline bool printIndexIds  = true;
+inline bool fullComparison             = true;
+inline bool permissiveCovariantIndices = false;
+inline bool printIndexIds              = true;
 
 } // namespace csl::option
 

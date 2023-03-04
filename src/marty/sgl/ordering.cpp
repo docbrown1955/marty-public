@@ -57,7 +57,10 @@ bool contractedOrder(GExpr const &A, GExpr const &B)
         std::cerr << "IndexChain, should'nt." << std::endl;
         std::cerr << A << std::endl;
         std::cerr << B << std::endl;
-        throw Exception::MathError;
+        throw MathError("Should not get contracted order for gamma or index "
+                        "chain: ",
+                        A,
+                        B);
     }
     // The tensorset is guaranteed to be useless, default constructed
     TensorSet tset;
@@ -101,8 +104,6 @@ size_t simplest(GExpr const &prod, GExpr const &chain, size_t begin)
         auto const &A = *ConvertTo<GammaIndex>(chain[simplest]);
         auto const &B = *ConvertTo<GammaIndex>(chain[i]);
         if (!isOrdered(prod, A, B)) {
-            std::cout << B.copy() << " simpler than " << A.copy() << " !"
-                      << '\n';
             simplest = i;
         }
     }

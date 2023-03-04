@@ -144,3 +144,5 @@ set(ALL_SOURCES
 
 add_library(marty-core OBJECT ${ALL_SOURCES})
 set_property(TARGET marty-core PROPERTY POSITION_INDEPENDENT_CODE 1)
+
+add_dependencies(marty-core looptools)

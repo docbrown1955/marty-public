@@ -96,35 +96,7 @@ add_subdirectory(src)
 add_subdirectory(examples)
 add_subdirectory(tests)
 
-add_library(csl SHARED)
-target_link_libraries(csl csl-core)
-target_link_libraries(csl GSL::gsl GSL::gslcblas)
-
-add_library(csl-static STATIC)
-target_link_libraries(csl-static csl-core)
-target_link_libraries(csl-static GSL::gsl GSL::gslcblas)
-
-add_library(marty-lha SHARED)
-target_link_libraries(marty-lha marty-lha-obj)
-target_link_libraries(marty-lha marty-lha-obj)
-
-add_library(marty-lha-static STATIC)
-target_link_libraries(marty-lha-static marty-lha-obj)
-target_link_libraries(marty-lha-static marty-lha-obj)
-
-add_dependencies(marty-core looptools)
-
-add_library(marty SHARED)
-target_link_libraries(marty csl-core grafed-core jsonparser marty-lha-obj marty-core marty-ufo sgl marty-models)
-target_link_libraries(marty GSL::gsl GSL::gslcblas)
-target_link_libraries(marty ${PROJECT_BINARY_DIR}/libooptools.so)
-
-add_library(marty-static STATIC)
-target_link_libraries(marty-static csl-core grafed-core jsonparser marty-lha-obj marty-core marty-ufo sgl marty-models)
-target_link_libraries(marty-static GSL::gsl GSL::gslcblas)
-target_link_libraries(marty-static ${PROJECT_BINARY_DIR}/libooptools.a)
-
-install(TARGETS marty marty-static csl csl-static marty-lha marty-lha-static
+install(TARGETS marty marty-static csl csl-static marty-lha marty-lha-static marty-gamma-api
     DESTINATION lib)
 install(DIRECTORY src/
     DESTINATION include

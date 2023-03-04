@@ -1,4 +1,5 @@
 #include "comparedata.h"
+#include "testutility.h"
 #include "marty/models/sm.h"
 #include <marty.h>
 
@@ -41,6 +42,7 @@ int main()
     lib.addFunction("M2_nH", M2W);
 
     [[maybe_unused]] int sysres = system("rm -rf libs/EWGauge");
+    defineLibPath(lib);
     lib.print();
     sysres = system("cp libsrc/example_ewgauge.cpp libs/EWGauge/script");
     sysres = system("cp libsrc/kinematics.h libs/EWGauge/include");

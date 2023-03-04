@@ -1,4 +1,5 @@
 #include "comparedata.h"
+#include "testutility.h"
 #include "marty.h"
 #include "marty/models/sm.h"
 
@@ -61,6 +62,7 @@ int main()
     lib.addFunction("gm2_eW", C, true);
 
     [[maybe_unused]] int sysres = system("rm -rf libs/gm2SM");
+    defineLibPath(lib);
     lib.print();
     sysres = system("cp libsrc/example_gm2_sm.cpp libs/gm2SM/script");
     sysres = system("cd libs/gm2SM; make && bin/example_gm2_sm.x");

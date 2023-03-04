@@ -1,4 +1,5 @@
 #include "comparedata.h"
+#include "testutility.h"
 #include "marty.h"
 #include "marty/models/gthdm.h"
 
@@ -138,6 +139,7 @@ int main()
     lib.addFunction("C10_Z", C10_Z);
     lib.addFunction("C9_box", C9_box);
     lib.addFunction("C10_box", C10_box);
+    defineLibPath(lib);
     lib.print();
 
     sysres = system("cp libsrc/example_thdm_paper.cpp "

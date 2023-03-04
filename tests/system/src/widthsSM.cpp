@@ -1,6 +1,6 @@
 #include "comparedata.h"
-#include "marty/models/sm.h"
 #include "testutility.h"
+#include "marty/models/sm.h"
 #include <marty.h>
 
 void addWidth(mty::Model                        &model,
@@ -102,6 +102,7 @@ int main()
               mty::Outgoing(mty::AntiPart("A"))},
              mty::OneLoop,
              options);
+    defineLibPath(lib);
     lib.print();
 
     sysres = system("cp libsrc/example_widths_lib.cpp libs/widthsSM/script");

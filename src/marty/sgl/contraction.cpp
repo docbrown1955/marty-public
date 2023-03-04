@@ -91,7 +91,7 @@ GExpr contraction(GammaIndex        Mu,
     if (Mu.isC() && Nu.isC()) {
         return -indexchain_s(a, b);
     }
-    throw Exception::MathError;
+    throw MathError("Unknown gamma index contraction");
 }
 
 static GExpr g(csl::Index const &mu, csl::Index const &nu)
@@ -102,7 +102,7 @@ static GExpr g(csl::Index const &mu, csl::Index const &nu)
 static GExpr epsilonCombinatorial(unsigned int i)
 {
     if (i > 4)
-        throw Exception::ValueError;
+        throw ValueError("Epsilon combinatorial with more than 4 indices!");
     if (i == 0)
         return cslexpr_s(1);
     return (sgl::DMinko - 4 + i) * epsilonCombinatorial(i - 1);
@@ -146,7 +146,11 @@ static GExpr epsilonContraction(csl::Index const &mu,
 GExpr epsilonContraction(std::vector<csl::Index> A, std::vector<csl::Index> B)
 {
     if (A.size() != 4 || B.size() != 4)
-        throw Exception::TypeError;
+        throw TypeError("Epsinlon contraction with invalid number of indices "
+                        "(should be 4): ",
+                        A.size(),
+                        " and ",
+                        B.size());
     SCOPELOG
     LOG("Epsilon contraction")
     LOG(csl::IndexStructure(A))
@@ -194,7 +198,8 @@ GExpr epsilonContraction(std::vector<csl::Index> A, std::vector<csl::Index> B)
         res = sign * epsilonContraction();
         break;
     default:
-        throw Exception::MathError;
+        throw MathError("More than 4 contractions for an epsilon tensor, "
+                        "should not happen.");
     }
     LOG("Res :", res)
     return res;
@@ -284,7 +289,7 @@ GExpr momentumGammaContraction(IndexChain const &init,
                      * chain2.copy()
                - sign * cslexpr_s(p(rho) * p(+rho)) * chain3.copy();
     }
-    throw Exception::MathError;
+    throw MathError("Unknown momentum-gamma contraction");
 }
 
 } // namespace sgl

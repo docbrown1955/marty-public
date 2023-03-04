@@ -25,5 +25,5 @@
 namespace sgl::option {
 
 inline bool keepEvanescentOperators = true;
-
+inline bool orderEspilonIndices     = true;
 }

@@ -47,32 +47,32 @@ class IndexChain : public AbstractMultiFunction {
     IndexChain(GExpr const &mu, csl::Index const &t_a, csl::Index const &t_b);
 
     IndexChain(std::vector<GExpr> const &mu,
-               csl::Index const &        t_a,
-               csl::Index const &        t_b);
+               csl::Index const         &t_a,
+               csl::Index const         &t_b);
 
     IndexChain(Field const &t_a, csl::Index const &t_b);
 
     IndexChain(GExpr const &mu, Field const &t_a, csl::Index const &t_b);
 
     IndexChain(std::vector<GExpr> const &mu,
-               Field const &             t_a,
-               csl::Index const &        t_b);
+               Field const              &t_a,
+               csl::Index const         &t_b);
 
     IndexChain(csl::Index const &t_a, Field const &t_b);
 
     IndexChain(GExpr const &mu, csl::Index const &t_a, Field const &t_b);
 
     IndexChain(std::vector<GExpr> const &mu,
-               csl::Index const &        t_a,
-               Field const &             t_b);
+               csl::Index const         &t_a,
+               Field const              &t_b);
 
     IndexChain(Field const &t_a, Field const &t_b);
 
     IndexChain(GExpr const &mu, Field const &t_a, Field const &t_b);
 
     IndexChain(std::vector<GExpr> const &mu,
-               Field const &             t_a,
-               Field const &             t_b);
+               Field const              &t_a,
+               Field const              &t_b);
 
     bool isZero() const override;
 
@@ -148,6 +148,10 @@ class IndexChain : public AbstractMultiFunction {
     {
         return a == b && !(psiL || psiR);
     }
+
+    bool isOnBasis(bool chiralBasis) const;
+
+    std::optional<GExpr> projectOnBasis(bool chiralBasis) const;
 
     std::optional<GExpr> checkGammaAndConjugation() const;
 
@@ -234,7 +238,7 @@ class IndexChain : public AbstractMultiFunction {
 };
 
 template <class... Args>
-GExpr indexchain_s(Args &&... args)
+GExpr indexchain_s(Args &&...args)
 {
     auto chain = std::make_shared<IndexChain>(std::forward<Args>(args)...);
     if (chain->isZero())
@@ -249,7 +253,7 @@ GExpr indexchain_s(Args &&... args)
 }
 
 template <class... Args>
-GExpr indexchain_s(std::initializer_list<GExpr> gammas, Args &&... args)
+GExpr indexchain_s(std::initializer_list<GExpr> gammas, Args &&...args)
 {
     return indexchain_s(std::vector<GExpr>(gammas.begin(), gammas.end()),
                         std::forward<Args>(args)...);

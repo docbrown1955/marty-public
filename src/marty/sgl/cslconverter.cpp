@@ -40,6 +40,8 @@ GExpr csl_simplified(GExpr const &expr, TensorSet const &tensors)
 
 csl::Expr sgl_to_csl(GExpr const &expr, TensorSet const &tensors)
 {
+    csl::ScopedProperty permissiveIndices(
+        &csl::option::permissiveCovariantIndices, true);
     SCOPELOG
     LOG("SGL to CSL")
     LOG(expr)

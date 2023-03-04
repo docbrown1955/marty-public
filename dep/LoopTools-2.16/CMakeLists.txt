@@ -37,7 +37,13 @@ add_custom_command(
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_custom_target(looptools ALL
+add_custom_target(looptools_double 
     DEPENDS ${PROJECT_BINARY_DIR}/libooptools.so
+)
+add_custom_target(looptools_quad
     DEPENDS ${PROJECT_BINARY_DIR}/libooptools-quad.so
 )
+add_dependencies(looptools_quad looptools_double)
+
+add_custom_target(looptools ALL)
+add_dependencies(looptools looptools_double looptools_quad)

@@ -1,4 +1,5 @@
 #include "comparedata.h"
+#include "testutility.h"
 #include <marty.h>
 
 using namespace std;
@@ -118,6 +119,7 @@ int main() {
     [[maybe_unused]] int sysres = system("rm -rf libs/simpleSpectrum");
     mty::Library lib("simpleSpectrum", "libs");
     lib.generateSpectrum(toyModel);
+    defineLibPath(lib);
     lib.print();
 
     sysres = system("cp libsrc/example_simplespectrum.cpp libs/simpleSpectrum/script");

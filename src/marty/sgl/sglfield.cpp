@@ -34,7 +34,7 @@ Field::Field(csl::Expr const &  field,
 {
     auto tfield = dynamic_cast<csl::TensorFieldElement const *>(field.get());
     if (!tfield)
-        throw Exception::TypeError;
+        throw TypeError("Expression ", field, " is not a tensor field");
     index = tfield->getIndexStructureView().back();
     psi   = std::dynamic_pointer_cast<csl::TensorFieldParent>(
         tfield->getParent());

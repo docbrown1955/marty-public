@@ -14,6 +14,7 @@
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "comparedata.h"
+#include "testutility.h"
 #include "marty.h"
 #include "marty/models/pmssm_lem.h"
 
@@ -168,6 +169,7 @@ int main()
     getC9A_old(pmssm, lib);
     getC9BZ(pmssm, lib);
     getC9Tot(pmssm, lib);
+    defineLibPath(lib);
     lib.print();
 
     sysres = system("cp libsrc/example_c9_mssm.cpp libs/C9_MSSM/script");
