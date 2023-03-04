@@ -76,7 +76,6 @@ Any version greater than 9 can be used but all the three compilers must use **th
 
 ### Build and install `MARTY`
 
-
 Once the dependencies have been installed and that the `C`, `C++` and `Fortran` compilers meet the requirements above (either by default or after having exported the `CC`, `CXX` and `FC` environment variables), clone this repository:
 ```bash
     git clone https://github.com/docbrown1955/marty-public.git
