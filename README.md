@@ -36,6 +36,8 @@ Here are example diagrams you can try to find running the sample programs !
 | Simple 3-vertex | Weak diffusion | Meson mixing |
 ------------------|----------------|-----------|
 | ![GRAFED 3 vertex](assets/grafed_3vertex.png) |  ![GRAFED weak diffusion](assets/grafed_weak.png) | ![GRAFED Meson mixing](assets/grafed_box.png) |
+
+For further `MARTY` magic, checkout the comprehensive [manual](https://marty.in2p3.fr/doc/marty-manual.pdf)!
 ## Installation
 
 The following procedure is relevant since `MARTY-1.6`. To build and install older versions please refer to the [website](https://marty.in2p3.fr/download.html).
