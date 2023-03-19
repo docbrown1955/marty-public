@@ -1,3 +1,9 @@
+/*
+ * Simple QED model
+ *
+ * Create a QED model with a single electron (Dirac fermion) of charge -1
+ * and compute several amplitudes in this model.
+ */
 #include <marty.h>
 
 using namespace csl;
@@ -5,16 +11,15 @@ using namespace mty;
 
 int main()
 {
-
     Model QED;
-    AddGaugedGroup(QED, group::Type::U1, "U1_em", constant_s("e"));
+    AddGaugedGroup(QED, group::Type::U1, "em", constant_s("e"));
     Init(QED);
 
     Particle electron = diracfermion_s("e", QED);
     SetMass(electron, "m_e");
-    SetGroupRep(electron, "U1_em", {-1, 1});
+    SetGroupRep(electron, "em", -1); // Set the charge -1 for group em
     AddParticle(QED, electron);
-    Rename(QED, "A_U1_em", "A");
+    Rename(QED, "A_em", "A"); // By default bosons are names A_<group_name>
     Particle photon = GetParticle(QED, "A");
 
     std::cout << QED << std::endl;

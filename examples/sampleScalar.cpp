@@ -1,3 +1,9 @@
+/*
+ * Scalar model example
+ *
+ * Create a simple (phi)^3 model with a massive, real scalar particle phi
+ * and calculate the phi -> phi+phi amplitude at one-loop.
+ */
 #include <marty.h>
 
 using namespace csl;
@@ -10,7 +16,7 @@ int main()
     Model    p3Model;
     Particle phi = scalarboson_s("\\phi", p3Model);
     SetMass(phi, "m");
-    SetSelfConjugate(phi, true);
+    SetSelfConjugate(phi, true); // Real particle
     AddParticle(p3Model, phi);
 
     /******* phi^3 term definition       **********/
