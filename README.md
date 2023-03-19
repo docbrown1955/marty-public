@@ -45,7 +45,7 @@ System dependencies (needed at run-time as system commands):
 
  On `Ubuntu` for example these dependencies can be installed with
  ``` bash
-    sudo apt-get install libgsl-dev libgslcblas0 texlive texlive-luatex dvipng coreutils -y
+    sudo apt-get install libgsl-dev libgslcblas0 texlive texlive-luatex dvipng coreutils imagemagick -y
     sudo apt-get install qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools -y
     sudo apt-get install cmake -y
  ```
