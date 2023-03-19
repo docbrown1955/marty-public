@@ -13,6 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
+/*
+ * This is the getting started example for MARTY!
+ *
+ * Follow the tutorial on the website: https://marty.in2p3.fr/gettingStarted.html
+ */
+
 #include <marty.h>
 
 using namespace std;
@@ -24,9 +30,7 @@ std::string path_to_generated_library = ".";
 
 int main()
 {
-
     // Model building
-
     Model toyModel;
     toyModel.addGaugedGroup(group::Type::SU, "L", 2);
     toyModel.addGaugedGroup(group::Type::U1, "Y");
@@ -100,7 +104,7 @@ int main()
 
     auto rules = toyModel.getFeynmanRules();
     Display(rules); // Displays expressions in terminal
-    // Show(rules); // Shows diagrams in the application
+    Show(rules); // Shows diagrams in the application
 
     auto res = toyModel.computeAmplitude(Order::TreeLevel,
                                          {Incoming("u"),
@@ -110,7 +114,7 @@ int main()
 
     Display(res);
     DisplayAbbreviations();
-    // Show(res);
+    Show(res);
 
     csl::Expr squared_ampl = toyModel.computeSquaredAmplitude(res);
     cout << squared_ampl << endl;

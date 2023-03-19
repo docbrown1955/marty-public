@@ -1,29 +1,15 @@
 #ifndef MARTY_API_GAMMA_H_INCLUDED
 #define MARTY_API_GAMMA_H_INCLUDED
 
-#include <exception>
-#include <sstream>
 #include <string>
 #include <vector>
+#include "gamma_api_error.h"
 
 namespace sgl {
 class GExpr;
 } // namespace sgl
 namespace mty::gamma_api {
 
-class GammaAPIError : public std::exception {
-  public:
-    template <class... Args>
-    GammaAPIError(Args &&...args);
-
-    char const *what() const noexcept override
-    {
-        return msg.c_str();
-    }
-
-  private:
-    std::string msg;
-};
 
 using Expr = sgl::GExpr;
 
@@ -62,14 +48,7 @@ Expr applyDoubleFierz(Expr const &chain1,
 std::string generateString(Expr const &expr);
 std::string generateLatex(Expr const &expr);
 
-template <class... Args>
-GammaAPIError::GammaAPIError(Args &&...args)
-{
-    std::ostringstream sout;
-    (sout << ... << args);
-    this->msg = sout.str();
-}
 
-}; // namespace mty::gamma_api
+} // namespace mty::gamma_api
 
 #endif
