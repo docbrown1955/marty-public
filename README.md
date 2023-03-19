@@ -24,6 +24,18 @@ MARTY - A C++ framework automating symbolic calculations Beyond the Standard Mod
 
 In the following some possibilities to get started easily with `MARTY`, once installed, are presented. For installation instructions, see the following section.
 
+Several sample programs are given in the `examples/` directory, each in a different model. 
+Once `MARTY` has been built, it is possible to run any example from the `build/examples/` directory.
+
+ - **Complete first example \[`gettingStarted`\]:** Extended first view at `MARTY` features, explained in details on the [website](https://marty.in2p3.fr/gettingStarted.html). This example is simple but rather complete, from model building to code generation.
+ - **Simple models and calculations \[`sampleScalar`, `sampleSQED`, `sampleQED`\]:** Get a first simple view of model building in `MARTY` and how to perform simple amplitude calculations.
+ - **More complexity \[`sampleQCD`\]:** Group representations and cross-section calculation.
+ - **First glance at Wilson coefficients \[`sample2HDM`\]**.
+
+Here are example diagrams you can try to find running the sample programs !
+| Simple 3-vertex | Weak diffusion | Meson mixing |
+------------------|----------------|-----------|
+| ![GRAFED 3 vertex](assets/grafed_3vertex.png) |  ![GRAFED weak diffusion](assets/grafed_weak.png) | ![GRAFED Meson mixing](assets/grafed_box.png) |
 ## Installation
 
 The following procedure is relevant since `MARTY-1.6`. To build and install older versions please refer to the [website](https://marty.in2p3.fr/download.html).
