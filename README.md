@@ -99,7 +99,7 @@ Then, build and install `MARTY`!
     cd marty-public
     mkdir build
     cd build
-    cmake .. -DCMAKE_INSTALL_PREFIX=<installation-path-for-marty>
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=<installation-path-for-marty>
     make
     make install
 ```
@@ -108,6 +108,9 @@ If the `CMAKE_INSTALL_PREFIX` is not given, `cmake` will automatically set this 
 ``` bash
     sudo make install
 ```
+
+It is also possible to build `MARTY` in debug mode (without optimization and including debug symbols) using the option `-DCMAKE_BUILD_TYPE=Debug` instead.
+
 ### Run tests
 
 To run the tests after installing `MARTY` simply type:
