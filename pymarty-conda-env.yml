@@ -1,0 +1,11 @@
+name: pymarty
+channels:
+  - defaults
+dependencies:
+  - ipython
+  - matplotlib
+  - numpy
+  - pybind11
+  - pytest
+  - python
+  - scipy

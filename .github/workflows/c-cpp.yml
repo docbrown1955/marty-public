@@ -16,26 +16,39 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: s-weigand/setup-conda@v1
+      with: 
+        activate-conda: true
+        update-conda: true
+    - run: conda --version
+    - run: which python
     - name: dependencies
-      run: sudo apt-get install coreutils build-essential gcc-12 g++-12 gfortran-12 libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng lcov cmake texlive texlive-latex-extra texlive-luatex -y
+      run: |
+        sudo apt-get install coreutils build-essential gcc-12 g++-12 gfortran-12 libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng lcov cmake texlive texlive-latex-extra texlive-luatex -y
+        conda env create -f pymarty-conda-env.yml
+        source ${CONDA_PREFIX}/bin/activate pymarty
     - name: configure
       run: |
+        source ${CONDA_PREFIX}/bin/activate pymarty
         mkdir build
         cd build
         export CXX=g++-12
         export CC=gcc-12
         export FC=gfortran-12
-        cmake ..
+        cmake .. -DFORCE_PYMARTY_CONFIG=1
     - name: make
       run: |
+        source ${CONDA_PREFIX}/bin/activate pymarty
         cd build
         make
     - name: install
       run: |
+        source ${CONDA_PREFIX}/bin/activate pymarty
         cd build
         sudo make install
     - name: test
       run: |
+        source ${CONDA_PREFIX}/bin/activate pymarty
         cd build
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib
         ctest --output-on-failure
@@ -43,8 +56,13 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v3
+    - uses: s-weigand/setup-conda@v1
+      with: 
+        activate-conda: true
+        update-conda: true
     - name: dependencies
-      run: sudo apt-get install coreutils build-essential gcc-9 g++-9 gfortran-9 libgsl-dev libgslcblas0 qt5-default dvipng lcov cmake texlive texlive-latex-extra texlive-luatex -y
+      run: |
+        sudo apt-get install coreutils build-essential gcc-9 g++-9 gfortran-9 libgsl-dev libgslcblas0 qt5-default dvipng lcov cmake texlive texlive-latex-extra texlive-luatex -y
     - name: configure
       run: |
         mkdir build
@@ -70,10 +88,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: s-weigand/setup-conda@v1
+      with: 
+        activate-conda: true
+        update-conda: true
     - name: dependencies
-      run: sudo apt-get install coreutils build-essential clang gfortran libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng cmake lcov texlive texlive-latex-extra texlive-luatex -y
+      run: |
+        sudo apt-get install coreutils build-essential clang gfortran libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng cmake lcov texlive texlive-latex-extra texlive-luatex -y
+        conda env create -f pymarty-conda-env.yml
+        source ${CONDA_PREFIX}/bin/activate pymarty
     - name: configure
       run: |
+        source ${CONDA_PREFIX}/bin/activate pymarty
         mkdir build
         cd build
         export CXX=clang++
@@ -82,14 +108,17 @@ jobs:
         cmake ..
     - name: make
       run: |
+        source ${CONDA_PREFIX}/bin/activate pymarty
         cd build
         make
     - name: install
       run: |
+        source ${CONDA_PREFIX}/bin/activate pymarty
         cd build
         sudo make install
     - name: test
       run: |
+        source ${CONDA_PREFIX}/bin/activate pymarty
         cd build
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib
         ctest --output-on-failure
@@ -97,6 +126,10 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v3
+    - uses: s-weigand/setup-conda@v1
+      with: 
+        activate-conda: true
+        update-conda: true
     - name: dependencies
       run: |
         brew install coreutils gcc@12 gsl qt5 cmake lcov imagemagick texlive octave pkg-config

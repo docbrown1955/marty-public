@@ -1,0 +1,5 @@
+import sys
+
+pymarty_path = "@PYMARTY_PATH@"
+if pymarty_path not in sys.path:
+    sys.path.append(pymarty_path)

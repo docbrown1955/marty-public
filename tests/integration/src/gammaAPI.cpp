@@ -707,8 +707,6 @@ TEST(marty_gamma_api, conjugation_identities)
 TEST(marty_gamma_api, simple_fierz_identities)
 {
     keepSymbolic4D(false);
-    csl::ScopedProperty permissiveIndices(
-        &csl::option::permissiveCovariantIndices, true);
     {
         // completeness relation chiral basis
         auto c1    = current({}, 0, 1);
@@ -866,8 +864,6 @@ TEST(marty_gamma_api, double_fierz_identities)
     //                             {gamma(2), gamma5()},
     //                             mty::gamma_api::FierzBasis::Standard);
 
-    csl::ScopedProperty permissiveIndices(
-        &csl::option::permissiveCovariantIndices, true);
     // Other tests
     {
         auto c1 = current({gamma(0), gamma(1), gamma(2), P_L()}, 0, 1);

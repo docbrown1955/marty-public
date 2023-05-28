@@ -13,6 +13,25 @@ set(LLVM_COMPILERS 0)
 set(REQUIRED_COMPILER_VERSION 0)
 set(IDENTICAL_COMPILER_VERSION 0)
 
+# Config for Pymarty
+if (NOT PYMARTY_PYTHON_VERSION)
+    find_package(Python COMPONENTS Interpreter Development)
+else()
+    find_package(Python EXACT ${PYMARTY_PYTHON_VERSION} COMPONENTS Interpreter Development)
+    set(PYBIND11_PYTHON_VERSION ${PYMARTY_PYTHON_VERSION} CACHE STRING "")
+endif()
+find_package(pybind11 CONFIG)
+
+if (Python_FOUND AND pybind11_FOUND)
+    set(CONFIGURE_PYMARTY ON)
+else()
+    message(WARNING "Cannot configure pybindings for MARTY. Python or pybind11 are missing.")
+    set(CONFIGURE_PYMARTY OFF)
+endif()
+if (FORCE_PYMARTY_CONFIG AND (NOT CONFIGURE_PYMARTY))
+    message(FATAL_ERROR "The variable FORCE_PYMARTY_CONFIG was set to 1 but pymarty cannot be configured, aborting configuration.")
+endif()
+
 find_package(GSL REQUIRED)
 
 # Dependencies for GRAFED
@@ -94,10 +113,18 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 add_subdirectory(dep)
 add_subdirectory(src)
 add_subdirectory(examples)
+if (CONFIGURE_PYMARTY)
+    add_subdirectory(python)
+endif()
+
 add_subdirectory(tests)
 
 install(TARGETS marty marty-static csl csl-static marty-lha marty-lha-static marty-gamma-api
     DESTINATION lib)
+if (CONFIGURE_PYMARTY)
+    install(PROGRAMS "$<TARGET_FILE:_pymarty>"
+        DESTINATION lib)
+endif()
 install(DIRECTORY src/
     DESTINATION include
     FILES_MATCHING PATTERN *.h)
