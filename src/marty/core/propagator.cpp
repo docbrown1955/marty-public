@@ -71,22 +71,19 @@ void Propagator::print(int              mode,
         out << std::endl;
 }
 
-std::string Propagator::printLaTeX(int mode) const
+void Propagator::printLaTeX(int mode, std::ostream &out) const
 {
-    std::ostringstream sout;
-    sout << "Prop(";
-    sout << argument[0]->printLaTeX(1);
-    sout << ", ";
-    sout << argument[1]->printLaTeX(1);
+    out << "\\mathrm{Prop}\\left(";
+    argument[0]->printLaTeX(1, out);
+    out << ",\\ ";
+    argument[1]->printLaTeX(1, out);
     if (argument[2] != CSL_0) {
-        sout << ", ";
-        sout << (argument[2])->printLaTeX(1);
+        out << ", ";
+        argument[2]->printLaTeX(1, out);
     }
-    sout << ")";
+    out << ")";
     if (mode == 0)
-        sout << std::endl;
-
-    return sout.str();
+        out << std::endl;
 }
 
 csl::unique_Expr Propagator::copy_unique() const
@@ -219,19 +216,16 @@ void FermionPropStruct::print(int           mode,
         out << std::endl;
 }
 
-std::string FermionPropStruct::printLaTeX(int mode) const
+void FermionPropStruct::printLaTeX(int mode, std::ostream &out) const
 {
-    std::ostringstream sout;
-    sout << "Fermi(";
-    sout << argument[0]->printLaTeX(1);
-    sout << ", ";
-    sout << argument[1]->printLaTeX(1);
-    sout << ")";
-    sout << "_" << structure;
+    out << "\\mathrm{FermionProp}\\left(";
+    argument[0]->printLaTeX(1, out);
+    out << ", ";
+    argument[1]->printLaTeX(1, out);
+    out << "\\right)";
+    out << "_" << structure;
     if (mode == 0)
-        sout << std::endl;
-
-    return sout.str();
+        out << std::endl;
 }
 
 csl::unique_Expr FermionPropStruct::copy_unique() const

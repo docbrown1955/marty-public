@@ -142,24 +142,22 @@ void Commutator::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string Commutator::printLaTeX(int mode) const
+void Commutator::printLaTeX(int mode, std::ostream &out) const
 {
     stringstream sout;
     if (sign == -1)
-        sout << "[ ";
+        sout << "\\left[ ";
     else
-        sout << "{ ";
-    sout << argument[0]->printLaTeX(1);
-    sout << " , ";
-    sout << argument[1]->printLaTeX(1);
+        sout << "\\left\\lbrace ";
+    argument[0]->printLaTeX(1, out);
+    out << ",\\ ";
+    argument[1]->printLaTeX(1, out);
     if (sign == -1)
-        sout << " ]";
+        sout << " \\right]";
     else
-        sout << " }";
+        sout << " \\right\\rbrace";
     if (mode == 0)
         sout << endl;
-
-    return sout.str();
 }
 
 long double Commutator::evaluateScalar() const

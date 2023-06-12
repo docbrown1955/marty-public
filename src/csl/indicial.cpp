@@ -2823,20 +2823,31 @@ void TensorElement::printCode(int, std::ostream &out) const
         out << ")";
 }
 
-string TensorElement::printLaTeX(int mode) const
+void TensorElement::printLaTeX(int mode, std::ostream &out) const
 {
     const int     nIndices = index.size();
-    ostringstream sout;
-    sout << getLatexName();
+    out << "{" << getLatexName() << "}";
+    printProp(out);
     if (nIndices > 0) {
-        sout << "_";
-        sout << index;
+        out << "_{";
+        // covariant indices
+        for (const auto &i : index) {
+            if (!i.getSign()) {
+                i.printLaTeX(out);
+            }
+        }
+        out << "}";
+        out << "^{";
+        // contravariant indices
+        for (const auto &i : index) {
+            if (i.getSign()) {
+                i.printLaTeX(out);
+            }
+        }
+        out << "}";
     }
-    printProp(sout);
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 std::vector<Parent> TensorElement::getSubSymbols() const

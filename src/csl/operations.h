@@ -107,7 +107,7 @@ class Sum : public AbstractMultiFunc {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     /*! \brief Return the \b sum of all the arguments.
      * \return The sum of the scalar evaluation of all the arguments.
@@ -236,7 +236,7 @@ class Polynomial : public AbstractMultiFunc {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     /*! \brief Return the \b polynomial of all the arguments.
      * \return The polynomial of the scalar evaluation of all the arguments.
@@ -406,7 +406,7 @@ class Prod : public AbstractMultiFunc {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     /*! \brief Return the \b product of all the arguments.
      * \return The product of the scalar evaluation of all the arguments.
@@ -560,7 +560,7 @@ class Pow : public AbstractDuoFunc {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     LibDependency getLibDependency() const override;
 
@@ -695,7 +695,7 @@ class Derivative : public Operator<AbstractDuoFunc> {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     /*! \brief Return the \b derivative of the first argument wrt the second.
      * \return The derivative of the scalar evaluation of the two arguments.
@@ -787,7 +787,7 @@ class Integral : public Operator<AbstractDuoFunc> {
                std::ostream &out     = std::cout,
                LibraryMode   libMode = LibraryMode::NoLib) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     // long double evaluateScalar() const override;
 

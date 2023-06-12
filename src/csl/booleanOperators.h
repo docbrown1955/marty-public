@@ -79,7 +79,7 @@ class BooleanOperator : public AbstractMultiFunc {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     LibDependency getLibDependency() const override;
 

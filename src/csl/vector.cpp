@@ -78,28 +78,10 @@ void AbstractVectorial::print(int mode, std::ostream &out, LibraryMode) const
         out << endl;
 }
 
-string AbstractVectorial::printLaTeX(int mode) const
+void AbstractVectorial::printLaTeX(int, std::ostream &) const
 {
-    ostringstream sout;
-    if (mode == 0) {
-        if (dim == 1)
-            sout << "Vec";
-        else if (dim == 2)
-            sout << "Mat";
-        else
-            sout << "Tensor";
-    }
-    sout << "{ ";
-    for (int i = 0; i < nArgs; i++) {
-        argument[i]->print(1);
-        if (i < nArgs - 1)
-            sout << " , ";
-    }
-    sout << "}";
-    if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+    print();
+    CALL_SMERROR(CSLError::AbstractCallError);
 }
 
 void AbstractVectorial::printCode(int mode, std::ostream &out) const

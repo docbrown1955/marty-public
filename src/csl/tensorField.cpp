@@ -272,20 +272,18 @@ void TDerivativeElement::printCode(int mode, std::ostream &out) const
     out << ", " << empty << ")";
 }
 
-string TDerivativeElement::printLaTeX(int mode) const
+void TDerivativeElement::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
-    sout << TensorFieldElement::printLaTeX(max(1, mode));
-    sout << "(";
-    if (not empty or operand != CSL_1)
-        sout << operand->printLaTeX(1);
+    TensorFieldElement::printLaTeX(max(1, mode), out);
     if (not empty)
-        sout << ")";
-    printProp(sout);
+        out << "\\left(";
+    if (not empty or operand != CSL_1)
+        operand->printLaTeX(1, out);
+    if (not empty)
+        out << "\\right)";
+    printProp(out);
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 std::vector<csl::Parent> TDerivativeElement::getSubSymbols() const
@@ -698,20 +696,16 @@ void TensorFieldElement::printCode(int, std::ostream &out) const
         out << ")";
 }
 
-string TensorFieldElement::printLaTeX(int) const
+void TensorFieldElement::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
-    sout << getLatexName();
-    if (index.size() > 0) {
-        sout << "_";
-        sout << index;
+    TensorElement::printLaTeX(max(1, mode), out);
+    out << "(";
+    out << "{" << point->getLatexName() << "}";
+    out << ")";
+    printProp(out);
+    if (mode == 0) {
+        out << endl;
     }
-    sout << "(";
-    sout << point->getName();
-    sout << ")";
-    printProp(sout);
-
-    return sout.str();
 }
 
 std::vector<csl::Parent> TensorFieldElement::getSubSymbols() const

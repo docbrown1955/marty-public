@@ -129,7 +129,10 @@ class Abstract {
      * another expr.
      * \return The string corresponding to the LaTeX output.
      */
-    virtual std::string printLaTeX(int mode = 0) const;
+    virtual void printLaTeX(
+        int mode = 0,
+        std::ostream &out = std::cout
+    ) const;
 
     virtual std::vector<Parent> getSubSymbols() const = 0;
 

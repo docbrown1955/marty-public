@@ -178,17 +178,13 @@ void Constant::printCode(int, std::ostream &out) const
             << ")";
 }
 
-string Constant::printLaTeX(int mode) const
+void Constant::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
+    out << "{" << parent->getLatexName() << "}";
     if (mode == 0 and parent->isValued())
-        sout << parent->getLatexName() << " = " << parent->getValue() << endl;
+        out << " = " << parent->getValue() << endl;
     else if (mode == 0)
-        sout << parent->getLatexName() << endl;
-    else
-        sout << parent->getLatexName();
-
-    return sout.str();
+        out << endl;
 }
 
 std::vector<Parent> Constant::getSubSymbols() const
@@ -406,17 +402,13 @@ void Variable::printCode(int, std::ostream &out) const
             << ")";
 }
 
-string Variable::printLaTeX(int mode) const
+void Variable::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
+    out << "{" << parent->getLatexName() << "}";
     if (mode == 0 and getValued())
-        sout << getLatexName() << " = " << getValue() << endl;
+        out << " = " << getValue() << endl;
     else if (mode == 0)
-        sout << getLatexName() << endl;
-    else
-        sout << getLatexName();
-
-    return sout.str();
+        out << endl;
 }
 
 std::vector<Parent> Variable::getSubSymbols() const
@@ -567,9 +559,12 @@ void Imaginary::printCode(int, std::ostream &out) const
     out << "CSL_I";
 }
 
-string Imaginary::printLaTeX(int) const
+void Imaginary::printLaTeX(int mode, std::ostream &out) const
 {
-    return "i";
+    out << "i";
+    if (mode == 0) {
+        out << '\n';
+    }
 }
 
 long double Imaginary::evaluateScalar() const
@@ -635,15 +630,12 @@ void IntFactorial::printCode(int, std::ostream &out) const
     out << "csl::intfactorial_s(" << value << ")";
 }
 
-string IntFactorial::printLaTeX(int mode) const
+void IntFactorial::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
     if (mode == 0)
-        sout << value << "!" << endl;
+        out << value << "!" << endl;
     else
-        sout << value << "!";
-
-    return sout.str();
+        out << value << "!";
 }
 
 long double IntFactorial::evaluateScalar() const

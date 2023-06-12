@@ -3,6 +3,7 @@
 #include "marty/sgl/sgloptions.h"
 
 #include <iostream>
+#include <sstream>
 #include <map>
 #include <set>
 
@@ -249,7 +250,9 @@ static std::string generateLatexImpl(Expr const         &expr,
 
 static std::string generateLatex(csl::Expr const &expr)
 {
-    return expr->printLaTeX(0);
+    std::ostringstream sout;
+    expr->printLaTeX(0, sout);
+    return sout.str();
 }
 
 static std::string generateLatex(sgl::Sum const     *func,

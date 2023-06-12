@@ -585,27 +585,24 @@ void ScalarIntegral::printCode(int, std::ostream &out) const
     out << ")";
 }
 
-string ScalarIntegral::printLaTeX(int mode) const
+void ScalarIntegral::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
-    sout << "int";
+    out << "int";
     if (inf != -CSL_INF or sup != CSL_INF) {
-        sout << "_{";
-        sout << inf->printLaTeX(1);
-        sout << "}^{";
-        sout << sup->printLaTeX(1);
-        sout << "}";
+        out << "_{";
+        inf->printLaTeX(1, out);
+        out << "}^{";
+        sup->printLaTeX(1, out);
+        out << "}";
     }
-    sout << "\\left(";
-    sout << "d" << variable->getName() << "\\cdot";
+    out << "\\left(";
+    out << "d" << variable->getName() << "\\cdot";
     if (argument != CSL_1)
-        sout << argument->printLaTeX(1);
+        argument->printLaTeX(1, out);
     if (not empty)
-        sout << "\\right)";
+        out << "\\right)";
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 unique_Expr ScalarIntegral::copy_unique() const
@@ -761,27 +758,24 @@ void VectorIntegral::printCode(int, std::ostream &out) const
     out << ")";
 }
 
-string VectorIntegral::printLaTeX(int mode) const
+void VectorIntegral::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
-    sout << "int";
+    out << "int";
     if (inf != -CSL_INF or sup != CSL_INF) {
-        sout << "_{";
-        sout << inf->printLaTeX(1);
-        sout << "}^{";
-        sout << sup->printLaTeX(1);
-        sout << "}";
+        out << "_{";
+        inf->printLaTeX(1, out);
+        out << "}^{";
+        sup->printLaTeX(1, out);
+        out << "}";
     }
-    sout << "\\left(";
-    sout << "d" << variables->getName() << "\\cdot";
+    out << "\\left(";
+    out << "d" << variables->getName() << "\\cdot";
     if (argument != CSL_1)
-        sout << argument->printLaTeX(1);
+        argument->printLaTeX(1, out);
     if (not empty)
-        sout << "\\right)";
+        out << "\\right)";
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 unique_Expr VectorIntegral::copy_unique() const

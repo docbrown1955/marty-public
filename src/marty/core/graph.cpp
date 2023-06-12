@@ -1136,7 +1136,9 @@ std::vector<std::shared_ptr<Graph>> Graph::contractionStep() const
     vector<int> connectedContractile = getContractibleConnectedVertices(field);
 
     if constexpr (display) {
-        std::cout << "Contracted field = " << field->printLaTeX(1) << endl;
+        std::cout << "Contracted field = ";
+        field->printLaTeX(1, std::cout);
+        std::cout << endl;
         std::cout << "External options:\n";
         for (const auto &i : extContractile)
             std::cout << i << "  ";

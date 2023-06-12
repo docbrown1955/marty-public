@@ -10,6 +10,7 @@
 #include "testutility.h"
 #include <array>
 #include <marty.h>
+#include <sstream>
 
 using namespace csl;
 using namespace mty;
@@ -17,6 +18,13 @@ using namespace mty;
 auto cc(csl::Expr const &expr)
 {
     return GetComplexConjugate(expr);
+}
+
+auto toLatex(csl::Expr const &expr)
+{
+    std::ostringstream sout;
+    expr->printLaTeX(1, sout);
+    return sout.str();
 }
 
 template <size_t N>
@@ -146,29 +154,29 @@ int main()
     loadKinematics<5>(shouldBeS1);
     loadKinematics<5>(shouldBeS2);
 
-    std::cout << (square1->printLaTeX() == shouldBeS1->printLaTeX()) << '\n';
-    std::cout << (square1->printLaTeX() == shouldBeS2->printLaTeX()) << '\n';
-    std::cout << (square2->printLaTeX() == shouldBeS2->printLaTeX()) << '\n';
-    std::cout << (square1->printLaTeX() == shouldBeS2->printLaTeX()) << '\n';
+    std::cout << (toLatex(square1) == toLatex(shouldBeS1)) << '\n';
+    std::cout << (toLatex(square1) == toLatex(shouldBeS2)) << '\n';
+    std::cout << (toLatex(square2) == toLatex(shouldBeS2)) << '\n';
+    std::cout << (toLatex(square1) == toLatex(shouldBeS2)) << '\n';
 
-    if (square1->printLaTeX() != shouldBeS1->printLaTeX()) {
+    if (toLatex(square1) != toLatex(shouldBeS1)) {
         ::error(
             buildMessage("Bad comparison of ", square1, " and ", shouldBeS1));
         return 1;
     }
-    if (square2->printLaTeX() != shouldBeS2->printLaTeX()) {
+    if (toLatex(square2) != toLatex(shouldBeS2)) {
         ::error(
             buildMessage("Bad comparison of ", square2, " and ", shouldBeS2));
         return 1;
     }
-    if (square1->printLaTeX() == shouldBeS2->printLaTeX()) {
+    if (toLatex(square1) == toLatex(shouldBeS2)) {
         ::error(buildMessage("Bad comparison (should be !=) of ",
                              square1,
                              " and ",
                              shouldBeS2));
         return 1;
     }
-    if (square2->printLaTeX() == shouldBeS1->printLaTeX()) {
+    if (toLatex(square2) == toLatex(shouldBeS1)) {
         ::error(buildMessage("Bad comparison (should be !=) of ",
                              square2,
                              " and ",

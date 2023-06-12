@@ -236,14 +236,14 @@ std::ostream &operator<<(std::ostream &out, FeynruleMomentum const &mom)
     out << "Feynman rule mapping for:\n";
     for (size_t i = 0; i != mom.keys.size(); ++i) {
         out << "Key: ";
-        out << mom.keys[i].field.printLaTeX(1);
+        mom.keys[i].field.printLaTeX(1, out);
         out << " , " << mom.keys[i].point->getName();
         if (mom.mapping[i] == -1)
             out << "  not mapped.";
         else {
             out << " mapped to ";
             if (mom.targets[mom.mapping[i]].factor != CSL_1)
-                out << mom.targets[mom.mapping[i]].factor->printLaTeX(1);
+                mom.targets[mom.mapping[i]].factor->printLaTeX(1, out);
             out << mom.targets[mom.mapping[i]].momentum->getName();
             out << "(" << mom.targets[mom.mapping[i]].momentum << ")";
         }

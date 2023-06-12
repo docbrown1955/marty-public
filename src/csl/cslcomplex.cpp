@@ -94,16 +94,13 @@ void RealPart::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string RealPart::printLaTeX(int mode) const
+void RealPart::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
-    sout << "Re(";
-    sout << argument->printLaTeX(1);
-    sout << ")";
+    out << "\\Re\\left(";
+    argument->printLaTeX(1, out);
+    out << "\\right)";
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 LibDependency RealPart::getLibDependency() const
@@ -268,16 +265,13 @@ void ImaginaryPart::print(int           mode,
         out << endl;
 }
 
-string ImaginaryPart::printLaTeX(int mode) const
+void ImaginaryPart::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
-    sout << "Im(";
-    sout << argument->printLaTeX(1);
-    sout << ")";
+    out << "\\Im\\left(";
+    argument->printLaTeX(1, out);
+    out << "\\right)";
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 LibDependency ImaginaryPart::getLibDependency() const

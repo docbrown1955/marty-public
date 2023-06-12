@@ -71,7 +71,7 @@ class Arbitrary : public AbstractLiteral {
                std::ostream &out     = std::cout,
                LibraryMode   libMode = LibraryMode::NoLib) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     std::optional<Expr> evaluate(csl::eval::mode user_mode
                                  = csl::eval::base) const override;

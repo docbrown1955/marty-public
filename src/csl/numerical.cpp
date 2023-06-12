@@ -107,17 +107,14 @@ void Float::print(int mode, std::ostream &out, LibraryMode) const
     printProp(out);
 }
 
-string Float::printLaTeX(int mode) const
+void Float::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
     if (mode == 0)
-        sout << value << endl;
+        out << value << endl;
     else if (value < 0)
-        sout << "(" << value << ")";
+        out << "(" << value << ")";
     else
-        sout << value;
-
-    return sout.str();
+        out << value;
 }
 
 long double Float::evaluateScalar() const
@@ -301,17 +298,14 @@ void Integer::print(int mode, std::ostream &out, LibraryMode) const
     printProp(out);
 }
 
-string Integer::printLaTeX(int mode) const
+void Integer::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
     if (mode == 0)
-        sout << value << endl;
+        out << value << endl;
     else if (value < 0)
-        sout << "(" << value << ")";
+        out << "(" << value << ")";
     else
-        sout << value;
-
-    return sout.str();
+        out << value;
 }
 
 long double Integer::evaluateScalar() const
@@ -518,18 +512,15 @@ void IntFraction::printCode(int, std::ostream &out) const
     out << "csl::intfraction_s(" << num << ", " << denom << ")";
 }
 
-string IntFraction::printLaTeX(int mode) const
+void IntFraction::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
     if (mode == 0)
-        sout << "\\frac{" << num << "}{" << denom << "}";
+        out << "\\frac{" << num << "}{" << denom << "}";
     else if (mode > 3)
-        sout << "\\left("
-             << "\\frac{" << num << "}{" << denom << "}\\right)";
+        out << "\\left("
+            << "\\frac{" << num << "}{" << denom << "}\\right)";
     else
-        sout << "\\frac{" << num << "}{" << denom << "}";
-
-    return sout.str();
+        out << "\\frac{" << num << "}{" << denom << "}";
 }
 
 long double IntFraction::evaluateScalar() const
@@ -788,21 +779,19 @@ void Complex::printCode(int, std::ostream &out) const
     out << "csl::complex_s(" << real << ", " << imag << ")";
 }
 
-std::string Complex::printLaTeX(int mode) const
+void Complex::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
     if (mode > 1 and imag != CSL_0)
-        sout << "(";
-    sout << real->printLaTeX(1);
+        out << "(";
+    real->printLaTeX(1, out);
     if (imag != CSL_0) {
-        sout << " +i";
-        sout << imag->printLaTeX(1);
+        out << " +i";
+        imag->printLaTeX(1, out);
     }
     if (mode > 1 and imag != CSL_0)
-        sout << ")";
+        out << ")";
     if (mode == 0)
-        sout << endl;
-    return sout.str();
+        out << endl;
 }
 
 long double Complex::evaluateScalar() const

@@ -150,16 +150,13 @@ void Wick::printCode(int mode, std::ostream &out) const
     argument->printCode(mode, out);
 }
 
-string Wick::printLaTeX(int mode) const
+void Wick::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
-    sout << "Wick< ";
-    sout << argument->printLaTeX(1);
-    sout << " >";
+    out << "\\mathrm{T}\\left\\rbrace";
+    argument->printLaTeX(1, out);
+    out << "\\right\\rbrace";
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 optional<csl::Expr> Wick::evaluate(csl::eval::mode) const

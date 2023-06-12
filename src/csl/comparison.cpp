@@ -69,9 +69,9 @@ void Arbitrary::print(int mode, std::ostream &out, LibraryMode) const
         out << endl;
 }
 
-string Arbitrary::printLaTeX(int) const
+void Arbitrary::printLaTeX(int, std::ostream &out) const
 {
-    return name;
+    out << name;
 }
 
 optional<Expr> Arbitrary::evaluate(csl::eval::mode) const

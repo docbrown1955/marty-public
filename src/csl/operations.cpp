@@ -229,22 +229,19 @@ void Sum::printCode(int, std::ostream &out) const
     out << "})";
 }
 
-string Sum::printLaTeX(int mode) const
+void Sum::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
     if (mode > 1) // Priority lesser than the previous operation: brackets
-        sout << "\\left(";
+        out << "\\left(";
     for (size_t i = 0; i < argument.size(); i++) {
-        sout << argument[i]->printLaTeX(1);
+        argument[i]->printLaTeX(1, out);
         if (i + 1 < size())
-            sout << "+";
+            out << "+";
     }
     if (mode > 1)
-        sout << "\\right)";
+        out << "\\right)";
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 long double Sum::evaluateScalar() const
@@ -1445,55 +1442,74 @@ void Prod::printCode(int, std::ostream &out) const
     out << "})";
 }
 
-string Prod::printLaTeX(int mode) const
+void Prod::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
     if (mode > 2) // Priority lesser than the previous operation: brackets
-        sout << "\\left(";
+        out << "\\left(";
     vector<int> denominatorIndices(0);
     vector<int> numeratorIndices(0);
     for (size_t i = 0; i < argument.size(); i++) {
         if (argument[i]->getType() == csl::Type::Pow
             and argument[i]->getArgument(1)->isInteger()
-            and argument[i]->getArgument(1)->evaluateScalar() == -1)
+            and argument[i]->getArgument(1)->evaluateScalar() < 0) {
             denominatorIndices.push_back(i);
-        else
+        }
+        else if (i != 0 || !csl::IsNumerical(argument[i])) {
             numeratorIndices.push_back(i);
+        }
+    }
+    if (argument.size() > 0 && csl::IsNumerical(argument[0])) {
+        argument[0]->printLaTeX(2, out);
+        const csl::Type argType = argument[0]->getType();
+        const bool isSimpleNumber = (argType == csl::Type::Integer) || (argType == csl::Type::Float); 
+        if (!isSimpleNumber && argument.size() > 1 && denominatorIndices.size() > 0) {
+            out << "\\cdot ";
+        }
     }
     if (denominatorIndices.size() > 0)
-        sout << "\\frac{";
+        out << "\\frac{";
     for (size_t i = 0; i < numeratorIndices.size(); i++) {
-        sout << argument[numeratorIndices[i]]->printLaTeX(2);
-        if (i < numeratorIndices.size() - 1
-            and static_cast<int>(
-                    argument[numeratorIndices[i]]->getPrimaryType())
-                    < 10
-            and static_cast<int>(
-                    argument[numeratorIndices[i + 1]]->getPrimaryType())
-                    >= 10)
-            sout << "\\cdot ";
+        const csl::Expr &arg = argument[numeratorIndices[i]];
+        const csl::Expr *nextArg = nullptr;
+        arg->printLaTeX(2, out);
+        const bool is_last = (i + 1 == numeratorIndices.size());
+        if (!is_last) {
+            nextArg = &argument[numeratorIndices[i + 1]];
+        }
+        const bool need_cdot = 
+            !is_last 
+            && nextArg 
+            && (arg->getPrimaryType() < (*nextArg)->getPrimaryType()) 
+            && !csl::IsSum(*nextArg)
+            && !csl::IsNumerical(arg);
+        if (need_cdot) {
+            out << "\\cdot ";
+        }
     }
     if (denominatorIndices.size() > 0) {
-        sout << "}{";
+        out << "}{";
         for (size_t i = 0; i < denominatorIndices.size(); i++) {
-            sout
-                << argument[denominatorIndices[i]]->getArgument(0)->printLaTeX(
-                       2);
-            if (i < denominatorIndices.size() - 1
-                and static_cast<int>(
-                        argument[denominatorIndices[i]]->getPrimaryType())
-                        < 10
-                and static_cast<int>(
-                        argument[denominatorIndices[i + 1]]->getPrimaryType())
-                        >= 10)
-                sout << "\\cdot ";
+            const csl::Expr &arg = argument[denominatorIndices[i]];
+            const csl::Expr *nextArg = nullptr;
+            csl::pow_s(arg, -1)->printLaTeX(2, out);
+            const bool is_last = (i + 1 == denominatorIndices.size());
+            if (!is_last) {
+                nextArg = &argument[denominatorIndices[i + 1]];
+            }
+            const bool need_cdot = 
+                !is_last 
+                && nextArg 
+                && (arg[0]->getPrimaryType() < (*nextArg)[0]->getPrimaryType()) 
+                && !csl::IsSum((*nextArg)[0])
+                && !csl::IsNumerical(arg[0]);
+            if (need_cdot) {
+                out << "\\cdot ";
+            }
         }
-        sout << "}";
+        out << "}";
     }
     if (mode > 2)
-        sout << "\\right)";
-
-    return sout.str();
+        out << "\\right)";
 }
 
 void getExponentStructure(const Expr &argument, Expr &term, Expr &exponent)
@@ -2692,21 +2708,18 @@ void Pow::printCode(int, std::ostream &out) const
     out << ")";
 }
 
-string Pow::printLaTeX(int mode) const
+void Pow::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
     if (mode > 4) // Priority lesser than the previous operation: brackets
-        sout << "\\left(";
-    sout << argument[0]->printLaTeX(4);
-    sout << "^{";
-    sout << argument[1]->printLaTeX(1);
-    sout << "}";
+        out << "\\left(";
+    argument[0]->printLaTeX(4, out);
+    out << "^{";
+    argument[1]->printLaTeX(1, out);
+    out << "}";
     if (mode > 4)
-        sout << "\\right)";
+        out << "\\right)";
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 LibDependency Pow::getLibDependency() const
@@ -3242,22 +3255,19 @@ void Polynomial::printCode(int, std::ostream &out) const
     out << ")";
 }
 
-string Polynomial::printLaTeX(int mode) const
+void Polynomial::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
     if (mode > 1) // Priority lesser than the previous operation: brackets
-        sout << "\\left(";
+        out << "\\left(";
     for (size_t i = 0; i < argument.size(); i++) {
-        sout << argument[i]->printLaTeX(1);
+        argument[i]->printLaTeX(1, out);
         if (i + 1 < argument.size())
-            sout << "+";
+            out << "+";
     }
     if (mode > 1)
-        sout << "\\right)";
+        out << "\\right)";
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 long double Polynomial::evaluateScalar() const
@@ -3657,26 +3667,23 @@ void Derivative::printCode(int, std::ostream &out) const
     out << ")";
 }
 
-string Derivative::printLaTeX(int) const
+void Derivative::printLaTeX(int, std::ostream &out) const
 {
-    ostringstream sout;
-    sout << "\\frac{d";
+    out << "\\frac{d";
     if (order > 1)
-        sout << "^" << order;
-    sout << "}{d";
-    sout << argument[1]->printLaTeX(1);
+        out << "^" << order;
+    out << "}{d";
+    argument[1]->printLaTeX(1, out);
     if (order > 1)
-        sout << "^" << order;
-    sout << "}\\left(";
+        out << "^" << order;
     if (isEmpty()) {
         if (*argument[0] != CSL_1)
-            sout << argument[0]->printLaTeX(1);
-        return sout.str();
+            argument[0]->printLaTeX(1, out);
+        return;
     }
-    sout << argument[0]->printLaTeX(1);
-    sout << "\\right)";
-
-    return sout.str();
+    out << "}\\left(";
+    argument[0]->printLaTeX(1, out);
+    out << "\\right)";
 }
 
 long double Derivative::evaluateScalar() const
@@ -3913,25 +3920,25 @@ void Integral::printCode(int, std::ostream &out) const
     out << ")";
 }
 
-string Integral::printLaTeX(int) const
+void Integral::printLaTeX(int, std::ostream &out) const
 {
-    ostringstream sout;
-    sout << "\\int _{" << inf->printLaTeX(1);
-    sout << "}^{" << sup->printLaTeX(1);
-    sout << "}d";
-    if (argument[1]->getDim() > 0)
-        sout << "^" << argument[1]->getNArgs();
-    sout << argument[1]->getName();
-    sout << "\\left(";
+    out << "\\int _{";
+    inf->printLaTeX(1, out);
+    out << "}^{";
+    sup->printLaTeX(1, out);
+    out << "}d";
+    if (argument[1]->getDim() > 0) {
+        out << "^" << argument[1]->getNArgs();
+    }
+    out << argument[1]->getName();
     if (isEmpty()) {
         if (*argument[0] != CSL_1)
-            sout << argument[0]->printLaTeX(1);
-        return sout.str();
+            argument[0]->printLaTeX(1, out);
+        return;
     }
-    sout << argument[0]->printLaTeX(1);
-    sout << "\\right)";
-
-    return sout.str();
+    out << "\\left(";
+    argument[0]->printLaTeX(1, out);
+    out << "\\right)";
 }
 
 Expr Integral::suppressTerm(Expr_info expr) const

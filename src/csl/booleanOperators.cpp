@@ -192,11 +192,47 @@ void BooleanOperator::printCode(int mode, std::ostream &out) const
         out << '\n';
 }
 
-std::string BooleanOperator::printLaTeX(int mode) const
+void BooleanOperator::printLaTeX(int mode, std::ostream &out) const
 {
-    std::ostringstream sout;
-    print(mode, sout);
-    return sout.str();
+    const size_t first = size() - 2;
+    out << "\\left\\lbrace";
+    out << "\\begin{array}{l}";
+    argument[first]->printLaTeX(1, out);
+    out << "\\quad \\mathrm{if}\\";
+    switch (type) {
+    case True:
+        out << "\\left[" << argument[0] << "\\right]";
+        break;
+    case False:
+        out << "\\mathrm{not}\\ \\left[" << argument[0] << "\\right]";
+        break;
+    case EqualTo:
+        out << "\\left[" << argument[0] << "\\right]\\, ==\\, \\left[" << argument[1] << "\\right]";
+        break;
+    case DifferentThan:
+        out << "\\left[" << argument[0] << "\\right]\\, != \\,\\left[" << argument[1] << "\\right]";
+        break;
+    case LessThan:
+        out << "\\left[" << argument[0] << "\\right]\\, < \\,\\left[" << argument[1] << "\\right]";
+        break;
+    case LessThanOrEqualTo:
+        out << "\\left[" << argument[0] << "\\right]\\, <= \\,\\left[" << argument[1] << "\\right]";
+        break;
+    case GreaterThan:
+        out << "\\left[" << argument[0] << "\\right]\\, > \\,\\left[" << argument[1] << "\\right]";
+        break;
+    case GreaterThanOrEqualTo:
+        out << "\\left[" << argument[0] << "\\right]\\, >= \\,\\left[" << argument[1] << "\\right]";
+        break;
+    default:
+        CALL_SMERROR(CSLError::TypeError);
+    }
+    out << "\\\\";
+    argument[first+1]->printLaTeX(1, out);
+    out << "\\end{array}";
+    if (mode == 0) {
+        out << "\n";
+    }
 }
 
 LibDependency BooleanOperator::getLibDependency() const
