@@ -44,3 +44,47 @@ TEST(csl_tolatex, product_2)
         "\\frac{2}{3}\\cdot \\frac{{\\alpha}{\\chi}}{{\\beta}\\left(2+{\\chi}^{2}\\right)}"
     );
 }
+
+TEST(csl_tolatex, cdot_before_sum_1)
+{
+    csl::Expr a = data::a;
+    csl::Expr x = data::x;
+    csl::Expr expr = 2*(a + x)*(1 + x*x);
+    EXPECT_EQ(
+        csl::ToLatex(expr),
+        "2\\left({a}+{x}\\right)\\left(2+{x}^{2}\\right)"
+    );
+}
+
+TEST(csl_tolatex, cdot_before_sum_2)
+{
+    csl::Expr a = data::a;
+    csl::Expr x = data::x;
+    csl::Expr expr = 2*csl::pow_s(a, 2)*(1 + x*x);
+    EXPECT_EQ(
+        csl::ToLatex(expr),
+        "2{a}^{2}\\cdot\\left(2+{x}^{2}\\right)"
+    );
+}
+
+TEST(csl_tolatex, no_cdot_before_sum_1)
+{
+    csl::Expr a = data::a;
+    csl::Expr x = data::x;
+    csl::Expr expr = 2*a*(1 + x*x)*(a + x);
+    EXPECT_EQ(
+        csl::ToLatex(expr),
+        "2{a}\\left({a}+{x}\\right)\\left(2+{x}^{2}\\right)"
+    );
+}
+
+TEST(csl_tolatex, no_cdot_before_sum_2)
+{
+    csl::Expr a = data::a;
+    csl::Expr x = data::x;
+    csl::Expr expr = 2*(1 + x*x)*(a + x);
+    EXPECT_EQ(
+        csl::ToLatex(expr),
+        "2\\left({a}+{x}\\right)\\left(2+{x}^{2}\\right)"
+    );
+}

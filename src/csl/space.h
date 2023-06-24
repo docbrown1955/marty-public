@@ -141,7 +141,7 @@ class Space {
      */
     Space(const std::string              &t_name,
           int                             t_dim,
-          std::vector<std::string> const &indexNames = {"i", "j", "k", "l"});
+          std::vector<std::string> const &indexNames = {"i", "j", "k", "l", "m", "n"});
 
     /*!
      * \brief Initializes the name and the dimension of the space, no metric
@@ -151,8 +151,9 @@ class Space {
      * \param t_dim Dimension of the Space.
      */
     Space(const std::string              &t_name,
-          csl::Expr                const &t_dim,
-          std::vector<std::string> const &indexNames = {"i", "j", "k", "l"});
+          csl::Expr const                &t_dim,
+          std::vector<std::string> const &indexNames
+          = {"i", "j", "k", "l", "m", "n"});
 
     /*!
      * \brief Initializes name, dimension of the space. Here the metrix is
@@ -172,7 +173,8 @@ class Space {
           int                             t_dim,
           const std::string              &name_metric,
           const Expr                     &t_metric,
-          std::vector<std::string> const &indexNames = {"i", "j", "k", "l"});
+          std::vector<std::string> const &indexNames
+          = {"i", "j", "k", "l", "m", "n"});
 
     /*!
      * \brief Destructor.
@@ -202,7 +204,7 @@ class Space {
      * \return The dimension of the Space.
      */
     inline int getDim() const;
-    
+
     /*!
      * \return The dimension of the Space.
      */

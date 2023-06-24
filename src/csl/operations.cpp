@@ -1442,74 +1442,114 @@ void Prod::printCode(int, std::ostream &out) const
     out << "})";
 }
 
+static bool isDenominatorTerm(csl::Expr const &term)
+{
+    return csl::IsPow(term)             // form x^y
+           && csl::IsNumerical(term[1]) // numerical x^a
+           && (term[1]->evaluateScalar()
+               < 1); // negative exponent x^(-a) = 1/(x^a)
+}
+
+static std::optional<csl::Expr>
+getNumericalArgument(std::vector<csl::Expr> const &terms)
+{
+    if (terms.size() > 0 && csl::IsNumerical(terms[0])) {
+        return terms[0];
+    }
+    return std::nullopt;
+}
+
+static std::vector<csl::Expr>
+getNumeratorArguments(std::vector<csl::Expr> const &terms)
+{
+    std::vector<csl::Expr> args;
+    args.reserve(terms.size());
+    for (std::size_t i = 0; i != terms.size(); ++i) {
+        if (i == 0 && csl::IsNumerical(terms[i])) {
+            continue;
+        }
+        if (!isDenominatorTerm(terms[i])) {
+            args.push_back(terms[i]);
+        }
+    }
+    return args;
+}
+
+static std::vector<csl::Expr>
+getDenominatorArguments(std::vector<csl::Expr> const &terms)
+{
+    std::vector<csl::Expr> args;
+    args.reserve(terms.size());
+    for (const auto &term : terms) {
+        if (isDenominatorTerm(term)) {
+            args.push_back(csl::pow_s(
+                term, -1)); // Give negative power arguments directly
+        }
+    }
+    return args;
+}
+
+static bool addLatexCDOTInProd(csl::Expr arg, csl::Expr nextArg)
+{
+    if (csl::IsNumerical(arg)) {
+        // Never a \cdot after a number
+        return false;
+    }
+    if (csl::IsSum(nextArg)) {
+        // \cdot before sum except if number or symbol
+        const bool simpleArg = csl::IsNumerical(arg) || csl::IsLiteral(arg);
+        return !simpleArg;
+    }
+    bool argSimplerThanNext
+        = (arg->getPrimaryType() <= nextArg->getPrimaryType());
+    return !argSimplerThanNext;
+}
+
+static void printProdArgs(std::vector<csl::Expr> const &args,
+                          std::ostream                 &out)
+{
+    for (std::size_t i = 0; i != args.size(); ++i) {
+        args[i]->printLaTeX(2, out);
+        if (i + 1 < args.size()) {
+            if (addLatexCDOTInProd(args[i], args[i + 1])) {
+                out << "\\cdot ";
+            }
+        }
+    }
+}
+
 void Prod::printLaTeX(int mode, std::ostream &out) const
 {
     if (mode > 2) // Priority lesser than the previous operation: brackets
         out << "\\left(";
-    vector<int> denominatorIndices(0);
-    vector<int> numeratorIndices(0);
-    for (size_t i = 0; i < argument.size(); i++) {
-        if (argument[i]->getType() == csl::Type::Pow
-            and argument[i]->getArgument(1)->isInteger()
-            and argument[i]->getArgument(1)->evaluateScalar() < 0) {
-            denominatorIndices.push_back(i);
-        }
-        else if (i != 0 || !csl::IsNumerical(argument[i])) {
-            numeratorIndices.push_back(i);
-        }
-    }
-    if (argument.size() > 0 && csl::IsNumerical(argument[0])) {
-        argument[0]->printLaTeX(2, out);
-        const csl::Type argType = argument[0]->getType();
-        const bool isSimpleNumber = (argType == csl::Type::Integer) || (argType == csl::Type::Float); 
-        if (!isSimpleNumber && argument.size() > 1 && denominatorIndices.size() > 0) {
+    std::optional<csl::Expr> numericalFactor = getNumericalArgument(argument);
+    std::vector<csl::Expr>   numeratorTerms  = getNumeratorArguments(argument);
+    std::vector<csl::Expr>   denominatorTerms
+        = getDenominatorArguments(argument);
+    if (mode > 2) // Priority lesser than the previous operation: brackets
+        out << "\\left(";
+    if (numericalFactor) {
+        (**numericalFactor).printLaTeX(2, out);
+        const csl::Type argType = (**numericalFactor).getType();
+        const bool      isSimpleNumber
+            = (argType == csl::Type::Integer) || (argType == csl::Type::Float);
+        if (!isSimpleNumber && denominatorTerms.size() > 0)
             out << "\\cdot ";
-        }
     }
-    if (denominatorIndices.size() > 0)
+    if (denominatorTerms.size() > 0) {
         out << "\\frac{";
-    for (size_t i = 0; i < numeratorIndices.size(); i++) {
-        const csl::Expr &arg = argument[numeratorIndices[i]];
-        const csl::Expr *nextArg = nullptr;
-        arg->printLaTeX(2, out);
-        const bool is_last = (i + 1 == numeratorIndices.size());
-        if (!is_last) {
-            nextArg = &argument[numeratorIndices[i + 1]];
-        }
-        const bool need_cdot = 
-            !is_last 
-            && nextArg 
-            && (arg->getPrimaryType() < (*nextArg)->getPrimaryType()) 
-            && !csl::IsSum(*nextArg)
-            && !csl::IsNumerical(arg);
-        if (need_cdot) {
-            out << "\\cdot ";
-        }
-    }
-    if (denominatorIndices.size() > 0) {
+        printProdArgs(numeratorTerms, out);
         out << "}{";
-        for (size_t i = 0; i < denominatorIndices.size(); i++) {
-            const csl::Expr &arg = argument[denominatorIndices[i]];
-            const csl::Expr *nextArg = nullptr;
-            csl::pow_s(arg, -1)->printLaTeX(2, out);
-            const bool is_last = (i + 1 == denominatorIndices.size());
-            if (!is_last) {
-                nextArg = &argument[denominatorIndices[i + 1]];
-            }
-            const bool need_cdot = 
-                !is_last 
-                && nextArg 
-                && (arg[0]->getPrimaryType() < (*nextArg)[0]->getPrimaryType()) 
-                && !csl::IsSum((*nextArg)[0])
-                && !csl::IsNumerical(arg[0]);
-            if (need_cdot) {
-                out << "\\cdot ";
-            }
-        }
+        printProdArgs(denominatorTerms, out);
         out << "}";
     }
-    if (mode > 2)
+    else {
+        printProdArgs(numeratorTerms, out);
+    }
+    if (mode > 2) // Priority lesser than the previous operation: brackets
         out << "\\right)";
+    if (mode == 0)
+        out << '\n';
 }
 
 void getExponentStructure(const Expr &argument, Expr &term, Expr &exponent)
