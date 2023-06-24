@@ -126,7 +126,7 @@ class Constant : public AbstractLiteral {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     std::vector<Parent> getSubSymbols() const override;
 
@@ -252,7 +252,7 @@ class Variable : public AbstractLiteral {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     std::vector<Parent> getSubSymbols() const override;
 
@@ -355,7 +355,7 @@ class IntFactorial : public AbstractLiteral {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     /*! \brief Returns the **evaluation of the factorial**.
      * \return **value!**
@@ -445,7 +445,7 @@ class Imaginary : public AbstractLiteral {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     /*! \brief \b Tries to evaluate the Imaginary **as a real**.
      * \details This function returns \b 0 and prints a \b warning message

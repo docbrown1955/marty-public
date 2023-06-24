@@ -32,6 +32,9 @@ namespace csl {
 class TensorField;
 class TDerivative;
 
+[[nodiscard]]
+std::string ToLatex(Expr const &expr);
+
 template <class T>
 [[nodiscard]] inline csl::Type GetType(T const &expr)
 {

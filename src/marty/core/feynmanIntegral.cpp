@@ -2345,18 +2345,21 @@ void FeynmanIntegral::print(int              mode,
         out << '\n';
 }
 
-std::string FeynmanIntegral::printLaTeX(int) const
+void FeynmanIntegral::printLaTeX(int mode, std::ostream &out) const
 {
-    std::ostringstream sout;
-    printLooptoolsId(type, loopToolsId, sout);
+    printLooptoolsId(type, loopToolsId, out);
     if (mty::option::displayIntegralArgs) {
-        sout << "(";
-        for (const auto &arg : argument)
-            sout << arg << ", ";
-        sout << ")";
+        out << "\\left(";
+        for (std::size_t i = 0; i != argument.size(); ++i) {
+            argument[i]->printLaTeX(1, out);
+            if (i + 1 != argument.size()) {
+                out << ",\\ ";
+            }
+        }
+        out << "\\right)";
     }
-
-    return sout.str();
+    if (mode == 0)
+        out << std::endl;
 }
 
 void FeynmanIntegral::printLib(int              mode,

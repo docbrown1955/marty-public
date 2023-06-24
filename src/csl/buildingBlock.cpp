@@ -159,7 +159,7 @@ std::optional<Expr> Complexified::getComplexArgument() const
 void Complexified::printProp(std::ostream &fout) const
 {
     if (isComplexConjugate())
-        fout << "^(*)";
+        fout << "^{*}";
 }
 
 csl::ComplexProperty Complexified::getComplexProperty() const

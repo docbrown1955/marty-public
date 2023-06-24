@@ -111,7 +111,7 @@ class Commutator : public AbstractDuoFunc {
                std::ostream &out     = std::cout,
                LibraryMode   libMode = LibraryMode::NoLib) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     long double evaluateScalar() const override;
 

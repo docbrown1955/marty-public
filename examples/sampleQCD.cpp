@@ -65,6 +65,10 @@ int main()
     Display(_66bar);
     Show(_66bar);
 
+    for (const auto &expr : _66bar.obtainExpressions()) {
+        std::cout << csl::ToLatex(expr) << std::endl;
+    }
+
     csl::Expr crossSection = QCD.computeSquaredAmplitude(_66bar);
 
     std::cout << "Squared amplitude = " << crossSection << std::endl;
@@ -76,6 +80,8 @@ int main()
     crossSection
         = crossSection / (64 * CSL_PI * CSL_PI * s)
           * sqrt_s((1 - 4 * pow_s(m_u, 2) / s) / (1 - 4 * pow_s(m_X, 2) / s));
+
+    std::cout << csl::ToLatex(crossSection) << std::endl;
 
     std::cout << "Cross Section = " << crossSection << std::endl;
 

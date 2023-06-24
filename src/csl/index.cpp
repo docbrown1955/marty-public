@@ -175,14 +175,12 @@ void Index::print() const
     cout << getName();
 }
 
-string Index::printLaTeX() const
+void Index::printLaTeX(std::ostream &out) const
 {
     if (type == cslIndex::Fixed) {
-        ostringstream sout;
-        sout << static_cast<int>(nameOrValue);
-        return sout.str();
+        out << static_cast<int>(nameOrValue);
     }
-    return std::string(getName());
+    out << getName();
 }
 
 void Index::printDefinition(std::ostream &out, int indentSize) const

@@ -28,6 +28,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <iostream>
 
 namespace csl {
 class Space;
@@ -247,7 +248,7 @@ class Index {
      * \brief Returns the LaTeX name of the Index (for now there is no
      * difference with the regular name).
      */
-    std::string printLaTeX() const;
+    void printLaTeX(std::ostream &out = std::cout) const;
 
     void printDefinition(std::ostream &out, int indentSize) const;
 

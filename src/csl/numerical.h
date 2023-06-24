@@ -120,7 +120,7 @@ class Integer : public AbstractNumerical {
                std::ostream &out     = std::cout,
                LibraryMode   libMode = LibraryMode::NoLib) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     long double evaluateScalar() const override;
 
@@ -205,7 +205,7 @@ class Float : public AbstractNumerical {
                std::ostream &out     = std::cout,
                LibraryMode   libMode = LibraryMode::NoLib) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     long double evaluateScalar() const override;
 
@@ -306,7 +306,7 @@ class IntFraction : public AbstractNumerical {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     /*! \brief Evaluates the IntFraction.
      * \return double(\b num/\b denom)
@@ -422,7 +422,7 @@ class Complex : public AbstractNumerical {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     long double evaluateScalar() const override;
 

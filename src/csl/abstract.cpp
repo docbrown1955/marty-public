@@ -158,11 +158,10 @@ void Abstract::printExplicit(int mode) const
     print(mode);
 }
 
-string Abstract::printLaTeX(int) const
+void Abstract::printLaTeX(int, std::ostream &) const
 {
     print();
     CALL_SMERROR(CSLError::AbstractCallError);
-    return "";
 }
 
 LibDependency Abstract::getLibDependency() const

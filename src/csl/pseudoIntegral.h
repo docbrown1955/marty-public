@@ -204,7 +204,7 @@ class ScalarIntegral: public AbstractIntegral {
             std::ostream &out = std::cout
             ) const override;
 
-    std::string printLaTeX(int mode=0) const override;
+    void printLaTeX(int mode=0, std::ostream &out = std::cout) const override;
 
     unique_Expr copy_unique() const override;
 
@@ -280,7 +280,7 @@ class VectorIntegral: public AbstractIntegral {
             std::ostream &out = std::cout
             ) const override;
 
-    std::string printLaTeX(int mode=0) const override;
+    void printLaTeX(int mode=0, std::ostream &out = std::cout) const override;
 
     unique_Expr copy_unique() const override;
 

@@ -60,7 +60,7 @@ class Abs : public AbstractFunc {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     LibDependency getLibDependency() const override;
 
@@ -147,7 +147,7 @@ class Exp : public AbstractFunc {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     LibDependency getLibDependency() const override;
 
@@ -237,7 +237,7 @@ class Log : public AbstractFunc {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     LibDependency getLibDependency() const override;
 
@@ -320,7 +320,7 @@ class Cos : public AbstractFunc {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     LibDependency getLibDependency() const override;
 
@@ -403,7 +403,7 @@ class Sin : public AbstractFunc {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     LibDependency getLibDependency() const override;
 
@@ -486,7 +486,7 @@ class Tan : public AbstractFunc {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     LibDependency getLibDependency() const override;
 
@@ -569,7 +569,7 @@ class ACos : public AbstractFunc {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     LibDependency getLibDependency() const override;
 
@@ -652,7 +652,7 @@ class ASin : public AbstractFunc {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     LibDependency getLibDependency() const override;
 
@@ -727,7 +727,7 @@ class ATan : public AbstractFunc {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     LibDependency getLibDependency() const override;
 
@@ -805,7 +805,7 @@ class Angle : public AbstractDuoFunc {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     LibDependency getLibDependency() const override;
 
@@ -887,7 +887,7 @@ class Cosh : public AbstractFunc {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     LibDependency getLibDependency() const override;
 
@@ -970,7 +970,7 @@ class Sinh : public AbstractFunc {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     LibDependency getLibDependency() const override;
 
@@ -1053,7 +1053,7 @@ class Tanh : public AbstractFunc {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     LibDependency getLibDependency() const override;
 
@@ -1128,7 +1128,7 @@ class ACosh : public AbstractFunc {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     LibDependency getLibDependency() const override;
 
@@ -1203,7 +1203,7 @@ class ASinh : public AbstractFunc {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     LibDependency getLibDependency() const override;
 
@@ -1278,7 +1278,7 @@ class ATanh : public AbstractFunc {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     LibDependency getLibDependency() const override;
 
@@ -1353,7 +1353,7 @@ class Factorial : public AbstractFunc {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     LibDependency getLibDependency() const override;
 
@@ -1439,7 +1439,7 @@ class DiracDelta : public AbstractFunc {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     /*! \brief \b Derives the atanh function.
      * \return derivative(argument)*(1-atanh^2(argument))

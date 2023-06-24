@@ -227,7 +227,7 @@ class TensorFieldElement: public TensorElement{
             std::ostream& out=std::cout
             ) const override;
 
-    std::string printLaTeX(int mode=0) const override;
+    void printLaTeX(int mode=0, std::ostream &out = std::cout) const override;
 
     std::vector<csl::Parent> getSubSymbols() const override;
 
@@ -295,7 +295,7 @@ class TDerivativeElement: public Operator<TensorFieldElement>{
             std::ostream& out=std::cout
             ) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     std::vector<csl::Parent> getSubSymbols() const override;
 

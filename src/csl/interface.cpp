@@ -23,12 +23,20 @@
 #include "space.h"
 #include "tensorField.h"
 #include "utils.h"
+#include <sstream>
 
 #define OPT(expr, func) ((expr->func).value_or(expr))
 
 using namespace std;
 
 namespace csl {
+
+std::string ToLatex(csl::Expr const &expr)
+{
+    std::ostringstream sout;
+    expr->printLaTeX(1, sout);
+    return sout.str();
+}
 
 Expr GetSymbol(std::string_view name, Expr const &init)
 {

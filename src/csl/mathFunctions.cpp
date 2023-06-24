@@ -115,17 +115,13 @@ void Abs::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string Abs::printLaTeX(int mode) const
+void Abs::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
-
-    sout << "\\text{bas}\\left(";
-    sout << argument->printLaTeX(1);
-    sout << "\\right)";
+    out << "\\mathrm{abs}\\left(";
+    argument->printLaTeX(1, out);
+    out << "\\right)";
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 LibDependency Abs::getLibDependency() const
@@ -226,17 +222,13 @@ void Exp::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string Exp::printLaTeX(int mode) const
+void Exp::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
-
-    sout << "e^{";
-    sout << argument->printLaTeX(1);
-    sout << "}";
+    out << "e^{";
+    argument->printLaTeX(1, out);
+    out << "}";
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 LibDependency Exp::getLibDependency() const
@@ -379,17 +371,13 @@ void Log::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string Log::printLaTeX(int mode) const
+void Log::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
-
-    sout << "\\log\\left(";
-    sout << argument->printLaTeX(1);
-    sout << "\\right)";
+    out << "\\log\\left(";
+    argument->printLaTeX(1, out);
+    out << "\\right)";
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 LibDependency Log::getLibDependency() const
@@ -487,17 +475,13 @@ void Cos::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string Cos::printLaTeX(int mode) const
+void Cos::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
-
-    sout << "\\cos\\left(";
-    sout << argument->printLaTeX(1);
-    sout << "\\right)";
+    out << "\\cos\\left(";
+    argument->printLaTeX(1, out);
+    out << "\\right)";
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 LibDependency Cos::getLibDependency() const
@@ -618,17 +602,13 @@ void Sin::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string Sin::printLaTeX(int mode) const
+void Sin::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
-
-    sout << "\\sin\\left(";
-    sout << argument->printLaTeX(1);
-    sout << "\\right)";
+    out << "\\sin\\left(";
+    argument->printLaTeX(1, out);
+    out << "\\right)";
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 LibDependency Sin::getLibDependency() const
@@ -765,17 +745,13 @@ void Tan::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string Tan::printLaTeX(int mode) const
+void Tan::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
-
-    sout << "\\tan\\left(";
-    sout << argument->printLaTeX(1);
-    sout << "\\right)";
+    out << "\\tan\\left(";
+    argument->printLaTeX(1, out);
+    out << "\\right)";
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 LibDependency Tan::getLibDependency() const
@@ -894,17 +870,13 @@ void ACos::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string ACos::printLaTeX(int mode) const
+void ACos::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
-
-    sout << "\\acos\\left(";
-    sout << argument->printLaTeX(1);
-    sout << "\\right)";
+    out << "\\acos\\left(";
+    argument->printLaTeX(1, out);
+    out << "\\right)";
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 LibDependency ACos::getLibDependency() const
@@ -999,17 +971,13 @@ void ASin::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string ASin::printLaTeX(int mode) const
+void ASin::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
-
-    sout << "\\asin\\left(";
-    sout << argument->printLaTeX(1);
-    sout << "\\right)";
+    out << "\\asin\\left(";
+    argument->printLaTeX(1, out);
+    out << "\\right)";
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 LibDependency ASin::getLibDependency() const
@@ -1077,17 +1045,13 @@ void ATan::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string ATan::printLaTeX(int mode) const
+void ATan::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
-
-    sout << "\\atan\\left(";
-    sout << argument->printLaTeX(1);
-    sout << "\\right)";
+    out << "\\atan\\left(";
+    argument->printLaTeX(1, out);
+    out << "\\right)";
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 LibDependency ATan::getLibDependency() const
@@ -1181,17 +1145,13 @@ void Cosh::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string Cosh::printLaTeX(int mode) const
+void Cosh::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
-
-    sout << "\\cosh\\left(";
-    sout << argument->printLaTeX(1);
-    sout << "\\right)";
+    out << "\\cosh\\left(";
+    argument->printLaTeX(1, out);
+    out << "\\right)";
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 LibDependency Cosh::getLibDependency() const
@@ -1284,17 +1244,13 @@ void Sinh::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string Sinh::printLaTeX(int mode) const
+void Sinh::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
-
-    sout << "\\sinh\\left(";
-    sout << argument->printLaTeX(1);
-    sout << "\\right)";
+    out << "\\sinh\\left(";
+    argument->printLaTeX(1, out);
+    out << "\\right)";
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 LibDependency Sinh::getLibDependency() const
@@ -1405,17 +1361,13 @@ void Tanh::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string Tanh::printLaTeX(int mode) const
+void Tanh::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
-
-    sout << "\\tanh\\left(";
-    sout << argument->printLaTeX(1);
-    sout << "\\right)";
+    out << "\\tanh\\left(";
+    argument->printLaTeX(1, out);
+    out << "\\right)";
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 LibDependency Tanh::getLibDependency() const
@@ -1482,17 +1434,13 @@ void ACosh::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string ACosh::printLaTeX(int mode) const
+void ACosh::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
-
-    sout << "\\acosh\\left(";
-    sout << argument->printLaTeX(1);
-    sout << "\\right)";
+    out << "\\acosh\\left(";
+    argument->printLaTeX(1, out);
+    out << "\\right)";
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 LibDependency ACosh::getLibDependency() const
@@ -1558,17 +1506,13 @@ void ASinh::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string ASinh::printLaTeX(int mode) const
+void ASinh::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
-
-    sout << "\\asinh\\left(";
-    sout << argument->printLaTeX(1);
-    sout << "\\right)";
+    out << "\\asinh\\left(";
+    argument->printLaTeX(1, out);
+    out << "\\right)";
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 LibDependency ASinh::getLibDependency() const
@@ -1637,17 +1581,13 @@ void ATanh::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string ATanh::printLaTeX(int mode) const
+void ATanh::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
-
-    sout << "\\atanh\\left(";
-    sout << argument->printLaTeX(1);
-    sout << "\\right)";
+    out << "\\atanh\\left(";
+    argument->printLaTeX(1, out);
+    out << "\\right)";
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 LibDependency ATanh::getLibDependency() const
@@ -1731,13 +1671,16 @@ void Angle::printCode(int, std::ostream &out) const
     out << ")";
 }
 
-string Angle::printLaTeX(int) const
+void Angle::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
-    sout << "\\text{angle}\\left(" << argument[0]->printLaTeX(1);
-    sout << ", " << argument[1]->printLaTeX(1) << "\\right) ";
-
-    return sout.str();
+    out << "\\text{angle}\\left(";
+    argument[0]->printLaTeX(1, out);
+    out << ",\\ ";
+    argument[1]->printLaTeX(1, out);
+    out << "\\right) ";
+    if (mode == 0) {
+        out << endl;
+    }
 }
 
 LibDependency Angle::getLibDependency() const
@@ -1850,15 +1793,12 @@ void Factorial::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string Factorial::printLaTeX(int mode) const
+void Factorial::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
-    sout << argument->printLaTeX(1);
-    sout << "!";
+    argument->printLaTeX(5, out); // max precedence
+    out << "!";
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 LibDependency Factorial::getLibDependency() const
@@ -1979,16 +1919,13 @@ void DiracDelta::print(int mode, std::ostream &out, LibraryMode) const
         out << endl;
 }
 
-string DiracDelta::printLaTeX(int mode) const
+void DiracDelta::printLaTeX(int mode, std::ostream &out) const
 {
-    ostringstream sout;
-    sout << "\\delta{";
-    argument->print(1);
-    sout << "}";
+    out << "\\delta\\left(";
+    argument->printLaTeX(1, out);
+    out << "\\right)";
     if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+        out << endl;
 }
 
 optional<Expr> DiracDelta::derive(Expr_info expr) const

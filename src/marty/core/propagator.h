@@ -43,7 +43,7 @@ class Propagator : public csl::AbstractMultiFunc {
                csl::LibraryMode libMode
                = csl::LibraryMode::NoLib) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     csl::unique_Expr copy_unique() const override;
 
@@ -88,7 +88,7 @@ class FermionPropStruct : public csl::AbstractDuoFunc {
                csl::LibraryMode libMode
                = csl::LibraryMode::NoLib) const override;
 
-    std::string printLaTeX(int mode = 0) const override;
+    void printLaTeX(int mode = 0, std::ostream &out = std::cout) const override;
 
     csl::unique_Expr copy_unique() const override;
 
