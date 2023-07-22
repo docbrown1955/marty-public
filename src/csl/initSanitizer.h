@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <exception>
 
 namespace csl {
 
@@ -34,10 +35,36 @@ class InitSanitizer {
         this->operator=(t);
     }
 
+    InitSanitizer(char const t_name[], T const &t) : name(t_name)
+    {
+        this->operator=(t);
+    }
+
     InitSanitizer &operator=(T const &t)
     {
         m_safe  = true;
         m_value = t;
+        return *this;
+    }
+
+    template<class U>
+    InitSanitizer &operator=(U const &t)
+    {
+        m_safe  = true;
+        m_value = static_cast<T>(t);
+        return *this;
+    }
+
+    InitSanitizer &operator=(InitSanitizer<T> const &t)
+    {
+        *this = t.get();
+        return *this;
+    }
+
+    template<class U>
+    InitSanitizer &operator=(InitSanitizer<U> const &u)
+    {
+        *this = u.get();
         return *this;
     }
 
@@ -57,7 +84,7 @@ class InitSanitizer {
             std::cerr << "Error: param \"" << name << "\" is used ";
             std::cerr << "uninitialized, please assign it a m_value using ";
             std::cerr << "standard m_value assignement.\n";
-            assert(false);
+            throw std::runtime_error("Uninitialized value");
         }
         return m_value;
     }
@@ -68,7 +95,7 @@ class InitSanitizer {
     }
 
   public:
-    char const *name;
+    char const *name = "unnamed_var";
 
   private:
     T    m_value;
