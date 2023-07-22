@@ -113,10 +113,15 @@ It is also possible to build `MARTY` in debug mode (without optimization and inc
 
 ### Run tests
 
-To run the tests after installing `MARTY` simply type:
+To run the tests simply type:
 ``` bash
     ctest
  ```
+It is possible to get the output of failed tests (e.g. to include in a bug fix request) using
+``` bash
+    ctest --output-on-failure
+```
+
 
 ## Environment variables
 
