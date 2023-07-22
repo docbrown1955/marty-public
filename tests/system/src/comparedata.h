@@ -10,6 +10,7 @@
 #define ERRORFONT "\033[1m\033[31m"   /* Red */
 #define SUCCESSFONT "\033[1m\033[32m" /* Green */
 
+
 inline std::vector<double> readLine(std::ifstream &fin)
 {
     std::vector<double> res;

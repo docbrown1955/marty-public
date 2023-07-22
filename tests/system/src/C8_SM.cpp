@@ -68,6 +68,7 @@ int calculate(Model &model, gauge::Type gauge)
 
 int main()
 {
+    mty::sm_input::redefineNumericalValues(); // for compatibility
     SM_Model sm;
     return calculate(sm, gauge::Type::Unitary);
 }

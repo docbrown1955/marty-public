@@ -8,6 +8,7 @@ using namespace mty;
 int main()
 {
 
+    mty::sm_input::redefineNumericalValues(); // for compatibility
     using namespace sm_input;
     for (auto &param : {M_W, M_Z, theta_W, m_h, e_em})
         param->setValue(CSL_UNDEF);

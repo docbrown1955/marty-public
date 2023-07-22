@@ -102,6 +102,7 @@ void undefineSMVariables()
 int main()
 {
 
+    mty::sm_input::redefineNumericalValues(); // for compatibility
     vl::VectorLike_Model::Model model_params;
     model_params.model5  = false;
     model_params.model6  = false;
