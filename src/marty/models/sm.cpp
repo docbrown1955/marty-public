@@ -451,6 +451,7 @@ static std::vector<csl::Expr> const &_generate_sm_param_values()
             });
         init = true;
     }
+    undefineNumericalValues();
     return _values;
 }
 
