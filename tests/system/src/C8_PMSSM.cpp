@@ -80,6 +80,7 @@ int calculate(Model &model)
 int main()
 {
 
+    mty::sm_input::redefineNumericalValues(); // for compatibility
     auto pmssm_model = mty::PMSSM_LEM();
 
     return calculate(pmssm_model);

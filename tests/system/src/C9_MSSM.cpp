@@ -143,6 +143,7 @@ auto getC9A_old(Model &model, mty::Library &lib)
 int main()
 {
 
+    mty::sm_input::redefineNumericalValues(); // for compatibility
     PMSSM_LEM pmssm;
 
     mty::option::displayAbbreviations = false;

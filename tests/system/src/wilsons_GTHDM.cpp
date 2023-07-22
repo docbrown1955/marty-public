@@ -10,6 +10,7 @@ using namespace mty::sm_input;
 int main()
 {
 
+    mty::sm_input::redefineNumericalValues(); // for compatibility
     GTHDM_Model model;
 
     Display(model);

@@ -5,6 +5,7 @@
 
 int main()
 {
+    mty::sm_input::redefineNumericalValues(); // for compatibility
     for (const auto &val : mty::sm_input::all_params) {
         std::cout << val << " = " << csl::Evaluated(val, csl::eval::all)
                   << std::endl;

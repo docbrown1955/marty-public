@@ -80,6 +80,7 @@ void calculateProcesses(
 int main()
 {
 
+    mty::sm_input::redefineNumericalValues(); // for compatibility
     PMSSM_LEM     pmssm;
     std::ifstream process_file("data/input/processes.marty");
     auto          feynman_processes = read_processes(process_file);

@@ -26,7 +26,7 @@ void reinitializeInputs()
 
 int main()
 {
-
+    mty::sm_input::redefineNumericalValues(); // for compatibility
     mty::SM_Model SM;
 
     mty::option::displayAbbreviations = false;

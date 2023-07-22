@@ -201,6 +201,7 @@ auto getC9Tot(Model &model, mty::Library &lib)
 
 int main()
 {
+    mty::sm_input::redefineNumericalValues(); // for compatibility
     SM_Model SM;
     std::cout << SM << std::endl;
 

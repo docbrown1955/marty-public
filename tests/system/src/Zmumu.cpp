@@ -19,6 +19,7 @@ auto cc(csl::Expr const &expr)
 int main()
 {
 
+    mty::sm_input::redefineNumericalValues(); // for compatibility
     // Removing the existing Zmumu library
     [[maybe_unused]] int sysres = system("rm -rf libs/Zmumu");
 

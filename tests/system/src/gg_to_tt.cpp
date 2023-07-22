@@ -19,6 +19,7 @@ using namespace mty;
 int main()
 {
 
+    mty::sm_input::redefineNumericalValues(); // for compatibility
 #if USE_SM == 1
     mty::sm_input::g_s->setValue(CSL_UNDEF);
     mty::sm_input::m_t->setValue(CSL_UNDEF);

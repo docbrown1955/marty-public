@@ -57,6 +57,7 @@ int calculate(Model &model, gauge::Type gauge)
 int main()
 {
 
+    mty::sm_input::redefineNumericalValues(); // for compatibility
     SM_Model sm;
     std::cout << sm << std::endl;
     sm.computeFeynmanRules();

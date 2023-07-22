@@ -46,6 +46,7 @@ std::pair<csl::Expr, csl::Expr> calculate(Model &model)
 int main()
 {
 
+    mty::sm_input::redefineNumericalValues(); // for compatibility
     std::cout.setstate(std::ios_base::failbit);
     std::cerr.setstate(std::ios_base::failbit);
 

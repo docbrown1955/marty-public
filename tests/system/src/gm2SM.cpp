@@ -28,6 +28,7 @@ csl::Expr gm2(Model &model, WilsonSet const &wilsons)
 
 int main()
 {
+    mty::sm_input::redefineNumericalValues(); // for compatibility
     using namespace sm_input;
     for (auto &value :
          {M_Z, M_W, theta_W, e_em, alpha_em, m_b, m_s, m_t, m_mu})
