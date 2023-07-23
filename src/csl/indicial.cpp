@@ -1873,7 +1873,7 @@ MetricParent::MetricParent() : TensorParent()
 
 MetricParent::MetricParent(const DeltaParent &delta)
     : TensorParent(
-        "delta", {delta.getSpace()[0], delta.getSpace()[0]}, delta.getTensor())
+        "delta ; \\delta", {delta.getSpace()[0], delta.getSpace()[0]}, delta.getTensor())
 {
 }
 
@@ -2012,10 +2012,9 @@ DeltaParent::DeltaParent() : TensorParent()
 }
 
 DeltaParent::DeltaParent(const Space *t_space, bool buildTensor)
-    : TensorParent(
-        "delta", 
-        {t_space, t_space}, 
-        buildTensor ? identity_s(t_space->getDim()) : CSL_UNDEF)
+    : TensorParent("delta ; \\delta",
+                   {t_space, t_space},
+                   buildTensor ? identity_s(t_space->getDim()) : CSL_UNDEF)
 {
     trace  = space[0]->getSymbolicDim();
     valued = true;
@@ -2121,7 +2120,7 @@ Expr DeltaParent::operator()(vector<Index> indices)
 ///////////////////////////////////////////////////
 
 EpsilonParent::EpsilonParent(const Space *t_space)
-    : TensorParent("eps",
+    : TensorParent("eps ; \\varepsilon",
                    std::vector<const csl::Space *>(t_space->getDim(), t_space))
 {
     valued = true;
@@ -2823,28 +2822,91 @@ void TensorElement::printCode(int, std::ostream &out) const
         out << ")";
 }
 
-void TensorElement::printLaTeX(int mode, std::ostream &out) const
+static void printFullySymmetricIndices(csl::IndexStructure const &index,
+                                       std::ostream              &out)
 {
-    const int     nIndices = index.size();
-    out << "{" << getLatexName() << "}";
-    printProp(out);
-    if (nIndices > 0) {
+    const int               nIndices = index.size();
+    std::vector<csl::Index> covariantIndices;
+    std::vector<csl::Index> contravariantIndices;
+    covariantIndices.reserve(nIndices);
+    contravariantIndices.reserve(nIndices);
+    for (const auto &i : index) {
+        if (!i.getSign()) {
+            covariantIndices.push_back(i);
+        }
+        else {
+            contravariantIndices.push_back(i);
+        }
+    }
+    if (covariantIndices.size() > 0) {
         out << "_{";
         // covariant indices
-        for (const auto &i : index) {
-            if (!i.getSign()) {
-                i.printLaTeX(out);
+        for (std::size_t i = 0; i != covariantIndices.size(); ++i) {
+            covariantIndices[i].printLaTeX(out);
+            if (i + 1 != covariantIndices.size()) {
+                out << " ";
             }
         }
         out << "}";
+    }
+    if (contravariantIndices.size() > 0) {
         out << "^{";
         // contravariant indices
-        for (const auto &i : index) {
-            if (i.getSign()) {
-                i.printLaTeX(out);
+        for (std::size_t i = 0; i != contravariantIndices.size(); ++i) {
+            contravariantIndices[i].printLaTeX(out);
+            if (i + 1 != contravariantIndices.size()) {
+                out << " ";
             }
         }
         out << "}";
+    }
+}
+
+static void printRegularIndices(csl::IndexStructure const &index,
+                                std::ostream              &out)
+{
+    if (index.empty()) {
+        return;
+    }
+    csl::Index lastIndex = index[0];
+    if (lastIndex.getSign()) {
+        out << "^{";
+        lastIndex.printLaTeX(out);
+    }
+    else {
+        out << "_{";
+        lastIndex.printLaTeX(out);
+    }
+    for (std::size_t i = 1; i != index.size(); ++i) {
+        const csl::Index currentIndex = index[i];
+        if (currentIndex.getSign() != lastIndex.getSign()) {
+            if (currentIndex.getSign()) {
+                out << "}{}^{";
+            }
+            else {
+                out << "}{}_{";
+            }
+        }
+        currentIndex.printLaTeX(out);
+        if (i + 1 != index.size()
+            && index[i].getSign() == index[i + 1].getSign()) {
+            out << " ";
+        }
+        lastIndex = index[i];
+    }
+    out << "}";
+}
+
+void TensorElement::printLaTeX(int mode, std::ostream &out) const
+{
+    out << "{" << getLatexName();
+    printProp(out);
+    out << "}";
+    if (getParent()->getFullySymmetric()) {
+        printFullySymmetricIndices(this->index, out);
+    }
+    else {
+        printRegularIndices(this->index, out);
     }
     if (mode == 0)
         out << endl;
