@@ -81,7 +81,7 @@ void Propagator::printLaTeX(int mode, std::ostream &out) const
         out << ", ";
         argument[2]->printLaTeX(1, out);
     }
-    out << ")";
+    out << "\\right)";
     if (mode == 0)
         out << std::endl;
 }

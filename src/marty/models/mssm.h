@@ -70,19 +70,19 @@ inline csl::Expr cgrav = csl::constant_s("c_g");
 /**
  * @brief Diagonalization angle for (h0 H0).
  */
-inline csl::Expr alpha = csl::constant_s("alpha");
+inline csl::Expr alpha = csl::constant_s("alpha ; \\alpha");
 /**
  * @brief Ratio of Higgs vacuum expectation values.
  */
-inline csl::Expr beta = csl::constant_s("beta");
+inline csl::Expr beta = csl::constant_s("beta ; \\beta");
 /**
  * @brief mu parameter.
  */
-inline csl::Expr mu = csl::constant_s("mu_h");
+inline csl::Expr mu = csl::constant_s("mu_h ; \\mu_h");
 /**
  * @brief Sign of the bilinear Higgs term in the superpotential.
  */
-inline csl::Expr sgn_mu = csl::constant_s("sgn_mu");
+inline csl::Expr sgn_mu = csl::constant_s("sgn_mu ; s_\\mu");
 /**
  * @brief Common trilinear coupling.
  */
@@ -117,11 +117,11 @@ inline csl::Expr Atau = csl::constant_s("A_tau ; A_{\\tau}");
 /**
  * @brief Down-type Higgs mass squared.
  */
-inline csl::Expr MH1 = csl::constant_s("M2_H1");
+inline csl::Expr MH1 = csl::constant_s("M2_H1 ; M^2_{H_1}");
 /**
  * @brief Up-type Higgs mass squared.
  */
-inline csl::Expr MH2 = csl::constant_s("M2_H2");
+inline csl::Expr MH2 = csl::constant_s("M2_H2 ; M^2_{H_2}");
 /**
  * @brief Tree-level pseudoscalar Higgs mass parameter squared.
  */
@@ -129,11 +129,11 @@ inline csl::Expr MA = csl::constant_s("M_A");
 /**
  * @brief Pseudoscalar Higgs pole mass.
  */
-inline csl::Expr MA0 = csl::constant_s("M_A0");
+inline csl::Expr MA0 = csl::constant_s("M_A0 ; M_{A^0}");
 /**
  * @brief Charged Higgs pole mass.
  */
-inline csl::Expr MHp = csl::constant_s("M_Hp");
+inline csl::Expr MHp = csl::constant_s("M_Hp ; M_{H_p}");
 
 /**
  * @brief \f$ U(1)_Y \f$ messenger index.
@@ -151,64 +151,64 @@ inline csl::Expr N3 = csl::constant_s("N_3");
 /**
  * @brief Left first gen. scalar slepton mass.
  */
-inline csl::Expr MeL = csl::constant_s("M_eL");
+inline csl::Expr MeL = csl::constant_s("M_eL ; M_{eL}");
 /**
  * @brief Left second gen. scalar slepton mass.
  */
-inline csl::Expr MmuL = csl::constant_s("M_\\muL");
+inline csl::Expr MmuL = csl::constant_s("M_muL ; M_{\\mu L}");
 /**
  * @brief Left third gen. scalar slepton mass.
  */
-inline csl::Expr MtauL = csl::constant_s("M_\\tauL");
+inline csl::Expr MtauL = csl::constant_s("M_tauL ; M_{\\tau L}");
 /**
  * @brief Right first gen. scalar slepton mass.
  */
-inline csl::Expr MeR = csl::constant_s("M_eR");
+inline csl::Expr MeR = csl::constant_s("M_eR ; M_{eR}");
 /**
  * @brief Right second gen. scalar slepton mass.
  */
-inline csl::Expr MmuR = csl::constant_s("M_\\muR");
+inline csl::Expr MmuR = csl::constant_s("M_muR ; M_{\\mu R}");
 /**
  * @brief Right third gen. scalar slepton mass.
  */
-inline csl::Expr MtauR = csl::constant_s("M_\\tauR");
+inline csl::Expr MtauR = csl::constant_s("M_tauR ; M_{\\tau R}");
 
 /**
  * @brief Left first gen. scalar squark mass.
  */
-inline csl::Expr Mq1L = csl::constant_s("M_q1L");
+inline csl::Expr Mq1L = csl::constant_s("M_q1L ; M_{q_1 L}");
 /**
  * @brief Left second gen. scalar squark mass.
  */
-inline csl::Expr Mq2L = csl::constant_s("M_q2L");
+inline csl::Expr Mq2L = csl::constant_s("M_q2L ; M_{q_2 L}");
 /**
  * @brief Left third gen. scalar squark mass.
  */
-inline csl::Expr Mq3L = csl::constant_s("M_q3L");
+inline csl::Expr Mq3L = csl::constant_s("M_q3L ; M_{q_3 L}");
 /**
  * @brief Right up scalar squark mass.
  */
-inline csl::Expr MquR = csl::constant_s("M_quR");
+inline csl::Expr MquR = csl::constant_s("M_quR ; M_{q_u R}");
 /**
  * @brief Right charm scalar squark mass.
  */
-inline csl::Expr MqcR = csl::constant_s("M_qcR");
+inline csl::Expr MqcR = csl::constant_s("M_qcR ; M_{q_c R}");
 /**
  * @brief Right top scalar squark mass.
  */
-inline csl::Expr MqtR = csl::constant_s("M_qtR");
+inline csl::Expr MqtR = csl::constant_s("M_qtR ; M_{q_t R}");
 /**
  * @brief Right down scalar squark mass.
  */
-inline csl::Expr MqdR = csl::constant_s("M_qdR");
+inline csl::Expr MqdR = csl::constant_s("M_qdR ; M_{q_d R}");
 /**
  * @brief Right strange scalar squark mass.
  */
-inline csl::Expr MqsR = csl::constant_s("M_qsR");
+inline csl::Expr MqsR = csl::constant_s("M_qsR ; M_{q_s R}");
 /**
  * @brief Right bottom scalar squark mass.
  */
-inline csl::Expr MqbR = csl::constant_s("M_qbR");
+inline csl::Expr MqbR = csl::constant_s("M_qbR ; M_{q_b R}");
 
 #define MTY_CST(arg) csl::constant_s(arg)
 #define MTY_MAT(name)                                                        \

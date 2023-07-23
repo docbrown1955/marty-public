@@ -41,7 +41,7 @@ bool compareString(std::string_view a, std::string_view b)
     return true;
 }
 
-size_t dichoFinder(csl::Expr const &                    expr,
+size_t dichoFinder(csl::Expr const                     &expr,
                    std::vector<AbstractParent *> const &v)
 {
     auto iter = csl::dichotomyFindIf(
@@ -110,7 +110,7 @@ void Abbrev::addAbbreviation(AbstractParent *ptr, std::string const &name)
     //           CSLError::KeyError,
     //           "Abbreviation " + std::string(ptr->getName())
     //           + " already exists.");
-    auto & abbreviations = getAbbreviationsForName(name.data());
+    auto  &abbreviations = getAbbreviationsForName(name.data());
     auto   encapsulated  = ptr->getEncapsulated();
     size_t insertionPos;
     if (useDichotomy) {
@@ -254,7 +254,7 @@ std::string Abbrev::getFinalName(std::string_view initialName)
     std::string newName = toString(++id_name[init]);
     for (size_t i = 0; newName.size() < 4; ++i)
         newName = '0' + newName;
-    return init + "_" + newName;
+    return init + "_" + newName + " ; {" + init + "}_{" + newName + "}";
 }
 
 void Abbrev::printAbbreviations(std::ostream &fout)
@@ -370,7 +370,7 @@ csl::IndexStructure Abbrev::getFreeStructure(Expr const &expr)
 }
 
 std::optional<Expr> Abbrev::findExisting(std::string_view name,
-                                         Expr const &     encapsulated)
+                                         Expr const      &encapsulated)
 {
     auto &abbreviations = getAbbreviationsForName(name);
     auto  structure     = getFreeStructure(encapsulated);

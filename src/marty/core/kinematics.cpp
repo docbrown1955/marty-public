@@ -156,8 +156,10 @@ void Kinematics::initMomentaSquared(std::vector<size_t> const &indices)
                 continue;
             csl::Expr prod = momenta[i](mu) * momenta[j](+mu);
             if (prod->getIndexStructure().size() > 0) {
-                prod = csl::constant_s(
-                    "s_" + std::to_string(10 * (indices[i]) + indices[j]));
+                std::string numbers
+                    = std::to_string(10 * (indices[i]) + indices[j]);
+                prod = csl::constant_s("s_" + numbers + " ; s_{" + numbers
+                                       + "}");
                 addContraction(momenta[i], momenta[j], prod);
             }
             setSquaredMomentum(i, j, prod);

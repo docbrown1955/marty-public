@@ -246,8 +246,8 @@ void THDM_Model<type>::replaceHiggs()
     // Actual gauge (spontaneous) symmetry breaking
     ///////////////////////////////////////////////////
 
-    v1       = csl::constant_s("v1");
-    beta     = csl::constant_s("beta");
+    v1       = csl::constant_s("v1 ; v_1");
+    beta     = csl::constant_s("beta ; \\beta");
     tan_beta = csl::tan_s(beta);
     v        = csl::constant_s("v");
     v2       = v1 * tan_beta;
@@ -294,7 +294,7 @@ void THDM_Model<type>::diagonalize2By2Matrices()
     // Diagonalizing what can be
     ///////////////////////////////////////////////////
 
-    alpha = csl::constant_s("alpha");
+    alpha = csl::constant_s("alpha ; \\alpha");
 
     mty::Particle eta_u = getParticle("eta_1");
     mty::Particle eta_d = getParticle("eta_2");
@@ -341,8 +341,8 @@ void THDM_Model<type>::diagonalize2By2Matrices()
 
     gY             = GetCoupling(*this, "g_Y");
     gL             = GetCoupling(*this, "g_L");
-    theta_Weinberg = csl::constant_s("theta_W");
-    e              = csl::constant_s("e_em");
+    theta_Weinberg = csl::constant_s("theta_W ; \\theta_W");
+    e              = csl::constant_s("e_em ; e_{\\mathrm{em}}");
 
     Replaced(*this,
              gL * gL + gY * gY,
@@ -367,8 +367,8 @@ void THDM_Model<type>::replaceYukawas()
     csl::Tensor Yd2 = GetYukawa(*this, "Y2d");
 
     csl::Expr m_e   = csl::constant_s("m_e");
-    csl::Expr m_mu  = csl::constant_s("m_mu");
-    csl::Expr m_tau = csl::constant_s("m_tau");
+    csl::Expr m_mu  = csl::constant_s("m_mu ; m_\\mu");
+    csl::Expr m_tau = csl::constant_s("m_tau ; m_\\tau");
     csl::Expr m_u   = csl::constant_s("m_u");
     csl::Expr m_c   = csl::constant_s("m_c");
     csl::Expr m_t   = csl::constant_s("m_t");
@@ -378,7 +378,7 @@ void THDM_Model<type>::replaceYukawas()
 
     const csl::Space *flavorSpace = GetSpace(Ye1);
     csl::Tensor       M_e         = csl::tensor_s("M_e",
-                                    {flavorSpace, flavorSpace},
+                                                  {flavorSpace, flavorSpace},
                                     csl::matrix_s({{m_e, CSL_0, CSL_0},
                                                                  {CSL_0, m_mu, CSL_0},
                                                                  {CSL_0, CSL_0, m_tau}}));

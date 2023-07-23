@@ -112,7 +112,7 @@ void MSSM_Model::initGaugeAndFlavor()
     renameParticle("A_L", "W");
     renameParticle("A_Y", "B");
     renameCoupling("g_L", "g");
-    renameCoupling("g_Y", "g'");
+    renameCoupling("g_Y", "g' ; g^'");
     B   = getParticle("B");
     Wi  = getParticle("W");
     G   = getParticle("G");
@@ -244,13 +244,13 @@ void MSSM_Model::initHiggs()
     Hu = mty::scalarboson_s("Hu", *this);
     Hu->setGroupRep("L", 1);
     Hu->setGroupRep("Y", {1, 2});
-    m_sHu = csl::constant_s("m_sHu");
+    m_sHu = csl::constant_s("m_sHu ; m_{\\tilde{H_u}}");
     Hu->setMass(m_sHu);
 
     Hd = mty::scalarboson_s("Hd", *this);
     Hd->setGroupRep("L", 1);
     Hd->setGroupRep("Y", {-1, 2});
-    m_sHd = csl::constant_s("m_sHd");
+    m_sHd = csl::constant_s("m_sHd ; m_{\\tilde{H_d}}");
     Hd->setMass(m_sHd);
     addParticles({Hu, Hd});
 }
@@ -640,21 +640,21 @@ void MSSM_Model::initQuarticFTerms()
     initQuarticSQuarkHiggs();
     initQuarticSQuarkSLeptons();
 }
-#define DEFINE_GAUGE_INDICES                       \
-    csl::Index A = generateIndex("C", Qi);         \
-    csl::Index B = generateIndex("C", Qi);         \
-                                                   \
-    csl::Index I = generateIndex("SM_flavor"); \
-    csl::Index J = generateIndex("SM_flavor"); \
-    csl::Index K = generateIndex("SM_flavor"); \
-    csl::Index L = generateIndex("SM_flavor"); \
-                                                   \
-    csl::Index  i   = generateIndex("L", Li);      \
-    csl::Index  j   = generateIndex("L", Li);      \
-    csl::Index  k   = generateIndex("L", Li);      \
-    csl::Index  l   = generateIndex("L", Li);      \
-    csl::Tensor eps = i.getSpace()->getEpsilon();  \
-                                                   \
+#define DEFINE_GAUGE_INDICES                      \
+    csl::Index A = generateIndex("C", Qi);        \
+    csl::Index B = generateIndex("C", Qi);        \
+                                                  \
+    csl::Index I = generateIndex("SM_flavor");    \
+    csl::Index J = generateIndex("SM_flavor");    \
+    csl::Index K = generateIndex("SM_flavor");    \
+    csl::Index L = generateIndex("SM_flavor");    \
+                                                  \
+    csl::Index  i   = generateIndex("L", Li);     \
+    csl::Index  j   = generateIndex("L", Li);     \
+    csl::Index  k   = generateIndex("L", Li);     \
+    csl::Index  l   = generateIndex("L", Li);     \
+    csl::Tensor eps = i.getSpace()->getEpsilon(); \
+                                                  \
     csl::Index a = mty::DiracIndex();
 
 void MSSM_Model::initQuarticSLeptons()
@@ -817,10 +817,10 @@ void MSSM_Model::breakSU2LGaugeSymmetry()
          "sQ_L",
          "sL_L"},
 
-        {{"Hup", "Hu0"},
-         {"Hd0", "Hdm"},
+        {{"Hup ; H_u^+", "Hu0 ; H_u^0"},
+         {"Hd0 ; H_d^0", "Hdm ; H_d^-"},
          {"W_1", "W_2", "W_3"},
-         {"c_W_1", "c_W_2", "c_W_3"},
+         {"c_W_1 ; c_{W_1}", "c_W_2 ; c_{W_2}", "c_W_3 ; c_{W_3}"},
          {"U_L", "D_L"},
          {"Nu_L  ; \\Nu_L", "E_L"},
 
@@ -1114,22 +1114,38 @@ void MSSM_Model::diagonalizeNeutralinos()
     mty::Particle N2 = N1_init->generateSimilar("N_2");
     mty::Particle N3 = N1_init->generateSimilar("N_3");
     mty::Particle N4 = N1_init->generateSimilar("N_4");
-    csl::Expr N_B1   = csl::constant_s("N_B1", csl::ComplexProperty::Complex);
-    csl::Expr N_W1   = csl::constant_s("N_W1", csl::ComplexProperty::Complex);
-    csl::Expr N_d1   = csl::constant_s("N_d1", csl::ComplexProperty::Complex);
-    csl::Expr N_u1   = csl::constant_s("N_u1", csl::ComplexProperty::Complex);
-    csl::Expr N_B2   = csl::constant_s("N_B2", csl::ComplexProperty::Complex);
-    csl::Expr N_W2   = csl::constant_s("N_W2", csl::ComplexProperty::Complex);
-    csl::Expr N_d2   = csl::constant_s("N_d2", csl::ComplexProperty::Complex);
-    csl::Expr N_u2   = csl::constant_s("N_u2", csl::ComplexProperty::Complex);
-    csl::Expr N_B3   = csl::constant_s("N_B3", csl::ComplexProperty::Complex);
-    csl::Expr N_W3   = csl::constant_s("N_W3", csl::ComplexProperty::Complex);
-    csl::Expr N_d3   = csl::constant_s("N_d3", csl::ComplexProperty::Complex);
-    csl::Expr N_u3   = csl::constant_s("N_u3", csl::ComplexProperty::Complex);
-    csl::Expr N_B4   = csl::constant_s("N_B4", csl::ComplexProperty::Complex);
-    csl::Expr N_W4   = csl::constant_s("N_W4", csl::ComplexProperty::Complex);
-    csl::Expr N_d4   = csl::constant_s("N_d4", csl::ComplexProperty::Complex);
-    csl::Expr N_u4   = csl::constant_s("N_u4", csl::ComplexProperty::Complex);
+    csl::Expr     N_B1
+        = csl::constant_s("N_B1 ; N_{B1}", csl::ComplexProperty::Complex);
+    csl::Expr N_W1
+        = csl::constant_s("N_W1 ; N_{W1}", csl::ComplexProperty::Complex);
+    csl::Expr N_d1
+        = csl::constant_s("N_d1 ; N_{d1}", csl::ComplexProperty::Complex);
+    csl::Expr N_u1
+        = csl::constant_s("N_u1 ; N_{u1}", csl::ComplexProperty::Complex);
+    csl::Expr N_B2
+        = csl::constant_s("N_B2 ; N_{B2}", csl::ComplexProperty::Complex);
+    csl::Expr N_W2
+        = csl::constant_s("N_W2 ; N_{W2}", csl::ComplexProperty::Complex);
+    csl::Expr N_d2
+        = csl::constant_s("N_d2 ; N_{d2}", csl::ComplexProperty::Complex);
+    csl::Expr N_u2
+        = csl::constant_s("N_u2 ; N_{u2}", csl::ComplexProperty::Complex);
+    csl::Expr N_B3
+        = csl::constant_s("N_B3 ; N_{B3}", csl::ComplexProperty::Complex);
+    csl::Expr N_W3
+        = csl::constant_s("N_W3 ; N_{W3}", csl::ComplexProperty::Complex);
+    csl::Expr N_d3
+        = csl::constant_s("N_d3 ; N_{d3}", csl::ComplexProperty::Complex);
+    csl::Expr N_u3
+        = csl::constant_s("N_u3 ; N_{u3}", csl::ComplexProperty::Complex);
+    csl::Expr N_B4
+        = csl::constant_s("N_B4 ; N_{B4}", csl::ComplexProperty::Complex);
+    csl::Expr N_W4
+        = csl::constant_s("N_W4 ; N_{W4}", csl::ComplexProperty::Complex);
+    csl::Expr N_d4
+        = csl::constant_s("N_d4 ; N_{d4}", csl::ComplexProperty::Complex);
+    csl::Expr N_u4
+        = csl::constant_s("N_u4 ; N_{u4}", csl::ComplexProperty::Complex);
 
     rotateFields({N1_init, N2_init, N3_init, N4_init},
                  {N1, N2, N3, N4},
@@ -1147,20 +1163,28 @@ void MSSM_Model::diagonalizeCharginos()
     mty::Particle C3_init = getParticle("sWm");
     mty::Particle C4_init = getParticle("sHdm");
 
-    mty::Particle C1p = C1_init->generateSimilar("C1p");
-    mty::Particle C2p = C1_init->generateSimilar("C2p");
-    mty::Particle C1m = C1_init->generateSimilar("C1m");
-    mty::Particle C2m = C1_init->generateSimilar("C2m");
+    mty::Particle C1p = C1_init->generateSimilar("C1p ; C_1^+");
+    mty::Particle C2p = C1_init->generateSimilar("C2p ; C_2^+");
+    mty::Particle C1m = C1_init->generateSimilar("C1m ; C_1^-");
+    mty::Particle C2m = C1_init->generateSimilar("C2m ; C_2^-");
 
-    csl::Expr V_Wp1 = csl::constant_s("V_Wp1", csl::ComplexProperty::Complex);
-    csl::Expr V_Wp2 = csl::constant_s("V_Wp2", csl::ComplexProperty::Complex);
-    csl::Expr U_Wm1 = csl::constant_s("U_Wm1", csl::ComplexProperty::Complex);
-    csl::Expr U_Wm2 = csl::constant_s("U_Wm2", csl::ComplexProperty::Complex);
+    csl::Expr V_Wp1
+        = csl::constant_s("V_Wp1 ; V_{W^+ 1}", csl::ComplexProperty::Complex);
+    csl::Expr V_Wp2
+        = csl::constant_s("V_Wp2 ; V_{W^+ 2}", csl::ComplexProperty::Complex);
+    csl::Expr U_Wm1
+        = csl::constant_s("U_Wm1 ; U_{W^- 1}", csl::ComplexProperty::Complex);
+    csl::Expr U_Wm2
+        = csl::constant_s("U_Wm2 ; U_{W^- 2}", csl::ComplexProperty::Complex);
 
-    csl::Expr V_u1 = csl::constant_s("V_u1", csl::ComplexProperty::Complex);
-    csl::Expr V_u2 = csl::constant_s("V_u2", csl::ComplexProperty::Complex);
-    csl::Expr U_d1 = csl::constant_s("U_d1", csl::ComplexProperty::Complex);
-    csl::Expr U_d2 = csl::constant_s("U_d2", csl::ComplexProperty::Complex);
+    csl::Expr V_u1
+        = csl::constant_s("V_u1 ; V_{u1}", csl::ComplexProperty::Complex);
+    csl::Expr V_u2
+        = csl::constant_s("V_u2 ; V_{u2}", csl::ComplexProperty::Complex);
+    csl::Expr U_d1
+        = csl::constant_s("U_d1 ; U_{d1}", csl::ComplexProperty::Complex);
+    csl::Expr U_d2
+        = csl::constant_s("U_d2 ; U_{d2}", csl::ComplexProperty::Complex);
 
     rotateFields({C1_init, C2_init},
                  {C1p, C2p},

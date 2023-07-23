@@ -58,11 +58,11 @@ csl::Expr bar_s(const csl::Expr &tensor, const DiracSpace *space)
 sgl::TensorSet const &defaultSGLTensorSet()
 {
     static const sgl::TensorSet tensorSet{
-        dirac4.gamma_chir, dirac4.C_matrix, dirac4.P_L, dirac4.P_R, {
-            {0, dirac4.getDelta()},
-            {1, dirac4.gamma},
-            {2, dirac4.sigma}
-        }};
+        dirac4.gamma_chir,
+        dirac4.C_matrix,
+        dirac4.P_L,
+        dirac4.P_R,
+        {{0, dirac4.getDelta()}, {1, dirac4.gamma}, {2, dirac4.sigma}}};
     return tensorSet;
 }
 
@@ -73,17 +73,20 @@ sgl::TensorSet const &defaultSGLTensorSet()
 ///////////////////////////////////////////////////
 
 DiracSpace::DiracSpace(csl::Space const *t_spaceTime)
-    : csl::Space("dirac",
-                 getSpinorDimension(t_spaceTime->getDim()),
-                 {"alpha", "beta", "gam", "del", "eps", "eta"}),
+    : csl::Space(
+        "dirac",
+        getSpinorDimension(t_spaceTime->getDim()),
+        {"\\alpha", "\\beta", "\\gamma", "\\delta", "\\varepsilon", "\\eta"}),
       spaceTime(t_spaceTime)
 {
-    gamma = csl::tensor_s("gamma", {spaceTime, this, this});
+    gamma = csl::tensor_s("gamma ; \\gamma", {spaceTime, this, this});
 
-    sigma = csl::tensor_s("sigma", {spaceTime, spaceTime, this, this});
+    sigma
+        = csl::tensor_s("sigma ; \\sigma", {spaceTime, spaceTime, this, this});
 
-    gamma_chir
-        = csl::tensor_s((dim == 4) ? "gamma5" : "gamma_chir", {this, this});
+    gamma_chir = csl::tensor_s((dim == 4) ? "gamma5 ; \\gamma^5"
+                                          : "gamma_chir ; \\gamma^c",
+                               {this, this});
 
     P_L = csl::tensor_s("P_L", {this, this});
 

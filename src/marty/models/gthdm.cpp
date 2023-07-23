@@ -36,8 +36,8 @@ void GTHDM_Model::replaceYukawas()
     csl::Tensor Yd2 = GetYukawa(*this, "Y2d");
 
     csl::Expr m_e   = csl::constant_s("m_e");
-    csl::Expr m_mu  = csl::constant_s("m_mu");
-    csl::Expr m_tau = csl::constant_s("m_tau");
+    csl::Expr m_mu  = csl::constant_s("m_mu ; m_\\mu");
+    csl::Expr m_tau = csl::constant_s("m_tau ; m_\\tau");
     csl::Expr m_u   = csl::constant_s("m_u");
     csl::Expr m_c   = csl::constant_s("m_c");
     csl::Expr m_t   = csl::constant_s("m_t");
@@ -47,7 +47,7 @@ void GTHDM_Model::replaceYukawas()
 
     const csl::Space *flavorSpace = GetSpace(Ye1);
     csl::Tensor       M_e         = csl::tensor_s("M_e",
-                                    {flavorSpace, flavorSpace},
+                                                  {flavorSpace, flavorSpace},
                                     csl::matrix_s({{m_e, CSL_0, CSL_0},
                                                                  {CSL_0, m_mu, CSL_0},
                                                                  {CSL_0, CSL_0, m_tau}}));
@@ -97,17 +97,17 @@ void GTHDM_Model::replaceYukawas()
 
     // Replace Y2 by new parametrization xi
     // Lepton Yukawa parameters
-    csl::Expr xil_mm = csl::constant_s("xil_mm");
-    csl::Expr xil_mt = csl::constant_s("xil_mt");
-    csl::Expr xil_tt = csl::constant_s("xil_tt");
+    csl::Expr xil_mm = csl::constant_s("xil_mm ; \\xi^l_{mm}");
+    csl::Expr xil_mt = csl::constant_s("xil_mt ; \\xi^l_{mt}");
+    csl::Expr xil_tt = csl::constant_s("xil_tt ; \\xi^l_{tt}");
     // Up-type quarks Yukawa parameters
-    csl::Expr xiu_cc = csl::constant_s("xiu_cc");
-    csl::Expr xiu_ct = csl::constant_s("xiu_ct");
-    csl::Expr xiu_tt = csl::constant_s("xiu_tt");
+    csl::Expr xiu_cc = csl::constant_s("xiu_cc ; \\xi^u_{cc}");
+    csl::Expr xiu_ct = csl::constant_s("xiu_ct ; \\xi^u_{ct}");
+    csl::Expr xiu_tt = csl::constant_s("xiu_tt ; \\xi^u_{tt}");
     // Down-type quarks Yukawa parameters
-    csl::Expr xid_ss = csl::constant_s("xid_ss");
-    csl::Expr xid_sb = csl::constant_s("xid_sb");
-    csl::Expr xid_bb = csl::constant_s("xid_bb");
+    csl::Expr xid_ss = csl::constant_s("xid_ss ; \\xi^d_{ss}");
+    csl::Expr xid_sb = csl::constant_s("xid_sb ; \\xi^d_{sb}");
+    csl::Expr xid_bb = csl::constant_s("xid_bb ; \\xi^d_{bb}");
 
     // Creating tensors
     csl::Tensor xil("xil",

@@ -72,11 +72,11 @@ namespace mty::sm_input {
 ///////////////////////////////////////////////////
 
 // alpha_em(0) = 1 / ( 137.035999139(31) )
-inline csl::Expr alpha_em
-    = csl::constant_s("alpha_em", 1 / csl::float_s(1.37035999139e+02L));
+inline csl::Expr alpha_em = csl::constant_s(
+    "alpha_em ; \\alpha_{\\mathrm{em}}", 1 / csl::float_s(1.37035999139e+02L));
 
 inline csl::Expr e_em = csl::constant_s(
-    "e_em",
+    "e_em ; e_{\\mathrm{em}}",
     csl::Evaluated(csl::sqrt_s(4 * M_PI * alpha_em),
                    csl::eval::numerical | csl::eval::literal));
 
@@ -85,7 +85,7 @@ inline csl::Expr G_F = csl::constant_s("G_F", csl::float_s(1.1663787e-05L));
 
 // At 0
 inline csl::Expr alpha_s
-    = csl::constant_s("alpha_s", csl::float_s(1.1890e-01L));
+    = csl::constant_s("alpha_s ; \\alpha_s", csl::float_s(1.1890e-01L));
 inline csl::Expr g_s = csl::constant_s(
     "g_s",
     csl::Evaluated(csl::sqrt_s(4 * M_PI * alpha_s),
@@ -97,7 +97,8 @@ inline csl::Expr m_b = csl::constant_s("m_b", csl::float_s(4.18));
 
 inline csl::Expr m_t = csl::constant_s("m_t", csl::float_s(173));
 
-inline csl::Expr m_tau = csl::constant_s("m_tau", csl::float_s(1.77686));
+inline csl::Expr m_tau
+    = csl::constant_s("m_tau ; m_\\tau", csl::float_s(1.77686));
 
 ///////////////////////////////////////////////////
 // Other inputs
@@ -111,7 +112,8 @@ inline csl::Expr v = csl::constant_s("v", 246.22);
 
 inline csl::Expr m_e = csl::constant_s("m_e", csl::float_s(5.109989461e-04L));
 
-inline csl::Expr m_mu = csl::constant_s("m_mu", csl::float_s(105.6583745e-03));
+inline csl::Expr m_mu
+    = csl::constant_s("m_mu ; m_\\mu", csl::float_s(105.6583745e-03));
 
 inline csl::Expr m_u = csl::constant_s("m_u", csl::float_s(2.2e-03));
 
@@ -119,22 +121,26 @@ inline csl::Expr m_d = csl::constant_s("m_d", csl::float_s(4.7e-03));
 
 inline csl::Expr m_c = csl::constant_s("m_c", csl::float_s(1.275));
 
-inline csl::Expr m_s     = csl::constant_s("m_s", csl::float_s(0.095));
-inline csl::Expr Gamma_W = csl::constant_s("Gamma_W", csl::float_s(2.085));
+inline csl::Expr m_s = csl::constant_s("m_s", csl::float_s(0.095));
+inline csl::Expr Gamma_W
+    = csl::constant_s("Gamma_W ; \\Gamma_W", csl::float_s(2.085));
 
-inline csl::Expr Gamma_Z = csl::constant_s("Gamma_Z", csl::float_s(2.4952));
+inline csl::Expr Gamma_Z
+    = csl::constant_s("Gamma_Z ; \\Gamma_Z", csl::float_s(2.4952));
 
 // From ATLAS, found in PDG chapter on higgs physics
-inline csl::Expr Gamma_h = csl::constant_s("Gamma_h", csl::float_s(4.2e-3));
+inline csl::Expr Gamma_h
+    = csl::constant_s("Gamma_h ; \\Gamma_h", csl::float_s(4.2e-3));
 
-inline csl::Expr Gamma_t = csl::constant_s("Gamma_t", csl::float_s(1.41));
+inline csl::Expr Gamma_t
+    = csl::constant_s("Gamma_t ; \\Gamma_t", csl::float_s(1.41));
 
 // MSbar scheme at mu = 0GeV
 inline csl::Expr s2_theta_W
-    = csl::constant_s("s2_thetaW", csl::float_s(0.23057));
+    = csl::constant_s("s2_thetaW ; s^2_{\\theta_W}", csl::float_s(0.23057));
 
 inline csl::Expr theta_W = csl::constant_s(
-    "theta_W",
+    "theta_W ; \\theta_W",
     csl::Evaluated(csl::asin_s(csl::sqrt_s(s2_theta_W)),
                    csl::eval::numerical | csl::eval::literal));
 
@@ -146,38 +152,50 @@ inline csl::Expr theta_W = csl::constant_s(
 // The Wolfenstein parametrization yields a unitary CKM, quite handy
 inline constexpr bool useWolfensteinCKM = true;
 
-inline csl::Expr V_ud_mod = csl::constant_s("V_ud_mod", csl::float_s(0.97370));
+inline csl::Expr V_ud_mod
+    = csl::constant_s("V_ud_mod ; |V_{ud}|", csl::float_s(0.97370));
 
-inline csl::Expr V_us_mod = csl::constant_s("V_us_mod", csl::float_s(0.2245));
+inline csl::Expr V_us_mod
+    = csl::constant_s("V_us_mod ; |V_{us}|", csl::float_s(0.2245));
 
 inline csl::Expr V_ub_mod
-    = csl::constant_s("V_ub_mod", csl::float_s(3.82e-03));
+    = csl::constant_s("V_ub_mod ; |V_{ub}|", csl::float_s(3.82e-03));
 
 inline csl::Expr V_cb_mod
-    = csl::constant_s("V_cb_mod", csl::float_s(41.0e-03));
+    = csl::constant_s("V_cb_mod ; |V_{cb}|", csl::float_s(41.0e-03));
 
-inline csl::Expr V_cd_mod = csl::constant_s("V_cd_mod", csl::float_s(0.2210));
+inline csl::Expr V_cd_mod
+    = csl::constant_s("V_cd_mod ; |V_{cd}|", csl::float_s(0.2210));
 
-inline csl::Expr V_cs_mod = csl::constant_s("V_cs_mod", csl::float_s(0.987));
+inline csl::Expr V_cs_mod
+    = csl::constant_s("V_cs_mod ; |V_{cs}|", csl::float_s(0.987));
 
-inline csl::Expr V_td_mod = csl::constant_s("V_td_mod", csl::float_s(8.0e-03));
+inline csl::Expr V_td_mod
+    = csl::constant_s("V_td_mod ; |V_{td}|", csl::float_s(8.0e-03));
 
 inline csl::Expr V_ts_mod
-    = csl::constant_s("V_ts_mod", csl::float_s(38.8e-03));
+    = csl::constant_s("V_ts_mod ; |V_{ts}|", csl::float_s(38.8e-03));
 
-inline csl::Expr V_tb_mod = csl::constant_s("V_tb_mod", csl::float_s(1.013));
+inline csl::Expr V_tb_mod
+    = csl::constant_s("V_tb_mod ; |V_{tb}|", csl::float_s(1.013));
 
 // Wolfenstein parametrization from PDG 2021
-inline csl::Expr A_wolf = csl::constant_s("A_wolf", csl::float_s(0.790));
+inline csl::Expr A_wolf
+    = csl::constant_s("A_wolf ; A_{\\mathrm{Wolf}}", csl::float_s(0.790));
 
-inline csl::Expr lambda_wolf
-    = csl::constant_s("lambda_wolf", csl::float_s(0.22650));
+inline csl::Expr lambda_wolf = csl::constant_s("lambda_wolf ; "
+                                               "\\lambda_{\\mathrm{Wolf}}",
+                                               csl::float_s(0.22650));
 
-inline csl::Expr rho_bar_wolf
-    = csl::constant_s("rho_bar_wolf", csl::float_s(0.141));
+inline csl::Expr rho_bar_wolf = csl::constant_s("rho_bar_wolf ; "
+                                                "\\bar{\\rho}_{\\mathrm{Wolf}"
+                                                "}",
+                                                csl::float_s(0.141));
 
-inline csl::Expr eta_bar_wolf
-    = csl::constant_s("eta_bar_wolf", csl::float_s(0.357));
+inline csl::Expr eta_bar_wolf = csl::constant_s("eta_bar_wolf ; "
+                                                "\\bar{\\eta}_{\\mathrm{Wolf}"
+                                                "}",
+                                                csl::float_s(0.357));
 
 inline csl::Expr s_12_wolf = lambda_wolf;
 
@@ -194,7 +212,7 @@ inline csl::Expr c_13_wolf = csl::sqrt_s(1 - s_13_wolf * s_13_wolf);
 inline csl::Expr c_23_wolf = csl::sqrt_s(1 - s_23_wolf * s_23_wolf);
 
 inline csl::Expr delta_wolf = csl::constant_s(
-    "delta_wolf",
+    "delta_wolf; \\delta_{\\mathrm{Wolf}}",
     csl::Evaluated(csl::angle_s(rho_bar_wolf, eta_bar_wolf), csl::eval::all));
 
 inline csl::Expr V_ud_wolf = c_12_wolf * c_13_wolf;
@@ -224,25 +242,25 @@ inline csl::Expr V_ts_wolf
 inline csl::Expr V_tb_wolf = c_23_wolf * c_13_wolf;
 
 inline csl::Expr V_ud = csl::constant_s(
-    "V_ud",
+    "V_ud ; V_{ud}",
     (useWolfensteinCKM) ? csl::Evaluated(V_ud_wolf, csl::eval::all)
                         : V_ud_mod->getValue(),
     csl::ComplexProperty::Real);
 
 inline csl::Expr V_us = csl::constant_s(
-    "V_us",
+    "V_us ; V_{us}",
     (useWolfensteinCKM) ? csl::Evaluated(V_us_wolf, csl::eval::all)
                         : V_us_mod->getValue(),
     csl::ComplexProperty::Real);
 
 inline csl::Expr V_cb = csl::constant_s(
-    "V_cb",
+    "V_cb ; V_{cb}",
     (useWolfensteinCKM) ? csl::Evaluated(V_cb_wolf, csl::eval::all)
                         : V_cb_mod->getValue(),
     csl::ComplexProperty::Real);
 
 inline csl::Expr V_tb = csl::constant_s(
-    "V_tb",
+    "V_tb ; V_{tb}",
     (useWolfensteinCKM) ? csl::Evaluated(V_tb_wolf, csl::eval::all)
                         : V_tb_mod->getValue(),
     csl::ComplexProperty::Real);
@@ -274,7 +292,7 @@ inline csl::Expr sin_CKM_13
                      csl::eval::literal | csl::eval::numerical);
 
 inline csl::Expr V_cd = csl::constant_s(
-    "V_cd",
+    "V_cd ; V_{cd}",
     (useWolfensteinCKM)
         ? csl::Evaluated(V_cd_wolf, csl::eval::all)
         : csl::Evaluated(-sin_CKM_12 *cos_CKM_23
@@ -284,7 +302,7 @@ inline csl::Expr V_cd = csl::constant_s(
     csl::ComplexProperty::Complex);
 
 inline csl::Expr V_cs = csl::constant_s(
-    "V_cs",
+    "V_cs ; V_{cs}",
     (useWolfensteinCKM)
         ? csl::Evaluated(V_cs_wolf, csl::eval::all)
         : csl::Evaluated(cos_CKM_12 *cos_CKM_23
@@ -294,7 +312,7 @@ inline csl::Expr V_cs = csl::constant_s(
     csl::ComplexProperty::Complex);
 
 inline csl::Expr V_td = csl::constant_s(
-    "V_td",
+    "V_td ; V_{td}",
     (useWolfensteinCKM)
         ? csl::Evaluated(V_td_wolf, csl::eval::all)
         : csl::Evaluated(sin_CKM_12 *sin_CKM_23
@@ -304,7 +322,7 @@ inline csl::Expr V_td = csl::constant_s(
     csl::ComplexProperty::Complex);
 
 inline csl::Expr V_ts = csl::constant_s(
-    "V_ts",
+    "V_ts ; V_{ts}",
     (useWolfensteinCKM)
         ? csl::Evaluated(V_ts_wolf, csl::eval::all)
         : csl::Evaluated(-cos_CKM_12 *sin_CKM_23
@@ -314,7 +332,7 @@ inline csl::Expr V_ts = csl::constant_s(
     csl::ComplexProperty::Complex);
 
 inline csl::Expr V_ub = csl::constant_s(
-    "V_ub",
+    "V_ub ; V_{ub}",
     (useWolfensteinCKM) ? csl::Evaluated(V_ub_wolf, csl::eval::all)
                         : csl::Evaluated( // Unitary triangle condition
                             -(csl::GetComplexConjugate(V_cd) * V_cb

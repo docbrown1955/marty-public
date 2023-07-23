@@ -2347,7 +2347,9 @@ void FeynmanIntegral::print(int              mode,
 
 void FeynmanIntegral::printLaTeX(int mode, std::ostream &out) const
 {
+    out << "\\mathrm{";
     printLooptoolsId(type, loopToolsId, out);
+    out << "}";
     if (mty::option::displayIntegralArgs) {
         out << "\\left(";
         for (std::size_t i = 0; i != argument.size(); ++i) {

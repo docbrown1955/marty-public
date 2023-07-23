@@ -94,6 +94,7 @@ TEST(csl_tolatex, tensorFields)
     chi->setComplexProperty(csl::ComplexProperty::Complex);
     csl::TensorField Psi(
         "psi ; \\psi", &csl::Minkowski, {&csl::Euclid_R3, &csl::Euclid_R3});
+    Psi->setComplexProperty(csl::ComplexProperty::Complex);
     csl::Index mu("\\mu", &csl::Minkowski, 0);
     csl::Index i("i", &csl::Euclid_R3, 0);
     csl::Index j("j_{test_latex}", &csl::Euclid_R3, 0);

@@ -26,7 +26,7 @@ QED_Model::QED_Model() : Model()
     addGaugedGroup(group::Type::U1, "em", e);
     init();
 
-    Particle psi = diracfermion_s("\\psi", *this);
+    Particle psi = diracfermion_s("psi ; \\psi", *this);
     auto     m   = csl::constant_s("m");
     psi->setGroupRep("em", -1);
     psi->setMass(m);

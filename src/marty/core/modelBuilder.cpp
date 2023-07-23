@@ -30,26 +30,25 @@ namespace mty {
 // Replacement functions
 ///////////////////////////////////////////////////
 
-csl::Expr ModelBuilder::abbreviateMassExpression(
-        std::string             const &prefix,
-        mty::QuantumFieldParent const *particle,
-        csl::Expr               const &mass)
+csl::Expr
+ModelBuilder::abbreviateMassExpression(std::string const             &prefix,
+                                       mty::QuantumFieldParent const *particle,
+                                       csl::Expr const               &mass)
 {
     csl::ScopedProperty prop(&csl::Abbrev::avoidDuplicates, false);
-    std::string massName = prefix + std::string(particle->getName());
-    csl::Expr   abbreviatedMass
-        = csl::Abbrev::makeAbbreviation(massName, mass);
+    std::string         massName = prefix + std::string(particle->getName());
+    csl::Expr abbreviatedMass = csl::Abbrev::makeAbbreviation(massName, mass);
     // Do not include ghosts and goldstones in the spectrum
-    if (mty::IsOfType<GhostBoson>(particle) 
-            || mty::IsOfType<GoldstoneBoson>(particle)) {
+    if (mty::IsOfType<GhostBoson>(particle)
+        || mty::IsOfType<GoldstoneBoson>(particle)) {
         return abbreviatedMass;
     }
-    auto pos
-        = std::find_if(abbreviatedMassExpressions.begin(),
-                       abbreviatedMassExpressions.end(),
-                       [&](csl::Expr const &expr) {
-                           return expr->getName() == abbreviatedMass->getName();
-                       });
+    auto pos = std::find_if(abbreviatedMassExpressions.begin(),
+                            abbreviatedMassExpressions.end(),
+                            [&](csl::Expr const &expr) {
+                                return expr->getName()
+                                       == abbreviatedMass->getName();
+                            });
     if (pos != abbreviatedMassExpressions.end()) {
         *pos = abbreviatedMass;
     }
@@ -59,11 +58,9 @@ csl::Expr ModelBuilder::abbreviateMassExpression(
     return csl::constant_s(massName);
 }
 
-csl::Expr ModelBuilder::abbreviateMassExpression(
-        std::string   const &prefix,
-        mty::Particle const &particle,
-        csl::Expr     const &mass
-        )
+csl::Expr ModelBuilder::abbreviateMassExpression(std::string const   &prefix,
+                                                 mty::Particle const &particle,
+                                                 csl::Expr const     &mass)
 {
     return abbreviateMassExpression(prefix, particle.get(), mass);
 }
@@ -440,6 +437,7 @@ void ModelBuilder::diagonalizeWithSpectrum(
           });
     for (const auto &f : newFields) {
         csl::Expr mass = csl::constant_s("m_" + std::string(f->getName()));
+        mass->getParent()->setLatexName("m_{" + f->getLatexName() + "}");
         f->setMass(mass);
         if (f->isBosonic())
             addBosonicMass(f, mass);
@@ -478,6 +476,7 @@ void ModelBuilder::bidiagonalizeWithSpectrum(
         const auto &f1   = newFields1[i];
         const auto &f2   = newFields2[i];
         csl::Expr   mass = csl::constant_s("m_" + std::string(f1->getName()));
+        mass->getParent()->setLatexName(f1->getLatexName());
         fields1[i]->setMass(mass);
         fields2[i]->setMass(mass);
         f1->setMass(mass);
@@ -604,6 +603,18 @@ void ModelBuilder::rotateFields(
     }
 }
 
+static std::string getFullMixingName(std::string const &baseName,
+                                     std::string const &spec,
+                                     std::size_t        i,
+                                     std::size_t        j)
+{
+    std::string regularName
+        = baseName + "_" + spec + "_" + toString(i) + toString(j);
+    std::string latexName
+        = baseName + "_{" + spec + "}{}_{" + toString(i) + toString(j) + '}';
+    return regularName + " ; " + latexName;
+}
+
 void ModelBuilder::rotateFields(std::vector<mty::Particle> const &fields,
                                 bool diagonalizeMasses,
                                 int  nMassLessFields)
@@ -628,9 +639,9 @@ void ModelBuilder::rotateFields(std::vector<mty::Particle> const &fields,
     for (size_t i = 0; i != fields.size(); ++i) {
         mixing[i] = std::vector<csl::Expr>(fields.size());
         for (size_t j = 0; j != fields.size(); ++j) {
-            mixing[i][j] = csl::constant_s(baseName + "_" + firstLetters + "_"
-                                               + toString(i) + toString(j),
-                                           csl::ComplexProperty::Complex);
+            mixing[i][j] = csl::constant_s(
+                getFullMixingName(baseName, firstLetters, i, j),
+                csl::ComplexProperty::Complex);
         }
     }
     rotateFields(
@@ -678,14 +689,12 @@ void ModelBuilder::birotateFields(std::vector<mty::Particle> const &fields1,
         mixing1[i] = std::vector<csl::Expr>(fields1.size());
         mixing2[i] = std::vector<csl::Expr>(fields2.size());
         for (size_t j = 0; j != fields1.size(); ++j) {
-            mixing1[i][j]
-                = csl::constant_s(baseName1 + "_" + firstLetters + "_"
-                                      + toString(i) + toString(j),
-                                  csl::ComplexProperty::Complex);
-            mixing2[i][j]
-                = csl::constant_s(baseName2 + "_" + firstLetters + "_"
-                                      + toString(i) + toString(j),
-                                  csl::ComplexProperty::Complex);
+            mixing1[i][j] = csl::constant_s(
+                getFullMixingName(baseName1, firstLetters, i, j),
+                csl::ComplexProperty::Complex);
+            mixing2[i][j] = csl::constant_s(
+                getFullMixingName(baseName2, firstLetters, i, j),
+                csl::ComplexProperty::Complex);
         }
     }
     rotateFields(fields1,
@@ -1122,8 +1131,8 @@ void ModelBuilder::doPromoteToMajorana(mty::Particle     &particle,
         = std::dynamic_pointer_cast<mty::WeylFermion>(particle);
     HEPAssert(weylFermion,
               mty::error::TypeError,
-              "Expecting a vector boson, "
-                  + std::string(particle->getName()) + " given.");
+              "Expecting a vector boson, " + std::string(particle->getName())
+                  + " given.");
     HEPAssert(weylFermion->isSelfConjugate(),
               mty::error::PhysicsError,
               "Cannot promote a non self-conjugate Weyl fermion to a Majorana "
@@ -1596,14 +1605,16 @@ void ModelBuilder::breakFlavorSymmetry(std::string const &brokenGroup)
     std::vector<mty::Particle> brokenFields;
     auto                       group = getFlavorGroup(brokenGroup);
     HEPAssert(!group->hasSymbolicDimension(),
-        mty::error::TypeError,
-        "Cannot break a flavor group with a symbolic (undefined) dimension.");
+              mty::error::TypeError,
+              "Cannot break a flavor group with a symbolic (undefined) "
+              "dimension.");
     for (const auto &part : particles)
         if (getFlavorIrrep(part, group) != FlavorFlag::Trivial)
             brokenFields.push_back(part);
     std::vector<std::vector<std::string>> newNames(brokenFields.size());
     for (size_t i = 0; i != brokenFields.size(); ++i) {
-        const size_t size = static_cast<std::size_t>(std::round(group->getDim()->evaluateScalar()));
+        const size_t size = static_cast<std::size_t>(
+            std::round(group->getDim()->evaluateScalar()));
         newNames[i] = std::vector<std::string>(size);
         for (size_t j = 0; j != size; ++j) {
             newNames[i][j] = brokenFields[i]->getName();
@@ -1629,14 +1640,16 @@ void ModelBuilder::breakFlavorSymmetry(std::string const         &brokenGroup,
     std::vector<mty::Particle> brokenFields;
     auto                       group = getFlavorGroup(brokenGroup);
     HEPAssert(!group->hasSymbolicDimension(),
-        mty::error::TypeError,
-        "Cannot break a flavor group with a symbolic (undefined) dimension.");
+              mty::error::TypeError,
+              "Cannot break a flavor group with a symbolic (undefined) "
+              "dimension.");
     for (const auto &part : particles)
         if (getFlavorIrrep(part, group) != FlavorFlag::Trivial)
             brokenFields.push_back(part);
     std::vector<std::vector<std::string>> newNames(brokenFields.size());
     for (size_t i = 0; i != brokenFields.size(); ++i) {
-        const size_t size = static_cast<std::size_t>(std::round(group->getDim()->evaluateScalar()));
+        const size_t size = static_cast<std::size_t>(
+            std::round(group->getDim()->evaluateScalar()));
         newNames[i] = std::vector<std::string>(size);
         for (size_t j = 0; j != size; ++j) {
             newNames[i][j] = brokenFields[i]->getName();
@@ -1656,9 +1669,10 @@ void ModelBuilder::breakFlavorSymmetry(
         return;
     mty::FlavorGroup *flavor = getFlavorGroup(flavorName);
     HEPAssert(!flavor->hasSymbolicDimension(),
-        mty::error::TypeError,
-        "Cannot break a flavor group with a symbolic (undefined) dimension.");
-    size_t            dim
+              mty::error::TypeError,
+              "Cannot break a flavor group with a symbolic (undefined) "
+              "dimension.");
+    size_t dim
         = flavor->getVectorSpace(brokenFields[0]->getFlavorIrrep(flavor))
               ->getDim();
     breakFlavorSymmetry(flavorName,
@@ -1708,8 +1722,7 @@ void ModelBuilder::breakFlavorSymmetry(
         if (subGroups[i] > 1) {
             std::unique_ptr<mty::FlavorGroup> newGroup
                 = std::make_unique<mty::FlavorGroup>(
-                    newFlavorNames[nNonTrivial++],
-                    subGroups[i]);
+                    newFlavorNames[nNonTrivial++], subGroups[i]);
             newSpaces.push_back(newGroup->getVectorSpace());
             newFlavorGroups.push_back(newGroup.get());
             flavor->push_back(std::move(newGroup));

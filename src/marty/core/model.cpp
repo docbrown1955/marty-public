@@ -458,8 +458,8 @@ void Model::computeModelWidths(int                                orderLeft,
     for (const auto &p : insertions) {
         auto width = computeWidth(orderLeft, orderRight, p, options);
         if (width != CSL_0) {
-            auto abbrevWidth = abbreviateMassExpression(
-                    "Gamma_", p.getField(), width);
+            auto abbrevWidth
+                = abbreviateMassExpression("Gamma_", p.getField(), width);
             p.getField()->setWidth(abbrevWidth);
         }
     }
@@ -469,7 +469,7 @@ void Model::computeModelWidths(int              orderLeft,
                                int              orderRight,
                                mty::FeynOptions options)
 {
-    auto particles = getPhysicalParticles([&](Particle p) {
+    auto                   particles = getPhysicalParticles([&](Particle p) {
         return !IsOfType<GhostBoson>(p) && !IsOfType<GoldstoneBoson>(p);
     });
     std::vector<Insertion> insertions;
@@ -621,7 +621,7 @@ WilsonSet Model::getWilsonCoefficients(Amplitude const   &ampl,
         Wilson    &w = wilsons[i];
         csl::matcher::compress(a, 2);
         if (isMinimal && !a->isIndexed()) {
-            a = csl::Abbrev::makeAbbreviation("Cw", a);
+            a = csl::Abbrev::makeAbbreviation("C_w", a);
         }
         else if (mode == DecompositionMode::Matching) {
             // Taking into account degeneracy if it is a real Wilson

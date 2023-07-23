@@ -152,7 +152,7 @@ void Wick::printCode(int mode, std::ostream &out) const
 
 void Wick::printLaTeX(int mode, std::ostream &out) const
 {
-    out << "\\mathrm{T}\\left\\rbrace";
+    out << "\\mathrm{T}\\left\\lbrace";
     argument->printLaTeX(1, out);
     out << "\\right\\rbrace";
     if (mode == 0)
