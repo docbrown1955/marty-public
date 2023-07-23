@@ -16,6 +16,7 @@
 #include "tensorField.h"
 #include "comparison.h"
 #include "error.h"
+#include "indicial.h"
 #include "space.h"
 
 using namespace std;
@@ -275,13 +276,13 @@ void TDerivativeElement::printCode(int mode, std::ostream &out) const
 void TDerivativeElement::printLaTeX(int mode, std::ostream &out) const
 {
     TensorFieldElement::printLaTeX(max(1, mode), out);
-    if (not empty)
+    if (not empty) {
         out << "\\left(";
-    if (not empty or operand != CSL_1)
-        operand->printLaTeX(1, out);
-    if (not empty)
+        if (operand != CSL_1) {
+            operand->printLaTeX(1, out);
+        }
         out << "\\right)";
-    printProp(out);
+    }
     if (mode == 0)
         out << endl;
 }
@@ -698,11 +699,18 @@ void TensorFieldElement::printCode(int, std::ostream &out) const
 
 void TensorFieldElement::printLaTeX(int mode, std::ostream &out) const
 {
-    TensorElement::printLaTeX(max(1, mode), out);
+    out << "{" << getLatexName();
+    out << "}";
     out << "(";
     out << "{" << point->getLatexName() << "}";
     out << ")";
     printProp(out);
+    if (getParent()->getFullySymmetric()) {
+        _printLatexFullySymmetricIndices(this->index, out);
+    }
+    else {
+        _printLatexRegularIndices(this->index, out);
+    }
     if (mode == 0) {
         out << endl;
     }

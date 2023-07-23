@@ -80,10 +80,26 @@ TEST(csl_tolatex, indexedTensor)
     csl::Index  nu("\\nu", &csl::Minkowski, 0);
     csl::Index  rho("\\rho", &csl::Minkowski, 0);
     csl::Index  sigma("\\sigma", &csl::Minkowski, 0);
-    EXPECT_EQ(csl::ToLatex(g({mu, nu})), "{g}_{\\mu \\nu}");
-    EXPECT_EQ(csl::ToLatex(g({+mu, nu})), "{\\delta}_{\\nu}^{\\mu}");
-    EXPECT_EQ(csl::ToLatex(g({mu, +nu})), "{\\delta}_{\\mu}^{\\nu}");
-    EXPECT_EQ(csl::ToLatex(g({+mu, +nu})), "{g}^{\\mu \\nu}");
+    EXPECT_EQ(csl::ToLatex(g({mu, nu})), "{g}{}_{\\mu \\nu}");
+    EXPECT_EQ(csl::ToLatex(g({+mu, nu})), "{\\delta}{}_{\\nu}{}^{\\mu}");
+    EXPECT_EQ(csl::ToLatex(g({mu, +nu})), "{\\delta}{}_{\\mu}{}^{\\nu}");
+    EXPECT_EQ(csl::ToLatex(g({+mu, +nu})), "{g}{}^{\\mu \\nu}");
     EXPECT_EQ(csl::ToLatex(eps({+mu, nu, +rho, +sigma})),
-              "{\\varepsilon}^{\\mu}{}_{\\nu}{}^{\\rho \\sigma}");
+              "{\\varepsilon}{}^{\\mu}{}_{\\nu}{}^{\\rho \\sigma}");
+}
+
+TEST(csl_tolatex, tensorFields)
+{
+    csl::Tensor      chi("chi ; \\chi", &csl::Minkowski);
+    csl::TensorField Psi(
+        "psi ; \\psi", &csl::Minkowski, {&csl::Euclid_R3, &csl::Euclid_R3});
+    csl::Index mu("\\mu", &csl::Minkowski, 0);
+    csl::Index i("i", &csl::Euclid_R3, 0);
+    csl::Index j("j_{test_latex}", &csl::Euclid_R3, 0);
+    EXPECT_EQ(csl::ToLatex(Psi({i, j}, chi)),
+              "{\\psi}({\\chi}){}_{i j_{test_latex}}");
+    EXPECT_EQ(csl::ToLatex(csl::GetComplexConjugate(Psi({i, j}, chi))),
+              "{\\psi}({\\chi})^{*}{}_{i j_{test_latex}}");
+    EXPECT_EQ(csl::ToLatex(csl::GetComplexConjugate(chi(+mu))),
+              "{\\chi}^{*}{}^{\\mu}");
 }

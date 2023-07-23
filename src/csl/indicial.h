@@ -1179,6 +1179,12 @@ class IProd : public Prod {
     bool compareDenominatorSeparately(Expr_info other) const;
 };
 
+void _printLatexFullySymmetricIndices(csl::IndexStructure const &index,
+                                       std::ostream              &out);
+
+void _printLatexRegularIndices(csl::IndexStructure const &index,
+                                std::ostream              &out);
+
 } // End of namespace csl
 
 #endif
