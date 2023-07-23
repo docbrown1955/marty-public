@@ -90,7 +90,8 @@ TEST(csl_tolatex, indexedTensor)
 
 TEST(csl_tolatex, tensorFields)
 {
-    csl::Tensor      chi("chi ; \\chi", &csl::Minkowski);
+    csl::Tensor chi("chi ; \\chi", &csl::Minkowski);
+    chi->setComplexProperty(csl::ComplexProperty::Complex);
     csl::TensorField Psi(
         "psi ; \\psi", &csl::Minkowski, {&csl::Euclid_R3, &csl::Euclid_R3});
     csl::Index mu("\\mu", &csl::Minkowski, 0);
@@ -102,4 +103,16 @@ TEST(csl_tolatex, tensorFields)
               "{\\psi}({\\chi})^{*}{}_{i j_{test_latex}}");
     EXPECT_EQ(csl::ToLatex(csl::GetComplexConjugate(chi(+mu))),
               "{\\chi}^{*}{}^{\\mu}");
+}
+
+TEST(csl_tolatex, tensorialDerivative)
+{
+    csl::Tensor X("X ; X_\\eta", &csl::Minkowski);
+    csl::Index mu("\\mu", &csl::Minkowski, 0);
+    csl::TDerivative partialMinko = csl::tderivative_s("d", &csl::Minkowski);
+    csl::Expr expr = partialMinko(+mu, X)*X(mu);
+    EXPECT_EQ(
+        csl::ToLatex(expr),
+        "\\partial"
+    );
 }

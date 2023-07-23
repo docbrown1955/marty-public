@@ -2904,8 +2904,8 @@ void _printLatexRegularIndices(csl::IndexStructure const &index,
 void TensorElement::printLaTeX(int mode, std::ostream &out) const
 {
     out << "{" << getLatexName();
-    printProp(out);
     out << "}";
+    printProp(out);
     if (getParent()->getFullySymmetric()) {
         _printLatexFullySymmetricIndices(this->index, out);
     }

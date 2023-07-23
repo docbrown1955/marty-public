@@ -144,7 +144,7 @@ void Index::setSign(bool t_sign)
         if (t_sign != sign)
             nameOrValue *= -1;
     }
-    else if (space->getSignedIndex()) {
+    else if (space->getSignedIndex() || !t_sign) {
         bool sign = getSign();
         if (t_sign != sign)
             nameOrValue *= -1;
