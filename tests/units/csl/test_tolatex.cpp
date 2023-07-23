@@ -107,12 +107,11 @@ TEST(csl_tolatex, tensorFields)
 
 TEST(csl_tolatex, tensorialDerivative)
 {
-    csl::Tensor X("X ; X_\\eta", &csl::Minkowski);
-    csl::Index mu("\\mu", &csl::Minkowski, 0);
+    csl::Tensor      X("X ; X_\\eta", &csl::Minkowski);
+    csl::Index       mu("\\mu", &csl::Minkowski, 0);
     csl::TDerivative partialMinko = csl::tderivative_s("d", &csl::Minkowski);
-    csl::Expr expr = partialMinko(+mu, X)*X(mu);
-    EXPECT_EQ(
-        csl::ToLatex(expr),
-        "\\partial"
-    );
+    csl::Expr        expr         = partialMinko(+mu, X) * X(mu);
+    EXPECT_EQ(csl::ToLatex(expr),
+              "\\frac{\\partial^{\\mu}}{\\partial "
+              "X_\\eta}\\left({X_\\eta}{}_{\\mu}\\right)");
 }

@@ -275,7 +275,20 @@ void TDerivativeElement::printCode(int mode, std::ostream &out) const
 
 void TDerivativeElement::printLaTeX(int mode, std::ostream &out) const
 {
-    TensorFieldElement::printLaTeX(max(1, mode), out);
+    out << "\\frac{\\partial";
+    if (index[0].getSign()) {
+        out << "^{";
+        index[0].printLaTeX(out);
+        out << "}";
+    }
+    else {
+        out << "_{";
+        index[0].printLaTeX(out);
+        out << "}";
+    }
+    out << "}";
+    out << "{\\partial " << point->getLatexName() << "}";
+
     if (not empty) {
         out << "\\left(";
         if (operand != CSL_1) {
