@@ -1,4 +1,6 @@
+add_subdirectory(csl)
+add_subdirectory(marty)
+
 add_custom_target(doc 
-    COMMAND doxygen ${CMAKE_CURRENT_SOURCE_DIR}/dox-config 
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    DEPENDS doc-marty doc-csl
 )
