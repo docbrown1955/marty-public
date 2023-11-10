@@ -3,7 +3,9 @@
 #include <csl/initSanitizer.h>
 #include <gtest/gtest.h>
 #include <cmath>
-#include <string.h>
+// #include <string.h>
+
+#define strcmp(X,Y) (Y==X)
 
 TEST(initSanitizer, create)
 {
