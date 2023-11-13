@@ -124,6 +124,12 @@ class InitSanitizer {
       return  !(*this == other) ;
     }
     
+    bool operator != (T &other) const
+    {
+      return  !(*this == other) ;
+    }
+    
+    
     operator T() const
     {
         return get();
