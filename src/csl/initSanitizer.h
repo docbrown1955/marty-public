@@ -69,6 +69,9 @@ class InitSanitizer {
     
     InitSanitizer &operator=(T const &t)
     {
+#ifdef DEBUG
+        std::cout << "Calling InitSanitizer &operator=(T const &t) on " << name << "\n";
+#endif
         m_safe  = true;
         m_value = t;
         return *this;
