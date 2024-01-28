@@ -3,9 +3,11 @@
 #include <csl/initSanitizer.h>
 #include <gtest/gtest.h>
 #include <cmath>
-// #include <string.h>
 
-#define strcmp(X,Y) (Y==X)
+inline int strcmp(std::string X,std::string Y)
+{
+  return (Y==X);
+}
 
 TEST(initSanitizer, create)
 {

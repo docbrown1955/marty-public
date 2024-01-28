@@ -140,9 +140,9 @@ class InitSanitizer {
       return name;
     }
     
-    void setName(const std::string value)
+    void setName(std::string value)
     {
-      name=value; 
+      name=std::move(value); 
     }
 
   public:
