@@ -2,3 +2,4 @@ marty_env.sh
 build/*
 .vscode
 *.sw[p-z]
+build build_old

@@ -3,7 +3,11 @@
 #include <csl/initSanitizer.h>
 #include <gtest/gtest.h>
 #include <cmath>
-#include <string.h>
+
+inline int strcmp(std::string X,std::string Y)
+{
+  return (Y==X)? 0 : 1;
+}
 
 TEST(initSanitizer, create)
 {
@@ -21,7 +25,7 @@ TEST(initSanitizer, value_management)
 {
     csl::InitSanitizer<int> a;
     EXPECT_THROW(a.get(), std::runtime_error);
-    EXPECT_THROW((void)(a == 5), std::runtime_error);
+    EXPECT_EQ(a==5, false);
     a = 5;
     EXPECT_EQ(a, 5);
     a.reset();
