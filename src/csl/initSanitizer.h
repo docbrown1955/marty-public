@@ -39,23 +39,20 @@ class InitSanitizer {
     {
         this->operator=(t);
     }
-
-    InitSanitizer &operator=(InitSanitizer<T> const &t)
-    {
+    
+    InitSanitizer &operator=(T const &t)
+    {  // Operator already defined before merging "compare"
 #ifdef DEBUG
-        std::cout << "Calling InitSanitizer &operator=(InitSanitizer<T> const &t) on " << name << "\n";
+        std::cout << "Calling InitSanitizer &operator=(T const &t) on " << name << "\n";
 #endif
-        if(t.hasValue())
-        {
-          m_safe=true;
-          m_value=t.get();
-        }
+        m_safe  = true;
+        m_value = t;
         return *this;
-    }
+    }    
 
     template<class U>
     InitSanitizer &operator=(InitSanitizer<U> const &u)
-    {
+    { 
 #ifdef DEBUG
         std::cout << "Calling InitSanitizer &operator=(InitSanitizer<U> const &u) on " << name << "\n";
 #endif
@@ -67,26 +64,6 @@ class InitSanitizer {
         return *this;
     }
     
-    InitSanitizer &operator=(T const &t)
-    {
-#ifdef DEBUG
-        std::cout << "Calling InitSanitizer &operator=(T const &t) on " << name << "\n";
-#endif
-        m_safe  = true;
-        m_value = t;
-        return *this;
-    }
-
-    template<class U>
-    InitSanitizer &operator=(U const &t)
-    {
-#ifdef DEBUG
-        std::cout << "Calling InitSanitizer &operator=(U const &t) on " << name << "\n";
-#endif
-        m_safe  = true;
-        m_value = static_cast<T>(t);
-        return *this;
-    }
 
     bool hasValue() const
     {
@@ -113,22 +90,23 @@ class InitSanitizer {
     }
     
     bool operator == (const InitSanitizer<T> &other) const
-    {
+    {  // Defined in "compare"
       return  (hasValue() && other.hasValue()) ?  (static_cast<T>(get())==static_cast<T>(other.get())) : (!hasValue() && !other.hasValue()) ;
     }
     
     bool operator == (const T &other) const
     {
+      // Defined in "compare"
       return  hasValue() ? (m_value==other) : false;
     }
 
     bool operator != (InitSanitizer<T> &other) const
-    {
+    { // Defined in "compare"
       return  !(*this == other) ;
     }
     
     bool operator != (T &other) const
-    {
+    { // Defined in "compare"
       return  !(*this == other) ;
     }
     
