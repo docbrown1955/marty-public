@@ -3,6 +3,7 @@
 #include <cassert>
 #include <iostream>
 #include <exception>
+#include <memory>
 
 namespace csl {
 
@@ -26,7 +27,7 @@ class InitSanitizer {
     {
     }
 
-    constexpr InitSanitizer(char const t_name[]) : name(t_name)
+    constexpr InitSanitizer(const std::string t_name) : name(t_name)
     {
     }
 
@@ -35,7 +36,7 @@ class InitSanitizer {
         this->operator=(t);
     }
 
-    InitSanitizer(char const t_name[], T const &t) : name(t_name)
+    InitSanitizer(const std::string t_name, T const &t) : name(t_name)
     {
         this->operator=(t);
     }
@@ -50,20 +51,34 @@ class InitSanitizer {
         return *this;
     }    
 
-    template<class U>
-    InitSanitizer &operator=(InitSanitizer<U> const &u)
+//     // Delete the default assignment operator
+//     InitSanitizer &operator=(const InitSanitizer<T>&) = delete;
+    
+//     template<typename U>
+//     InitSanitizer &operator=(const InitSanitizer<U> &other)
+//     { 
+// #ifdef DEBUG
+//         std::cout << "Calling InitSanitizer &operator=(InitSanitizer<U> const &other) on " << name << "\n";
+// #endif
+//         this->operator=(other.get());
+//         return *this;
+//     }
+    
+    InitSanitizer &operator=(const InitSanitizer<T> &other)
     { 
 #ifdef DEBUG
-        std::cout << "Calling InitSanitizer &operator=(InitSanitizer<U> const &u) on " << name << "\n";
+        std::cout << "Calling InitSanitizer &operator=(InitSanitizer<T> const &other) on " << name << "\n";
 #endif
-        if(u.hasValue())
-        {
-          m_safe=true;
-          m_value=u.get();
-        }
+        this->operator=(other.get());
         return *this;
     }
     
+    InitSanitizer(InitSanitizer<T> const &other) : 
+      name(other.getName()),
+      m_value(other.m_value),
+      m_safe(other.m_safe)
+    {
+    }
 
     bool hasValue() const
     {
@@ -76,7 +91,7 @@ class InitSanitizer {
         std::cout << "Called .get()\n";
 #endif
         if (!m_safe) {
-            std::cerr << "Error: param \"" << name << "\" is used ";
+            std::cerr << "Error: param \"" << getName() << "\" is used ";
             std::cerr << "uninitialized, please assign it a m_value using ";
             std::cerr << "standard m_value assignement.\n";
             throw std::runtime_error("Uninitialized value");
@@ -110,7 +125,6 @@ class InitSanitizer {
       return  !(*this == other) ;
     }
     
-    
     operator T() const
     {
         return get();
@@ -120,14 +134,14 @@ class InitSanitizer {
     {
       return name;
     }
-    
-    void setName(std::string value)
-    {
-      name=std::move(value); 
-    }
 
+    void setName(const std::string newname) 
+    {
+        name=std::move(newname);
+    }
+  
   public:
-    std::string name = "unnamed_var";
+    std::string name="unnamed_var";
   private:
     T    m_value;
     bool m_safe{false};

@@ -4,20 +4,21 @@
 #include <gtest/gtest.h>
 #include <cmath>
 
-inline int strcmp(std::string X,std::string Y)
+inline int strcmp(const std::string X,const std::string Y)
 {
-  return (Y==X)? 0 : 1;
+  std::cout << X << " and " << Y << " are" << ( X!=Y ? " not " : " " ) << "equal\n";
+  return (X==Y) ? 0 : 1;
 }
 
 TEST(initSanitizer, create)
 {
     csl::InitSanitizer<int> a;
-    a.name = "a";
-    EXPECT_EQ(strcmp("a", a.name), 0);
+    a.setName("a");
+    EXPECT_EQ(strcmp("a", a.getName()), 0);
     csl::InitSanitizer<float> b("b");
-    EXPECT_EQ(strcmp("b", b.name), 0);
+    EXPECT_EQ(strcmp("b", b.getName()), 0);
     csl::InitSanitizer<float> c("c", 5.5);
-    EXPECT_EQ(strcmp("c", c.name), 0);
+    EXPECT_EQ(strcmp("c", c.getName()), 0);
     EXPECT_EQ(c.get(), 5.5);
 }
 
@@ -97,18 +98,27 @@ TEST(initSanitizer, assign)
     csl::InitSanitizer<int> a("a");
     csl::InitSanitizer<int> a2("a2");
     csl::InitSanitizer<float> b("b", 5.5);
-    EXPECT_EQ(strcmp(a.name, "a"), 0);
-    EXPECT_NE(strcmp(a.name, "a2"), 0);
+    std::cout << "After creation:\n";
+    std::cout << a << " " << a2 << " " << b << "\n";
+    EXPECT_EQ(strcmp(a.getName(), "a"), 0);
+    EXPECT_NE(strcmp(a.getName(), "a2"), 0);
     a = 5;
     a2 = 6;
+    std::cout << "After first assignment:\n";
+    std::cout << a <<  a2 << b << "\n";
     EXPECT_EQ(a, 5);
     a = a2;
+    std::cout << "After second assignment:\n";
+    std::cout << a << a2 <<  b << "\n";
     EXPECT_EQ(a, 6);
     // Check name is not copied
-    EXPECT_EQ(strcmp(a.name, "a"), 0);
-    EXPECT_NE(strcmp(a.name, "a2"), 0);
+    EXPECT_EQ(strcmp(a.getName(), "a"), 0);
+    EXPECT_NE(strcmp(a.getName(), "a2"), 0);
     a = b;
-    EXPECT_EQ(strcmp(a.name, "a"), 0);
+    std::cout << "After third assignment:\n";
+    std::cout << a <<  a2 << b << "\n";
+    EXPECT_EQ(a, 5);
+    EXPECT_EQ(strcmp(a.getName(), "a"), 0);
 }
 
 TEST(initSanitizer, operations)
