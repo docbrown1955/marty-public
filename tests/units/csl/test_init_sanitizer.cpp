@@ -127,6 +127,9 @@ TEST(initSanitizer, assign)
 #endif
     EXPECT_EQ(a, 5);
     EXPECT_EQ(strcmp(a.getName(), "a"), 0);
+    a.setName("newname");
+    EXPECT_EQ(strcmp(a.getName(), "newname"), 0);
+    
 }
 
 TEST(initSanitizer, operations)
