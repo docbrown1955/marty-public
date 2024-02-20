@@ -3,7 +3,6 @@
 #include <cassert>
 #include <iostream>
 #include <exception>
-#include <memory>
 
 namespace csl {
 
