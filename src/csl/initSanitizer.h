@@ -51,9 +51,12 @@ class InitSanitizer {
         return *this;
     }    
 
-//     // Delete the default assignment operator
-//     InitSanitizer &operator=(const InitSanitizer<T>&) = delete;
-    
+    // ATTENTION: do NOT define the assignment operator in the following comment.
+    //            In fact, it will conflict to the one uncommented below 
+    //            (i.e. InitSanitizer &operator=(const InitSanitizer<T> &other)).
+    //            By defining them both there will be a warning from -Wdeprecated_copy.
+    //            Alternatively, if one defines only the one with the two templates, then the other 
+    //            is defined by default, and the "name" member WILL be modified.
 //     template<typename U>
 //     InitSanitizer &operator=(const InitSanitizer<U> &other)
 //     { 
@@ -135,14 +138,13 @@ class InitSanitizer {
       return name;
     }
 
-    void setName(const std::string newname) 
+    void setName(const std::string &newname) 
     {
         name=std::move(newname);
     }
   
-  public:
-    std::string name="unnamed_var";
   private:
+    std::string name="unnamed_var";
     T    m_value;
     bool m_safe{false};
 };
