@@ -72,7 +72,8 @@ class InitSanitizer {
 #ifdef DEBUG
         std::cout << "Calling InitSanitizer &operator=(InitSanitizer<T> const &other) on " << name << "\n";
 #endif
-        this->operator=(other.get());
+        m_safe=other.hasValue();
+        m_value= (m_safe ? other.m_value : m_value);
         return *this;
     }
     
