@@ -98,25 +98,33 @@ TEST(initSanitizer, assign)
     csl::InitSanitizer<int> a("a");
     csl::InitSanitizer<int> a2("a2");
     csl::InitSanitizer<float> b("b", 5.5);
+#ifdef DEBUG
     std::cout << "After creation:\n";
     std::cout << a << " " << a2 << " " << b << "\n";
+#endif
     EXPECT_EQ(strcmp(a.getName(), "a"), 0);
     EXPECT_NE(strcmp(a.getName(), "a2"), 0);
     a = 5;
     a2 = 6;
+#ifdef DEBUG
     std::cout << "After first assignment:\n";
     std::cout << a <<  a2 << b << "\n";
+#endif
     EXPECT_EQ(a, 5);
     a = a2;
+#ifdef DEBUG
     std::cout << "After second assignment:\n";
     std::cout << a << a2 <<  b << "\n";
+#endif
     EXPECT_EQ(a, 6);
     // Check name is not copied
     EXPECT_EQ(strcmp(a.getName(), "a"), 0);
     EXPECT_NE(strcmp(a.getName(), "a2"), 0);
     a = b;
+#ifdef DEBUG
     std::cout << "After third assignment:\n";
     std::cout << a <<  a2 << b << "\n";
+#endif
     EXPECT_EQ(a, 5);
     EXPECT_EQ(strcmp(a.getName(), "a"), 0);
 }
