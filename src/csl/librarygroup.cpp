@@ -178,7 +178,7 @@ void LibraryGroup::printPrintParameterList(
     out << "})\n";
     out << LibraryGenerator::indent(nIndent) << "{\n";
     out << LibraryGenerator::indent(nIndent + 1)
-        << "out << \"  -> \" << par->name << \": \";\n";
+        << "out << \"  -> \" << par->getName() << \": \";\n";
     out << LibraryGenerator::indent(nIndent + 1) << "if (par->hasValue()) {\n";
     if (complexParameters) {
         out << LibraryGenerator::indent(nIndent + 2)
@@ -204,7 +204,7 @@ void LibraryGroup::printPrintDefinition(std::ostream &out, int nIndent) const
     auto const &[realParams, complexParams]
         = separateComplexParameters(parameters, forcedParameters);
     out << LibraryGenerator::indent(nIndent)
-        << "void print(std::ostream &out = std::cout)\n";
+        << "void print(std::ostream &out = std::cout) const\n";
     out << LibraryGenerator::indent(nIndent) << "{\n";
     out << LibraryGenerator::indent(nIndent + 1)
         << "using real_params = std::array<csl::InitSanitizer<"

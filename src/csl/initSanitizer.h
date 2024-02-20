@@ -26,7 +26,7 @@ class InitSanitizer {
     {
     }
 
-    constexpr InitSanitizer(char const t_name[]) : name(t_name)
+    constexpr InitSanitizer(const std::string t_name) : name(t_name)
     {
     }
 
@@ -35,57 +35,52 @@ class InitSanitizer {
         this->operator=(t);
     }
 
-    InitSanitizer(char const t_name[], T const &t) : name(t_name)
+    InitSanitizer(const std::string t_name, T const &t) : name(t_name)
     {
         this->operator=(t);
     }
-
-    InitSanitizer &operator=(InitSanitizer<T> const &t)
-    {
-#ifdef DEBUG
-        std::cout << "Calling InitSanitizer &operator=(InitSanitizer<T> const &t) on " << name << "\n";
-#endif
-        if(t.hasValue())
-        {
-          m_safe=true;
-          m_value=t.get();
-        }
-        return *this;
-    }
-
-    template<class U>
-    InitSanitizer &operator=(InitSanitizer<U> const &u)
-    {
-#ifdef DEBUG
-        std::cout << "Calling InitSanitizer &operator=(InitSanitizer<U> const &u) on " << name << "\n";
-#endif
-        if(u.hasValue())
-        {
-          m_safe=true;
-          m_value=u.get();
-        }
-        return *this;
-    }
     
     InitSanitizer &operator=(T const &t)
-    {
+    {  // Operator already defined before merging "compare"
 #ifdef DEBUG
         std::cout << "Calling InitSanitizer &operator=(T const &t) on " << name << "\n";
 #endif
         m_safe  = true;
         m_value = t;
         return *this;
-    }
+    }    
 
-    template<class U>
-    InitSanitizer &operator=(U const &t)
-    {
+    // ATTENTION: do NOT define the assignment operator in the following comment.
+    //            In fact, it will conflict to the one uncommented below 
+    //            (i.e. InitSanitizer &operator=(const InitSanitizer<T> &other)).
+    //            By defining them both there will be a warning from -Wdeprecated_copy.
+    //            Alternatively, if one defines only the one with the two templates, then the other 
+    //            is defined by default, and the "name" member WILL be modified.
+//     template<typename U>
+//     InitSanitizer &operator=(const InitSanitizer<U> &other)
+//     { 
+// #ifdef DEBUG
+//         std::cout << "Calling InitSanitizer &operator=(InitSanitizer<U> const &other) on " << name << "\n";
+// #endif
+//         this->operator=(other.get());
+//         return *this;
+//     }
+    
+    InitSanitizer &operator=(const InitSanitizer<T> &other)
+    { 
 #ifdef DEBUG
-        std::cout << "Calling InitSanitizer &operator=(U const &t) on " << name << "\n";
+        std::cout << "Calling InitSanitizer &operator=(InitSanitizer<T> const &other) on " << name << "\n";
 #endif
-        m_safe  = true;
-        m_value = static_cast<T>(t);
+        m_safe=other.hasValue();
+        m_value= (m_safe ? other.m_value : m_value);
         return *this;
+    }
+    
+    InitSanitizer(InitSanitizer<T> const &other) : 
+      name(other.getName()),
+      m_value(other.m_value),
+      m_safe(other.m_safe)
+    {
     }
 
     bool hasValue() const
@@ -99,7 +94,7 @@ class InitSanitizer {
         std::cout << "Called .get()\n";
 #endif
         if (!m_safe) {
-            std::cerr << "Error: param \"" << name << "\" is used ";
+            std::cerr << "Error: param \"" << getName() << "\" is used ";
             std::cerr << "uninitialized, please assign it a m_value using ";
             std::cerr << "standard m_value assignement.\n";
             throw std::runtime_error("Uninitialized value");
@@ -113,25 +108,25 @@ class InitSanitizer {
     }
     
     bool operator == (const InitSanitizer<T> &other) const
-    {
+    {  // Defined in "compare"
       return  (hasValue() && other.hasValue()) ?  (static_cast<T>(get())==static_cast<T>(other.get())) : (!hasValue() && !other.hasValue()) ;
     }
     
     bool operator == (const T &other) const
     {
+      // Defined in "compare"
       return  hasValue() ? (m_value==other) : false;
     }
 
     bool operator != (InitSanitizer<T> &other) const
-    {
+    { // Defined in "compare"
       return  !(*this == other) ;
     }
     
     bool operator != (T &other) const
-    {
+    { // Defined in "compare"
       return  !(*this == other) ;
     }
-    
     
     operator T() const
     {
@@ -142,15 +137,14 @@ class InitSanitizer {
     {
       return name;
     }
-    
-    void setName(std::string value)
-    {
-      name=std::move(value); 
-    }
 
-  public:
-    std::string name = "unnamed_var";
+    void setName(const std::string &newname) 
+    {
+        name=std::move(newname);
+    }
+  
   private:
+    std::string name="unnamed_var";
     T    m_value;
     bool m_safe{false};
 };
