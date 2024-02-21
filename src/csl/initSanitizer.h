@@ -26,7 +26,7 @@ class InitSanitizer {
     {
     }
 
-    constexpr InitSanitizer(const std::string t_name) : name(t_name)
+    constexpr InitSanitizer(const char * t_name) : name(t_name)
     {
     }
 
@@ -35,7 +35,7 @@ class InitSanitizer {
         this->operator=(t);
     }
 
-    InitSanitizer(const std::string t_name, T const &t) : name(t_name)
+    InitSanitizer(const char * t_name, T const &t) : name(t_name)
     {
         this->operator=(t);
     }
