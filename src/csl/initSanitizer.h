@@ -142,6 +142,12 @@ class InitSanitizer {
     {
         name=std::move(newname);
     }
+    
+    void print(std::ostream &out)
+    {
+        out << getName() << " = ";
+        (hasValue() ?  (out << get()) : (out << "uninitialized")) << '\n'; 
+    }
   
   private:
     std::string name="unnamed_var";
