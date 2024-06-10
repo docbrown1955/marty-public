@@ -143,7 +143,7 @@ class InitSanitizer {
         name=std::move(newname);
     }
     
-    void print(std::ostream &out)
+    void print(std::ostream &out=std::cout) const
     {
         out << getName() << " = ";
         (hasValue() ?  (out << get()) : (out << "uninitialized")) << '\n'; 
@@ -161,7 +161,6 @@ class InitSanitizer {
 template <class T>
 std::ostream& operator << (std::ostream &out, const csl::InitSanitizer<T> &var)  
 {
-  out << var.getName() << " = ";
-  (var.hasValue() ?  (out << var.get()) : (out << "uninitialized")) << '\n'; 
+  var.print(out);
   return out;
 }
