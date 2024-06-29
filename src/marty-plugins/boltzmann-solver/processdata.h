@@ -1,7 +1,6 @@
 #pragma once
 
 #include <marty.h>
-//#include "marty/jsonLoader.h"
 #include <grafed/jsonparser/jsonLoader.h>
 
 namespace mty {
@@ -23,7 +22,7 @@ namespace mty {
 
         IMPLEMENTS_STD_VECTOR(Process, processes)
 
-        ProcessData(mty::Model const &t_model);
+        ProcessData();
 
         Process &addProcess(
                 std::string                 const &name,
@@ -51,8 +50,6 @@ namespace mty {
                 ) const;
 
     private:
-
-        mty::Model const *m_model;
         std::vector<Process> processes;
     };
 

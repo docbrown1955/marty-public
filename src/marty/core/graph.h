@@ -280,11 +280,6 @@ class ConnectedComponent {
      */
     explicit ConnectedComponent(const Vertex &firstVertex);
 
-    /*!
-     * \brief Copy constructor = C++ default.
-     */
-    ConnectedComponent(const ConnectedComponent &other) = default;
-
     std::vector<Vertex> const &getVertices() const;
 
     /*!

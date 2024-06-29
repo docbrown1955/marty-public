@@ -3,8 +3,7 @@
 
 namespace mty {
 
-    ProcessData::ProcessData(mty::Model const &t_model)
-        : m_model(&t_model)
+    ProcessData::ProcessData()
     {
 
     }

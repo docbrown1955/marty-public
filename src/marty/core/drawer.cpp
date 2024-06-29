@@ -276,7 +276,7 @@ void Drawer::exportPNG(std::string const                               &name,
     size_t nDigits = std::ceil(std::log10(1 + graphs.size()));
     auto   getName = [&](size_t n) {
         std::string str = toString(n);
-        for (size_t i = 0; str.size() < nDigits; ++i)
+        while (str.size() < nDigits)
             str = '0' + str;
         return str;
     };

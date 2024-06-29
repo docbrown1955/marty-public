@@ -252,7 +252,7 @@ std::string Abbrev::getFinalName(std::string_view initialName)
         return init;
     }
     std::string newName = toString(++id_name[init]);
-    for (size_t i = 0; newName.size() < 4; ++i)
+    while (newName.size() < 4)
         newName = '0' + newName;
     return init + "_" + newName;
 }
