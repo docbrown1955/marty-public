@@ -282,8 +282,6 @@ namespace mty::lib {
 
         void loadProcessNode(JSON::Node const *node);
 
-        bool isConjugated(std::string &name) const;
-
         std::vector<Particle> loadParticles(JSON::Node const *node) const;
 
         void addParticles(std::vector<Particle> const &particles);
