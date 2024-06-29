@@ -95,6 +95,8 @@ jobs:
     - name: dependencies
       run: |
         brew install coreutils gcc@12 gsl qt5 cmake lcov imagemagick texlive octave pkg-config
+        brew info qt5
+        brew info gsl
     - name: configure
       run: |
         mkdir build
