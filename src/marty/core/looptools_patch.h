@@ -3,6 +3,7 @@
 
 #include "clooptools.h"
 #include <complex.h>
+#include <stdlib.h>
 
 #ifndef __cplusplus
 #include <stdbool.h>

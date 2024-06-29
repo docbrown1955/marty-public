@@ -174,7 +174,6 @@ static bool hardComparison_impl(csl::Expr const &A, csl::Expr const &B)
 {
     auto [tensorsInA, tensorsInB] = getSortedTensors(A, B);
     MultiPermutation permutation  = getAllPossiblePermutations(tensorsInB);
-    size_t           i            = 0;
     do {
         csl::Expr B_cpy           = csl::DeepCopy(B);
         auto      tensorsInB_perm = permutation.applyPermutation(tensorsInB);
@@ -183,7 +182,6 @@ static bool hardComparison_impl(csl::Expr const &A, csl::Expr const &B)
             return false;
         if (A->compareWithDummy(B_cpy.get()))
             return true;
-        ++i;
     } while (permutation.nextPermutation());
 
     return false;

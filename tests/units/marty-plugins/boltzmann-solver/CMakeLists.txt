@@ -1,0 +1,2 @@
+ADD_UNIT_TEST(test_quantumnumbers)
+target_link_libraries(test_quantumnumbers.x marty-boltzmann-solver)

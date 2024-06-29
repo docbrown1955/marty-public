@@ -30,7 +30,7 @@ TEST(initSanitizer, value_management)
     a = 5;
     EXPECT_EQ(a, 5);
     a.reset();
-    EXPECT_THROW(static_cast<int>(a), std::runtime_error);
+    EXPECT_THROW((void)static_cast<int>(a), std::runtime_error);
 }
 
 TEST(initSanitizer, equality)
