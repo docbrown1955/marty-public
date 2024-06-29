@@ -6,3 +6,4 @@ endfunction()
 
 add_subdirectory(csl)
 add_subdirectory(marty)
+add_subdirectory(marty-plugins)
