@@ -614,11 +614,9 @@ void Graph::isolateIndependantVertices()
     }
 
     independentVertices = vector<int>(0);
-    int nFamilies       = 0;
     for (size_t i = 0; i < intVertex.size(); ++i) {
         independentVertices.push_back(i);
         const size_t index = i;
-        ++nFamilies;
         for (size_t j = i + 1; j < intVertex.size(); ++j) {
             assert(index < intVertex.size());
             if (intVertex[j].isDegenerateWith(intVertex[index])) {
