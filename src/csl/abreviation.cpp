@@ -416,6 +416,15 @@ std::optional<Expr> Abbrev::findExisting(std::string_view name,
             if (structure.size() != ab_ptr->initialStructure.size()) {
                 continue;
             }
+            bool sameSpaces = true;
+            for (size_t i = 0; i != structure.size(); ++i)
+                if (structure[i].getSpace() != ab_ptr->initialStructure[i].getSpace()) {
+                    sameSpaces = false;
+                    break;
+                }
+            if (not sameSpaces) {
+                continue;
+            }
             if (comparison->getType() != encapsulated->getType()
                 || comparison->size() != encapsulated->size()) {
                 continue;
