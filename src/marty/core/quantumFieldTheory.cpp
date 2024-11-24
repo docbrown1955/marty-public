@@ -28,7 +28,7 @@ namespace mty {
 
 csl::Expr ScalarKineticTerm(QuantumFieldParent &field, csl::Tensor &X)
 {
-    Gauge *               gauge        = field.getGauge();
+    Gauge                *gauge        = field.getGauge();
     Index                 mu           = Minkowski.generateIndex();
     csl::Expr             partialUp    = partialMinko(+mu, X);
     csl::Expr             partialDown  = partialMinko(mu, X);
@@ -39,11 +39,10 @@ csl::Expr ScalarKineticTerm(QuantumFieldParent &field, csl::Tensor &X)
         gaugeSpaces[i] = gaugeIndices[i].getSpace();
     indices.insert(indices.end(), gaugeIndices.begin(), gaugeIndices.end());
 
-    csl::Expr expr = field(indices, X);
     csl::Expr kineticTerm
-        = GetHermitianConjugate(gauge->covariantDerivative(Copy(expr), mu),
-                                gaugeSpaces)
-          * gauge->covariantDerivative(Copy(expr), +mu);
+        = GetHermitianConjugate(
+              gauge->covariantDerivative(field, mu, indices, X), gaugeSpaces)
+          * gauge->covariantDerivative(field, +mu, indices, X);
     if (field.isSelfConjugate())
         // 1/2 *d^mu(phi)d_mu(phi)
         kineticTerm = CSL_HALF * kineticTerm;
@@ -53,7 +52,7 @@ csl::Expr ScalarKineticTerm(QuantumFieldParent &field, csl::Tensor &X)
 
 csl::Expr FermionKineticTerm(QuantumFieldParent &field, csl::Tensor &X)
 {
-    Gauge *               gauge        = field.getGauge();
+    Gauge                *gauge        = field.getGauge();
     Index                 mu           = Minkowski.generateIndex();
     csl::Expr             partialUp    = partialMinko(+mu, X);
     csl::Expr             partialDown  = partialMinko(mu, X);
@@ -84,7 +83,7 @@ csl::Expr FermionKineticTerm(QuantumFieldParent &field, csl::Tensor &X)
 
 csl::Expr VectorKineticTerm(QuantumFieldParent &field, csl::Tensor &X)
 {
-    Gauge *               gauge        = field.getGauge();
+    Gauge                *gauge        = field.getGauge();
     Index                 mu           = Minkowski.generateIndex();
     csl::Expr             partialUp    = partialMinko(+mu, X);
     csl::Expr             partialDown  = partialMinko(mu, X);
@@ -121,7 +120,7 @@ csl::Expr VectorKineticTerm(QuantumFieldParent &field, csl::Tensor &X)
 
 csl::Expr GhostKineticTerm(QuantumFieldParent &field, csl::Tensor &X)
 {
-    Gauge *               gauge        = field.getGauge();
+    Gauge                *gauge        = field.getGauge();
     Index                 mu           = Minkowski.generateIndex();
     csl::Expr             partialUp    = partialMinko(+mu, X);
     csl::Expr             partialDown  = partialMinko(mu, X);
@@ -132,9 +131,10 @@ csl::Expr GhostKineticTerm(QuantumFieldParent &field, csl::Tensor &X)
         gaugeSpaces[i] = gaugeIndices[i].getSpace();
     indices.insert(indices.end(), gaugeIndices.begin(), gaugeIndices.end());
 
-    csl::Expr expr        = field(indices, X);
-    csl::Expr kineticTerm = GetComplexConjugate(partialMinko(mu, X) * expr)
-                            * gauge->covariantDerivative(Copy(expr), +mu);
+    csl::Expr expr = field(indices, X);
+    csl::Expr kineticTerm
+        = GetComplexConjugate(partialMinko(mu, X) * expr)
+          * gauge->covariantDerivative(field, +mu, indices, X);
 
     return kineticTerm;
 }
@@ -178,7 +178,7 @@ csl::Expr ReplaceXiGauge(csl::Expr const &init)
     return res;
 }
 
-csl::Expr StandardDenominator(csl::Tensor &    P,
+csl::Expr StandardDenominator(csl::Tensor     &P,
                               csl::Expr const &mass,
                               csl::Expr const &width,
                               bool             external)
@@ -205,7 +205,7 @@ NullPropagator(QuantumField const &, QuantumField const &, csl::Tensor &, bool)
 
 csl::Expr ScalarPropagator(QuantumField const &A,
                            QuantumField const &B,
-                           csl::Tensor &       P,
+                           csl::Tensor        &P,
                            bool                external)
 {
     csl::IndexStructure const &structA = A.getIndexStructureView();
@@ -232,7 +232,7 @@ csl::Expr ScalarPropagator(QuantumField const &A,
 
 csl::Expr FermionPropagator(QuantumField const &A,
                             QuantumField const &B,
-                            csl::Tensor &       P,
+                            csl::Tensor        &P,
                             bool                external)
 {
     if (A.isComplexConjugate() && !B.isComplexConjugate())
@@ -300,12 +300,12 @@ csl::Expr FermionPropagator(QuantumField const &A,
 
     csl::Tensor delta = diracSpace->getDelta();
     csl::Expr   m     = (A.isChiral() and B.isChiral() and chirA != chirB)
-                      ? CSL_0
-                      : A.getMass() * delta({alpha, beta});
-    csl::Expr p = (A.isChiral() and B.isChiral() and chirA == chirB)
-                      ? CSL_0
-                      : slashed_s(P, alpha, beta, diracSpace);
-    csl::Expr diracStructure = (external) ? delta({alpha, beta}) : (p + m);
+                            ? CSL_0
+                            : A.getMass() * delta({alpha, beta});
+    csl::Expr   p     = (A.isChiral() and B.isChiral() and chirA == chirB)
+                            ? CSL_0
+                            : slashed_s(P, alpha, beta, diracSpace);
+    csl::Expr   diracStructure = (external) ? delta({alpha, beta}) : (p + m);
 
     return csl::prod_s(
         {CSL_I,
@@ -318,7 +318,7 @@ csl::Expr FermionPropagator(QuantumField const &A,
 
 csl::Expr VectorPropagator(QuantumField const &A,
                            QuantumField const &B,
-                           csl::Tensor &       P,
+                           csl::Tensor        &P,
                            bool                external)
 {
     csl::IndexStructure const &structA = A.getIndexStructureView();
@@ -358,7 +358,7 @@ csl::Expr VectorPropagator(QuantumField const &A,
 
 csl::Expr FieldStrengthPropagator(QuantumField const &A,
                                   QuantumField const &B,
-                                  csl::Tensor &       P,
+                                  csl::Tensor        &P,
                                   bool                external)
 {
     // <A_mu F_nu,rho^(*)> or <F_mu,nu A_rho^(*)>
@@ -398,7 +398,7 @@ csl::Expr FieldStrengthPropagator(QuantumField const &A,
 
 csl::Expr FieldStrengthSquaredPropagator(QuantumField const &A,
                                          QuantumField const &B,
-                                         csl::Tensor &       P,
+                                         csl::Tensor        &P,
                                          bool                external)
 {
     csl::IndexStructure const &structA = A.getIndexStructureView();
@@ -434,7 +434,7 @@ csl::Expr FieldStrengthSquaredPropagator(QuantumField const &A,
 
 csl::Expr IntegratedScalarPropagator(QuantumField const &A,
                                      QuantumField const &B,
-                                     csl::Tensor &       P,
+                                     csl::Tensor        &P,
                                      bool)
 {
     csl::IndexStructure const &structA = A.getIndexStructureView();
@@ -456,7 +456,7 @@ csl::Expr IntegratedScalarPropagator(QuantumField const &A,
 
 csl::Expr IntegratedFermionPropagator(QuantumField const &A,
                                       QuantumField const &B,
-                                      csl::Tensor &       P,
+                                      csl::Tensor        &P,
                                       bool                external)
 {
     if (!A.isSelfConjugate() && A.isComplexConjugate())
@@ -535,13 +535,13 @@ csl::Expr IntegratedFermionPropagator(QuantumField const &A,
 
     csl::Tensor delta = diracSpace->getDelta();
     csl::Expr   m     = (A.isChiral() and A.getChirality() == B.getChirality())
-                      ? CSL_0
-                      : A.getMass() * delta({alpha, beta});
-    csl::Expr p = (A.isChiral() and B.isChiral()
+                            ? CSL_0
+                            : A.getMass() * delta({alpha, beta});
+    csl::Expr   p     = (A.isChiral() and B.isChiral()
                    and A.getChirality() != B.getChirality())
-                      ? CSL_0
-                      : slashed_s(P, alpha, beta, diracSpace);
-    csl::Expr diracStructure = (external) ? delta({alpha, beta}) : (p + m);
+                            ? CSL_0
+                            : slashed_s(P, alpha, beta, diracSpace);
+    csl::Expr   diracStructure = (external) ? delta({alpha, beta}) : (p + m);
 
     Expr sign = (reverted and !external) ? -1 : 1;
     return -sign * CSL_I * projectors * csl::prod_s(deltaFactor)
@@ -551,7 +551,7 @@ csl::Expr IntegratedFermionPropagator(QuantumField const &A,
 
 csl::Expr IntegratedVectorPropagator(QuantumField const &A,
                                      QuantumField const &B,
-                                     csl::Tensor &       P,
+                                     csl::Tensor        &P,
                                      bool)
 {
     csl::IndexStructure const &structA = A.getIndexStructureView();
@@ -578,7 +578,7 @@ csl::Expr IntegratedVectorPropagator(QuantumField const &A,
 
 csl::Expr IntegratedFieldStrengthPropagator(QuantumField const &A,
                                             QuantumField const &B,
-                                            csl::Tensor &       P,
+                                            csl::Tensor        &P,
                                             bool)
 {
     // <A_mu F_nu,rho^(*)> or <F_mu,nu A_rho^(*)>
@@ -614,7 +614,7 @@ csl::Expr IntegratedFieldStrengthPropagator(QuantumField const &A,
 
 csl::Expr IntegratedFieldStrengthSquaredPropagator(QuantumField const &A,
                                                    QuantumField const &B,
-                                                   csl::Tensor &       P,
+                                                   csl::Tensor        &P,
                                                    bool)
 {
     csl::IndexStructure const &structA = A.getIndexStructureView();
@@ -644,7 +644,7 @@ csl::Expr IntegratedFieldStrengthSquaredPropagator(QuantumField const &A,
 }
 
 csl::Expr ExternalLeg(QuantumField const &field,
-                      const csl::Tensor & impulsion,
+                      const csl::Tensor  &impulsion,
                       bool                ruleMode,
                       bool                lock)
 {
@@ -670,7 +670,7 @@ csl::Expr ExternalLeg(QuantumFieldParent &field,
                       bool                particle,
                       bool                incoming,
                       bool                onshell,
-                      PartnerShip const & partnerShip,
+                      PartnerShip const  &partnerShip,
                       bool                ruleMode,
                       bool                lockConjugation)
 {
@@ -717,7 +717,7 @@ csl::Expr MajoranaMassTerm(csl::Expr const &mass, QuantumFieldParent *field)
                     * csl::GetComplexConjugate((*field)(index2)));
 }
 
-csl::Expr MajoranaMassTerm(csl::Expr const &   mass,
+csl::Expr MajoranaMassTerm(csl::Expr const    &mass,
                            QuantumFieldParent *fieldL,
                            QuantumFieldParent *fieldR)
 {
@@ -749,7 +749,7 @@ csl::Expr MassTerm(csl::Expr const &mass, QuantumFieldParent *field)
     return MassTerm(mass, field, field);
 }
 
-csl::Expr MassTerm(csl::Expr const &   mass,
+csl::Expr MassTerm(csl::Expr const    &mass,
                    QuantumFieldParent *fieldL,
                    QuantumFieldParent *fieldR)
 {

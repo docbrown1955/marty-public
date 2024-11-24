@@ -56,16 +56,16 @@ class Gauge {
     ~Gauge();
 
     void addGroup(std::unique_ptr<SemiSimpleGroup> &t_group,
-                  const csl::Expr &                 coupling = nullptr);
+                  const csl::Expr                  &coupling = nullptr);
 
     void addGroup(std::unique_ptr<SemiSimpleGroup> &t_group,
-                  std::string const &               nameBoson,
-                  const csl::Expr &                 coupling = nullptr);
+                  std::string const                &nameBoson,
+                  const csl::Expr                  &coupling = nullptr);
 
     void addGroup(std::unique_ptr<SemiSimpleGroup> &t_group,
-                  std::string const &               nameBoson,
+                  std::string const                &nameBoson,
                   bool                              addGhost,
-                  const csl::Expr &                 coupling = nullptr);
+                  const csl::Expr                  &coupling = nullptr);
 
     void addGroup(group::Type type, std::string const &name, int dim = -1)
     {
@@ -83,13 +83,10 @@ class Gauge {
     SumGaugeIrrep tensorProduct(const GaugeIrrep &A,
                                 const GaugeIrrep &B) const;
 
-    csl::Expr covariantDerivative(QuantumFieldParent &           field,
-                                  const csl::Index &             mu,
+    csl::Expr covariantDerivative(QuantumFieldParent            &field,
+                                  const csl::Index              &mu,
                                   const std::vector<csl::Index> &fieldIndices,
-                                  csl::Tensor &                  point);
-
-    csl::Expr covariantDerivative(const csl::Expr & field,
-                                  const csl::Index &mu);
+                                  csl::Tensor                   &point);
 
     std::optional<csl::Expr> getCoupling(const std::string &t_name) const;
 
@@ -129,7 +126,7 @@ class GaugeIrrep {
     IMPLEMENTS_STD_VECTOR(Irrep, rep);
 
   protected:
-    Gauge *                 gauge;
+    Gauge                  *gauge;
     std::vector<mty::Irrep> rep;
 
   public:
@@ -141,11 +138,11 @@ class GaugeIrrep {
 
     explicit GaugeIrrep(Gauge *t_gauge, const std::vector<Irrep> &t_rep);
 
-    ~GaugeIrrep(){};
+    ~GaugeIrrep() {};
 
     bool isTrivial() const;
 
-    friend std::ostream &operator<<(std::ostream &    fout,
+    friend std::ostream &operator<<(std::ostream     &fout,
                                     const GaugeIrrep &irrep);
 
     GaugeIrrep getConjugatedRep() const;
@@ -166,11 +163,11 @@ class SumGaugeIrrep : public std::vector<GaugeIrrep> {
 
   public:
     SumGaugeIrrep();
-    explicit SumGaugeIrrep(Gauge *                                t_gauge,
+    explicit SumGaugeIrrep(Gauge                                 *t_gauge,
                            const std::vector<std::vector<Irrep>> &irreps = {});
     explicit SumGaugeIrrep(const std::vector<GaugeIrrep> &irreps);
     SumGaugeIrrep(const SumGaugeIrrep &other) = default;
-    ~SumGaugeIrrep(){};
+    ~SumGaugeIrrep() {};
 
     int  find(const GaugeIrrep &irrep) const;
     bool containsTrivialRep() const;
@@ -179,7 +176,7 @@ class SumGaugeIrrep : public std::vector<GaugeIrrep> {
     SumGaugeIrrep operator*(const SumGaugeIrrep &other) const;
     SumGaugeIrrep operator+(const SumGaugeIrrep &other) const;
 
-    friend std::ostream &operator<<(std::ostream &       fout,
+    friend std::ostream &operator<<(std::ostream        &fout,
                                     const SumGaugeIrrep &irrep);
 };
 

@@ -286,6 +286,8 @@ class QuantumFieldParent : public csl::TensorFieldParent {
 
     std::vector<std::weak_ptr<mty::QuantumFieldParent>> relatives;
 
+    std::map<mty::Group const *, csl::Expr> specificGaugeCoupling;
+
   public:
     /*!
      * \brief Default constructor.
@@ -824,6 +826,12 @@ class QuantumFieldParent : public csl::TensorFieldParent {
      */
     bool getFlavorIrrep(const FlavorGroup *group) const;
 
+    std::optional<csl::Expr>
+    getSpecificGaugeCoupling(std::string const &group) const;
+
+    std::optional<csl::Expr>
+    getSpecificGaugeCoupling(Group const *group) const;
+
     /*!
      * \brief Returns a set of free space indices corresponding to the field.
      * \details This function in general will return zero or one index. Scalar
@@ -1012,6 +1020,36 @@ class QuantumFieldParent : public csl::TensorFieldParent {
                      std::vector<int> const &highestWeight);
 
     void setGroupRep(std::string const &group, int charge);
+
+    /*!
+     * \brief Implementation of setSpecificCoupling (see overload for
+     * documentation)
+     */
+    void setSpecificGaugeCoupling(Group *group, csl::Expr const &coupling);
+
+    // clang-format off
+    /*!
+     * \brief Set a specific gauge coupling for a given group.
+     *
+     * \details The coupling given as parameter will replace the gauge coupling
+     * common to other particles. For example in the case of the QED, the
+     * electron gauge coupling is proportional to:
+     * $$ e \bar{\psi}\slashed{A}\psi $$, 
+     * with $$ e $$ the gauge coupling. It
+     * is possible to modify this behavior with:
+     * \code
+     * csl::Expr e_elec = csl::constant_s("e_elec");
+     * electron.setSpecificGaugeCoupling("em", "lambda"); // U(1) group named "em"
+     * \endcode     *
+     * which will modify the gauge coupling into:
+     * $$ \lambda \bar{\psi}\slashed{A}\psi $$.
+     *
+     * Note: this does not affect the "charge" parameter for U(1) groups, only
+     * the symbolic coupling in the Lagragian.
+     */
+    // clang-format on
+    void setSpecificGaugeCoupling(std::string const &group,
+                                  csl::Expr const   &coupling);
 
     /*!
      * \brief Sets the representation of the field for a given flavor group.

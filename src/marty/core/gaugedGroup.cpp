@@ -96,14 +96,23 @@ csl::Expr normalization(mty::gauge::GroupType type)
     return CSL_UNDEF;
 }
 
+static csl::Expr getEffectiveCoupling(csl::Expr const               &coupling,
+                                      mty::QuantumFieldParent const &field,
+                                      mty::Group const              *group)
+{
+    std::optional<csl::Expr> fieldSpecificCoupling
+        = field.getSpecificGaugeCoupling(group);
+    return fieldSpecificCoupling.value_or(coupling);
+}
+
 ///////////////////////////////////////////////////
 /*************************************************/
 // Class GaugedGroup                             //
 /*************************************************/
 ///////////////////////////////////////////////////
 
-GaugedGroup::GaugedGroup(SemiSimpleGroup *  t_group,
-                         Gauge *            t_gauge,
+GaugedGroup::GaugedGroup(SemiSimpleGroup   *t_group,
+                         Gauge             *t_gauge,
                          std::string const &t_nameBoson,
                          bool               addGhost)
     : gauge(t_gauge),
@@ -117,11 +126,11 @@ GaugedGroup::GaugedGroup(SemiSimpleGroup *  t_group,
     coupling->setComplexProperty(csl::ComplexProperty::Real);
 }
 
-GaugedGroup::GaugedGroup(SemiSimpleGroup *  t_group,
-                         Gauge *            t_gauge,
+GaugedGroup::GaugedGroup(SemiSimpleGroup   *t_group,
+                         Gauge             *t_gauge,
                          std::string const &bosonName,
                          bool               addGhost,
-                         const csl::Expr &  t_coupling)
+                         const csl::Expr   &t_coupling)
     : GaugedGroup(t_group, t_gauge, bosonName, addGhost)
 {
     coupling = t_coupling;
@@ -309,27 +318,6 @@ csl::Expr GaugedGroup::getCF() const
     return getEffectiveQuadraticCasimir(defining);
 }
 
-csl::Expr GaugedGroup::covariantDerivative(const csl::Expr &field,
-                                           const Index &    mu)
-{
-    HEPAssert(IsOfType<QuantumField>(field),
-              mty::error::TypeError,
-              "Expression \"" + std::string(field->getName())
-                  + "\" should be a quantum field"
-                  + " in GaugedGroup::covariantDerivative().");
-
-    const vector<Index> &fieldIndices
-        = field->getIndexStructureView().getIndexView();
-    Parent fieldParent = field->getParent();
-    Tensor point       = field->getPoint();
-
-    return covariantDerivative(
-        *ConvertToPtr<QuantumFieldParent>(fieldParent.get()),
-        mu,
-        fieldIndices,
-        point);
-}
-
 bool GaugedGroup::isFieldInTrivialRep(const QuantumFieldParent &field) const
 {
     return (field.getGroupIrrep(group) == group->getTrivialRep());
@@ -344,8 +332,8 @@ void GaugedGroup::setGeneratorProperties(Irrep const &, mty::Generator &)
 {
 }
 
-std::string getGeneratorName(std::string const &     init,
-                             std::string const &     groupName,
+std::string getGeneratorName(std::string const      &init,
+                             std::string const      &groupName,
                              std::vector<int> const &labels)
 {
     std::ostringstream sout;
@@ -391,19 +379,19 @@ void GaugedGroup::initF()
 /*************************************************/
 ///////////////////////////////////////////////////
 
-U1Gauged::U1Gauged(SemiSimpleGroup *  t_group,
-                   Gauge *            gauge,
+U1Gauged::U1Gauged(SemiSimpleGroup   *t_group,
+                   Gauge             *gauge,
                    std::string const &t_nameBoson,
                    bool               addGhost)
     : GaugedGroup(t_group, gauge, t_nameBoson, addGhost)
 {
 }
 
-U1Gauged::U1Gauged(SemiSimpleGroup *  t_group,
-                   Gauge *            gauge,
+U1Gauged::U1Gauged(SemiSimpleGroup   *t_group,
+                   Gauge             *gauge,
                    std::string const &t_nameBoson,
                    bool               addGhost,
-                   const csl::Expr &  t_coupling)
+                   const csl::Expr   &t_coupling)
     : GaugedGroup(t_group, gauge, t_nameBoson, addGhost, t_coupling)
 {
 }
@@ -413,18 +401,20 @@ mty::gauge::GroupType U1Gauged::getType() const
     return mty::gauge::GroupType::U1;
 }
 
-csl::Expr U1Gauged::covariantDerivative(QuantumFieldParent & field,
-                                        const Index &        mu,
+csl::Expr U1Gauged::covariantDerivative(QuantumFieldParent  &field,
+                                        const Index         &mu,
                                         const vector<Index> &fieldIndices,
-                                        Tensor &             point)
+                                        Tensor              &point)
 {
     Irrep       irrepField = field.getGroupIrrep(group);
     vector<int> labels     = irrepField.getHighestWeight().getLabels();
     int         num        = labels[0];
     int         denom      = labels[1];
 
-    csl::Expr gaugeCoupling = -CSL_I * intfraction_s(num, denom) * coupling
-                              * (*boson)({mu}, point);
+    csl::Expr effectiveCoupling = getEffectiveCoupling(coupling, field, group);
+
+    csl::Expr gaugeCoupling = -CSL_I * intfraction_s(num, denom)
+                              * effectiveCoupling * (*boson)({mu}, point);
 
     return gaugeCoupling * field(fieldIndices, point);
 }
@@ -435,28 +425,28 @@ csl::Expr U1Gauged::covariantDerivative(QuantumFieldParent & field,
 /*************************************************/
 ///////////////////////////////////////////////////
 
-NonAbelianGauged::NonAbelianGauged(SemiSimpleGroup *  t_group,
-                                   Gauge *            gauge,
+NonAbelianGauged::NonAbelianGauged(SemiSimpleGroup   *t_group,
+                                   Gauge             *gauge,
                                    std::string const &t_nameBoson,
                                    bool               addGhost)
     : GaugedGroup(t_group, gauge, t_nameBoson, addGhost)
 {
 }
 
-NonAbelianGauged::NonAbelianGauged(SemiSimpleGroup *  t_group,
-                                   Gauge *            gauge,
+NonAbelianGauged::NonAbelianGauged(SemiSimpleGroup   *t_group,
+                                   Gauge             *gauge,
                                    std::string const &t_nameBoson,
                                    bool               addGhost,
-                                   const csl::Expr &  t_coupling)
+                                   const csl::Expr   &t_coupling)
     : GaugedGroup(t_group, gauge, t_nameBoson, addGhost, t_coupling)
 {
 }
 
 csl::Expr
-NonAbelianGauged::covariantDerivative(QuantumFieldParent & field,
-                                      const Index &        mu,
+NonAbelianGauged::covariantDerivative(QuantumFieldParent  &field,
+                                      const Index         &mu,
                                       const vector<Index> &fieldIndices,
-                                      Tensor &             point)
+                                      Tensor              &point)
 {
     Irrep irrepField = field.getGroupIrrep(group);
     if (irrepField == group->getTrivialRep())
@@ -479,8 +469,9 @@ NonAbelianGauged::covariantDerivative(QuantumFieldParent & field,
               "Gauge index not found in gauge coupling for "
                   + std::string(field.getName()));
 
-    csl::Expr gaugeCoupling
-        = (-CSL_I) * coupling * (*boson)({+A, mu}, point) * T({+A, a, b});
+    csl::Expr effectiveCoupling = getEffectiveCoupling(coupling, field, group);
+    csl::Expr gaugeCoupling     = (-CSL_I) * effectiveCoupling
+                              * (*boson)({+A, mu}, point) * T({+A, a, b});
     if (spaceIrrepField == adjointSpace) {
         gaugeCoupling *= -CSL_I;
     }
@@ -491,7 +482,7 @@ NonAbelianGauged::covariantDerivative(QuantumFieldParent & field,
     return gaugeCoupling * field(newFieldIndices, point);
 }
 
-void NonAbelianGauged::setGeneratorProperties(Irrep const &   rep,
+void NonAbelianGauged::setGeneratorProperties(Irrep const    &rep,
                                               mty::Generator &T)
 {
     const Space *space     = T->getSpace()[1];
@@ -537,8 +528,8 @@ int NonAbelianGauged::getGeneratorDim(mty::Generator const &tensor) const
 /*************************************************/
 ///////////////////////////////////////////////////
 
-SUGauged::SUGauged(SemiSimpleGroup *  t_group,
-                   Gauge *            gauge,
+SUGauged::SUGauged(SemiSimpleGroup   *t_group,
+                   Gauge             *gauge,
                    std::string const &t_nameBoson,
                    bool               addGhost)
     : NonAbelianGauged(t_group, gauge, t_nameBoson, addGhost)
@@ -547,11 +538,11 @@ SUGauged::SUGauged(SemiSimpleGroup *  t_group,
     init_f_d_ABC();
 }
 
-SUGauged::SUGauged(SemiSimpleGroup *  t_group,
-                   Gauge *            gauge,
+SUGauged::SUGauged(SemiSimpleGroup   *t_group,
+                   Gauge             *gauge,
                    std::string const &t_nameBoson,
                    bool               addGhost,
-                   const csl::Expr &  t_coupling)
+                   const csl::Expr   &t_coupling)
     : NonAbelianGauged(t_group, gauge, t_nameBoson, addGhost, t_coupling)
 {
     initF();
@@ -574,7 +565,7 @@ void SUGauged::init_f_d_ABC()
         f             = mty::Generator(this,
                            adjoint,
                            "f_" + getName(),
-                           {adjointSpace, adjointSpace, adjointSpace});
+                                       {adjointSpace, adjointSpace, adjointSpace});
         f->setComplexProperty(csl::ComplexProperty::Real);
         f->setFullyAntiSymmetric();
         f->setTensor(adjointSpace->getEpsilon()->getTensor());
@@ -646,8 +637,8 @@ void SUGauged::setGeneratorProperties(Irrep const &rep, mty::Generator &T)
 /*************************************************/
 ///////////////////////////////////////////////////
 
-SOGauged::SOGauged(SemiSimpleGroup *  t_group,
-                   Gauge *            gauge,
+SOGauged::SOGauged(SemiSimpleGroup   *t_group,
+                   Gauge             *gauge,
                    std::string const &t_nameBoson,
                    bool               addGhost)
     : NonAbelianGauged(t_group, gauge, t_nameBoson, addGhost)
@@ -656,11 +647,11 @@ SOGauged::SOGauged(SemiSimpleGroup *  t_group,
     initDTilde();
 }
 
-SOGauged::SOGauged(SemiSimpleGroup *  t_group,
-                   Gauge *            gauge,
+SOGauged::SOGauged(SemiSimpleGroup   *t_group,
+                   Gauge             *gauge,
                    std::string const &t_nameBoson,
                    bool               addGhost,
-                   const csl::Expr &  t_coupling)
+                   const csl::Expr   &t_coupling)
     : NonAbelianGauged(t_group, gauge, t_nameBoson, addGhost, t_coupling)
 {
     initF();
@@ -730,8 +721,8 @@ csl::Tensor SOGauged::getDTilde() const
 /*************************************************/
 ///////////////////////////////////////////////////
 
-SpGauged::SpGauged(SemiSimpleGroup *  t_group,
-                   Gauge *            gauge,
+SpGauged::SpGauged(SemiSimpleGroup   *t_group,
+                   Gauge             *gauge,
                    std::string const &t_nameBoson,
                    bool               addGhost)
     : NonAbelianGauged(t_group, gauge, t_nameBoson, addGhost)
@@ -739,11 +730,11 @@ SpGauged::SpGauged(SemiSimpleGroup *  t_group,
     initF();
 }
 
-SpGauged::SpGauged(SemiSimpleGroup *  t_group,
-                   Gauge *            gauge,
+SpGauged::SpGauged(SemiSimpleGroup   *t_group,
+                   Gauge             *gauge,
                    std::string const &t_nameBoson,
                    bool               addGhost,
-                   const csl::Expr &  t_coupling)
+                   const csl::Expr   &t_coupling)
     : NonAbelianGauged(t_group, gauge, t_nameBoson, addGhost, t_coupling)
 {
     initF();
@@ -789,8 +780,8 @@ void SpGauged::setGeneratorProperties(mty::Irrep const &rep, mty::Generator &T)
 /*************************************************/
 ///////////////////////////////////////////////////
 
-E6Gauged::E6Gauged(SemiSimpleGroup *  t_group,
-                   Gauge *            gauge,
+E6Gauged::E6Gauged(SemiSimpleGroup   *t_group,
+                   Gauge             *gauge,
                    std::string const &t_nameBoson,
                    bool               addGhost)
     : NonAbelianGauged(t_group, gauge, t_nameBoson, addGhost)
@@ -798,11 +789,11 @@ E6Gauged::E6Gauged(SemiSimpleGroup *  t_group,
     initF();
 }
 
-E6Gauged::E6Gauged(SemiSimpleGroup *  t_group,
-                   Gauge *            gauge,
+E6Gauged::E6Gauged(SemiSimpleGroup   *t_group,
+                   Gauge             *gauge,
                    std::string const &t_nameBoson,
                    bool               addGhost,
-                   const csl::Expr &  t_coupling)
+                   const csl::Expr   &t_coupling)
     : NonAbelianGauged(t_group, gauge, t_nameBoson, addGhost, t_coupling)
 {
     initF();
@@ -869,8 +860,8 @@ void E6Gauged::generateRepGenerator(mty::Irrep const &irrep)
 /*************************************************/
 ///////////////////////////////////////////////////
 
-E7Gauged::E7Gauged(SemiSimpleGroup *  t_group,
-                   Gauge *            gauge,
+E7Gauged::E7Gauged(SemiSimpleGroup   *t_group,
+                   Gauge             *gauge,
                    std::string const &t_nameBoson,
                    bool               addGhost)
     : NonAbelianGauged(t_group, gauge, t_nameBoson, addGhost)
@@ -878,11 +869,11 @@ E7Gauged::E7Gauged(SemiSimpleGroup *  t_group,
     initF();
 }
 
-E7Gauged::E7Gauged(SemiSimpleGroup *  t_group,
-                   Gauge *            gauge,
+E7Gauged::E7Gauged(SemiSimpleGroup   *t_group,
+                   Gauge             *gauge,
                    std::string const &t_nameBoson,
                    bool               addGhost,
-                   const csl::Expr &  t_coupling)
+                   const csl::Expr   &t_coupling)
     : NonAbelianGauged(t_group, gauge, t_nameBoson, addGhost, t_coupling)
 {
     initF();
@@ -941,8 +932,8 @@ void E7Gauged::generateRepGenerator(mty::Irrep const &irrep)
 /*************************************************/
 ///////////////////////////////////////////////////
 
-E8Gauged::E8Gauged(SemiSimpleGroup *  t_group,
-                   Gauge *            gauge,
+E8Gauged::E8Gauged(SemiSimpleGroup   *t_group,
+                   Gauge             *gauge,
                    std::string const &t_nameBoson,
                    bool               addGhost)
     : NonAbelianGauged(t_group, gauge, t_nameBoson, addGhost)
@@ -950,11 +941,11 @@ E8Gauged::E8Gauged(SemiSimpleGroup *  t_group,
     initF();
 }
 
-E8Gauged::E8Gauged(SemiSimpleGroup *  t_group,
-                   Gauge *            gauge,
+E8Gauged::E8Gauged(SemiSimpleGroup   *t_group,
+                   Gauge             *gauge,
                    std::string const &t_nameBoson,
                    bool               addGhost,
-                   const csl::Expr &  t_coupling)
+                   const csl::Expr   &t_coupling)
     : NonAbelianGauged(t_group, gauge, t_nameBoson, addGhost, t_coupling)
 {
     initF();
@@ -971,19 +962,19 @@ mty::gauge::GroupType E8Gauged::getType() const
 /*************************************************/
 ///////////////////////////////////////////////////
 
-F4Gauged::F4Gauged(SemiSimpleGroup *  t_group,
-                   Gauge *            gauge,
+F4Gauged::F4Gauged(SemiSimpleGroup   *t_group,
+                   Gauge             *gauge,
                    std::string const &t_nameBoson,
                    bool               addGhost)
     : NonAbelianGauged(t_group, gauge, t_nameBoson, addGhost)
 {
 }
 
-F4Gauged::F4Gauged(SemiSimpleGroup *  t_group,
-                   Gauge *            gauge,
+F4Gauged::F4Gauged(SemiSimpleGroup   *t_group,
+                   Gauge             *gauge,
                    std::string const &t_nameBoson,
                    bool               addGhost,
-                   const csl::Expr &  t_coupling)
+                   const csl::Expr   &t_coupling)
     : NonAbelianGauged(t_group, gauge, t_nameBoson, addGhost, t_coupling)
 {
 }
@@ -1048,8 +1039,8 @@ void F4Gauged::generateRepGenerator(mty::Irrep const &irrep)
 /*************************************************/
 ///////////////////////////////////////////////////
 
-G2Gauged::G2Gauged(SemiSimpleGroup *  t_group,
-                   Gauge *            gauge,
+G2Gauged::G2Gauged(SemiSimpleGroup   *t_group,
+                   Gauge             *gauge,
                    std::string const &t_nameBoson,
                    bool               addGhost)
     : NonAbelianGauged(t_group, gauge, t_nameBoson, addGhost)
@@ -1057,11 +1048,11 @@ G2Gauged::G2Gauged(SemiSimpleGroup *  t_group,
     initF();
 }
 
-G2Gauged::G2Gauged(SemiSimpleGroup *  t_group,
-                   Gauge *            gauge,
+G2Gauged::G2Gauged(SemiSimpleGroup   *t_group,
+                   Gauge             *gauge,
                    std::string const &t_nameBoson,
                    bool               addGhost,
-                   const csl::Expr &  t_coupling)
+                   const csl::Expr   &t_coupling)
     : NonAbelianGauged(t_group, gauge, t_nameBoson, addGhost, t_coupling)
 {
     initF();
@@ -1132,7 +1123,7 @@ void G2Gauged::generateRepGenerator(mty::Irrep const &irrep)
 ///////////////////////////////////////////////////
 
 unique_ptr<GaugedGroup> createGaugedGroup(SemiSimpleGroup *group,
-                                          Gauge *          gauge,
+                                          Gauge           *gauge,
                                           std::string      nameBoson,
                                           bool             addGhost,
                                           const csl::Expr &coupling)
