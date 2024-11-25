@@ -36,14 +36,14 @@ Gauge::~Gauge()
 }
 
 void Gauge::addGroup(unique_ptr<SemiSimpleGroup> &t_group,
-                     const csl::Expr &            coupling)
+                     const csl::Expr             &coupling)
 {
     addGroup(t_group, "", coupling);
 }
 
 void Gauge::addGroup(unique_ptr<SemiSimpleGroup> &t_group,
-                     std::string const &          nameBoson,
-                     const csl::Expr &            coupling)
+                     std::string const           &nameBoson,
+                     const csl::Expr             &coupling)
 {
     csl::Expr actualCoupling
         = (coupling) ? coupling : constant_s("g_" + t_group->getName());
@@ -56,9 +56,9 @@ void Gauge::addGroup(unique_ptr<SemiSimpleGroup> &t_group,
 }
 
 void Gauge::addGroup(unique_ptr<SemiSimpleGroup> &t_group,
-                     std::string const &          nameBoson,
+                     std::string const           &nameBoson,
                      bool                         addGhost,
-                     const csl::Expr &            coupling)
+                     const csl::Expr             &coupling)
 {
     csl::Expr actualCoupling
         = (coupling) ? coupling : constant_s("g_" + t_group->getName());
@@ -127,10 +127,10 @@ SumGaugeIrrep Gauge::tensorProduct(const GaugeIrrep &A,
     return A * B;
 }
 
-csl::Expr Gauge::covariantDerivative(QuantumFieldParent &      field,
-                                     const Index &             mu,
+csl::Expr Gauge::covariantDerivative(QuantumFieldParent       &field,
+                                     const Index              &mu,
                                      const std::vector<Index> &fieldIndices,
-                                     Tensor &                  point)
+                                     Tensor                   &point)
 {
     csl::Expr cov = CSL_0;
     for (const auto &gauged : gaugedGroups)
@@ -144,16 +144,6 @@ csl::Expr Gauge::covariantDerivative(QuantumFieldParent &      field,
         return F_munu + cov;
     }
     return partialMinko(mu, point) * field(fieldIndices, point) + cov;
-}
-
-csl::Expr Gauge::covariantDerivative(const csl::Expr &field, const Index &mu)
-{
-    csl::Expr cov = CSL_0;
-    for (const auto &gauged : gaugedGroups)
-        cov = cov + gauged->covariantDerivative(field, mu);
-    Tensor point = field->getPoint();
-
-    return partialMinko(mu, point) * field + cov;
 }
 
 optional<csl::Expr> Gauge::getCoupling(const string &t_name) const
@@ -379,7 +369,7 @@ SumGaugeIrrep::SumGaugeIrrep(const vector<GaugeIrrep> &irreps)
     }
 }
 
-SumGaugeIrrep::SumGaugeIrrep(Gauge *                       t_gauge,
+SumGaugeIrrep::SumGaugeIrrep(Gauge                        *t_gauge,
                              const vector<vector<Irrep> > &irreps)
     : gauge(t_gauge)
 {

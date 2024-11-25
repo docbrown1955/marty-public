@@ -258,9 +258,6 @@ class GaugedGroup {
                         csl::Tensor                   &point)
         = 0;
 
-    csl::Expr covariantDerivative(const csl::Expr  &field,
-                                  const csl::Index &mu);
-
     mty::Generator getGenerator(const Irrep &field);
     mty::Generator getGenerator(const QuantumFieldParent &field);
     mty::Generator getGenerator(std::vector<int> const &labels);
@@ -327,7 +324,7 @@ class U1Gauged : public GaugedGroup {
              bool               addGhost,
              const csl::Expr   &t_coupling);
 
-    ~U1Gauged(){};
+    ~U1Gauged() {};
 
     mty::gauge::GroupType getType() const override;
 
@@ -351,7 +348,7 @@ class NonAbelianGauged : public GaugedGroup {
                      bool               addGhost,
                      const csl::Expr   &t_coupling);
 
-    ~NonAbelianGauged(){};
+    ~NonAbelianGauged() {};
 
     csl::Expr covariantDerivative(QuantumFieldParent            &field,
                                   const csl::Index              &mu,
@@ -384,7 +381,7 @@ class SUGauged : public NonAbelianGauged {
              bool               addGhost,
              const csl::Expr   &t_coupling);
 
-    ~SUGauged(){};
+    ~SUGauged() {};
 
     mty::gauge::GroupType getType() const override;
 
@@ -412,7 +409,7 @@ class SOGauged : public NonAbelianGauged {
              bool               addGhost,
              const csl::Expr   &t_coupling);
 
-    ~SOGauged(){};
+    ~SOGauged() {};
 
     mty::gauge::GroupType getType() const override;
 
@@ -444,7 +441,7 @@ class SpGauged : public NonAbelianGauged {
              bool               addGhost,
              const csl::Expr   &t_coupling);
 
-    ~SpGauged(){};
+    ~SpGauged() {};
 
     mty::gauge::GroupType getType() const override;
 
@@ -471,7 +468,7 @@ class E6Gauged : public NonAbelianGauged {
              bool               addGhost,
              const csl::Expr   &t_coupling);
 
-    ~E6Gauged(){};
+    ~E6Gauged() {};
 
     mty::gauge::GroupType getType() const override;
 
@@ -503,7 +500,7 @@ class E7Gauged : public NonAbelianGauged {
              bool               addGhost,
              const csl::Expr   &t_coupling);
 
-    ~E7Gauged(){};
+    ~E7Gauged() {};
 
     mty::gauge::GroupType getType() const override;
 
@@ -533,7 +530,7 @@ class E8Gauged : public NonAbelianGauged {
              bool               addGhost,
              const csl::Expr   &t_coupling);
 
-    ~E8Gauged(){};
+    ~E8Gauged() {};
 
     mty::gauge::GroupType getType() const override;
 };
@@ -557,7 +554,7 @@ class F4Gauged : public NonAbelianGauged {
              bool               addGhost,
              const csl::Expr   &t_coupling);
 
-    ~F4Gauged(){};
+    ~F4Gauged() {};
 
     mty::gauge::GroupType getType() const override;
 
@@ -589,7 +586,7 @@ class G2Gauged : public NonAbelianGauged {
              bool               addGhost,
              const csl::Expr   &t_coupling);
 
-    ~G2Gauged(){};
+    ~G2Gauged() {};
 
     mty::gauge::GroupType getType() const override;
 

@@ -591,17 +591,23 @@ void MSSM_Model::initQuarticDTerms()
                              && SUSY[particles[p2]]->getChirality()
                                     == Chirality::Right;
 
-                csl::Index mu     = mty::MinkowskiIndex();
-                csl::Expr  field1 = particles[p1]->getInstance();
-                csl::Expr  field2 = particles[p2]->getInstance();
-                csl::Expr  quadratic1
+                csl::Index              mu     = mty::MinkowskiIndex();
+                csl::Expr               field1 = particles[p1]->getInstance();
+                std::vector<csl::Index> indices1
+                    = field1->getIndexStructure().getIndex();
+                csl::Tensor             X1     = field1->getPoint();
+                csl::Expr               field2 = particles[p2]->getInstance();
+                std::vector<csl::Index> indices2
+                    = field2->getIndexStructure().getIndex();
+                csl::Tensor X2 = field2->getPoint();
+                csl::Expr   quadratic1
                     = csl::GetComplexConjugate(field1)
-                      * gauge->getGaugedGroup(i)->covariantDerivative(field1,
-                                                                      mu);
+                      * gauge->getGaugedGroup(i)->covariantDerivative(
+                          *particles[p1].get(), mu, indices1, X1);
                 csl::Expr quadratic2
                     = csl::GetComplexConjugate(field2)
-                      * gauge->getGaugedGroup(i)->covariantDerivative(field2,
-                                                                      +mu);
+                      * gauge->getGaugedGroup(i)->covariantDerivative(
+                          *particles[p2].get(), +mu, indices2, X2);
                 csl::Index A;
                 csl::ForEachLeaf(quadratic1, [&](csl::Expr &leaf) {
                     if (!leaf->isIndexed())
@@ -640,21 +646,21 @@ void MSSM_Model::initQuarticFTerms()
     initQuarticSQuarkHiggs();
     initQuarticSQuarkSLeptons();
 }
-#define DEFINE_GAUGE_INDICES                       \
-    csl::Index A = generateIndex("C", Qi);         \
-    csl::Index B = generateIndex("C", Qi);         \
-                                                   \
-    csl::Index I = generateIndex("SM_flavor"); \
-    csl::Index J = generateIndex("SM_flavor"); \
-    csl::Index K = generateIndex("SM_flavor"); \
-    csl::Index L = generateIndex("SM_flavor"); \
-                                                   \
-    csl::Index  i   = generateIndex("L", Li);      \
-    csl::Index  j   = generateIndex("L", Li);      \
-    csl::Index  k   = generateIndex("L", Li);      \
-    csl::Index  l   = generateIndex("L", Li);      \
-    csl::Tensor eps = i.getSpace()->getEpsilon();  \
-                                                   \
+#define DEFINE_GAUGE_INDICES                      \
+    csl::Index A = generateIndex("C", Qi);        \
+    csl::Index B = generateIndex("C", Qi);        \
+                                                  \
+    csl::Index I = generateIndex("SM_flavor");    \
+    csl::Index J = generateIndex("SM_flavor");    \
+    csl::Index K = generateIndex("SM_flavor");    \
+    csl::Index L = generateIndex("SM_flavor");    \
+                                                  \
+    csl::Index  i   = generateIndex("L", Li);     \
+    csl::Index  j   = generateIndex("L", Li);     \
+    csl::Index  k   = generateIndex("L", Li);     \
+    csl::Index  l   = generateIndex("L", Li);     \
+    csl::Tensor eps = i.getSpace()->getEpsilon(); \
+                                                  \
     csl::Index a = mty::DiracIndex();
 
 void MSSM_Model::initQuarticSLeptons()

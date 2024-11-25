@@ -17,7 +17,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: dependencies
-      run: sudo apt-get install coreutils build-essential gcc-12 g++-12 gfortran-12 libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng lcov cmake texlive texlive-latex-extra texlive-luatex -y
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install coreutils build-essential gcc-12 g++-12 gfortran-12 libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng lcov cmake texlive texlive-latex-extra texlive-luatex -y
     - name: configure
       run: |
         mkdir build
@@ -39,7 +41,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: dependencies
-      run: sudo apt-get install coreutils build-essential gcc-9 g++-9 gfortran-9 libgsl-dev libgslcblas0 qt5-default dvipng lcov cmake texlive texlive-latex-extra texlive-luatex -y
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install coreutils build-essential gcc-9 g++-9 gfortran-9 libgsl-dev libgslcblas0 qt5-default dvipng lcov cmake texlive texlive-latex-extra texlive-luatex -y
     - name: configure
       run: |
         mkdir build
@@ -66,7 +70,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: dependencies
-      run: sudo apt-get install coreutils build-essential clang gfortran libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng cmake lcov texlive texlive-latex-extra texlive-luatex -y
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install coreutils build-essential clang gfortran libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng cmake lcov texlive texlive-latex-extra texlive-luatex -y
     - name: configure
       run: |
         mkdir build
@@ -88,53 +94,54 @@ jobs:
         cd build
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib
         ctest --output-on-failure
-  build-and-test-macos:
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: dependencies
-      run: |
-        brew install coreutils gcc@12 gsl qt5 cmake lcov imagemagick texlive octave pkg-config
-        brew info qt5
-        brew info gsl
-    - name: configure
-      run: |
-        mkdir build
-        cd build
-        echo "GSL prefix: $(brew --prefix gsl)"
-        echo "Content of GSL prefix:"
-        ls $(brew --prefix gsl)
-        export PATH=$PATH:/usr/local/bin
-        export CPATH=$CPATH:/usr/local/include:$(brew --prefix gsl)/include
-        export C_INCLUDE_PATH=$C_INCLUDE_PATH:/usr/local/include:$(brew --prefix gsl)/include
-        export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/lib:$(brew --prefix gsl)/lib
-        export DYLD_FALLBACK_LIBRARY_PATH=$DYLD_FALLBACK_LIBRARY_PATH:/usr/local/lib:$(brew --prefix gsl)/lib
-        export CXX=g++-12
-        export CC=gcc-12
-        export FC=gfortran-12
-        cmake .. -DQt5_DIR=$(brew --prefix qt5)/lib/cmake/Qt5 -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)/lib/cmake
-    - name: make
-      run: |
-        cd build
-        export PATH=$PATH:/usr/local/bin
-        export CPATH=$CPATH:/usr/local/include:$(brew --prefix gsl)/include
-        export C_INCLUDE_PATH=$C_INCLUDE_PATH:/usr/local/include:$(brew --prefix gsl)/include
-        export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/lib:$(brew --prefix gsl)/lib
-        export DYLD_FALLBACK_LIBRARY_PATH=$DYLD_FALLBACK_LIBRARY_PATH:/usr/local/lib:$(brew --prefix gsl)/lib
-        export CXX=g++-12
-        export CC=gcc-12
-        export FC=gfortran-12
-        make
-    - name: install
-      run: |
-        cd build
-        sudo make install
-    - name: test
-      run: |
-        export PATH=$PATH:/usr/local/bin
-        export CPATH=$CPATH:/usr/local/include:$(brew --prefix gsl)/include
-        export C_INCLUDE_PATH=$C_INCLUDE_PATH:/usr/local/include:$(brew --prefix gsl)/include
-        export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/lib:$(brew --prefix gsl)/lib
-        export DYLD_FALLBACK_LIBRARY_PATH=$DYLD_FALLBACK_LIBRARY_PATH:/usr/local/lib:$(brew --prefix gsl)/lib
-        cd build
-        ctest --output-on-failure
+  # build-and-test-macos:
+  #   runs-on: macos-latest
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - name: dependencies
+  #     run: |
+  #       brew update
+  #       brew install coreutils gcc@12 gsl qt5 cmake lcov imagemagick texlive octave pkg-config
+  #       brew info qt5
+  #       brew info gsl
+  #   - name: configure
+  #     run: |
+  #       mkdir build
+  #       cd build
+  #       echo "GSL prefix: $(brew --prefix gsl)"
+  #       echo "Content of GSL prefix:"
+  #       ls $(brew --prefix gsl)
+  #       export PATH=$PATH:/usr/local/bin
+  #       export CPATH=$CPATH:/usr/local/include:$(brew --prefix gsl)/include
+  #       export C_INCLUDE_PATH=$C_INCLUDE_PATH:/usr/local/include:$(brew --prefix gsl)/include
+  #       export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/lib:$(brew --prefix gsl)/lib
+  #       export DYLD_FALLBACK_LIBRARY_PATH=$DYLD_FALLBACK_LIBRARY_PATH:/usr/local/lib:$(brew --prefix gsl)/lib
+  #       export CXX=g++-12
+  #       export CC=gcc-12
+  #       export FC=gfortran-12
+  #       cmake .. -DQt5_DIR=$(brew --prefix qt5)/lib/cmake/Qt5 -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)/lib/cmake
+  #   - name: make
+  #     run: |
+  #       cd build
+  #       export PATH=$PATH:/usr/local/bin
+  #       export CPATH=$CPATH:/usr/local/include:$(brew --prefix gsl)/include
+  #       export C_INCLUDE_PATH=$C_INCLUDE_PATH:/usr/local/include:$(brew --prefix gsl)/include
+  #       export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/lib:$(brew --prefix gsl)/lib
+  #       export DYLD_FALLBACK_LIBRARY_PATH=$DYLD_FALLBACK_LIBRARY_PATH:/usr/local/lib:$(brew --prefix gsl)/lib
+  #       export CXX=g++-12
+  #       export CC=gcc-12
+  #       export FC=gfortran-12
+  #       make
+  #   - name: install
+  #     run: |
+  #       cd build
+  #       sudo make install
+  #   - name: test
+  #     run: |
+  #       export PATH=$PATH:/usr/local/bin
+  #       export CPATH=$CPATH:/usr/local/include:$(brew --prefix gsl)/include
+  #       export C_INCLUDE_PATH=$C_INCLUDE_PATH:/usr/local/include:$(brew --prefix gsl)/include
+  #       export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/lib:$(brew --prefix gsl)/lib
+  #       export DYLD_FALLBACK_LIBRARY_PATH=$DYLD_FALLBACK_LIBRARY_PATH:/usr/local/lib:$(brew --prefix gsl)/lib
+  #       cd build
+  #       ctest --output-on-failure

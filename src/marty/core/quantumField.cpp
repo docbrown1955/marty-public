@@ -93,7 +93,7 @@ QuantumFieldParent::QuantumFieldParent(const std::string &t_name,
                                        int                t_spin,
                                        Gauge             *t_gauge)
     : QuantumFieldParent(
-        t_name, t_spin, t_gauge->getTrivialRep(), FlavorIrrep())
+          t_name, t_spin, t_gauge->getTrivialRep(), FlavorIrrep())
 {
 }
 
@@ -109,7 +109,7 @@ QuantumFieldParent::QuantumFieldParent(const std::string &t_name,
                                        Gauge             *t_gauge,
                                        bool               t_isSelfConjugate)
     : QuantumFieldParent(
-        t_name, t_spin, t_gauge->getTrivialRep(), FlavorIrrep())
+          t_name, t_spin, t_gauge->getTrivialRep(), FlavorIrrep())
 {
     setSelfConjugate(t_isSelfConjugate);
 }
@@ -161,7 +161,7 @@ QuantumFieldParent::QuantumFieldParent(const std::string &t_name,
 QuantumFieldParent::QuantumFieldParent(const string             &t_name,
                                        const QuantumFieldParent *other)
     : QuantumFieldParent(
-        t_name, other->getSpinDimension(), other->irrep, other->flavorRep)
+          t_name, other->getSpinDimension(), other->irrep, other->flavorRep)
 {
     setSelfConjugate(other->isSelfConjugate());
 }
@@ -636,6 +636,29 @@ bool QuantumFieldParent::getFlavorIrrep(const FlavorGroup *group) const
     return false;
 }
 
+std::optional<csl::Expr>
+QuantumFieldParent::getSpecificGaugeCoupling(Group const *group) const
+{
+    auto it = specificGaugeCoupling.find(group);
+    if (it == specificGaugeCoupling.end())
+        return std::nullopt;
+    return it->second;
+}
+
+std::optional<csl::Expr>
+QuantumFieldParent::getSpecificGaugeCoupling(std::string const &group) const
+{
+    HEPAssert(gauge,
+              mty::error::RuntimeError,
+              "You must set a gauge for field " + std::string(getName())
+                  + " before getting its specific coupling.");
+    for (auto const &[g, c] : specificGaugeCoupling) {
+        if (g->getName() == group)
+            return c;
+    }
+    return std::nullopt;
+}
+
 vector<Index>
 QuantumFieldParent::getSpaceIndex(const string & /*nameIndex*/) const
 {
@@ -839,6 +862,34 @@ void QuantumFieldParent::setGroupRep(Group *group, const Irrep &newRep)
     CallHEPError(mty::error::RuntimeError,
                  "Flavor group " + string(group->getName()) + " not found in "
                      + "QuantumFieldParent::setFlavorRep()");
+}
+
+void QuantumFieldParent::setSpecificGaugeCoupling(mty::Group      *group,
+                                                  csl::Expr const &coupling)
+{
+    HEPAssert(gauge,
+              mty::error::RuntimeError,
+              "You must set a gauge for field " + std::string(getName())
+                  + " before setting its representation.");
+    applyToRelatives(
+        [&](Particle p) { p->setSpecificGaugeCoupling(group, coupling); });
+
+    specificGaugeCoupling[group] = coupling->copy();
+}
+
+void QuantumFieldParent::setSpecificGaugeCoupling(const std::string &group,
+                                                  csl::Expr const   &coupling)
+{
+    HEPAssert(gauge,
+              mty::error::RuntimeError,
+              "You must set a gauge for field " + std::string(getName())
+                  + " before setting its representation.");
+    for (size_t i = 0; i != gauge->size(); ++i) {
+        if ((*gauge)[i]->getName() == group) {
+            setSpecificGaugeCoupling((*gauge)[i], coupling);
+            return;
+        }
+    }
 }
 
 void QuantumFieldParent::setFundamentalFlavorRep(
@@ -1102,8 +1153,7 @@ void QuantumFieldParent::breakParticle(
     newParticles.reserve(subGroups.size());
     for (size_t i = 0; i != subGroups.size(); ++i) {
         Particle newPart = generateSimilar(names[i]);
-        newPart->setFlavorRep(brokenFlavor,
-                              FlavorFlag::Trivial);
+        newPart->setFlavorRep(brokenFlavor, FlavorFlag::Trivial);
         if (subGroups[i]) {
             newPart->setFlavorRep(subGroups[i],
                                   subGroups[i]->getFundamentalRep());

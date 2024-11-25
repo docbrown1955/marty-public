@@ -6,4 +6,5 @@ function(ADD_INTEGRATION_TEST NAME)
 endfunction()
 
 ADD_INTEGRATION_TEST(test_flavor_groups)
+ADD_INTEGRATION_TEST(test_specific_gauge_couplings)
 ADD_INTEGRATION_TEST(gammaAPI)
