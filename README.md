@@ -65,7 +65,7 @@ System dependencies (needed at run-time as system commands):
  ```
  On `MacOS`
  ``` bash
-    brew install coreutils gsl octave qt5 cmake imagemagick texlive
+    brew install coreutils gsl qt@5 gcc@12 cmake imagemagick texlive
  ```
 
 ### Compilers for MARTY
