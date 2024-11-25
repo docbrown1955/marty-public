@@ -9,6 +9,7 @@ on:
       - master
     types:
       - ready_for_review
+      - synchronize
 
 jobs:
   # build-and-test-ubuntu-gcc12:
