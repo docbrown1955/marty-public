@@ -68,7 +68,7 @@ System dependencies (needed at run-time as system commands):
     brew install coreutils gsl qt@5 gcc@12 cmake imagemagick texlive
  ```
 
-### Compilers for MARTY
+### Compilers for `MARTY`
 
 MARTY links C++ code with Fortran code from the [LoopTools](http://www.feynarts.de/looptools/) library.
 MARTY takes care of compiling and linking `LoopTools` but the compilers must be chosen carefully to link C++ and fortran codes.
@@ -86,7 +86,16 @@ If the default compilers on the system do not meet the above requirements, compi
     export CC=gcc-11
     export FC=gfortran-11
 ```
-Any version greater than 11 can be used but all the three compilers must use **the same version**, compatibility has been validated up to `gcc-13/g++-13/gfortran-13`.
+
+#### Compiler Compatibility Table
+
+The below table shows the combinations of Platform/Compiler validated with the latest version of `MARTY`.
+
+| Platform             | GCC 11 | GCC 12 | GCC 13 | Clang 18 |
+|----------------------|--------|--------|--------|----------|
+| Ubuntu 22.04         | ✅     | ❌     | ❌     | ❌       |
+| Ubuntu 24.04         | ❌     | ❌     | ✅     | ✅       |
+| macOS 14             | ❌     | ✅     | ❌     | ❌       |
 
 ### Build and install `MARTY`
 
