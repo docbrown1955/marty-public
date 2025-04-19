@@ -90,7 +90,7 @@ else()
 endif()
 
 if (UNIX AND (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++")
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
