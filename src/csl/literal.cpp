@@ -244,11 +244,6 @@ unique_Expr Constant::copy_unique() const
     return newConstant;
 }
 
-void Constant::operator=(double t_value)
-{
-    setValue(t_value);
-}
-
 bool Constant::operator==(Expr_info expr) const
 {
     if (Comparator::getDummyComparisonActive()) {
@@ -494,11 +489,6 @@ void Variable::removeDependency(Expr const &expr)
     parent->removeDependency(expr.get());
 }
 
-void Variable::operator=(double t_value)
-{
-    setValue(t_value);
-}
-
 bool Variable::operator==(Expr_info expr) const
 {
     if (Comparator::getDummyComparisonActive()) {
@@ -664,11 +654,6 @@ unique_Expr IntFactorial::copy_unique() const
 Expr IntFactorial::refresh() const
 {
     return intfactorial_s(value);
-}
-
-void IntFactorial::operator=(int t_value)
-{
-    value = t_value;
 }
 
 bool IntFactorial::operator==(Expr_info expr) const

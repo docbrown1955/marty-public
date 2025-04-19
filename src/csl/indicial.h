@@ -463,6 +463,8 @@ class TensorParent : public AbstractParent {
                const std::vector<const Space *> &newSpace,
                const std::vector<size_t>        &pieces) const override;
 
+    using AbstractParent::operator();
+
     virtual Expr operator()(Index index) override;
 
     virtual Expr operator()(std::vector<Index> indices) override;

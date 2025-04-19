@@ -1190,28 +1190,6 @@ class Abstract {
     // Operators                                     //
     /*************************************************/
 
-    /*! \brief Equivalent to the setValue() function.
-     * \param t_value The new value of the expression.
-     */
-    virtual void operator=(double t_value);
-
-    /*! \return \b True if the expression is valued and is equal to t_value.
-     * \return \b False else.
-     */
-    virtual bool operator==(int t_value) const;
-    /*! \return \b True if the expression is valued and is equal to t_value.
-     * \return \b False else.
-     */
-    virtual bool operator==(double t_value) const;
-    /*! \return \b False if the expression is valued and is equal to t_value.
-     * \return \b True else.
-     */
-    virtual bool operator!=(int t_value) const;
-    /*! \return \b False if the expression is valued and is equal to t_value.
-     * \return \b True else.
-     */
-    virtual bool operator!=(double t_value) const;
-
     /*! \brief \b Compares the Abstract with another.
      * \details Here if two Abstracts have the same name, the function will
      * return \b true even if they are \b not \b mathematically \b equal.

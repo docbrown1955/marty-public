@@ -932,38 +932,6 @@ Expr Abstract::getRegularExpression() const
     return CSL_UNDEF;
 }
 
-void Abstract::operator=(double)
-{
-    print();
-    CALL_SMERROR(CSLError::AbstractCallError);
-}
-
-bool Abstract::operator!=(int t_value) const
-{
-    return !(this->operator==(t_value));
-}
-
-bool Abstract::operator!=(double t_value) const
-{
-    return !(this->operator==(t_value));
-}
-
-bool Abstract::operator==(int t_value) const
-{
-    return Abstract::operator==((double) t_value);
-}
-
-bool Abstract::operator==(double t_value) const
-{
-    if (getPrimaryType() == csl::PrimaryType::Numerical)
-        return evaluateScalar() == t_value;
-    if (getPrimaryType() == csl::PrimaryType::Literal
-        and (getType() == csl::Type::Variable
-             or getType() == csl::Type::Constant))
-        return evaluateScalar() == t_value;
-    return false;
-}
-
 Expr const &Abstract::operator[](int) const
 {
     print();

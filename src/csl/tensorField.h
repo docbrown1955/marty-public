@@ -82,6 +82,8 @@ class TensorFieldParent: public TensorParent{
 
     void setFieldSpace(const Space* t_space) override;
 
+    using TensorParent::operator();
+
     virtual Expr operator()(const Tensor& point) override;
 
     virtual Expr operator()(Index          index,
