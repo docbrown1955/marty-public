@@ -60,7 +60,7 @@ System dependencies (needed at run-time as system commands):
  On `Ubuntu` for example these dependencies can be installed with
  ``` bash
     sudo apt-get install libgsl-dev libgslcblas0 texlive texlive-luatex dvipng coreutils imagemagick -y
-    sudo apt-get install qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools -y
+    sudo apt-get install qtbase5-dev  qtbase5-dev-tools qtchooser qt5-qmake qtbase5-dev-tools -y
     sudo apt-get install cmake -y
  ```
  On `MacOS`
@@ -73,20 +73,20 @@ System dependencies (needed at run-time as system commands):
 MARTY links C++ code with Fortran code from the [LoopTools](http://www.feynarts.de/looptools/) library.
 MARTY takes care of compiling and linking `LoopTools` but the compilers must be chosen carefully to link C++ and fortran codes.
 
-For this reason, the MARTY installation procedure requires to have the GNU compiler collection, version greater than 9. Furthermore, the versions of `gcc/g++/gfortran` should be the same. The minimal set of compilers required to compile `MARTY` is therefore
+For this reason, the MARTY installation procedure requires to have the GNU compiler collection, version greater than 11. Furthermore, the versions of `gcc/g++/gfortran` should be the same. The minimal set of compilers required to compile `MARTY` is therefore
 ```
-    gcc-9
-    g++-9
-    gfortran-9
+    gcc-11
+    g++-11
+    gfortran-11
 ```
 
 If the default compilers on the system do not meet the above requirements, compilers must be explicitely defined before going further following:
 ``` bash
-    export CXX=g++-9
-    export CC=gcc-9
-    export FC=gfortran-9
+    export CXX=g++-11
+    export CC=gcc-11
+    export FC=gfortran-11
 ```
-Any version greater than 9 can be used but all the three compilers must use **the same version**, compatibility has been validated up to `gcc-12/g++-12/gfortran-12`.
+Any version greater than 11 can be used but all the three compilers must use **the same version**, compatibility has been validated up to `gcc-13/g++-13/gfortran-13`.
 
 ### Build and install `MARTY`
 
