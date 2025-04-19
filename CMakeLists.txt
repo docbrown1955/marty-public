@@ -89,6 +89,10 @@ else()
     set(QUADRUPLE_ENABLED 1)
 endif()
 
+if (UNIX AND (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+endif()
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 add_subdirectory(dep)

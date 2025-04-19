@@ -80,7 +80,6 @@ jobs:
         export CC=clang
         export CXX=clang++
         export FC=gfortran
-        export CXXFLAGS=-stdlib=libc++
         cmake .. -DCMAKE_BUILD_TYPE=Release
     - name: make
       run: |
