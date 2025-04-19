@@ -43,7 +43,7 @@ jobs:
     - name: dependencies
       run: |
         sudo apt-get update -y
-        sudo apt-get install coreutils build-essential gcc-11 g++-11 gfortran-11 libgsl-dev libgslcblas0 qt5-default dvipng lcov cmake texlive texlive-latex-extra texlive-luatex imagemagick -y
+        sudo apt-get install coreutils build-essential gcc-11 g++-11 gfortran-11 libgsl-dev libgslcblas0 qtbase5-dev qtbase5-dev-tools dvipng lcov cmake texlive texlive-latex-extra texlive-luatex imagemagick -y
     - name: configure
       run: |
         mkdir build
