@@ -90,6 +90,7 @@ If the default compilers on the system do not meet the above requirements, compi
 #### Compiler Compatibility Table
 
 The below table shows the combinations of Platform/Compiler validated with the latest version of `MARTY`.
+For a detailed and up-to-date documentation on how to build `MARTY` on these platforms, refer to the workflow file in the `.github/` folder containing build instructions for each.
 
 | Platform             | GCC 11 | GCC 12 | GCC 13 | Clang 18 |
 |----------------------|--------|--------|--------|----------|
