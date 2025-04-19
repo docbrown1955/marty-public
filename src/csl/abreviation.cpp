@@ -25,6 +25,7 @@
 #include "scopedProperty.h"
 #include "utils.h"
 #include "variableParent.h"
+#include <algorithm>
 
 namespace csl {
 
