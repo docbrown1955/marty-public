@@ -84,7 +84,7 @@ jobs:
     - name: make
       run: |
         cd build
-        make
+        make VERBOSE=1
     - name: install
       run: |
         cd build
