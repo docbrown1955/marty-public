@@ -72,13 +72,13 @@ jobs:
     - name: dependencies
       run: |
         sudo apt-get update -y
-        sudo apt-get install coreutils build-essential clang gfortran libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng cmake lcov texlive texlive-latex-extra texlive-luatex imagemagick -y
+        sudo apt-get install coreutils build-essential clang gcc-13 g++-13 gfortran-13 libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng cmake lcov texlive texlive-latex-extra texlive-luatex imagemagick -y
     - name: configure
       run: |
         mkdir build
         cd build
-        export CXX=clang++
         export CC=clang
+        export CXX=clang++
         export FC=gfortran
         cmake .. -DCMAKE_BUILD_TYPE=Release
     - name: make
