@@ -22,6 +22,7 @@
 #include "operations.h"
 #include "replace.h"
 #include <list>
+#include <algorithm>
 
 using namespace std;
 

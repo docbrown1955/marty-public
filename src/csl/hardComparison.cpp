@@ -2,6 +2,7 @@
 #include "interface.h"
 #include "multipermutation.h"
 #include <numeric>
+#include <algorithm>
 
 namespace csl {
 

@@ -1109,6 +1109,8 @@ class QuantumFieldParent : public csl::TensorFieldParent {
     friend std::ostream &operator<<(std::ostream             &fout,
                                     const QuantumFieldParent &obj);
 
+    using TensorFieldParent::operator();
+    
     /*!
      * \brief Generates an instance of the field as a symbolic expression.
      * \details This functions takes no csl::Index. The field is then for sure
@@ -2063,6 +2065,8 @@ class QuantumField : public csl::TensorFieldElement {
     bool compareWithDummy(csl::Expr_info                    other,
                           std::map<csl::Index, csl::Index> &constraints,
                           bool keepAllCosntraints = false) const override;
+
+    using csl::TensorFieldElement::operator<;
 
     /*!
      * \brief Compares the simplicity of the field with another.

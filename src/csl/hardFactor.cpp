@@ -19,6 +19,8 @@
 #include "linear_map.h"
 #include "utils.h"
 
+#include <algorithm>
+
 namespace csl {
 
 // Tests if two factors are redundant

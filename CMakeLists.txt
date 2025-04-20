@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.24)
 
 project(marty LANGUAGES CXX C Fortran)
 
@@ -87,6 +87,10 @@ if((NOT CMAKE_COMPILER_IS_GNUCXX) OR(NOT CMAKE_COMPILER_IS_GNUCC))
 else()
     add_compile_definitions(MARTY_QUADRUPLE_ENABLED=1)
     set(QUADRUPLE_ENABLED 1)
+endif()
+
+if (UNIX AND (CMAKE_CXX_COMPILER_ID STREQUAL "Clang"))
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libstdc++")
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)

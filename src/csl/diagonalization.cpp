@@ -25,6 +25,7 @@
 #include "error.h"
 #include "interface.h"
 #include "simplification.h"
+#include <algorithm>
 
 using namespace std;
 

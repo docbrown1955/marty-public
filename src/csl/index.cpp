@@ -21,6 +21,8 @@
 #include "space.h"
 #include "support.h"
 
+#include <algorithm>
+
 using namespace std;
 
 namespace csl {

@@ -17,6 +17,7 @@
 #include "counter.h"
 #include "error.h"
 #include <limits>
+#include <algorithm>
 
 using namespace std;
 

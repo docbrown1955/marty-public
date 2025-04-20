@@ -16,6 +16,7 @@
 #pragma once
 
 #include "abstract.h"
+#include "parent.h"
 #include "index.h"
 
 namespace csl {

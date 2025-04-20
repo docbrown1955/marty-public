@@ -31,6 +31,8 @@
 #include "space.h"
 #include "utils.h"
 
+#include <algorithm>
+
 namespace csl {
 
 class AbstractParent;

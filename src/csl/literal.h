@@ -146,11 +146,6 @@ class Constant : public AbstractLiteral {
 
     unique_Expr copy_unique() const override;
 
-    /*! \brief Sets value to t_value
-     * \param t_value
-     */
-    void operator=(double t_value) override;
-
     /*! \brief Compares \b value with another Abstract.
      * \param expr Abstract to compare.
      * \return \b 1 if expr is a Constant with the **same name**.
@@ -272,11 +267,6 @@ class Variable : public AbstractLiteral {
 
     unique_Expr copy_unique() const override;
 
-    /*! \brief Sets value to t_value
-     * \param t_value
-     */
-    void operator=(double t_value) override;
-
     /*! \brief Compares \b value with another Abstract.
      * \param expr Abstract to compare.
      * \return \b 1 if expr is a Variable with the **same name**.
@@ -375,10 +365,6 @@ class IntFactorial : public AbstractLiteral {
      */
     std::optional<Expr> derive(Expr_info expr) const override;
 
-    /*! \brief Sets value to t_value
-     * \param t_value
-     */
-    void operator=(int t_value);
     /*! Compares value with another Abstract
      * \param expr Abstract
      * \return 1 if expr is a IntFactorial with the same value

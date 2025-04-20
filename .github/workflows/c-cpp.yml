@@ -12,22 +12,22 @@ on:
       - synchronize
 
 jobs:
-  build-and-test-ubuntu-gcc12:
-    runs-on: ubuntu-latest
+  build-and-test-ubuntu-gcc14:
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v3
     - name: dependencies
       run: |
         sudo apt-get update -y
-        sudo apt-get install coreutils build-essential gcc-12 g++-12 gfortran-12 libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng lcov cmake texlive texlive-latex-extra texlive-luatex -y
+        sudo apt-get install coreutils build-essential gcc-14 g++-14 gfortran-14 libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng lcov cmake texlive texlive-latex-extra texlive-luatex imagemagick -y
     - name: configure
       run: |
         mkdir build
         cd build
-        export CXX=g++-12
-        export CC=gcc-12
-        export FC=gfortran-12
-        cmake ..
+        export CXX=g++-14
+        export CC=gcc-14
+        export FC=gfortran-14
+        cmake .. -DCMAKE_BUILD_TYPE=Release
     - name: make
       run: |
         cd build
@@ -36,22 +36,22 @@ jobs:
       run: |
         cd build
         ctest --output-on-failure
-  build-and-test-ubuntu-gcc9:
-    runs-on: ubuntu-20.04
+  build-and-test-ubuntu-gcc11:
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v3
     - name: dependencies
       run: |
         sudo apt-get update -y
-        sudo apt-get install coreutils build-essential gcc-9 g++-9 gfortran-9 libgsl-dev libgslcblas0 qt5-default dvipng lcov cmake texlive texlive-latex-extra texlive-luatex -y
+        sudo apt-get install coreutils build-essential gcc-11 g++-11 gfortran-11 libgsl-dev libgslcblas0 qtbase5-dev qtbase5-dev-tools dvipng lcov cmake texlive texlive-latex-extra texlive-luatex imagemagick -y
     - name: configure
       run: |
         mkdir build
         cd build
-        export CXX=g++-9
-        export CC=gcc-9
-        export FC=gfortran-9
-        cmake ..
+        export CXX=g++-11
+        export CC=gcc-11
+        export FC=gfortran-11
+        cmake .. -DCMAKE_BUILD_TYPE=Release
     - name: make
       run: |
         cd build
@@ -65,26 +65,26 @@ jobs:
         cd build
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib
         ctest --output-on-failure
-  build-and-test-ubuntu-clang:
-    runs-on: ubuntu-latest
+  build-and-test-ubuntu-clang18:
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v3
     - name: dependencies
       run: |
         sudo apt-get update -y
-        sudo apt-get install coreutils build-essential clang gfortran libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng cmake lcov texlive texlive-latex-extra texlive-luatex -y
+        sudo apt-get install coreutils build-essential clang-18 gcc-14 g++-14 gfortran-14 libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng cmake lcov texlive texlive-latex-extra texlive-luatex imagemagick -y
     - name: configure
       run: |
         mkdir build
         cd build
-        export CXX=clang++
-        export CC=clang
-        export FC=gfortran
-        cmake ..
+        export CC=clang-18
+        export CXX=clang++-18
+        export FC=gfortran-14
+        cmake .. -DCMAKE_BUILD_TYPE=Release
     - name: make
       run: |
         cd build
-        make
+        make VERBOSE=1
     - name: install
       run: |
         cd build
@@ -119,7 +119,7 @@ jobs:
         export CXX=g++-12
         export CC=gcc-12
         export FC=gfortran-12
-        cmake .. -DQt5_DIR=$(brew --prefix qt5)/lib/cmake/Qt5 -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)/lib/cmake
+        cmake .. -DQt5_DIR=$(brew --prefix qt5)/lib/cmake/Qt5 -DCMAKE_PREFIX_PATH=$(brew --prefix qt5)/lib/cmake -DCMAKE_BUILD_TYPE=Release
     - name: make
       run: |
         cd build

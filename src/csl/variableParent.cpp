@@ -17,6 +17,7 @@
 #include "literal.h"
 #include "numerical.h"
 #include "utils.h"
+#include <algorithm>
 
 using namespace std;
 

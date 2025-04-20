@@ -1,4 +1,5 @@
 #include "libjsondata.h"
+#include <algorithm>
 
 using namespace JSON;
 
