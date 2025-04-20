@@ -19,6 +19,7 @@
 #include "replace.h"
 #include "space.h"
 #include "utils.h"
+#include <algorithm>
 
 using namespace std;
 

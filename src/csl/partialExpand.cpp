@@ -18,6 +18,8 @@
 #include "indicial.h"
 #include "utils.h"
 
+#include <algorithm>
+
 namespace csl {
 
 struct ExpansionChain {

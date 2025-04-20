@@ -35,6 +35,7 @@
 #include <iomanip>
 #include <list>
 #include <string>
+#include <algorithm>
 
 #ifndef MARTY_CXX
 #define MARTY_CXX g++

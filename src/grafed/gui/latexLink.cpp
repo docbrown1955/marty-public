@@ -17,6 +17,7 @@
 #include "jsonLoader.h"
 #include <fstream>
 #include <iomanip>
+#include <algorithm>
 
 namespace drawer {
 
