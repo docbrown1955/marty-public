@@ -4,6 +4,8 @@
 #include "clooptools.h"
 #include <complex.h>
 #include <stdlib.h>
+#include <math.h>
+
 
 #ifndef __cplusplus
 #include <stdbool.h>
