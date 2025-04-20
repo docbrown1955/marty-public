@@ -13,7 +13,7 @@ on:
 
 jobs:
   build-and-test-ubuntu-gcc14:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v3
     - name: dependencies
@@ -65,21 +65,21 @@ jobs:
         cd build
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib
         ctest --output-on-failure
-  build-and-test-ubuntu-clang:
-    runs-on: ubuntu-latest
+  build-and-test-ubuntu-clang18:
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v3
     - name: dependencies
       run: |
         sudo apt-get update -y
-        sudo apt-get install coreutils build-essential clang gcc-13 g++-13 gfortran-13 libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng cmake lcov texlive texlive-latex-extra texlive-luatex imagemagick -y
+        sudo apt-get install coreutils build-essential clang-18 gcc-14 g++-14 gfortran-14 libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng cmake lcov texlive texlive-latex-extra texlive-luatex imagemagick -y
     - name: configure
       run: |
         mkdir build
         cd build
-        export CC=clang
-        export CXX=clang++
-        export FC=gfortran
+        export CC=clang-18
+        export CXX=clang++-18
+        export FC=gfortran-14
         cmake .. -DCMAKE_BUILD_TYPE=Release
     - name: make
       run: |
