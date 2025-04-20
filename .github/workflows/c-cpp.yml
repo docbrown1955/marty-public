@@ -12,21 +12,21 @@ on:
       - synchronize
 
 jobs:
-  build-and-test-ubuntu-gcc13:
+  build-and-test-ubuntu-gcc14:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
     - name: dependencies
       run: |
         sudo apt-get update -y
-        sudo apt-get install coreutils build-essential gcc-13 g++-13 gfortran-13 libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng lcov cmake texlive texlive-latex-extra texlive-luatex imagemagick -y
+        sudo apt-get install coreutils build-essential gcc-14 g++-14 gfortran-14 libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng lcov cmake texlive texlive-latex-extra texlive-luatex imagemagick -y
     - name: configure
       run: |
         mkdir build
         cd build
-        export CXX=g++-13
-        export CC=gcc-13
-        export FC=gfortran-13
+        export CXX=g++-14
+        export CC=gcc-14
+        export FC=gfortran-14
         cmake .. -DCMAKE_BUILD_TYPE=Release
     - name: make
       run: |
