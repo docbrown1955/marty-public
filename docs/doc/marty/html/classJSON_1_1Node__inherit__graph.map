@@ -1,0 +1,4 @@
+<map id="JSON::Node" name="JSON::Node">
+<area shape="rect" id="node3" href="$classJSON_1_1List.html" title="A List is a particular Node of which all children are of the same type and have the same specifier..." alt="" coords="14,155,101,181"/>
+<area shape="rect" id="node2" href="$classJSON_1_1Object.html" title="Abstract object in JSON tree structure. Can be specialized either in Node or in Leaf&lt;T&gt; with a specif..." alt="" coords="5,5,109,32"/>
+</map>

@@ -1,0 +1,32 @@
+<map id="include/abreviation.h" name="include/abreviation.h">
+<area shape="rect" id="node2" href="$abstract_8h.html" title="Base classes for all exprs in the program. " alt="" coords="1187,752,1267,779"/>
+<area shape="rect" id="node29" href="$space_8h.html" title="space.h" alt="" coords="913,80,981,107"/>
+<area shape="rect" id="node41" href="$utils_8h.html" title="utils.h" alt="" coords="1786,379,1843,405"/>
+<area shape="rect" id="node42" href="$interface_8h.html" title="interface.h" alt="" coords="1556,603,1639,629"/>
+<area shape="rect" id="node43" href="$index_8h.html" title="index.h" alt="" coords="452,752,516,779"/>
+<area shape="rect" id="node47" href="$replace_8h_source.html" title="replace.h" alt="" coords="773,677,848,704"/>
+<area shape="rect" id="node48" href="$algo_8h.html" title="Contains algorithms that look over (and possibly modify on the go) expressions for you..." alt="" coords="2099,677,2157,704"/>
+<area shape="rect" id="node16" href="$allocator_8h.html" title="allocator.h" alt="" coords="440,901,523,928"/>
+<area shape="rect" id="node18" href="$support_8h.html" title="Some useful functions. " alt="" coords="1458,827,1534,853"/>
+<area shape="rect" id="node21" href="$error_8h.html" title="File containing functions that are called by the program when something wrong happened: determines th..." alt="" coords="572,827,631,853"/>
+<area shape="rect" id="node24" href="$typedef_8h.html" title="typedef.h" alt="" coords="370,827,446,853"/>
+<area shape="rect" id="node25" href="$enum_8h.html" title="Some of csl enumerations. " alt="" coords="706,827,771,853"/>
+<area shape="rect" id="node26" href="$evaluation_8h.html" title="Contains evaluation flags for csl. " alt="" coords="847,827,939,853"/>
+<area shape="rect" id="node28" href="$std__shared__ptr__inheritance_8h.html" title="std_shared_ptr_inheritance.h" alt="" coords="1193,827,1383,853"/>
+<area shape="rect" id="node17" href="$memory__pool_8h.html" title="memory_pool.h" alt="" coords="519,976,630,1003"/>
+<area shape="rect" id="node23" href="$options_8h.html" title="options.h" alt="" coords="1420,901,1495,928"/>
+<area shape="rect" id="node30" href="$literal_8h.html" title="literal.h" alt="" coords="1313,528,1377,555"/>
+<area shape="rect" id="node34" href="$numerical_8h.html" title="numerical.h" alt="" coords="1025,528,1114,555"/>
+<area shape="rect" id="node35" href="$indicial_8h.html" title="Objects handling indexed expressions in order to perform indicial tensor calculations. " alt="" coords="982,155,1055,181"/>
+<area shape="rect" id="node46" href="$vector_8h.html" title="Objects handling vectors, matrices and higher&#45;dimensional tensors. " alt="" coords="881,453,951,480"/>
+<area shape="rect" id="node31" href="$buildingBlock_8h.html" title="buildingBlock.h" alt="" coords="1114,603,1225,629"/>
+<area shape="rect" id="node32" href="$variableParent_8h.html" title="variableParent.h" alt="" coords="1301,603,1417,629"/>
+<area shape="rect" id="node33" href="$parent_8h.html" title="Base classes for parents and elements. " alt="" coords="1420,677,1489,704"/>
+<area shape="rect" id="node36" href="$operations_8h.html" title="Objects handling multi&#45;argument functions, primordial operations (+,*,/,etc) " alt="" coords="1015,229,1108,256"/>
+<area shape="rect" id="node44" href="$symmetry_8h.html" title="symmetry.h" alt="" coords="333,677,424,704"/>
+<area shape="rect" id="node45" href="$element_8h.html" title="element.h" alt="" coords="1402,453,1481,480"/>
+<area shape="rect" id="node37" href="$scalarFunc_8h.html" title="Base classes for scalar functions. " alt="" coords="1117,453,1214,480"/>
+<area shape="rect" id="node39" href="$operator_8h.html" title="Generic template to handle operator expression, i.e. expression that applies on expressions on the ri..." alt="" coords="1223,304,1303,331"/>
+<area shape="rect" id="node38" href="$std__vector__implementation_8h.html" title="std_vector_implementation.h" alt="" coords="33,827,223,853"/>
+<area shape="rect" id="node40" href="$commutation_8h.html" title="commutation.h" alt="" coords="1117,379,1225,405"/>
+</map>

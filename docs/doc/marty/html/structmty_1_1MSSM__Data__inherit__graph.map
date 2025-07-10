@@ -1,0 +1,6 @@
+<map id="mty::MSSM_Data" name="mty::MSSM_Data">
+<area shape="rect" id="node2" href="$classmty_1_1MSSM__Model.html" title="Base class for MSSM models. If taken as is, represents the unconstrained MSSM with 105 parameters (+S..." alt="" coords="83,80,217,107"/>
+<area shape="rect" id="node3" href="$classmty_1_1MSSM__HEM.html" title="mty::MSSM_HEM" alt="" coords="5,155,135,181"/>
+<area shape="rect" id="node4" href="$classmty_1_1PMSSM__Model.html" title="mty::PMSSM_Model" alt="" coords="159,155,301,181"/>
+<area shape="rect" id="node5" href="$classmty_1_1NMFV__Model.html" title="mty::NMFV_Model" alt="" coords="164,229,296,256"/>
+</map>

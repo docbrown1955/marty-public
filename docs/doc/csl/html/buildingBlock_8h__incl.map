@@ -1,0 +1,12 @@
+<map id="include/buildingBlock.h" name="include/buildingBlock.h">
+<area shape="rect" id="node2" href="$abstract_8h.html" title="Base classes for all exprs in the program. " alt="" coords="895,80,975,107"/>
+<area shape="rect" id="node16" href="$allocator_8h.html" title="allocator.h" alt="" coords="944,229,1027,256"/>
+<area shape="rect" id="node18" href="$support_8h.html" title="Some useful functions. " alt="" coords="565,155,641,181"/>
+<area shape="rect" id="node21" href="$error_8h.html" title="File containing functions that are called by the program when something wrong happened: determines th..." alt="" coords="203,155,261,181"/>
+<area shape="rect" id="node24" href="$typedef_8h.html" title="typedef.h" alt="" coords="859,155,935,181"/>
+<area shape="rect" id="node25" href="$enum_8h.html" title="Some of csl enumerations. " alt="" coords="105,155,170,181"/>
+<area shape="rect" id="node26" href="$evaluation_8h.html" title="Contains evaluation flags for csl. " alt="" coords="1615,155,1707,181"/>
+<area shape="rect" id="node28" href="$std__shared__ptr__inheritance_8h.html" title="std_shared_ptr_inheritance.h" alt="" coords="1732,155,1921,181"/>
+<area shape="rect" id="node17" href="$memory__pool_8h.html" title="memory_pool.h" alt="" coords="995,304,1106,331"/>
+<area shape="rect" id="node23" href="$options_8h.html" title="options.h" alt="" coords="101,229,176,256"/>
+</map>

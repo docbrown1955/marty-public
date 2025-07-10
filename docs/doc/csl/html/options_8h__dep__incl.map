@@ -1,0 +1,48 @@
+<map id="include/options.h" name="include/options.h">
+<area shape="rect" id="node2" href="$error_8h.html" title="File containing functions that are called by the program when something wrong happened: determines th..." alt="" coords="2067,80,2171,107"/>
+<area shape="rect" id="node5" href="$csl_8h.html" title="File including the whole csl librairy. " alt="" coords="1585,1051,1679,1077"/>
+<area shape="rect" id="node32" href="$interface_8h.html" title="include/interface.h" alt="" coords="1669,528,1797,555"/>
+<area shape="rect" id="node3" href="$abstract_8h.html" title="Base classes for all exprs in the program. " alt="" coords="2135,155,2260,181"/>
+<area shape="rect" id="node35" href="$cast_8h.html" title="include/cast.h" alt="" coords="2650,603,2753,629"/>
+<area shape="rect" id="node47" href="$index__new_8h.html" title="include/index_new.h" alt="" coords="1970,155,2110,181"/>
+<area shape="rect" id="node4" href="$abreviation_8h.html" title="include/abreviation.h" alt="" coords="1821,901,1963,928"/>
+<area shape="rect" id="node6" href="$buildingBlock_8h.html" title="include/buildingBlock.h" alt="" coords="936,304,1091,331"/>
+<area shape="rect" id="node9" href="$libraryexpander_8h.html" title="include/libraryexpander.h" alt="" coords="582,901,749,928"/>
+<area shape="rect" id="node14" href="$libraryfunction_8h.html" title="include/libraryfunction.h" alt="" coords="2347,827,2506,853"/>
+<area shape="rect" id="node15" href="$librarygenerator_8h.html" title="include/librarygenerator.h" alt="" coords="2134,976,2301,1003"/>
+<area shape="rect" id="node20" href="$operator_8h.html" title="Generic template to handle operator expression, i.e. expression that applies on expressions on the ri..." alt="" coords="1068,603,1193,629"/>
+<area shape="rect" id="node25" href="$vector_8h.html" title="Objects handling vectors, matrices and higher&#45;dimensional tensors. " alt="" coords="335,677,449,704"/>
+<area shape="rect" id="node27" href="$comparison_8h.html" title="include/comparison.h" alt="" coords="211,453,357,480"/>
+<area shape="rect" id="node30" href="$variableParent_8h.html" title="include/variableParent.h" alt="" coords="1179,304,1341,331"/>
+<area shape="rect" id="node31" href="$parent_8h.html" title="Base classes for parents and elements. " alt="" coords="1499,229,1613,256"/>
+<area shape="rect" id="node33" href="$functional_8h.html" title="include/functional.h" alt="" coords="1771,603,1906,629"/>
+<area shape="rect" id="node34" href="$utils_8h.html" title="include/utils.h" alt="" coords="1905,528,2007,555"/>
+<area shape="rect" id="node36" href="$replace_8h_source.html" title="include/replace.h" alt="" coords="1973,827,2093,853"/>
+<area shape="rect" id="node37" href="$algo_8h.html" title="Contains algorithms that look over (and possibly modify on the go) expressions for you..." alt="" coords="2118,827,2221,853"/>
+<area shape="rect" id="node38" href="$sort_8h.html" title="File containing custom sorting algorithms for expressions. " alt="" coords="2635,304,2735,331"/>
+<area shape="rect" id="node39" href="$interface__indicial_8h.html" title="include/interface_indicial.h" alt="" coords="2742,379,2917,405"/>
+<area shape="rect" id="node40" href="$partialExpand_8h_source.html" title="include/partialExpand.h" alt="" coords="2811,304,2968,331"/>
+<area shape="rect" id="node41" href="$patternMatch_8h_source.html" title="include/patternMatch.h" alt="" coords="2837,229,2992,256"/>
+<area shape="rect" id="node42" href="$simplification_8h.html" title="Automatic simplification framework. Sources in simplification.cpp and alternateForms.cpp. " alt="" coords="3016,229,3171,256"/>
+<area shape="rect" id="node43" href="$equation_8h.html" title="include/equation.h" alt="" coords="3145,901,3271,928"/>
+<area shape="rect" id="node45" href="$librarydependency_8h.html" title="include/librarydependency.h" alt="" coords="2513,901,2695,928"/>
+<area shape="rect" id="node46" href="$libraryevaluator_8h.html" title="include/libraryevaluator.h" alt="" coords="2390,752,2557,779"/>
+<area shape="rect" id="node7" href="$literal_8h.html" title="include/literal.h" alt="" coords="1165,379,1275,405"/>
+<area shape="rect" id="node28" href="$numerical_8h.html" title="include/numerical.h" alt="" coords="425,379,559,405"/>
+<area shape="rect" id="node8" href="$space_8h.html" title="include/space.h" alt="" coords="741,827,854,853"/>
+<area shape="rect" id="node10" href="$indicial_8h.html" title="Objects handling indexed expressions in order to perform indicial tensor calculations. " alt="" coords="1269,752,1387,779"/>
+<area shape="rect" id="node17" href="$scalarFunc_8h.html" title="Base classes for scalar functions. " alt="" coords="697,453,839,480"/>
+<area shape="rect" id="node24" href="$element_8h.html" title="include/element.h" alt="" coords="1267,453,1391,480"/>
+<area shape="rect" id="node11" href="$field_8h.html" title="include/field.h" alt="" coords="1491,827,1594,853"/>
+<area shape="rect" id="node12" href="$tensorField_8h.html" title="include/tensorField.h" alt="" coords="1401,901,1543,928"/>
+<area shape="rect" id="node13" href="$pseudoIntegral_8h.html" title="include/pseudoIntegral.h" alt="" coords="929,827,1092,853"/>
+<area shape="rect" id="node16" href="$librarygroup_8h_source.html" title="include/librarygroup.h" alt="" coords="2190,901,2335,928"/>
+<area shape="rect" id="node18" href="$operations_8h.html" title="Objects handling multi&#45;argument functions, primordial operations (+,*,/,etc) " alt="" coords="832,677,971,704"/>
+<area shape="rect" id="node19" href="$commutation_8h.html" title="include/commutation.h" alt="" coords="686,528,839,555"/>
+<area shape="rect" id="node21" href="$cslcomplex_8h.html" title="include/cslcomplex.h" alt="" coords="995,677,1139,704"/>
+<area shape="rect" id="node22" href="$mathFunctions_8h.html" title="Objects handling mathematical functions. " alt="" coords="683,752,847,779"/>
+<area shape="rect" id="node23" href="$scalar_8h.html" title="include/scalar.h" alt="" coords="1110,976,1223,1003"/>
+<area shape="rect" id="node26" href="$diagonalization_8h.html" title="include/diagonalization.h" alt="" coords="291,976,455,1003"/>
+<area shape="rect" id="node29" href="$numericalEval_8h.html" title="include/numericalEval.h" alt="" coords="93,528,253,555"/>
+<area shape="rect" id="node44" href="$property_8h.html" title="include/property.h" alt="" coords="3144,976,3269,1003"/>
+</map>

@@ -1,0 +1,46 @@
+\form#0:$ 2ax^2\cos y $
+\form#1:$ (1, 2, 0) $
+\form#2:$ (a, x, y). $
+\form#3:$ x\cdot x^2 $
+\form#4:$ (1 + x) $
+\form#5:$ x $
+\form#6:$ ax + ay + by $
+\form#7:$ (a, b) $
+\form#8:$ a(x+y) + by $
+\form#9:$ (x, y) $
+\form#10:$ ax + (a+b)y $
+\form#11:$ A\left(1 + \cos \frac{2\pi t}{T} \right) $
+\form#12:$ A\left(1 + \cos \frac{2\pi t}{T}\right) $
+\form#13:$ A $
+\form#14:$ 1 + \cos \frac{2\pi t}{T} $
+\form#15:$ 1 $
+\form#16:$ \cos \frac{2\pi t}{T} $
+\form#17:$ \frac{2\pi t}{T} $
+\form#18:$ 2 $
+\form#19:$ \pi $
+\form#20:$ t $
+\form#21:$ T^{-1} $
+\form#22:$ T $
+\form#23:$ -1 $
+\form#24:$ i*X*Arbitrary == i*X*P $
+\form#25:$ x + y*z != A1 + A2*A1$
+\form#26:$ x + y*x = A1 + A2*A1$
+\form#27:$A1$
+\form#28:$x$
+\form#29:$ z $
+\form#30:$ z^* \neq z. $
+\form#31:$ z^* = z. $
+\form#32:$ z^* = -z. $
+\form#33:$ V $
+\form#34:$ \left( V_0,V_1,V_2,V_3\right)$
+\form#35:$ g_{\mu\nu} $
+\form#36:$ \mu $
+\form#37:$ \nu $
+\form#38:$ g $
+\form#39:$ \mathcal{O}(N^2) $
+\form#40:$ \mathcal{O}(N\log N) $
+\form#41:$ N $
+\form#42:$ R^2 $
+\form#43:$ R^3 $
+\form#44:$ R^4 $
+\form#45:$ R^{1,3} $

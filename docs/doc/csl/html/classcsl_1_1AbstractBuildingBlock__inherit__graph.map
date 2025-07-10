@@ -1,0 +1,23 @@
+<map id="csl::AbstractBuildingBlock" name="csl::AbstractBuildingBlock">
+<area shape="rect" id="node3" href="$classcsl_1_1AbstractNumerical.html" title="Abstract class from which derive numerical types, i.e. Float, Integer, IntFraction. " alt="" coords="372,132,527,159"/>
+<area shape="rect" id="node9" href="$classcsl_1_1Complexified.html" title="csl::Complexified" alt="" coords="388,259,511,285"/>
+<area shape="rect" id="node2" href="$classcsl_1_1Abstract.html" title="Root class of the inheritance tree of abstracts. " alt="" coords="5,208,101,235"/>
+<area shape="rect" id="node4" href="$classcsl_1_1Complex.html" title="csl::Complex" alt="" coords="597,5,696,32"/>
+<area shape="rect" id="node5" href="$classcsl_1_1Float.html" title="Handle numbers in expr. " alt="" coords="609,56,685,83"/>
+<area shape="rect" id="node6" href="$classcsl_1_1Integer.html" title="Handle numbers in expr. " alt="" coords="603,107,690,133"/>
+<area shape="rect" id="node7" href="$classcsl_1_1IntFraction.html" title="Handles fractions of Number. " alt="" coords="592,157,701,184"/>
+<area shape="rect" id="node8" href="$classcsl_1_1NumericalEval.html" title="csl::NumericalEval" alt="" coords="581,208,713,235"/>
+<area shape="rect" id="node10" href="$classcsl_1_1AbstractElement.html" title="Base class for all elements. Objects that are constructed by a parent (see AbstractParent) when the u..." alt="" coords="575,259,719,285"/>
+<area shape="rect" id="node17" href="$classcsl_1_1AbstractLiteral.html" title="Abstract class from which derive literal building blocks: Constant, Variable, Imaginary and IntFactor..." alt="" coords="581,385,712,412"/>
+<area shape="rect" id="node11" href="$classcsl_1_1AbstractField.html" title="csl::AbstractField" alt="" coords="772,208,896,235"/>
+<area shape="rect" id="node13" href="$classcsl_1_1TensorElement.html" title="Specialization of Abstract for Indicial tensor. Building block carrying indices, and respecting Einst..." alt="" coords="767,259,901,285"/>
+<area shape="rect" id="node12" href="$classcsl_1_1ScalarField.html" title="csl::ScalarField" alt="" coords="975,208,1087,235"/>
+<area shape="rect" id="node14" href="$classcsl_1_1TensorFieldElement.html" title="csl::TensorFieldElement" alt="" coords="949,259,1112,285"/>
+<area shape="rect" id="node15" href="$classcsl_1_1Operator.html" title="csl::Operator\&lt; TensorField\lElement \&gt;" alt="" coords="1160,251,1337,293"/>
+<area shape="rect" id="node16" href="$classcsl_1_1TDerivativeElement.html" title="csl::TDerivativeElement" alt="" coords="1385,259,1548,285"/>
+<area shape="rect" id="node18" href="$classcsl_1_1Arbitrary.html" title="Arbitrary object that can enter mathematical expressions. " alt="" coords="786,309,882,336"/>
+<area shape="rect" id="node19" href="$classcsl_1_1Constant.html" title="Handle an object with a name and a value. " alt="" coords="784,360,884,387"/>
+<area shape="rect" id="node20" href="$classcsl_1_1Imaginary.html" title="Numerical representation of i. " alt="" coords="782,411,886,437"/>
+<area shape="rect" id="node21" href="$classcsl_1_1IntFactorial.html" title="Handles factorial of a Number. " alt="" coords="778,461,890,488"/>
+<area shape="rect" id="node22" href="$classcsl_1_1Variable.html" title="Handle an object with a name and a value. " alt="" coords="787,512,881,539"/>
+</map>

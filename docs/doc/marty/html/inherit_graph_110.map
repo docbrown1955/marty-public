@@ -1,0 +1,13 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$classmty_1_1SemiSimpleAlgebra.html" title="Abstract base class for all semi&#45;simple Lie algebras. " alt="" coords="5,233,172,260"/>
+<area shape="rect" id="node2" href="$classmty_1_1algebra_1_1A.html" title="Semi&#45;simple Lie algebra A(l) == su(l+1). " alt="" coords="224,5,335,32"/>
+<area shape="rect" id="node3" href="$classmty_1_1algebra_1_1B.html" title="Semi&#45;simple Lie algebra B(l) == so(2l+1). " alt="" coords="224,56,335,83"/>
+<area shape="rect" id="node4" href="$classmty_1_1algebra_1_1C.html" title="Semi&#45;simple Lie algebra C(l) == sp(2l). " alt="" coords="223,107,335,133"/>
+<area shape="rect" id="node5" href="$classmty_1_1algebra_1_1D.html" title="Semi&#45;simple Lie algebra D(l) == so(2l). " alt="" coords="223,157,335,184"/>
+<area shape="rect" id="node6" href="$classmty_1_1algebra_1_1E6.html" title="Exceptional semi&#45;simple Lie algebra E6. " alt="" coords="220,208,339,235"/>
+<area shape="rect" id="node7" href="$classmty_1_1algebra_1_1E7.html" title="Exceptional semi&#45;simple Lie algebra E7. " alt="" coords="220,259,339,285"/>
+<area shape="rect" id="node8" href="$classmty_1_1algebra_1_1E8.html" title="Exceptional semi&#45;simple Lie algebra E8. " alt="" coords="220,309,339,336"/>
+<area shape="rect" id="node9" href="$classmty_1_1algebra_1_1F4.html" title="Exceptional semi&#45;simple Lie algebra F4. " alt="" coords="221,360,338,387"/>
+<area shape="rect" id="node10" href="$classmty_1_1algebra_1_1G2.html" title="Exceptional semi&#45;simple Lie algebra G2. " alt="" coords="220,411,339,437"/>
+<area shape="rect" id="node11" href="$classmty_1_1algebra_1_1R.html" title="Algebra (R, +) of the U(1) group. " alt="" coords="223,461,335,488"/>
+</map>

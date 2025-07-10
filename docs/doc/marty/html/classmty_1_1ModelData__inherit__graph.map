@@ -1,0 +1,13 @@
+<map id="mty::ModelData" name="mty::ModelData">
+<area shape="rect" id="node2" href="$classmty_1_1ModelBuilder.html" title="Class containing all model building features of MARTY. " alt="" coords="168,157,295,184"/>
+<area shape="rect" id="node3" href="$classmty_1_1Model.html" title="Contains all objects in the theory. In particular QuantumField objects, Gauge, Flavor, Particle... " alt="" coords="343,157,429,184"/>
+<area shape="rect" id="node4" href="$classmty_1_1MSSM__Model.html" title="Base class for MSSM models. If taken as is, represents the unconstrained MSSM with 105 parameters (+S..." alt="" coords="489,31,624,57"/>
+<area shape="rect" id="node8" href="$classmty_1_1PMSSM__LEM.html" title="mty::PMSSM_LEM" alt="" coords="489,81,624,108"/>
+<area shape="rect" id="node9" href="$classmty_1_1QCD__Model.html" title="mty::QCD_Model" alt="" coords="495,132,619,159"/>
+<area shape="rect" id="node10" href="$classmty_1_1QED__Model.html" title="mty::QED_Model" alt="" coords="495,183,618,209"/>
+<area shape="rect" id="node11" href="$classmty_1_1SM__Model.html" title="Standard Model of particle physics. " alt="" coords="499,233,614,260"/>
+<area shape="rect" id="node12" href="$classmty_1_1TwoHDM__Model.html" title="mty::TwoHDM_Model\&lt;\l type \&gt;" alt="" coords="477,285,636,326"/>
+<area shape="rect" id="node5" href="$classmty_1_1MSSM__HEM.html" title="mty::MSSM_HEM" alt="" coords="691,5,820,32"/>
+<area shape="rect" id="node6" href="$classmty_1_1PMSSM__Model.html" title="mty::PMSSM_Model" alt="" coords="684,56,827,83"/>
+<area shape="rect" id="node7" href="$classmty_1_1NMFV__Model.html" title="mty::NMFV_Model" alt="" coords="875,56,1007,83"/>
+</map>

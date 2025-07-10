@@ -1,0 +1,29 @@
+<map id="include/space.h" name="include/space.h">
+<area shape="rect" id="node2" href="$literal_8h.html" title="literal.h" alt="" coords="1107,453,1171,480"/>
+<area shape="rect" id="node33" href="$numerical_8h.html" title="numerical.h" alt="" coords="811,453,901,480"/>
+<area shape="rect" id="node34" href="$indicial_8h.html" title="Objects handling indexed expressions in order to perform indicial tensor calculations. " alt="" coords="987,80,1061,107"/>
+<area shape="rect" id="node45" href="$vector_8h.html" title="Objects handling vectors, matrices and higher&#45;dimensional tensors. " alt="" coords="1213,379,1283,405"/>
+<area shape="rect" id="node3" href="$buildingBlock_8h.html" title="buildingBlock.h" alt="" coords="801,528,911,555"/>
+<area shape="rect" id="node31" href="$variableParent_8h.html" title="variableParent.h" alt="" coords="1094,528,1210,555"/>
+<area shape="rect" id="node4" href="$abstract_8h.html" title="Base classes for all exprs in the program. " alt="" coords="1193,677,1273,704"/>
+<area shape="rect" id="node18" href="$allocator_8h.html" title="allocator.h" alt="" coords="941,827,1024,853"/>
+<area shape="rect" id="node20" href="$support_8h.html" title="Some useful functions. " alt="" coords="1439,752,1515,779"/>
+<area shape="rect" id="node23" href="$error_8h.html" title="File containing functions that are called by the program when something wrong happened: determines th..." alt="" coords="307,752,365,779"/>
+<area shape="rect" id="node26" href="$typedef_8h.html" title="typedef.h" alt="" coords="805,752,881,779"/>
+<area shape="rect" id="node27" href="$enum_8h.html" title="Some of csl enumerations. " alt="" coords="613,752,678,779"/>
+<area shape="rect" id="node28" href="$evaluation_8h.html" title="Contains evaluation flags for csl. " alt="" coords="1271,752,1363,779"/>
+<area shape="rect" id="node30" href="$std__shared__ptr__inheritance_8h.html" title="std_shared_ptr_inheritance.h" alt="" coords="956,752,1145,779"/>
+<area shape="rect" id="node19" href="$memory__pool_8h.html" title="memory_pool.h" alt="" coords="881,901,991,928"/>
+<area shape="rect" id="node25" href="$options_8h.html" title="options.h" alt="" coords="124,827,199,853"/>
+<area shape="rect" id="node32" href="$parent_8h.html" title="Base classes for parents and elements. " alt="" coords="1091,603,1160,629"/>
+<area shape="rect" id="node35" href="$operations_8h.html" title="Objects handling multi&#45;argument functions, primordial operations (+,*,/,etc) " alt="" coords="901,155,995,181"/>
+<area shape="rect" id="node42" href="$index_8h.html" title="index.h" alt="" coords="491,677,555,704"/>
+<area shape="rect" id="node43" href="$symmetry_8h.html" title="symmetry.h" alt="" coords="408,603,499,629"/>
+<area shape="rect" id="node44" href="$element_8h.html" title="element.h" alt="" coords="1009,379,1087,405"/>
+<area shape="rect" id="node36" href="$scalarFunc_8h.html" title="Base classes for scalar functions. " alt="" coords="782,379,879,405"/>
+<area shape="rect" id="node38" href="$operator_8h.html" title="Generic template to handle operator expression, i.e. expression that applies on expressions on the ri..." alt="" coords="908,229,988,256"/>
+<area shape="rect" id="node37" href="$std__vector__implementation_8h.html" title="std_vector_implementation.h" alt="" coords="93,752,283,779"/>
+<area shape="rect" id="node39" href="$commutation_8h.html" title="commutation.h" alt="" coords="777,304,885,331"/>
+<area shape="rect" id="node40" href="$utils_8h.html" title="utils.h" alt="" coords="1342,603,1399,629"/>
+<area shape="rect" id="node41" href="$interface_8h.html" title="interface.h" alt="" coords="936,528,1019,555"/>
+</map>

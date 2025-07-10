@@ -1,0 +1,10 @@
+<map id="csl::AbstractLiteral" name="csl::AbstractLiteral">
+<area shape="rect" id="node5" href="$classcsl_1_1Arbitrary.html" title="Arbitrary object that can enter mathematical expressions. " alt="" coords="5,304,101,331"/>
+<area shape="rect" id="node6" href="$classcsl_1_1Constant.html" title="Handle an object with a name and a value. " alt="" coords="126,304,226,331"/>
+<area shape="rect" id="node7" href="$classcsl_1_1Imaginary.html" title="Numerical representation of i. " alt="" coords="251,304,355,331"/>
+<area shape="rect" id="node8" href="$classcsl_1_1IntFactorial.html" title="Handles factorial of a Number. " alt="" coords="379,304,491,331"/>
+<area shape="rect" id="node9" href="$classcsl_1_1Variable.html" title="Handle an object with a name and a value. " alt="" coords="515,304,610,331"/>
+<area shape="rect" id="node2" href="$classcsl_1_1Complexified.html" title="csl::Complexified" alt="" coords="241,155,364,181"/>
+<area shape="rect" id="node3" href="$classcsl_1_1AbstractBuildingBlock.html" title="Abstract class from which derive all building blocks of exprs, i.e. objects not function of further e..." alt="" coords="215,80,390,107"/>
+<area shape="rect" id="node4" href="$classcsl_1_1Abstract.html" title="Root class of the inheritance tree of abstracts. " alt="" coords="255,5,351,32"/>
+</map>

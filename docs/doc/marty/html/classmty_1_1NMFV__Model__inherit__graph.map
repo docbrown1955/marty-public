@@ -1,0 +1,8 @@
+<map id="mty::NMFV_Model" name="mty::NMFV_Model">
+<area shape="rect" id="node2" href="$classmty_1_1PMSSM__Model.html" title="mty::PMSSM_Model" alt="" coords="63,304,205,331"/>
+<area shape="rect" id="node3" href="$classmty_1_1MSSM__Model.html" title="Base class for MSSM models. If taken as is, represents the unconstrained MSSM with 105 parameters (+S..." alt="" coords="67,229,201,256"/>
+<area shape="rect" id="node4" href="$classmty_1_1Model.html" title="Contains all objects in the theory. In particular QuantumField objects, Gauge, Flavor, Particle... " alt="" coords="25,155,112,181"/>
+<area shape="rect" id="node5" href="$classmty_1_1ModelBuilder.html" title="Class containing all model building features of MARTY. " alt="" coords="5,80,132,107"/>
+<area shape="rect" id="node6" href="$classmty_1_1ModelData.html" title="The class ModelData contains all the necessary features to store and manipulate the content of a mode..." alt="" coords="11,5,126,32"/>
+<area shape="rect" id="node7" href="$structmty_1_1MSSM__Data.html" title="mty::MSSM_Data" alt="" coords="136,155,263,181"/>
+</map>

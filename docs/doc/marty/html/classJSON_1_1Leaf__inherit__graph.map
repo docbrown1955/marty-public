@@ -1,0 +1,4 @@
+<map id="JSON::Leaf&lt; Type &gt;" name="JSON::Leaf&lt; Type &gt;">
+<area shape="rect" id="node2" href="$classJSON_1_1AbstractLeaf.html" title="Abstract class inherited from Object, from which all leafs will derive. This class only contains a pu..." alt="" coords="7,80,147,107"/>
+<area shape="rect" id="node3" href="$classJSON_1_1Object.html" title="Abstract object in JSON tree structure. Can be specialized either in Node or in Leaf&lt;T&gt; with a specif..." alt="" coords="25,5,129,32"/>
+</map>

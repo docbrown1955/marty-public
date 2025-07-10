@@ -1,0 +1,32 @@
+<map id="include/librarygenerator.h" name="include/librarygenerator.h">
+<area shape="rect" id="node2" href="$librarydependency_8h.html" title="librarydependency.h" alt="" coords="869,752,1008,779"/>
+<area shape="rect" id="node6" href="$abstract_8h.html" title="Base classes for all exprs in the program. " alt="" coords="1005,827,1085,853"/>
+<area shape="rect" id="node30" href="$libraryfunction_8h.html" title="libraryfunction.h" alt="" coords="1461,155,1576,181"/>
+<area shape="rect" id="node32" href="$literal_8h.html" title="literal.h" alt="" coords="1336,603,1400,629"/>
+<area shape="rect" id="node48" href="$librarygroup_8h_source.html" title="librarygroup.h" alt="" coords="1417,80,1517,107"/>
+<area shape="rect" id="node17" href="$allocator_8h.html" title="allocator.h" alt="" coords="237,976,320,1003"/>
+<area shape="rect" id="node19" href="$support_8h.html" title="Some useful functions. " alt="" coords="1339,901,1415,928"/>
+<area shape="rect" id="node22" href="$error_8h.html" title="File containing functions that are called by the program when something wrong happened: determines th..." alt="" coords="1608,901,1667,928"/>
+<area shape="rect" id="node25" href="$typedef_8h.html" title="typedef.h" alt="" coords="238,901,314,928"/>
+<area shape="rect" id="node26" href="$enum_8h.html" title="Some of csl enumerations. " alt="" coords="46,901,111,928"/>
+<area shape="rect" id="node27" href="$evaluation_8h.html" title="Contains evaluation flags for csl. " alt="" coords="1491,901,1583,928"/>
+<area shape="rect" id="node29" href="$std__shared__ptr__inheritance_8h.html" title="std_shared_ptr_inheritance.h" alt="" coords="1024,901,1213,928"/>
+<area shape="rect" id="node18" href="$memory__pool_8h.html" title="memory_pool.h" alt="" coords="289,1051,399,1077"/>
+<area shape="rect" id="node24" href="$options_8h.html" title="options.h" alt="" coords="1789,976,1864,1003"/>
+<area shape="rect" id="node31" href="$indicial_8h.html" title="Objects handling indexed expressions in order to perform indicial tensor calculations. " alt="" coords="1666,229,1739,256"/>
+<area shape="rect" id="node46" href="$default__move__cpy_8h.html" title="default_move_cpy.h" alt="" coords="1449,229,1588,256"/>
+<area shape="rect" id="node47" href="$libraryevaluator_8h.html" title="libraryevaluator.h" alt="" coords="2033,752,2154,779"/>
+<area shape="rect" id="node35" href="$parent_8h.html" title="Base classes for parents and elements. " alt="" coords="1543,752,1612,779"/>
+<area shape="rect" id="node36" href="$numerical_8h.html" title="numerical.h" alt="" coords="1461,603,1550,629"/>
+<area shape="rect" id="node37" href="$operations_8h.html" title="Objects handling multi&#45;argument functions, primordial operations (+,*,/,etc) " alt="" coords="1547,304,1640,331"/>
+<area shape="rect" id="node42" href="$index_8h.html" title="index.h" alt="" coords="1843,827,1907,853"/>
+<area shape="rect" id="node43" href="$symmetry_8h.html" title="symmetry.h" alt="" coords="1867,752,1957,779"/>
+<area shape="rect" id="node44" href="$element_8h.html" title="element.h" alt="" coords="1602,528,1681,555"/>
+<area shape="rect" id="node45" href="$vector_8h.html" title="Objects handling vectors, matrices and higher&#45;dimensional tensors. " alt="" coords="1285,528,1355,555"/>
+<area shape="rect" id="node33" href="$buildingBlock_8h.html" title="buildingBlock.h" alt="" coords="1438,677,1549,704"/>
+<area shape="rect" id="node34" href="$variableParent_8h.html" title="variableParent.h" alt="" coords="1298,677,1414,704"/>
+<area shape="rect" id="node38" href="$scalarFunc_8h.html" title="Base classes for scalar functions. " alt="" coords="1481,528,1578,555"/>
+<area shape="rect" id="node40" href="$operator_8h.html" title="Generic template to handle operator expression, i.e. expression that applies on expressions on the ri..." alt="" coords="1403,379,1483,405"/>
+<area shape="rect" id="node39" href="$std__vector__implementation_8h.html" title="std_vector_implementation.h" alt="" coords="1965,901,2155,928"/>
+<area shape="rect" id="node41" href="$commutation_8h.html" title="commutation.h" alt="" coords="1481,453,1589,480"/>
+</map>

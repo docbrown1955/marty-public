@@ -1,0 +1,8 @@
+<map id="mty::ScalarBoson" name="mty::ScalarBoson">
+<area shape="rect" id="node6" href="$classmty_1_1GhostBoson.html" title="Ghost boson, created with the vector bosons in non abelian gauge groups. " alt="" coords="5,379,129,405"/>
+<area shape="rect" id="node7" href="$classmty_1_1GoldstoneBoson.html" title="Goldstone boson class. " alt="" coords="153,379,301,405"/>
+<area shape="rect" id="node2" href="$classmty_1_1QuantumFieldParent.html" title="Base class for parents of QuantumField objects. " alt="" coords="62,229,233,256"/>
+<area shape="rect" id="node3" href="/home/uhlrich/Bureau/MARTY/newlife/marty-dev/csl/csl.tag$classcsl_1_1TensorFieldParent.html" title="csl::TensorFieldParent" alt="" coords="71,155,224,181"/>
+<area shape="rect" id="node4" href="/home/uhlrich/Bureau/MARTY/newlife/marty-dev/csl/csl.tag$classcsl_1_1TensorParent.html" title="csl::TensorParent" alt="" coords="85,80,210,107"/>
+<area shape="rect" id="node5" href="/home/uhlrich/Bureau/MARTY/newlife/marty-dev/csl/csl.tag$classcsl_1_1AbstractParent.html" title="csl::AbstractParent" alt="" coords="80,5,215,32"/>
+</map>
