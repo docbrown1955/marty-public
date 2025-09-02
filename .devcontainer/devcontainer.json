@@ -1,0 +1,63 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/cpp
+
+// Note: to use Podman, you need to set "podman" as docker binary and 
+//       "Podman compose up" as docker compose binary in the settings
+
+{
+	"name": "DarkPackTesting",
+
+	// The following uses the designed Dockerfile in the current folder to build the image.
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+
+	// Custom arguments to pass to the container manager when creating the container from the image
+	"runArgs": [
+		"--userns=keep-id" // <- If you are using Podman container mannager, this  argument is needed to
+		                   //    allow podman containers to have writing permission into the host filesystem
+	//   "--memory=8g",
+	//   "--memory-swap=10g",
+	//   "--cpus=6"
+	],
+
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-vscode.cpptools-themes",
+				"ms-vscode.cpptools",
+				"twxs.cmake",
+				"ms-vscode.cmake-tools",
+				"ms-vscode.cpptools-extension-pack",
+				"ms-vscode.makefile-tools",
+				"mhutchie.git-graph",
+				"ms-azuretools.vscode-docker",
+				"cschlosser.doxdocgen",
+				"mintlify.document",
+				"zeshuaro.vscode-python-poetry",
+				"ms-python.python",
+				"ms-toolsai.jupyter",
+				"github.vscode-github-actions",
+				"GitHub.copilot-chat",
+				"GitHub.copilot"
+			]
+		}
+	},
+
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	// "features": {},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "gcc -v",
+
+	// Configure tool-specific properties.
+	// "customizations": {},
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+
+	"remoteUser": "vscode",
+	"containerUser": "vscode"
+}
