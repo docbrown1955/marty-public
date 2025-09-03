@@ -371,7 +371,7 @@ void LibraryGroup::printFunctionStackBody(std::ostream &out, int nIndent, const 
             break;
         case GroupMap:
             out << "{\n";
-            for (size_t i = 0; i != functions.size(); ++i) {
+            for (size_t i = 0; i != functions.size() - 1 ; ++i) {
                 out << LibraryGenerator::indent(nIndent + 1)
                     << "{\"" << functions[i].getName() << "\", f_" << name << "[" << i
                     << "]},\n";
@@ -414,8 +414,6 @@ void LibraryGroup::printFunctionStack(std::ostream &out_header, int nIndent, boo
     out_header << LibraryGenerator::indent(nIndent) << attributes;
     printFunctionStackDefinition(out_header, GroupMap);
     out_header <<  ";\n";
-
-    out_header << LibraryGenerator::indent(nIndent) << "};\n\n";
 }
 
 void LibraryGroup::printFunctionStackOnSource(std::ostream &out_source, int nIndent) const
@@ -424,7 +422,6 @@ void LibraryGroup::printFunctionStackOnSource(std::ostream &out_source, int nInd
     printFunctionStackDefinition(out_source, GroupArray);
     out_source << " = ";
     printFunctionStackBody(out_source, nIndent, GroupArray);
-    out_source << LibraryGenerator::indent(nIndent) << "};\n\n";
 
     out_source << LibraryGenerator::indent(nIndent) << "const ";
     printFunctionStackDefinition(out_source, GroupMap);    
