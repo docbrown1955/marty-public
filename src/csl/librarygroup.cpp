@@ -331,31 +331,106 @@ void LibraryGroup::printNameMap(std::ostream &out, int nIndent) const
     out << LibraryGenerator::indent(nIndent) << "};\n\n";
 }
 
-void LibraryGroup::printFunctionStack(std::ostream &out, int nIndent) const
+void LibraryGroup::printFunctionStackDefinition(std::ostream &out, const enum VariablesTag nFunction) const 
 {
-    out << LibraryGenerator::indent(nIndent) << "inline std::array<Callable<"
-        << (complexReturn ? LibraryGenerator::complexUsing
-                          : LibraryGenerator::realUsing)
-        << ", " << getParamName();
-    out << ">, " << functions.size() << "> f_" << name << " = {\n";
-    for (const auto &f : functions) {
-        out << LibraryGenerator::indent(nIndent + 1);
-        out << "Callable{\"" << f.getName() << "\", " << f.getName() << "},\n";
+    switch (nFunction)
+    {
+        case GroupArray:
+            out << "std::array<Callable<"
+            << (complexReturn ? LibraryGenerator::complexUsing
+                            : LibraryGenerator::realUsing)
+            << ", " << getParamName()
+            << ">, " << functions.size() << "> f_" << name;
+            break;
+        case GroupMap:
+            out << "std::map<std::string, Callable<"
+                << (complexReturn ? LibraryGenerator::complexUsing
+                                : LibraryGenerator::realUsing)
+                << ", " << getParamName()
+                << ">> fmap_" << name;
+            break;
+        default:
+            std::cerr << "LibraryGroup::printFunctionStackDefinition has been called without a valid nFunction specification\n";
+            exit(1);
+            break;
     }
-    out << LibraryGenerator::indent(nIndent) << "};\n\n";
+}
 
-    out << LibraryGenerator::indent(nIndent)
-        << "inline std::map<std::string, Callable<"
-        << (complexReturn ? LibraryGenerator::complexUsing
-                          : LibraryGenerator::realUsing)
-        << ", " << getParamName();
-    out << ">> fmap_" << name << " {\n";
-    for (size_t i = 0; i != functions.size(); ++i) {
-        out << LibraryGenerator::indent(nIndent + 1);
-        out << "{\"" << functions[i].getName() << "\", f_" << name << "[" << i
-            << "]},\n";
+
+void LibraryGroup::printFunctionStackBody(std::ostream &out, int nIndent, const enum VariablesTag nFunction) const 
+{
+    switch (nFunction)
+    {
+        case GroupArray:
+            out << "{\n";
+            for (const auto &f : functions) {
+                out << LibraryGenerator::indent(nIndent + 1)
+                    << "Callable{\"" << f.getName() << "\", " << f.getName() << "},\n";
+            }
+            out << LibraryGenerator::indent(nIndent) << "};\n\n";
+            break;
+        case GroupMap:
+            out << "{\n";
+            for (size_t i = 0; i != functions.size(); ++i) {
+                out << LibraryGenerator::indent(nIndent + 1)
+                    << "{\"" << functions[i].getName() << "\", f_" << name << "[" << i
+                    << "]},\n";
+            }
+            break;
+        default:
+            std::cerr << "LibraryGroup::printFunctionStackBody has been called without a valid nFunction specification\n";
+            exit(1);
+            break;
     }
-    out << LibraryGenerator::indent(nIndent) << "};\n\n";
+}
+
+void LibraryGroup::printFunctionStack(std::ostream &out_header, int nIndent, bool set_as_inline_variable) const
+{
+    if(set_as_inline_variable)
+    {
+        constexpr const char* attributes = "inline const ";
+
+        out_header << LibraryGenerator::indent(nIndent) << attributes; 
+        printFunctionStackDefinition(out_header,  GroupArray);
+        out_header << " = ";
+        printFunctionStackBody(out_header, nIndent, GroupArray);
+        out_header << LibraryGenerator::indent(nIndent) << "};\n\n";
+
+        out_header << LibraryGenerator::indent(nIndent) << attributes;
+        printFunctionStackDefinition(out_header,  GroupMap);
+        out_header <<  " ";
+        printFunctionStackBody(out_header, nIndent, GroupMap);
+        out_header << LibraryGenerator::indent(nIndent) << "};\n\n";
+
+        return;
+    }
+
+    constexpr const char* attributes = "extern const ";
+
+    out_header << LibraryGenerator::indent(nIndent) << attributes; 
+    printFunctionStackDefinition(out_header, GroupArray);
+    out_header << ";\n";
+
+    out_header << LibraryGenerator::indent(nIndent) << attributes;
+    printFunctionStackDefinition(out_header, GroupMap);
+    out_header <<  ";\n";
+
+    out_header << LibraryGenerator::indent(nIndent) << "};\n\n";
+}
+
+void LibraryGroup::printFunctionStackOnSource(std::ostream &out_source, int nIndent) const
+{
+    out_source << LibraryGenerator::indent(nIndent) << "const ";
+    printFunctionStackDefinition(out_source, GroupArray);
+    out_source << " = ";
+    printFunctionStackBody(out_source, nIndent, GroupArray);
+    out_source << LibraryGenerator::indent(nIndent) << "};\n\n";
+
+    out_source << LibraryGenerator::indent(nIndent) << "const ";
+    printFunctionStackDefinition(out_source, GroupMap);    
+    out_source << " ";
+    printFunctionStackBody(out_source, nIndent, GroupMap);
+    out_source << LibraryGenerator::indent(nIndent) << "};\n\n";
 }
 
 void LibraryGroup::printParameterDefinition(std::ostream &out,
