@@ -44,7 +44,7 @@ WeylFermion::WeylFermion(std::weak_ptr<DiracFermion> t_parent,
 }
 
 WeylFermion::WeylFermion(const std::string &t_name,
-                         Model const &      t_model,
+                         Model const       &t_model,
                          Chirality          t_chirality)
     : WeylFermion(t_name, t_model.getGauge(), t_chirality)
 {
@@ -54,7 +54,7 @@ WeylFermion::WeylFermion(const std::string &t_name,
 }
 
 WeylFermion::WeylFermion(const std::string &t_name,
-                         Gauge *            gauge,
+                         Gauge             *gauge,
                          Chirality          t_chirality)
     : QuantumFieldParent(t_name, 1, gauge), chirality(t_chirality)
 {
@@ -62,7 +62,7 @@ WeylFermion::WeylFermion(const std::string &t_name,
 }
 
 WeylFermion::WeylFermion(const std::string &t_name,
-                         const GaugeIrrep & irrep,
+                         const GaugeIrrep  &irrep,
                          Chirality          t_chirality)
     : QuantumFieldParent(t_name, 1, irrep), chirality(t_chirality)
 {
@@ -70,7 +70,7 @@ WeylFermion::WeylFermion(const std::string &t_name,
 }
 
 WeylFermion::WeylFermion(const std::string &t_name,
-                         Gauge *            t_gauge,
+                         Gauge             *t_gauge,
                          bool               t_isSelfConjugate,
                          Chirality          t_chirality)
     : QuantumFieldParent(t_name, 1, t_gauge, t_isSelfConjugate),
@@ -80,7 +80,7 @@ WeylFermion::WeylFermion(const std::string &t_name,
 }
 
 WeylFermion::WeylFermion(const std::string &t_name,
-                         const GaugeIrrep & irrep,
+                         const GaugeIrrep  &irrep,
                          bool               t_isSelfConjugate,
                          Chirality          t_chirality)
     : QuantumFieldParent(t_name, 1, irrep, t_isSelfConjugate),
@@ -90,7 +90,7 @@ WeylFermion::WeylFermion(const std::string &t_name,
 }
 
 WeylFermion::WeylFermion(const std::string &t_name,
-                         const GaugeIrrep & irrep,
+                         const GaugeIrrep  &irrep,
                          const FlavorIrrep &flavorRep,
                          Chirality          t_chirality)
     : QuantumFieldParent(t_name, 1, irrep, flavorRep), chirality(t_chirality)
@@ -206,7 +206,7 @@ void WeylFermion::initPropagator()
         propagator[this] = &IntegratedFermionPropagator;
 }
 
-void WeylFermion::breakParticle(mty::Group *                    brokenGroup,
+void WeylFermion::breakParticle(mty::Group                     *brokenGroup,
                                 std::vector<std::string> const &newNames)
 {
     if (getDiracParent())
@@ -214,9 +214,9 @@ void WeylFermion::breakParticle(mty::Group *                    brokenGroup,
     QuantumFieldParent::breakParticle(brokenGroup, newNames);
 }
 void WeylFermion::breakParticle(
-    mty::FlavorGroup *                     brokenFlavor,
+    mty::FlavorGroup                      *brokenFlavor,
     std::vector<mty::FlavorGroup *> const &subGroups,
-    std::vector<std::string> const &       names)
+    std::vector<std::string> const        &names)
 {
     if (getDiracParent())
         return;
@@ -229,13 +229,13 @@ void WeylFermion::breakParticle(
 /*************************************************/
 ///////////////////////////////////////////////////
 
-auto findWeylSignature(std::string const &name)
+std::size_t findWeylSignature(std::string const &name)
 {
     constexpr static auto signatures = {"_L", "_R", "L", "R", "_l", "_r"};
     auto                  iter       = signatures.begin();
     while (iter != signatures.end()) {
         auto pos = name.rfind(*iter);
-        if (pos != std::string::npos)
+        if (pos != std::string::npos && pos != 0)
             return pos;
         ++iter;
     }
@@ -245,7 +245,7 @@ auto findWeylSignature(std::string const &name)
 std::string DiracNameOf(std::string const &leftWeylName)
 {
     auto pos = findWeylSignature(leftWeylName);
-    if (pos == std::string::npos) {
+    if (pos == std::string::npos || pos == 0) {
         return leftWeylName + "_D";
     }
     auto diracName{leftWeylName};
@@ -309,7 +309,7 @@ DiracFermion::DiracFermion(const std::string &t_name, const GaugeIrrep &irrep)
 }
 
 DiracFermion::DiracFermion(const std::string &t_name,
-                           Gauge *            t_gauge,
+                           Gauge             *t_gauge,
                            bool               t_isSelfConjugate)
     : QuantumFieldParent(t_name, 1, t_gauge, t_isSelfConjugate)
 {
@@ -325,7 +325,7 @@ DiracFermion::DiracFermion(const std::string &t_name,
 }
 
 DiracFermion::DiracFermion(const std::string &t_name,
-                           const GaugeIrrep & irrep,
+                           const GaugeIrrep  &irrep,
                            bool               t_isSelfConjugate)
     : QuantumFieldParent(t_name, 1, irrep, t_isSelfConjugate)
 {
@@ -341,7 +341,7 @@ DiracFermion::DiracFermion(const std::string &t_name,
 }
 
 DiracFermion::DiracFermion(const std::string &t_name,
-                           const GaugeIrrep & irrep,
+                           const GaugeIrrep  &irrep,
                            const FlavorIrrep &flavorRep)
     : QuantumFieldParent(t_name, 1, irrep, flavorRep)
 {
@@ -356,7 +356,7 @@ DiracFermion::DiracFermion(const std::string &t_name,
     initPropagator();
 }
 
-DiracFermion::DiracFermion(const std::string & t_name,
+DiracFermion::DiracFermion(const std::string  &t_name,
                            const DiracFermion *other)
     : DiracFermion(*other)
 {
@@ -463,7 +463,7 @@ Particle DiracFermion::getWeylFermion(Chirality chirality) const
     return res;
 }
 
-void DiracFermion::breakParticle(mty::Group *                    brokenGroup,
+void DiracFermion::breakParticle(mty::Group                     *brokenGroup,
                                  std::vector<std::string> const &newNames)
 {
     QuantumFieldParent::breakParticle(brokenGroup, newNames);
@@ -473,9 +473,9 @@ void DiracFermion::breakParticle(mty::Group *                    brokenGroup,
 }
 
 void DiracFermion::breakParticle(
-    mty::FlavorGroup *                     brokenFlavor,
+    mty::FlavorGroup                      *brokenFlavor,
     std::vector<mty::FlavorGroup *> const &subGroups,
-    std::vector<std::string> const &       names)
+    std::vector<std::string> const        &names)
 {
     QuantumFieldParent::breakParticle(brokenFlavor, subGroups, names);
     const auto vSpace = brokenFlavor->getVectorSpace();
@@ -484,7 +484,7 @@ void DiracFermion::breakParticle(
 
 void DiracFermion::updateChiralBrokenParts(csl::Space const *space)
 {
-    const auto &               brokenParts = getBrokenParts(space);
+    const auto                &brokenParts = getBrokenParts(space);
     const size_t               sz          = brokenParts.size();
     std::vector<mty::Particle> leftBroken(sz);
     std::vector<mty::Particle> rightBroken(sz);

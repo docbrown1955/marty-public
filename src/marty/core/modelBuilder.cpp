@@ -30,26 +30,25 @@ namespace mty {
 // Replacement functions
 ///////////////////////////////////////////////////
 
-csl::Expr ModelBuilder::abbreviateMassExpression(
-        std::string             const &prefix,
-        mty::QuantumFieldParent const *particle,
-        csl::Expr               const &mass)
+csl::Expr
+ModelBuilder::abbreviateMassExpression(std::string const             &prefix,
+                                       mty::QuantumFieldParent const *particle,
+                                       csl::Expr const               &mass)
 {
     csl::ScopedProperty prop(&csl::Abbrev::avoidDuplicates, false);
-    std::string massName = prefix + std::string(particle->getName());
-    csl::Expr   abbreviatedMass
-        = csl::Abbrev::makeAbbreviation(massName, mass);
+    std::string         massName = prefix + std::string(particle->getName());
+    csl::Expr abbreviatedMass = csl::Abbrev::makeAbbreviation(massName, mass);
     // Do not include ghosts and goldstones in the spectrum
-    if (mty::IsOfType<GhostBoson>(particle) 
-            || mty::IsOfType<GoldstoneBoson>(particle)) {
+    if (mty::IsOfType<GhostBoson>(particle)
+        || mty::IsOfType<GoldstoneBoson>(particle)) {
         return abbreviatedMass;
     }
-    auto pos
-        = std::find_if(abbreviatedMassExpressions.begin(),
-                       abbreviatedMassExpressions.end(),
-                       [&](csl::Expr const &expr) {
-                           return expr->getName() == abbreviatedMass->getName();
-                       });
+    auto pos = std::find_if(abbreviatedMassExpressions.begin(),
+                            abbreviatedMassExpressions.end(),
+                            [&](csl::Expr const &expr) {
+                                return expr->getName()
+                                       == abbreviatedMass->getName();
+                            });
     if (pos != abbreviatedMassExpressions.end()) {
         *pos = abbreviatedMass;
     }
@@ -59,11 +58,9 @@ csl::Expr ModelBuilder::abbreviateMassExpression(
     return csl::constant_s(massName);
 }
 
-csl::Expr ModelBuilder::abbreviateMassExpression(
-        std::string   const &prefix,
-        mty::Particle const &particle,
-        csl::Expr     const &mass
-        )
+csl::Expr ModelBuilder::abbreviateMassExpression(std::string const   &prefix,
+                                                 mty::Particle const &particle,
+                                                 csl::Expr const     &mass)
 {
     return abbreviateMassExpression(prefix, particle.get(), mass);
 }
@@ -454,6 +451,15 @@ void ModelBuilder::diagonalizeWithSpectrum(
     spectra.push_back({fields, newFields, massMatrix, mixing});
 }
 
+std::string getDiracParticleNameForDiag(std::string const &name)
+{
+    std::size_t pos = findWeylSignature(name);
+    if (pos != std::string::npos && pos != 0) {
+        return std::string(name.begin(), name.begin() + pos);
+    }
+    return name;
+}
+
 void ModelBuilder::bidiagonalizeWithSpectrum(
     std::vector<mty::Particle> const          &fields1,
     std::vector<mty::Particle> const          &newFields1,
@@ -477,7 +483,8 @@ void ModelBuilder::bidiagonalizeWithSpectrum(
     for (size_t i = 0; i != newFields1.size(); ++i) {
         const auto &f1   = newFields1[i];
         const auto &f2   = newFields2[i];
-        csl::Expr   mass = csl::constant_s("m_" + std::string(f1->getName()));
+        csl::Expr   mass = csl::constant_s(
+            "m_" + getDiracParticleNameForDiag(f1->getName()));
         fields1[i]->setMass(mass);
         fields2[i]->setMass(mass);
         f1->setMass(mass);
@@ -1122,8 +1129,8 @@ void ModelBuilder::doPromoteToMajorana(mty::Particle     &particle,
         = std::dynamic_pointer_cast<mty::WeylFermion>(particle);
     HEPAssert(weylFermion,
               mty::error::TypeError,
-              "Expecting a vector boson, "
-                  + std::string(particle->getName()) + " given.");
+              "Expecting a vector boson, " + std::string(particle->getName())
+                  + " given.");
     HEPAssert(weylFermion->isSelfConjugate(),
               mty::error::PhysicsError,
               "Cannot promote a non self-conjugate Weyl fermion to a Majorana "
@@ -1596,14 +1603,16 @@ void ModelBuilder::breakFlavorSymmetry(std::string const &brokenGroup)
     std::vector<mty::Particle> brokenFields;
     auto                       group = getFlavorGroup(brokenGroup);
     HEPAssert(!group->hasSymbolicDimension(),
-        mty::error::TypeError,
-        "Cannot break a flavor group with a symbolic (undefined) dimension.");
+              mty::error::TypeError,
+              "Cannot break a flavor group with a symbolic (undefined) "
+              "dimension.");
     for (const auto &part : particles)
         if (getFlavorIrrep(part, group) != FlavorFlag::Trivial)
             brokenFields.push_back(part);
     std::vector<std::vector<std::string>> newNames(brokenFields.size());
     for (size_t i = 0; i != brokenFields.size(); ++i) {
-        const size_t size = static_cast<std::size_t>(std::round(group->getDim()->evaluateScalar()));
+        const size_t size = static_cast<std::size_t>(
+            std::round(group->getDim()->evaluateScalar()));
         newNames[i] = std::vector<std::string>(size);
         for (size_t j = 0; j != size; ++j) {
             newNames[i][j] = brokenFields[i]->getName();
@@ -1629,14 +1638,16 @@ void ModelBuilder::breakFlavorSymmetry(std::string const         &brokenGroup,
     std::vector<mty::Particle> brokenFields;
     auto                       group = getFlavorGroup(brokenGroup);
     HEPAssert(!group->hasSymbolicDimension(),
-        mty::error::TypeError,
-        "Cannot break a flavor group with a symbolic (undefined) dimension.");
+              mty::error::TypeError,
+              "Cannot break a flavor group with a symbolic (undefined) "
+              "dimension.");
     for (const auto &part : particles)
         if (getFlavorIrrep(part, group) != FlavorFlag::Trivial)
             brokenFields.push_back(part);
     std::vector<std::vector<std::string>> newNames(brokenFields.size());
     for (size_t i = 0; i != brokenFields.size(); ++i) {
-        const size_t size = static_cast<std::size_t>(std::round(group->getDim()->evaluateScalar()));
+        const size_t size = static_cast<std::size_t>(
+            std::round(group->getDim()->evaluateScalar()));
         newNames[i] = std::vector<std::string>(size);
         for (size_t j = 0; j != size; ++j) {
             newNames[i][j] = brokenFields[i]->getName();
@@ -1656,9 +1667,10 @@ void ModelBuilder::breakFlavorSymmetry(
         return;
     mty::FlavorGroup *flavor = getFlavorGroup(flavorName);
     HEPAssert(!flavor->hasSymbolicDimension(),
-        mty::error::TypeError,
-        "Cannot break a flavor group with a symbolic (undefined) dimension.");
-    size_t            dim
+              mty::error::TypeError,
+              "Cannot break a flavor group with a symbolic (undefined) "
+              "dimension.");
+    size_t dim
         = flavor->getVectorSpace(brokenFields[0]->getFlavorIrrep(flavor))
               ->getDim();
     breakFlavorSymmetry(flavorName,
@@ -1708,8 +1720,7 @@ void ModelBuilder::breakFlavorSymmetry(
         if (subGroups[i] > 1) {
             std::unique_ptr<mty::FlavorGroup> newGroup
                 = std::make_unique<mty::FlavorGroup>(
-                    newFlavorNames[nNonTrivial++],
-                    subGroups[i]);
+                    newFlavorNames[nNonTrivial++], subGroups[i]);
             newSpaces.push_back(newGroup->getVectorSpace());
             newFlavorGroups.push_back(newGroup.get());
             flavor->push_back(std::move(newGroup));
