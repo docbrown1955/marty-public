@@ -15,3 +15,23 @@ add_subdirectory(marty)
 add_custom_target(doc 
     DEPENDS doc-marty doc-csl
 )
+
+file(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/docs/doc/csl/html)
+file(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/docs/doc/marty/html)
+file(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/docs/doc/common/)
+
+add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/.doc-stamp
+    DEPENDS doc
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CSL_DOC_DIR}/html ${CMAKE_SOURCE_DIR}/docs/doc/csl/html
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${MARTY_DOC_DIR}/html ${CMAKE_SOURCE_DIR}/docs/doc/marty/html
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${COMMON_DOC_DIR} ${CMAKE_SOURCE_DIR}/docs/doc/common
+    COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/.doc-stamp
+)
+
+add_custom_target(update-doc
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/.doc-stamp
+)
