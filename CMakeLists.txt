@@ -99,7 +99,6 @@ add_subdirectory(dep)
 add_subdirectory(src)
 add_subdirectory(examples)
 add_subdirectory(tests)
-add_subdirectory(doc)
 
 install(TARGETS marty marty-static csl csl-static marty-lha marty-lha-static marty-gamma-api marty-boltzmann-solver marty-boltzmann-solver-static
     DESTINATION lib)
