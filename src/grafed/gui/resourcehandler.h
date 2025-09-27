@@ -127,7 +127,7 @@ class ResourceHandler : public QObject {
         assert(builder);
         QFutureWatcher<Value> *watcher = new QFutureWatcher<Value>;
         futureMap[key]                 = QtConcurrent::run(builder, key);
-        auto endTask                   = [=]() { emit this->valueReady(key); };
+        auto endTask                   = [this, key]() { emit this->valueReady(key); };
         connect(watcher, &QFutureWatcher<Value>::finished, endTask);
         watcher->setFuture(futureMap[key]);
     }

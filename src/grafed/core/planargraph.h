@@ -28,6 +28,8 @@
 #include <functional>
 #include <gsl/gsl_vector.h>
 #include <map>
+#include <vector>
+#include <utility>
 
 namespace drawer {
 
@@ -161,7 +163,36 @@ struct Point {
 };
 
 class LatexLinker;
-class Energy;
+class Graph;
+
+class Energy {
+
+  private:
+    const double *factor;
+
+    std::function<double(Graph const &g)> func;
+
+    std::string name;
+
+  public:
+    Energy(double const &                               t_factor,
+           std::function<double(Graph const &g)> const &t_func,
+           std::string const &                          t_name = "Energy")
+        : factor(&t_factor), func(t_func), name(t_name)
+    {
+    }
+
+    double compute(Graph const &g, bool verbose = false) const
+    {
+        if (verbose and *factor != 0) {
+            auto energy = func(g);
+            std::cout << name << ": ";
+            std::cout << energy << std::endl;
+            return *factor * energy;
+        }
+        return (*factor == 0) ? 0 : *factor * func(g);
+    }
+};
 
 class Graph {
 
@@ -342,35 +373,6 @@ class Graph {
     Matrix<int> adjacency;
 
     std::vector<Energy> energies;
-};
-
-class Energy {
-
-  private:
-    const double *factor;
-
-    std::function<double(Graph const &g)> func;
-
-    std::string name;
-
-  public:
-    Energy(double const &                               t_factor,
-           std::function<double(Graph const &g)> const &t_func,
-           std::string const &                          t_name = "Energy")
-        : factor(&t_factor), func(t_func), name(t_name)
-    {
-    }
-
-    double compute(Graph const &g, bool verbose = false) const
-    {
-        if (verbose and *factor != 0) {
-            auto energy = func(g);
-            std::cout << name << ": ";
-            std::cout << energy << std::endl;
-            return *factor * energy;
-        }
-        return (*factor == 0) ? 0 : *factor * func(g);
-    }
 };
 
 inline Point operator+(Point const &B, Point const &A)

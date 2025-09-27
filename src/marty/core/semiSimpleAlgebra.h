@@ -33,6 +33,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <utility>
 
 // Forward declaration of Irrep and SumIrrep
 namespace mty {
@@ -103,7 +104,7 @@ class SemiSimpleAlgebra {
     /*!
      * \brief Destructor.
      */
-    virtual ~SemiSimpleAlgebra(){};
+    virtual ~SemiSimpleAlgebra();
 
     /*!
      * \brief Returns the expression (symbolic, rational number) of the

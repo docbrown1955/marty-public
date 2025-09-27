@@ -75,6 +75,9 @@ SemiSimpleAlgebra::SemiSimpleAlgebra(int t_l)
         positiveRoots[i][i] = 1; // simple roots
 }
 
+SemiSimpleAlgebra::~SemiSimpleAlgebra()
+{}
+
 csl::Expr
 SemiSimpleAlgebra::getQuadraticCasimir(const AlgebraState &highest) const
 {

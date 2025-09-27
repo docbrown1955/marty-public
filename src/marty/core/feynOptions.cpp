@@ -66,7 +66,7 @@ FeynOptions::applyFilters(std::vector<FeynmanRule> const &lagrangian) const
     std::vector<FeynmanRule const *> filtered(lagrangian.size());
     for (size_t i = 0; i != lagrangian.size(); ++i)
         filtered[i] = &lagrangian[i];
-    applyFilters(filtered, [=](FeynmanRule const *term) {
+    applyFilters(filtered, [this](FeynmanRule const *term) {
         return std::any_of(
             begin(lfilters), end(lfilters), [&](LagrangianFilter const &f) {
                 return !f(*term->getInteractionTerm());
@@ -78,7 +78,7 @@ FeynOptions::applyFilters(std::vector<FeynmanRule> const &lagrangian) const
 void FeynOptions::applyFilters(
     std::vector<Lagrangian::TermType> &lagrangian) const
 {
-    applyFilters(lagrangian, [=](Lagrangian::TermType const &term) {
+    applyFilters(lagrangian, [this](Lagrangian::TermType const &term) {
         return std::any_of(
             begin(lfilters), end(lfilters), [&](LagrangianFilter const &f) {
                 return !f(*term);
@@ -101,7 +101,7 @@ void FeynOptions::applyFilters(std::vector<FeynmanDiagram> &diagrams,
     const size_t lastFilter = (forceFilters || !partialCalculation)
                                   ? dfilters.size()
                                   : nDefaultDiagramFilters;
-    applyFilters(diagrams, [=](FeynmanDiagram const &diagram) {
+    applyFilters(diagrams, [this, lastFilter](FeynmanDiagram const &diagram) {
         return std::any_of(
             begin(dfilters),
             begin(dfilters) + lastFilter,
@@ -140,7 +140,7 @@ void FeynOptions::initDefaultFilters()
                 return false;
         return true;
     });
-    addDiagramFilter([=](FeynmanDiagram const &diagram) {
+    addDiagramFilter([this](FeynmanDiagram const &diagram) {
         if (diagram.getNLoops() != *loopOrder) {
             if (*loopOrder < diagram.getNLoops())
                 return false;
@@ -148,7 +148,7 @@ void FeynOptions::initDefaultFilters()
         }
         return true;
     });
-    addDiagramFilter([=](FeynmanDiagram const &diagram) {
+    addDiagramFilter([this](FeynmanDiagram const &diagram) {
         if (excludeExternalLegCorrections
             && diagram.hasExternalLegCorrections()) {
             return false;

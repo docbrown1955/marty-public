@@ -1,5 +1,6 @@
 #pragma once
 
+#include "wilson.h"
 #include <string>
 #include <vector>
 
