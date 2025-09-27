@@ -4,7 +4,20 @@ project(marty LANGUAGES CXX C Fortran)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(CMAKE_CXX_STANDARD 17)
+# Try to require C++20, fallback to 17 if not supported
+include(CheckCXXCompilerFlag)
+
+# Check if compiler supports C++20
+check_cxx_compiler_flag("-std=c++20" HAS_CXX20)
+
+if(HAS_CXX20)
+    set(CMAKE_CXX_STANDARD 20)
+    message(STATUS "Using C++20")
+else()
+    set(CMAKE_CXX_STANDARD 17)
+    message(STATUS "C++20 not supported, falling back to C++17")
+endif()
+
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(GNU_COMPILERS 0)
