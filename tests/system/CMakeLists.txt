@@ -35,6 +35,7 @@ ADD_SYSTEM_TEST("auto-model-widths-computation_Standard-Model" testModelWidth)
 ADD_SYSTEM_TEST("decay-widths_Standard-Model" widthsSM)
 ADD_SYSTEM_TEST("muon-pair-production-lep_Standard-Model" Zmumu)
 ADD_SYSTEM_TEST("top-pair-production-lhc_Standard-Model" gg_to_tt)
+ADD_SYSTEM_TEST("free-quarks-amplitudes" freeQuarkAmplitudes)
 ADD_QUAD_SYSTEM_TEST("electro-weak-gauge-cancellations" EWGauge)
 
 ADD_QUAD_SYSTEM_TEST("muon-magnetic-moment_Standard-Model" gm2SM)
