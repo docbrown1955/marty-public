@@ -1,0 +1,7 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node2" href="$classDiagramRenderer.html" title="DiagramRenderer" alt="" coords="127,5,251,32"/>
+<area shape="rect" id="node3" href="$classEdgeForm.html" title="EdgeForm" alt="" coords="147,56,230,83"/>
+<area shape="rect" id="node4" href="$classMainWidget.html" title="MainWidget" alt="" coords="143,107,234,133"/>
+<area shape="rect" id="node5" href="$classNodeForm.html" title="NodeForm" alt="" coords="147,157,230,184"/>
+<area shape="rect" id="node6" href="$classToolBar.html" title="ToolBar" alt="" coords="155,208,222,235"/>
+</map>

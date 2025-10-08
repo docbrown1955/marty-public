@@ -1,0 +1,6 @@
+<map id="csl::Variable" name="csl::Variable">
+<area shape="rect" id="node2" href="$classcsl_1_1AbstractLiteral.html" title="Abstract class from which derive literal building blocks: Constant, Variable, Imaginary and IntFactor..." alt="" coords="27,229,158,256"/>
+<area shape="rect" id="node3" href="$classcsl_1_1Complexified.html" title="csl::Complexified" alt="" coords="31,155,154,181"/>
+<area shape="rect" id="node4" href="$classcsl_1_1AbstractBuildingBlock.html" title="Abstract class from which derive all building blocks of exprs, i.e. objects not function of further e..." alt="" coords="5,80,180,107"/>
+<area shape="rect" id="node5" href="$classcsl_1_1Abstract.html" title="Root class of the inheritance tree of abstracts. " alt="" coords="45,5,141,32"/>
+</map>

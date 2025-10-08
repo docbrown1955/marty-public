@@ -1,0 +1,4 @@
+<map id="JSON::List" name="JSON::List">
+<area shape="rect" id="node2" href="$classJSON_1_1Node.html" title="Inherits from JSON::Object, specialized in JSON Node. A Node owns a vector of Object. The Node&#39;s children can either be Leaf or other Node objects. This allows to store the tree structure of a .json file. " alt="" coords="9,80,106,107"/>
+<area shape="rect" id="node3" href="$classJSON_1_1Object.html" title="Abstract object in JSON tree structure. Can be specialized either in Node or in Leaf&lt;T&gt; with a specif..." alt="" coords="5,5,109,32"/>
+</map>

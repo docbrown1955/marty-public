@@ -1,0 +1,9 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node2" href="$classmty_1_1AlgebraState.html" title="Class inherited from std::vector&lt;int&gt;, dynkin labels for a state of a semi&#45;simple algebra (see docume..." alt="" coords="129,5,255,32"/>
+<area shape="rect" id="node3" href="$classmty_1_1ConjugationList.html" title="mty::ConjugationList" alt="" coords="121,56,263,83"/>
+<area shape="rect" id="node4" href="$structmty_1_1lha_1_1LHAInputData.html" title="Helper struct to define a block of LHAElementInputData to make easy the definition of a modifiable bl..." alt="" coords="112,107,272,133"/>
+<area shape="rect" id="node5" href="$classmty_1_1SumGaugeIrrep.html" title="mty::SumGaugeIrrep" alt="" coords="121,157,263,184"/>
+<area shape="rect" id="node6" href="$classmty_1_1SumIrrep.html" title="Contains a sum of Irrep (irreducible representation) of a given SemiSimpleAlgebra. " alt="" coords="139,208,245,235"/>
+<area shape="rect" id="node7" href="$classmty_1_1wick_1_1Vertex.html" title="Represents a Vertex in feynman diagrams, i.e. a set of Nodes at the same space&#45;time point..." alt="" coords="129,259,255,285"/>
+<area shape="rect" id="node8" href="$structmty_1_1WilsonSet.html" title="mty::WilsonSet" alt="" coords="136,309,248,336"/>
+</map>

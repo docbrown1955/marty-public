@@ -213,9 +213,7 @@ class Graph {
     Graph &operator=(Graph const &other) = default;
     Graph &operator=(Graph &&other) = default;
 
-    ~Graph()
-    {
-    }
+    ~Graph();
 
     void reinit();
 
@@ -372,6 +370,8 @@ class Energy {
         return (*factor == 0) ? 0 : *factor * func(g);
     }
 };
+
+inline Graph::~Graph(){}
 
 inline Point operator+(Point const &B, Point const &A)
 {

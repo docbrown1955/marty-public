@@ -1,0 +1,22 @@
+<map id="include/operator.h" name="include/operator.h">
+<area shape="rect" id="node2" href="$abstract_8h.html" title="Base classes for all exprs in the program. " alt="" coords="809,453,889,480"/>
+<area shape="rect" id="node29" href="$commutation_8h.html" title="commutation.h" alt="" coords="644,80,752,107"/>
+<area shape="rect" id="node31" href="$literal_8h.html" title="literal.h" alt="" coords="795,229,859,256"/>
+<area shape="rect" id="node35" href="$numerical_8h.html" title="numerical.h" alt="" coords="468,229,557,256"/>
+<area shape="rect" id="node37" href="$utils_8h.html" title="utils.h" alt="" coords="401,379,459,405"/>
+<area shape="rect" id="node38" href="$interface_8h.html" title="interface.h" alt="" coords="970,304,1053,331"/>
+<area shape="rect" id="node16" href="$allocator_8h.html" title="allocator.h" alt="" coords="1529,603,1611,629"/>
+<area shape="rect" id="node18" href="$support_8h.html" title="Some useful functions. " alt="" coords="184,528,260,555"/>
+<area shape="rect" id="node21" href="$error_8h.html" title="File containing functions that are called by the program when something wrong happened: determines th..." alt="" coords="335,528,394,555"/>
+<area shape="rect" id="node24" href="$typedef_8h.html" title="typedef.h" alt="" coords="1479,528,1555,555"/>
+<area shape="rect" id="node25" href="$enum_8h.html" title="Some of csl enumerations. " alt="" coords="1023,528,1088,555"/>
+<area shape="rect" id="node26" href="$evaluation_8h.html" title="Contains evaluation flags for csl. " alt="" coords="1713,528,1805,555"/>
+<area shape="rect" id="node28" href="$std__shared__ptr__inheritance_8h.html" title="std_shared_ptr_inheritance.h" alt="" coords="1163,528,1353,555"/>
+<area shape="rect" id="node17" href="$memory__pool_8h.html" title="memory_pool.h" alt="" coords="1580,677,1691,704"/>
+<area shape="rect" id="node23" href="$options_8h.html" title="options.h" alt="" coords="1635,603,1710,629"/>
+<area shape="rect" id="node30" href="$scalarFunc_8h.html" title="Base classes for scalar functions. " alt="" coords="635,155,732,181"/>
+<area shape="rect" id="node36" href="$std__vector__implementation_8h.html" title="std_vector_implementation.h" alt="" coords="582,229,771,256"/>
+<area shape="rect" id="node32" href="$buildingBlock_8h.html" title="buildingBlock.h" alt="" coords="608,304,719,331"/>
+<area shape="rect" id="node33" href="$variableParent_8h.html" title="variableParent.h" alt="" coords="743,304,859,331"/>
+<area shape="rect" id="node34" href="$parent_8h.html" title="Base classes for parents and elements. " alt="" coords="922,379,991,405"/>
+</map>

@@ -33,7 +33,7 @@ std::vector<size_t> concat(std::vector<std::vector<size_t>> const &vecs)
     return res;
 }
 
-std::vector<size_t> ranges(size_t mini, size_t maxi)
+std::vector<size_t> range_of_size_t(size_t mini, size_t maxi)
 {
     std::vector<size_t> res(maxi - mini + 1);
     std::iota(res.begin(), res.end(), mini);
@@ -85,7 +85,7 @@ std::vector<size_t> indicesOf(Process p)
     case tWW:
         return elements({0, 1});
     case tGG:
-        return ranges(34, 41);
+        return range_of_size_t(34, 41);
     case tWG:
         return elements({4, 5});
     case tGW:
@@ -96,10 +96,10 @@ std::vector<size_t> indicesOf(Process p)
         return elements({14, 19, 42, 43});
     case bG:
         return concat(
-            {ranges(25, 28), ranges(30, 33), ranges(53, 56), ranges(58, 61)});
+            {range_of_size_t(25, 28), range_of_size_t(30, 33), range_of_size_t(53, 56), range_of_size_t(58, 61)});
     case sG:
         return concat(
-            {ranges(15, 18), ranges(20, 23), ranges(44, 51), ranges(53, 56)});
+            {range_of_size_t(15, 18), range_of_size_t(20, 23), range_of_size_t(44, 51), range_of_size_t(53, 56)});
     }
     return {};
 }

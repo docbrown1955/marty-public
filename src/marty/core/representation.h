@@ -22,6 +22,7 @@
 #ifndef REPRESENTATION_H_INCLUDED
 #define REPRESENTATION_H_INCLUDED
 
+#include "algebraState.h"
 #include "semiSimpleAlgebra.h"
 
 // Forward declaration of SumIrrep class

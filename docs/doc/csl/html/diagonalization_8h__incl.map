@@ -1,0 +1,18 @@
+<map id="include/diagonalization.h" name="include/diagonalization.h">
+<area shape="rect" id="node4" href="$vector_8h.html" title="Objects handling vectors, matrices and higher&#45;dimensional tensors. " alt="" coords="865,80,935,107"/>
+<area shape="rect" id="node5" href="$abstract_8h.html" title="Base classes for all exprs in the program. " alt="" coords="895,379,975,405"/>
+<area shape="rect" id="node32" href="$literal_8h.html" title="literal.h" alt="" coords="969,155,1033,181"/>
+<area shape="rect" id="node36" href="$numerical_8h.html" title="numerical.h" alt="" coords="855,155,945,181"/>
+<area shape="rect" id="node19" href="$allocator_8h.html" title="allocator.h" alt="" coords="944,528,1027,555"/>
+<area shape="rect" id="node21" href="$support_8h.html" title="Some useful functions. " alt="" coords="565,453,641,480"/>
+<area shape="rect" id="node24" href="$error_8h.html" title="File containing functions that are called by the program when something wrong happened: determines th..." alt="" coords="203,453,261,480"/>
+<area shape="rect" id="node27" href="$typedef_8h.html" title="typedef.h" alt="" coords="859,453,935,480"/>
+<area shape="rect" id="node28" href="$enum_8h.html" title="Some of csl enumerations. " alt="" coords="105,453,170,480"/>
+<area shape="rect" id="node29" href="$evaluation_8h.html" title="Contains evaluation flags for csl. " alt="" coords="1615,453,1707,480"/>
+<area shape="rect" id="node31" href="$std__shared__ptr__inheritance_8h.html" title="std_shared_ptr_inheritance.h" alt="" coords="1732,453,1921,480"/>
+<area shape="rect" id="node20" href="$memory__pool_8h.html" title="memory_pool.h" alt="" coords="995,603,1106,629"/>
+<area shape="rect" id="node26" href="$options_8h.html" title="options.h" alt="" coords="101,528,176,555"/>
+<area shape="rect" id="node33" href="$buildingBlock_8h.html" title="buildingBlock.h" alt="" coords="850,229,961,256"/>
+<area shape="rect" id="node34" href="$variableParent_8h.html" title="variableParent.h" alt="" coords="985,229,1101,256"/>
+<area shape="rect" id="node35" href="$parent_8h.html" title="Base classes for parents and elements. " alt="" coords="1005,304,1075,331"/>
+</map>

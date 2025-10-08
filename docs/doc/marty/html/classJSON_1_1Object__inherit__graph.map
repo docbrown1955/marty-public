@@ -1,0 +1,6 @@
+<map id="JSON::Object" name="JSON::Object">
+<area shape="rect" id="node2" href="$classJSON_1_1AbstractLeaf.html" title="Abstract class inherited from Object, from which all leafs will derive. This class only contains a pu..." alt="" coords="7,80,147,107"/>
+<area shape="rect" id="node4" href="$classJSON_1_1Node.html" title="Inherits from JSON::Object, specialized in JSON Node. A Node owns a vector of Object. The Node&#39;s children can either be Leaf or other Node objects. This allows to store the tree structure of a .json file. " alt="" coords="171,80,269,107"/>
+<area shape="rect" id="node3" href="$classJSON_1_1Leaf.html" title="Template class inherited from Object that stores a parameter of a .json file. This class does not hav..." alt="" coords="5,155,149,181"/>
+<area shape="rect" id="node5" href="$classJSON_1_1List.html" title="A List is a particular Node of which all children are of the same type and have the same specifier..." alt="" coords="177,155,263,181"/>
+</map>

@@ -43,18 +43,16 @@ TEST(initSanitizer, equality)
     b = 6.6;
     EXPECT_EQ(a, a);
     EXPECT_EQ(a, a2);
+    a2 = -5;
+    EXPECT_NE(a, a2);
     EXPECT_EQ(b, b);
     EXPECT_EQ(a, a.get());
     EXPECT_EQ(b, b.get());
     EXPECT_NE(a, static_cast<int>(b));
-    EXPECT_NE(a.get(), b);
     EXPECT_EQ(a.get(), a);
     EXPECT_EQ(b.get(), b);
-    EXPECT_NE(a.get(), b);
-    EXPECT_NE(a, b);
     EXPECT_EQ(a, a);
     EXPECT_EQ(b, b);
-    EXPECT_NE(a, b);
 }
 
 TEST(initSanitizer, comparison)

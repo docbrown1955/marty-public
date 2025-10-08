@@ -1,0 +1,5 @@
+<map id="mty::QCD_Model" name="mty::QCD_Model">
+<area shape="rect" id="node2" href="$classmty_1_1Model.html" title="Contains all objects in the theory. In particular QuantumField objects, Gauge, Flavor, Particle... " alt="" coords="25,155,112,181"/>
+<area shape="rect" id="node3" href="$classmty_1_1ModelBuilder.html" title="Class containing all model building features of MARTY. " alt="" coords="5,80,132,107"/>
+<area shape="rect" id="node4" href="$classmty_1_1ModelData.html" title="The class ModelData contains all the necessary features to store and manipulate the content of a mode..." alt="" coords="11,5,126,32"/>
+</map>

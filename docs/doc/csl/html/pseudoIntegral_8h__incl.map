@@ -1,0 +1,30 @@
+<map id="include/pseudoIntegral.h" name="include/pseudoIntegral.h">
+<area shape="rect" id="node2" href="$operations_8h.html" title="Objects handling multi&#45;argument functions, primordial operations (+,*,/,etc) " alt="" coords="1328,155,1421,181"/>
+<area shape="rect" id="node41" href="$mathFunctions_8h.html" title="Objects handling mathematical functions. " alt="" coords="1902,155,2021,181"/>
+<area shape="rect" id="node42" href="$indicial_8h.html" title="Objects handling indexed expressions in order to perform indicial tensor calculations. " alt="" coords="1574,80,1647,107"/>
+<area shape="rect" id="node3" href="$scalarFunc_8h.html" title="Base classes for scalar functions. " alt="" coords="1475,379,1573,405"/>
+<area shape="rect" id="node37" href="$operator_8h.html" title="Generic template to handle operator expression, i.e. expression that applies on expressions on the ri..." alt="" coords="1099,229,1179,256"/>
+<area shape="rect" id="node4" href="$literal_8h.html" title="literal.h" alt="" coords="1243,453,1307,480"/>
+<area shape="rect" id="node35" href="$numerical_8h.html" title="numerical.h" alt="" coords="1393,453,1482,480"/>
+<area shape="rect" id="node36" href="$std__vector__implementation_8h.html" title="std_vector_implementation.h" alt="" coords="1947,752,2136,779"/>
+<area shape="rect" id="node5" href="$buildingBlock_8h.html" title="buildingBlock.h" alt="" coords="1382,528,1493,555"/>
+<area shape="rect" id="node33" href="$variableParent_8h.html" title="variableParent.h" alt="" coords="1190,528,1306,555"/>
+<area shape="rect" id="node6" href="$abstract_8h.html" title="Base classes for all exprs in the program. " alt="" coords="1044,677,1124,704"/>
+<area shape="rect" id="node20" href="$allocator_8h.html" title="allocator.h" alt="" coords="731,827,813,853"/>
+<area shape="rect" id="node22" href="$support_8h.html" title="Some useful functions. " alt="" coords="899,752,975,779"/>
+<area shape="rect" id="node25" href="$error_8h.html" title="File containing functions that are called by the program when something wrong happened: determines th..." alt="" coords="411,752,469,779"/>
+<area shape="rect" id="node28" href="$typedef_8h.html" title="typedef.h" alt="" coords="1141,752,1217,779"/>
+<area shape="rect" id="node29" href="$enum_8h.html" title="Some of csl enumerations. " alt="" coords="545,752,610,779"/>
+<area shape="rect" id="node30" href="$evaluation_8h.html" title="Contains evaluation flags for csl. " alt="" coords="1241,752,1333,779"/>
+<area shape="rect" id="node32" href="$std__shared__ptr__inheritance_8h.html" title="std_shared_ptr_inheritance.h" alt="" coords="685,752,875,779"/>
+<area shape="rect" id="node21" href="$memory__pool_8h.html" title="memory_pool.h" alt="" coords="1217,901,1327,928"/>
+<area shape="rect" id="node27" href="$options_8h.html" title="options.h" alt="" coords="5,827,80,853"/>
+<area shape="rect" id="node34" href="$parent_8h.html" title="Base classes for parents and elements. " alt="" coords="1227,603,1296,629"/>
+<area shape="rect" id="node38" href="$commutation_8h.html" title="commutation.h" alt="" coords="1262,304,1370,331"/>
+<area shape="rect" id="node39" href="$utils_8h.html" title="utils.h" alt="" coords="902,603,959,629"/>
+<area shape="rect" id="node40" href="$interface_8h.html" title="interface.h" alt="" coords="968,528,1051,555"/>
+<area shape="rect" id="node43" href="$index_8h.html" title="index.h" alt="" coords="1725,677,1789,704"/>
+<area shape="rect" id="node44" href="$symmetry_8h.html" title="symmetry.h" alt="" coords="1893,603,1984,629"/>
+<area shape="rect" id="node45" href="$element_8h.html" title="element.h" alt="" coords="1321,379,1399,405"/>
+<area shape="rect" id="node46" href="$vector_8h.html" title="Objects handling vectors, matrices and higher&#45;dimensional tensors. " alt="" coords="1176,379,1245,405"/>
+</map>
