@@ -898,6 +898,7 @@ bool LibraryGenerator::needLibraryTensor() const
 
 void LibraryGenerator::printGroup(LibraryGroup const &g) const
 {
+    constexpr const bool are_group_functions_inline=false;
     std::string nameHeader = "group_";
     std::string nameSource = nameHeader;
     for (const char c : g.getName())
@@ -928,7 +929,7 @@ void LibraryGenerator::printGroup(LibraryGroup const &g) const
     if (!uniqueParamStruct)
         g.print(header, true);
     header << '\n';
-    g.printFunctionStack(header, 0);
+    g.printFunctionStack(header, 0, are_group_functions_inline);
     header << '\n';
     header << "}\n // End of namespace " << regLibName() << "\n\n";
     header << "#endif\n";
@@ -936,7 +937,13 @@ void LibraryGenerator::printGroup(LibraryGroup const &g) const
     file source(path + "/" + srcDir + "/" + nameSource);
     source << "#include \"" << nameHeader << "\"\n";
     source << "namespace " << regLibName() << " {\n\n";
-    g.print(source, false);
+    if(are_group_functions_inline)
+    {
+        g.print(source, false);
+    }else
+    {
+        g.printFunctionStackOnSource(source, 0);
+    }
     source << "\n} // End of namespace " << regLibName() << "\n";
 
     for (const auto &f : g.getFunctions()) {

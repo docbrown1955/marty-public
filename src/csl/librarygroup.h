@@ -144,6 +144,12 @@ namespace csl {
 
         void printFunctionStack(
                 std::ostream &out,
+                int           nIndent,
+                bool set_as_inline_variable=true
+                ) const;
+
+        void printFunctionStackOnSource(
+                std::ostream &out,
                 int           nIndent
                 ) const;
 
@@ -188,6 +194,22 @@ namespace csl {
         mutable std::vector<LibParameter> parameters;
         mutable std::vector<LibParameter> forcedParameters;
         mutable std::vector<LibFunction>  functions;
+
+        enum VariablesTag{
+                GroupArray, 
+                GroupMap
+        };
+
+        void printFunctionStackDefinition(
+                std::ostream &out,
+                const enum VariablesTag nFunction
+        ) const;
+
+        void printFunctionStackBody(
+                std::ostream &out,
+                int           nIndent, 
+                const enum VariablesTag nFunction
+        ) const;
     };
 
 } // namespace csl
