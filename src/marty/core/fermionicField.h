@@ -66,29 +66,29 @@ class WeylFermion : public QuantumFieldParent {
                 Chirality                   chirality = Chirality::Left);
 
     WeylFermion(const std::string &t_name,
-                Model const &      t_model,
+                Model const       &t_model,
                 Chirality          chirality = Chirality::Left);
 
     WeylFermion(const std::string &t_name,
-                Gauge *            t_gauge,
+                Gauge             *t_gauge,
                 Chirality          chirality = Chirality::Left);
 
     WeylFermion(const std::string &t_name,
-                const GaugeIrrep & irrep,
+                const GaugeIrrep  &irrep,
                 Chirality          chirality = Chirality::Left);
 
     WeylFermion(const std::string &t_name,
-                Gauge *            t_gauge,
+                Gauge             *t_gauge,
                 bool               t_isSelfConjugate,
                 Chirality          chirality = Chirality::Left);
 
     WeylFermion(const std::string &t_name,
-                const GaugeIrrep & irrep,
+                const GaugeIrrep  &irrep,
                 bool               t_isSelfConjugate,
                 Chirality          chirality = Chirality::Left);
 
     WeylFermion(const std::string &t_name,
-                const GaugeIrrep & irrep,
+                const GaugeIrrep  &irrep,
                 const FlavorIrrep &flavorRep,
                 Chirality          chirality = Chirality::Left);
 
@@ -127,11 +127,11 @@ class WeylFermion : public QuantumFieldParent {
 
     void setDiracParent(Particle const &parent) override;
 
-    void breakParticle(mty::Group *                    brokenGroup,
+    void breakParticle(mty::Group                     *brokenGroup,
                        std::vector<std::string> const &newNames) override;
-    void breakParticle(mty::FlavorGroup *                     brokenFlavor,
+    void breakParticle(mty::FlavorGroup                      *brokenFlavor,
                        std::vector<mty::FlavorGroup *> const &subGroups,
-                       std::vector<std::string> const &       names) override;
+                       std::vector<std::string> const        &names) override;
 
   protected:
     void initPropagator() override;
@@ -185,15 +185,15 @@ class DiracFermion : public QuantumFieldParent {
     DiracFermion(const std::string &t_name, const GaugeIrrep &irrep);
 
     DiracFermion(const std::string &t_name,
-                 Gauge *            t_gauge,
+                 Gauge             *t_gauge,
                  bool               t_isSelfConjugate);
 
     DiracFermion(const std::string &t_name,
-                 const GaugeIrrep & irrep,
+                 const GaugeIrrep  &irrep,
                  bool               t_isSelfConjugate);
 
     DiracFermion(const std::string &t_name,
-                 const GaugeIrrep & irrep,
+                 const GaugeIrrep  &irrep,
                  const FlavorIrrep &flavorRep);
 
     DiracFermion(const std::string &t_name, const DiracFermion *other);
@@ -234,11 +234,11 @@ class DiracFermion : public QuantumFieldParent {
 
     Particle getWeylFermion(Chirality chirality) const override;
 
-    void breakParticle(mty::Group *                    brokenGroup,
+    void breakParticle(mty::Group                     *brokenGroup,
                        std::vector<std::string> const &newNames) override;
-    void breakParticle(mty::FlavorGroup *                     brokenFlavor,
+    void breakParticle(mty::FlavorGroup                      *brokenFlavor,
                        std::vector<mty::FlavorGroup *> const &subGroups,
-                       std::vector<std::string> const &       names) override;
+                       std::vector<std::string> const        &names) override;
 
   private:
     void initPropagator() override;
@@ -258,7 +258,7 @@ class DiracFermion : public QuantumFieldParent {
  * @return The newly created Weyl fermion.
  */
 template <class... Args>
-inline Particle weylfermion_s(Args &&... args)
+inline Particle weylfermion_s(Args &&...args)
 {
     auto weyl = csl::make_shared<WeylFermion>(std::forward<Args>(args)...);
     return weyl;
@@ -276,12 +276,14 @@ inline Particle weylfermion_s(Args &&... args)
  * @return The newly created Dirac fermion.
  */
 template <class... Args>
-inline Particle diracfermion_s(Args &&... args)
+inline Particle diracfermion_s(Args &&...args)
 {
     auto part = csl::make_shared<DiracFermion>(std::forward<Args>(args)...);
     part->initWeylFermions();
     return part;
 }
+
+std::size_t findWeylSignature(const std::string &particleName);
 
 } // namespace mty
 
