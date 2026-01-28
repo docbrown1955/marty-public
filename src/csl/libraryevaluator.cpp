@@ -592,7 +592,7 @@ void LibEvalSession::getPerf(LibEval const        &init,
                              std::vector<int>     &nOccurences)
 {
     auto pos = std::find(newEvals.begin(), newEvals.end(), init);
-    if (pos == newEvals.end()) { 
+    if (pos == newEvals.end()) {
         newEvals.push_back(init);
         nOccurences.push_back(0);// Only recurse into children if this is the first time we see this eval
         Expr recursive = init.init;
