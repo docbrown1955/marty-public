@@ -519,8 +519,9 @@ LibEval exprToEval(Expr const &expr, std::vector<LibEval> const &eval)
 {
     std::string_view name = expr->getName();
     char             buffer[5]{0, 0, 0, 0, 0};
-    for (size_t i = LibEval::name.size() + 1; i != name.size(); ++i)
-        buffer[i - LibEval::name.size() - 1] = name[i];
+    for (size_t i = LibEval::name.size() + 1; i != name.size() && i - LibEval::name.size() - 1 < 4; ++i)
+        if (i < name.size())
+            buffer[i - LibEval::name.size() - 1] = name[i];
     int id = std::atoi(buffer);
     // lib_log << "Searching " << expr << std::endl;
     // lib_log << "ID : " << id << std::endl;
@@ -586,23 +587,17 @@ LibEvalSession::Perf LibEvalSession::getPerf(Expr &init)
     return {eval.size(), nOp, eval};
 }
 
-void LibEvalSession::getPerf(LibEval const        &init,
-                             std::vector<LibEval> &newEvals,
-                             std::vector<int>     &nOccurences)
-{
-    auto pos = std::find(newEvals.begin(), newEvals.end(), init);
-    if (pos == newEvals.end()) {
-        newEvals.push_back(init);
-        nOccurences.push_back(0);
-    }
-    else {
-        ++nOccurences[std::distance(newEvals.begin(), pos)];
-    }
+void LibEvalSession::getPerf(LibEval const        &init,                             std::vector<LibEval> &newEvals,                             std::vector<int>     &nOccurences){    auto pos = std::find(newEvals.begin(), newEvals.end(), init);    if (pos == newEvals.end()) {        newEvals.push_back(init);        nOccurences.push_back(0);        // Only recurse into children if this is the first time we see this eval
     Expr recursive = init.init;
     csl::VisitEachLeaf(recursive, [&](Expr const &expr) {
         if (LibEval::isInstance(expr))
             getPerf(exprToEval(expr, eval), newEvals, nOccurences);
     });
+    }
+    else {
+        ++nOccurences[std::distance(newEvals.begin(), pos)];
+        // Already visited, don't recurse again to avoid infinite recursion
+    }
 }
 
 void LibEvalSession::merge()
@@ -1050,3 +1045,4 @@ void LibEvalSession::printLib(Expr         &init,
 }
 
 } // End of namespace csl
+
