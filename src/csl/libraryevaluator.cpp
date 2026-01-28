@@ -587,9 +587,10 @@ LibEvalSession::Perf LibEvalSession::getPerf(Expr &init)
     return {eval.size(), nOp, eval};
 }
 
-void LibEvalSession::getPerf(LibEval const &init,
+void LibEvalSession::getPerf(LibEval const        &init,
                              std::vector<LibEval> &newEvals,
-                             std::vector<int> &nOccurences){
+                             std::vector<int>     &nOccurences)
+{
     auto pos = std::find(newEvals.begin(), newEvals.end(), init);
     if (pos == newEvals.end()) { 
         newEvals.push_back(init);
