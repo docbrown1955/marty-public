@@ -11,7 +11,6 @@ RUN dnf update -y && \
         g++ \
         gsl \
         gsl-devel \
-        texlive \
         ImageMagick \
         dvipng \
         coreutils \

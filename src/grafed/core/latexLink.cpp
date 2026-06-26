@@ -232,6 +232,9 @@ bool LatexLinker::canExportPDF()
 
 bool LatexLinker::canExportPNG()
 {
+#if defined(MARTY_HAS_CONVERT) && MARTY_HAS_CONVERT == 0
+    return false;
+#endif
     return canExportPDF() && commandExists("convert");
 }
 

@@ -50,24 +50,36 @@ Library dependencies (needed at compile-time):
  - `Qt5` (needed for the `GRAFED` Graphical User Interface)
  - `GSL` + `GSLCBLAS` (C numerical scientific library)
 
-System dependencies (needed at run-time as system commands):
- - `cmake`
- - `latex`
- - `dvipng`
- - `convert` (part of `ImageMagick`)
+System dependencies:
+ - `cmake` (required at configure/build time)
 
-Optional runtime dependency:
- - `lualatex` (required only for diagram PDF/PNG export paths using tikz-feynman)
+Optional system commands (used by specific `GRAFED` features at runtime):
+ - `latex` + `dvipng` for LaTeX label rendering in diagrams
+ - `lualatex` for PDF export from LaTeX/tikz-feynman
+ - `convert` (from `ImageMagick`) for PNG export from generated PDF
 
- On `Ubuntu` for example these dependencies can be installed with
+If one or several optional commands are missing, `cmake` configuration still succeeds.
+The corresponding runtime features are disabled automatically in `GRAFED`.
+
+ On `Ubuntu` for example, core build dependencies can be installed with
  ``` bash
-    sudo apt-get install libgsl-dev libgslcblas0 texlive texlive-luatex dvipng coreutils imagemagick -y
+     sudo apt-get install libgsl-dev libgslcblas0 coreutils -y
     sudo apt-get install qtbase5-dev qtbase5-dev-tools qtchooser qt5-qmake -y
     sudo apt-get install cmake -y
  ```
+
+ Optional `GRAFED` runtime commands on Ubuntu:
+ ``` bash
+     sudo apt-get install texlive texlive-luatex dvipng imagemagick -y
+ ```
  On `MacOS`
  ``` bash
-    brew install coreutils gsl qt@5 gcc@12 cmake imagemagick texlive
+     brew install coreutils gsl qt@5 gcc@12 cmake
+ ```
+
+ Optional `GRAFED` runtime commands on MacOS:
+ ``` bash
+     brew install imagemagick texlive
  ```
 
 ### Compilers for `MARTY`

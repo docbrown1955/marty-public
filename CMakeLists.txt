@@ -14,8 +14,8 @@ find_package(GSL REQUIRED)
 
 # Dependencies for GRAFED
 find_program(LUALATEX lualatex)
-find_program(CONVERT convert REQUIRED)
-find_program(LATEX latex REQUIRED)
+find_program(CONVERT convert)
+find_program(LATEX latex)
 find_program(DVIPNG dvipng)
 
 if(NOT LUALATEX)
@@ -25,9 +25,9 @@ if(NOT LUALATEX)
 endif()
 
 if(NOT DVIPNG)
-    message(FATAL_ERROR
-        "The 'dvipng' program is not found but necessary for GRAFED."
-        "Install it before retrying the installation.")
+    message(WARNING
+        "The 'dvipng' program is not found."
+        " GRAFED label rendering that relies on latex->dvipng is disabled at runtime.")
 endif()
 
 if(LUALATEX)
@@ -36,11 +36,36 @@ else()
     set(MARTY_HAS_LUALATEX 0)
 endif()
 
+if(CONVERT)
+    set(MARTY_HAS_CONVERT 1)
+else()
+    set(MARTY_HAS_CONVERT 0)
+endif()
+
+if(LATEX)
+    set(MARTY_HAS_LATEX 1)
+else()
+    set(MARTY_HAS_LATEX 0)
+endif()
+
+if(DVIPNG)
+    set(MARTY_HAS_DVIPNG 1)
+else()
+    set(MARTY_HAS_DVIPNG 0)
+endif()
+
 if(NOT CONVERT)
-    message(FATAL_ERROR
-        "The 'convert' program is not found but necessary for GRAFED."
+    message(WARNING
+        "The 'convert' program is not found."
+        " GRAFED PNG export is disabled at runtime."
         "The 'convert' program is part of the ImageMagick package."
-        "Install it before retrying the installation.")
+        "Install it to enable PNG export.")
+endif()
+
+if(NOT LATEX)
+    message(WARNING
+        "The 'latex' program is not found."
+        " GRAFED label rendering that relies on latex->dvipng is disabled at runtime.")
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -73,6 +98,9 @@ add_compile_definitions(MARTY_CC=${CMAKE_C_COMPILER})
 add_compile_definitions(MARTY_FC=${CMAKE_Fortran_COMPILER})
 add_compile_definitions(MARTY_INSTALL_PATH=${CMAKE_INSTALL_PREFIX})
 add_compile_definitions(MARTY_HAS_LUALATEX=${MARTY_HAS_LUALATEX})
+add_compile_definitions(MARTY_HAS_CONVERT=${MARTY_HAS_CONVERT})
+add_compile_definitions(MARTY_HAS_LATEX=${MARTY_HAS_LATEX})
+add_compile_definitions(MARTY_HAS_DVIPNG=${MARTY_HAS_DVIPNG})
 
 if((NOT CMAKE_COMPILER_IS_GNUCXX) OR(NOT CMAKE_COMPILER_IS_GNUCC))
     message(WARNING
