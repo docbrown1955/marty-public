@@ -11,10 +11,7 @@ RUN dnf update -y && \
         g++ \
         gsl \
         gsl-devel \
-        ImageMagick \
-        dvipng \
         coreutils \
-        texlive \
         qtchooser \
         cmake \
         git \
