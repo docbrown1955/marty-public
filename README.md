@@ -53,9 +53,11 @@ Library dependencies (needed at compile-time):
 System dependencies (needed at run-time as system commands):
  - `cmake`
  - `latex`
- - `lualatex`
  - `dvipng`
  - `convert` (part of `ImageMagick`)
+
+Optional runtime dependency:
+ - `lualatex` (required only for diagram PDF/PNG export paths using tikz-feynman)
 
  On `Ubuntu` for example these dependencies can be installed with
  ``` bash

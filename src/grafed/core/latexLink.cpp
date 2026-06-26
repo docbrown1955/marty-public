@@ -213,14 +213,41 @@ void LatexLinker::write(std::ostream &out)
     out << "\\end{tikzpicture}\n";
 }
 
-void LatexLinker::exportPDF(std::string const &fileName,
+namespace {
+bool commandExists(char const *command)
+{
+    std::string check = std::string("command -v ") + command
+                        + " > /dev/null 2>&1";
+    return system(check.c_str()) == 0;
+}
+}
+
+bool LatexLinker::canExportPDF()
+{
+#if defined(MARTY_HAS_LUALATEX) && MARTY_HAS_LUALATEX == 0
+    return false;
+#endif
+    return commandExists("lualatex");
+}
+
+bool LatexLinker::canExportPNG()
+{
+    return canExportPDF() && commandExists("convert");
+}
+
+bool LatexLinker::exportPDF(std::string const &fileName,
                             std::string const &path)
 {
 #pragma GCC diagnostic ignored "-Wunused-result"
+    if (!canExportPDF()) {
+        std::cerr << "Unable to export PDF: 'lualatex' is not available.\n";
+        return false;
+    }
+
     std::ofstream tex(fileName + ".tex");
     if (not tex) {
         std::cerr << "Unable to create file \"" << fileName << ".tex\".\n";
-        return;
+        return false;
     }
     tex << "\\documentclass[preview]{standalone}\n";
     tex << "\\usepackage{tikz-feynman}\n";
@@ -230,26 +257,58 @@ void LatexLinker::exportPDF(std::string const &fileName,
     tex.close();
     std::string command = "lualatex -interaction=nonstopmode " + fileName
                           + ".tex > /dev/null 2>&1";
-    system(command.c_str());
+    int result = system(command.c_str());
     command = "rm " + fileName + ".tex " + fileName + ".aux " + fileName
               + ".out " + fileName + ".log > /dev/null 2>&1";
     system(command.c_str());
+    if (result != 0) {
+        std::cerr << "Unable to export PDF: lualatex command failed.\n";
+        return false;
+    }
+
     command = "mv " + fileName + ".pdf " + path + " > /dev/null 2>&1";
-    system(command.c_str());
+    result  = system(command.c_str());
+    if (result != 0) {
+        std::cerr << "Unable to export PDF: failed to move generated PDF to "
+                  << path << ".\n";
+        return false;
+    }
+
+    return true;
 }
 
-void LatexLinker::exportPNG(std::string const &fileName,
+bool LatexLinker::exportPNG(std::string const &fileName,
                             std::string const &path)
 {
 #pragma GCC diagnostic ignored "-Wunused-result"
+    if (!canExportPNG()) {
+        std::cerr
+            << "Unable to export PNG: required commands are not available.\n";
+        return false;
+    }
+
     std::string pdfName = "tmp_" + fileName;
-    exportPDF(pdfName);
+    if (!exportPDF(pdfName))
+        return false;
+
     std::string command = "convert -density 400 -quality 100% " + pdfName
                           + ".pdf " + fileName + ".png > /dev/null 2>&1";
-    system(command.c_str());
+    int result          = system(command.c_str());
     command = "rm " + pdfName + ".pdf > /dev/null 2>&1; mv " + fileName
               + ".png " + path + "/" + fileName + ".png > /dev/null 2>&1";
-    system(command.c_str());
+    if (result != 0) {
+        std::cerr << "Unable to export PNG: convert command failed.\n";
+        return false;
+    }
+
+    result = system(command.c_str());
+    if (result != 0) {
+        std::cerr << "Unable to export PNG: failed to move generated PNG to "
+                  << path << ".\n";
+        return false;
+    }
+
+    return true;
 }
 
 void LatexLinker::removeNode(size_t pos)

@@ -283,7 +283,9 @@ void Drawer::exportPNG(std::string const                               &name,
 
     for (size_t i = 0; i != graphs.size(); ++i) {
         auto link = buildDiagram(graphs[i]);
-        link.exportPNG(name + "_" + getName(i), path);
+        if (!link.exportPNG(name + "_" + getName(i), path))
+            std::cerr << "Failed to export PNG for graph index " << i
+                      << ".\n";
     }
 }
 
