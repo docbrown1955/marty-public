@@ -52,8 +52,8 @@ drawer::LatexLinker Drawer::buildDiagram(
                         std::string edgeName
                             = (vertices[i][0]->field->isExternal()
                                or vertices[j][0]->field->isExternal())
-                                  ? ""
-                                  : std::string(nodeA->field->getLatexName());
+                                  ? std::string(nodeA->field->getLatexName())
+                                  : "";
                         if (!nodeA->field->isComplexConjugate())
                             link.setParticlesType(i, j, type, edgeName, false);
                         else
@@ -108,8 +108,8 @@ Drawer::buildDiagram(std::shared_ptr<wick::Graph> const &graph,
                         std::string edgeName
                             = (vertices[i][0]->field->isExternal()
                                or vertices[j][0]->field->isExternal())
-                                  ? ""
-                                  : std::string(nodeA->field->getLatexName());
+                                  ? std::string(nodeA->field->getLatexName())
+                                  : "";
                         if (!nodeA->field->isComplexConjugate())
                             link.setParticlesType(
                                 mapping[i], mapping[j], type, edgeName, false);
