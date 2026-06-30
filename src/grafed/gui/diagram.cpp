@@ -385,13 +385,17 @@ void Diagram::exportSelfPNG(const QString &fileName)
 void Diagram::exportPNG(std::string const &fileName) const
 {
     link.setGraph(getScaledGraph());
-    link.exportPNG(fileName, outputPath);
+    if (!link.exportPNG(fileName, outputPath))
+        std::cerr << "Failed to export PNG for diagram '" << fileName
+                  << "'.\n";
 }
 
 void Diagram::exportPDF(std::string const &fileName) const
 {
     link.setGraph(getScaledGraph());
-    link.exportPDF(fileName, outputPath);
+    if (!link.exportPDF(fileName, outputPath))
+        std::cerr << "Failed to export PDF for diagram '" << fileName
+                  << "'.\n";
 }
 
 std::string Diagram::getLatexSource() const

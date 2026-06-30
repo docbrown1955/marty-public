@@ -52,8 +52,8 @@ drawer::LatexLinker Drawer::buildDiagram(
                         std::string edgeName
                             = (vertices[i][0]->field->isExternal()
                                or vertices[j][0]->field->isExternal())
-                                  ? ""
-                                  : std::string(nodeA->field->getLatexName());
+                                  ? std::string(nodeA->field->getLatexName())
+                                  : "";
                         if (!nodeA->field->isComplexConjugate())
                             link.setParticlesType(i, j, type, edgeName, false);
                         else
@@ -108,8 +108,8 @@ Drawer::buildDiagram(std::shared_ptr<wick::Graph> const &graph,
                         std::string edgeName
                             = (vertices[i][0]->field->isExternal()
                                or vertices[j][0]->field->isExternal())
-                                  ? ""
-                                  : std::string(nodeA->field->getLatexName());
+                                  ? std::string(nodeA->field->getLatexName())
+                                  : "";
                         if (!nodeA->field->isComplexConjugate())
                             link.setParticlesType(
                                 mapping[i], mapping[j], type, edgeName, false);
@@ -283,7 +283,9 @@ void Drawer::exportPNG(std::string const                               &name,
 
     for (size_t i = 0; i != graphs.size(); ++i) {
         auto link = buildDiagram(graphs[i]);
-        link.exportPNG(name + "_" + getName(i), path);
+        if (!link.exportPNG(name + "_" + getName(i), path))
+            std::cerr << "Failed to export PNG for graph index " << i
+                      << ".\n";
     }
 }
 

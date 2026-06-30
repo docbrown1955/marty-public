@@ -14,6 +14,7 @@
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "latexcompiler.h"
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <set>
@@ -28,6 +29,26 @@ std::string toString(T const &t)
     std::ostringstream sout;
     sout << t;
     return sout.str();
+}
+
+namespace {
+bool commandExists(char const *command)
+{
+    std::string check = std::string("command -v ") + command
+                        + " > /dev/null 2>&1";
+    return system(check.c_str()) == 0;
+}
+
+bool canRenderLatexLabels()
+{
+#if defined(MARTY_HAS_LATEX) && MARTY_HAS_LATEX == 0
+    return false;
+#endif
+#if defined(MARTY_HAS_DVIPNG) && MARTY_HAS_DVIPNG == 0
+    return false;
+#endif
+    return commandExists("latex") && commandExists("dvipng");
+}
 }
 
 std::string latexcompiler::getGrafedDir()
@@ -49,6 +70,16 @@ std::string latexcompiler::getGrafedDir()
 
 QPixmap latexcompiler::generateLabel(const std::string &texCode)
 {
+    if (!canRenderLatexLabels()) {
+        static bool warned = false;
+        if (!warned) {
+            warned = true;
+            std::cerr << "GRAFED label rendering disabled: required commands "
+                         "'latex' and/or 'dvipng' are unavailable.\n";
+        }
+        return QPixmap();
+    }
+
     std::string          grafed_dir = getGrafedDir();
     [[maybe_unused]] int res        = system(("mkdir " + grafed_dir).c_str());
     std::ofstream        f(grafed_dir + "/eq.tex");

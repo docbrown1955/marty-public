@@ -14,6 +14,7 @@
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
 #include "mainwindow.h"
+#include "latexLink.h"
 #include "ui_mainwindow.h"
 #include <QCloseEvent>
 
@@ -104,8 +105,8 @@ void MainWindow::setDiagramMode()
         return;
     m_ui->actionSource_to_clipboard->setEnabled(true);
     m_ui->actionSource_Latex->setEnabled(true);
-    m_ui->actionPDF_Latex->setEnabled(true);
-    m_ui->actionPNG_Latex->setEnabled(true);
+    m_ui->actionPDF_Latex->setEnabled(drawer::LatexLinker::canExportPDF());
+    m_ui->actionPNG_Latex->setEnabled(drawer::LatexLinker::canExportPNG());
     m_ui->actionPNG->setEnabled(true);
 
     mainWidget->setDiagramMode();

@@ -143,7 +143,8 @@
 <h2>Build and Install MARTY</h2>
 <p>The following instructions are meant for Ubuntu / Debian and Mac (since 1.1) users. </p>
 <p style="color:orange;">For Windows (for sure) or other Linux distros, the installation script <code>setup.sh</code> may not work ! </p>
-<p> One may however install the dependencies (detailed below), compile the code (this should work on all OS with the required dependencies)
+<p> One may however install the dependencies (detailed below), compile the code (this should work on all OS with the core build dependencies;
+optional runtime commands only affect specific <i>GRAFED</i> features)
 and install the headers and libraries where wanted. Support for Ubuntu &leq;16.04 is available only since 1.2.</p>
 <h3>Building and installing MARTY (Ubuntu / Debian, Mac since 1.1)</h3>
 
@@ -233,14 +234,15 @@ GSL may be installed on Ubuntu/Debian via:</p>
   sudo apt-get install libgsl-dev libgslcblas0
  </code>
 </pre>
-<p><a href="https://www.qt.io/download-open-source">Qt</a> is a C++ framework to create Desktop applications. 
-    <i>GRAFED</i> uses the open-source and free version of Qt. <code>dvipng</code> is a converter
-    from <code>.dvi</code> to <code>.png</code> files allowing <i>GRAFED</i> to compile and 
-    display labels from Latex source. One may install these
-dependencies typing:</p>
+<p><a href="https://www.qt.io/download-open-source">Qt</a> is a C++ framework to create Desktop applications.
+        <i>GRAFED</i> uses the open-source and free version of Qt.
+        Commands such as <code>latex</code> and <code>dvipng</code> are used at runtime to render LaTeX labels,
+        while <code>lualatex</code> and <code>convert</code> (ImageMagick) are used for PDF/PNG export.
+        These commands are optional: if missing, the corresponding <i>GRAFED</i> features are disabled at runtime.
+        One may install these optional commands typing:</p>
 <pre>
  <code>
-  sudo apt-get install qt5-default qtcreator dvipng -y
+    sudo apt-get install qt5-default qtcreator texlive texlive-luatex dvipng imagemagick -y
  </code>
 </pre>
 <p>Finally, <a href="http://www.feynarts.de/looptools/">LoopTools</a>

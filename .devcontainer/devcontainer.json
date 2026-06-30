@@ -12,14 +12,32 @@
 		"dockerfile": "Dockerfile"
 	},
 
+	"initializeCommand": "/bin/sh -lc 'mkdir -p \"${HOME}/.devcontainer\"; target=\"${HOME}/.devcontainer/marty-public.Xauthority\"; if [ -n \"${XAUTHORITY:-}\" ] && [ -f \"${XAUTHORITY}\" ]; then cp \"${XAUTHORITY}\" \"${target}\"; elif [ -f \"${HOME}/.Xauthority\" ]; then cp \"${HOME}/.Xauthority\" \"${target}\"; else : > \"${target}\"; fi'",
+
 	// Custom arguments to pass to the container manager when creating the container from the image
 	"runArgs": [
-		"--userns=keep-id" // <- If you are using Podman container mannager, this  argument is needed to
+		"--userns=keep-id", // <- If you are using Podman container mannager, this  argument is needed to
 		                   //    allow podman containers to have writing permission into the host filesystem
+		"--env=WAYLAND_DISPLAY=${localEnv:WAYLAND_DISPLAY}",
+		"--env=XDG_RUNTIME_DIR=/tmp/runtime-vscode",
+		"--env=DISPLAY=${localEnv:DISPLAY}",
+		"--env=XAUTHORITY=/tmp/.Xauthority"
 	//   "--memory=8g",
 	//   "--memory-swap=10g",
 	//   "--cpus=6"
 	],
+
+	"mounts": [
+		"source=${localEnv:XDG_RUNTIME_DIR}/${localEnv:WAYLAND_DISPLAY},target=/tmp/runtime-vscode/${localEnv:WAYLAND_DISPLAY},type=bind",
+		"source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind",
+		"source=${localEnv:HOME}/.devcontainer/marty-public.Xauthority,target=/tmp/.Xauthority,type=bind"
+	],
+
+	"containerEnv": {
+		"GDK_BACKEND": "wayland,x11",
+		"QT_QPA_PLATFORM": "wayland;xcb",
+		"QT_X11_NO_MITSHM": "1"
+	},
 
 	"customizations": {
 		"vscode": {

@@ -187,9 +187,13 @@ class LatexLinker {
 
     static std::vector<LatexLinker> loadMultiple(std::string const &fileName);
 
-    void exportPDF(std::string const &fileName, std::string const &path = ".");
+    static bool canExportPDF();
 
-    void exportPNG(std::string const &fileName, std::string const &path = ".");
+    static bool canExportPNG();
+
+    bool exportPDF(std::string const &fileName, std::string const &path = ".");
+
+    bool exportPNG(std::string const &fileName, std::string const &path = ".");
 
     void scale(float factor);
 
