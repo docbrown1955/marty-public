@@ -1,0 +1,16 @@
+FROM ubuntu:24.04
+
+ARG username=vscode
+
+RUN  apt-get update -y && \
+     apt-get install coreutils build-essential gcc-14 g++-14 gfortran-14 libgsl-dev libgslcblas0 qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools dvipng lcov cmake texlive texlive-latex-extra texlive-luatex imagemagick git -y
+
+RUN useradd ${username}
+
+USER ${username}
+
+ENV CC=gcc-14
+ENV CXX=g++-14
+ENV FC=gfortran-14
+
+CMD ["sleep", "infinity"]
