@@ -125,8 +125,13 @@ class Abstract {
     void printExplicit(int mode = 0) const;
 
     /*! \brief Creates a LaTeX output for the Abstract.
-     * \param mode Tells if the Abstract is printed alone (default) or in
-     * another expr.
+     * \param mode Precedence of the context in which the expression is printed:
+     *  - 0: top level, no brackets, no trailing newline;
+     *  - 1: term or argument of a function, no brackets;
+     *  - 2: factor of a product or denominator of a fraction (sums are
+     *    bracketed, negative numbers are bracketed);
+     *  - 4: base of a power (sums, products, fractions and powers are
+     *    bracketed).
      * \return The string corresponding to the LaTeX output.
      */
     virtual std::string printLaTeX(int mode = 0) const;

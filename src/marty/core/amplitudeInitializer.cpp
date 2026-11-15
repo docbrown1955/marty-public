@@ -370,7 +370,9 @@ std::vector<csl::Tensor> AmplitudeInitializer::getVertices(size_t N)
 {
     std::vector<csl::Tensor> vertices(N);
     for (size_t i = 0; i != N; ++i) {
-        vertices[i] = csl::Tensor("V_" + std::to_string(i), &csl::Minkowski);
+        vertices[i] = csl::Tensor(
+            csl::prefixedNameWithLatex("V_", std::to_string(i)),
+            &csl::Minkowski);
     }
     return vertices;
 }
@@ -441,7 +443,9 @@ void AmplitudeInitializer::initMomentumVertices(
     for (size_t i = 0; i != localRules.size(); ++i) {
         for (size_t j = 0; j != localRules[i].getSize(); ++j)
             witnessVertices.push_back(
-                csl::tensor_s("W_" + toString(index++), &csl::Minkowski));
+                csl::tensor_s(csl::prefixedNameWithLatex(
+                                  "W_", toString(index++)),
+                              &csl::Minkowski));
     }
     auto firstWitness = witnessVertices.begin();
     fieldVertices.resize(fieldVertices.size() + localRules.size());

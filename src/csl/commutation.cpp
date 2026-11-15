@@ -142,7 +142,7 @@ void Commutator::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string Commutator::printLaTeX(int mode) const
+string Commutator::printLaTeX(int) const
 {
     stringstream sout;
     if (sign == -1)
@@ -156,8 +156,6 @@ string Commutator::printLaTeX(int mode) const
         sout << " ]";
     else
         sout << " }";
-    if (mode == 0)
-        sout << endl;
 
     return sout.str();
 }

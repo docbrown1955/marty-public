@@ -184,7 +184,10 @@ string Index::printLaTeX() const
         sout << static_cast<int>(nameOrValue);
         return sout.str();
     }
-    return std::string(getName());
+    std::string name(getName());
+    if (not space)
+        return name;
+    return space->getIndexLatexName(name);
 }
 
 void Index::printDefinition(std::ostream &out, int indentSize) const

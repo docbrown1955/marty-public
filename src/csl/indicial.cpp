@@ -1873,7 +1873,7 @@ MetricParent::MetricParent() : TensorParent()
 
 MetricParent::MetricParent(const DeltaParent &delta)
     : TensorParent(
-        "delta", {delta.getSpace()[0], delta.getSpace()[0]}, delta.getTensor())
+        "delta;\\delta", {delta.getSpace()[0], delta.getSpace()[0]}, delta.getTensor())
 {
 }
 
@@ -2013,7 +2013,7 @@ DeltaParent::DeltaParent() : TensorParent()
 
 DeltaParent::DeltaParent(const Space *t_space, bool buildTensor)
     : TensorParent(
-        "delta", 
+        "delta;\\delta", 
         {t_space, t_space}, 
         buildTensor ? identity_s(t_space->getDim()) : CSL_UNDEF)
 {
@@ -2823,19 +2823,351 @@ void TensorElement::printCode(int, std::ostream &out) const
         out << ")";
 }
 
-string TensorElement::printLaTeX(int mode) const
-{
-    const int     nIndices = index.size();
-    ostringstream sout;
-    sout << getLatexName();
-    if (nIndices > 0) {
-        sout << "_";
-        sout << index;
-    }
-    printProp(sout);
-    if (mode == 0)
-        sout << endl;
+namespace {
 
+constexpr size_t noNode = std::numeric_limits<size_t>::max();
+
+std::string latexScriptBase(std::string const &name, bool scripted)
+{
+    bool hasScript = name.find('_') != std::string::npos
+                     or name.find('^') != std::string::npos;
+    return (scripted and hasScript) ? "{" + name + "}" : name;
+}
+
+struct ChainNode {
+    Expr                expr;
+    std::vector<Index>  indices; // matrix indices: 1 for vectors, 2 for matrices
+    std::vector<size_t> partner;     // node at the other end of each port
+    std::vector<size_t> partnerPort; // port of that node
+    std::vector<Index>  extras;      // other indices, printed as superscripts
+    std::vector<size_t> portPos;     // position of each port in the full list
+};
+
+struct ChainStep {
+    size_t node;
+    bool   transposed;
+};
+
+std::vector<ChainStep> walkChain(std::vector<ChainNode> const &nodes,
+                                 size_t                        start)
+{
+    std::vector<ChainStep> seq{{start, false}};
+    size_t                 cur      = start;
+    size_t                 exitPort = 0;
+    while (true) {
+        size_t next  = nodes[cur].partner[exitPort];
+        size_t entry = nodes[cur].partnerPort[exitPort];
+        if (nodes[next].indices.size() == 1) {
+            seq.push_back({next, false});
+            return seq;
+        }
+        seq.push_back({next, entry == 1});
+        exitPort = 1 - entry;
+        cur      = next;
+    }
+}
+
+std::vector<ChainStep> walkCycle(std::vector<ChainNode> const &nodes,
+                                 size_t                        start,
+                                 size_t                        exitPort)
+{
+    std::vector<ChainStep> seq{{start, false}};
+    size_t                 cur  = start;
+    size_t                 exit = exitPort;
+    while (true) {
+        size_t next  = nodes[cur].partner[exit];
+        size_t entry = nodes[cur].partnerPort[exit];
+        if (next == start) {
+            seq[0].transposed = (entry == 1);
+            return seq;
+        }
+        seq.push_back({next, entry == 1});
+        exit = 1 - entry;
+        cur  = next;
+    }
+}
+
+} // namespace
+
+namespace {
+
+std::string latexChainFactor(ChainNode const &node, bool transposed)
+{
+    auto const &element = static_cast<TensorElement const &>(*node.expr);
+    std::string core    = element.getLatexDisplayName();
+    if (not node.extras.empty()) {
+        bool isField = element.getType() == Type::TensorFieldElement;
+        core += isField ? "_{" : "^{";
+        for (auto const &index : node.extras)
+            core += index.printLaTeX();
+        core += "}";
+    }
+    core += element.getLatexPointSuffix();
+    return transposed ? latexScriptBase(core, true) + "^{T}" : core;
+}
+
+void checkCommutingOrder(std::vector<ChainNode> const &nodes,
+                         std::vector<ChainStep> const &seq,
+                         std::vector<size_t> const    &posOfNode)
+{
+    for (size_t a = 0; a != seq.size(); ++a) {
+        for (size_t b = a + 1; b != seq.size(); ++b) {
+            size_t na = seq[a].node;
+            size_t nb = seq[b].node;
+            if (nodes[na].expr->getCommutable()
+                or nodes[nb].expr->getCommutable())
+                continue;
+            if (posOfNode[na] > posOfNode[nb])
+                CALL_SMERROR_SPEC(
+                    CSLError::MatrixPrintingError,
+                    "Cannot print a matrix chain as a matrix product: "
+                    "non-commuting factors would have to be reordered.");
+        }
+    }
+}
+
+} // namespace
+
+std::vector<LatexMatrixChain> getMatrixChains(vector_expr const &factors)
+{
+    std::vector<std::vector<Index>> allIndices(factors.size());
+    std::vector<size_t>             posOfNode;
+    std::vector<ChainNode>          nodes;
+    std::vector<size_t>             nodeOfPos(factors.size(), noNode);
+    for (size_t p = 0; p != factors.size(); ++p) {
+        if (factors[p]->getType() != Type::TensorElement
+            and factors[p]->getType() != Type::TensorFieldElement)
+            continue;
+        auto structure = factors[p]->getIndexStructure();
+        allIndices[p]  = structure.getIndex();
+        auto const &idx = allIndices[p];
+        std::vector<Index>  ports;
+        std::vector<Index>  extras;
+        std::vector<size_t> portPos;
+        for (size_t k = 0; k != idx.size(); ++k) {
+            auto space = idx[k].getSpace();
+            if (space != nullptr and space->getMatrixPrinting()) {
+                ports.push_back(idx[k]);
+                portPos.push_back(k);
+            }
+            else
+                extras.push_back(idx[k]);
+        }
+        if (ports.empty() or ports.size() > 2)
+            continue;
+        nodeOfPos[p] = nodes.size();
+        posOfNode.push_back(p);
+        nodes.push_back({factors[p],
+                         ports,
+                         std::vector<size_t>(ports.size(), noNode),
+                         std::vector<size_t>(ports.size(), noNode),
+                         extras,
+                         portPos});
+    }
+
+    // Find the partner of each index: the only other occurrence in the product.
+    for (size_t n = 0; n != nodes.size(); ++n) {
+        size_t p = posOfNode[n];
+        for (size_t port = 0; port != nodes[n].indices.size(); ++port) {
+            size_t occurrences = 0;
+            size_t otherPos    = noNode;
+            size_t otherPort   = noNode;
+            for (size_t q = 0; q != factors.size(); ++q) {
+                for (size_t r = 0; r != allIndices[q].size(); ++r) {
+                    if (allIndices[q][r] == nodes[n].indices[port]
+                        and not(q == p and r == nodes[n].portPos[port])) {
+                        ++occurrences;
+                        otherPos  = q;
+                        otherPort = r;
+                    }
+                }
+            }
+            if (occurrences != 1 or nodeOfPos[otherPos] == noNode)
+                continue;
+            size_t partnerNode = nodeOfPos[otherPos];
+            auto const &partnerPos = nodes[partnerNode].portPos;
+            size_t partnerPortIdx
+                = std::find(partnerPos.begin(), partnerPos.end(), otherPort)
+                  - partnerPos.begin();
+            nodes[n].partner[port]     = partnerNode;
+            nodes[n].partnerPort[port] = partnerPortIdx;
+        }
+    }
+
+    auto isClosed = [&](size_t n) {
+        return std::none_of(nodes[n].partner.begin(),
+                            nodes[n].partner.end(),
+                            [](size_t x) { return x == noNode; });
+    };
+
+    std::vector<LatexMatrixChain> chains;
+    std::vector<bool>             visited(nodes.size(), false);
+    for (size_t end = 0; end != nodes.size(); ++end) {
+        if (visited[end] or nodes[end].indices.size() != 1 or not isClosed(end))
+            continue;
+        // Collect the component of end
+        std::vector<size_t> members{end};
+        std::vector<size_t> ends{end};
+        bool                valid = true;
+        for (size_t m = 0; m != members.size(); ++m) {
+            size_t n = members[m];
+            if (not isClosed(n)) {
+                valid = false;
+                break;
+            }
+            for (size_t port = 0; port != nodes[n].partner.size(); ++port) {
+                size_t next = nodes[n].partner[port];
+                if (std::find(members.begin(), members.end(), next)
+                    == members.end()) {
+                    members.push_back(next);
+                    if (nodes[next].indices.size() == 1)
+                        ends.push_back(next);
+                }
+            }
+        }
+        for (auto n : members)
+            visited[n] = true;
+        if (not valid or ends.size() != 2)
+            continue;
+
+        std::sort(ends.begin(), ends.end(), [&](size_t l, size_t r) {
+            return nodes[l].expr->getLatexName() < nodes[r].expr->getLatexName();
+        });
+        std::vector<ChainStep> best;
+        int                    bestTransposes = -1;
+        for (auto start : ends) {
+            auto seq = walkChain(nodes, start);
+            int  transposes
+                = std::count_if(seq.begin(), seq.end(), [](ChainStep s) {
+                      return s.transposed;
+                  });
+            if (bestTransposes < 0 or transposes < bestTransposes) {
+                best           = seq;
+                bestTransposes = transposes;
+            }
+        }
+
+        checkCommutingOrder(nodes, best, posOfNode);
+        std::string latex;
+        for (size_t k = 0; k != best.size(); ++k) {
+            auto const &element
+                = static_cast<TensorElement const &>(*nodes[best[k].node].expr);
+            bool transposed = best[k].transposed;
+            if (k == 0)
+                transposed = not element.isLatexRow();
+            else if (k + 1 == best.size())
+                transposed = element.isLatexRow();
+            latex += latexChainFactor(nodes[best[k].node], transposed);
+        }
+
+        LatexMatrixChain chain;
+        for (auto n : members)
+            chain.factors.push_back(posOfNode[n]);
+        std::sort(chain.factors.begin(), chain.factors.end());
+        chain.latex = latex;
+        chains.push_back(chain);
+    }
+
+    for (size_t start = 0; start != nodes.size(); ++start) {
+        if (visited[start] or not isClosed(start))
+            continue;
+        std::vector<size_t> members{start};
+        bool                valid = true;
+        for (size_t m = 0; m != members.size() and valid; ++m) {
+            size_t n = members[m];
+            if (not isClosed(n)) {
+                valid = false;
+                break;
+            }
+            for (auto next : nodes[n].partner) {
+                if (std::find(members.begin(), members.end(), next)
+                    == members.end())
+                    members.push_back(next);
+            }
+        }
+        for (auto n : members)
+            visited[n] = true;
+        bool hasVector = std::any_of(members.begin(),
+                                     members.end(),
+                                     [&](size_t n) {
+                                         return nodes[n].indices.size() == 1;
+                                     });
+        if (not valid or hasVector)
+            continue;
+
+        std::sort(members.begin(), members.end(), [&](size_t l, size_t r) {
+            return nodes[l].expr->getLatexName() < nodes[r].expr->getLatexName();
+        });
+        std::vector<ChainStep> best;
+        int                    bestTransposes = -1;
+        for (auto s : members) {
+            for (size_t exitPort = 0; exitPort != 2; ++exitPort) {
+                auto seq = walkCycle(nodes, s, exitPort);
+                int  transposes
+                    = std::count_if(seq.begin(), seq.end(), [](ChainStep st) {
+                          return st.transposed;
+                      });
+                if (bestTransposes < 0 or transposes < bestTransposes) {
+                    best           = seq;
+                    bestTransposes = transposes;
+                }
+            }
+        }
+
+        checkCommutingOrder(nodes, best, posOfNode);
+        std::string inner;
+        for (auto const &step : best)
+            inner += latexChainFactor(nodes[step.node], step.transposed);
+
+        LatexMatrixChain chain;
+        for (auto n : members)
+            chain.factors.push_back(posOfNode[n]);
+        std::sort(chain.factors.begin(), chain.factors.end());
+        chain.latex = "\\mathrm{Tr}\\left(" + inner + "\\right)";
+        chains.push_back(chain);
+    }
+    return chains;
+}
+
+std::string TensorElement::getLatexDisplayName() const
+{
+    return getLatexName();
+}
+
+bool TensorElement::isLatexRow() const
+{
+    return false;
+}
+
+std::string TensorElement::getLatexPointSuffix() const
+{
+    return "";
+}
+
+string TensorElement::printLaTeX(int) const
+{
+    auto           structure = getIndexStructure();
+    auto const    &indices   = structure.getIndex();
+    if (indices.size() == 2 and indices[0] == indices[1]
+        and indices[0].getSpace() != nullptr
+        and indices[0].getSpace()->getMatrixPrinting()) {
+        if (getCommutable() == false)
+            CALL_SMERROR_SPEC(
+                CSLError::MatrixPrintingError,
+                "Cannot print a matrix trace with non-commuting factors.");
+        return "\\mathrm{Tr}\\left(" + getLatexDisplayName() + "\\right)";
+    }
+    std::string    res = latexScriptBase(getLatexDisplayName(), not indices.empty());
+    if (not indices.empty()) {
+        res += "_{";
+        for (auto const &i : indices)
+            res += i.printLaTeX();
+        res += "}";
+    }
+    ostringstream sout;
+    sout << res;
+    if (not isLatexRow())
+        printProp(sout);
     return sout.str();
 }
 

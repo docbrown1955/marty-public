@@ -28,6 +28,20 @@ class Space;
 class Permutation;
 class Symmetry;
 class ContractionChain;
+
+/*!
+ * \brief Splits a "name;latexname" string into the regular and LaTeX names.
+ * Without ';', both are equal to the input.
+ */
+std::pair<std::string, std::string> getRegularAndLatexNames(std::string t_name);
+
+/*!
+ * \brief Builds "prefix+name;latexname" for a name given as "name;latexname"
+ * (or plain). The prefix is printed as a braced subscript when it ends with
+ * '_', e.g. ("V_", "W") gives "V_W;V_{W}".
+ */
+std::string prefixedNameWithLatex(std::string const &t_prefix,
+                                  std::string const &t_name);
 } // namespace csl
 
 /*! \namespace cslParent

@@ -115,17 +115,9 @@ void Abs::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string Abs::printLaTeX(int mode) const
+string Abs::printLaTeX(int) const
 {
-    ostringstream sout;
-
-    sout << "\\text{bas}\\left(";
-    sout << argument->printLaTeX(1);
-    sout << "\\right)";
-    if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+    return "\\left|" + argument->printLaTeX(1) + "\\right|";
 }
 
 LibDependency Abs::getLibDependency() const
@@ -226,15 +218,13 @@ void Exp::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string Exp::printLaTeX(int mode) const
+string Exp::printLaTeX(int) const
 {
     ostringstream sout;
 
     sout << "e^{";
     sout << argument->printLaTeX(1);
     sout << "}";
-    if (mode == 0)
-        sout << endl;
 
     return sout.str();
 }
@@ -379,15 +369,13 @@ void Log::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string Log::printLaTeX(int mode) const
+string Log::printLaTeX(int) const
 {
     ostringstream sout;
 
     sout << "\\log\\left(";
     sout << argument->printLaTeX(1);
     sout << "\\right)";
-    if (mode == 0)
-        sout << endl;
 
     return sout.str();
 }
@@ -487,15 +475,13 @@ void Cos::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string Cos::printLaTeX(int mode) const
+string Cos::printLaTeX(int) const
 {
     ostringstream sout;
 
     sout << "\\cos\\left(";
     sout << argument->printLaTeX(1);
     sout << "\\right)";
-    if (mode == 0)
-        sout << endl;
 
     return sout.str();
 }
@@ -618,15 +604,13 @@ void Sin::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string Sin::printLaTeX(int mode) const
+string Sin::printLaTeX(int) const
 {
     ostringstream sout;
 
     sout << "\\sin\\left(";
     sout << argument->printLaTeX(1);
     sout << "\\right)";
-    if (mode == 0)
-        sout << endl;
 
     return sout.str();
 }
@@ -765,15 +749,13 @@ void Tan::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string Tan::printLaTeX(int mode) const
+string Tan::printLaTeX(int) const
 {
     ostringstream sout;
 
     sout << "\\tan\\left(";
     sout << argument->printLaTeX(1);
     sout << "\\right)";
-    if (mode == 0)
-        sout << endl;
 
     return sout.str();
 }
@@ -894,15 +876,13 @@ void ACos::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string ACos::printLaTeX(int mode) const
+string ACos::printLaTeX(int) const
 {
     ostringstream sout;
 
     sout << "\\acos\\left(";
     sout << argument->printLaTeX(1);
     sout << "\\right)";
-    if (mode == 0)
-        sout << endl;
 
     return sout.str();
 }
@@ -999,15 +979,13 @@ void ASin::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string ASin::printLaTeX(int mode) const
+string ASin::printLaTeX(int) const
 {
     ostringstream sout;
 
     sout << "\\asin\\left(";
     sout << argument->printLaTeX(1);
     sout << "\\right)";
-    if (mode == 0)
-        sout << endl;
 
     return sout.str();
 }
@@ -1077,15 +1055,13 @@ void ATan::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string ATan::printLaTeX(int mode) const
+string ATan::printLaTeX(int) const
 {
     ostringstream sout;
 
     sout << "\\atan\\left(";
     sout << argument->printLaTeX(1);
     sout << "\\right)";
-    if (mode == 0)
-        sout << endl;
 
     return sout.str();
 }
@@ -1181,15 +1157,13 @@ void Cosh::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string Cosh::printLaTeX(int mode) const
+string Cosh::printLaTeX(int) const
 {
     ostringstream sout;
 
     sout << "\\cosh\\left(";
     sout << argument->printLaTeX(1);
     sout << "\\right)";
-    if (mode == 0)
-        sout << endl;
 
     return sout.str();
 }
@@ -1284,15 +1258,13 @@ void Sinh::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string Sinh::printLaTeX(int mode) const
+string Sinh::printLaTeX(int) const
 {
     ostringstream sout;
 
     sout << "\\sinh\\left(";
     sout << argument->printLaTeX(1);
     sout << "\\right)";
-    if (mode == 0)
-        sout << endl;
 
     return sout.str();
 }
@@ -1405,15 +1377,13 @@ void Tanh::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string Tanh::printLaTeX(int mode) const
+string Tanh::printLaTeX(int) const
 {
     ostringstream sout;
 
     sout << "\\tanh\\left(";
     sout << argument->printLaTeX(1);
     sout << "\\right)";
-    if (mode == 0)
-        sout << endl;
 
     return sout.str();
 }
@@ -1482,15 +1452,13 @@ void ACosh::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string ACosh::printLaTeX(int mode) const
+string ACosh::printLaTeX(int) const
 {
     ostringstream sout;
 
     sout << "\\acosh\\left(";
     sout << argument->printLaTeX(1);
     sout << "\\right)";
-    if (mode == 0)
-        sout << endl;
 
     return sout.str();
 }
@@ -1558,15 +1526,13 @@ void ASinh::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string ASinh::printLaTeX(int mode) const
+string ASinh::printLaTeX(int) const
 {
     ostringstream sout;
 
     sout << "\\asinh\\left(";
     sout << argument->printLaTeX(1);
     sout << "\\right)";
-    if (mode == 0)
-        sout << endl;
 
     return sout.str();
 }
@@ -1637,15 +1603,13 @@ void ATanh::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string ATanh::printLaTeX(int mode) const
+string ATanh::printLaTeX(int) const
 {
     ostringstream sout;
 
     sout << "\\atanh\\left(";
     sout << argument->printLaTeX(1);
     sout << "\\right)";
-    if (mode == 0)
-        sout << endl;
 
     return sout.str();
 }
@@ -1850,13 +1814,11 @@ void Factorial::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string Factorial::printLaTeX(int mode) const
+string Factorial::printLaTeX(int) const
 {
     ostringstream sout;
     sout << argument->printLaTeX(1);
     sout << "!";
-    if (mode == 0)
-        sout << endl;
 
     return sout.str();
 }
@@ -1979,14 +1941,12 @@ void DiracDelta::print(int mode, std::ostream &out, LibraryMode) const
         out << endl;
 }
 
-string DiracDelta::printLaTeX(int mode) const
+string DiracDelta::printLaTeX(int) const
 {
     ostringstream sout;
     sout << "\\delta{";
     argument->print(1);
     sout << "}";
-    if (mode == 0)
-        sout << endl;
 
     return sout.str();
 }

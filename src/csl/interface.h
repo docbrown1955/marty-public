@@ -24,8 +24,13 @@
 #define INTERFACE_H_INCLUDED
 
 #include "abstract.h"
+#include "index.h"
 #include "options.h"
 #include "parent.h"
+
+#include <map>
+#include <string>
+#include <tuple>
 
 namespace csl {
 
@@ -368,6 +373,64 @@ inline void SetComplexProperty(T parent, ComplexProperty prop)
 [[nodiscard]] Expr GetComplexModulus(const Expr &expression);
 
 [[nodiscard]] Expr GetComplexArgument(const Expr &expression);
+
+/*!
+ * \brief Returns a copy of the expression where every abbreviation is
+ * replaced by its definition (recursively). The input is not modified.
+ * \param expr The expression to expand.
+ * \return The expanded copy.
+ */
+Expr ExpandAbbreviations(Expr const &expr);
+
+/*!
+ * \brief Correspondence between the original indices of an expression and
+ * their new names, as produced by RelabelIndices(). An index is identified by
+ * its space, ID and name.
+ */
+struct IndexRenaming {
+    using Key = std::tuple<Space const *, Index::ID_type, std::string>;
+    std::map<Key, Index> renamed;
+};
+
+/*!
+ * \brief Returns a copy of the expression where every index is renamed: each
+ * distinct index takes the next name of its space in declaration order, free
+ * indices first. A name reused gets a suffix _1, _2, ... and the ID of the
+ * index is reset. The input is not modified.
+ * \param expr The expression to relabel.
+ * \param relabelFree If false, free indices keep their names and dummy
+ * indices avoid these names.
+ * \return The relabelled copy.
+ */
+Expr RelabelIndices(Expr const &expr, bool relabelFree = true);
+
+/*!
+ * \brief Same as RelabelIndices(expr, relabelFree), and fills \p renaming with
+ * the new index of each relabelled index of \p expr.
+ * \param expr The expression to relabel.
+ * \param relabelFree See RelabelIndices(expr, relabelFree).
+ * \param renaming Receives the renaming of the indices of \p expr.
+ * \return The relabelled copy.
+ */
+Expr RelabelIndices(Expr const &expr, bool relabelFree, IndexRenaming &renaming);
+
+/*!
+ * \brief Returns a copy of the expression where every index found in
+ * \p renaming is replaced by its new index. Other indices are unchanged. The
+ * input is not modified.
+ * \param expr The expression to rename.
+ * \param renaming A renaming, e.g. obtained from another expression.
+ * \return The renamed copy.
+ */
+Expr ApplyIndexRenaming(Expr const &expr, IndexRenaming const &renaming);
+
+
+/*!
+ * \brief LaTeX output of an expression, after RelabelIndices().
+ * \param expr The expression to print.
+ * \return The LaTeX string of the expression.
+ */
+std::string printLatex(Expr const &expr);
 
 [[nodiscard]] Expr GetComplexConjugate(const Expr &expression);
 

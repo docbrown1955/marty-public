@@ -45,8 +45,10 @@ void Gauge::addGroup(unique_ptr<SemiSimpleGroup> &t_group,
                      std::string const           &nameBoson,
                      const csl::Expr             &coupling)
 {
-    csl::Expr actualCoupling
-        = (coupling) ? coupling : constant_s("g_" + t_group->getName());
+    csl::Expr actualCoupling = (coupling)
+                                   ? coupling
+                                   : constant_s(csl::prefixedNameWithLatex(
+                                         "g_", std::string(t_group->getName())));
     groups.push_back(std::move(t_group));
     gaugedGroups.push_back(createGaugedGroup(groups[groups.size() - 1].get(),
                                              this,
@@ -60,8 +62,10 @@ void Gauge::addGroup(unique_ptr<SemiSimpleGroup> &t_group,
                      bool                         addGhost,
                      const csl::Expr             &coupling)
 {
-    csl::Expr actualCoupling
-        = (coupling) ? coupling : constant_s("g_" + t_group->getName());
+    csl::Expr actualCoupling = (coupling)
+                                   ? coupling
+                                   : constant_s(csl::prefixedNameWithLatex(
+                                         "g_", std::string(t_group->getName())));
     groups.push_back(std::move(t_group));
     gaugedGroups.push_back(createGaugedGroup(groups[groups.size() - 1].get(),
                                              this,

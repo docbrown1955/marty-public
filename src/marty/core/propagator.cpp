@@ -71,7 +71,7 @@ void Propagator::print(int              mode,
         out << std::endl;
 }
 
-std::string Propagator::printLaTeX(int mode) const
+std::string Propagator::printLaTeX(int) const
 {
     std::ostringstream sout;
     sout << "Prop(";
@@ -83,8 +83,6 @@ std::string Propagator::printLaTeX(int mode) const
         sout << (argument[2])->printLaTeX(1);
     }
     sout << ")";
-    if (mode == 0)
-        sout << std::endl;
 
     return sout.str();
 }
@@ -219,7 +217,7 @@ void FermionPropStruct::print(int           mode,
         out << std::endl;
 }
 
-std::string FermionPropStruct::printLaTeX(int mode) const
+std::string FermionPropStruct::printLaTeX(int) const
 {
     std::ostringstream sout;
     sout << "Fermi(";
@@ -228,8 +226,6 @@ std::string FermionPropStruct::printLaTeX(int mode) const
     sout << argument[1]->printLaTeX(1);
     sout << ")";
     sout << "_" << structure;
-    if (mode == 0)
-        sout << std::endl;
 
     return sout.str();
 }

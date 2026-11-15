@@ -231,7 +231,9 @@ class TensorFieldElement: public TensorElement{
 
     std::string printLaTeX(int mode=0) const override;
 
-    std::vector<csl::Parent> getSubSymbols() const override;
+    std::string getLatexPointSuffix() const override;
+
+std::vector<csl::Parent> getSubSymbols() const override;
 
     std::optional<Expr> evaluate(
             csl::eval::mode user_mode = csl::eval::base

@@ -500,6 +500,25 @@ void Display(mty::Amplitude const &amplitudes,
 void Display(WilsonSet const &wilsons, std::ostream &out = std::cout);
 
 void Show(std::vector<FeynmanRule> const &rules);
+
+/*!
+ * \brief LaTeX of the vertex value of a Feynman rule: abbreviations are
+ * expanded and the indices of the value are renamed consistently with the
+ * indices of its field product.
+ */
+std::string LatexFeynmanRuleValue(FeynmanRule const &rule);
+
+/*!
+ * \brief LaTeX block of one Feynman rule: the diagram (GRAFED tikz code,
+ * edges labelled by their fields) followed by the vertex value, centred.
+ */
+std::string LatexFeynmanRule(FeynmanRule const &rule);
+
+/*!
+ * \brief LaTeX document of Feynman rules: for each rule a header
+ * "Feynman vertex for $<fields>$" followed by LatexFeynmanRule().
+ */
+std::string LatexFeynmanRules(std::vector<FeynmanRule> const &rules);
 void Show(std::vector<std::shared_ptr<wick::Graph>> const &diagrams,
           bool                                             showMomenta = true);
 void Show(mty::Amplitude const &diagrams);

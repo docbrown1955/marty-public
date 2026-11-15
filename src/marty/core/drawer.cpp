@@ -18,8 +18,39 @@
 
 namespace mty {
 
+namespace {
+
+std::string indexedFieldLabel(QuantumField const &  field,
+                              csl::IndexRenaming const &renaming)
+{
+    std::string name = std::string(field.getLatexDisplayName());
+    if (renaming.renamed.empty())
+        return name;
+    auto        structure = field.getIndexStructure();
+    auto const &indices   = structure.getIndex();
+    std::string labels;
+    for (size_t i = 0; i != indices.size(); ++i) {
+        if (i == 0 and field.isBosonic()
+            and indices[i].getSpace() == &csl::Minkowski)
+            continue;
+        csl::Index index = indices[i];
+        csl::IndexRenaming::Key key{
+            index.getSpace(), index.getID(), std::string(index.getName())};
+        if (auto found = renaming.renamed.find(key);
+            found != renaming.renamed.end())
+            index = found->second;
+        labels += index.printLaTeX();
+    }
+    return labels.empty() ? name : name + "_{" + labels + "}";
+}
+
+} // namespace
+
 drawer::LatexLinker Drawer::buildDiagram(
-    std::shared_ptr<wick::Graph> const &graph, bool external, bool showMomenta)
+    std::shared_ptr<wick::Graph> const &graph,
+    bool                                external,
+    bool                                showMomenta,
+    csl::IndexRenaming const &          renaming)
 {
     csl::ScopedProperty idIndices(&csl::option::printIndexIds, false);
     auto                diagram = convertGraph(graph, true, external);
@@ -35,7 +66,7 @@ drawer::LatexLinker Drawer::buildDiagram(
                     c = 'p';
             link.setVertexName(
                 i,
-                std::string(vertices[i][0]->field->getLatexName())
+                indexedFieldLabel(*vertices[i][0]->field, renaming)
                     + (showMomenta ? ("(" + name + ")") : std::string()));
         }
         for (size_t j = 0; j != vertices[i].size(); ++j)
@@ -53,7 +84,7 @@ drawer::LatexLinker Drawer::buildDiagram(
                             = (vertices[i][0]->field->isExternal()
                                or vertices[j][0]->field->isExternal())
                                   ? ""
-                                  : std::string(nodeA->field->getLatexName());
+                                  : nodeA->field->printLaTeX(0);
                         if (!nodeA->field->isComplexConjugate())
                             link.setParticlesType(i, j, type, edgeName, false);
                         else
@@ -92,7 +123,7 @@ Drawer::buildDiagram(std::shared_ptr<wick::Graph> const &graph,
                     c = 'p';
             link.setVertexName(
                 mapping[i],
-                std::string(vertices[i][0]->field->getLatexName()) + "(" + name
+                std::string(vertices[i][0]->field->getLatexDisplayName()) + "(" + name
                     + ")");
         }
         for (size_t j = 0; j != vertices[i].size(); ++j)
@@ -109,7 +140,7 @@ Drawer::buildDiagram(std::shared_ptr<wick::Graph> const &graph,
                             = (vertices[i][0]->field->isExternal()
                                or vertices[j][0]->field->isExternal())
                                   ? ""
-                                  : std::string(nodeA->field->getLatexName());
+                                  : nodeA->field->printLaTeX(0);
                         if (!nodeA->field->isComplexConjugate())
                             link.setParticlesType(
                                 mapping[i], mapping[j], type, edgeName, false);
@@ -238,9 +269,10 @@ void Drawer::saveToJSON(
     saveToJSON(fileName, buildDiagrams(graphs, showMomenta));
 }
 
-std::string Drawer::buildLatex(std::shared_ptr<wick::Graph> const &graph)
+std::string Drawer::buildLatex(std::shared_ptr<wick::Graph> const &graph,
+                               csl::IndexRenaming const &          renaming)
 {
-    auto               link = buildDiagram(graph);
+    auto               link = buildDiagram(graph, true, true, renaming);
     std::ostringstream latex;
     latex << link;
     return latex.str();

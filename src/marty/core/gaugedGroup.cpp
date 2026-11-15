@@ -188,7 +188,8 @@ csl::Tensor GaugedGroup::getD(size_t p) const
     d_p->addSelfContraction(
         d_p(indices),
         d_p(indices),
-        csl::constant_s("d_" + getName() + "_" + std::to_string(10 * p + p)));
+        csl::constant_s(csl::prefixedNameWithLatex(
+            "d_", getName() + "_" + std::to_string(10 * p + p))));
     return d_p;
 }
 
@@ -340,6 +341,10 @@ std::string getGeneratorName(std::string const      &init,
     sout << init << "_" << groupName << "_";
     for (int label : labels)
         sout << label;
+    sout << ";" << init << "_{" << groupName << "}^{";
+    for (size_t i = 0; i != labels.size(); ++i)
+        sout << (i ? "," : "") << labels[i];
+    sout << "}";
 
     return sout.str();
 }
@@ -698,7 +703,7 @@ void SOGauged::initDTilde()
     if (m % 2 == 1)
         return;
     m /= 2;
-    d_tilde = csl::tensor_s("~d",
+    d_tilde = csl::tensor_s("~d;\\tilde{d}",
                             std::vector<csl::Space const *>(m, adjointSpace));
     d_tilde->setFullySymmetric();
     std::vector<csl::Index> indices(m);

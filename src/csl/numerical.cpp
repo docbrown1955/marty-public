@@ -110,10 +110,8 @@ void Float::print(int mode, std::ostream &out, LibraryMode) const
 string Float::printLaTeX(int mode) const
 {
     ostringstream sout;
-    if (mode == 0)
-        sout << value << endl;
-    else if (value < 0)
-        sout << "(" << value << ")";
+    if (value < 0 and mode >= 2)
+        sout << "\\left(" << value << "\\right)";
     else
         sout << value;
 
@@ -304,10 +302,8 @@ void Integer::print(int mode, std::ostream &out, LibraryMode) const
 string Integer::printLaTeX(int mode) const
 {
     ostringstream sout;
-    if (mode == 0)
-        sout << value << endl;
-    else if (value < 0)
-        sout << "(" << value << ")";
+    if (value < 0 and mode >= 2)
+        sout << "\\left(" << value << "\\right)";
     else
         sout << value;
 
@@ -520,16 +516,11 @@ void IntFraction::printCode(int, std::ostream &out) const
 
 string IntFraction::printLaTeX(int mode) const
 {
-    ostringstream sout;
-    if (mode == 0)
-        sout << "\\frac{" << num << "}{" << denom << "}";
-    else if (mode > 3)
-        sout << "\\left("
-             << "\\frac{" << num << "}{" << denom << "}\\right)";
-    else
-        sout << "\\frac{" << num << "}{" << denom << "}";
-
-    return sout.str();
+    std::string frac = "\\frac{" + std::to_string(num) + "}{"
+                       + std::to_string(denom) + "}";
+    if (mode >= 4)
+        return "\\left(" + frac + "\\right)";
+    return frac;
 }
 
 long double IntFraction::evaluateScalar() const
@@ -791,17 +782,26 @@ void Complex::printCode(int, std::ostream &out) const
 std::string Complex::printLaTeX(int mode) const
 {
     ostringstream sout;
-    if (mode > 1 and imag != CSL_0)
-        sout << "(";
+    bool hasImag = imag != CSL_0;
+    if (mode >= 2 and hasImag)
+        sout << "\\left(";
     sout << real->printLaTeX(1);
-    if (imag != CSL_0) {
-        sout << " +i";
-        sout << imag->printLaTeX(1);
+    if (hasImag) {
+        if (IsNumerical(imag) and imag->evaluateScalar() < 0) {
+            sout << " - ";
+            sout << (-imag)->printLaTeX(2) << "i";
+        }
+        else if (IsNumerical(imag)) {
+            sout << " + ";
+            sout << imag->printLaTeX(2) << "i";
+        }
+        else {
+            sout << " + i\\,";
+            sout << imag->printLaTeX(2);
+        }
     }
-    if (mode > 1 and imag != CSL_0)
-        sout << ")";
-    if (mode == 0)
-        sout << endl;
+    if (mode >= 2 and hasImag)
+        sout << "\\right)";
     return sout.str();
 }
 

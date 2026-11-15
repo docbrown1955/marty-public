@@ -12,7 +12,7 @@ using namespace mty;
 Particle colorTriplet(Model &QCD, std::string const &name)
 {
     Particle part = diracfermion_s(name, QCD);
-    SetMass(part, "m_" + name);
+    SetMass(part, csl::prefixedNameWithLatex("m_", name));
     SetGroupRep(part, "C", {1, 0});
     AddParticle(QCD, part);
     return part;
@@ -21,7 +21,7 @@ Particle colorTriplet(Model &QCD, std::string const &name)
 Particle colorSextet(Model &QCD, std::string const &name)
 {
     Particle part = diracfermion_s(name, QCD);
-    SetMass(part, "m_" + name);
+    SetMass(part, csl::prefixedNameWithLatex("m_", name));
     SetGroupRep(part, "C", {2, 0});
     AddParticle(QCD, part);
     return part;

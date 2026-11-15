@@ -585,7 +585,7 @@ void ScalarIntegral::printCode(int, std::ostream &out) const
     out << ")";
 }
 
-string ScalarIntegral::printLaTeX(int mode) const
+string ScalarIntegral::printLaTeX(int) const
 {
     ostringstream sout;
     sout << "int";
@@ -602,8 +602,6 @@ string ScalarIntegral::printLaTeX(int mode) const
         sout << argument->printLaTeX(1);
     if (not empty)
         sout << "\\right)";
-    if (mode == 0)
-        sout << endl;
 
     return sout.str();
 }
@@ -761,7 +759,7 @@ void VectorIntegral::printCode(int, std::ostream &out) const
     out << ")";
 }
 
-string VectorIntegral::printLaTeX(int mode) const
+string VectorIntegral::printLaTeX(int) const
 {
     ostringstream sout;
     sout << "int";
@@ -778,8 +776,6 @@ string VectorIntegral::printLaTeX(int mode) const
         sout << argument->printLaTeX(1);
     if (not empty)
         sout << "\\right)";
-    if (mode == 0)
-        sout << endl;
 
     return sout.str();
 }

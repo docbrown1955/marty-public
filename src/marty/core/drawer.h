@@ -40,7 +40,8 @@ class Drawer {
     static drawer::LatexLinker
     buildDiagram(std::shared_ptr<wick::Graph> const &graph,
                  bool                                external    = true,
-                 bool                                showMomenta = true);
+                 bool                                showMomenta = true,
+                 csl::IndexRenaming const &renaming = csl::IndexRenaming());
 
     static drawer::LatexLinker
     buildDiagram(std::shared_ptr<wick::Graph> const &graph,
@@ -65,7 +66,9 @@ class Drawer {
                std::vector<std::shared_ptr<wick::Graph>> const &links,
                bool showMomenta = true);
 
-    static std::string buildLatex(std::shared_ptr<wick::Graph> const &graph);
+    static std::string
+    buildLatex(std::shared_ptr<wick::Graph> const &graph,
+               csl::IndexRenaming const &          renaming = csl::IndexRenaming());
 
     static void
     exportPDF(std::string const &                              name,

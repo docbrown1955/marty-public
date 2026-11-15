@@ -20,6 +20,7 @@
 #include "insertion.h"
 #include "mrtOptions.h"
 #include "wilson.h"
+#include <sstream>
 
 namespace mty {
 
@@ -247,6 +248,63 @@ void Show(std::vector<FeynmanRule> const &rules)
         graphs[i] = rules[i].getDiagram();
     Show(graphs, false);
 }
+
+namespace {
+
+csl::IndexRenaming fieldProductRenaming(std::vector<QuantumField> const &fields)
+{
+    csl::Expr product = CSL_1;
+    for (auto const &field : fields) {
+        csl::Expr factor = csl::make_shared<QuantumField>(field);
+        product          = product * factor;
+    }
+    csl::IndexRenaming renaming;
+    csl::RelabelIndices(product, true, renaming);
+    return renaming;
+}
+
+} // namespace
+
+std::string LatexFeynmanRuleValue(FeynmanRule const &rule)
+{
+    csl::Expr value = csl::ApplyIndexRenaming(
+        csl::ExpandAbbreviations(rule.getExpr()),
+        fieldProductRenaming(rule.getFieldProduct()));
+    return csl::RelabelIndices(value, false)->printLaTeX(0);
+}
+
+std::string LatexFeynmanRule(FeynmanRule const &rule)
+{
+    std::ostringstream out;
+    out << "\\begin{center}\n";
+    out << "$\\vcenter{\\hbox{\n"
+        << Drawer::buildLatex(rule.getDiagram(),
+                              fieldProductRenaming(rule.getFieldProduct()))
+        << "}}\\quad= " << LatexFeynmanRuleValue(rule) << "$\n";
+    out << "\\end{center}\n";
+    return out.str();
+}
+
+
+std::string LatexFeynmanRules(std::vector<FeynmanRule> const &rules)
+{
+    std::ostringstream out;
+    for (auto const &rule : rules) {
+        out << "Feynman vertex for $";
+        for (auto field : rule.getFieldProduct()) {
+            auto                    structure = field.getIndexStructure();
+            std::vector<csl::Index> indices   = structure.getIndex();
+            if (not indices.empty()
+                and indices[0].getSpace() == &csl::Minkowski)
+                indices.erase(indices.begin());
+            field.getIndexStructureView() = csl::IndexStructure(indices);
+            out << field.printLaTeX(0);
+        }
+        out << "$\n" << LatexFeynmanRule(rule) << "\n";
+    }
+    return out.str();
+}
+
 
 void Show(std::vector<std::shared_ptr<wick::Graph>> const &graphs,
           bool                                             showMomenta)

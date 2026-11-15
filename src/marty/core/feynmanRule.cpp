@@ -88,8 +88,9 @@ FeynmanRule::FeynmanRule(mty::Model &model, TermType const &t_term)
         fieldProduct[i].setParticle(fieldProduct[i].isComplexConjugate());
         fieldProduct[i].setIncoming(true);
         fieldProduct[i].setExternal(true);
-        momenta[i]
-            = csl::Tensor("p_" + std::to_string(i + 1), &csl::Minkowski);
+        momenta[i] = csl::Tensor(
+            csl::prefixedNameWithLatex("p_", std::to_string(i + 1)),
+            &csl::Minkowski);
         fieldProduct[i].setPoint(momenta[i]);
         fieldProduct[i].resetIndexStructure();
         fieldProduct[i].setDerivativeStructure(csl::IndexStructure());

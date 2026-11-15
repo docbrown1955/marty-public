@@ -97,8 +97,6 @@ string AbstractVectorial::printLaTeX(int mode) const
             sout << " , ";
     }
     sout << "}";
-    if (mode == 0)
-        sout << endl;
 
     return sout.str();
 }

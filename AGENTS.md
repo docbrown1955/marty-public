@@ -53,6 +53,9 @@ Every subfolder has its own short description. Start from the one closest to you
   GRAFED is only reached through `Show()` (a `system()` call).
 - Build out of tree (`mkdir build && cd build && cmake .. && make`), and run `ctest` before
   declaring a change done. Use `ctest -L units` (or `integration`, `system`) for a faster loop.
+- Tests are slow, especially the system tests (very slow in Debug builds). Run only the tests
+  relevant to your change (for example a single target such as `test_latex.x`, or
+  `ctest -R <name>`), and avoid the full suite unless it is really needed.
 - Test programs compare numbers against reference files in `tests/system/data/output/`. Do not
   edit reference data to make a test pass unless the physics change is intended and explained.
 - Do not edit generated or third-party content: `build/`, `dep/LoopTools-2.16/`, and the

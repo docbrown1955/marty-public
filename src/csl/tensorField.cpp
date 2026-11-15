@@ -282,8 +282,6 @@ string TDerivativeElement::printLaTeX(int mode) const
     if (not empty)
         sout << ")";
     printProp(sout);
-    if (mode == 0)
-        sout << endl;
 
     return sout.str();
 }
@@ -698,19 +696,30 @@ void TensorFieldElement::printCode(int, std::ostream &out) const
         out << ")";
 }
 
+string TensorFieldElement::getLatexPointSuffix() const
+{
+    return "(" + point->getName() + ")";
+}
+
 string TensorFieldElement::printLaTeX(int) const
 {
-    ostringstream sout;
-    sout << getLatexName();
-    if (index.size() > 0) {
-        sout << "_";
-        sout << index;
+    auto           structure = getIndexStructure();
+    auto const    &indices   = structure.getIndex();
+    std::string    name      = getLatexDisplayName();
+    if (not indices.empty()) {
+        if (name.find('_') != std::string::npos
+            or name.find('^') != std::string::npos)
+            name = "{" + name + "}";
+        name += "_{";
+        for (auto const &i : indices)
+            name += i.printLaTeX();
+        name += "}";
     }
-    sout << "(";
-    sout << point->getName();
-    sout << ")";
-    printProp(sout);
-
+    ostringstream sout;
+    sout << name;
+    sout << getLatexPointSuffix();
+    if (not isLatexRow())
+        printProp(sout);
     return sout.str();
 }
 

@@ -75,19 +75,26 @@ sgl::TensorSet const &defaultSGLTensorSet()
 DiracSpace::DiracSpace(csl::Space const *t_spaceTime)
     : csl::Space("dirac",
                  getSpinorDimension(t_spaceTime->getDim()),
-                 {"alpha", "beta", "gam", "del", "eps", "eta"}),
+                 {"alpha;\\alpha",
+                  "beta;\\beta",
+                  "gam;\\gamma",
+                  "del;\\delta",
+                  "eps;\\epsilon",
+                  "eta;\\eta"}),
       spaceTime(t_spaceTime)
 {
-    gamma = csl::tensor_s("gamma", {spaceTime, this, this});
+    gamma = csl::tensor_s("gamma;\\gamma", {spaceTime, this, this});
+    setMatrixPrinting(true);
 
-    sigma = csl::tensor_s("sigma", {spaceTime, spaceTime, this, this});
+    sigma = csl::tensor_s("sigma;\\sigma", {spaceTime, spaceTime, this, this});
 
-    gamma_chir
-        = csl::tensor_s((dim == 4) ? "gamma5" : "gamma_chir", {this, this});
+    gamma_chir = csl::tensor_s((dim == 4) ? "gamma5;\\gamma_{5}"
+                                          : "gamma_chir;\\gamma_{5}",
+                               {this, this});
 
-    P_L = csl::tensor_s("P_L", {this, this});
+    P_L = csl::tensor_s("P_L;P_{L}", {this, this});
 
-    P_R = csl::tensor_s("P_R", {this, this});
+    P_R = csl::tensor_s("P_R;P_{R}", {this, this});
 
     C_matrix
         = csl::tensor_s("C", std::vector<csl::Space const *>({this, this}));

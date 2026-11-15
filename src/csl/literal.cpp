@@ -178,17 +178,9 @@ void Constant::printCode(int, std::ostream &out) const
             << ")";
 }
 
-string Constant::printLaTeX(int mode) const
+string Constant::printLaTeX(int) const
 {
-    ostringstream sout;
-    if (mode == 0 and parent->isValued())
-        sout << parent->getLatexName() << " = " << parent->getValue() << endl;
-    else if (mode == 0)
-        sout << parent->getLatexName() << endl;
-    else
-        sout << parent->getLatexName();
-
-    return sout.str();
+    return parent->getLatexName();
 }
 
 std::vector<Parent> Constant::getSubSymbols() const
@@ -401,17 +393,9 @@ void Variable::printCode(int, std::ostream &out) const
             << ")";
 }
 
-string Variable::printLaTeX(int mode) const
+string Variable::printLaTeX(int) const
 {
-    ostringstream sout;
-    if (mode == 0 and getValued())
-        sout << getLatexName() << " = " << getValue() << endl;
-    else if (mode == 0)
-        sout << getLatexName() << endl;
-    else
-        sout << getLatexName();
-
-    return sout.str();
+    return getLatexName();
 }
 
 std::vector<Parent> Variable::getSubSymbols() const
@@ -625,15 +609,9 @@ void IntFactorial::printCode(int, std::ostream &out) const
     out << "csl::intfactorial_s(" << value << ")";
 }
 
-string IntFactorial::printLaTeX(int mode) const
+string IntFactorial::printLaTeX(int) const
 {
-    ostringstream sout;
-    if (mode == 0)
-        sout << value << "!" << endl;
-    else
-        sout << value << "!";
-
-    return sout.str();
+    return std::to_string(value) + "!";
 }
 
 long double IntFactorial::evaluateScalar() const

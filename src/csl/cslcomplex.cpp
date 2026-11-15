@@ -94,14 +94,12 @@ void RealPart::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << endl;
 }
 
-string RealPart::printLaTeX(int mode) const
+string RealPart::printLaTeX(int) const
 {
     ostringstream sout;
-    sout << "Re(";
+    sout << "\\Re(";
     sout << argument->printLaTeX(1);
     sout << ")";
-    if (mode == 0)
-        sout << endl;
 
     return sout.str();
 }
@@ -268,14 +266,12 @@ void ImaginaryPart::print(int           mode,
         out << endl;
 }
 
-string ImaginaryPart::printLaTeX(int mode) const
+string ImaginaryPart::printLaTeX(int) const
 {
     ostringstream sout;
-    sout << "Im(";
+    sout << "\\Im(";
     sout << argument->printLaTeX(1);
     sout << ")";
-    if (mode == 0)
-        sout << endl;
 
     return sout.str();
 }

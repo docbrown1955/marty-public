@@ -26,6 +26,17 @@
 
 namespace mty {
 
+// Name "U_W_01" of a mixing coefficient, with LaTeX form "U_{W01}".
+static std::string mixingName(std::string const &baseName,
+                              std::string const &firstLetters,
+                              size_t             i,
+                              size_t             j)
+{
+    std::string indices = toString(i) + toString(j);
+    return baseName + "_" + firstLetters + "_" + indices + ";"
+           + baseName + "_{" + firstLetters + indices + "}";
+}
+
 ///////////////////////////////////////////////////
 // Replacement functions
 ///////////////////////////////////////////////////
@@ -56,7 +67,8 @@ csl::Expr ModelBuilder::abbreviateMassExpression(
     else {
         abbreviatedMassExpressions.push_back(abbreviatedMass);
     }
-    return csl::constant_s(massName);
+    return csl::constant_s(csl::prefixedNameWithLatex(prefix,
+                                                      std::string(particle->getName())));
 }
 
 csl::Expr ModelBuilder::abbreviateMassExpression(
@@ -439,7 +451,8 @@ void ModelBuilder::diagonalizeWithSpectrum(
               return false;
           });
     for (const auto &f : newFields) {
-        csl::Expr mass = csl::constant_s("m_" + std::string(f->getName()));
+        csl::Expr mass = csl::constant_s(
+            csl::prefixedNameWithLatex("m_", std::string(f->getName())));
         f->setMass(mass);
         if (f->isBosonic())
             addBosonicMass(f, mass);
@@ -477,7 +490,8 @@ void ModelBuilder::bidiagonalizeWithSpectrum(
     for (size_t i = 0; i != newFields1.size(); ++i) {
         const auto &f1   = newFields1[i];
         const auto &f2   = newFields2[i];
-        csl::Expr   mass = csl::constant_s("m_" + std::string(f1->getName()));
+        csl::Expr   mass = csl::constant_s(csl::prefixedNameWithLatex(
+            "m_", std::string(f1->getName())));
         fields1[i]->setMass(mass);
         fields2[i]->setMass(mass);
         f1->setMass(mass);
@@ -628,9 +642,9 @@ void ModelBuilder::rotateFields(std::vector<mty::Particle> const &fields,
     for (size_t i = 0; i != fields.size(); ++i) {
         mixing[i] = std::vector<csl::Expr>(fields.size());
         for (size_t j = 0; j != fields.size(); ++j) {
-            mixing[i][j] = csl::constant_s(baseName + "_" + firstLetters + "_"
-                                               + toString(i) + toString(j),
-                                           csl::ComplexProperty::Complex);
+            mixing[i][j] = csl::constant_s(
+                mixingName(baseName, firstLetters, i, j),
+                csl::ComplexProperty::Complex);
         }
     }
     rotateFields(
@@ -678,14 +692,12 @@ void ModelBuilder::birotateFields(std::vector<mty::Particle> const &fields1,
         mixing1[i] = std::vector<csl::Expr>(fields1.size());
         mixing2[i] = std::vector<csl::Expr>(fields2.size());
         for (size_t j = 0; j != fields1.size(); ++j) {
-            mixing1[i][j]
-                = csl::constant_s(baseName1 + "_" + firstLetters + "_"
-                                      + toString(i) + toString(j),
-                                  csl::ComplexProperty::Complex);
-            mixing2[i][j]
-                = csl::constant_s(baseName2 + "_" + firstLetters + "_"
-                                      + toString(i) + toString(j),
-                                  csl::ComplexProperty::Complex);
+            mixing1[i][j] = csl::constant_s(
+                mixingName(baseName1, firstLetters, i, j),
+                csl::ComplexProperty::Complex);
+            mixing2[i][j] = csl::constant_s(
+                mixingName(baseName2, firstLetters, i, j),
+                csl::ComplexProperty::Complex);
         }
     }
     rotateFields(fields1,
@@ -2129,7 +2141,9 @@ void ModelBuilder::diagonalizeYukawa(std::string const            &nameYukawa,
               mty::error::TypeError,
               "Yukawa " + nameYukawa + " not found for diagonalization.");
     csl::Space const *space = coupling->getSpace()[0];
-    csl::Tensor newTensor   = csl::tensor_s("M_" + nameYukawa, {space, space});
+    csl::Tensor newTensor
+        = csl::tensor_s(csl::prefixedNameWithLatex("M_", nameYukawa),
+                        {space, space});
     newTensor->setFullySymmetric();
     csl::Expr matrix = csl::diagonal_s(diagonal);
     newTensor->setTensor(matrix);

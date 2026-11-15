@@ -23,6 +23,8 @@
 #include "space.h"
 #include "tensorField.h"
 #include "utils.h"
+#include <set>
+#include <tuple>
 
 #define OPT(expr, func) ((expr->func).value_or(expr))
 
@@ -63,7 +65,7 @@ Expr Expanded(const Expr &expression, bool full, bool inplace)
     return OPT(expression, expand(full, inplace));
 }
 
-void ExpandIf(Expr &                                   expression,
+void ExpandIf(Expr                                    &expression,
               std::function<bool(Expr const &)> const &f,
               bool                                     full,
               bool                                     inplace)
@@ -71,7 +73,7 @@ void ExpandIf(Expr &                                   expression,
     expression = OPT(expression, expand_if(f, full, inplace));
 }
 
-void DeepExpandIf_lock(Expr &                                   expression,
+void DeepExpandIf_lock(Expr                                    &expression,
                        std::function<bool(Expr const &)> const &f,
                        int                                      lockID,
                        bool                                     inplace,
@@ -91,7 +93,7 @@ void DeepExpandIf_lock(Expr &                                   expression,
     csl::Lock::unlock(expression, lockID);
 }
 
-Expr DeepExpandedIf_lock(Expr const &                             expression,
+Expr DeepExpandedIf_lock(Expr const                              &expression,
                          std::function<bool(Expr const &)> const &f,
                          int                                      lockID,
                          bool                                     inplace,
@@ -102,7 +104,7 @@ Expr DeepExpandedIf_lock(Expr const &                             expression,
     return other;
 }
 
-Expr ExpandedIf(const Expr &                             expression,
+Expr ExpandedIf(const Expr                              &expression,
                 std::function<bool(Expr const &)> const &f,
                 bool                                     full,
                 bool                                     inplace)
@@ -242,7 +244,7 @@ void Distribute(Expr &expr, Expr_info factor, bool full)
             Distribute((*expr)[i], factor, full);
 }
 
-Expr DistributedIf(Expr const &                      expression,
+Expr DistributedIf(Expr const                       &expression,
                    std::function<bool(Expr const &)> f,
                    bool                              full)
 {
@@ -352,6 +354,132 @@ Expr GetComplexArgument(const Expr &expression)
     return OPT(expression, getComplexArgument());
 }
 
+Expr ExpandAbbreviations(Expr const &expr)
+{
+    Expr res = DeepCopy(expr);
+    csl::Transform(res, [](Expr &sub) {
+        csl::Parent_info parent = sub->getParent_info();
+        if (parent and parent->isAnAbbreviation()) {
+            Expr encaps = parent->getExactEncapsulated(sub.get());
+            sub         = ExpandAbbreviations(encaps);
+            return true;
+        }
+        return false;
+    });
+    return res;
+}
+
+namespace {
+
+void applyRenamingMap(Expr                                         &expr,
+                      std::map<IndexRenaming::Key, Index> const &renamed)
+{
+    ForEachLeaf(expr, [&](Expr &sub) {
+        if (not IsIndicialTensor(sub))
+            return;
+        sub                        = csl::Copy(sub);
+        csl::IndexStructure &index = sub->getIndexStructureView();
+        for (auto &i : index) {
+            if (not i.getSpace()
+                or (i.getType() != cslIndex::Dummy
+                    and i.getType() != cslIndex::Free))
+                continue;
+            auto key = IndexRenaming::Key{
+                i.getSpace(), i.getID(), std::string(i.getName())};
+            if (auto found = renamed.find(key); found != renamed.end())
+                i = found->second;
+        }
+    });
+}
+
+} // namespace
+
+Expr RelabelIndices(Expr const &expr, bool relabelFree, IndexRenaming &renaming)
+{
+    using Key = IndexRenaming::Key;
+    auto keyOf = [](Index const &index) {
+        return Key{index.getSpace(), index.getID(), std::string(index.getName())};
+    };
+
+    Expr res = expr;
+    csl::WeakDeepCopy(res);
+
+    std::vector<Index>                                    freeIndices;
+    std::vector<Index>                                    dummyIndices;
+    std::map<Key, bool>                                   seen;
+    std::set<std::pair<Space const *, std::string>>       keptNames;
+    VisitEachLeaf(res, [&](const Expr &sub) {
+        if (not IsIndicialTensor(sub))
+            return;
+        auto structure = sub->getIndexStructure();
+        for (auto const &index : structure.getIndex()) {
+            bool dummy = index.getType() == cslIndex::Dummy;
+            bool free  = index.getType() == cslIndex::Free;
+            if (not index.getSpace() or (not dummy and not free))
+                continue;
+            if (free and not relabelFree) {
+                keptNames.emplace(index.getSpace(),
+                                  std::string(index.getName()));
+                continue;
+            }
+            if (seen.emplace(keyOf(index), true).second)
+                (dummy ? dummyIndices : freeIndices).push_back(index);
+        }
+    });
+
+    std::map<Key, Index>                                    renamed;
+    std::map<Space const *, size_t>                         identitiesInSpace;
+    std::map<std::pair<Space const *, std::string>, size_t> uses;
+    for (auto const &kept : keptNames)
+        uses[kept] = 1;
+    auto relabel = [&](Index const &index) {
+        Space const *space = index.getSpace();
+        auto const  &pool  = space->getDefaultIndexNames();
+        auto         next  = [&]() {
+            return pool[identitiesInSpace[space]++ % pool.size()];
+        };
+        std::string base = next();
+        for (size_t tries = 1; tries != pool.size()
+                               and keptNames.count({space, base});
+             ++tries)
+            base = next();
+        size_t n      = uses[{space, base}]++;
+        Index  result = index;
+        result.setName(n == 0 ? base : base + "_" + std::to_string(n));
+        result.setID(0);
+        renamed.emplace(keyOf(index), result);
+    };
+    for (auto const &index : freeIndices)
+        relabel(index);
+    for (auto const &index : dummyIndices)
+        relabel(index);
+
+    applyRenamingMap(res, renamed);
+    for (auto const &[key, index] : renamed)
+        renaming.renamed[key] = index;
+    return res;
+}
+
+Expr RelabelIndices(Expr const &expr, bool relabelFree)
+{
+    IndexRenaming renaming;
+    return RelabelIndices(expr, relabelFree, renaming);
+}
+
+Expr ApplyIndexRenaming(Expr const &expr, IndexRenaming const &renaming)
+{
+    Expr res = expr;
+    csl::WeakDeepCopy(res);
+    applyRenamingMap(res, renaming.renamed);
+    return res;
+}
+
+
+std::string printLatex(Expr const &expr)
+{
+    return RelabelIndices(expr)->printLaTeX(0);
+}
+
 Expr GetComplexConjugate(const Expr &expression)
 {
     return OPT(expression, getComplexConjugate());
@@ -362,7 +490,7 @@ Expr GetTransposed(const Expr &expression, const Space *space, bool applyProp)
     return OPT(expression, getTransposed(space, applyProp));
 }
 
-Expr GetTransposed(const Expr &                 expression,
+Expr GetTransposed(const Expr                  &expression,
                    const vector<const Space *> &spaces,
                    bool                         applyProp)
 {
@@ -374,13 +502,13 @@ Expr GetHermitianConjugate(const Expr &expression, const Space *space)
     return OPT(expression, getHermitianConjugate(space));
 }
 
-Expr GetHermitianConjugate(const Expr &                 expression,
+Expr GetHermitianConjugate(const Expr                  &expression,
                            const vector<const Space *> &spaces)
 {
     return OPT(expression, getHermitianConjugate(spaces));
 }
 
-Expr Swapped(const Expr & expression,
+Expr Swapped(const Expr  &expression,
              const Index &index1,
              const Index &index2,
              bool         refresh)
@@ -410,7 +538,7 @@ Expr Swapped(const Expr &expression,
     return res;
 }
 
-Expr Swapped(const Expr &  expression,
+Expr Swapped(const Expr   &expression,
              const Parent &parent1,
              const Parent &parent2,
              bool          refresh)
@@ -517,16 +645,16 @@ TDerivative GetTDerivativeParent(Expr const &tensor)
 }
 
 void AddSelfContraction(csl::Tensor &parent,
-                        Expr const & A,
-                        Expr const & B,
-                        Expr const & res)
+                        Expr const  &A,
+                        Expr const  &B,
+                        Expr const  &res)
 {
     parent->addSelfContraction(A, B, res);
 }
 
-void AddContractionProperty(csl::Tensor &            parent,
+void AddContractionProperty(csl::Tensor             &parent,
                             std::vector<Expr> const &tensors,
-                            Expr const &             res)
+                            Expr const              &res)
 {
     parent->addContractionProperty(tensors, res);
 }
@@ -536,18 +664,18 @@ void AddComplexProperty(csl::Tensor &parent, Expr const &A, Expr const &B)
     parent->addComplexProperty(A, B);
 }
 
-void AddTransposedProperty(csl::Tensor &     parent,
+void AddTransposedProperty(csl::Tensor      &parent,
                            csl::Space const *space,
-                           Expr const &      A,
-                           Expr const &      B)
+                           Expr const       &A,
+                           Expr const       &B)
 {
     parent->addTransposedProperty(space, A, B);
 }
 
-void AddHermitianProperty(csl::Tensor &     parent,
+void AddHermitianProperty(csl::Tensor      &parent,
                           csl::Space const *space,
-                          Expr const &      A,
-                          Expr const &      B)
+                          Expr const       &A,
+                          Expr const       &B)
 {
     parent->addHermitianProperty(space, A, B);
 }
@@ -568,21 +696,21 @@ LibDependency GetLibraryDependencies(Expr const &expr)
     return dependencies;
 }
 
-void ApplySelfProperty(Expr &       init,
+void ApplySelfProperty(Expr        &init,
                        csl::Tensor &tensor,
-                       Expr const & A,
-                       Expr const & B,
-                       Expr const & res)
+                       Expr const  &A,
+                       Expr const  &B,
+                       Expr const  &res)
 {
     tensor->addSelfContraction(A, B, res);
     init = DeepRefreshed(init);
     tensor->removeSelfContraction(A, B);
 }
 
-void ApplyChainProperty(Expr &                   init,
-                        csl::Tensor &            tensor,
+void ApplyChainProperty(Expr                    &init,
+                        csl::Tensor             &tensor,
                         std::vector<Expr> const &prod,
-                        Expr const &             res)
+                        Expr const              &res)
 {
     tensor->addContractionProperty(prod, res);
     init = DeepRefreshed(init);

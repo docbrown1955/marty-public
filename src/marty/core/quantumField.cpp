@@ -1287,6 +1287,19 @@ bool QuantumField::getConjugated() const
     return Complexified::conjugated;
 }
 
+std::string QuantumField::getLatexDisplayName() const
+{
+    std::string name = getLatexName();
+    if (not getConjugated() or isBosonic())
+        return name;
+    return "\\bar{" + name + "}";
+}
+
+bool QuantumField::isLatexRow() const
+{
+    return getConjugated() and not isBosonic();
+}
+
 bool QuantumField::isExternal() const
 {
     return external;

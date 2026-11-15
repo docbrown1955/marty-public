@@ -897,7 +897,18 @@ class TensorElement : public AbstractElement {
 
     std::string printLaTeX(int mode = 0) const override;
 
-    std::vector<Parent> getSubSymbols() const override;
+    /*! \brief LaTeX name of the element, possibly decorated (e.g. \bar{\psi}).
+     */
+    virtual std::string getLatexDisplayName() const;
+
+    /*! \brief True if the element is a row vector in LaTeX (e.g. \bar{\psi}),
+     * so that it must not be transposed when printed in a matrix chain.
+     */
+    virtual bool isLatexRow() const;
+
+    /*! \brief LaTeX suffix giving the space-time point of a field, e.g. (X).
+     */
+    virtual std::string getLatexPointSuffix() const;    std::vector<Parent> getSubSymbols() const override;
 
     std::optional<Expr> derive(Expr_info expr) const override;
 
@@ -1080,6 +1091,23 @@ class ISum : public Sum {
  * \brief Specialization of a Prod object to handle TensorElement objects in
  * the product (apply contraction of indices etc).
  */
+/*! \brief Implicit matrix chain of a product, e.g. y_i M_{ij} x_j, printed as a
+ * matrix product y^{T} M x.
+ */
+struct LatexMatrixChain {
+    std::vector<size_t> factors; //!< Positions of the factors in the product.
+    std::string         latex;   //!< LaTeX text of the chain.
+};
+
+/*! \brief Finds the contracted chains of vectors and matrices in a product
+ * whose factors can be printed as a matrix product.
+ * \details Only closed open-ended chains (two vector ends, matrices in
+ * between) living in spaces with matrix printing enabled are returned.
+ * Throws CSLError::MatrixPrintingError if such a chain contains a
+ * non-commuting factor.
+ */
+std::vector<LatexMatrixChain> getMatrixChains(vector_expr const &factors);
+
 class IProd : public Prod {
 
   public:

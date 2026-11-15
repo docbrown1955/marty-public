@@ -127,11 +127,11 @@ void THDM_Model<type>::initHiggsSector()
     m11     = csl::constant_s("m_11");
     m12     = csl::constant_s("m_12");
     m22     = csl::constant_s("m_22");
-    lambda1 = csl::constant_s("lambda_1");
-    lambda2 = csl::constant_s("lambda_2");
-    lambda3 = csl::constant_s("lambda_3");
-    lambda4 = csl::constant_s("lambda_4");
-    lambda5 = csl::constant_s("lambda_5");
+    lambda1 = csl::constant_s("lambda_1;\\lambda_{1}");
+    lambda2 = csl::constant_s("lambda_2;\\lambda_{2}");
+    lambda3 = csl::constant_s("lambda_3;\\lambda_{3}");
+    lambda4 = csl::constant_s("lambda_4;\\lambda_{4}");
+    lambda5 = csl::constant_s("lambda_5;\\lambda_{5}");
 
     Particle Phi1 = scalarboson_s("Phi1 ; \\Phi_{1}", *this);
     Phi1->setSelfConjugate(false);
@@ -247,7 +247,7 @@ void THDM_Model<type>::replaceHiggs()
     ///////////////////////////////////////////////////
 
     v1       = csl::constant_s("v1");
-    beta     = csl::constant_s("beta");
+    beta     = csl::constant_s("beta;\\beta");
     tan_beta = csl::tan_s(beta);
     v        = csl::constant_s("v");
     v2       = v1 * tan_beta;
@@ -294,7 +294,7 @@ void THDM_Model<type>::diagonalize2By2Matrices()
     // Diagonalizing what can be
     ///////////////////////////////////////////////////
 
-    alpha = csl::constant_s("alpha");
+    alpha = csl::constant_s("alpha;\\alpha");
 
     mty::Particle eta_u = getParticle("eta_1");
     mty::Particle eta_d = getParticle("eta_2");
@@ -341,7 +341,7 @@ void THDM_Model<type>::diagonalize2By2Matrices()
 
     gY             = GetCoupling(*this, "g_Y");
     gL             = GetCoupling(*this, "g_L");
-    theta_Weinberg = csl::constant_s("theta_W");
+    theta_Weinberg = csl::constant_s("theta_W;\\theta_{W}");
     e              = csl::constant_s("e_em");
 
     Replaced(*this,

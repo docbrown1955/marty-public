@@ -1810,6 +1810,15 @@ class QuantumField : public csl::TensorFieldElement {
     bool isBosonic() const;
 
     /*!
+     * \brief LaTeX name: \bar{\psi} for conjugated fermions, \phi^{\dagger}
+     * for conjugated bosons.
+     */
+    std::string getLatexDisplayName() const override;
+
+    /*! \brief True for conjugated fermions, printed as row vectors. */
+    bool isLatexRow() const override;
+
+    /*!
      * \brief See QuantumFieldParent::isFermionic().
      * \return \b True  if the field is fermionic.
      * \return \b False else.
