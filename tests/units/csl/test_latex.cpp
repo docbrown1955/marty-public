@@ -171,8 +171,8 @@ TEST(LatexMatrixChains, extraIndicesArePrintedAsSuperscripts)
 {
     ChainSetup s;
     Space      lorentz{"lorentz", 4};
-    Tensor     G{"G;\\gamma", std::vector<const Space *>{&lorentz, &s.V, &s.V}};
-    Index      mu = lorentz.generateIndex("\\mu");
+    Tensor G{"G;\\gamma", std::vector<const Space *>{&lorentz, &s.V, &s.V}};
+    Index  mu = lorentz.generateIndex("\\mu");
     EXPECT_EQ(latex(s.y(s.i) * G(std::vector<Index>{mu, s.i, s.j}) * s.x(s.j)),
               "y^{T}\\gamma^{\\mu}x");
 }
@@ -401,13 +401,13 @@ TEST(LatexPrintLatex, dummyPairsAreRelabelledInOrder)
     Space  S{"S", 4, {"alpha;\\alpha", "beta;\\beta"}};
     Tensor x{"x", &S};
     Tensor y{"y", &S};
-    Index  p1 = S.generateIndex("alpha");
-    Index  p2 = S.generateIndex("alpha");
-    Index  p3 = S.generateIndex("alpha");
+    Index  p1   = S.generateIndex("alpha");
+    Index  p2   = S.generateIndex("alpha");
+    Index  p3   = S.generateIndex("alpha");
     auto   expr = x(p1) * y(p1) * x(p2) * y(p2) * x(p3) * y(p3);
-    EXPECT_EQ(
-        printLatex(expr),
-        "x_{\\alpha}x_{\\beta}x_{\\alpha_{1}}y_{\\alpha}y_{\\beta}y_{\\alpha_{1}}");
+    EXPECT_EQ(printLatex(expr),
+              "x_{\\alpha}x_{\\beta}x_{\\alpha_{1}}y_{\\alpha}y_{\\beta}y_{"
+              "\\alpha_{1}}");
 }
 
 TEST(LatexPrintLatex, freeIndexNamesAreSkipped)
@@ -418,7 +418,8 @@ TEST(LatexPrintLatex, freeIndexNamesAreSkipped)
     Tensor z{"z", &S};
     Index  p = S.generateIndex("alpha");
     Index  f = S.generateIndex("alpha");
-    EXPECT_EQ(printLatex(x(p) * y(p) * z(f)), "x_{\\beta}y_{\\beta}z_{\\alpha}");
+    EXPECT_EQ(printLatex(x(p) * y(p) * z(f)),
+              "x_{\\beta}y_{\\beta}z_{\\alpha}");
 }
 
 TEST(LatexNames, prefixedNameCarriesLatexForm)
@@ -443,8 +444,8 @@ TEST(LatexPrintLatex, relabelDoesNotModifyTheInput)
     Space  S{"S", 4, {"alpha;\\alpha", "beta;\\beta"}};
     Tensor x{"x", &S};
     Tensor y{"y", &S};
-    Index  p    = S.generateIndex("alpha");
-    auto   expr = x(p) * y(p);
+    Index  p       = S.generateIndex("alpha");
+    auto   expr    = x(p) * y(p);
     auto   renamed = RelabelIndices(expr);
     EXPECT_EQ(latex(expr), "x_{\\alpha}y_{\\alpha}");
     EXPECT_EQ(renamed->printLaTeX(0), "x_{\\alpha}y_{\\alpha}");
@@ -460,44 +461,47 @@ TEST(LatexPrintLatex, freeIndicesAreRenamedToo)
 
 TEST(LatexNames, kroneckerDeltaHasLatexForm)
 {
-    Space  S{"S", 4, {"alpha;\\alpha", "beta;\\beta"}};
-    Index  a = S.generateIndex("alpha");
-    Index  b = S.generateIndex("beta");
+    Space S{"S", 4, {"alpha;\\alpha", "beta;\\beta"}};
+    Index a = S.generateIndex("alpha");
+    Index b = S.generateIndex("beta");
     EXPECT_EQ(printLatex(S.getDelta()(std::vector<Index>{a, b})),
               "\\delta_{\\alpha\\beta}");
 }
 
-TEST(ExpandAbbreviations, abbreviationIsReplacedByItsDefinition)
+TEST(EvaluatedAbbreviations, abbreviationIsReplacedByItsDefinition)
 {
     auto a  = variable_s("a");
     auto b  = variable_s("b");
     Expr ab = Abbrev::makeAbbreviation("Cab", a * b);
-    EXPECT_EQ(printLatex(ExpandAbbreviations(3 * ab)), printLatex(3 * a * b));
+    EXPECT_EQ(printLatex(Evaluated(3 * ab, eval::abbreviation)),
+              printLatex(3 * a * b));
 }
 
-TEST(ExpandAbbreviations, nestedAbbreviationsAreExpandedFully)
+TEST(EvaluatedAbbreviations, nestedAbbreviationsAreExpandedFully)
 {
     auto a     = variable_s("a");
     auto b     = variable_s("b");
     Expr inner = Abbrev::makeAbbreviation("Cin", a + b);
     Expr outer = Abbrev::makeAbbreviation("Cout", 2 * inner);
-    EXPECT_EQ(printLatex(ExpandAbbreviations(outer)), printLatex(2 * (a + b)));
+    EXPECT_EQ(printLatex(Evaluated(outer, eval::abbreviation)),
+              printLatex(2 * (a + b)));
 }
 
-TEST(ExpandAbbreviations, expressionWithoutAbbreviationsIsUnchanged)
+TEST(EvaluatedAbbreviations, expressionWithoutAbbreviationsIsUnchanged)
 {
     auto a = variable_s("a");
     auto b = variable_s("b");
-    EXPECT_EQ(printLatex(ExpandAbbreviations(a + b)), "a + b");
+    EXPECT_EQ(printLatex(Evaluated(a + b, eval::abbreviation)), "a + b");
 }
 
-TEST(ExpandAbbreviations, inputIsNotModified)
+TEST(EvaluatedAbbreviations, inputIsNotModified)
 {
-    auto a      = variable_s("a");
-    auto b      = variable_s("b");
-    Expr ab     = Abbrev::makeAbbreviation("Cab", a * b);
-    std::string before = printLatex(ab);
-    ExpandAbbreviations(ab);
+    auto        a        = variable_s("a");
+    auto        b        = variable_s("b");
+    Expr        ab       = Abbrev::makeAbbreviation("Cab", a * b);
+    std::string before   = printLatex(ab);
+    Expr        expanded = Evaluated(ab, eval::abbreviation);
+    EXPECT_EQ(printLatex(expanded), printLatex(a * b));
     EXPECT_EQ(printLatex(ab), before);
 }
 

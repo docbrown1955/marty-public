@@ -7,7 +7,6 @@ using namespace mty;
 
 namespace {
 
-
 std::string blockFor(std::string const &text, std::string const &marker)
 {
     return text.substr(text.find(marker));
@@ -26,7 +25,7 @@ size_t countOccurrences(std::string const &text, std::string const &pattern)
 
 TEST(FeynmanRuleLatex, singleRuleIsACenteredDiagramWithItsValue)
 {
-    QED_Model qed;
+    QED_Model   qed;
     auto const &rules = qed.getFeynmanRules();
     ASSERT_FALSE(rules.empty());
 
@@ -41,7 +40,7 @@ TEST(FeynmanRuleLatex, singleRuleIsACenteredDiagramWithItsValue)
 
 TEST(FeynmanRuleLatex, valueLineComesAfterTheDiagramAndBeforeTheEnd)
 {
-    QED_Model qed;
+    QED_Model   qed;
     auto const &rules = qed.getFeynmanRules();
     ASSERT_FALSE(rules.empty());
 
@@ -56,7 +55,7 @@ TEST(FeynmanRuleLatex, valueLineComesAfterTheDiagramAndBeforeTheEnd)
 
 TEST(FeynmanRuleLatex, everyEdgeIsLabelledWithItsField)
 {
-    QED_Model qed;
+    QED_Model   qed;
     auto const &rules = qed.getFeynmanRules();
     ASSERT_FALSE(rules.empty());
 
@@ -91,7 +90,7 @@ TEST(FeynmanRuleLatex, emptyListGivesAnEmptyDocument)
 
 TEST(FeynmanRuleLatex, documentHasOneHeaderAndBlockPerRule)
 {
-    QED_Model qed;
+    QED_Model   qed;
     auto const &rules = qed.getFeynmanRules();
     ASSERT_FALSE(rules.empty());
 
@@ -104,7 +103,7 @@ TEST(FeynmanRuleLatex, documentHasOneHeaderAndBlockPerRule)
 
 TEST(FeynmanRuleLatex, headerNamesTheFieldsOfTheRule)
 {
-    QED_Model qed;
+    QED_Model   qed;
     auto const &rules = qed.getFeynmanRules();
     ASSERT_FALSE(rules.empty());
 
@@ -117,7 +116,7 @@ TEST(FeynmanRuleLatex, headerNamesTheFieldsOfTheRule)
 
 TEST(FeynmanRuleLatex, singleRuleBlockIsInTheDocument)
 {
-    QED_Model qed;
+    QED_Model   qed;
     auto const &rules = qed.getFeynmanRules();
     ASSERT_FALSE(rules.empty());
 
@@ -137,8 +136,8 @@ TEST(FeynmanRuleLatex, photonHeaderHasNoPolarizationIndex)
             if (field.getLatexName() != "A")
                 continue;
             foundPhoton = true;
-            std::string header = blockFor(LatexFeynmanRules({rule}),
-                                          "Feynman vertex for ");
+            std::string header
+                = blockFor(LatexFeynmanRules({rule}), "Feynman vertex for ");
             EXPECT_NE(header.find("A(p_"), std::string::npos) << header;
             EXPECT_EQ(header.find("A_{"), std::string::npos) << header;
             break;
@@ -151,7 +150,7 @@ TEST(FeynmanRuleLatex, photonHeaderHasNoPolarizationIndex)
 
 TEST(FeynmanRuleLatex, documentValueIsTheValueOfTheNormalizedRule)
 {
-    QED_Model qed;
+    QED_Model   qed;
     auto const &rules = qed.getFeynmanRules();
     ASSERT_FALSE(rules.empty());
 
@@ -166,12 +165,12 @@ TEST(FeynmanRuleLatex, documentValueIsTheValueOfTheNormalizedRule)
 
 TEST(FeynmanRuleLatex, vertexValueShowsAbbreviationDefinitions)
 {
-    QED_Model qed;
+    QED_Model   qed;
     auto const &rules = qed.getFeynmanRules();
     ASSERT_FALSE(rules.empty());
 
-    csl::Expr a  = csl::variable_s("a");
-    csl::Expr b  = csl::variable_s("b");
+    csl::Expr   a    = csl::variable_s("a");
+    csl::Expr   b    = csl::variable_s("b");
     FeynmanRule rule = rules[0];
     rule.setExpr(csl::Abbrev::makeAbbreviation("Cab", a * b));
 
@@ -199,8 +198,9 @@ TEST(FeynmanRuleLatex, nonPolarizationIndicesStayInTheHeader)
 
 namespace {
 
-bool isSpinIndex(QuantumField const &field, csl::Index const &index,
-                 size_t position)
+bool isSpinIndex(QuantumField const &field,
+                 csl::Index const   &index,
+                 size_t              position)
 {
     if (position != 0)
         return false;
@@ -210,7 +210,7 @@ bool isSpinIndex(QuantumField const &field, csl::Index const &index,
 }
 
 bool containsIndex(std::vector<csl::Index> const &indices,
-                   csl::Index const &          index)
+                   csl::Index const              &index)
 {
     for (auto const &other : indices)
         if (other == index)
@@ -235,7 +235,8 @@ std::vector<csl::Index> allFieldIndices(FeynmanRule const &rule)
     std::vector<csl::Index> indices;
     for (auto const &field : rule.getFieldProduct()) {
         auto structure = field.getIndexStructure();
-        indices.insert(indices.end(), structure.getIndex().begin(),
+        indices.insert(indices.end(),
+                       structure.getIndex().begin(),
                        structure.getIndex().end());
     }
     return indices;
@@ -247,7 +248,7 @@ void expectFieldIndicesAreFreeIndicesOfValue(FeynmanRule const &rule)
     std::vector<csl::Index> nonSpin      = nonSpinFieldIndices(rule);
     auto freeStructure = rule.getExpr()->getFreeIndexStructure();
     std::vector<csl::Index> freeIndices = freeStructure.getIndex();
-    std::string value = LatexFeynmanRuleValue(rule);
+    std::string             value       = LatexFeynmanRuleValue(rule);
     for (auto const &index : freeIndices)
         EXPECT_TRUE(containsIndex(fieldIndices, index))
             << "free index " << index << " of value " << value
@@ -261,7 +262,7 @@ void expectFieldIndicesAreFreeIndicesOfValue(FeynmanRule const &rule)
 
 TEST(FeynmanRuleIndexSync, fieldIndicesAreTheFreeIndicesOfTheValue)
 {
-    QED_Model qed;
+    QED_Model   qed;
     auto const &rules = qed.getFeynmanRules();
     ASSERT_FALSE(rules.empty());
     for (auto const &rule : rules)
@@ -299,7 +300,8 @@ TEST(FeynmanRuleLatex, diagramOmitsIndicesButValueKeepsFieldIndices)
         std::string value   = LatexFeynmanRuleValue(rule);
         for (auto const &label : labels) {
             EXPECT_EQ(diagram.find("_{" + label + "}"), std::string::npos)
-                << "diagram shows index " << label << "\n" << diagram;
+                << "diagram shows index " << label << "\n"
+                << diagram;
             EXPECT_NE(value.find(label), std::string::npos)
                 << "value misses index " << label << ": " << value;
         }
@@ -320,17 +322,17 @@ size_t countInconsistentMetricDelta(csl::Expr const &expr, std::string &first)
             return;
         csl::Parent_info    parent    = node->getParent_info();
         csl::IndexStructure structure = node->getIndexStructure();
-        if (not parent or structure.size() != 2
-            or not structure[0].getSpace()
+        if (not parent or structure.size() != 2 or not structure[0].getSpace()
             or not structure[0].getSpace()->getSignedIndex())
             return;
         bool sameSign = structure[0].getSign() == structure[1].getSign();
-        bool bad      = (parent->getType() == cslParent::Metric and not sameSign)
+        bool bad = (parent->getType() == cslParent::Metric and not sameSign)
                    or (parent->getType() == cslParent::Delta and sameSign);
         if (not bad)
             return;
         if (wrong == 0)
-            first = "parent type " + std::to_string(static_cast<int>(parent->getType()))
+            first = "parent type "
+                    + std::to_string(static_cast<int>(parent->getType()))
                     + ", indices " + std::string(structure[0].getName()) + ":"
                     + std::to_string(structure[0].getSign()) + " "
                     + std::string(structure[1].getName()) + ":"
@@ -352,8 +354,8 @@ TEST(FeynmanRuleIndexSync, smRuleValuesMatchMetricAndDeltaToIndexSigns)
         normalized.normalizeIndices();
         std::string first;
         size_t      wrong = countInconsistentMetricDelta(
-            csl::DeepRefreshed(csl::DeepHardFactored(
-                csl::ExpandAbbreviations(normalized.getExpr()))),
+            csl::DeepRefreshed(csl::DeepHardFactored(csl::Evaluated(
+                normalized.getExpr(), csl::eval::abbreviation))),
             first);
         if (wrong != 0)
             ADD_FAILURE() << wrong << " inconsistent metric/delta in value of "
@@ -363,4 +365,3 @@ TEST(FeynmanRuleIndexSync, smRuleValuesMatchMetricAndDeltaToIndexSigns)
     }
     EXPECT_EQ(value, 0u) << "wrong metric/delta symbols in SM rule values";
 }
-

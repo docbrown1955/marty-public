@@ -375,14 +375,6 @@ inline void SetComplexProperty(T parent, ComplexProperty prop)
 [[nodiscard]] Expr GetComplexArgument(const Expr &expression);
 
 /*!
- * \brief Returns a copy of the expression where every abbreviation is
- * replaced by its definition (recursively). The input is not modified.
- * \param expr The expression to expand.
- * \return The expanded copy.
- */
-Expr ExpandAbbreviations(Expr const &expr);
-
-/*!
  * \brief Correspondence between the original indices of an expression and
  * their new names, as produced by RelabelIndices(). An index is identified by
  * its space, ID and name.
@@ -412,7 +404,9 @@ Expr RelabelIndices(Expr const &expr, bool relabelFree = true);
  * \param renaming Receives the renaming of the indices of \p expr.
  * \return The relabelled copy.
  */
-Expr RelabelIndices(Expr const &expr, bool relabelFree, IndexRenaming &renaming);
+Expr RelabelIndices(Expr const    &expr,
+                    bool           relabelFree,
+                    IndexRenaming &renaming);
 
 /*!
  * \brief Returns a copy of the expression where every index found in
@@ -423,7 +417,6 @@ Expr RelabelIndices(Expr const &expr, bool relabelFree, IndexRenaming &renaming)
  * \return The renamed copy.
  */
 Expr ApplyIndexRenaming(Expr const &expr, IndexRenaming const &renaming);
-
 
 /*!
  * \brief LaTeX output of an expression, after RelabelIndices().

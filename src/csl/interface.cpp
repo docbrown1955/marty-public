@@ -354,21 +354,6 @@ Expr GetComplexArgument(const Expr &expression)
     return OPT(expression, getComplexArgument());
 }
 
-Expr ExpandAbbreviations(Expr const &expr)
-{
-    Expr res = DeepCopy(expr);
-    csl::Transform(res, [](Expr &sub) {
-        csl::Parent_info parent = sub->getParent_info();
-        if (parent and parent->isAnAbbreviation()) {
-            Expr encaps = parent->getExactEncapsulated(sub.get());
-            sub         = ExpandAbbreviations(encaps);
-            return true;
-        }
-        return false;
-    });
-    return res;
-}
-
 namespace {
 
 void applyRenamingMap(Expr                                      &expr,

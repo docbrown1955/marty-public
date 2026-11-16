@@ -251,8 +251,8 @@ void Show(std::vector<FeynmanRule> const &rules)
 
 std::string LatexFeynmanRuleValue(FeynmanRule const &rule)
 {
-    return csl::DeepRefreshed(
-               csl::DeepHardFactored(csl::ExpandAbbreviations(rule.getExpr())))
+    return csl::DeepRefreshed(csl::DeepHardFactored(csl::Evaluated(
+                                  rule.getExpr(), csl::eval::abbreviation)))
         ->printLaTeX(0);
 }
 
@@ -261,8 +261,8 @@ std::string LatexFeynmanRule(FeynmanRule const &rule)
     std::ostringstream out;
     out << "\\begin{center}\n";
     out << "$\\vcenter{\\hbox{\n"
-        << Drawer::buildLatex(rule.getDiagram()) << "}}\\quad= "
-        << LatexFeynmanRuleValue(rule) << "$\n";
+        << Drawer::buildLatex(rule.getDiagram())
+        << "}}\\quad= " << LatexFeynmanRuleValue(rule) << "$\n";
     out << "\\end{center}\n";
     return out.str();
 }
