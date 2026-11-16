@@ -53,6 +53,10 @@ make install
 `configure.sh` at the repository root runs the configure step into `build/` with install
 prefix `./.install`, forwarding any extra CMake options.
 
+Documentation: `make doc` builds the Doxygen pages for CSL and MARTY (`doc-csl` and `doc-marty`
+build one each). `make update-doc` builds them and copies the HTML into `docs/doc/csl/html`,
+`docs/doc/marty/html` and `docs/doc/common`, so those committed files change when it runs.
+
 ## 3. Test suites
 
 Tests are declared in `tests/CMakeLists.txt`, which includes three subfolders. Every test target

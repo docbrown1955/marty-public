@@ -16,6 +16,10 @@
 Sub-folders: `core/` (physics core), `models/` (built-in models), `sgl/` (Dirac algebra),
 `ufo/` (UFO export), `lha/` (Les Houches input), `api/` (gamma API).
 
+The pMSSM is split into `models/pmssm_lem/` translation units (`content`, `kinetic`, `mass`,
+`interaction`, plus `pmssm_data.h`); edit only the part you need. LHA input defaults for built-in
+models live in `core/lhaBuiltIn.h`.
+
 The `README.md` in this folder is the Doxygen main page for MARTY, so it is kept as is.
 
 Build targets: `marty` (shared) and `marty-static`, combining the object libraries of the

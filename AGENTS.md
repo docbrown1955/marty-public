@@ -9,43 +9,37 @@ physics. A model is written in C++ (particles, gauge groups, Lagrangian, symmetr
 MARTY then computes Feynman rules, diagrams, amplitudes, squared amplitudes, decay widths and
 Wilson coefficients symbolically, and writes them as a standalone C++ library.
 
-The code base has four main parts:
+Repository layout:
 
-- **CSL** (`src/csl/`): the computer algebra kernel (expressions, tensors, simplification,
-  numerical library generation).
-- **MARTY** (`src/marty/`): the physics layer (models, Lagrangian, Feynman rules, diagrams,
-  amplitudes, Wilson coefficients), with sub-modules SGL (Dirac algebra), UFO export, LHA
-  input and a gamma API.
-- **Plugins** (`src/marty-plugins/`): separate libraries that depend on MARTY.
-- **GRAFED** (`src/grafed/`): Qt 5 GUI for drawing and displaying Feynman diagrams.
-
-Supporting folders: `tests/` (gtest units, integration, and physics system tests), `examples/`,
-`dep/` (vendored LoopTools), `docs/` (website, manuals, and developer docs).
+| Path | Role |
+|------|------|
+| `src/csl/` | CSL, the computer algebra system (symbolic expressions, tensors, simplification, numerical library generation) |
+| `src/marty/` | MARTY proper: QFT models, Feynman rules, diagrams, amplitudes, Wilson coefficients, SGL (Dirac algebra), UFO export, LHA input |
+| `src/marty-plugins/` | Separate libraries that depend on MARTY (currently the Boltzmann solver data exporter) |
+| `src/grafed/` | GRAFED, the Qt 5 GUI to draw and display Feynman diagrams |
+| `src/doc/` | Doxygen configuration for CSL and MARTY |
+| `tests/` | Google Test unit and integration tests, and physics system tests |
+| `examples/` | Stand-alone sample programs using the MARTY API |
+| `dep/` | Vendored LoopTools (Fortran) used for one-loop integrals |
+| `docs/` | Project website, manuals, talks, past releases, and developer documentation |
 
 Language: C++23 (GNU compilers, GCC 11 or newer, with matching `gfortran`). Build: CMake 3.22+.
 
 ## Documentation map
 
-- Architecture and main functionalities: [docs/architecture/README.md](docs/architecture/README.md)
-  - [Functionalities and code map](docs/architecture/functionalities.md)
-  - [Build system and test suites](docs/architecture/build-and-tests.md)
+- Architecture: [functionalities and code map](docs/architecture/functionalities.md) (pipeline,
+  source files per step), [build system and test suites](docs/architecture/build-and-tests.md)
+- Reading order: this file, then `functionalities.md`, then the `OVERVIEW.md` of the folder you
+  work in, then the Doxygen pages for exact class interfaces
 - User manual: `docs/doc/marty-manual.pdf`; CSL manual: `docs/doc/csl-manual.pdf`
 - Generated API docs: `docs/doc/marty/html/`, `docs/doc/csl/html/`
 - Getting started example: `examples/gettingStarted.cpp`
 - Installation and dependencies: [README.md](README.md)
 - Contribution workflow: [CONTRIBUTING.md](CONTRIBUTING.md)
 
-Every subfolder has its own short description. Start from the one closest to your change:
-
-- `src/csl/` ([OVERVIEW.md](src/csl/OVERVIEW.md)) with `core/`, `utils/`, `algorithms/`,
-  `numerical/`, `library/`
-- `src/marty/` ([OVERVIEW.md](src/marty/OVERVIEW.md)) with `core/`, `models/`,
-  `models/pmssm_lem/`, `sgl/`, `ufo/`, `lha/`, `api/`
-- `src/marty-plugins/` ([OVERVIEW.md](src/marty-plugins/OVERVIEW.md)) with `boltzmann-solver/`
-- `src/grafed/` with `core/`, `gui/`, `gui/ressources/`, `jsonparser/`
-- `src/doc/` with `csl/`, `marty/`, `common/`
-- `tests/` ([README.md](tests/README.md)) with `units/`, `integration/`, `system/`
-- `examples/`, `dep/`, `docs/`, `assets/`, `.github/`, `.devcontainer/`
+Start from the overview closest to your change: [src/csl/OVERVIEW.md](src/csl/OVERVIEW.md),
+[src/marty/OVERVIEW.md](src/marty/OVERVIEW.md), [src/marty-plugins/OVERVIEW.md](src/marty-plugins/OVERVIEW.md),
+or [tests/README.md](tests/README.md).
 
 ## Working rules for agents
 

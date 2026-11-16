@@ -210,8 +210,8 @@ generated code uses CSL-generated numerical routines and LoopTools when loops ar
 
 `src/marty-plugins/` holds extensions that depend on MARTY and never the reverse. The current
 plugin is `boltzmann-solver`. It defines processes (initial and final particles plus quantum
-numbers) and exports them to JSON for an external Boltzmann-equation solver. See its
-`OVERVIEW.md`.
+numbers) and exports them to JSON for an external Boltzmann-equation solver. See
+[../../src/marty-plugins/OVERVIEW.md](../../src/marty-plugins/OVERVIEW.md).
 
 ## 3. Typical data flow
 
@@ -243,3 +243,4 @@ numbers) and exports them to JSON for an external Boltzmann-equation solver. See
 | Change how generated libraries look | `src/csl/librarygenerator.cpp`, `src/marty/core/mtylibrary.h` |
 | Change the GUI | `src/grafed/gui/` |
 | Add a plugin | `src/marty-plugins/` (see its `README.md`) |
+| Change the getting-started tutorial | `examples/gettingStarted.cpp`. `docs/code/gettingStarted.cpp` is a separate copy that differs from it; check both before syncing |

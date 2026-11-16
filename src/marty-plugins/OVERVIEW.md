@@ -7,8 +7,12 @@ shared libraries, may depend on MARTY (never the reverse), and must be tested au
 Content:
 
 - `boltzmann-solver/`: exports processes and quantum numbers from MARTY models to JSON for a
-  Boltzmann-equation solver. See its [README.md](boltzmann-solver/README.md).
+  Boltzmann-equation solver. Its unit tests are in `tests/units/marty-plugins/boltzmann-solver/`.
 - `CMakeLists.txt`: adds each plugin subdirectory.
+
+Note: `boltzmann-solver/` includes `grafed/jsonparser/jsonLoader.h` (in `libjsondata.h`,
+`processdata.h` and `quantumnumberdata.h`). This is GRAFED code used from a plugin, which conflicts
+with the layering rule in `AGENTS.md` (GRAFED is only reached through `Show()`). Not changed here.
 
 The `README.md` in this folder is the plugin guideline and is kept as is. This `OVERVIEW.md`
 complements it with the current content.
