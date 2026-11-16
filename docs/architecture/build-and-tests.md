@@ -45,13 +45,10 @@ Build types: `Release` (default, `-O3`), `Debug`, and `Coverage` (gcov flags, wh
 ```bash
 mkdir build && cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=<prefix>
-make -j
-ctest --output-on-failure
+make -j <n_jobs>
+ctest -j <n_jobs> --output-on-failure
 make install
 ```
-
-`configure.sh` at the repository root runs the configure step into `build/` with install
-prefix `./.install`, forwarding any extra CMake options.
 
 Documentation: `make doc` builds the Doxygen pages for CSL and MARTY (`doc-csl` and `doc-marty`
 build one each). `make update-doc` builds them and copies the HTML into `docs/doc/csl/html`,
