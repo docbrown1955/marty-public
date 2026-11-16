@@ -138,8 +138,13 @@ std::string Abstract::regularLiteral(std::string_view name)
     return reg;
 }
 
-void Abstract::printProp(std::ostream &) const
+void Abstract::printProp(std::ostream &, std::string const &) const
 {
+}
+
+std::string Abstract::getLatexConjugateSymbol() const
+{
+    return "^{*}";
 }
 
 void Abstract::printExplicit(int mode) const

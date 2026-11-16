@@ -180,7 +180,10 @@ void Constant::printCode(int, std::ostream &out) const
 
 string Constant::printLaTeX(int) const
 {
-    return parent->getLatexName();
+    ostringstream sout;
+    sout << parent->getLatexName();
+    printProp(sout, getLatexConjugateSymbol());
+    return sout.str();
 }
 
 std::vector<Parent> Constant::getSubSymbols() const
@@ -374,14 +377,13 @@ void Variable::print(int mode, std::ostream &out, LibraryMode libMode) const
         for (char &c : name)
             if (c == '\\')
                 c = '_';
-    if (mode == 0)
-        out << name << endl;
-    else
-        out << name;
+    out << name;
     if (conj)
         out << ")";
     else
         printProp(out);
+    if (mode == 0)
+        out << endl;
 }
 
 void Variable::printCode(int, std::ostream &out) const
@@ -395,7 +397,10 @@ void Variable::printCode(int, std::ostream &out) const
 
 string Variable::printLaTeX(int) const
 {
-    return getLatexName();
+    ostringstream sout;
+    sout << getLatexName();
+    printProp(sout, getLatexConjugateSymbol());
+    return sout.str();
 }
 
 std::vector<Parent> Variable::getSubSymbols() const

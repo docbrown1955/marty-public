@@ -1815,7 +1815,10 @@ class QuantumField : public csl::TensorFieldElement {
      */
     std::string getLatexDisplayName() const override;
 
-    /*! \brief True for conjugated fermions, printed as row vectors. */
+    /*! \brief ^{\dagger} for conjugated bosons; fermions carry \bar in
+     * their display name instead.
+     */
+    std::string getLatexConjugateSymbol() const override;
     bool isLatexRow() const override;
 
     /*!

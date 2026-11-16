@@ -264,6 +264,7 @@ void FeynmanRule::setExpr(csl::Expr const &t_expr)
 
 void FeynmanRule::renameIndices()
 {
+    // Rename indices to ensure unicity of indices w.r.t. other expressions
     std::vector<std::pair<csl::Index, csl::Index>> change;
     change.reserve(5 * fieldProduct.size());
     for (auto &field : fieldProduct) {
@@ -276,6 +277,18 @@ void FeynmanRule::renameIndices()
         csl::Replace(expr, oldIndex, newIndex);
     }
     csl::RenameIndices(expr); // only for dummy indices
+}
+
+void FeynmanRule::normalizeIndices()
+{
+    // Normalize indices for readability (not suitable for calculation)
+    csl::IndexRenaming renaming;
+    expr = RelabelIndices(expr, true, renaming);
+    for (auto &field : fieldProduct) {
+        Expr fieldExpr = field.copy();
+        fieldExpr      = csl::ApplyIndexRenaming(fieldExpr, renaming);
+        field          = ConvertTo<mty::QuantumField>(fieldExpr);
+    }
 }
 
 bool FeynmanRule::isSame(FeynmanRule const &other) const

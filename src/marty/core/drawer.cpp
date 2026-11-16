@@ -18,39 +18,8 @@
 
 namespace mty {
 
-namespace {
-
-std::string indexedFieldLabel(QuantumField const &  field,
-                              csl::IndexRenaming const &renaming)
-{
-    std::string name = std::string(field.getLatexDisplayName());
-    if (renaming.renamed.empty())
-        return name;
-    auto        structure = field.getIndexStructure();
-    auto const &indices   = structure.getIndex();
-    std::string labels;
-    for (size_t i = 0; i != indices.size(); ++i) {
-        if (i == 0 and field.isBosonic()
-            and indices[i].getSpace() == &csl::Minkowski)
-            continue;
-        csl::Index index = indices[i];
-        csl::IndexRenaming::Key key{
-            index.getSpace(), index.getID(), std::string(index.getName())};
-        if (auto found = renaming.renamed.find(key);
-            found != renaming.renamed.end())
-            index = found->second;
-        labels += index.printLaTeX();
-    }
-    return labels.empty() ? name : name + "_{" + labels + "}";
-}
-
-} // namespace
-
 drawer::LatexLinker Drawer::buildDiagram(
-    std::shared_ptr<wick::Graph> const &graph,
-    bool                                external,
-    bool                                showMomenta,
-    csl::IndexRenaming const &          renaming)
+    std::shared_ptr<wick::Graph> const &graph, bool external, bool showMomenta)
 {
     csl::ScopedProperty idIndices(&csl::option::printIndexIds, false);
     auto                diagram = convertGraph(graph, true, external);
@@ -66,7 +35,7 @@ drawer::LatexLinker Drawer::buildDiagram(
                     c = 'p';
             link.setVertexName(
                 i,
-                indexedFieldLabel(*vertices[i][0]->field, renaming)
+                std::string(vertices[i][0]->field->getLatexDisplayName())
                     + (showMomenta ? ("(" + name + ")") : std::string()));
         }
         for (size_t j = 0; j != vertices[i].size(); ++j)
@@ -123,8 +92,8 @@ Drawer::buildDiagram(std::shared_ptr<wick::Graph> const &graph,
                     c = 'p';
             link.setVertexName(
                 mapping[i],
-                std::string(vertices[i][0]->field->getLatexDisplayName()) + "(" + name
-                    + ")");
+                std::string(vertices[i][0]->field->getLatexDisplayName()) + "("
+                    + name + ")");
         }
         for (size_t j = 0; j != vertices[i].size(); ++j)
             for (size_t k = j + 1; k < vertices[i].size(); ++k)
@@ -152,59 +121,6 @@ Drawer::buildDiagram(std::shared_ptr<wick::Graph> const &graph,
     }
     return link;
 }
-
-// drawer::LatexLinker Drawer::buildDiagram(
-//         std::shared_ptr<wick::Graph> const& graph,
-//         std::shared_ptr<wick::Graph> const& modelGraph,
-//         drawer::LatexLinker             const& linker)
-// {
-//     return buildDiagram(graph);
-//     std::map<csl::Tensor, csl::Tensor> constraints ;
-//     HEPAssert(graph->compare(*modelGraph, constraints, true),
-//             mty::error::RuntimeError,
-//             "Layout not recognized for " + toString(graph) + ".");
-//     auto vertices = graph->getVertices();
-//     auto vertexModel = modelGraph->getVertices();
-//     std::vector<size_t> posMap(vertices.size());
-//     for (size_t i = 0; i != posMap.size(); ++i)
-//         for (size_t j = 0; j != posMap.size(); ++j)
-//             if (constraints[vertices[j][0]->field->getPoint()].get()
-//                     == vertexModel[i][0]->field->getPoint().get()) {
-//                 posMap[j] = i;
-//                 break;
-//             }
-//     csl::ScopedProperty idIndices(&csl::Index::printIds, false);
-//     auto diagram = linker.getGraph();
-//     const size_t N = vertices.size();
-//     drawer::LatexLinker link(diagram);
-//     for (size_t i = 0; i != N; ++i) {
-//         if (vertices[i][0]->field->isExternal()) {
-//             link.setVertexName(posMap[i],
-//                     std::string(vertices[i][0]->field->getLatexName())
-//                     + "(" +
-//                     std::string(vertices[i][0]->field->getPoint()->getLatexName())
-//                     + ")");
-//         }
-//         for (const auto& nodeA : vertices[i]) {
-//             for (size_t j = i; j != N; ++j)
-//                 for (const auto& nodeB : vertices[j])
-//                     if (nodeA->partner.lock() == nodeB) {
-//                         auto type = getType(*nodeA->field);
-//                         std::string edgeName =
-//                             (vertices[i][0]->field->isExternal()
-//                              or vertices[j][0]->field->isExternal()) ?
-//                             "" : std::string(nodeA->field->getLatexName());
-//                         if (nodeA->field->isComplexConjugate())
-//                             link.setParticlesType(
-//                                     posMap[j], posMap[i], type, edgeName);
-//                         else
-//                             link.setParticlesType(
-//                                     posMap[i], posMap[j], type, edgeName);
-//                     }
-//         }
-//     }
-//     return link;
-// }
 
 std::vector<drawer::LatexLinker>
 Drawer::buildDiagrams(std::vector<std::shared_ptr<wick::Graph>> const &graphs,
@@ -269,10 +185,9 @@ void Drawer::saveToJSON(
     saveToJSON(fileName, buildDiagrams(graphs, showMomenta));
 }
 
-std::string Drawer::buildLatex(std::shared_ptr<wick::Graph> const &graph,
-                               csl::IndexRenaming const &          renaming)
+std::string Drawer::buildLatex(std::shared_ptr<wick::Graph> const &graph)
 {
-    auto               link = buildDiagram(graph, true, true, renaming);
+    auto               link = buildDiagram(graph, true, true);
     std::ostringstream latex;
     latex << link;
     return latex.str();

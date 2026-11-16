@@ -7,6 +7,7 @@ using namespace mty;
 
 namespace {
 
+
 std::string blockFor(std::string const &text, std::string const &marker)
 {
     return text.substr(text.find(marker));
@@ -120,8 +121,10 @@ TEST(FeynmanRuleLatex, singleRuleBlockIsInTheDocument)
     auto const &rules = qed.getFeynmanRules();
     ASSERT_FALSE(rules.empty());
 
+    FeynmanRule normalized = rules[0];
+    normalized.normalizeIndices();
     std::string value
-        = "\\quad= " + LatexFeynmanRuleValue(rules[0]) + "$\n\\end{center}";
+        = "\\quad= " + LatexFeynmanRuleValue(normalized) + "$\n\\end{center}";
     EXPECT_NE(LatexFeynmanRules({rules[0]}).find(value), std::string::npos);
 }
 
@@ -146,24 +149,18 @@ TEST(FeynmanRuleLatex, photonHeaderHasNoPolarizationIndex)
     FAIL() << "no photon vertex found in QED";
 }
 
-TEST(FeynmanRuleLatex, vertexValueUsesTheLabelsOfTheFieldProduct)
+TEST(FeynmanRuleLatex, documentValueIsTheValueOfTheNormalizedRule)
 {
     QED_Model qed;
     auto const &rules = qed.getFeynmanRules();
     ASSERT_FALSE(rules.empty());
 
     for (auto const &rule : rules) {
-        csl::Expr product = CSL_1;
-        for (auto const &field : rule.getFieldProduct()) {
-            csl::Expr factor = csl::make_shared<QuantumField>(field);
-            product          = product * factor;
-        }
-        csl::IndexRenaming renaming;
-        csl::RelabelIndices(product, true, renaming);
-        csl::Expr value = csl::ApplyIndexRenaming(
-            csl::ExpandAbbreviations(rule.getExpr()), renaming);
-        std::string expected = csl::RelabelIndices(value, false)->printLaTeX(0);
-        EXPECT_EQ(LatexFeynmanRuleValue(rule), expected);
+        FeynmanRule normalized = rule;
+        normalized.normalizeIndices();
+        std::string value = "= " + LatexFeynmanRuleValue(normalized) + "$";
+        EXPECT_NE(LatexFeynmanRules({rule}).find(value), std::string::npos)
+            << value;
     }
 }
 
@@ -327,3 +324,60 @@ TEST(FeynmanRuleLatex, diagramLabelsShowTheFreeIndicesOfTheFields)
     }
     FAIL() << "no photon vertex found in QED";
 }
+
+namespace {
+
+// Metric/Delta elements of a rule value whose parent contradicts the index
+// signs of their (signed) space. The first offender is described in `first`.
+size_t countInconsistentMetricDelta(csl::Expr const &expr, std::string &first)
+{
+    size_t wrong = 0;
+    csl::VisitEachNode(expr, [&](csl::Expr const &node) {
+        if (node->getType() != csl::Type::TensorElement)
+            return;
+        csl::Parent_info    parent    = node->getParent_info();
+        csl::IndexStructure structure = node->getIndexStructure();
+        if (not parent or structure.size() != 2
+            or not structure[0].getSpace()
+            or not structure[0].getSpace()->getSignedIndex())
+            return;
+        bool sameSign = structure[0].getSign() == structure[1].getSign();
+        bool bad      = (parent->getType() == cslParent::Metric and not sameSign)
+                   or (parent->getType() == cslParent::Delta and sameSign);
+        if (not bad)
+            return;
+        if (wrong == 0)
+            first = "parent type " + std::to_string(static_cast<int>(parent->getType()))
+                    + ", indices " + std::string(structure[0].getName()) + ":"
+                    + std::to_string(structure[0].getSign()) + " "
+                    + std::string(structure[1].getName()) + ":"
+                    + std::to_string(structure[1].getSign()) + ", element "
+                    + node->printLaTeX(0);
+        ++wrong;
+    });
+    return wrong;
+}
+
+} // namespace
+
+TEST(FeynmanRuleIndexSync, smRuleValuesMatchMetricAndDeltaToIndexSigns)
+{
+    SM_Model sm;
+    size_t   value = 0;
+    for (auto const &rule : sm.getFeynmanRules()) {
+        FeynmanRule normalized = rule;
+        normalized.normalizeIndices();
+        std::string first;
+        size_t      wrong = countInconsistentMetricDelta(
+            csl::DeepRefreshed(csl::DeepHardFactored(
+                csl::ExpandAbbreviations(normalized.getExpr()))),
+            first);
+        if (wrong != 0)
+            ADD_FAILURE() << wrong << " inconsistent metric/delta in value of "
+                          << LatexFeynmanRuleValue(normalized)
+                          << "; first: " << first;
+        value += wrong;
+    }
+    EXPECT_EQ(value, 0u) << "wrong metric/delta symbols in SM rule values";
+}
+

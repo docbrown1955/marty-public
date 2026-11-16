@@ -317,7 +317,8 @@ void PolarizationField::printCode(int mode, std::ostream &out) const
     other.TensorFieldElement::printCode(mode, out);
 }
 
-void PolarizationField::printProp(std::ostream &out) const
+void PolarizationField::printProp(std::ostream &out,
+                                  std::string const &) const
 {
     if (isFermionic()) {
         if (isParticle())

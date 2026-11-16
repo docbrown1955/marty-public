@@ -1872,8 +1872,9 @@ MetricParent::MetricParent() : TensorParent()
 }
 
 MetricParent::MetricParent(const DeltaParent &delta)
-    : TensorParent(
-        "delta;\\delta", {delta.getSpace()[0], delta.getSpace()[0]}, delta.getTensor())
+    : TensorParent("delta;\\delta",
+                   {delta.getSpace()[0], delta.getSpace()[0]},
+                   delta.getTensor())
 {
 }
 
@@ -2012,10 +2013,9 @@ DeltaParent::DeltaParent() : TensorParent()
 }
 
 DeltaParent::DeltaParent(const Space *t_space, bool buildTensor)
-    : TensorParent(
-        "delta;\\delta", 
-        {t_space, t_space}, 
-        buildTensor ? identity_s(t_space->getDim()) : CSL_UNDEF)
+    : TensorParent("delta;\\delta",
+                   {t_space, t_space},
+                   buildTensor ? identity_s(t_space->getDim()) : CSL_UNDEF)
 {
     trace  = space[0]->getSymbolicDim();
     valued = true;
@@ -2679,7 +2679,8 @@ csl::vector_expr TensorElement::getPermutations(bool optimize) const
     csl::vector_expr    res(1, Copy(this));
     if (getDim() == 1)
         return res;
-    if (parent->getFullySymmetric() or parent->getFullyAntiSymmetric()) {
+    if (parent->getFullySymmetric()
+        or parent->getFullyAntiSymmetric()) {
         if (!optimize) {
             const int   nIndices = index.size();
             Permutation initPerm(nIndices);
@@ -2835,8 +2836,9 @@ std::string latexScriptBase(std::string const &name, bool scripted)
 }
 
 struct ChainNode {
-    Expr                expr;
-    std::vector<Index>  indices; // matrix indices: 1 for vectors, 2 for matrices
+    Expr expr;
+    std::vector<Index>
+        indices; // matrix indices: 1 for vectors, 2 for matrices
     std::vector<size_t> partner;     // node at the other end of each port
     std::vector<size_t> partnerPort; // port of that node
     std::vector<Index>  extras;      // other indices, printed as superscripts
@@ -2867,9 +2869,8 @@ std::vector<ChainStep> walkChain(std::vector<ChainNode> const &nodes,
     }
 }
 
-std::vector<ChainStep> walkCycle(std::vector<ChainNode> const &nodes,
-                                 size_t                        start,
-                                 size_t                        exitPort)
+std::vector<ChainStep>
+walkCycle(std::vector<ChainNode> const &nodes, size_t start, size_t exitPort)
 {
     std::vector<ChainStep> seq{{start, false}};
     size_t                 cur  = start;
@@ -2918,10 +2919,11 @@ void checkCommutingOrder(std::vector<ChainNode> const &nodes,
                 or nodes[nb].expr->getCommutable())
                 continue;
             if (posOfNode[na] > posOfNode[nb])
-                CALL_SMERROR_SPEC(
-                    CSLError::MatrixPrintingError,
-                    "Cannot print a matrix chain as a matrix product: "
-                    "non-commuting factors would have to be reordered.");
+                CALL_SMERROR_SPEC(CSLError::MatrixPrintingError,
+                                  "Cannot print a matrix chain as a matrix "
+                                  "product: "
+                                  "non-commuting factors would have to be "
+                                  "reordered.");
         }
     }
 }
@@ -2938,9 +2940,9 @@ std::vector<LatexMatrixChain> getMatrixChains(vector_expr const &factors)
         if (factors[p]->getType() != Type::TensorElement
             and factors[p]->getType() != Type::TensorFieldElement)
             continue;
-        auto structure = factors[p]->getIndexStructure();
-        allIndices[p]  = structure.getIndex();
-        auto const &idx = allIndices[p];
+        auto structure          = factors[p]->getIndexStructure();
+        allIndices[p]           = structure.getIndex();
+        auto const         &idx = allIndices[p];
         std::vector<Index>  ports;
         std::vector<Index>  extras;
         std::vector<size_t> portPos;
@@ -2965,7 +2967,8 @@ std::vector<LatexMatrixChain> getMatrixChains(vector_expr const &factors)
                          portPos});
     }
 
-    // Find the partner of each index: the only other occurrence in the product.
+    // Find the partner of each index: the only other occurrence in the
+    // product.
     for (size_t n = 0; n != nodes.size(); ++n) {
         size_t p = posOfNode[n];
         for (size_t port = 0; port != nodes[n].indices.size(); ++port) {
@@ -2984,9 +2987,9 @@ std::vector<LatexMatrixChain> getMatrixChains(vector_expr const &factors)
             }
             if (occurrences != 1 or nodeOfPos[otherPos] == noNode)
                 continue;
-            size_t partnerNode = nodeOfPos[otherPos];
-            auto const &partnerPos = nodes[partnerNode].portPos;
-            size_t partnerPortIdx
+            size_t      partnerNode = nodeOfPos[otherPos];
+            auto const &partnerPos  = nodes[partnerNode].portPos;
+            size_t      partnerPortIdx
                 = std::find(partnerPos.begin(), partnerPos.end(), otherPort)
                   - partnerPos.begin();
             nodes[n].partner[port]     = partnerNode;
@@ -3003,7 +3006,8 @@ std::vector<LatexMatrixChain> getMatrixChains(vector_expr const &factors)
     std::vector<LatexMatrixChain> chains;
     std::vector<bool>             visited(nodes.size(), false);
     for (size_t end = 0; end != nodes.size(); ++end) {
-        if (visited[end] or nodes[end].indices.size() != 1 or not isClosed(end))
+        if (visited[end] or nodes[end].indices.size() != 1
+            or not isClosed(end))
             continue;
         // Collect the component of end
         std::vector<size_t> members{end};
@@ -3031,7 +3035,8 @@ std::vector<LatexMatrixChain> getMatrixChains(vector_expr const &factors)
             continue;
 
         std::sort(ends.begin(), ends.end(), [&](size_t l, size_t r) {
-            return nodes[l].expr->getLatexName() < nodes[r].expr->getLatexName();
+            return nodes[l].expr->getLatexName()
+                   < nodes[r].expr->getLatexName();
         });
         std::vector<ChainStep> best;
         int                    bestTransposes = -1;
@@ -3050,8 +3055,8 @@ std::vector<LatexMatrixChain> getMatrixChains(vector_expr const &factors)
         checkCommutingOrder(nodes, best, posOfNode);
         std::string latex;
         for (size_t k = 0; k != best.size(); ++k) {
-            auto const &element
-                = static_cast<TensorElement const &>(*nodes[best[k].node].expr);
+            auto const &element = static_cast<TensorElement const &>(
+                *nodes[best[k].node].expr);
             bool transposed = best[k].transposed;
             if (k == 0)
                 transposed = not element.isLatexRow();
@@ -3087,16 +3092,16 @@ std::vector<LatexMatrixChain> getMatrixChains(vector_expr const &factors)
         }
         for (auto n : members)
             visited[n] = true;
-        bool hasVector = std::any_of(members.begin(),
-                                     members.end(),
-                                     [&](size_t n) {
-                                         return nodes[n].indices.size() == 1;
-                                     });
+        bool hasVector
+            = std::any_of(members.begin(), members.end(), [&](size_t n) {
+                  return nodes[n].indices.size() == 1;
+              });
         if (not valid or hasVector)
             continue;
 
         std::sort(members.begin(), members.end(), [&](size_t l, size_t r) {
-            return nodes[l].expr->getLatexName() < nodes[r].expr->getLatexName();
+            return nodes[l].expr->getLatexName()
+                   < nodes[r].expr->getLatexName();
         });
         std::vector<ChainStep> best;
         int                    bestTransposes = -1;
@@ -3129,6 +3134,24 @@ std::vector<LatexMatrixChain> getMatrixChains(vector_expr const &factors)
     return chains;
 }
 
+std::string latexIndexScripts(std::vector<Index> const &indices)
+{
+    std::string lower;
+    std::string upper;
+    for (auto const &index : indices) {
+        bool isUpper = index.getSpace() != nullptr
+                       and index.getSpace()->getSignedIndex()
+                       and index.getSign();
+        (isUpper ? upper : lower) += index.printLaTeX();
+    }
+    std::string res;
+    if (not lower.empty())
+        res += "_{" + lower + "}";
+    if (not upper.empty())
+        res += "^{" + upper + "}";
+    return res;
+}
+
 std::string TensorElement::getLatexDisplayName() const
 {
     return getLatexName();
@@ -3146,28 +3169,26 @@ std::string TensorElement::getLatexPointSuffix() const
 
 string TensorElement::printLaTeX(int) const
 {
-    auto           structure = getIndexStructure();
-    auto const    &indices   = structure.getIndex();
+    auto        structure = getIndexStructure();
+    auto const &indices   = structure.getIndex();
     if (indices.size() == 2 and indices[0] == indices[1]
         and indices[0].getSpace() != nullptr
         and indices[0].getSpace()->getMatrixPrinting()) {
         if (getCommutable() == false)
-            CALL_SMERROR_SPEC(
-                CSLError::MatrixPrintingError,
-                "Cannot print a matrix trace with non-commuting factors.");
+            CALL_SMERROR_SPEC(CSLError::MatrixPrintingError,
+                              "Cannot print a matrix trace with non-commuting "
+                              "factors.");
         return "\\mathrm{Tr}\\left(" + getLatexDisplayName() + "\\right)";
     }
-    std::string    res = latexScriptBase(getLatexDisplayName(), not indices.empty());
+    std::string res
+        = latexScriptBase(getLatexDisplayName(), not indices.empty());
     if (not indices.empty()) {
-        res += "_{";
-        for (auto const &i : indices)
-            res += i.printLaTeX();
-        res += "}";
+        res += latexIndexScripts(indices);
     }
     ostringstream sout;
     sout << res;
     if (not isLatexRow())
-        printProp(sout);
+        printProp(sout, getLatexConjugateSymbol());
     return sout.str();
 }
 

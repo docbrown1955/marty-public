@@ -501,6 +501,40 @@ TEST(ExpandAbbreviations, inputIsNotModified)
     EXPECT_EQ(printLatex(ab), before);
 }
 
+TEST(LatexSignedIndices, metricWithEqualSignsIsG)
+{
+    Index mu = Minkowski.generateIndex("\\mu");
+    Index nu = Minkowski.generateIndex("\\nu");
+    EXPECT_EQ(printLatex((*Minkowski.getMetric())(std::vector<Index>{mu, nu})),
+              "g^{\\mu\\nu}");
+}
+
+TEST(LatexSignedIndices, freeDeltaIndicesAreRelabelledUpper)
+{
+    Index mu = Minkowski.generateIndex("\\mu");
+    Index nu = Minkowski.generateIndex("\\nu");
+    nu.flipSign();
+    EXPECT_EQ(printLatex((*Minkowski.getDelta())(std::vector<Index>{mu, nu})),
+              "\\delta^{\\mu\\nu}");
+}
+
+TEST(LatexSignedIndices, unsignedSpaceKeepsSubscripts)
+{
+    Space  S{"S", 4, {"alpha", "beta"}};
+    Tensor x{"x", &S};
+    Index  p = S.generateIndex("alpha");
+    EXPECT_EQ(x(p)->printLaTeX(0), "x_{alpha}");
+}
+
+TEST(LatexConjugate, complexVariableUsesStarInLatexAndTerminal)
+{
+    Expr c = GetComplexConjugate(variable_s("c", ComplexProperty::Complex));
+    EXPECT_EQ(c->printLaTeX(0), "c^{*}");
+    std::ostringstream terminal;
+    c->print(1, terminal);
+    EXPECT_EQ(terminal.str(), "c*");
+}
+
 TEST(LatexComposite, productOfSums)
 {
     auto a = variable_s("a");

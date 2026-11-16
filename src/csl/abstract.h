@@ -116,7 +116,13 @@ class Abstract {
     static std::string regularLiteral(std::string const &name);
     static std::string regularLiteral(std::string_view name);
 
-    virtual void printProp(std::ostream &fout = std::cout) const;
+    virtual void printProp(std::ostream &fout = std::cout,
+                           std::string const &conjugateSymbol = "*") const;
+
+    /*! \brief LaTeX symbol printed after an object carrying the complex
+     * conjugate property (e.g. ^{*}).
+     */
+    virtual std::string getLatexConjugateSymbol() const;
 
     /*! \brief Displays explicitely the expression, with types of each
      * component. This function is only used for debug. \param mode Mode of

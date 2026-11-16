@@ -371,7 +371,7 @@ Expr ExpandAbbreviations(Expr const &expr)
 
 namespace {
 
-void applyRenamingMap(Expr                                         &expr,
+void applyRenamingMap(Expr                                      &expr,
                       std::map<IndexRenaming::Key, Index> const &renamed)
 {
     ForEachLeaf(expr, [&](Expr &sub) {
@@ -394,20 +394,23 @@ void applyRenamingMap(Expr                                         &expr,
 
 } // namespace
 
-Expr RelabelIndices(Expr const &expr, bool relabelFree, IndexRenaming &renaming)
+Expr RelabelIndices(Expr const    &expr,
+                    bool           relabelFree,
+                    IndexRenaming &renaming)
 {
-    using Key = IndexRenaming::Key;
+    using Key  = IndexRenaming::Key;
     auto keyOf = [](Index const &index) {
-        return Key{index.getSpace(), index.getID(), std::string(index.getName())};
+        return Key{
+            index.getSpace(), index.getID(), std::string(index.getName())};
     };
 
     Expr res = expr;
     csl::WeakDeepCopy(res);
 
-    std::vector<Index>                                    freeIndices;
-    std::vector<Index>                                    dummyIndices;
-    std::map<Key, bool>                                   seen;
-    std::set<std::pair<Space const *, std::string>>       keptNames;
+    std::vector<Index>                              freeIndices;
+    std::vector<Index>                              dummyIndices;
+    std::map<Key, bool>                             seen;
+    std::set<std::pair<Space const *, std::string>> keptNames;
     VisitEachLeaf(res, [&](const Expr &sub) {
         if (not IsIndicialTensor(sub))
             return;
@@ -435,18 +438,22 @@ Expr RelabelIndices(Expr const &expr, bool relabelFree, IndexRenaming &renaming)
     auto relabel = [&](Index const &index) {
         Space const *space = index.getSpace();
         auto const  &pool  = space->getDefaultIndexNames();
-        auto         next  = [&]() {
-            return pool[identitiesInSpace[space]++ % pool.size()];
-        };
+        auto         next
+            = [&]() { return pool[identitiesInSpace[space]++ % pool.size()]; };
         std::string base = next();
-        for (size_t tries = 1; tries != pool.size()
-                               and keptNames.count({space, base});
+        for (size_t tries = 1;
+             tries != pool.size() and keptNames.count({space, base});
              ++tries)
             base = next();
         size_t n      = uses[{space, base}]++;
         Index  result = index;
         result.setName(n == 0 ? base : base + "_" + std::to_string(n));
         result.setID(0);
+        if (result.getType() == cslIndex::Free) {
+            result
+                = +result; // Default to upper indices for free indices
+                           // (normalization, disambiguate with other indices)
+        }
         renamed.emplace(keyOf(index), result);
     };
     for (auto const &index : freeIndices)
@@ -473,7 +480,6 @@ Expr ApplyIndexRenaming(Expr const &expr, IndexRenaming const &renaming)
     applyRenamingMap(res, renaming.renamed);
     return res;
 }
-
 
 std::string printLatex(Expr const &expr)
 {

@@ -15,8 +15,10 @@ int main(int argc, char **argv)
 {
     std::string fileName = argc > 1 ? argv[1] : "sm_feynman_rules.tex";
 
-    SM_Model sm;
+    SM_Model    sm;
     auto const &rules = sm.getFeynmanRules();
+
+    Display(rules);
 
     std::ofstream out(fileName);
     out << "\\documentclass{article}\n"
@@ -25,8 +27,7 @@ int main(int argc, char **argv)
         << "\\usepackage[margin=2cm]{geometry}\n"
         << "\\begin{document}\n"
         << "\\section*{Standard Model Feynman rules}\n"
-        << LatexFeynmanRules(rules)
-        << "\\end{document}\n";
+        << LatexFeynmanRules(rules) << "\\end{document}\n";
 
     std::cout << rules.size() << " Feynman rules written to " << fileName
               << std::endl;

@@ -1300,6 +1300,13 @@ bool QuantumField::isLatexRow() const
     return getConjugated() and not isBosonic();
 }
 
+std::string QuantumField::getLatexConjugateSymbol() const
+{
+    if (getConjugated() and isBosonic())
+        return "^{\\dagger}";
+    return "";
+}
+
 bool QuantumField::isExternal() const
 {
     return external;

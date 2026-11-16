@@ -219,6 +219,14 @@ class ContractionChain {
 };
 
 class TensorElement;
+
+/*!
+ * \brief LaTeX scripts of a list of indices: indices that are lower (or
+ * indices of an unsigned space) are subscripts, indices that are upper in a
+ * signed space are superscripts. Returns e.g. "_{\mu\nu}", "^{\nu}" or
+ * "_{\mu}^{\nu}".
+ */
+std::string latexIndexScripts(std::vector<Index> const &indices);
 class Symbol;
 
 /*!

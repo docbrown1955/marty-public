@@ -66,7 +66,8 @@ class PolarizationField : public mty::QuantumField {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    void printProp(std::ostream &out = std::cout) const override;
+    void printProp(std::ostream &out = std::cout,
+                   std::string const &conjugateSymbol = "*") const override;
 
     /*!
      * \brief Returns a mty::Particle, pointer to the parent of the field.
