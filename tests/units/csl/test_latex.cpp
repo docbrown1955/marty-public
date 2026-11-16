@@ -229,14 +229,15 @@ TEST(LatexMatrixChains, nonCommutingFactorInOrderIsPrinted)
     EXPECT_NO_THROW(latex(expr));
 }
 
-TEST(LatexMatrixChains, reorderedNonCommutingFactorsAreAnError)
+TEST(LatexMatrixChains, reorderedNonCommutingFactorsArePrintedTransposed)
 {
     ChainSetup s;
     s.M2T->setCommutable(false);
     s.M3T->setCommutable(false);
-    // M3 is written before M2, but the chain y M2 M3 x needs M2 first.
+    // The matrix chain y M3 M2 x would multiply M3 first, but M2 comes first
+    // in the product. The transposed chain x^T M2^T M3^T y keeps that order.
     auto expr = s.y(s.i) * s.M2(s.j, s.k) * s.M3(s.i, s.j) * s.x(s.k);
-    EXPECT_THROW(latex(expr), CSLError);
+    EXPECT_EQ(latex(expr), "x^{T}{M_{2}}^{T}{M_{3}}^{T}y");
 }
 
 TEST(LatexMatrixChains, nonCommutingFactorsInOrderArePrinted)
@@ -386,14 +387,14 @@ TEST(LatexComposite, traceAndFraction)
               "\\frac{a}{b} + \\mathrm{Tr}\\left(M_{1}M_{2}\\right)");
 }
 
-TEST(LatexComposite, reorderedNonCommutingChainInsideSumIsAnError)
+TEST(LatexComposite, reorderedNonCommutingChainInsideSumIsTransposed)
 {
     ChainSetup s;
     s.M2T->setCommutable(false);
     s.M3T->setCommutable(false);
     auto a    = variable_s("a");
     auto expr = a + s.y(s.i) * s.M2(s.j, s.k) * s.M3(s.i, s.j) * s.x(s.k);
-    EXPECT_THROW(latex(expr), CSLError);
+    EXPECT_EQ(latex(expr), "a + x^{T}{M_{2}}^{T}{M_{3}}^{T}y");
 }
 
 TEST(LatexPrintLatex, dummyPairsAreRelabelledInOrder)

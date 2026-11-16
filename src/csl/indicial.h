@@ -221,6 +221,12 @@ class ContractionChain {
 class TensorElement;
 
 /*!
+ * \brief Wraps a LaTeX name in braces when it has a sub- or superscript and
+ * the caller asks for a script, so that it can take another script.
+ */
+std::string latexScriptBase(std::string const &name, bool scripted);
+
+/*!
  * \brief LaTeX scripts of a list of indices: indices that are lower (or
  * indices of an unsigned space) are subscripts, indices that are upper in a
  * signed space are superscripts. Returns e.g. "_{\mu\nu}", "^{\nu}" or
@@ -563,7 +569,7 @@ class DeltaParent : public TensorParent {
 
     DeltaParent(const DeltaParent &abstract) = delete;
 
-    explicit DeltaParent(const Space *t_space, bool buildTensor=true);
+    explicit DeltaParent(const Space *t_space, bool buildTensor = true);
 
     cslParent::Type getType() const override;
 
@@ -916,7 +922,9 @@ class TensorElement : public AbstractElement {
 
     /*! \brief LaTeX suffix giving the space-time point of a field, e.g. (X).
      */
-    virtual std::string getLatexPointSuffix() const;    std::vector<Parent> getSubSymbols() const override;
+    virtual std::string getLatexPointSuffix() const;
+
+    std::vector<Parent> getSubSymbols() const override;
 
     std::optional<Expr> derive(Expr_info expr) const override;
 
@@ -1099,23 +1107,6 @@ class ISum : public Sum {
  * \brief Specialization of a Prod object to handle TensorElement objects in
  * the product (apply contraction of indices etc).
  */
-/*! \brief Implicit matrix chain of a product, e.g. y_i M_{ij} x_j, printed as a
- * matrix product y^{T} M x.
- */
-struct LatexMatrixChain {
-    std::vector<size_t> factors; //!< Positions of the factors in the product.
-    std::string         latex;   //!< LaTeX text of the chain.
-};
-
-/*! \brief Finds the contracted chains of vectors and matrices in a product
- * whose factors can be printed as a matrix product.
- * \details Only closed open-ended chains (two vector ends, matrices in
- * between) living in spaces with matrix printing enabled are returned.
- * Throws CSLError::MatrixPrintingError if such a chain contains a
- * non-commuting factor.
- */
-std::vector<LatexMatrixChain> getMatrixChains(vector_expr const &factors);
-
 class IProd : public Prod {
 
   public:

@@ -20,6 +20,7 @@
 #include "cslcomplex.h"
 #include "indicial.h"
 #include "interface.h"
+#include "latexChain.h"
 #include "librarydependency.h"
 #include "librarygenerator.h"
 #include "mathFunctions.h"

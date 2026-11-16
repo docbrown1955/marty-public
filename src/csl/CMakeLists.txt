@@ -52,6 +52,8 @@ set(ALL_SOURCES
     interface.h
     interface_indicial.cpp
     interface_indicial.h
+    latexChain.cpp
+    latexChain.h
     libcallable_data.h
     libcomplexop.h
     libcomplexop_hdata.h

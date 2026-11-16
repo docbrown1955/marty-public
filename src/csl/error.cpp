@@ -66,9 +66,6 @@ std::ostream &operator<<(std::ostream &fout, CSLError error)
     case CSLError::ZeroDivisionError:
         fout << "ZeroDivisionError";
         break;
-    case CSLError::MatrixPrintingError:
-        fout << "MatrixPrintingError";
-        break;
     default:
         std::cout << "Error ";
         break;

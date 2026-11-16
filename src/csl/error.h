@@ -51,10 +51,8 @@ enum class CSLError {
                 // of incorrect type.
     ValueError, // Raised when a function gets argument of correct type but
                 // improper value.
-    ZeroDivisionError, // Raised when second operand of division or modulo
-                       // operation is zero.
-    MatrixPrintingError // Raised when a matrix chain cannot be printed as a
-                        // matrix product (non-commuting factors).
+    ZeroDivisionError // Raised when second operand of division or modulo
+                      // operation is zero.
 };
 
 std::ostream &operator<<(std::ostream &fout, CSLError error);
