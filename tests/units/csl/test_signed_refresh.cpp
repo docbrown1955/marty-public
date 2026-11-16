@@ -76,13 +76,12 @@ TEST(SignedRefresh, renamingFlipsDeltaIntoMetricInOutput)
     EXPECT_EQ(refreshed->printLaTeX(0), metricOn(S, mu, nu)->printLaTeX(0));
 }
 
-TEST(SignedRefresh, relabelledFlippedMetricPrintsDelta)
+TEST(SignedRefresh, relabelledFlippedMetricPrintsUpperAfterRefresh)
 {
     Space const &S = buildMinkowski();
     Index        mu = S.generateIndex("mu");
     Index        nu = S.generateIndex("nu");
     Expr flipped = ApplyIndexRenaming(metricOn(S, mu, nu), flipRenaming(nu));
     Expr refreshed = DeepRefreshed(RelabelIndices(flipped));
-    EXPECT_EQ(printLatex(refreshed),
-              printLatex(deltaOn(S, mu, nu.getFlipped())));
+    EXPECT_EQ(printLatex(refreshed), "g^{\\mu\\nu}");
 }

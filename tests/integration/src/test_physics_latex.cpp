@@ -80,7 +80,7 @@ TEST(PhysicsLatex, gaugeBosonKineticSquare)
     csl::Index mu = MinkowskiIndex("\\mu");
     Particle   W  = sm.getParticle("W");
     EXPECT_EQ(latex(csl::GetComplexConjugate(W(+mu)) * W(-mu)),
-              "W_{\\mu}(X)W_{\\mu}(X)^{\\dagger}");
+              "W_{\\mu}(X)W^{\\mu}(X)^{\\dagger}");
 }
 
 TEST(PhysicsLatex, smInputNamesAreGreekAndSubscripted)

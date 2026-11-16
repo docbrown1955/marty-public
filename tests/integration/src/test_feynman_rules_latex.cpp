@@ -202,8 +202,11 @@ namespace {
 bool isSpinIndex(QuantumField const &field, csl::Index const &index,
                  size_t position)
 {
-    return position == 0 and field.isBosonic()
-           and index.getSpace() == &csl::Minkowski;
+    if (position != 0)
+        return false;
+    if (field.isFermionic())
+        return true;
+    return field.isBosonic() and index.getSpace() == &csl::Minkowski;
 }
 
 bool containsIndex(std::vector<csl::Index> const &indices,
@@ -277,52 +280,32 @@ TEST(FeynmanRuleIndexSync, smRulesCarryTheFreeIndicesOfTheirValue)
     EXPECT_GT(withDelta, 0u) << "no SM rule with a Kronecker delta found";
 }
 
-TEST(FeynmanRuleLatex, diagramLabelsShowTheFreeIndicesOfTheFields)
+TEST(FeynmanRuleLatex, diagramOmitsIndicesButValueKeepsFieldIndices)
 {
-    QED_Model qed;
-    for (auto const &rule : qed.getFeynmanRules()) {
-        bool hasPhoton = false;
-        for (auto const &field : rule.getFieldProduct())
-            if (field.getLatexName() == "A")
-                hasPhoton = true;
-        if (not hasPhoton)
+    SM_Model sm;
+    for (auto const &rule : sm.getFeynmanRules()) {
+        std::vector<std::string> labels;
+        for (auto const &field : rule.getFieldProduct()) {
+            auto structure = field.getIndexStructure().getIndex();
+            for (size_t i = 0; i != structure.size(); ++i)
+                if (not isSpinIndex(field, structure[i], i))
+                    labels.push_back(structure[i].printLaTeX());
+        }
+        if (labels.empty())
             continue;
 
-        csl::Expr product = CSL_1;
-        for (auto const &field : rule.getFieldProduct()) {
-            csl::Expr factor = csl::make_shared<QuantumField>(field);
-            product          = product * factor;
+        std::string latex   = LatexFeynmanRule(rule);
+        std::string diagram = latex.substr(0, latex.find("\\quad="));
+        std::string value   = LatexFeynmanRuleValue(rule);
+        for (auto const &label : labels) {
+            EXPECT_EQ(diagram.find("_{" + label + "}"), std::string::npos)
+                << "diagram shows index " << label << "\n" << diagram;
+            EXPECT_NE(value.find(label), std::string::npos)
+                << "value misses index " << label << ": " << value;
         }
-        csl::IndexRenaming renaming;
-        csl::Expr renamed = csl::RelabelIndices(product, true, renaming);
-        std::vector<QuantumField> renamedFields;
-        csl::ForEachLeaf(renamed, [&](csl::Expr const &el) {
-            if (IsOfType<QuantumField>(el))
-                renamedFields.push_back(ConvertTo<QuantumField>(el));
-        });
-        ASSERT_EQ(renamedFields.size(), rule.getFieldProduct().size());
-
-        std::string latex     = LatexFeynmanRule(rule);
-        std::string diagram   = latex.substr(0, latex.find("\\quad="));
-        std::string value     = LatexFeynmanRuleValue(rule);
-        bool        hasLabel  = false;
-        for (auto const &field : renamedFields) {
-            auto structure = field.getIndexStructure().getIndex();
-            for (size_t i = 0; i != structure.size(); ++i) {
-                if (isSpinIndex(field, structure[i], i))
-                    continue;
-                hasLabel          = true;
-                std::string label = structure[i].printLaTeX();
-                EXPECT_NE(diagram.find("_{" + label + "}"), std::string::npos)
-                    << "diagram misses index " << label << "\n" << diagram;
-                EXPECT_NE(value.find(label), std::string::npos)
-                    << "value misses index " << label << ": " << value;
-            }
-        }
-        EXPECT_TRUE(hasLabel);
         return;
     }
-    FAIL() << "no photon vertex found in QED";
+    FAIL() << "no SM rule with non-spin field indices found";
 }
 
 namespace {
