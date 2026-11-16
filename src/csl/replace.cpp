@@ -489,18 +489,49 @@ void renameIndex(csl::Index &index, std::map<csl::Index, csl::Index> &mapping)
     index = newIndex;
 }
 
+namespace {
+
+/* Calls visit on each index of each indicial tensor of expr, derivative nodes
+ * included. A tensor is copied before its indices are changed, so the
+ * subexpressions shared with other expressions are left untouched. */
+void visitIndicesOfTensors(csl::Expr                               &expr,
+                           std::function<void(csl::Index &)> const &visit)
+{
+    csl::ForEachNode(expr, [&visit](csl::Expr &sub) {
+        if (not csl::IsIndicialTensor(sub))
+            return;
+        sub                        = csl::Copy(sub);
+        csl::IndexStructure &index = sub->getIndexStructureView();
+        for (auto &i : index)
+            visit(i);
+    });
+}
+
+void applyRenamingMap(
+    csl::Expr                                           &expr,
+    std::map<csl::IndexRenaming::Key, csl::Index> const &renamed)
+{
+    visitIndicesOfTensors(expr, [&renamed](csl::Index &i) {
+        if (not i.getSpace()
+            or (i.getType() != cslIndex::Dummy
+                and i.getType() != cslIndex::Free))
+            return;
+        auto key = csl::IndexRenaming::Key{
+            i.getSpace(), i.getID(), std::string(i.getName())};
+        if (auto found = renamed.find(key); found != renamed.end())
+            i = found->second;
+    });
+}
+
+} // namespace
+
 void RenameIndices(csl::Expr &expr)
 {
     csl::WeakDeepCopy(expr);
     std::map<csl::Index, csl::Index> mapping;
-    csl::ForEachNode(expr, [&mapping](csl::Expr &sub) {
-        if (csl::IsIndicialTensor(sub)) {
-            sub                        = csl::Copy(sub);
-            csl::IndexStructure &index = sub->getIndexStructureView();
-            for (auto &i : index)
-                if (i.getType() == cslIndex::Dummy)
-                    renameIndex(i, mapping);
-        }
+    visitIndicesOfTensors(expr, [&mapping](csl::Index &i) {
+        if (i.getType() == cslIndex::Dummy)
+            renameIndex(i, mapping);
     });
 }
 
@@ -508,6 +539,93 @@ csl::Expr RenamedIndices(csl::Expr const &expr)
 {
     csl::Expr res = expr;
     csl::RenameIndices(res);
+    return res;
+}
+
+Expr RelabelIndices(Expr const    &expr,
+                    bool           relabelFree,
+                    IndexRenaming &renaming)
+{
+    using Key  = IndexRenaming::Key;
+    auto keyOf = [](Index const &index) {
+        return Key{
+            index.getSpace(), index.getID(), std::string(index.getName())};
+    };
+
+    Expr res = expr;
+    csl::WeakDeepCopy(res);
+
+    std::vector<Index>                              freeIndices;
+    std::vector<Index>                              dummyIndices;
+    std::map<Key, bool>                             seen;
+    std::set<std::pair<Space const *, std::string>> keptNames;
+    VisitEachNode(res, [&](const Expr &sub) {
+        if (not IsIndicialTensor(sub))
+            return;
+        auto structure = sub->getIndexStructure();
+        for (auto const &index : structure.getIndex()) {
+            bool dummy = index.getType() == cslIndex::Dummy;
+            bool free  = index.getType() == cslIndex::Free;
+            if (not index.getSpace() or (not dummy and not free))
+                continue;
+            if (free and not relabelFree) {
+                keptNames.emplace(index.getSpace(),
+                                  std::string(index.getName()));
+                continue;
+            }
+            if (seen.emplace(keyOf(index), true).second)
+                (dummy ? dummyIndices : freeIndices).push_back(index);
+        }
+    });
+
+    std::map<Key, Index>                                    renamed;
+    std::map<Space const *, size_t>                         identitiesInSpace;
+    std::map<std::pair<Space const *, std::string>, size_t> uses;
+    for (auto const &kept : keptNames)
+        uses[kept] = 1;
+    auto relabel = [&](Index const &index) {
+        Space const *space = index.getSpace();
+        auto const  &pool  = space->getDefaultIndexNames();
+        auto         next
+            = [&]() { return pool[identitiesInSpace[space]++ % pool.size()]; };
+        std::string base = next();
+        for (size_t tries = 1;
+             tries != pool.size() and keptNames.count({space, base});
+             ++tries)
+            base = next();
+        size_t n      = uses[{space, base}]++;
+        Index  result = index;
+        result.setName(n == 0 ? base : base + "_" + std::to_string(n));
+        result.setID(0);
+        if (result.getType() == cslIndex::Free) {
+            result
+                = +result; // Default to upper indices for free indices
+                           // (normalization, disambiguate with other indices)
+        }
+        renamed.emplace(keyOf(index), result);
+    };
+    for (auto const &index : freeIndices)
+        relabel(index);
+    for (auto const &index : dummyIndices)
+        relabel(index);
+
+    applyRenamingMap(res, renamed);
+    for (auto const &[key, index] : renamed)
+        renaming.renamed[key] = index;
+    return res;
+}
+
+Expr RelabelIndices(Expr const &expr, bool relabelFree)
+{
+    IndexRenaming renaming;
+    return RelabelIndices(expr, relabelFree, renaming);
+}
+
+Expr ApplyIndexRenaming(Expr const &expr, IndexRenaming const &renaming)
+{
+    Expr res = expr;
+    csl::WeakDeepCopy(res);
+    applyRenamingMap(res, renaming.renamed);
     return res;
 }
 
