@@ -350,8 +350,10 @@ void LibraryGroup::printFunctionStackDefinition(std::ostream &out, const enum Va
                 << ">> fmap_" << name;
             break;
         default:
-            std::cerr << "LibraryGroup::printFunctionStackDefinition has been called without a valid nFunction specification\n";
-            exit(1);
+            CALL_SMERROR_SPEC(CSLError::ValueError,
+                              "LibraryGroup::printFunctionStackDefinition has "
+                              "been called without a valid nFunction "
+                              "specification");
             break;
     }
 }
@@ -378,8 +380,10 @@ void LibraryGroup::printFunctionStackBody(std::ostream &out, int nIndent, const 
             }
             break;
         default:
-            std::cerr << "LibraryGroup::printFunctionStackBody has been called without a valid nFunction specification\n";
-            exit(1);
+            CALL_SMERROR_SPEC(CSLError::ValueError,
+                              "LibraryGroup::printFunctionStackBody has been "
+                              "called without a valid nFunction "
+                              "specification");
             break;
     }
 }

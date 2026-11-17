@@ -87,4 +87,48 @@ inline bool keepExternScalarLeg       = true;
 inline bool enableAntiChiralProps     = true;
 } // namespace mty::option
 
+/// X-macro over every flag of mty::option (declared in this header and in
+/// mrtError.h for printErrors). keepEvanescentOperators is listed under its
+/// real owner, sgl::option, because mty::option only holds a reference to it.
+/// Session snapshots exactly this list. The C++ API tests fail if a flag
+/// declared in the headers is missing here.
+#define MTY_MARTY_OPTION_FLAGS(X)                  \
+    X(mty::option, showDiagrams)                   \
+    X(mty::option, amputateExternalLegs)           \
+    X(mty::option, simplifyAmplitudes)             \
+    X(mty::option, orderExternalFermions)          \
+    X(mty::option, discardLowerOrders)             \
+    X(mty::option, evaluateFermionTraces)          \
+    X(mty::option, excludeExternalLegsCorrections) \
+    X(mty::option, excludeTadpoles)                \
+    X(mty::option, excludeMassCorrections)         \
+    X(mty::option, excludeTriangles)               \
+    X(mty::option, excludeBoxes)                   \
+    X(mty::option, excludePentagons)               \
+    X(mty::option, computeFirstIntegral)           \
+    X(mty::option, dimensionalRegularization)      \
+    X(mty::option, searchAbreviations)             \
+    X(mty::option, expandAbbreviations)            \
+    X(mty::option, applyFermionChain)              \
+    X(mty::option, abbreviateColorStructures)      \
+    X(mty::option, decomposeInOperators)           \
+    X(mty::option, decomposeInLocalOperator)       \
+    X(mty::option, applyEquationsOfMotion)         \
+    X(mty::option, addLocalTerms)                  \
+    X(mty::option, verboseAmplitude)               \
+    X(mty::option, testRepresentations)            \
+    X(mty::option, keepOnlyFirstMassInLoop)        \
+    X(mty::option, useMassiveSimplifications)      \
+    X(sgl::option, keepEvanescentOperators)        \
+    X(mty::option, displayAbbreviations)           \
+    X(mty::option, displayIntegralArgs)            \
+    X(mty::option, diagonalizeSymbolically)        \
+    X(mty::option, tryUnitaryCondition)            \
+    X(mty::option, applyFactorsAndSymmetries)      \
+    X(mty::option, applyMomentumConservation)      \
+    X(mty::option, applyInsertionOrdering)         \
+    X(mty::option, keepExternScalarLeg)            \
+    X(mty::option, enableAntiChiralProps)          \
+    X(mty::option, printErrors)
+
 #endif

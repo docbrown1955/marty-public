@@ -1,0 +1,4 @@
+# Legacy C++ test files that serve as API tests and are scanned in addition to
+# tests/api/**/*.cpp. Paths are relative to the repository root.
+# None yet: the gamma API test (tests/integration/src/gammaAPI.cpp) is listed
+# here when pymarty exposes the gamma API.

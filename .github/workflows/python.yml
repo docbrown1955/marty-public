@@ -1,0 +1,140 @@
+name: python
+
+# pymarty (Python binding) jobs. They are kept apart from c-cpp.yml, which is
+# left untouched. See docs/architecture/pymarty/testing-strategy.md.
+
+on:
+  push:
+    branches:
+      - master
+      - pymarty
+  pull_request:
+    branches:
+      - master
+    types:
+      - ready_for_review
+      - synchronize
+  workflow_dispatch:
+
+env:
+  APT_PACKAGES: >-
+    coreutils build-essential gcc-12 g++-12 gfortran-12 libgsl-dev libgslcblas0
+    cmake
+
+jobs:
+  build-and-test:
+    name: build and python tests (gcc-12)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y $APT_PACKAGES
+      - name: python tools
+        run: |
+          python -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/pip" install pytest mypy ruff pybind11
+      - name: configure
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
+            -DMARTY_BUILD_PYTHON=ON -DMARTY_BUILD_GRAFED_GUI=OFF \
+            -DMARTY_REQUIRE_LATEX_TOOLS=OFF \
+            -DPython_EXECUTABLE="$RUNNER_TEMP/venv/bin/python"
+        env:
+          CXX: g++-12
+          CC: gcc-12
+          FC: gfortran-12
+      - name: build
+        run: cmake --build build -j"$(nproc)"
+      - name: api tests (C++)
+        run: ctest --test-dir build -L api --output-on-failure
+      - name: python tests and parity check
+        run: ctest --test-dir build -L python --output-on-failure
+      - name: lint and types
+        working-directory: python
+        run: |
+          "$RUNNER_TEMP/venv/bin/ruff" check .
+          "$RUNNER_TEMP/venv/bin/ruff" format --check .
+          "$RUNNER_TEMP/venv/bin/mypy" --strict pymarty tests tools
+
+  sanitizers:
+    name: api tests under ASan and UBSan
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y $APT_PACKAGES
+          python -m pip install pytest pybind11
+      - name: configure
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
+            -DMARTY_BUILD_PYTHON=ON -DMARTY_BUILD_GRAFED_GUI=OFF \
+            -DMARTY_REQUIRE_LATEX_TOOLS=OFF \
+            -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer" \
+            -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined" \
+            -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=address,undefined"
+        env:
+          CXX: g++-12
+          CC: gcc-12
+          FC: gfortran-12
+      - name: build api tests
+        run: >-
+          cmake --build build -j"$(nproc)" --target
+          test_error_api.x test_session_api.x test_terminating_calls_api.x
+          test_config_api.x
+      - name: api tests
+        run: ctest --test-dir build -L api --output-on-failure
+        env:
+          ASAN_OPTIONS: detect_leaks=0
+          UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
+
+  wheel:
+    name: manylinux wheel (not yet validated, see spike-d)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: build wheel
+        run: |
+          python -m pip install cibuildwheel
+          python -m cibuildwheel --output-dir wheelhouse python
+        env:
+          CIBW_BUILD: cp310-manylinux_x86_64
+          CIBW_TEST_COMMAND: python -c "import pymarty; print(pymarty.__version__)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheel
+          path: wheelhouse/*.whl
+
+  manual-system:
+    name: full system tests (manual trigger only)
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - name: dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y $APT_PACKAGES qtbase5-dev qtbase5-dev-tools dvipng texlive texlive-latex-extra texlive-luatex imagemagick
+      - name: configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+        env:
+          CXX: g++-12
+          CC: gcc-12
+          FC: gfortran-12
+      - name: build
+        run: cmake --build build -j"$(nproc)"
+      - name: system tests
+        run: ctest --test-dir build -L system -j"$(nproc)" --timeout 3600 --output-on-failure

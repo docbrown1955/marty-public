@@ -76,7 +76,11 @@ class Model : public ModelBuilder {
         current = this;
     }
 
-    ~Model() override = default;
+    ~Model() override
+    {
+        if (current == this)
+            current = nullptr;
+    }
 
     Model(Model &&other)                 = delete;
     Model &operator=(Model &&other)      = delete;

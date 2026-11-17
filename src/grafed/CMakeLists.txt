@@ -1,4 +1,6 @@
 include_directories(${CMAKE_SOURCE_DIR})
 add_subdirectory(jsonparser)
 add_subdirectory(core)
-add_subdirectory(gui)
+if(MARTY_BUILD_GRAFED_GUI)
+    add_subdirectory(gui)
+endif()

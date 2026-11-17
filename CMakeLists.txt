@@ -13,35 +13,57 @@ set(IDENTICAL_COMPILER_VERSION 0)
 find_package(GSL REQUIRED)
 
 # Dependencies for GRAFED
-find_program(LUALATEX lualatex REQUIRED)
-find_program(CONVERT convert REQUIRED)
-find_program(LATEX latex REQUIRED)
+option(MARTY_REQUIRE_LATEX_TOOLS
+    "Require lualatex, latex, convert and dvipng at configure time" ON)
+option(MARTY_BUILD_GRAFED_GUI "Build the GRAFED Qt 5 GUI (grafed-gui)" ON)
+
+if(MARTY_REQUIRE_LATEX_TOOLS)
+    set(MARTY_TOOL_REQUIRED REQUIRED)
+else()
+    set(MARTY_TOOL_REQUIRED "")
+endif()
+find_program(LUALATEX lualatex ${MARTY_TOOL_REQUIRED})
+find_program(CONVERT convert ${MARTY_TOOL_REQUIRED})
+find_program(LATEX latex ${MARTY_TOOL_REQUIRED})
 find_program(DVIPNG dvipng)
 
-if(NOT LUALATEX)
-    message(FATAL_ERROR
-        "The 'lualatex' program is not found but necessary for GRAFED."
-        "Install it before retrying the installation.")
+if(MARTY_REQUIRE_LATEX_TOOLS)
+    if(NOT LUALATEX)
+        message(FATAL_ERROR
+            "The 'lualatex' program is not found but necessary for GRAFED."
+            "Install it before retrying the installation.")
+    endif()
+
+    if(NOT DVIPNG)
+        message(FATAL_ERROR
+            "The 'dvipng' program is not found but necessary for GRAFED."
+            "Install it before retrying the installation.")
+    endif()
+
+    if(NOT CONVERT)
+        message(FATAL_ERROR
+            "The 'convert' program is not found but necessary for GRAFED."
+            "The 'convert' program is part of the ImageMagick package."
+            "Install it before retrying the installation.")
+    endif()
+else()
+    # Library-only builds (for example Python wheels): missing tools are only
+    # reported. The MARTY_HAS_* definitions tell the code which ones exist.
+    foreach(tool LUALATEX CONVERT LATEX DVIPNG)
+        if(NOT ${tool})
+            message(WARNING "The '${tool}' program is not found: the "
+                "corresponding GRAFED features are unavailable.")
+        endif()
+    endforeach()
 endif()
 
-if(NOT DVIPNG)
-    message(FATAL_ERROR
-        "The 'dvipng' program is not found but necessary for GRAFED."
-        "Install it before retrying the installation.")
-endif()
-
-if(NOT LUALATEX)
-    message(FATAL_ERROR
-        "The 'lualatex' program is not found but necessary for GRAFED."
-        "Install it before retrying the installation.")
-endif()
-
-if(NOT CONVERT)
-    message(FATAL_ERROR
-        "The 'convert' program is not found but necessary for GRAFED."
-        "The 'convert' program is part of the ImageMagick package."
-        "Install it before retrying the installation.")
-endif()
+foreach(tool LUALATEX CONVERT LATEX DVIPNG)
+    if(${tool})
+        set(MARTY_HAS_${tool} 1)
+    else()
+        set(MARTY_HAS_${tool} 0)
+    endif()
+endforeach()
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
@@ -62,6 +84,10 @@ add_compile_definitions(MARTY_CXX=${CMAKE_CXX_COMPILER})
 add_compile_definitions(MARTY_CC=${CMAKE_C_COMPILER})
 add_compile_definitions(MARTY_FC=${CMAKE_Fortran_COMPILER})
 add_compile_definitions(MARTY_INSTALL_PATH=${CMAKE_INSTALL_PREFIX})
+add_compile_definitions(MARTY_HAS_LUALATEX=${MARTY_HAS_LUALATEX})
+add_compile_definitions(MARTY_HAS_CONVERT=${MARTY_HAS_CONVERT})
+add_compile_definitions(MARTY_HAS_LATEX=${MARTY_HAS_LATEX})
+add_compile_definitions(MARTY_HAS_DVIPNG=${MARTY_HAS_DVIPNG})
 
 if((NOT CMAKE_COMPILER_IS_GNUCXX) OR(NOT CMAKE_COMPILER_IS_GNUCC))
     message(WARNING
@@ -87,6 +113,11 @@ add_subdirectory(src)
 add_subdirectory(examples)
 add_subdirectory(tests)
 
+option(MARTY_BUILD_PYTHON "Build the pymarty Python extension" OFF)
+if(MARTY_BUILD_PYTHON)
+    add_subdirectory(python)
+endif()
+
 install(TARGETS marty marty-static csl csl-static marty-lha marty-lha-static marty-gamma-api marty-boltzmann-solver marty-boltzmann-solver-static
     DESTINATION lib)
 install(DIRECTORY src/
@@ -96,5 +127,7 @@ install(FILES ${PROJECT_BINARY_DIR}/libooptools.so ${PROJECT_BINARY_DIR}/liboopt
     DESTINATION lib)
 install(FILES ${PROJECT_BINARY_DIR}/libooptools-static.a ${PROJECT_BINARY_DIR}/libooptools-quad-static.a
     DESTINATION lib)
-install(TARGETS grafed-gui
-    DESTINATION bin)
+if(MARTY_BUILD_GRAFED_GUI)
+    install(TARGETS grafed-gui
+        DESTINATION bin)
+endif()

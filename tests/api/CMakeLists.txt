@@ -1,0 +1,11 @@
+function(ADD_API_TEST NAME)
+    set(target ${NAME}.x)
+    add_executable(${target} src/${NAME}.cpp)
+    SETUP_MARTY_TEST_TARGET(${target})
+    SETUP_GTEST_TARGET(${target} api)
+endfunction()
+
+ADD_API_TEST(test_error_api)
+ADD_API_TEST(test_session_api)
+ADD_API_TEST(test_terminating_calls_api)
+ADD_API_TEST(test_config_api)

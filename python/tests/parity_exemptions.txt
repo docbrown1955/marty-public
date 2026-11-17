@@ -1,0 +1,7 @@
+# C++ API tests that deliberately have no Python counterpart.
+# Format: <Module>Api.<Behaviour> | <reason>   ('*' wildcards allowed)
+ErrorApi.StdExceptionIsTranslated | std::exception is only translated by rethrowAsApiError() inside API functions; the Python binding leaves other exceptions to the pybind11 default translation
+ErrorApi.LegacyThrowStillCatchableAsCoreException | C++ compatibility of existing handlers; no Python equivalent
+ErrorApi.ExistingErrorPathKeepsStderrTextAndIsCatchable | acceptance 3 for C++ users: legacy stderr text of a core error; the Python binding is quiet by design
+SessionApi.* | Session is an internal C++ RAII guard; its effect is checked from Python by the clean_state fixture
+TerminatingCallsApi.* | former exit() sites; no Python API reaches them before Phases 3 and 6
