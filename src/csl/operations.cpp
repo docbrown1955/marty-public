@@ -1482,25 +1482,33 @@ std::string printLatexItems(std::vector<LatexItem> const &items)
 
 string Prod::printLaTeX(int mode) const
 {
-    bool                                      negative = false;
-    std::vector<LatexItem>                    numerators;
-    std::vector<std::pair<size_t, LatexItem>> denominatorOthers;
-    std::vector<std::pair<size_t, LatexItem>> others;
+    bool                   negative = false;
+    std::vector<LatexItem> numerators;
+    std::vector<LatexItem> denominatorOthers;
 
-    auto              chains = getMatrixChains(argument);
-    std::vector<bool> inChain(argument.size(), false);
+    auto                          chains = getMatrixChains(argument);
+    std::vector<bool>             inChain(argument.size(), false);
+    std::map<size_t, std::string> chainAt;
     for (auto const &chain : chains) {
         for (auto p : chain.factors)
             inChain[p] = true;
-        others.push_back({chain.factors.front(),
-                          LatexItem{nullptr, chain.latex, LatexKind::Other}});
+        chainAt[chain.factors.front()] = chain.latex;
     }
+
+    size_t nonCommuting = 0;
+    for (auto const &a : argument)
+        if (not IsNumerical(a) and not GetCommutable(a))
+            ++nonCommuting;
 
     std::vector<LatexItem> numericNumerators;
     std::vector<LatexItem> numericDenominators;
     for (size_t p = 0; p != argument.size(); ++p) {
-        if (inChain[p])
+        if (inChain[p]) {
+            if (chainAt.count(p))
+                numerators.push_back(
+                    LatexItem{nullptr, chainAt[p], LatexKind::Other});
             continue;
+        }
         auto const &a = argument[p];
         if (IsNumerical(a)) {
             if (a->getType() == Type::IntFraction) {
@@ -1533,34 +1541,34 @@ string Prod::printLaTeX(int mode) const
             and a->getArgument(1)->evaluateScalar() < 0) {
             long long k
                 = -static_cast<long long>(a->getArgument(1)->evaluateScalar());
-            Expr base  = a->getArgument(0);
-            Expr denom = (k == 1) ? base : pow_s(base, Expr(k));
-            denominatorOthers.push_back(
-                {p, LatexItem{denom, "", LatexKind::Other}});
+            Expr base = a->getArgument(0);
+            // X^-k may only move to the denominator if it commutes with the
+            // other factors: commutable, or the only non-commuting factor.
+            if (GetCommutable(base) or nonCommuting == 1) {
+                Expr denom = (k == 1) ? base : pow_s(base, Expr(k));
+                denominatorOthers.push_back(
+                    LatexItem{denom, "", LatexKind::Other});
+            }
+            else {
+                std::string text
+                    = base->printLaTeX(4) + "^{-" + std::to_string(k) + "}";
+                numerators.push_back(
+                    LatexItem{nullptr, text, LatexKind::Other});
+            }
             continue;
         }
         LatexKind kind = a->getType() == Type::Imaginary ? LatexKind::Imaginary
                                                          : LatexKind::Other;
-        others.push_back({p, LatexItem{a, "", kind}});
+        numerators.push_back(LatexItem{a, "", kind});
     }
-    std::stable_sort(
-        others.begin(), others.end(), [](auto const &l, auto const &r) {
-            return l.first < r.first;
-        });
-    std::stable_sort(
-        denominatorOthers.begin(),
-        denominatorOthers.end(),
-        [](auto const &l, auto const &r) { return l.first < r.first; });
-
-    for (auto const &entry : others)
-        numerators.push_back(entry.second);
     numerators.insert(numerators.begin(),
                       numericNumerators.begin(),
                       numericNumerators.end());
 
     std::vector<LatexItem> denominators = numericDenominators;
-    for (auto const &entry : denominatorOthers)
-        denominators.push_back(entry.second);
+    denominators.insert(denominators.end(),
+                        denominatorOthers.begin(),
+                        denominatorOthers.end());
 
     std::string body;
     if (denominators.empty()) {

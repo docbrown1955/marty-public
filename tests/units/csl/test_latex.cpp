@@ -99,6 +99,44 @@ TEST(LatexFractions, rationalCoefficientGoesToDenominator)
     EXPECT_EQ(latex(a / (2 * b)), "\\frac{a}{2b}");
 }
 
+TEST(LatexNonCommuting, inversePowerOfCommutingFactorGoesToDenominator)
+{
+    auto x = variable_s("x");
+    auto y = variable_s("y");
+    EXPECT_EQ(latex(x * pow_s(y, -1)), "\\frac{x}{y}");
+}
+
+TEST(LatexNonCommuting, inversePowerOfLoneNonCommutingFactorGoesToDenominator)
+{
+    auto x = variable_s("x");
+    auto A = variable_s("A");
+    A->setCommutable(false);
+    EXPECT_EQ(latex(pow_s(A, -1) * x), "\\frac{x}{A}");
+}
+
+TEST(LatexNonCommuting, inversePowerStaysInNumeratorWithNonCommutingFactor)
+{
+    auto A = variable_s("A");
+    auto B = variable_s("B");
+    A->setCommutable(false);
+    B->setCommutable(false);
+    EXPECT_EQ(latex(pow_s(A, -1) * B), "A^{-1}B");
+    EXPECT_EQ(latex(B * pow_s(A, -1)), "BA^{-1}");
+    EXPECT_EQ(latex(pow_s(A, -1) * pow_s(B, -1)), "A^{-1}B^{-1}");
+}
+
+TEST(LatexNonCommuting, mixOfCommutingDenominatorAndNonCommutingNumerator)
+{
+    auto x = variable_s("x");
+    auto y = variable_s("y");
+    auto A = variable_s("A");
+    auto B = variable_s("B");
+    A->setCommutable(false);
+    B->setCommutable(false);
+    EXPECT_EQ(latex(x * pow_s(y, -1) * pow_s(A, -1) * B),
+              "\\frac{A^{-1}Bx}{y}");
+}
+
 TEST(LatexPowers, bracesAndBases)
 {
     auto a = variable_s("a");
