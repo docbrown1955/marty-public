@@ -37,4 +37,6 @@ if(ENABLE_COVERAGE)
     SETUP_TARGET_FOR_COVERAGE(${UNIT_TEST_LABEL})
     SETUP_TARGET_FOR_COVERAGE(${INTEGRATION_TEST_LABEL})
     SETUP_TARGET_FOR_COVERAGE(${SYSTEM_TEST_LABEL})
+    # Single run of all test labels, so the report combines all coverage
+    SETUP_TARGET_FOR_COVERAGE(combined "")
 endif()

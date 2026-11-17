@@ -55,6 +55,21 @@ Documentation: `make doc` builds the Doxygen pages for CSL and MARTY (`doc-csl` 
 build one each). `make update-doc` builds them and copies the HTML into `docs/doc/csl/html`,
 `docs/doc/marty/html` and `docs/doc/common`, so those committed files change when it runs.
 
+### Coverage
+
+Coverage is an option, not a build type. Configure a Debug build with it, then build a report
+target:
+
+```bash
+cmake .. -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON
+make coverage_combined     # all suites in one run, report in coverage_combined/index.html
+make coverage_units        # one suite (also coverage_integration, coverage_system)
+```
+
+Each target resets the counters, runs its tests with `ctest`, and writes an HTML report to
+`build/coverage_<target>/`. It needs `gcov`, `lcov` and `genhtml`. The per-suite targets reset
+the counters, so their reports do not add up. Use `coverage_combined` for a single merged report.
+
 ## 3. Test suites
 
 Tests are declared in `tests/CMakeLists.txt`, which includes three subfolders. Every test target
