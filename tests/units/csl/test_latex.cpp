@@ -43,6 +43,17 @@ TEST(LatexSums, signs)
     EXPECT_EQ(latex(a - 2 * b), "a - 2b");
 }
 
+TEST(LatexSums, negativeTermsOfAnyShape)
+{
+    auto a = variable_s("a");
+    auto b = variable_s("b");
+    auto c = variable_s("c");
+    EXPECT_EQ(latex(a - b * c), "a - bc");
+    EXPECT_EQ(latex(a - b / 2), "a - \\frac{b}{2}");
+    EXPECT_EQ(latex(a - CSL_I * b), "a - i\\,b");
+    EXPECT_EQ(latex(a + CSL_I * b), "a + i\\,b");
+}
+
 TEST(LatexSums, bracketsDependOnMode)
 {
     auto a = variable_s("a");

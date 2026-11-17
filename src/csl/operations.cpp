@@ -230,21 +230,6 @@ void Sum::printCode(int, std::ostream &out) const
     out << "})";
 }
 
-namespace {
-
-bool hasNegativeCoefficient(Expr const &term)
-{
-    if (IsNumerical(term))
-        return term->evaluateScalar() < 0;
-    for (auto const &factor : term->getFactors()) {
-        if (IsNumerical(factor))
-            return factor->evaluateScalar() < 0;
-    }
-    return false;
-}
-
-} // namespace
-
 string Sum::printLaTeX(int mode) const
 {
     std::string res;
@@ -254,7 +239,7 @@ string Sum::printLaTeX(int mode) const
             res += term->printLaTeX(1);
             continue;
         }
-        if (hasNegativeCoefficient(term))
+        if (term->getNumericalFactor()->evaluateScalar() < 0)
             res += " - " + (-term)->printLaTeX(1);
         else
             res += " + " + term->printLaTeX(1);
@@ -2883,7 +2868,7 @@ bool Pow::mergeTerms()
     else if (argument[0]->isInteger() and argument[1]->isInteger()
              and abs(argument[1]->evaluateScalar()) < 10) {
         int res     = pow(argument[0]->evaluateScalar(),
-                      abs(argument[1]->evaluateScalar()));
+                          abs(argument[1]->evaluateScalar()));
         argument[0] = (argument[1]->evaluateScalar() < 0)
                           ? intfraction_s(1, res)
                           : int_s(res);
