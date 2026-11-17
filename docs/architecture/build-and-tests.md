@@ -37,8 +37,9 @@ Test-only: Google Test v1.15.2 is fetched with `FetchContent` in `tests/CMakeLis
 
 The build defines `MARTY_CXX`, `MARTY_CC`, `MARTY_FC` (the compilers used) and
 `MARTY_INSTALL_PATH`. MARTY uses them at run time to compile the libraries it generates.
-Build types: `Release` (default, `-O3`), `Debug`, and `Coverage` (gcov flags, which enables
-`tests/CodeCoverage.cmake`).
+Build types: `Release` (default, `-O3`) and `Debug`. Coverage is a separate option,
+`-DENABLE_COVERAGE=ON`, which adds gcov flags on top of the build type and enables
+`tests/CodeCoverage.cmake`.
 
 ## 2. Typical commands
 

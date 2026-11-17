@@ -31,8 +31,8 @@
 # coverage            # Name of output directory.
 # )
 #
-# 4. Build a Debug build:
-# cmake -DCMAKE_BUILD_TYPE=Debug ..
+# 4. Build a Debug build with coverage enabled:
+# cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON ..
 # make
 # make my_coverage_target
 #
@@ -78,13 +78,7 @@ IF(NOT CMAKE_COMPILER_IS_GNUCXX)
     ENDIF()
 ENDIF() # NOT CMAKE_COMPILER_IS_GNUCXX
 
-MARK_AS_ADVANCED(
-    CMAKE_CXX_FLAGS_COVERAGE
-    CMAKE_C_FLAGS_COVERAGE
-    CMAKE_EXE_LINKER_FLAGS_COVERAGE
-    CMAKE_SHARED_LINKER_FLAGS_COVERAGE)
-
-IF(NOT(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "Coverage"))
+IF(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
     MESSAGE(WARNING "Code coverage results with an optimized (non-Debug) build may be misleading")
 ENDIF() # NOT CMAKE_BUILD_TYPE STREQUAL "Debug"
 

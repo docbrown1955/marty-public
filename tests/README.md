@@ -18,4 +18,4 @@ The test targets link `marty` and are compiled with `MARTY_LIBRARY_PATH` and `MA
 pointing at the build and source trees. Google Test v1.15.2 is fetched by CMake.
 
 See [../docs/architecture/build-and-tests.md](../docs/architecture/build-and-tests.md) for how
-to add a test. `CodeCoverage.cmake` is the helper used by the `Coverage` build type.
+to add a test. `CodeCoverage.cmake` is the helper used when configuring with `-DENABLE_COVERAGE=ON`.
