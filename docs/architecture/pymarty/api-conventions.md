@@ -26,7 +26,10 @@ Location: `src/csl/api/` and `src/marty/api/<module>/`, built as object librarie
 6. **Typed errors.** Every API function reports failures by throwing a subclass of
    `mty::api::Error : std::runtime_error` (for CSL-only code: `csl::api::Error`, the MARTY class
    derives from it). Subclasses: `ValueError`, `TypeError`, `LookupError`, `NotImplementedError`,
-   `StateError`, `BuildError`. The message is complete and never printed to stderr by the API.
+   `StateError`, `BuildError`. All derive directly from `Error`. In Python the matching classes derive from
+   `MartyError` and from a built-in: `ValueError`, `TypeError`, `LookupError`, `NotImplementedError`,
+   and `RuntimeError` for both `StateError` and `BuildError`. The message is complete and never printed to
+   stderr by the API.
    Core exceptions (the bare `mty::error::Type` enum thrown by `CallHEPError`, `std::exception`,
    `GammaAPIError`) are translated at the API boundary. Nothing may call `exit`, `abort` or
    `std::terminate` on an API path.

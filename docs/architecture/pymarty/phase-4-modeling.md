@@ -123,7 +123,7 @@ L5: none.
 
 1. The scenario test in section 4 shows that API and direct core calls produce identical model
    printouts and Feynman-rule expressions (string equality) for: the getting-started model, QED, SM, 2HDM.
-   For MSSM/PMSSM the comparison covers particle names and rule counts (full comparison in nightly).
+   For MSSM/PMSSM the comparison covers particle names and rule counts (full comparison: `slow` test, run manually).
 2. Every method of the list in section 1 exists in C++ with a documented Python spelling, and in Python
    as a call-through (checked by a script listing each C++ API method and its binding).
 3. No variadic, template or `initializer_list` in the public C++ API headers of this module (compile
@@ -137,8 +137,8 @@ L5: none.
    `test_physics_latex` and `test_specific_gauge_couplings` cases are each classified (ported or exempt
    with reason).
 7. Time budget: the model-building examples run in no more than 1.5x the C++ time plus 1 s (Release).
-8. `ctest -L 'units|integration'` green; the baseline of the `system` suite unchanged (this phase
-   changes core code only if a spike shows it is needed, and then the full suite is re-run).
+8. `ctest -L 'units|integration'` green. This phase changes core code only if a spike shows it is needed;
+   the PR then lists the `system` tests worth a manual run (informational, testing-strategy.md section 1.1).
 9. Parity, stubs, doctests, sanitizers and quality gates pass.
 
 ## 6. Exit artifacts

@@ -14,7 +14,7 @@ In scope:
 - `src/csl/api/` and `src/marty/api/common/` (errors, `Rational`, `Session`, `Config`).
 - Core hardening (decision D3): `CallHEPError`, `exit`/`abort`, `Model::current`, option flags.
 - Test harness: `tests/api/`, `ADD_API_TEST`, pytest setup, parity checker, fixtures, CI jobs.
-- Minimal wheel built and tested in CI.
+- Wheel and distribution: deferred, see [distribution-deferred.md](distribution-deferred.md).
 - Spikes A to F (section 4), each ending with a written decision record.
 
 Out of scope: any feature module (symbolic, ...). The only Python API is `pymarty.__version__`,
@@ -26,7 +26,10 @@ Out of scope: any feature module (symbolic, ...). The only Python API is `pymart
 - `python/CMakeLists.txt` creating the target `_pymarty` (pybind11 module) linked to `marty-static`
   (spike A confirms position independence). Option `MARTY_BUILD_PYTHON`, default OFF so existing
   builds are unchanged.
-- `pybind11` fetched with `FetchContent` and pinned (like gtest in `tests/CMakeLists.txt`).
+- `pybind11` pinned at >= 2.11 (use 2.11.2 unless a newer version is validated). Try `find_package(pybind11 <pin>)`
+  first and fall back to `FetchContent` (like gtest in `tests/CMakeLists.txt`). Distribution packages are
+  usually older (Ubuntu 22.04 ships 2.9.1): the fetch fallback is the expected path on those machines and needs
+  network access at configure time (document an offline override such as `-DFETCHCONTENT_SOURCE_DIR_PYBIND11=<dir>`).
 - `tests/api/CMakeLists.txt` with `ADD_API_TEST(NAME)` modelled on `ADD_INTEGRATION_TEST`
   (`SETUP_MARTY_TEST_TARGET` + `SETUP_GTEST_TARGET(<target> api)`), included from
   `tests/CMakeLists.txt`; the coverage targets get the `api` label.
@@ -49,10 +52,16 @@ Out of scope: any feature module (symbolic, ...). The only Python API is `pymart
 - Audit CSL's own error path (`csl::option::errorStopsProgram` suggests terminating behaviour) and
   make the API path throw instead.
 - Translate `GammaAPIError` and standard exceptions at the API boundary.
+- Decision (accepted): `CSLError`'s `operator<<` and other diagnostic output written to `std::cout` by the
+  error paths move to `std::cerr`. This is the only intended difference in C++ output; acceptance 3 is
+  read accordingly (same text, error streams only).
 
 ### WP0.3 Terminating calls
-- List the `exit()`/`abort()` calls found by `grep -rn "\bexit(\|abort()" src/csl src/marty` (12 outside
-  `src/marty/ufo` at the time of writing; re-count, check which are real calls and not comments).
+- List the `exit()`/`abort()` calls found by `grep -rnE "\bexit\(|abort\(\)" src/csl src/marty` (12 grep hits
+  outside `src/marty/ufo` at the time of writing, of which 10 are live calls: `librarygroup.cpp` (2),
+  `librarytensor.h` (1), `looptools_patch.h` (1), `semiSimpleAlgebra.h` (6). The other two are not calls:
+  an `exit(123)` inside a string emitted into generated code in `librarytensor_hdata.h`, and the `SystemExit`
+  enumerator in `mrtError.h`. There is no `abort()`. Re-count before starting).
 - For each: replace by a thrown `mty::api::Error` subclass when reachable from the API; otherwise
   record why it stays. The rest of the code behaves exactly as before.
 
@@ -76,13 +85,20 @@ Out of scope: any feature module (symbolic, ...). The only Python API is `pymart
   compile generated libraries, license files. `auditwheel repair` bundles `libgfortran` and GSL.
 - `libooptools.so` is referenced through `${PROJECT_BINARY_DIR}/libooptools.so` in `src/marty/CMakeLists.txt`:
   the wheel needs a relocatable reference (`$ORIGIN` rpath).
+- Source trees given to wheel builds or spikes: `docs/.gitattributes` puts the release archives
+  (`docs/code/MARTY-*.zip`) under Git LFS, so `git archive` or a clean clone without `git-lfs` either triggers
+  large downloads or yields pointer files. Exclude `docs/` (for example `git archive` with a pathspec, or an
+  sdist include list that omits it) in sdist and wheel builds.
 
 ### WP0.7 Test harness
 - `python/pyproject.toml` pytest section with `--strict-markers`, marker list, `clean_state` fixture.
-- `python/tools/check_parity.py` and the two text files (parity sources, exemptions).
-- `pymarty._debug` test hooks: `raise_error(kind, message)`, `live_object_count()`.
+- `python/tools/check_parity.py` and the two text files (parity sources, exemptions): the checker may land at
+  the end of Phase 0 or with Phase 1, but is required once two modules have tests (decide at the Phase 0 review).
+- `pymarty._debug` test hook: `raise_error(kind, message)`. (`live_object_count()` is introduced in Phase 1,
+  when the first handle types exist.)
 - CI: add jobs to `.github/workflows/c-cpp.yml` for (a) Python build + L1/L2/L3 on Ubuntu 24.04 and
-  22.04, (b) sanitizers, (c) wheel build and test, (d) nightly slow jobs.
+  22.04, (b) sanitizers, (c) wheel build and test, (d) a manually triggered (`workflow_dispatch`) job for the
+  slow and system tests: no scheduled run, see testing-strategy.md section 1.1.
 
 ## 3. C++ API deliverables
 
@@ -90,9 +106,9 @@ Out of scope: any feature module (symbolic, ...). The only Python API is `pymart
 |------|----------|
 | `csl::api::Error` and subclasses | `src/csl/api/error.h` |
 | `mty::api::Error` subclasses, `BuildError` | `src/marty/api/common/error.h` |
-| `Rational` (`int64`/`int64`, normalised, exact conversion from `csl::Expr` or error) | `src/marty/api/common/rational.h` |
+| `Rational` (`int64`/`int64`, normalised, exact conversion from `csl::Expr` or error). Deferrable to Phase 1, its first user | `src/marty/api/common/rational.h` |
 | `Session` | `src/marty/api/common/session.h` |
-| `Config` | `src/marty/api/common/config.h` |
+| `Config` (needed by Phases 5 and 6; may be implemented after the wheel skeleton, but its design is fixed here) | `src/marty/api/common/config.h` |
 | `mty::error::Exception` | `src/marty/core/mrtError.h` |
 
 ## 4. Spikes (time-boxed investigations that end in a decision record)
@@ -105,13 +121,14 @@ experiment, the result and the decision. Acceptance of the phase requires all si
 | A | Is `marty-static` position independent so that it can be linked into a Python extension? Do `csl-core`, `grafed-core`, `jsonparser`, `marty-lha-obj`, `sgl`, `marty-models` (all object libraries) carry `POSITION_INDEPENDENT_CODE`? Does `import` of a minimal `_pymarty` work with the Fortran LoopTools library linked? | Fix list, and a working minimal module |
 | B | Can two `Model` objects coexist and be used in sequence and interleaved in one process when guarded by `Session`? Which core statics besides `Model::current` break this (registries, abbreviation cache `csl::Abbrev`, allocators)? | Pass/fail matrix and, if needed, extra state to snapshot |
 | C | What happens on error today: which exceptions escape the core in practice (enum, `std::exception`, GammaAPIError), and which paths terminate? | Complete error-path table used by WP0.2/0.3 |
-| D | Wheel feasibility: can the manylinux image build LoopTools (Fortran), GSL linking, bundle `libgfortran` with `auditwheel`, and the installed wheel import in a clean venv without compilers? | Dockerfile/CI snippet, size of the wheel |
+| D | Wheel feasibility: can the manylinux image build LoopTools (Fortran), GSL linking, bundle `libgfortran` with `auditwheel`, and the installed wheel import in a clean venv without compilers? Needs a container runtime. If none is usable locally (for example Docker Desktop without WSL integration), run it as a CI job on a branch and record the result from the job log. | Dockerfile/CI snippet, size of the wheel |
 | E | Generated-library build from the wheel: can a compiler on the user machine compile a trivial generated library against headers and libraries from the wheel (ABI, `libstdc++` version, rpath)? (Only the compile-and-link question, the loader is Phase 6.) | Go/no-go and the required flags |
 | F | Do `std::cout` redirect and output of long C++ computations behave well in Jupyter? | Binding helper recipe |
 
 ## 5. Test plan
 
-L1 (C++ API tests, `tests/api/common/`):
+L1 (C++ API tests; Phase 0 has no module of its own, so files are flat in `tests/api/src/` as `test_error_api.cpp`,
+`test_session_api.cpp`, ...; from Phase 1 on, tests live in `tests/api/<module>/`):
 - `ErrorApi.HierarchyDerivesFromStdRuntimeError`
 - `ErrorApi.CoreEnumErrorIsTranslatedWithMessage` (a core `CallHEPError` becomes `mty::api::Error` with the
   function name and message)
@@ -142,26 +159,30 @@ L0 regression: described in acceptance criteria.
 All of the following, with evidence in the PR:
 
 1. `cmake` configures and builds with `MARTY_BUILD_PYTHON=OFF` exactly as before (same targets, no
-   new required tools). With `ON`, `_pymarty` builds on GCC 14, GCC 11 and Clang 18 in CI.
-2. L0 regression: `ctest -L 'units|integration'` green. The full `system` suite result (pass/fail per
-   test) is identical to the baseline recorded **before** the first core change, and no file under
-   `tests/system/data/output/` changed. The baseline run is attached to the PR.
+   new required tools). With `ON`, `_pymarty` builds on GCC 14, GCC 11 and Clang 18 in CI. When some of
+   these toolchains are not installed locally, the local evidence is the available subset and the
+   missing ones are covered by the CI run of the PR (state which in the PR). GCC 10 only accepts
+   `-std=gnu++2a`, not `gnu++23`, and is not a supported toolchain.
+2. L0 regression: `ctest -L 'units|integration'` green on the modified tree, and no file under
+   `tests/system/data/output/` changed. The `system` suite is not a criterion (testing-strategy.md
+   section 1.1). Informational: the author compared one full `system` run before and after the core changes
+   (result attached); later phases do not repeat it.
 3. C++ behaviour unchanged for non-API users: an existing error path prints the same stderr text as
    before (checked by a test), and ends in a catchable exception.
 4. All L1/L2/L3 tests listed above exist and pass. State-neutrality tests pass under ASan + UBSan.
 5. Zero `exit`/`abort` reachable from the API surface of phases 1 to 7 (list of remaining ones
    attached, each with justification) and the audit table of spike C is committed.
-6. A wheel builds in the manylinux image, passes `auditwheel show`, installs in a clean virtual
-   environment that has no compiler and no Fortran runtime, and the wheel test (`import pymarty`,
-   `__version__`, error round trip) passes. Wheel size is recorded.
-7. Spikes A to F have decision records. Any "no-go" result has a mitigation agreed before closing the
-   phase.
+6. Deferred: manylinux wheel, `auditwheel`, clean-venv install and distribution questions are moved to
+   [distribution-deferred.md](distribution-deferred.md) and do not block Phase 0. A host-built wheel that
+   installs and imports is informational.
+7. Spikes A to F have decision records (spike D's record points to the deferred note). Any "no-go" result
+   other than distribution has a mitigation agreed before closing the phase.
 8. Quality gates of [testing-strategy.md](testing-strategy.md) pass (format, warnings, mypy, ruff,
    coverage >= thresholds for the new files).
 
 ## 7. Exit artifacts
 
-Working skeleton on CI, spike records, error table, baseline test results, updated `AGENTS.md` pointer
+Working skeleton on CI, spike records, error table, updated `AGENTS.md` pointer
 to this folder (small addition to the documentation map), updated `docs/architecture/build-and-tests.md`
 with the new option, label and macro.
 

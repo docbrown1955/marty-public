@@ -92,19 +92,21 @@ are the ground truth):
 ## 4. Acceptance criteria
 
 Per sub-milestone (7a to 7f), all of:
-1. Each listed Python port reproduces its reference file within the tolerance used by the C++ test.
-   Reference files are unchanged (`git diff` on `tests/system/data/output/` is empty for this PR).
+1. Each listed Python port that is not marked `slow` reproduces its reference file within the tolerance used
+   by the C++ test, and `tests/system/data/output/` is unchanged (`git diff` empty for this PR). Ports marked
+   `slow` are informational: their status goes in the port coverage table and they are run manually by the
+   maintainer (testing-strategy.md section 1.1).
 2. The API path and the legacy direct path give identical expressions (string equality) or numbers to
    1e-12 relative in the paired C++ API test.
 3. All options needed by the C++ test are expressible by Python keyword (listing attached) and the
    `Session` leaves state unchanged after success and failure.
-4. Time: Python wall time is at most 1.5x the C++ wall time plus 5 s for the same scenario, measured
+4. Time: for ports that run in the PR, Python wall time is at most 1.5x the C++ wall time plus 5 s for the same scenario, measured
    in Release (the symbolic computation dominates; overhead should be negligible). Larger deviations
    require an explanation in the PR.
 5. Missing prerequisites (LoopTools, compiler, quad build) skip locally with a clear message and fail
-   in the nightly job where they are required.
-6. Memory: the largest port (the one with the most diagrams) completes within the memory observed
-   for the C++ test plus 25% (measured with `/usr/bin/time -v`).
+   in the manual full run where they are required.
+6. Memory: informational for `slow` ports (the largest one, the one with the most diagrams, should complete
+   within the memory observed for the C++ test plus 25%, measured with `/usr/bin/time -v`).
 7. Parity, stubs, doctests, sanitizers (L1 part) and quality gates pass. L0 suites unchanged.
 
 Phase 7 is complete when all sub-milestones are accepted, or the remaining ones are listed in an issue
@@ -118,7 +120,7 @@ and widths).
 
 ## 6. Risks and open questions
 
-- Very long runs and memory usage: dedicated nightly job with generous timeouts, results cached.
+- Very long runs and memory usage: `slow` markers, manual runs by the maintainer with generous timeouts, results cached.
 - LoopTools initialisation and global state: handled by the generated library ABI and tested
   with two libraries in one process.
 - Some system tests have hard-coded paths, helper headers (`vectorlike.h`, `ckm.cpp`) or reference data

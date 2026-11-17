@@ -124,12 +124,14 @@ exception on mismatch of sizes or missing file).
 
 1. Spike 6.0 decision record exists, with the measured cost of in-process and out-of-process
    evaluation and the chosen default.
-2. Generated-library output is backwards compatible: the existing system tests that generate libraries
-   (the ones using `Library`) still pass with unchanged reference data and unchanged generated
-   example sources.
-3. For all six ports in the table, the Python results agree with the reference data within the C++ test's
-   tolerance, and the Python and C++ versions of the same scenario give results equal to 1e-12
-   relative when evaluated at the same parameters.
+2. Generated-library output is backwards compatible: a fast unit test checks that the generated files of a
+   sample library are byte-identical before and after the change (the generator output is otherwise
+   untouched). System tests that use `Library` are not a criterion; the PR lists them for an optional manual run.
+3. For the ports in the table not marked `slow` (`gettingStarted`, `gg_to_tt`, `simpleSpectrum`), the Python
+   results agree with the reference data within the C++ test's tolerance. For the `slow` ports (`Zmumu`,
+   `EWGauge`, `testModelWidth`) the status is recorded in the port coverage table (informational). In all
+   cases the Python and C++ API versions of the same scenario give results equal to 1e-12 relative when
+   evaluated at the same parameters, on a reduced case if needed.
 4. `EvaluateMatchesCslEvaluate` holds for the 20-expression set at 1e-12 relative.
 5. No `system()`/`popen()` in new code (CI grep gate). Library names and paths are validated;
    `NoShellInvolved` and the metacharacter tests pass. Loading executes code: stated in the docstring
@@ -143,8 +145,7 @@ exception on mismatch of sizes or missing file).
    process).
 8. Build time for the cached fixture is reported; the PR job time for this phase is within the CI budget
    agreed in Phase 0.
-9. `ctest -L 'units|integration'` green; the `system` tests that use `Library` are rerun and unchanged
-   (full list attached). Parity, stubs, doctests, sanitizers (for the C++ API; the generated library
+9. `ctest -L 'units|integration'` green (system tests are not a criterion). Parity, stubs, doctests, sanitizers (for the C++ API; the generated library
    test runs without ASan if that is impractical, recorded) and quality gates pass.
 
 ## 6. Exit artifacts

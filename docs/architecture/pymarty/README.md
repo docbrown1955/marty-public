@@ -70,7 +70,7 @@ Python    pymarty.{symbolic, group_theory, diracology, modeling, calculation,
             |   pybind11 bindings (python/bindings/<module>.cpp): coercion, operators,
             |   iterators, exception translation, stream redirection
 C++ API   src/csl/api/                      symbolic
-          src/marty/api/common/             errors, Rational, Session guard, Config
+          src/marty/api/common/             errors, Session guard, Config (Rational: Phase 1)
           src/marty/api/{group_theory, diracology (gamma.h), modeling,
                          calculation, simulation, visualization}/       ALL the logic
             |
@@ -90,10 +90,10 @@ python/
   tests/<module>/           pytest tests
   tests/system/             ports of tests/system (slow)
   examples/                 ports of examples/*.cpp
-  tools/check_parity.py     C++/Python test parity checker
+  tools/check_parity.py     C++/Python test parity checker (Phase 0 or 1, see testing-strategy.md)
 src/csl/api/                C++ API for symbolic
 src/marty/api/<module>/     C++ API per module
-tests/api/<module>/         C++ API tests (gtest, ctest label "api")
+tests/api/<module>/         C++ API tests (gtest, ctest label "api"; flat in tests/api/src/ during Phase 0)
 tests/api/data/             golden data shared by C++ and Python tests
 docs/architecture/pymarty/  this plan
 ```
@@ -126,7 +126,7 @@ accepted.
 | Core errors are a bare enum thrown after printing to stderr; 12 `exit`/`abort` sites outside `src/marty/ufo` (count to re-verify) | Typed exception, quiet mode, replace terminating calls on API paths | Phase 0 |
 | `Expr`, `Particle` are `shared_ptr` with shallow copies and in-place mutating functions | Python-visible objects are immutable in practice: facade deep-copies before any in-place core call | Phase 1 |
 | Model and Particle lifetime cycles | Particle handles hold their model alive; tested with `gc` / `weakref` | Phase 4 |
-| Slow and heavy computations (one loop, Debug builds) | Test markers, Release CI, nightly job | Test strategy |
+| Slow and heavy computations (one loop, Debug builds) | Test markers, Release CI, `system`/`slow` tests run manually by the maintainer only | Test strategy |
 | Generated libraries need compiler and LoopTools at run time, and wheels bake in no usable compiler path | Run-time `Config`, clear `BuildError`, documented requirements | Phases 0 and 6 |
 | Executing generated code and shelling out with user-controlled names | Name validation, no shell strings, `dlopen` only of files MARTY just built or the user explicitly passed | Phase 6 |
 | `Show()` uses a predictable `/tmp/graphs.json` and `system()` | Replaced by a JSON-string API and a safe launcher | Phase 5 |
@@ -135,10 +135,10 @@ accepted.
 
 ## 8. Open items (to settle before or during the named phase)
 
-- Exact pinned pybind11 version, minimum Python version (proposal: 3.9) and the manylinux image
-  (proposal: `manylinux_2_28`), Phase 0.
-- Version policy: `pymarty.__version__` equals the MARTY release it was built from, Phase 0.
-- Whether the name `pymarty` is available on PyPI, Phase 8 (do not publish before checking).
+- Distribution (manylinux image, wheel contents, minimum Python version, version policy, PyPI name,
+  licensing): deferred, tracked in [distribution-deferred.md](distribution-deferred.md).
+- Exact pinned pybind11 version, Phase 0 (must build with 2.11 and 3.x).
+- Whether the name `pymarty` is available on PyPI (do not publish before checking), see the deferred note.
 - Which of the remote branches (`separating_global`, `making_lualatex_optional`) already contain
   useful work for global state and for making LaTeX tools optional at configure time, Phase 0.
 - Headless diagram rendering for notebooks (GRAFED offscreen, or a pure Python SVG renderer from the

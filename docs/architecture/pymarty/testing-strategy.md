@@ -8,16 +8,36 @@ behaviour is tested.
 
 | Level | Where | Tool | CTest label / marker | What it proves | Runs |
 |-------|-------|------|----------------------|----------------|------|
-| L0 Existing suites | `tests/units`, `tests/integration`, `tests/system` | gtest, system programs | `units`, `integration`, `system` | No regression of MARTY itself | every PR (units, integration), nightly (system) |
-| L1 C++ API tests | `tests/api/<module>/` | gtest, new `ADD_API_TEST` macro (same pattern as `ADD_INTEGRATION_TEST`) | `api` | The C++ API contract, errors, state neutrality, lifetime | every PR |
+| L0 Existing suites | `tests/units`, `tests/integration`, `tests/system` | gtest, system programs | `units`, `integration`, `system` | No regression of MARTY itself | every PR (units, integration). `system`: manual, informational, never gating, see section 1.1 |
+| L1 C++ API tests | `tests/api/<module>/` (flat `tests/api/src/` in Phase 0, which has no module) | gtest, new `ADD_API_TEST` macro (same pattern as `ADD_INTEGRATION_TEST`) | `api` | The C++ API contract, errors, state neutrality, lifetime | every PR |
 | L2 Python unit tests | `python/tests/<module>/` | pytest | `python` (ctest) / marker `unit` | Binding fidelity: coercion, duck typing, operators, iteration, repr, exceptions, lifetime | every PR |
 | L3 Parity | `python/tools/check_parity.py` | script | part of `python` | Every L1 test has an L2 counterpart (or a documented exemption) and conversely | every PR |
-| L4 Examples | `python/examples/*.py` | pytest runs them | marker `example` | Python reproduces `examples/*.cpp` (output compared with the C++ example where deterministic) | every PR (fast ones), nightly (slow) |
-| L5 System ports | `python/tests/system/` | pytest | markers `slow`, `loops`, `needs_compiler`, `quad` | Python reproduces `tests/system/src/*.cpp` and matches the reference files in `tests/system/data/output/` | nightly |
+| L4 Examples | `python/examples/*.py` | pytest runs them | marker `example` | Python reproduces `examples/*.cpp` (output compared with the C++ example where deterministic) | every PR (fast ones); slow ones manual only |
+| L5 System ports | `python/tests/system/` | pytest | markers `slow`, `loops`, `needs_compiler`, `quad` | Python reproduces `tests/system/src/*.cpp` and matches the reference files in `tests/system/data/output/` | manual only, see section 1.1 |
 | L6 Wheel tests | CI job | cibuildwheel test command | marker `wheel` | Wheel installs in a clean environment and works | every PR touching packaging, release |
 | L7 Quality gates | CI | compilers, sanitizers, mypy, ruff, coverage | n/a | See section 5 | every PR |
 
 Every phase document lists exactly which tests belong to which level.
+
+### 1.1 System tests are manual and never an acceptance criterion
+
+The C++ `system` suite (`ctest -L system`) and the Python L5 ports (marker `slow`) take a long time.
+They are run **only by the maintainer, by hand, from time to time**, and **they are never part of a
+phase's acceptance criteria**. The acceptance gate for regressions is `ctest -L 'units|integration'`
+(plus `api` and `python` for the new code). No phase, agent, scheduled job or PR workflow runs the
+system tests automatically. In practice:
+
+- Agents and contributors never run `ctest -L system` (nor an unfiltered `ctest`, nor `pytest` without
+  `-m "not slow"`).
+- When a change could affect a system test (core change, generated-library change, `drawer.cpp`), the PR
+  description lists the exact test names (`ctest -R <name>`) as information for the maintainer, who runs
+  them when convenient and reports. A failure found that way is a bug report, not a failed acceptance.
+- A single named system test may be run by an author for debugging (`ctest -R <name>`), never the label.
+- Python ports of system tests that are slow are marked `slow`, developed against small or reduced
+  variants where possible, and tracked in the port coverage table with their status. Fast ports (not
+  `slow`) run in the PR like any other Python test.
+- The GitHub job `manual-system` in `.github/workflows/python.yml` is `workflow_dispatch` only (manual
+  trigger), not scheduled.
 
 ## 2. Parity rule
 
@@ -31,6 +51,8 @@ Every phase document lists exactly which tests belong to which level.
   references a C++ test that does not exist; an exemption references a test that does not exist.
 - A Python test may be richer than its C++ counterpart (duck-typing variants, parametrised inputs). It
   must not contradict it.
+- Rollout: the checker may land at the end of Phase 0 or with Phase 1, but is mandatory as soon as two
+  modules have tests. Until then, parity is checked by review.
 
 ## 3. Shared data (golden files)
 
@@ -52,7 +74,7 @@ Markers (registered in `pyproject.toml`, `--strict-markers`): `unit`, `parity(id
 `slow`, `loops` (needs LoopTools), `needs_compiler`, `quad`, `needs_grafed`, `wheel`.
 
 Default local run: `pytest -m "not slow and not needs_compiler"`. CI per PR: that plus
-`needs_compiler` for fast generated-library tests. Nightly: everything.
+`needs_compiler` for fast generated-library tests. Everything, including `slow`: maintainer, manually.
 
 Fixtures:
 - `clean_state` (autouse): opens a `Session`-like check before each test and asserts after the test
@@ -63,9 +85,9 @@ Fixtures:
   and shares it between tests, to keep compile time down.
 - `fake_grafed`: a script on `MARTY_GRAFED` that records its arguments, used instead of the real GUI.
 - `skip_if_missing`: skips with a clear message when a compiler, LoopTools or GRAFED is absent, but the
-  nightly and wheel CI jobs fail instead of skipping (a skipped required test is a failure there).
+  manual full runs and the wheel CI job fail instead of skipping (a skipped required test is a failure there).
 
-Speed: tests print their wall time; the nightly job stores the timings and flags a test that becomes more
+Speed: tests print their wall time; manual full runs record the timings and flag a test that becomes more
 than 2x slower than its recorded baseline. Baselines for C++ system tests are read from CTest's
 `build/Testing/Temporary/LastTest.log`.
 
@@ -93,12 +115,12 @@ A phase is accepted when all hold:
 
 1. Every item in the phase's "Acceptance criteria" list is satisfied, with the evidence recorded in the
    PR description (test names, CI run, numbers).
-2. L0: `ctest -L 'units|integration'` is green, and for any phase touching the core (Phase 0, and
-   later changes to `src/csl` or `src/marty/core`) the full `system` suite gives the same pass/fail result as
-   the recorded baseline, with no change in reference files.
+2. L0: `ctest -L 'units|integration'` is green, with no change in reference files. The `system` suite is
+   not a criterion (section 1.1); the PR may list system tests worth a manual run.
 3. L1, L2, L3 are green for the phase's module and for all earlier modules.
-4. The phase's examples/system ports (L4/L5) listed in its document reproduce the C++ results within
-   the tolerance used by the C++ test (the tolerance is read from that test, never loosened).
+4. The phase's fast examples and ports (L4, and L5 ports not marked `slow`) listed in its document reproduce
+   the C++ results within the tolerance used by the C++ test (read from that test, never loosened).
+   `slow` ports are informational (section 1.1).
 5. All quality gates in section 5 pass.
 6. The "Exit artifacts" of the phase exist (tests, stubs, docstrings, notebook or example, the
    decision records of spikes).

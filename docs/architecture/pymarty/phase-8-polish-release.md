@@ -80,14 +80,15 @@ Prerequisites: Phases 0 to 7 accepted (or the unaccepted parts listed as known l
   `KeyboardInterrupt` simulated with a signal during a long computation, followed by a normal
   computation giving the right result.
 - Stub check, type check, documentation build, link check.
-- Full nightly suite (L5) on the release candidate wheel (not on a source build).
+- Full manual suite (L5, run by the maintainer) on the release candidate wheel (not on a source build).
 
 ## 4. Acceptance criteria
 
 1. Wheels build for all matrix entries, pass `auditwheel show`, and the wheel test jobs pass in both
    configurations (with and without a compiler: features needing a compiler fail with a clear
    `BuildError`, everything else works).
-2. The nightly suite (L5) passes on the release-candidate wheel for all ports accepted in Phase 7.
+2. The L5 ports accepted in Phase 7 are listed with their status in the port coverage table. The full L5
+   suite on the release-candidate wheel is run manually by the maintainer and reported, but is not a gate.
 3. Stubs: `mypy --strict` clean on the package and on a sample user script exercising every module;
    no `Any` leaks in public signatures other than documented duck-typed protocols.
 4. Documentation: every public function and class has a docstring with an executed example (doctest

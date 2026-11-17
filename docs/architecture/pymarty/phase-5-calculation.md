@@ -117,7 +117,7 @@ L2 (`python/tests/calculation/`, `python/tests/visualization/`): parity tests fo
 L4 examples (fast, every PR): ports of `sampleQED`, `sampleSQED`, `sampleQCDSextet`,
 `test_flavor_groups` scenarios; output of deterministic parts compared with C++ example output.
 
-L5 (nightly): symbolic parts of `Zmumu`, `gg_to_tt`, `EWGauge` (tree level, no library yet),
+L5 (`slow`, run manually by the maintainer): symbolic parts of `Zmumu`, `gg_to_tt`, `EWGauge` (tree level, no library yet),
 `SM_triplet`, `testConjugation` where they do not need a library or loops; compared to values the C++ programs
 print (recorded once in golden files by the C++ side).
 
@@ -141,8 +141,8 @@ print (recorded once in golden files by the C++ side).
    differences if the format has intentionally changed).
 8. Python ports of `sampleQED`, `sampleSQED`, `sampleQCDSextet` and the Nf scenario run in CI with
    output matching C++. Time budget 1.5x C++ plus 1 s (Release).
-9. `ctest -L 'units|integration'` green; relevant `system` tests (those using `Show`, if any, and
-   everything that touches `drawer.cpp`) rerun and unchanged.
+9. `ctest -L 'units|integration'` green. System tests are not a criterion; the PR lists the ones that touch
+   `Show` or `drawer.cpp` (by name, if any) for an optional manual run.
 10. Parity, stubs, doctests, sanitizers and quality gates pass.
 
 ## 6. Exit artifacts
