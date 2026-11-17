@@ -180,10 +180,7 @@ void Constant::printCode(int, std::ostream &out) const
 
 string Constant::printLaTeX(int) const
 {
-    ostringstream sout;
-    sout << parent->getLatexName();
-    printProp(sout, getLatexConjugateSymbol());
-    return sout.str();
+    return decorateExpression(parent->getLatexName());
 }
 
 std::vector<Parent> Constant::getSubSymbols() const
@@ -397,10 +394,7 @@ void Variable::printCode(int, std::ostream &out) const
 
 string Variable::printLaTeX(int) const
 {
-    ostringstream sout;
-    sout << getLatexName();
-    printProp(sout, getLatexConjugateSymbol());
-    return sout.str();
+    return decorateExpression(getLatexName());
 }
 
 std::vector<Parent> Variable::getSubSymbols() const

@@ -1287,24 +1287,23 @@ bool QuantumField::getConjugated() const
     return Complexified::conjugated;
 }
 
-std::string QuantumField::getLatexDisplayName() const
+std::string QuantumField::decorateName(std::string const &name) const
 {
-    std::string name = getLatexName();
-    if (not getConjugated() or isBosonic())
-        return name;
-    return "\\bar{" + name + "}";
+    if (getConjugated() and not isBosonic())
+        return "\\overline{" + name + "}";
+    return name;
 }
 
-bool QuantumField::isLatexRow() const
-{
-    return getConjugated() and not isBosonic();
-}
-
-std::string QuantumField::getLatexConjugateSymbol() const
+std::string QuantumField::decorateExpression(std::string const &expr) const
 {
     if (getConjugated() and isBosonic())
-        return "^{\\dagger}";
-    return "";
+        return expr + "^{\\dagger}";
+    return expr;
+}
+
+bool QuantumField::isRowForMatrixRep() const
+{
+    return getConjugated() and not isBosonic();
 }
 
 bool QuantumField::isExternal() const

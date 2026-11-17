@@ -1110,7 +1110,7 @@ class QuantumFieldParent : public csl::TensorFieldParent {
                                     const QuantumFieldParent &obj);
 
     using TensorFieldParent::operator();
-    
+
     /*!
      * \brief Generates an instance of the field as a symbolic expression.
      * \details This functions takes no csl::Index. The field is then for sure
@@ -1809,17 +1809,15 @@ class QuantumField : public csl::TensorFieldElement {
      */
     bool isBosonic() const;
 
-    /*!
-     * \brief LaTeX name: \bar{\psi} for conjugated fermions, \phi^{\dagger}
-     * for conjugated bosons.
+    /*! \brief \overline{...} on the name of conjugated fermions.
      */
-    std::string getLatexDisplayName() const override;
+    std::string decorateName(std::string const &name) const override;
 
-    /*! \brief ^{\dagger} for conjugated bosons; fermions carry \bar in
-     * their display name instead.
+    /*! \brief ^{\dagger} for conjugated bosons.
      */
-    std::string getLatexConjugateSymbol() const override;
-    bool isLatexRow() const override;
+    std::string decorateExpression(std::string const &expr) const override;
+
+    bool isRowForMatrixRep() const override;
 
     /*!
      * \brief See QuantumFieldParent::isFermionic().

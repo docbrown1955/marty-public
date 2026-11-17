@@ -210,7 +210,7 @@ TDerivativeElement::TDerivativeElement(const Tensor &t_point,
                                        const Parent &t_parent,
                                        const Index  &t_index)
     : Operator<TensorFieldElement>(
-        t_point, t_parent, vector<Index>(1, t_index))
+          t_point, t_parent, vector<Index>(1, t_index))
 {
     selfCheckIndexStructure();
 }
@@ -281,7 +281,6 @@ string TDerivativeElement::printLaTeX(int mode) const
         sout << operand->printLaTeX(1);
     if (not empty)
         sout << ")";
-    printProp(sout, getLatexConjugateSymbol());
 
     return sout.str();
 }
@@ -703,21 +702,16 @@ string TensorFieldElement::getLatexPointSuffix() const
 
 string TensorFieldElement::printLaTeX(int) const
 {
-    auto           structure = getIndexStructure();
-    auto const    &indices   = structure.getIndex();
-    std::string    name      = getLatexDisplayName();
+    auto        structure = getIndexStructure();
+    auto const &indices   = structure.getIndex();
+    std::string name      = getLatexDisplayName();
     if (not indices.empty()) {
         if (name.find('_') != std::string::npos
             or name.find('^') != std::string::npos)
             name = "{" + name + "}";
         name += latexIndexScripts(indices);
     }
-    ostringstream sout;
-    sout << name;
-    sout << getLatexPointSuffix();
-    if (not isLatexRow())
-        printProp(sout, getLatexConjugateSymbol());
-    return sout.str();
+    return decorateExpression(name + getLatexPointSuffix());
 }
 
 std::vector<csl::Parent> TensorFieldElement::getSubSymbols() const

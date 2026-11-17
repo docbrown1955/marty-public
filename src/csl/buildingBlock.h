@@ -94,9 +94,6 @@ class Complexified : public AbstractBuildingBlock {
 
     void setConjugated(bool t_conjugated) override;
 
-    void printProp(std::ostream &fout = std::cout,
-                   std::string const &conjugateSymbol = "*") const override;
-
     csl::ComplexProperty getComplexProperty() const override;
 
     void setComplexProperty(csl::ComplexProperty prop) override;

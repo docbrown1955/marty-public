@@ -156,13 +156,6 @@ std::optional<Expr> Complexified::getComplexArgument() const
     return csl::angle_s(real, imag);
 }
 
-void Complexified::printProp(std::ostream      &fout,
-                             std::string const &conjugateSymbol) const
-{
-    if (isComplexConjugate())
-        fout << conjugateSymbol;
-}
-
 csl::ComplexProperty Complexified::getComplexProperty() const
 {
     return csl::ComplexProperty::Real;

@@ -1179,8 +1179,8 @@ void TensorParent::addSelfContraction(
                 Expr new_factor = (A_perm[iA]->getNumericalFactor()
                                    * B_perm[iB]->getNumericalFactor())
                                   / factor;
-                Expr            tensorA = GetTerm(A_perm[iA]);
-                Expr            tensorB = GetTerm(B_perm[iB]);
+                Expr tensorA    = GetTerm(A_perm[iA]);
+                Expr tensorB    = GetTerm(B_perm[iB]);
                 SelfContraction c(tensorA, tensorB, condition);
                 std::vector<std::pair<SelfContraction, Expr>> &contraction
                     = (c.isSwappable()) ? selfContraction : extContraction;
@@ -2848,12 +2848,17 @@ std::string latexIndexScripts(std::vector<Index> const &indices)
     return res;
 }
 
-std::string TensorElement::getLatexDisplayName() const
+std::string TensorElement::decorateName(std::string const &name) const
 {
-    return getLatexName();
+    return name;
 }
 
-bool TensorElement::isLatexRow() const
+std::string TensorElement::getLatexDisplayName() const
+{
+    return decorateName(getLatexName());
+}
+
+bool TensorElement::isRowForMatrixRep() const
 {
     return false;
 }
@@ -2876,11 +2881,7 @@ string TensorElement::printLaTeX(int) const
     if (not indices.empty()) {
         res += latexIndexScripts(indices);
     }
-    ostringstream sout;
-    sout << res;
-    if (not isLatexRow())
-        printProp(sout, getLatexConjugateSymbol());
-    return sout.str();
+    return decorateExpression(res);
 }
 
 std::vector<Parent> TensorElement::getSubSymbols() const
@@ -3969,8 +3970,8 @@ Expr getBrokenExpr(const Expr             &init,
     for (size_t i = 0; i != posInStruct.size(); ++i) {
         for (size_t j = 0; j != posInStruct[i].size(); ++j) {
             auto   posIndex = std::find(sortedPosInStruct.begin(),
-                                      sortedPosInStruct.end(),
-                                      posInStruct[i][j]);
+                                        sortedPosInStruct.end(),
+                                        posInStruct[i][j]);
             size_t exponent = distance(sortedPosInStruct.begin(), posIndex);
             indexBrokenExpr += pow(Nspaces, exponent) * positions[i];
         }

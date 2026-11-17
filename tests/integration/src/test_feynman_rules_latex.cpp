@@ -76,7 +76,7 @@ TEST(FeynmanRuleLatex, fermionEdgesUseBar)
         if (!hasConjugateFermion)
             continue;
         std::string latex = LatexFeynmanRule(rule);
-        EXPECT_NE(latex.find("\\bar{"), std::string::npos);
+        EXPECT_NE(latex.find("\\overline{"), std::string::npos);
         EXPECT_EQ(latex.find("^\\star"), std::string::npos);
         return;
     }

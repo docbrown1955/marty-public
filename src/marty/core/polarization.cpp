@@ -34,8 +34,8 @@ PolarizationField::PolarizationField(const Tensor &impulsion,
     particle = incoming = onShell = true;
 }
 
-PolarizationField::PolarizationField(const Tensor &            impulsion,
-                                     const Parent &            t_parent,
+PolarizationField::PolarizationField(const Tensor             &impulsion,
+                                     const Parent             &t_parent,
                                      const std::vector<Index> &indices)
     : QuantumField(impulsion, t_parent, indices), lockConjugation(false)
 
@@ -43,8 +43,8 @@ PolarizationField::PolarizationField(const Tensor &            impulsion,
     particle = incoming = onShell = true;
 }
 
-PolarizationField::PolarizationField(const Tensor &        impulsion,
-                                     const Parent &        t_parent,
+PolarizationField::PolarizationField(const Tensor         &impulsion,
+                                     const Parent         &t_parent,
                                      const IndexStructure &indices)
     : QuantumField(impulsion, t_parent, indices), lockConjugation(false)
 
@@ -317,8 +317,7 @@ void PolarizationField::printCode(int mode, std::ostream &out) const
     other.TensorFieldElement::printCode(mode, out);
 }
 
-void PolarizationField::printProp(std::ostream &out,
-                                  std::string const &) const
+void PolarizationField::printProp(std::ostream &out) const
 {
     if (isFermionic()) {
         if (isParticle())
@@ -326,8 +325,7 @@ void PolarizationField::printProp(std::ostream &out,
         else
             out << "_v";
     }
-    if (conjugated)
-        out << "^(*)";
+    csl::Abstract::printProp(out);
 }
 
 void PolarizationField::setParticle(bool t_particle)

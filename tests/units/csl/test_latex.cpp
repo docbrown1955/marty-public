@@ -586,7 +586,7 @@ TEST(LatexConjugate, complexVariableUsesStarInLatexAndTerminal)
     EXPECT_EQ(c->printLaTeX(0), "c^{*}");
     std::ostringstream terminal;
     c->print(1, terminal);
-    EXPECT_EQ(terminal.str(), "c*");
+    EXPECT_EQ(terminal.str(), "c^(*)");
 }
 
 TEST(LatexComposite, productOfSums)

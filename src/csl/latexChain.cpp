@@ -275,9 +275,9 @@ std::vector<LatexMatrixChain> getMatrixChains(vector_expr const &factors)
                     *nodes[best[k].node].expr);
                 bool transposed = best[k].transposed;
                 if (k == 0)
-                    transposed = not element.isLatexRow();
+                    transposed = not element.isRowForMatrixRep();
                 else if (k + 1 == best.size())
-                    transposed = element.isLatexRow();
+                    transposed = element.isRowForMatrixRep();
                 latex += latexChainFactor(nodes[best[k].node], transposed);
             }
         }

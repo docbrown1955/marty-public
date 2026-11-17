@@ -911,14 +911,20 @@ class TensorElement : public AbstractElement {
 
     std::string printLaTeX(int mode = 0) const override;
 
-    /*! \brief LaTeX name of the element, possibly decorated (e.g. \bar{\psi}).
+    /*! \brief LaTeX name of the element, decorated by decorateName().
      */
-    virtual std::string getLatexDisplayName() const;
+    std::string getLatexDisplayName() const;
 
-    /*! \brief True if the element is a row vector in LaTeX (e.g. \bar{\psi}),
-     * so that it must not be transposed when printed in a matrix chain.
+    /*! \brief Decorates the LaTeX name of the element (e.g. \overline{\psi}
+     * for a conjugated fermion). Default: unchanged.
      */
-    virtual bool isLatexRow() const;
+    virtual std::string decorateName(std::string const &name) const;
+
+    /*! \brief True if the element is a row vector in matrix representation
+     * (e.g. conjugated fermion), so that it must not be transposed when
+     * printed in a matrix chain.
+     */
+    virtual bool isRowForMatrixRep() const;
 
     /*! \brief LaTeX suffix giving the space-time point of a field, e.g. (X).
      */
