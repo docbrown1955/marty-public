@@ -81,7 +81,7 @@ Notes:
 ## 4. Continuous integration
 
 `.github/workflows/c-cpp.yml` runs one job per toolchain: Ubuntu 24.04 with GCC 14, Ubuntu 22.04
-with GCC 11, Ubuntu 24.04 with Clang 18 (libstdc++ from GCC 14), and macOS with GCC 12. Each job
+with GCC 11, and Ubuntu 24.04 with Clang 18 (libstdc++ from GCC 14). Each job
 installs the dependencies, runs `cmake`, `make` and `ctest --output-on-failure`. The
 `.devcontainer/` folder provides a Fedora 41 image (GCC 14) for development.
 
