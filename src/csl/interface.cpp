@@ -23,6 +23,8 @@
 #include "space.h"
 #include "tensorField.h"
 #include "utils.h"
+#include <set>
+#include <tuple>
 
 #define OPT(expr, func) ((expr->func).value_or(expr))
 
@@ -63,7 +65,7 @@ Expr Expanded(const Expr &expression, bool full, bool inplace)
     return OPT(expression, expand(full, inplace));
 }
 
-void ExpandIf(Expr &                                   expression,
+void ExpandIf(Expr                                    &expression,
               std::function<bool(Expr const &)> const &f,
               bool                                     full,
               bool                                     inplace)
@@ -71,7 +73,7 @@ void ExpandIf(Expr &                                   expression,
     expression = OPT(expression, expand_if(f, full, inplace));
 }
 
-void DeepExpandIf_lock(Expr &                                   expression,
+void DeepExpandIf_lock(Expr                                    &expression,
                        std::function<bool(Expr const &)> const &f,
                        int                                      lockID,
                        bool                                     inplace,
@@ -91,7 +93,7 @@ void DeepExpandIf_lock(Expr &                                   expression,
     csl::Lock::unlock(expression, lockID);
 }
 
-Expr DeepExpandedIf_lock(Expr const &                             expression,
+Expr DeepExpandedIf_lock(Expr const                              &expression,
                          std::function<bool(Expr const &)> const &f,
                          int                                      lockID,
                          bool                                     inplace,
@@ -102,7 +104,7 @@ Expr DeepExpandedIf_lock(Expr const &                             expression,
     return other;
 }
 
-Expr ExpandedIf(const Expr &                             expression,
+Expr ExpandedIf(const Expr                              &expression,
                 std::function<bool(Expr const &)> const &f,
                 bool                                     full,
                 bool                                     inplace)
@@ -242,7 +244,7 @@ void Distribute(Expr &expr, Expr_info factor, bool full)
             Distribute((*expr)[i], factor, full);
 }
 
-Expr DistributedIf(Expr const &                      expression,
+Expr DistributedIf(Expr const                       &expression,
                    std::function<bool(Expr const &)> f,
                    bool                              full)
 {
@@ -352,6 +354,11 @@ Expr GetComplexArgument(const Expr &expression)
     return OPT(expression, getComplexArgument());
 }
 
+std::string printLatex(Expr const &expr)
+{
+    return RelabelIndices(expr)->printLaTeX(0);
+}
+
 Expr GetComplexConjugate(const Expr &expression)
 {
     return OPT(expression, getComplexConjugate());
@@ -362,7 +369,7 @@ Expr GetTransposed(const Expr &expression, const Space *space, bool applyProp)
     return OPT(expression, getTransposed(space, applyProp));
 }
 
-Expr GetTransposed(const Expr &                 expression,
+Expr GetTransposed(const Expr                  &expression,
                    const vector<const Space *> &spaces,
                    bool                         applyProp)
 {
@@ -374,13 +381,13 @@ Expr GetHermitianConjugate(const Expr &expression, const Space *space)
     return OPT(expression, getHermitianConjugate(space));
 }
 
-Expr GetHermitianConjugate(const Expr &                 expression,
+Expr GetHermitianConjugate(const Expr                  &expression,
                            const vector<const Space *> &spaces)
 {
     return OPT(expression, getHermitianConjugate(spaces));
 }
 
-Expr Swapped(const Expr & expression,
+Expr Swapped(const Expr  &expression,
              const Index &index1,
              const Index &index2,
              bool         refresh)
@@ -410,7 +417,7 @@ Expr Swapped(const Expr &expression,
     return res;
 }
 
-Expr Swapped(const Expr &  expression,
+Expr Swapped(const Expr   &expression,
              const Parent &parent1,
              const Parent &parent2,
              bool          refresh)
@@ -517,16 +524,16 @@ TDerivative GetTDerivativeParent(Expr const &tensor)
 }
 
 void AddSelfContraction(csl::Tensor &parent,
-                        Expr const & A,
-                        Expr const & B,
-                        Expr const & res)
+                        Expr const  &A,
+                        Expr const  &B,
+                        Expr const  &res)
 {
     parent->addSelfContraction(A, B, res);
 }
 
-void AddContractionProperty(csl::Tensor &            parent,
+void AddContractionProperty(csl::Tensor             &parent,
                             std::vector<Expr> const &tensors,
-                            Expr const &             res)
+                            Expr const              &res)
 {
     parent->addContractionProperty(tensors, res);
 }
@@ -536,18 +543,18 @@ void AddComplexProperty(csl::Tensor &parent, Expr const &A, Expr const &B)
     parent->addComplexProperty(A, B);
 }
 
-void AddTransposedProperty(csl::Tensor &     parent,
+void AddTransposedProperty(csl::Tensor      &parent,
                            csl::Space const *space,
-                           Expr const &      A,
-                           Expr const &      B)
+                           Expr const       &A,
+                           Expr const       &B)
 {
     parent->addTransposedProperty(space, A, B);
 }
 
-void AddHermitianProperty(csl::Tensor &     parent,
+void AddHermitianProperty(csl::Tensor      &parent,
                           csl::Space const *space,
-                          Expr const &      A,
-                          Expr const &      B)
+                          Expr const       &A,
+                          Expr const       &B)
 {
     parent->addHermitianProperty(space, A, B);
 }
@@ -568,21 +575,21 @@ LibDependency GetLibraryDependencies(Expr const &expr)
     return dependencies;
 }
 
-void ApplySelfProperty(Expr &       init,
+void ApplySelfProperty(Expr        &init,
                        csl::Tensor &tensor,
-                       Expr const & A,
-                       Expr const & B,
-                       Expr const & res)
+                       Expr const  &A,
+                       Expr const  &B,
+                       Expr const  &res)
 {
     tensor->addSelfContraction(A, B, res);
     init = DeepRefreshed(init);
     tensor->removeSelfContraction(A, B);
 }
 
-void ApplyChainProperty(Expr &                   init,
-                        csl::Tensor &            tensor,
+void ApplyChainProperty(Expr                    &init,
+                        csl::Tensor             &tensor,
                         std::vector<Expr> const &prod,
-                        Expr const &             res)
+                        Expr const              &res)
 {
     tensor->addContractionProperty(prod, res);
     init = DeepRefreshed(init);

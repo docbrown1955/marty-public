@@ -27,14 +27,14 @@ TensorSet buildTensorSet(csl::Space const *minkoSpace,
     if (pos != builtSets.end())
         return pos->second;
     TensorSet res;
-    res.gamma_chir = csl::Tensor("gamma5", {diracSpace, diracSpace});
-    res.P_L        = csl::Tensor("P_L", {diracSpace, diracSpace});
-    res.P_R        = csl::Tensor("P_R", {diracSpace, diracSpace});
+    res.gamma_chir = csl::Tensor("gamma5;\\gamma_{5}", {diracSpace, diracSpace});
+    res.P_L        = csl::Tensor("P_L;P_{L}", {diracSpace, diracSpace});
+    res.P_R        = csl::Tensor("P_R;P_{R}", {diracSpace, diracSpace});
     res.C          = csl::Tensor("C", {diracSpace, diracSpace});
     res.gamma[0]   = diracSpace->getDelta();
-    res.gamma[1] = csl::Tensor("gamma", {minkoSpace, diracSpace, diracSpace});
+    res.gamma[1] = csl::Tensor("gamma;\\gamma", {minkoSpace, diracSpace, diracSpace});
     res.gamma[2] = csl::Tensor(
-        "sigma", {minkoSpace, minkoSpace, diracSpace, diracSpace});
+        "sigma;\\sigma", {minkoSpace, minkoSpace, diracSpace, diracSpace});
     builtSets[std::make_pair(minkoSpace, diracSpace)] = res;
     return res;
 }

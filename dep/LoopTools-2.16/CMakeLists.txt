@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.24)
-
 if (LOOPTOOLS_DEBUG)
     set(LOOPTOOLS_OUTPUT_REDIRECT "")
 else()

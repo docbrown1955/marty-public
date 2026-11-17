@@ -16,8 +16,8 @@
 #pragma once
 
 #include "abstract.h"
-#include "parent.h"
 #include "index.h"
+#include "parent.h"
 
 namespace csl {
 
@@ -31,29 +31,28 @@ void Replace(csl::Expr &expr, csl::Parent const &from, csl::Parent const &to);
 
 void Replace(csl::Expr &expr, csl::Parent const &from, csl::Expr const &to);
 
-void Replace(csl::Expr &                     expr,
+void Replace(csl::Expr                      &expr,
              std::vector<csl::Parent> const &from,
              std::vector<csl::Parent> const &to);
 
-void Replace(csl::Expr &                   expr,
+void Replace(csl::Expr                    &expr,
              std::vector<csl::Expr> const &from,
              std::vector<csl::Expr> const &to);
 
-void ReplaceIndicial(csl::Expr &                   expr,
+void ReplaceIndicial(csl::Expr                    &expr,
                      std::vector<csl::Expr> const &from,
                      std::vector<csl::Expr> const &to);
 
-void Replace(csl::Expr &                     expr,
+void Replace(csl::Expr                      &expr,
              std::vector<csl::Parent> const &from,
-             std::vector<csl::Expr> const &  to,
+             std::vector<csl::Expr> const   &to,
              bool                            refresh = true);
 
 template <class T, class U, class Type, class Type2 = Type>
 struct canDecay {
     static inline constexpr bool value
-        = std::is_convertible_v<
-              std::decay_t<T>,
-              Type> && std::is_convertible_v<std::decay_t<U>, Type2>;
+        = std::is_convertible_v<std::decay_t<T>, Type>
+          && std::is_convertible_v<std::decay_t<U>, Type2>;
 };
 
 template <class T, class U, class Type, class Type2 = Type>
@@ -63,18 +62,15 @@ inline constexpr bool canDecay_v = canDecay<T, U, Type, Type2>::value;
 // All impossible overloads are defined explicitly to allow other templates
 // overloads to work. Sad that C++20 is too recent (concepts would have been
 // much more relevant) than this solution with std::enable_if.
-template <
-    class T,
-    class U,
-    class... Params,
-    typename = std::enable_if_t<
-        !csl::canDecay_v<
-            T,
-            U,
-            csl::
-                Index> && !csl::canDecay_v<T, U, csl::IndexStructure> && !csl::canDecay_v<T, U, std::vector<csl::Index>>>>
+template <class T,
+          class U,
+          class... Params,
+          typename = std::enable_if_t<
+              !csl::canDecay_v<T, U, csl::Index>
+              && !csl::canDecay_v<T, U, csl::IndexStructure>
+              && !csl::canDecay_v<T, U, std::vector<csl::Index>>>>
 [[nodiscard]] csl::Expr
-Replaced(csl::Expr const &expr, T &&p1, U &&p2, Params &&... params)
+Replaced(csl::Expr const &expr, T &&p1, U &&p2, Params &&...params)
 {
     csl::Expr cpy = expr;
     csl::Replace(cpy,
@@ -88,12 +84,12 @@ Replaced(csl::Expr const &expr, T &&p1, U &&p2, Params &&... params)
 // Index replacements
 ///////////////////////////////////////////////////
 
-[[nodiscard]] csl::Expr Replaced(csl::Expr const & expr,
+[[nodiscard]] csl::Expr Replaced(csl::Expr const  &expr,
                                  csl::Index const &from,
                                  csl::Index const &to,
                                  bool              refresh = true);
 
-inline void Replace(csl::Expr &       expr,
+inline void Replace(csl::Expr        &expr,
                     csl::Index const &from,
                     csl::Index const &to,
                     bool              refresh = true)
@@ -101,12 +97,12 @@ inline void Replace(csl::Expr &       expr,
     expr = csl::Replaced(expr, from, to, refresh);
 }
 
-[[nodiscard]] csl::Expr Replaced(csl::Expr const &              expr,
+[[nodiscard]] csl::Expr Replaced(csl::Expr const               &expr,
                                  std::vector<csl::Index> const &from,
                                  std::vector<csl::Index> const &to,
                                  bool refresh = true);
 
-inline void Replace(csl::Expr &                    expr,
+inline void Replace(csl::Expr                     &expr,
                     std::vector<csl::Index> const &from,
                     std::vector<csl::Index> const &to,
                     bool                           refresh = true)
@@ -114,12 +110,12 @@ inline void Replace(csl::Expr &                    expr,
     expr = csl::Replaced(expr, from, to, refresh);
 }
 
-[[nodiscard]] csl::Expr Replaced(csl::Expr const &          expr,
+[[nodiscard]] csl::Expr Replaced(csl::Expr const           &expr,
                                  csl::IndexStructure const &from,
                                  csl::IndexStructure const &to,
                                  bool                       refresh = true);
 
-inline void Replace(csl::Expr &                expr,
+inline void Replace(csl::Expr                 &expr,
                     csl::IndexStructure const &from,
                     csl::IndexStructure const &to,
                     bool                       refresh = true)
@@ -172,7 +168,7 @@ inline auto ruleToPredicate(replacementRule const &rule)
  * @return \b False else.
  */
 bool hasWeakDependency(
-    csl::Expr const &                             expr,
+    csl::Expr const                              &expr,
     std::function<bool(csl::Expr const &)> const &predicate);
 
 /**
@@ -189,29 +185,29 @@ void applyThroughAbbreviations(csl::Expr &expr, replacementRule const &rule);
 ///////////////////////////////////////////////////
 
 std::optional<csl::Expr>
-scalarReplacement(csl::Expr const &             expr,
+scalarReplacement(csl::Expr const              &expr,
                   std::vector<csl::Expr> const &from,
                   std::vector<csl::Expr> const &ccFrom,
                   std::vector<csl::Expr> const &to,
                   bool                          isPredicate);
 
 std::optional<csl::Expr>
-indicialReplacement(csl::Expr const &                    expr,
-                    std::vector<csl::Expr> const &       from,
+indicialReplacement(csl::Expr const                     &expr,
+                    std::vector<csl::Expr> const        &from,
                     std::vector<csl::Parent_info> const &parentFrom,
-                    std::vector<csl::Expr> const &       to,
+                    std::vector<csl::Expr> const        &to,
                     bool                                 isPredicate);
 
 std::optional<csl::Expr>
-tensorReplacement(csl::Expr const &               expr,
+tensorReplacement(csl::Expr const                &expr,
                   std::vector<csl::Parent> const &from,
                   std::vector<csl::Parent> const &to,
                   bool                            isPredicate);
 
 std::optional<csl::Expr>
-tensorExpressionReplacement(csl::Expr const &               expr,
+tensorExpressionReplacement(csl::Expr const                &expr,
                             std::vector<csl::Parent> const &from,
-                            std::vector<csl::Expr> const &  to,
+                            std::vector<csl::Expr> const   &to,
                             bool                            isPredicate);
 
 ///////////////////////////////////////////////////
@@ -222,7 +218,7 @@ void ResetDummyIndices(csl::Expr &expr);
 
 void ApplyIndices(csl::Expr &expr, csl::IndexStructure const &structure);
 
-void ApplyIndices(csl::Expr &                expr,
+void ApplyIndices(csl::Expr                 &expr,
                   csl::IndexStructure const &from,
                   csl::IndexStructure const &to);
 
@@ -232,9 +228,6 @@ void RenameIndices(csl::Expr &expr);
 
 csl::Expr RenamedIndices(csl::Expr const &expr);
 
-void internal_RenameIndices(csl::Expr &                       expr,
-                            std::map<csl::Index, csl::Index> &mapping);
-
 ///////////////////////////////////////////////////
 // Template helper overloads
 ///////////////////////////////////////////////////
@@ -242,7 +235,7 @@ void internal_RenameIndices(csl::Expr &                       expr,
 template <class ParentType,
           typename
           = std::enable_if_t<std::is_convertible_v<ParentType, Parent>>>
-inline void Replace(Expr &                         expr,
+inline void Replace(Expr                          &expr,
                     std::vector<ParentType> const &t_from,
                     std::vector<ParentType> const &t_to)
 {
@@ -258,9 +251,9 @@ inline void Replace(Expr &                         expr,
 template <class ParentType,
           typename
           = std::enable_if_t<std::is_convertible_v<ParentType, Parent>>>
-inline void Replace(Expr &                         expr,
+inline void Replace(Expr                          &expr,
                     std::vector<ParentType> const &t_from,
-                    std::vector<csl::Expr> const & to)
+                    std::vector<csl::Expr> const  &to)
 {
     std::vector<Parent> from(t_from.size());
     for (size_t i = 0; i != from.size(); ++i)
@@ -275,14 +268,14 @@ inline void Replace(Expr &                         expr,
 ///////////////////////////////////////////////////
 
 template <class... Args>
-Expr Tried(const Expr &expr, Args &&... args)
+Expr Tried(const Expr &expr, Args &&...args)
 {
     Expr trial = Replaced(expr, std::forward<Args>(args)...);
     return (*trial < expr.get()) ? trial : expr;
 }
 
 template <class... Args>
-void Try(Expr &expr, Args &&... args)
+void Try(Expr &expr, Args &&...args)
 {
     Expr trial = Replaced(expr, std::forward<Args>(args)...);
     if (trial < expr)

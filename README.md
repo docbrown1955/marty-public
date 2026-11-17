@@ -63,10 +63,6 @@ System dependencies (needed at run-time as system commands):
     sudo apt-get install qtbase5-dev qtbase5-dev-tools qtchooser qt5-qmake -y
     sudo apt-get install cmake -y
  ```
- On `MacOS`
- ``` bash
-    brew install coreutils gsl qt@5 gcc@12 cmake imagemagick texlive
- ```
 
 ### Compilers for `MARTY`
 
@@ -101,7 +97,6 @@ For a detailed and up-to-date documentation on how to build `MARTY` on these pla
 |----------------------|--------|--------|--------|----------|----------|
 | Ubuntu 22.04         | ✅     | ❌     | ❌     | ❌       |   ❌   |
 | Ubuntu 24.04         | ❌     | ❌     | 🔶     | ✅       |   ✅   |
-| macOS 14             | ❌     | ✅     | 🔶     | 🔶       |   ❌   |
 
 ### Build and install `MARTY`
 
@@ -150,31 +145,10 @@ In case `MARTY` is not installed in a standard location (not in `/usr/local/`) i
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:<install/path>/lib
 ```
 
-Although not recommended, if MacOS users install MARTY in a non-standard location the appropriate environment variables are (also to put in `${HOME}/.bashrc`)
-
-``` bash
-    export PATH=$PATH:<install/path>/bin
-    export CPATH=$CPATH:<install/path>/include
-    export C_INCLUDE_PATH=$C_INCLUDE_PATH:<install/path>/include
-    export LIBRARY_PATH=$LIBRARY_PATH:<install/path>/lib
-    export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:<install/path>/lib
-```
-
 After the first installation (and adding the environment variables in the `.bashrc` file) it is necessary to launch a new terminal or reload the bash session:
 
 ``` bash
    source ${HOME}/.bashrc
-```
-
-## The specific case of `MacOS`
-
-On `MacOS` the System Integrity Protection (SIP) can cause issues if files are not installed in `/usr/local`. We therefore recommand to install `MARTY` in this location (default):
-``` bash
-    mkdir build
-    cd build
-    cmake ..
-    make
-    sudo make install
 ```
 
 ## In case of trouble installing `MARTY`

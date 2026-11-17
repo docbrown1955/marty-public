@@ -70,19 +70,19 @@ inline csl::Expr cgrav = csl::constant_s("c_g");
 /**
  * @brief Diagonalization angle for (h0 H0).
  */
-inline csl::Expr alpha = csl::constant_s("alpha");
+inline csl::Expr alpha = csl::constant_s("alpha;\\alpha");
 /**
  * @brief Ratio of Higgs vacuum expectation values.
  */
-inline csl::Expr beta = csl::constant_s("beta");
+inline csl::Expr beta = csl::constant_s("beta;\\beta");
 /**
  * @brief mu parameter.
  */
-inline csl::Expr mu = csl::constant_s("mu_h");
+inline csl::Expr mu = csl::constant_s("mu_h;\\mu_{h}");
 /**
  * @brief Sign of the bilinear Higgs term in the superpotential.
  */
-inline csl::Expr sgn_mu = csl::constant_s("sgn_mu");
+inline csl::Expr sgn_mu = csl::constant_s("sgn_mu;\\mathrm{sgn}_{\\mu}");
 /**
  * @brief Common trilinear coupling.
  */
@@ -155,11 +155,11 @@ inline csl::Expr MeL = csl::constant_s("M_eL");
 /**
  * @brief Left second gen. scalar slepton mass.
  */
-inline csl::Expr MmuL = csl::constant_s("M_\\muL");
+inline csl::Expr MmuL = csl::constant_s("M_\\muL;M_{\\mu L}");
 /**
  * @brief Left third gen. scalar slepton mass.
  */
-inline csl::Expr MtauL = csl::constant_s("M_\\tauL");
+inline csl::Expr MtauL = csl::constant_s("M_\\tauL;M_{\\tau L}");
 /**
  * @brief Right first gen. scalar slepton mass.
  */
@@ -167,11 +167,11 @@ inline csl::Expr MeR = csl::constant_s("M_eR");
 /**
  * @brief Right second gen. scalar slepton mass.
  */
-inline csl::Expr MmuR = csl::constant_s("M_\\muR");
+inline csl::Expr MmuR = csl::constant_s("M_\\muR;M_{\\mu R}");
 /**
  * @brief Right third gen. scalar slepton mass.
  */
-inline csl::Expr MtauR = csl::constant_s("M_\\tauR");
+inline csl::Expr MtauR = csl::constant_s("M_\\tauR;M_{\\tau R}");
 
 /**
  * @brief Left first gen. scalar squark mass.

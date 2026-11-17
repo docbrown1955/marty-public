@@ -52,6 +52,20 @@ std::pair<std::string, std::string> getRegularAndLatexNames(std::string t_name)
     return {t_name, t_name};
 }
 
+std::string prefixedNameWithLatex(std::string const &t_prefix,
+                                  std::string const &t_name)
+{
+    auto [reg, latex] = getRegularAndLatexNames(t_name);
+    std::string latexPrefix = t_prefix;
+    if (not latexPrefix.empty() and latexPrefix.back() == '_') {
+        latexPrefix.pop_back();
+        latexPrefix += "_{" + latex + "}";
+    }
+    else
+        latexPrefix += latex;
+    return t_prefix + reg + ";" + latexPrefix;
+}
+
 AbstractParent::AbstractParent(const string &t_name) : commutable(true)
 {
     AbstractParent::setName(t_name);

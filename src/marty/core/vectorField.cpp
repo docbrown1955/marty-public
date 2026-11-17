@@ -96,26 +96,32 @@ csl::Expr BaseVectorBoson::getKineticTerm(csl::Tensor &X)
 /*************************************************/
 ///////////////////////////////////////////////////
 
+std::string ghostBosonName(std::string const &vectorName, bool conjugate)
+{
+    if (not conjugate)
+        return csl::prefixedNameWithLatex("c_", vectorName);
+    auto [reg, latex] = csl::getRegularAndLatexNames(vectorName);
+    return "c_" + reg + "c;\\bar{c}_{" + latex + "}";
+}
+
 void VectorBoson::setName(std::string t_name)
 {
     BaseVectorBoson::setName(t_name);
-    choice.setName("xi_" + t_name);
-
+    auto [choiceReg, choiceLatex] = csl::getRegularAndLatexNames(t_name);
+    choice.setName("xi_" + choiceReg + ";\\xi_{" + choiceLatex + "}");
     if (fieldStrength) {
         fieldStrength->setName("F_" + getName());
-        fieldStrength->setLatexName("F_" + getLatexName());
+        fieldStrength->setLatexName("F_{" + getLatexName() + "}");
     }
     if (ghost) {
-        ghost->setName("c_" + getName());
-        ghost->setLatexName("c_" + getLatexName());
+        ghost->setName(ghostBosonName(getName() + ";" + getLatexName()));
     }
     if (ghost_c) {
-        ghost_c->setName("c_" + getName() + "c");
-        ghost_c->setLatexName("c_" + getLatexName() + "_{c}");
+        ghost_c->setName(ghostBosonName(getName() + ";" + getLatexName(), true));
     }
     if (goldstone) {
         goldstone->setName("G_" + getName());
-        goldstone->setLatexName("G_" + getLatexName());
+        goldstone->setLatexName("G_{" + getLatexName() + "}");
     }
 }
 
@@ -142,16 +148,17 @@ Particle VectorBoson::generateSimilar(std::string const &t_name) const
     auto res = csl::make_shared<VectorBoson>(t_name, this);
     res->setGaugeChoice(getGaugeChoice().getChoice());
     if (ghost) {
-        auto newghost = std::make_shared<GhostBoson>("c_" + t_name, res);
+        auto newghost = std::make_shared<GhostBoson>(ghostBosonName(t_name), res);
         res->setGhostBoson(newghost);
     }
     if (ghost_c) {
-        auto newghost = std::make_shared<GhostBoson>("c_" + t_name + "c", res);
+        auto newghost = std::make_shared<GhostBoson>(
+            ghostBosonName(t_name, true), res);
         res->setConjugatedGhostBoson(newghost);
     }
     if (goldstone) {
         auto newgoldstone
-            = std::make_shared<GoldstoneBoson>("c_" + t_name, res);
+            = std::make_shared<GoldstoneBoson>(ghostBosonName(t_name), res);
         res->setGoldstoneBoson(newgoldstone);
     }
     return res;
@@ -321,7 +328,7 @@ void VectorBoson::breakParticle(mty::Group *                    brokenGroup,
             newNames.begin(),
             newNames.end(),
             ghostNames.begin(),
-            [&](std::string const &vectorName) { return "c_" + vectorName; });
+            [&](std::string const &vectorName) { return ghostBosonName(vectorName); });
         ghost->breakParticle(brokenGroup, ghostNames);
         updateBrokenGhost(vSpace, ghost);
     }
@@ -331,7 +338,7 @@ void VectorBoson::breakParticle(mty::Group *                    brokenGroup,
                        newNames.end(),
                        ghostNames.begin(),
                        [&](std::string const &vectorName) {
-                           return "c_" + vectorName + "c";
+                           return ghostBosonName(vectorName, true);
                        });
         ghost_c->breakParticle(brokenGroup, ghostNames);
         updateBrokenGhost(vSpace, ghost_c);
@@ -342,7 +349,7 @@ void VectorBoson::breakParticle(mty::Group *                    brokenGroup,
             newNames.begin(),
             newNames.end(),
             goldstoneNames.begin(),
-            [&](std::string const &vectorName) { return "c_" + vectorName; });
+            [&](std::string const &vectorName) { return ghostBosonName(vectorName); });
         goldstone->breakParticle(brokenGroup, goldstoneNames);
         updateBrokenGoldstone(vSpace);
     }
@@ -361,7 +368,7 @@ void VectorBoson::breakParticle(
             names.begin(),
             names.end(),
             ghostNames.begin(),
-            [&](std::string const &vectorName) { return "c_" + vectorName; });
+            [&](std::string const &vectorName) { return ghostBosonName(vectorName); });
         ghost->breakParticle(brokenFlavor, subGroups, ghostNames);
         updateBrokenGhost(vSpace, ghost);
     }
@@ -371,7 +378,7 @@ void VectorBoson::breakParticle(
                        names.end(),
                        ghostNames.begin(),
                        [&](std::string const &vectorName) {
-                           return "c_" + vectorName + "c";
+                           return ghostBosonName(vectorName, true);
                        });
         ghost_c->breakParticle(brokenFlavor, subGroups, ghostNames);
         updateBrokenGhost(vSpace, ghost_c);
@@ -382,7 +389,7 @@ void VectorBoson::breakParticle(
             names.begin(),
             names.end(),
             goldstoneNames.begin(),
-            [&](std::string const &vectorName) { return "c_" + vectorName; });
+            [&](std::string const &vectorName) { return ghostBosonName(vectorName); });
         goldstone->breakParticle(brokenFlavor, subGroups, goldstoneNames);
         updateBrokenGoldstone(vSpace);
     }
@@ -488,12 +495,12 @@ Particle GaugeBoson::generateSimilar(std::string const &t_name) const
 {
     auto res = csl::make_shared<GaugeBoson>(t_name, this);
     if (ghost) {
-        auto newghost = std::make_shared<GhostBoson>("c_" + t_name, res);
+        auto newghost = std::make_shared<GhostBoson>(ghostBosonName(t_name), res);
         res->setGhostBoson(newghost);
     }
     if (goldstone) {
         auto newgoldstone
-            = std::make_shared<GoldstoneBoson>("c_" + t_name, res);
+            = std::make_shared<GoldstoneBoson>(ghostBosonName(t_name), res);
         res->setGoldstoneBoson(newgoldstone);
     }
     return res;

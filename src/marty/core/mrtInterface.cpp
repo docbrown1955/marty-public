@@ -20,6 +20,7 @@
 #include "insertion.h"
 #include "mrtOptions.h"
 #include "wilson.h"
+#include <sstream>
 
 namespace mty {
 
@@ -68,18 +69,18 @@ std::vector<csl::Index> DiracIndices(size_t n, std::string const &nameIndex)
 }
 
 csl::Index GaugeIndex(std::string const &nameIndex,
-                      mty::Model const & model,
+                      mty::Model const  &model,
                       std::string const &nameGroup,
-                      Particle const &   particle)
+                      Particle const    &particle)
 {
     mty::Group const *group = model.getGroup(nameGroup);
     mty::Irrep        irrep = particle->getGroupIrrep(group);
     return group->getVectorSpace(irrep)->generateIndex(nameIndex);
 }
 
-csl::Index GaugeIndex(mty::Model const & model,
+csl::Index GaugeIndex(mty::Model const  &model,
                       std::string const &nameGroup,
-                      Particle const &   particle)
+                      Particle const    &particle)
 {
     mty::Group const *group = model.getGroup(nameGroup);
     mty::Irrep        irrep = particle->getGroupIrrep(group);
@@ -91,9 +92,9 @@ csl::Index GaugeIndex(mty::Model const & model,
     return space->generateIndex();
 }
 
-const csl::Space *VectorSpace(mty::Model const & model,
+const csl::Space *VectorSpace(mty::Model const  &model,
                               std::string const &nameGroup,
-                              Particle const &   particle)
+                              Particle const    &particle)
 {
     mty::Group const *group = model.getGroup(nameGroup);
     mty::Irrep        irrep = particle->getGroupIrrep(group);
@@ -200,7 +201,7 @@ void Display(std::vector<FeynmanRule> const &rules, std::ostream &out)
 }
 
 void Display(std::vector<csl::Expr> const &amplitudes,
-             std::ostream &                out,
+             std::ostream                 &out,
              bool                          simplify)
 {
     if (mty::option::searchAbreviations and mty::option::displayAbbreviations)
@@ -234,7 +235,7 @@ void Display(std::vector<csl::Expr> const &amplitudes,
 }
 
 void Display(mty::Amplitude const &amplitudes,
-             std::ostream &        out,
+             std::ostream         &out,
              bool                  simplify)
 {
     Display(amplitudes.obtainExpressions(), out, simplify);
@@ -246,6 +247,39 @@ void Show(std::vector<FeynmanRule> const &rules)
     for (size_t i = 0; i != rules.size(); ++i)
         graphs[i] = rules[i].getDiagram();
     Show(graphs, false);
+}
+
+std::string LatexFeynmanRuleValue(FeynmanRule const &rule)
+{
+    return csl::DeepRefreshed(csl::DeepHardFactored(csl::Evaluated(
+                                  rule.getExpr(), csl::eval::abbreviation)))
+        ->printLaTeX(0);
+}
+
+std::string LatexFeynmanRule(FeynmanRule const &rule)
+{
+    std::ostringstream out;
+    out << "\\begin{center}\n";
+    out << "$\\vcenter{\\hbox{\n"
+        << Drawer::buildLatex(rule.getDiagram())
+        << "}}\\quad= " << LatexFeynmanRuleValue(rule) << "$\n";
+    out << "\\end{center}\n";
+    return out.str();
+}
+
+std::string LatexFeynmanRules(std::vector<FeynmanRule> const &rules)
+{
+    std::ostringstream out;
+    for (auto const &rule : rules) {
+        FeynmanRule rule_copy = rule;
+        rule_copy.normalizeIndices();
+        out << "Feynman vertex for $";
+        for (auto field : rule_copy.getFieldProduct()) {
+            out << field.printLaTeX(0);
+        }
+        out << "$\n" << LatexFeynmanRule(rule_copy) << "\n";
+    }
+    return out.str();
 }
 
 void Show(std::vector<std::shared_ptr<wick::Graph>> const &graphs,
@@ -297,7 +331,7 @@ void Show(WilsonSet const &wilsons, size_t first, size_t last)
     Show(wilsons.graphs, first, last);
 }
 
-void SaveDiagrams(std::string const &             fileName,
+void SaveDiagrams(std::string const              &fileName,
                   std::vector<FeynmanRule> const &rules)
 {
     std::vector<std::shared_ptr<wick::Graph>> graphs(rules.size());
@@ -306,7 +340,7 @@ void SaveDiagrams(std::string const &             fileName,
     SaveDiagrams(fileName, graphs, false);
 }
 
-void SaveDiagrams(std::string const &                              fileName,
+void SaveDiagrams(std::string const                               &fileName,
                   std::vector<std::shared_ptr<wick::Graph>> const &graphs,
                   bool                                             showMomenta)
 {
@@ -337,19 +371,19 @@ void DisplayAbbreviations(std::string const &name, std::ostream &out)
     csl::Abbrev::printAbbreviations(name, out);
 }
 
-void ExportPDF(std::string const &                              nameFiles,
+void ExportPDF(std::string const                               &nameFiles,
                std::vector<std::shared_ptr<wick::Graph>> const &graphs)
 {
     mty::Drawer::exportPNG(nameFiles, graphs, "diagrams/PDF");
 }
 
-void ExportPNG(std::string const &                              nameFiles,
+void ExportPNG(std::string const                               &nameFiles,
                std::vector<std::shared_ptr<wick::Graph>> const &graphs)
 {
     mty::Drawer::exportPNG(nameFiles, graphs, "diagrams/PNG");
 }
 
-void ExportPDF(std::string const &             nameFiles,
+void ExportPDF(std::string const              &nameFiles,
                std::vector<FeynmanRule> const &rules)
 {
     std::vector<std::shared_ptr<wick::Graph>> graphs(rules.size());
@@ -360,7 +394,7 @@ void ExportPDF(std::string const &             nameFiles,
     mty::Drawer::exportPNG(nameFiles, graphs, "diagrams/PDF");
 }
 
-void ExportPNG(std::string const &             nameFiles,
+void ExportPNG(std::string const              &nameFiles,
                std::vector<FeynmanRule> const &rules)
 {
     std::vector<std::shared_ptr<wick::Graph>> graphs(rules.size());
@@ -387,7 +421,7 @@ void AddTerm(mty::Model &model, csl::Expr const &term, bool addCC)
     model.addLagrangianTerm(term, addCC);
 }
 
-void AddTerm(mty::Model &                  model,
+void AddTerm(mty::Model                   &model,
              std::vector<csl::Expr> const &terms,
              bool                          addCC)
 {
@@ -405,7 +439,7 @@ csl::Expr GetMass(mty::Particle const &particle)
     return particle->getMass();
 }
 
-mty::Particle GenerateSimilarParticle(std::string const &  name,
+mty::Particle GenerateSimilarParticle(std::string const   &name,
                                       mty::Particle const &particle)
 {
     return particle->generateSimilar(name);
@@ -420,7 +454,7 @@ mty::Particle GetFieldStrength(Particle const &particle)
     return particle->getFieldStrength();
 }
 
-void PromoteGoldstone(mty::Model &   model,
+void PromoteGoldstone(mty::Model    &model,
                       mty::Particle &goldstone,
                       mty::Particle &gaugeBoson)
 {
@@ -444,7 +478,7 @@ csl::Tensor GetYukawa(mty::Model const &model, std::string const &nameCoupling)
     return model.getTensorCoupling(nameCoupling);
 }
 
-void Rename(mty::Model &       model,
+void Rename(mty::Model        &model,
             std::string const &oldName,
             std::string const &newName)
 {
@@ -456,8 +490,8 @@ void SetSelfConjugate(Particle &part, bool selfConjugate)
     part->setSelfConjugate(selfConjugate);
 }
 
-void SetGroupRep(mty::Particle &         part,
-                 std::string const &     nameGroup,
+void SetGroupRep(mty::Particle          &part,
+                 std::string const      &nameGroup,
                  std::vector<int> const &highestWeight)
 {
     part->setGroupRep(nameGroup, highestWeight);
@@ -476,7 +510,7 @@ void Init(mty::Model &model)
     model.init();
 }
 
-void Replaced(mty::Model &     model,
+void Replaced(mty::Model      &model,
               csl::Expr const &init,
               csl::Expr const &target)
 {
@@ -493,25 +527,25 @@ void Replaced(mty::Model &model, csl::Tensor &init, csl::Tensor &target)
     model.replace(init, target);
 }
 
-void Replaced(mty::Model &     model,
-              Particle const & particle,
+void Replaced(mty::Model      &model,
+              Particle const  &particle,
               csl::Expr const &newTerm)
 {
     model.replace(particle, newTerm);
 }
 
-void Rotate(mty::Model &                               model,
-            std::vector<mty::Particle> const &         fields,
-            std::vector<mty::Particle> const &         newFields,
+void Rotate(mty::Model                                &model,
+            std::vector<mty::Particle> const          &fields,
+            std::vector<mty::Particle> const          &newFields,
             std::vector<std::vector<csl::Expr>> const &rotation,
             bool                                       diagonalizeMasses)
 {
     model.rotateFields(fields, newFields, rotation, diagonalizeMasses);
 }
 
-void Rotate(mty::Model &                               model,
-            std::vector<std::string> const &           fieldNames,
-            std::vector<std::string> const &           newFieldNames,
+void Rotate(mty::Model                                &model,
+            std::vector<std::string> const            &fieldNames,
+            std::vector<std::string> const            &newFieldNames,
             std::vector<std::vector<csl::Expr>> const &rotation,
             bool                                       diagonalizeMasses)
 {
@@ -530,16 +564,16 @@ void DiagonalizeMassMatrices(mty::Model &model)
     model.refresh();
 }
 
-void BreakGaugeSymmetry(mty::Model &                 model,
-                        std::string const &          brokenGroup,
+void BreakGaugeSymmetry(mty::Model                  &model,
+                        std::string const           &brokenGroup,
                         std::vector<Particle> const &brokenFields,
                         std::vector<std::vector<std::string>> const &newNames)
 {
     model.breakGaugeSymmetry(brokenGroup, brokenFields, newNames);
 }
 
-void BreakGaugeSymmetry(mty::Model &                              model,
-                        std::string const &                       brokenGroup,
+void BreakGaugeSymmetry(mty::Model                               &model,
+                        std::string const                        &brokenGroup,
                         std::initializer_list<std::string> const &brokenFields,
                         std::vector<std::vector<std::string>> const &newNames)
 {
@@ -550,9 +584,9 @@ void BreakGaugeSymmetry(mty::Model &                              model,
 }
 
 void BreakFlavorSymmetry(
-    mty::Model &                                 model,
-    std::string const &                          brokenFlavor,
-    std::initializer_list<std::string> const &   brokenFields,
+    mty::Model                                  &model,
+    std::string const                           &brokenFlavor,
+    std::initializer_list<std::string> const    &brokenFields,
     std::vector<std::vector<std::string>> const &newNames)
 {
     std::vector<Particle> particles;
@@ -562,8 +596,8 @@ void BreakFlavorSymmetry(
     BreakFlavorSymmetry(model, brokenFlavor, particles, newNames);
 }
 
-void BreakFlavorSymmetry(mty::Model &                      model,
-                         std::string const &               brokenFlavor,
+void BreakFlavorSymmetry(mty::Model                       &model,
+                         std::string const                &brokenFlavor,
                          std::vector<mty::Particle> const &brokenFields,
                          std::vector<std::vector<std::string>> const &newNames)
 {
@@ -627,13 +661,13 @@ std::unique_ptr<mty::SemiSimpleAlgebra> CreateAlgebra(algebra::Type type,
 }
 
 mty::Irrep GetIrrep(mty::SemiSimpleAlgebra const *algebra,
-                    std::vector<int> const &      labels)
+                    std::vector<int> const       &labels)
 {
     return algebra->highestWeightRep(labels);
 }
 
 mty::Irrep GetIrrep(std::unique_ptr<mty::SemiSimpleAlgebra> const &algebra,
-                    std::vector<int> const &                       labels)
+                    std::vector<int> const                        &labels)
 {
     return algebra->highestWeightRep(labels);
 }
@@ -669,7 +703,7 @@ bool ContainsTrivialrep(mty::SumIrrep const &decomposition)
     return false;
 }
 
-void SetGaugeChoice(mty::Model &       model,
+void SetGaugeChoice(mty::Model        &model,
                     std::string const &nameParticle,
                     mty::gauge::Type   choice)
 {
@@ -681,7 +715,7 @@ void SetGaugeChoice(mty::Particle particle, mty::gauge::Type choice)
     particle->setGaugeChoice(choice);
 }
 
-std::string FindProcessName(std::string const &           initName,
+std::string FindProcessName(std::string const            &initName,
                             std::vector<Insertion> const &insertions)
 {
     std::ostringstream sout;

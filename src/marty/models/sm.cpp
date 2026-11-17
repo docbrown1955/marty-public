@@ -178,7 +178,7 @@ void SM_Model::gaugeSymmetryBreaking()
     BreakGaugeSymmetry(*this, "L");
     renameParticle("Q_1", "U_L");
     renameParticle("Q_2", "D_L");
-    renameParticle("L_1", "Nu_L");
+    renameParticle("L_1", "Nu_L;\\nu_{L}");
     renameParticle("L_2", "E_L");
 
     ///////////////////////////////////////////////////
@@ -394,10 +394,10 @@ void SM_Model::addGaugeFixingTerms()
     Particle  h0   = getParticle("h");
     Particle  G0   = getParticle("G0");
     Particle  Gp   = getParticle("Gp");
-    csl::Expr ap   = csl::constant_s("ap");
-    csl::Expr am   = csl::constant_s("am");
-    csl::Expr az   = csl::constant_s("az");
-    csl::Expr aa   = csl::constant_s("aa");
+    csl::Expr ap   = csl::constant_s("ap;a_{p}");
+    csl::Expr am   = csl::constant_s("am;a_{m}");
+    csl::Expr az   = csl::constant_s("az;a_{z}");
+    csl::Expr aa   = csl::constant_s("aa;a_{a}");
     csl::Expr delta_G0
         = -g / 2 * (am * Gp + ap * cc(Gp)) + g / (2 * cosW) * az * (v + h0);
     csl::Expr delta_Gp

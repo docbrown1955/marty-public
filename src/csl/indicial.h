@@ -219,6 +219,20 @@ class ContractionChain {
 };
 
 class TensorElement;
+
+/*!
+ * \brief Wraps a LaTeX name in braces when it has a sub- or superscript and
+ * the caller asks for a script, so that it can take another script.
+ */
+std::string latexScriptBase(std::string const &name, bool scripted);
+
+/*!
+ * \brief LaTeX scripts of a list of indices: indices that are lower (or
+ * indices of an unsigned space) are subscripts, indices that are upper in a
+ * signed space are superscripts. Returns e.g. "_{\mu\nu}", "^{\nu}" or
+ * "_{\mu}^{\nu}".
+ */
+std::string latexIndexScripts(std::vector<Index> const &indices);
 class Symbol;
 
 /*!
@@ -555,7 +569,7 @@ class DeltaParent : public TensorParent {
 
     DeltaParent(const DeltaParent &abstract) = delete;
 
-    explicit DeltaParent(const Space *t_space, bool buildTensor=true);
+    explicit DeltaParent(const Space *t_space, bool buildTensor = true);
 
     cslParent::Type getType() const override;
 
@@ -896,6 +910,25 @@ class TensorElement : public AbstractElement {
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
     std::string printLaTeX(int mode = 0) const override;
+
+    /*! \brief LaTeX name of the element, decorated by decorateName().
+     */
+    std::string getLatexDisplayName() const;
+
+    /*! \brief Decorates the LaTeX name of the element (e.g. \overline{\psi}
+     * for a conjugated fermion). Default: unchanged.
+     */
+    virtual std::string decorateName(std::string const &name) const;
+
+    /*! \brief True if the element is a row vector in matrix representation
+     * (e.g. conjugated fermion), so that it must not be transposed when
+     * printed in a matrix chain.
+     */
+    virtual bool isRowForMatrixRep() const;
+
+    /*! \brief LaTeX suffix giving the space-time point of a field, e.g. (X).
+     */
+    virtual std::string getLatexPointSuffix() const;
 
     std::vector<Parent> getSubSymbols() const override;
 

@@ -44,8 +44,8 @@ class Drawer {
 
     static drawer::LatexLinker
     buildDiagram(std::shared_ptr<wick::Graph> const &graph,
-                 drawer::Graph const &               model,
-                 std::map<size_t, size_t> &          mapping);
+                 drawer::Graph const                &model,
+                 std::map<size_t, size_t>           &mapping);
 
     static std::vector<drawer::LatexLinker>
     buildDiagrams(std::vector<std::shared_ptr<wick::Graph>> const &graph,
@@ -57,23 +57,23 @@ class Drawer {
     launchViewer(std::vector<std::shared_ptr<wick::Graph>> const &links,
                  bool showMomenta = true);
 
-    static void saveToJSON(std::string const &                     fileName,
+    static void saveToJSON(std::string const                      &fileName,
                            std::vector<drawer::LatexLinker> const &links);
 
     static void
-    saveToJSON(std::string const &                              fileName,
+    saveToJSON(std::string const                               &fileName,
                std::vector<std::shared_ptr<wick::Graph>> const &links,
                bool showMomenta = true);
 
     static std::string buildLatex(std::shared_ptr<wick::Graph> const &graph);
 
     static void
-    exportPDF(std::string const &                              name,
+    exportPDF(std::string const                               &name,
               std::vector<std::shared_ptr<wick::Graph>> const &graphs,
               std::string const &path = "diagrams");
 
     static void
-    exportPNG(std::string const &                              name,
+    exportPNG(std::string const                               &name,
               std::vector<std::shared_ptr<wick::Graph>> const &graphs,
               std::string const &path = "diagrams");
 

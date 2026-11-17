@@ -158,9 +158,9 @@ csl::Index DiracIndex(std::string const &name = "");
  */
 template <class GroupType, class FieldType>
 csl::Index GaugeIndex(std::string const &nameIndex,
-                      mty::Model const & model,
-                      GroupType &&       group,
-                      FieldType &&       part)
+                      mty::Model const  &model,
+                      GroupType        &&group,
+                      FieldType        &&part)
 {
     return model.generateIndex<GroupType, FieldType>(
         nameIndex,
@@ -266,8 +266,8 @@ GaugeIndex(mty::Model const &model, GroupType &&group, FieldType &&part)
 template <class GroupType, class FieldType>
 std::vector<csl::Index> GaugeIndices(size_t            nIndices,
                                      mty::Model const &model,
-                                     GroupType &&      group,
-                                     FieldType &&      part)
+                                     GroupType       &&group,
+                                     FieldType       &&part)
 {
     std::vector<csl::Index> indices(nIndices);
     for (size_t i = 0; i != nIndices; ++i)
@@ -296,9 +296,9 @@ std::vector<csl::Index> GaugeIndices(size_t            nIndices,
  * \return The vector space of the representation of \b part in the group named
  * \b nameGroup.
  */
-const csl::Space *VectorSpace(mty::Model const & model,
+const csl::Space *VectorSpace(mty::Model const  &model,
                               std::string const &nameGroup,
-                              Particle const &   part);
+                              Particle const    &part);
 
 /*!
  * \brief Generates an index in a given space.
@@ -309,7 +309,7 @@ const csl::Space *VectorSpace(mty::Model const & model,
  * \return An index living in \b space.
  * \sa csl::Space, csl::Index, csl::TensorParent, csl::TensorElement.
  */
-csl::Index GenerateIndex(csl::Space const * space,
+csl::Index GenerateIndex(csl::Space const  *space,
                          std::string const &name = "");
 
 /*!
@@ -462,8 +462,7 @@ GetVectorSpace(mty::Model &model, GroupType &&group, FieldType &&field)
  * @return The vector space of the \b flavor \b group.
  */
 template <class GroupType>
-csl::Space const *
-GetVectorSpace(mty::Model &model, GroupType &&group)
+csl::Space const *GetVectorSpace(mty::Model &model, GroupType &&group)
 {
     return model.getVectorSpace(std::forward<GroupType>(group));
 }
@@ -488,22 +487,40 @@ void ContractIndices(csl::Expr &init);
 void ContractIndices(std::vector<csl::Expr> &init);
 
 void Display(std::vector<FeynmanRule> const &rules,
-             std::ostream &                  out = std::cout);
+             std::ostream                   &out = std::cout);
 
 void Display(std::vector<csl::Expr> const &amplitudes,
-             std::ostream &                out      = std::cout,
+             std::ostream                 &out      = std::cout,
              bool                          simplify = false);
 void Display(mty::Amplitude const &amplitudes,
-             std::ostream &        out      = std::cout,
+             std::ostream         &out      = std::cout,
              bool                  simplify = false);
 
 void Display(WilsonSet const &wilsons, std::ostream &out = std::cout);
 
 void Show(std::vector<FeynmanRule> const &rules);
-void Show(std::vector<std::shared_ptr<wick::Graph>> const &diagrams,
-          bool                                             showMomenta = true);
-void Show(mty::Amplitude const &diagrams);
-void Show(WilsonSet const &wilsons);
+
+/*!
+ * \brief LaTeX of the vertex value of a Feynman rule: the rule expression
+ * with abbreviations expanded, hard-factored and with refreshed indices.
+ */
+std::string LatexFeynmanRuleValue(FeynmanRule const &rule);
+
+/*!
+ * \brief LaTeX block of one Feynman rule: the diagram (GRAFED tikz code,
+ * edges labelled by their fields) followed by the vertex value, centred.
+ */
+std::string LatexFeynmanRule(FeynmanRule const &rule);
+
+/*!
+ * \brief LaTeX document of Feynman rules: for each rule a header
+ * "Feynman vertex for $<fields>$" followed by LatexFeynmanRule().
+ */
+std::string LatexFeynmanRules(std::vector<FeynmanRule> const &rules);
+void        Show(std::vector<std::shared_ptr<wick::Graph>> const &diagrams,
+                 bool                                             showMomenta = true);
+void        Show(mty::Amplitude const &diagrams);
+void        Show(WilsonSet const &wilsons);
 
 void Show(std::vector<FeynmanRule> const &rules, size_t first, size_t last);
 void Show(std::vector<std::shared_ptr<wick::Graph>> const &diagrams,
@@ -512,12 +529,12 @@ void Show(std::vector<std::shared_ptr<wick::Graph>> const &diagrams,
 void Show(mty::Amplitude const &diagrams, size_t first, size_t last);
 void Show(WilsonSet const &wilsons, size_t first, size_t last);
 
-void SaveDiagrams(std::string const &                              fileName,
+void SaveDiagrams(std::string const                               &fileName,
                   std::vector<std::shared_ptr<wick::Graph>> const &diagams,
                   bool showMomenta = true);
-void SaveDiagrams(std::string const &   fileName,
+void SaveDiagrams(std::string const    &fileName,
                   mty::Amplitude const &amplitude);
-void SaveDiagrams(std::string const &             fileName,
+void SaveDiagrams(std::string const              &fileName,
                   std::vector<FeynmanRule> const &rules);
 
 template <class T>
@@ -528,18 +545,18 @@ void Display(T const &printable, std::ostream &out = std::cout)
 
 void DisplayAbbreviations(std::ostream &out = std::cout);
 void DisplayAbbreviations(std::string const &name,
-                          std::ostream &     out = std::cout);
+                          std::ostream      &out = std::cout);
 
-void ExportPDF(std::string const &                              nameFiles,
+void ExportPDF(std::string const                               &nameFiles,
                std::vector<std::shared_ptr<wick::Graph>> const &graphs);
 
-void ExportPDF(std::string const &             nameFiles,
+void ExportPDF(std::string const              &nameFiles,
                std::vector<FeynmanRule> const &rules);
 
-void ExportPNG(std::string const &                              nameFiles,
+void ExportPNG(std::string const                               &nameFiles,
                std::vector<std::shared_ptr<wick::Graph>> const &graphs);
 
-void ExportPNG(std::string const &             nameFiles,
+void ExportPNG(std::string const              &nameFiles,
                std::vector<FeynmanRule> const &rules);
 
 ///////////////////////////////////////////////////
@@ -549,24 +566,24 @@ void ExportPNG(std::string const &             nameFiles,
 ///////////////////////////////////////////////////
 
 template <class... Args>
-void AddGaugedGroup(mty::Model &model, Args &&... args)
+void AddGaugedGroup(mty::Model &model, Args &&...args)
 {
     model.addGaugedGroup(std::forward<Args>(args)...);
 }
 
 template <class... Args>
-void AddFlavorGroup(mty::Model &model, Args &&... args)
+void AddFlavorGroup(mty::Model &model, Args &&...args)
 {
     model.addFlavorGroup(std::forward<Args>(args)...);
 }
 
-void AddParticle(mty::Model &   model,
+void AddParticle(mty::Model    &model,
                  mty::Particle &particle,
                  bool           initTerms = true);
 
 void AddTerm(mty::Model &model, csl::Expr const &term, bool addCC = false);
 
-void AddTerm(mty::Model &                  model,
+void AddTerm(mty::Model                   &model,
              std::vector<csl::Expr> const &terms,
              bool                          addCC = false);
 
@@ -574,12 +591,12 @@ mty::Particle GetParticle(mty::Model const &model, std::string const &name);
 
 csl::Expr GetMass(mty::Particle const &particle);
 
-mty::Particle GenerateSimilarParticle(std::string const &  name,
+mty::Particle GenerateSimilarParticle(std::string const   &name,
                                       mty::Particle const &particle);
 
 mty::Particle GetFieldStrength(Particle const &particle);
 
-void PromoteGoldstone(mty::Model &   model,
+void PromoteGoldstone(mty::Model    &model,
                       mty::Particle &goldstone,
                       mty::Particle &gaugeBoson);
 
@@ -587,34 +604,34 @@ void PromoteGoldstone(mty::Model &model,
                       char const *goldstone,
                       char const *gaugeBoson);
 
-csl::Expr GetCoupling(mty::Model const & model,
+csl::Expr GetCoupling(mty::Model const  &model,
                       std::string const &nameCoupling);
 
-csl::Tensor GetYukawa(mty::Model const & model,
+csl::Tensor GetYukawa(mty::Model const  &model,
                       std::string const &nameCoupling);
 
-void Rename(mty::Model &       model,
+void Rename(mty::Model        &model,
             std::string const &oldName,
             std::string const &newName);
 
 template <class... Args>
-void SetMass(Particle &part, Args &&... args)
+void SetMass(Particle &part, Args &&...args)
 {
     part->setMass(std::forward<Args>(args)...);
 }
 
 template <class... Args>
-void SetWidth(Particle &part, Args &&... args)
+void SetWidth(Particle &part, Args &&...args)
 {
     part->setWidth(std::forward<Args>(args)...);
 }
 
 void SetSelfConjugate(Particle &part, bool selfConjugate);
 
-void SetGroupRep(mty::Particle &         part,
-                 std::string const &     nameGroup,
+void SetGroupRep(mty::Particle          &part,
+                 std::string const      &nameGroup,
                  std::vector<int> const &highestWeight);
-void SetGroupRep(mty::Particle &    part,
+void SetGroupRep(mty::Particle     &part,
                  std::string const &nameGroup,
                  int                charge);
 void SetFlavorRep(mty::Particle &part, std::string const &nameGroup);
@@ -626,7 +643,7 @@ void Init(mty::Model &model);
  * a model. \param model  Model in which we do the replacement. \param init
  * Expression to replace. \param target New expression.
  */
-void Replaced(mty::Model &     model,
+void Replaced(mty::Model      &model,
               csl::Expr const &init,
               csl::Expr const &target);
 
@@ -655,8 +672,8 @@ void Replaced(mty::Model &model, csl::Tensor &init, csl::Tensor &target);
  * \param newTerm  New expression.
  * \sa The overload of this function with 4 parameters.
  */
-void Replaced(mty::Model &     model,
-              Particle const & particle,
+void Replaced(mty::Model      &model,
+              Particle const  &particle,
               csl::Expr const &newTerm);
 
 /*!
@@ -708,9 +725,9 @@ void Replaced(mty::Model &     model,
  * \param diagonalizeMasses Boolean (optional, default = false). If true, all
  * non diagonal mass term between new fields are suppressed after the rotation.
  */
-void Rotate(mty::Model &                               model,
-            std::vector<mty::Particle> const &         fields,
-            std::vector<mty::Particle> const &         newFields,
+void Rotate(mty::Model                                &model,
+            std::vector<mty::Particle> const          &fields,
+            std::vector<mty::Particle> const          &newFields,
             std::vector<std::vector<csl::Expr>> const &rotation,
             bool diagonalizeMasses = false);
 
@@ -725,44 +742,44 @@ void Rotate(mty::Model &                               model,
  * \sa The overload of this function taking mty::Particle as parameter instead
  * of names.
  */
-void Rotate(mty::Model &                               model,
-            std::vector<std::string> const &           fields,
-            std::vector<std::string> const &           newFields,
+void Rotate(mty::Model                                &model,
+            std::vector<std::string> const            &fields,
+            std::vector<std::string> const            &newFields,
             std::vector<std::vector<csl::Expr>> const &rotation,
             bool diagonalizeMasses = false);
 
 void DiagonalizeMassMatrices(mty::Model &model);
 
-void BreakGaugeSymmetry(mty::Model &                 model,
-                        std::string const &          brokenGroup,
+void BreakGaugeSymmetry(mty::Model                  &model,
+                        std::string const           &brokenGroup,
                         std::vector<Particle> const &brokenFields,
                         std::vector<std::vector<std::string>> const &newNames);
 
-void BreakGaugeSymmetry(mty::Model &                              model,
-                        std::string const &                       brokenGroup,
+void BreakGaugeSymmetry(mty::Model                               &model,
+                        std::string const                        &brokenGroup,
                         std::initializer_list<std::string> const &brokenFields,
                         std::vector<std::vector<std::string>> const &newNames);
 
 void BreakFlavorSymmetry(
-    mty::Model &                                 model,
-    std::string const &                          brokenFlavor,
-    std::initializer_list<std::string> const &   brokenFields,
+    mty::Model                                  &model,
+    std::string const                           &brokenFlavor,
+    std::initializer_list<std::string> const    &brokenFields,
     std::vector<std::vector<std::string>> const &newNames);
 
 void BreakFlavorSymmetry(
-    mty::Model &                                 model,
-    std::string const &                          brokenFlavor,
-    std::vector<mty::Particle> const &           brokenFields,
+    mty::Model                                  &model,
+    std::string const                           &brokenFlavor,
+    std::vector<mty::Particle> const            &brokenFields,
     std::vector<std::vector<std::string>> const &newNames);
 
 template <class... Args>
-void BreakGaugeSymmetry(mty::Model &model, Args &&... args)
+void BreakGaugeSymmetry(mty::Model &model, Args &&...args)
 {
     model.breakGaugeSymmetry(std::forward<Args>(args)...);
 }
 
 template <class... Args>
-void BreakFlavorSymmetry(mty::Model &model, Args &&... args)
+void BreakFlavorSymmetry(mty::Model &model, Args &&...args)
 {
     model.breakFlavorSymmetry(std::forward<Args>(args)...);
 }
@@ -810,10 +827,10 @@ std::unique_ptr<mty::SemiSimpleAlgebra> CreateAlgebra(algebra::Type type,
                                                       int           l = -1);
 
 mty::Irrep GetIrrep(mty::SemiSimpleAlgebra const *algebra,
-                    std::vector<int> const &      labels);
+                    std::vector<int> const       &labels);
 
 mty::Irrep GetIrrep(std::unique_ptr<mty::SemiSimpleAlgebra> const &algebra,
-                    std::vector<int> const &                       labels);
+                    std::vector<int> const                        &labels);
 
 mty::Irrep GetConjugateRep(mty::Irrep const &rep);
 
@@ -822,7 +839,7 @@ mty::SemiSimpleAlgebra const *GetAlgebraOf(Irrep const &rep);
 int GetDimension(mty::Irrep const &irrep);
 
 bool ContainsIrrep(mty::SumIrrep const &decomposition,
-                   mty::Irrep const &   irrep);
+                   mty::Irrep const    &irrep);
 
 bool ContainsTrivialrep(mty::SumIrrep const &decomposition);
 
@@ -839,7 +856,7 @@ bool ContainsTrivialrep(mty::SumIrrep const &decomposition);
  * particle is present. \param nameParticle The name of the GaugeBoson to
  * modify. \param choice       New gauge fixing choice, element of gauge::Type.
  */
-void SetGaugeChoice(mty::Model &       model,
+void SetGaugeChoice(mty::Model        &model,
                     std::string const &nameParticle,
                     mty::gauge::Type   choice);
 
@@ -859,7 +876,7 @@ void SetGaugeChoice(mty::Model &       model,
  */
 void SetGaugeChoice(mty::Particle particle, mty::gauge::Type choice);
 
-std::string FindProcessName(std::string const &                initName,
+std::string FindProcessName(std::string const                 &initName,
                             std::vector<mty::Insertion> const &insertions);
 
 } // namespace mty

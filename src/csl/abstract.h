@@ -85,9 +85,9 @@ class Abstract {
      * \details Initializes name empty and commutable to \b True.
      */
 #ifdef DEBUG
-    Abstract() : __alloc_monitor(){};
+    Abstract() : __alloc_monitor() {};
 #else
-    Abstract(){};
+    Abstract() {};
 #endif
 
     /*! \brief Destructor.*/
@@ -118,6 +118,11 @@ class Abstract {
 
     virtual void printProp(std::ostream &fout = std::cout) const;
 
+    /*! \brief Decorates a LaTeX expression with the complex conjugate
+     * property (e.g. ^{*}). Overridden to change the decoration.
+     */
+    virtual std::string decorateExpression(std::string const &expr) const;
+
     /*! \brief Displays explicitely the expression, with types of each
      * component. This function is only used for debug. \param mode Mode of
      * printing.
@@ -125,8 +130,14 @@ class Abstract {
     void printExplicit(int mode = 0) const;
 
     /*! \brief Creates a LaTeX output for the Abstract.
-     * \param mode Tells if the Abstract is printed alone (default) or in
-     * another expr.
+     * \param mode Precedence of the context in which the expression is
+     * printed:
+     *  - 0: top level, no brackets, no trailing newline;
+     *  - 1: term or argument of a function, no brackets;
+     *  - 2: factor of a product or denominator of a fraction (sums are
+     *    bracketed, negative numbers are bracketed);
+     *  - 4: base of a power (sums, products, fractions and powers are
+     *    bracketed).
      * \return The string corresponding to the LaTeX output.
      */
     virtual std::string printLaTeX(int mode = 0) const;

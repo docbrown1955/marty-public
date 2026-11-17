@@ -28,6 +28,13 @@
 
 namespace mty {
 
+/*!
+ * \brief Name of the ghost of a vector boson, with LaTeX form c_{V} (or
+ * \bar{c}_{V} for the conjugated ghost).
+ */
+std::string ghostBosonName(std::string const &vectorName,
+                           bool               conjugate = false);
+
 class FieldStrength;
 class Model;
 

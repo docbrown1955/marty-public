@@ -247,15 +247,18 @@ void Abbrev::compressAbbreviations_impl(
 
 std::string Abbrev::getFinalName(std::string_view initialName)
 {
-    std::string init(initialName);
+    auto [init, latex] = getRegularAndLatexNames(std::string(initialName));
     if (id_name.find(init) == id_name.end()) {
         id_name[init] = 0;
-        return init;
+        return std::string(initialName);
     }
-    std::string newName = toString(++id_name[init]);
+    size_t      n       = ++id_name[init];
+    std::string newName = toString(n);
     while (newName.size() < 4)
         newName = '0' + newName;
-    return init + "_" + newName;
+    if (latex == init)
+        return init + "_" + newName;
+    return init + "_" + newName + ";{" + latex + "}_{" + newName + "}";
 }
 
 void Abbrev::printAbbreviations(std::ostream &fout)

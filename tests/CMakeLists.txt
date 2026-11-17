@@ -1,8 +1,5 @@
 if(ENABLE_COVERAGE)
     include(CodeCoverage.cmake)
-    if(CMAKE_COMPILER_IS_GNUCXX)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
-    endif()
 endif()
 
 function(SETUP_MARTY_TEST_TARGET TARGET)
@@ -40,4 +37,6 @@ if(ENABLE_COVERAGE)
     SETUP_TARGET_FOR_COVERAGE(${UNIT_TEST_LABEL})
     SETUP_TARGET_FOR_COVERAGE(${INTEGRATION_TEST_LABEL})
     SETUP_TARGET_FOR_COVERAGE(${SYSTEM_TEST_LABEL})
+    # Single run of all test labels, so the report combines all coverage
+    SETUP_TARGET_FOR_COVERAGE(combined "")
 endif()

@@ -173,8 +173,8 @@ void MSSM_Model::initSLeptons()
     csl::Index i = generateIndex("L", s_Li);
     csl::Index I = flavorSpace->generateIndex();
     csl::Index J = flavorSpace->generateIndex();
-    M2_s_L       = csl::Tensor("M2_s_L", {flavorSpace, flavorSpace});
-    M2_s_E       = csl::Tensor("M2_s_E", {flavorSpace, flavorSpace});
+    M2_s_L       = csl::Tensor("M2_s_L;M^{2}_{\\tilde{L}}", {flavorSpace, flavorSpace});
+    M2_s_E       = csl::Tensor("M2_s_E;M^{2}_{\\tilde{E}}", {flavorSpace, flavorSpace});
     M2_s_L->setComplexProperty(csl::ComplexProperty::Complex);
     M2_s_E->setComplexProperty(csl::ComplexProperty::Complex);
     M2_s_L->addHermitianProperty(flavorSpace, M2_s_L({I, J}), M2_s_L({I, J}));
@@ -219,9 +219,9 @@ void MSSM_Model::initSQuarks()
     csl::Index i = generateIndex("L", s_Qi);
     csl::Index I = flavorSpace->generateIndex();
     csl::Index J = flavorSpace->generateIndex();
-    M2_s_Q       = csl::Tensor("M2_s_Q", {flavorSpace, flavorSpace});
-    M2_s_U       = csl::Tensor("M2_s_U", {flavorSpace, flavorSpace});
-    M2_s_D       = csl::Tensor("M2_s_D", {flavorSpace, flavorSpace});
+    M2_s_Q       = csl::Tensor("M2_s_Q;M^{2}_{\\tilde{Q}}", {flavorSpace, flavorSpace});
+    M2_s_U       = csl::Tensor("M2_s_U;M^{2}_{\\tilde{U}}", {flavorSpace, flavorSpace});
+    M2_s_D       = csl::Tensor("M2_s_D;M^{2}_{\\tilde{D}}", {flavorSpace, flavorSpace});
     M2_s_Q->setComplexProperty(csl::ComplexProperty::Complex);
     M2_s_U->setComplexProperty(csl::ComplexProperty::Complex);
     M2_s_D->setComplexProperty(csl::ComplexProperty::Complex);
@@ -241,13 +241,13 @@ void MSSM_Model::initHiggs()
     beta_h = mssm_input::beta;
     b_h    = csl::constant_s("b");
 
-    Hu = mty::scalarboson_s("Hu", *this);
+    Hu = mty::scalarboson_s("Hu;H_{u}", *this);
     Hu->setGroupRep("L", 1);
     Hu->setGroupRep("Y", {1, 2});
     m_sHu = csl::constant_s("m_sHu");
     Hu->setMass(m_sHu);
 
-    Hd = mty::scalarboson_s("Hd", *this);
+    Hd = mty::scalarboson_s("Hd;H_{d}", *this);
     Hd->setGroupRep("L", 1);
     Hd->setGroupRep("Y", {-1, 2});
     m_sHd = csl::constant_s("m_sHd");
@@ -828,13 +828,13 @@ void MSSM_Model::breakSU2LGaugeSymmetry()
          {"W_1", "W_2", "W_3"},
          {"c_W_1", "c_W_2", "c_W_3"},
          {"U_L", "D_L"},
-         {"Nu_L  ; \\Nu_L", "E_L"},
+         {"Nu_L  ; \\nu_{L}", "E_L"},
 
          {"sHup  ; \\tilde{H}_u^+", "sHu0 ; \\tilde{H}_u^0"},
          {"sHd0  ; \\tilde{H}_d^0", "sHdm ; \\tilde{H}_d^-"},
          {"sW1   ; \\tilde{W}", "sW2  ; \\tilde{W}^2", "sW3 ; \\tilde{W}^3"},
          {"sU_L  ; \\tilde{U}_L", "sD_L ; \\tilde{D}_L"},
-         {"sNu_L ; \\tilde{\\Nu}_L", "sE_L ; \\tilde{E}_L"}});
+         {"sNu_L ; \\tilde{\\nu}_L", "sE_L ; \\tilde{E}_L"}});
 
     getParticle("sHu0")->setSelfConjugate(true);
     getParticle("sHd0")->setSelfConjugate(true);
@@ -890,7 +890,7 @@ void MSSM_Model::replaceWBoson()
 void MSSM_Model::expandAroundVEVs()
 {
     v_h          = sm_input::v;
-    beta_h       = csl::constant_s("beta");
+    beta_h       = csl::constant_s("beta;\\beta");
     csl::Expr vu = v_h * csl::sin_s(beta_h);
     csl::Expr vd = v_h * csl::cos_s(beta_h);
 

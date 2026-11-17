@@ -53,8 +53,9 @@ Kinematics::Kinematics(std::vector<mty::Insertion> const &t_insertions,
 {
     momenta.resize(insertions.size());
     std::generate(begin(momenta), end(momenta), [&, i = 0]() mutable {
-        auto p
-            = csl::Tensor("p_" + std::to_string(indices[i]), &csl::Minkowski);
+        auto p = csl::Tensor(
+            csl::prefixedNameWithLatex("p_", std::to_string(indices[i])),
+            &csl::Minkowski);
         ++i;
         return p;
     });

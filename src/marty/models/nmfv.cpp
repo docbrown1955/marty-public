@@ -163,8 +163,10 @@ void NMFV_Model::addMixing(MixingInfo mix)
             addPairMixing(mixing, i_eff, j_eff);
             std::string deltaName = "del_" + toString(mixing) + "_"
                                     + std::to_string(10 * i_eff + j_eff);
-            csl::Expr delta
-                = csl::constant_s(deltaName, csl::ComplexProperty::Complex);
+            csl::Expr delta = csl::constant_s(
+                deltaName + ";\\delta_{" + toString(mixing) + "_"
+                    + std::to_string(10 * i_eff + j_eff) + "}",
+                csl::ComplexProperty::Complex);
             M[i_eff][j_eff] = delta / 2;
             M[j_eff][i_eff] = delta / 2;
         }

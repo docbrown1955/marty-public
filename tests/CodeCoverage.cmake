@@ -31,8 +31,8 @@
 # coverage            # Name of output directory.
 # )
 #
-# 4. Build a Debug build:
-# cmake -DCMAKE_BUILD_TYPE=Debug ..
+# 4. Build a Debug build with coverage enabled:
+# cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON ..
 # make
 # make my_coverage_target
 #
@@ -78,13 +78,7 @@ IF(NOT CMAKE_COMPILER_IS_GNUCXX)
     ENDIF()
 ENDIF() # NOT CMAKE_COMPILER_IS_GNUCXX
 
-MARK_AS_ADVANCED(
-    CMAKE_CXX_FLAGS_COVERAGE
-    CMAKE_C_FLAGS_COVERAGE
-    CMAKE_EXE_LINKER_FLAGS_COVERAGE
-    CMAKE_SHARED_LINKER_FLAGS_COVERAGE)
-
-IF(NOT(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "Coverage"))
+IF(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
     MESSAGE(WARNING "Code coverage results with an optimized (non-Debug) build may be misleading")
 ENDIF() # NOT CMAKE_BUILD_TYPE STREQUAL "Debug"
 
@@ -94,10 +88,20 @@ ENDIF() # NOT CMAKE_BUILD_TYPE STREQUAL "Debug"
 # If not, no coverage report will be created!
 # Param _outputname     lcov output is generated as _outputname.info
 # HTML report is generated in _outputname/index.html
-# Optional fourth parameter is passed as arguments to _testrunner
-# Pass them in list form, e.g.: "-j;2" for -j 2
+# Optional second parameter is the ctest label to run. An empty string runs all tests.
 FUNCTION(SETUP_TARGET_FOR_COVERAGE _targetname)
     set(_outputname "coverage_${_targetname}")
+
+    IF(ARGC GREATER 1)
+        set(_ctest_label "${ARGV1}")
+    ELSE()
+        set(_ctest_label "${_targetname}")
+    ENDIF()
+    IF(_ctest_label STREQUAL "")
+        set(_ctest_args "")
+    ELSE()
+        set(_ctest_args -L ${_ctest_label})
+    ENDIF()
 
     IF(NOT LCOV_PATH)
         MESSAGE(FATAL_ERROR "lcov not found! Aborting...")
@@ -116,7 +120,7 @@ FUNCTION(SETUP_TARGET_FOR_COVERAGE _targetname)
         ${LCOV_PATH} --directory . --zerocounters
 
         # Run tests
-        COMMAND ctest -L ${_targetname} --output-on-failure
+        COMMAND ctest ${_ctest_args} --output-on-failure
 
         # Capturing lcov counters and generating report
         COMMAND ${LCOV_PATH} --directory . --capture --output-file ${_outputname}.info --gcov-tool ${GCOV_PATH}

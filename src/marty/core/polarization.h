@@ -44,12 +44,12 @@ class PolarizationField : public mty::QuantumField {
     PolarizationField(csl::Tensor const &impulsion,
                       csl::Parent const &t_parent);
 
-    PolarizationField(csl::Tensor const &            impulsion,
-                      csl::Parent const &            t_parent,
+    PolarizationField(csl::Tensor const             &impulsion,
+                      csl::Parent const             &t_parent,
                       const std::vector<csl::Index> &indices);
 
-    PolarizationField(csl::Tensor const &        impulsion,
-                      csl::Parent const &        t_parent,
+    PolarizationField(csl::Tensor const         &impulsion,
+                      csl::Parent const         &t_parent,
                       const csl::IndexStructure &indices);
 
     PolarizationField(PolarizationField const &) = default;
@@ -94,7 +94,7 @@ class PolarizationField : public mty::QuantumField {
     void setParticle(bool) override;
     void setIncoming(bool) override;
 
-    friend std::ostream &operator<<(std::ostream &           fout,
+    friend std::ostream &operator<<(std::ostream            &fout,
                                     const PolarizationField &pol);
 
   private:

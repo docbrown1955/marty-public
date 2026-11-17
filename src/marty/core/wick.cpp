@@ -150,14 +150,12 @@ void Wick::printCode(int mode, std::ostream &out) const
     argument->printCode(mode, out);
 }
 
-string Wick::printLaTeX(int mode) const
+string Wick::printLaTeX(int) const
 {
     ostringstream sout;
     sout << "Wick< ";
     sout << argument->printLaTeX(1);
     sout << " >";
-    if (mode == 0)
-        sout << endl;
 
     return sout.str();
 }

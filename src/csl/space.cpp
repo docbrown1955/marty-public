@@ -23,7 +23,42 @@ using namespace std;
 
 namespace csl {
 
+namespace {
+
+std::vector<std::string> plainIndexNames(std::vector<std::string> const &names)
+{
+    std::vector<std::string> res;
+    for (auto const &name : names)
+        res.push_back(getRegularAndLatexNames(name).first);
+    return res;
+}
+
+std::map<std::string, std::string>
+latexIndexNames(std::vector<std::string> const &names)
+{
+    std::map<std::string, std::string> res;
+    for (auto const &name : names) {
+        auto [reg, latex] = getRegularAndLatexNames(name);
+        if (latex != reg)
+            res[reg] = latex;
+    }
+    return res;
+}
+
+} // namespace
+
 bool Space::applyMetric = true;
+
+std::string Space::getIndexLatexName(std::string const &t_name) const
+{
+    size_t      under = t_name.find('_');
+    std::string base  = t_name.substr(0, under);
+    auto        found = indexLatexNames.find(base);
+    std::string res   = (found == indexLatexNames.end()) ? base : found->second;
+    if (under != std::string::npos)
+        res += "_{" + t_name.substr(under + 1) + "}";
+    return res;
+}
 
 Space::Space(const std::string              &t_name,
              int                             t_dim,
@@ -31,7 +66,8 @@ Space::Space(const std::string              &t_name,
     : name(t_name),
       dim(t_dim),
       signedIndex(false),
-      defaultIndexNames(defaultNames),
+      defaultIndexNames(plainIndexNames(defaultNames)),
+      indexLatexNames(latexIndexNames(defaultNames)),
       delta(csl::make_shared<DeltaParent>(this)),
       metric(delta),
       inverseMetric(delta)
@@ -53,7 +89,8 @@ Space::Space(const std::string              &t_name,
       dim(-1),
       symbolicDim(t_dim),
       signedIndex(false),
-      defaultIndexNames(defaultNames),
+      defaultIndexNames(plainIndexNames(defaultNames)),
+      indexLatexNames(latexIndexNames(defaultNames)),
       delta(csl::make_shared<DeltaParent>(this, false)),
       metric(delta),
       inverseMetric(delta)
@@ -76,7 +113,8 @@ Space::Space(const std::string              &t_name,
     : name(t_name),
       dim(t_dim),
       signedIndex(true),
-      defaultIndexNames(defaultNames),
+      defaultIndexNames(plainIndexNames(defaultNames)),
+      indexLatexNames(latexIndexNames(defaultNames)),
       delta(csl::make_shared<DeltaParent>(this)),
       metric((t_metric == CSL_UNDEF)
                  ? csl::make_shared<MetricParent>(this, name_metric)

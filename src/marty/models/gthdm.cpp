@@ -46,7 +46,7 @@ void GTHDM_Model::replaceYukawas()
     csl::Expr m_b   = csl::constant_s("m_b");
 
     const csl::Space *flavorSpace = GetSpace(Ye1);
-    csl::Tensor       M_e         = csl::tensor_s("M_e",
+    csl::Tensor       M_e         = csl::tensor_s("M_e;M_{e}",
                                     {flavorSpace, flavorSpace},
                                     csl::matrix_s({{m_e, CSL_0, CSL_0},
                                                                  {CSL_0, m_mu, CSL_0},
@@ -97,17 +97,17 @@ void GTHDM_Model::replaceYukawas()
 
     // Replace Y2 by new parametrization xi
     // Lepton Yukawa parameters
-    csl::Expr xil_mm = csl::constant_s("xil_mm");
-    csl::Expr xil_mt = csl::constant_s("xil_mt");
-    csl::Expr xil_tt = csl::constant_s("xil_tt");
+    csl::Expr xil_mm = csl::constant_s("xil_mm;\\xi^{l}_{mm}");
+    csl::Expr xil_mt = csl::constant_s("xil_mt;\\xi^{l}_{mt}");
+    csl::Expr xil_tt = csl::constant_s("xil_tt;\\xi^{l}_{tt}");
     // Up-type quarks Yukawa parameters
-    csl::Expr xiu_cc = csl::constant_s("xiu_cc");
-    csl::Expr xiu_ct = csl::constant_s("xiu_ct");
-    csl::Expr xiu_tt = csl::constant_s("xiu_tt");
+    csl::Expr xiu_cc = csl::constant_s("xiu_cc;\\xi^{u}_{cc}");
+    csl::Expr xiu_ct = csl::constant_s("xiu_ct;\\xi^{u}_{ct}");
+    csl::Expr xiu_tt = csl::constant_s("xiu_tt;\\xi^{u}_{tt}");
     // Down-type quarks Yukawa parameters
-    csl::Expr xid_ss = csl::constant_s("xid_ss");
-    csl::Expr xid_sb = csl::constant_s("xid_sb");
-    csl::Expr xid_bb = csl::constant_s("xid_bb");
+    csl::Expr xid_ss = csl::constant_s("xid_ss;\\xi^{d}_{ss}");
+    csl::Expr xid_sb = csl::constant_s("xid_sb;\\xi^{d}_{sb}");
+    csl::Expr xid_bb = csl::constant_s("xid_bb;\\xi^{d}_{bb}");
 
     // Creating tensors
     csl::Tensor xil("xil",

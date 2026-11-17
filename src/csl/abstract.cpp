@@ -138,8 +138,17 @@ std::string Abstract::regularLiteral(std::string_view name)
     return reg;
 }
 
-void Abstract::printProp(std::ostream &) const
+void Abstract::printProp(std::ostream &fout) const
 {
+    if (isComplexConjugate())
+        fout << "^(*)";
+}
+
+std::string Abstract::decorateExpression(std::string const &expr) const
+{
+    if (isComplexConjugate())
+        return expr + "^{*}";
+    return expr;
 }
 
 void Abstract::printExplicit(int mode) const

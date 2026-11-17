@@ -48,18 +48,18 @@ class FeynmanRule {
 
     FeynmanRule();
     FeynmanRule(FeynmanRule const &other);
-    FeynmanRule &operator            =(FeynmanRule const &other);
-    FeynmanRule(FeynmanRule &&other) = default;
+    FeynmanRule &operator=(FeynmanRule const &other);
+    FeynmanRule(FeynmanRule &&other)            = default;
     FeynmanRule &operator=(FeynmanRule &&other) = default;
 
-    std::vector<QuantumField> &      getFieldProduct();
+    std::vector<QuantumField>       &getFieldProduct();
     std::vector<QuantumField> const &getFieldProduct() const;
-    csl::Expr                        getFieldProduct(csl::Tensor const &                 point,
+    csl::Expr                        getFieldProduct(csl::Tensor const                  &point,
                                                      std::vector<csl::Tensor>::iterator &first,
                                                      std::vector<csl::Tensor>::iterator  last);
-    TermType &                       getInteractionTerm();
-    TermType const &                 getInteractionTerm() const;
-    std::shared_ptr<wick::Graph> &   getDiagram();
+    TermType                        &getInteractionTerm();
+    TermType const                  &getInteractionTerm() const;
+    std::shared_ptr<wick::Graph>    &getDiagram();
     std::shared_ptr<wick::Graph> const &getDiagram() const;
     csl::Expr                           getExpr() const;
     bool   contains(mty::QuantumFieldParent const *parent) const;
@@ -84,6 +84,7 @@ class FeynmanRule {
     void setExpr(csl::Expr const &expr);
 
     void renameIndices();
+    void normalizeIndices();
 
     bool   isZero() const;
     bool   isEmpty() const;
@@ -97,11 +98,8 @@ class FeynmanRule {
     bool operator<=(FeynmanRule const &) const;
     bool operator>=(FeynmanRule const &) const;
 
-    friend std::ostream &operator<<(std::ostream &     out,
+    friend std::ostream &operator<<(std::ostream      &out,
                                     FeynmanRule const &rule);
-
-  private:
-    void directCMatrix(csl::Expr &rule);
 
   private:
     std::vector<QuantumField>    fieldProduct;

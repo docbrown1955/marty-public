@@ -152,7 +152,8 @@ Model::computeAmplitude(std::vector<Lagrangian::TermType> &lagrangian,
         = recoverQuantumInsertions(GetExpression(insertions));
     size_t i = 1;
     for (auto &field : quantumInsertions) {
-        csl::Tensor Xi = csl::tensor_s("X_" + toString(i++), &csl::Minkowski);
+        csl::Tensor Xi = csl::tensor_s(
+            csl::prefixedNameWithLatex("X_", toString(i++)), &csl::Minkowski);
         field.setPoint(Xi);
     }
     std::vector<std::vector<size_t>> terms
@@ -622,6 +623,9 @@ WilsonSet Model::getWilsonCoefficients(Amplitude const   &ampl,
         csl::matcher::compress(a, 2);
         if (isMinimal && !a->isIndexed()) {
             a = csl::Abbrev::makeAbbreviation("Cw", a);
+            std::string cwName = std::string(a->getName());
+            if (auto parent = a->getParent(); parent and cwName.rfind("Cw_", 0) == 0)
+                parent->setLatexName("C^{w}_{" + cwName.substr(3) + "}");
         }
         else if (mode == DecompositionMode::Matching) {
             // Taking into account degeneracy if it is a real Wilson

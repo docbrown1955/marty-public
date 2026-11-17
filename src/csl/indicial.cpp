@@ -1179,8 +1179,8 @@ void TensorParent::addSelfContraction(
                 Expr new_factor = (A_perm[iA]->getNumericalFactor()
                                    * B_perm[iB]->getNumericalFactor())
                                   / factor;
-                Expr            tensorA = GetTerm(A_perm[iA]);
-                Expr            tensorB = GetTerm(B_perm[iB]);
+                Expr tensorA    = GetTerm(A_perm[iA]);
+                Expr tensorB    = GetTerm(B_perm[iB]);
                 SelfContraction c(tensorA, tensorB, condition);
                 std::vector<std::pair<SelfContraction, Expr>> &contraction
                     = (c.isSwappable()) ? selfContraction : extContraction;
@@ -1872,8 +1872,9 @@ MetricParent::MetricParent() : TensorParent()
 }
 
 MetricParent::MetricParent(const DeltaParent &delta)
-    : TensorParent(
-        "delta", {delta.getSpace()[0], delta.getSpace()[0]}, delta.getTensor())
+    : TensorParent("delta;\\delta",
+                   {delta.getSpace()[0], delta.getSpace()[0]},
+                   delta.getTensor())
 {
 }
 
@@ -2012,10 +2013,9 @@ DeltaParent::DeltaParent() : TensorParent()
 }
 
 DeltaParent::DeltaParent(const Space *t_space, bool buildTensor)
-    : TensorParent(
-        "delta", 
-        {t_space, t_space}, 
-        buildTensor ? identity_s(t_space->getDim()) : CSL_UNDEF)
+    : TensorParent("delta;\\delta",
+                   {t_space, t_space},
+                   buildTensor ? identity_s(t_space->getDim()) : CSL_UNDEF)
 {
     trace  = space[0]->getSymbolicDim();
     valued = true;
@@ -2823,20 +2823,65 @@ void TensorElement::printCode(int, std::ostream &out) const
         out << ")";
 }
 
-string TensorElement::printLaTeX(int mode) const
+std::string latexScriptBase(std::string const &name, bool scripted)
 {
-    const int     nIndices = index.size();
-    ostringstream sout;
-    sout << getLatexName();
-    if (nIndices > 0) {
-        sout << "_";
-        sout << index;
-    }
-    printProp(sout);
-    if (mode == 0)
-        sout << endl;
+    bool hasScript = name.find('_') != std::string::npos
+                     or name.find('^') != std::string::npos;
+    return (scripted and hasScript) ? "{" + name + "}" : name;
+}
 
-    return sout.str();
+std::string latexIndexScripts(std::vector<Index> const &indices)
+{
+    std::string lower;
+    std::string upper;
+    for (auto const &index : indices) {
+        bool isUpper = index.getSpace() != nullptr
+                       and index.getSpace()->getSignedIndex()
+                       and index.getSign();
+        (isUpper ? upper : lower) += index.printLaTeX();
+    }
+    std::string res;
+    if (not lower.empty())
+        res += "_{" + lower + "}";
+    if (not upper.empty())
+        res += "^{" + upper + "}";
+    return res;
+}
+
+std::string TensorElement::decorateName(std::string const &name) const
+{
+    return name;
+}
+
+std::string TensorElement::getLatexDisplayName() const
+{
+    return decorateName(getLatexName());
+}
+
+bool TensorElement::isRowForMatrixRep() const
+{
+    return false;
+}
+
+std::string TensorElement::getLatexPointSuffix() const
+{
+    return "";
+}
+
+string TensorElement::printLaTeX(int) const
+{
+    auto        structure = getIndexStructure();
+    auto const &indices   = structure.getIndex();
+    if (indices.size() == 2 and indices[0] == indices[1]
+        and indices[0].getSpace() != nullptr
+        and indices[0].getSpace()->getMatrixPrinting())
+        return "\\mathrm{Tr}\\left(" + getLatexDisplayName() + "\\right)";
+    std::string res
+        = latexScriptBase(getLatexDisplayName(), not indices.empty());
+    if (not indices.empty()) {
+        res += latexIndexScripts(indices);
+    }
+    return decorateExpression(res);
 }
 
 std::vector<Parent> TensorElement::getSubSymbols() const
@@ -3925,8 +3970,8 @@ Expr getBrokenExpr(const Expr             &init,
     for (size_t i = 0; i != posInStruct.size(); ++i) {
         for (size_t j = 0; j != posInStruct[i].size(); ++j) {
             auto   posIndex = std::find(sortedPosInStruct.begin(),
-                                      sortedPosInStruct.end(),
-                                      posInStruct[i][j]);
+                                        sortedPosInStruct.end(),
+                                        posInStruct[i][j]);
             size_t exponent = distance(sortedPosInStruct.begin(), posIndex);
             indexBrokenExpr += pow(Nspaces, exponent) * positions[i];
         }

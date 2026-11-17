@@ -20,6 +20,7 @@
 #include "cslcomplex.h"
 #include "indicial.h"
 #include "interface.h"
+#include "latexChain.h"
 #include "librarydependency.h"
 #include "librarygenerator.h"
 #include "mathFunctions.h"
@@ -231,20 +232,21 @@ void Sum::printCode(int, std::ostream &out) const
 
 string Sum::printLaTeX(int mode) const
 {
-    ostringstream sout;
-    if (mode > 1) // Priority lesser than the previous operation: brackets
-        sout << "\\left(";
-    for (size_t i = 0; i < argument.size(); i++) {
-        sout << argument[i]->printLaTeX(1);
-        if (i + 1 < size())
-            sout << "+";
+    std::string res;
+    for (size_t i = 0; i != argument.size(); ++i) {
+        auto const &term = argument[i];
+        if (i == 0) {
+            res += term->printLaTeX(1);
+            continue;
+        }
+        if (term->getNumericalFactor()->evaluateScalar() < 0)
+            res += " - " + (-term)->printLaTeX(1);
+        else
+            res += " + " + term->printLaTeX(1);
     }
-    if (mode > 1)
-        sout << "\\right)";
-    if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+    if (mode >= 2)
+        res = "\\left(" + res + "\\right)";
+    return res;
 }
 
 long double Sum::evaluateScalar() const
@@ -1445,55 +1447,144 @@ void Prod::printCode(int, std::ostream &out) const
     out << "})";
 }
 
+namespace {
+
+enum class LatexKind { Numerical, Imaginary, Other };
+
+struct LatexItem {
+    Expr        expr; //!< Printed at factor level unless text is set.
+    std::string text;
+    LatexKind   kind;
+};
+
+std::string printLatexItems(std::vector<LatexItem> const &items)
+{
+    std::string res;
+    for (size_t i = 0; i != items.size(); ++i) {
+        std::string cur = items[i].text.empty() ? items[i].expr->printLaTeX(2)
+                                                : items[i].text;
+        if (i > 0) {
+            LatexKind prev = items[i - 1].kind;
+            if (prev == LatexKind::Numerical
+                and items[i].kind == LatexKind::Numerical)
+                res += "\\cdot";
+            else if (prev == LatexKind::Imaginary)
+                res += "\\,";
+            else if (cur.rfind("\\left(", 0) == 0)
+                res += "\\cdot";
+        }
+        res += cur;
+    }
+    return res;
+}
+
+} // namespace
+
 string Prod::printLaTeX(int mode) const
 {
-    ostringstream sout;
-    if (mode > 2) // Priority lesser than the previous operation: brackets
-        sout << "\\left(";
-    vector<int> denominatorIndices(0);
-    vector<int> numeratorIndices(0);
-    for (size_t i = 0; i < argument.size(); i++) {
-        if (argument[i]->getType() == csl::Type::Pow
-            and argument[i]->getArgument(1)->isInteger()
-            and argument[i]->getArgument(1)->evaluateScalar() == -1)
-            denominatorIndices.push_back(i);
-        else
-            numeratorIndices.push_back(i);
-    }
-    if (denominatorIndices.size() > 0)
-        sout << "\\frac{";
-    for (size_t i = 0; i < numeratorIndices.size(); i++) {
-        sout << argument[numeratorIndices[i]]->printLaTeX(2);
-        if (i < numeratorIndices.size() - 1
-            and static_cast<int>(
-                    argument[numeratorIndices[i]]->getPrimaryType())
-                    < 10
-            and static_cast<int>(
-                    argument[numeratorIndices[i + 1]]->getPrimaryType())
-                    >= 10)
-            sout << "\\cdot ";
-    }
-    if (denominatorIndices.size() > 0) {
-        sout << "}{";
-        for (size_t i = 0; i < denominatorIndices.size(); i++) {
-            sout
-                << argument[denominatorIndices[i]]->getArgument(0)->printLaTeX(
-                       2);
-            if (i < denominatorIndices.size() - 1
-                and static_cast<int>(
-                        argument[denominatorIndices[i]]->getPrimaryType())
-                        < 10
-                and static_cast<int>(
-                        argument[denominatorIndices[i + 1]]->getPrimaryType())
-                        >= 10)
-                sout << "\\cdot ";
-        }
-        sout << "}";
-    }
-    if (mode > 2)
-        sout << "\\right)";
+    bool                   negative = false;
+    std::vector<LatexItem> numerators;
+    std::vector<LatexItem> denominatorOthers;
 
-    return sout.str();
+    auto                          chains = getMatrixChains(argument);
+    std::vector<bool>             inChain(argument.size(), false);
+    std::map<size_t, std::string> chainAt;
+    for (auto const &chain : chains) {
+        for (auto p : chain.factors)
+            inChain[p] = true;
+        chainAt[chain.factors.front()] = chain.latex;
+    }
+
+    size_t nonCommuting = 0;
+    for (auto const &a : argument)
+        if (not IsNumerical(a) and not GetCommutable(a))
+            ++nonCommuting;
+
+    std::vector<LatexItem> numericNumerators;
+    std::vector<LatexItem> numericDenominators;
+    for (size_t p = 0; p != argument.size(); ++p) {
+        if (inChain[p]) {
+            if (chainAt.count(p))
+                numerators.push_back(
+                    LatexItem{nullptr, chainAt[p], LatexKind::Other});
+            continue;
+        }
+        auto const &a = argument[p];
+        if (IsNumerical(a)) {
+            if (a->getType() == Type::IntFraction) {
+                long long num = a->getNum();
+                long long den = a->getDenom();
+                if (num < 0) {
+                    negative = not negative;
+                    num      = -num;
+                }
+                if (num != 1)
+                    numericNumerators.push_back(LatexItem{
+                        nullptr, std::to_string(num), LatexKind::Numerical});
+                if (den != 1)
+                    numericDenominators.push_back(LatexItem{
+                        nullptr, std::to_string(den), LatexKind::Numerical});
+            }
+            else {
+                Expr value = a;
+                if (a->evaluateScalar() < 0) {
+                    negative = not negative;
+                    value    = -a;
+                }
+                if (value->evaluateScalar() != 1)
+                    numericNumerators.push_back(
+                        LatexItem{value, "", LatexKind::Numerical});
+            }
+            continue;
+        }
+        if (a->getType() == Type::Pow and a->getArgument(1)->isInteger()
+            and a->getArgument(1)->evaluateScalar() < 0) {
+            long long k
+                = -static_cast<long long>(a->getArgument(1)->evaluateScalar());
+            Expr base = a->getArgument(0);
+            // X^-k may only move to the denominator if it commutes with the
+            // other factors: commutable, or the only non-commuting factor.
+            if (GetCommutable(base) or nonCommuting == 1) {
+                Expr denom = (k == 1) ? base : pow_s(base, Expr(k));
+                denominatorOthers.push_back(
+                    LatexItem{denom, "", LatexKind::Other});
+            }
+            else {
+                std::string text
+                    = base->printLaTeX(4) + "^{-" + std::to_string(k) + "}";
+                numerators.push_back(
+                    LatexItem{nullptr, text, LatexKind::Other});
+            }
+            continue;
+        }
+        LatexKind kind = a->getType() == Type::Imaginary ? LatexKind::Imaginary
+                                                         : LatexKind::Other;
+        numerators.push_back(LatexItem{a, "", kind});
+    }
+    numerators.insert(numerators.begin(),
+                      numericNumerators.begin(),
+                      numericNumerators.end());
+
+    std::vector<LatexItem> denominators = numericDenominators;
+    denominators.insert(denominators.end(),
+                        denominatorOthers.begin(),
+                        denominatorOthers.end());
+
+    std::string body;
+    if (denominators.empty()) {
+        body = numerators.empty() ? "1" : printLatexItems(numerators);
+    }
+    else {
+        body = "\\frac{"
+               + (numerators.empty() ? std::string("1")
+                                     : printLatexItems(numerators))
+               + "}{" + printLatexItems(denominators) + "}";
+    }
+    if (negative)
+        body = "-" + body;
+    if (mode >= 4 or (mode >= 2 and negative))
+        body = "\\left(" + body + "\\right)";
+    return body;
 }
 
 void getExponentStructure(const Expr &argument, Expr &term, Expr &exponent)
@@ -2694,19 +2785,26 @@ void Pow::printCode(int, std::ostream &out) const
 
 string Pow::printLaTeX(int mode) const
 {
-    ostringstream sout;
-    if (mode > 4) // Priority lesser than the previous operation: brackets
-        sout << "\\left(";
-    sout << argument[0]->printLaTeX(4);
-    sout << "^{";
-    sout << argument[1]->printLaTeX(1);
-    sout << "}";
-    if (mode > 4)
-        sout << "\\right)";
-    if (mode == 0)
-        sout << endl;
-
-    return sout.str();
+    auto const &exponent = argument[1];
+    std::string res;
+    if (exponent->isInteger() and exponent->evaluateScalar() < 0) {
+        long long   k = -static_cast<long long>(exponent->evaluateScalar());
+        std::string denom = (k == 1) ? argument[0]->printLaTeX(2)
+                                     : argument[0]->printLaTeX(4) + "^{"
+                                           + std::to_string(k) + "}";
+        res               = "\\frac{1}{" + denom + "}";
+    }
+    else if (exponent->getType() == csl::Type::IntFraction
+             && exponent->getNum() == 1 && exponent->getDenom() == 2) {
+        res = "\\sqrt{" + argument[0]->printLaTeX(1) + "}";
+    }
+    else {
+        res = argument[0]->printLaTeX(4) + "^{" + exponent->printLaTeX(1)
+              + "}";
+    }
+    if (mode >= 4)
+        res = "\\left(" + res + "\\right)";
+    return res;
 }
 
 LibDependency Pow::getLibDependency() const
@@ -2778,7 +2876,7 @@ bool Pow::mergeTerms()
     else if (argument[0]->isInteger() and argument[1]->isInteger()
              and abs(argument[1]->evaluateScalar()) < 10) {
         int res     = pow(argument[0]->evaluateScalar(),
-                      abs(argument[1]->evaluateScalar()));
+                          abs(argument[1]->evaluateScalar()));
         argument[0] = (argument[1]->evaluateScalar() < 0)
                           ? intfraction_s(1, res)
                           : int_s(res);
@@ -3254,8 +3352,6 @@ string Polynomial::printLaTeX(int mode) const
     }
     if (mode > 1)
         sout << "\\right)";
-    if (mode == 0)
-        sout << endl;
 
     return sout.str();
 }

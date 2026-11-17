@@ -20,7 +20,8 @@
 namespace mty {
 
 GhostBoson::GhostBoson(std::shared_ptr<VectorBoson> const &t_vectorBoson)
-    : GhostBoson("c_" + std::string(t_vectorBoson->getName()), t_vectorBoson)
+    : GhostBoson(ghostBosonName(std::string(t_vectorBoson->getName())),
+                 t_vectorBoson)
 {
 }
 

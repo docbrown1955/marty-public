@@ -59,13 +59,41 @@ findSecondInPair(std::vector<std::pair<T, G>> &v, const G &element)
  * space are signed, i.e. their up- or down- position matter in expressions.
  */
 class Space {
-
   public:
     mutable bool keepCycles = false;
-
     static bool applyMetric;
 
+    /*!
+     * \brief Enables or disables the LaTeX printing of contracted vector and
+     * matrix chains as matrix products (e.g. y^{T}Mx). When disabled, indexed
+     * expressions are printed with explicit indices.
+     */
+    void setMatrixPrinting(bool enabled)
+    {
+        matrixPrinting = enabled;
+    }
+    bool getMatrixPrinting() const
+    {
+        return matrixPrinting;
+    }
+
+    /*!
+     * \brief Names of the indices of the space, in declaration order.
+     */
+    std::vector<std::string> const &getDefaultIndexNames() const
+    {
+        return defaultIndexNames;
+    }
+
+    /*!
+     * \return The LaTeX form of an index name of the space. The part before
+     * the first '_' is replaced by its declared LaTeX name, if any, and the
+     * part after it is braced (e.g. "alpha_1" -> "\alpha_{1}").
+     */
+    std::string getIndexLatexName(std::string const &t_name) const;
+
   protected:
+    bool matrixPrinting = false;
     /*!
      * \brief Name of the vector space.
      */
@@ -99,6 +127,12 @@ class Space {
     mutable std::vector<std::string>::const_iterator defaultName;
 
     std::vector<std::string> defaultIndexNames;
+
+    /*!
+     * \brief LaTeX names of the default index names that have one, keyed by
+     * the regular name (declared as "name;latexname").
+     */
+    std::map<std::string, std::string> indexLatexNames;
 
     /*!
      * \brief Kronecker delta, public attribute for readability in usage.

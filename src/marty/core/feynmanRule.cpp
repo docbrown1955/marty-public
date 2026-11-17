@@ -88,8 +88,9 @@ FeynmanRule::FeynmanRule(mty::Model &model, TermType const &t_term)
         fieldProduct[i].setParticle(fieldProduct[i].isComplexConjugate());
         fieldProduct[i].setIncoming(true);
         fieldProduct[i].setExternal(true);
-        momenta[i]
-            = csl::Tensor("p_" + std::to_string(i + 1), &csl::Minkowski);
+        momenta[i] = csl::Tensor(
+            csl::prefixedNameWithLatex("p_", std::to_string(i + 1)),
+            &csl::Minkowski);
         fieldProduct[i].setPoint(momenta[i]);
         fieldProduct[i].resetIndexStructure();
         fieldProduct[i].setDerivativeStructure(csl::IndexStructure());
@@ -263,6 +264,7 @@ void FeynmanRule::setExpr(csl::Expr const &t_expr)
 
 void FeynmanRule::renameIndices()
 {
+    // Rename indices to ensure unicity of indices w.r.t. other expressions
     std::vector<std::pair<csl::Index, csl::Index>> change;
     change.reserve(5 * fieldProduct.size());
     for (auto &field : fieldProduct) {
@@ -275,6 +277,18 @@ void FeynmanRule::renameIndices()
         csl::Replace(expr, oldIndex, newIndex);
     }
     csl::RenameIndices(expr); // only for dummy indices
+}
+
+void FeynmanRule::normalizeIndices()
+{
+    // Normalize indices for readability (not suitable for calculation)
+    csl::IndexRenaming renaming;
+    expr = RelabelIndices(expr, true, renaming);
+    for (auto &field : fieldProduct) {
+        Expr fieldExpr = field.copy();
+        fieldExpr      = csl::ApplyIndexRenaming(fieldExpr, renaming);
+        field          = ConvertTo<mty::QuantumField>(fieldExpr);
+    }
 }
 
 bool FeynmanRule::isSame(FeynmanRule const &other) const
