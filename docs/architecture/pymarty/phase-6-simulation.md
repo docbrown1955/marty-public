@@ -10,6 +10,11 @@ executable. `csl::LibraryGenerator` and `mty::Library` (`src/csl/librarygenerato
 Prerequisites: Phase 5 accepted (amplitudes to feed the generator). The generator part itself only
 needs Phase 1.
 
+Usage example gate: before any C++ API or binding work starts, `python/examples/usage/simulation.py` is
+written and approved by a human reviewer ([testing-strategy.md](testing-strategy.md) section 1.2). It fixes
+the Python API of this phase (generate, build, load, evaluate) and is the first deliverable. It may be
+drafted earlier.
+
 ## 1. Scope
 
 In scope:
@@ -147,6 +152,9 @@ exception on mismatch of sizes or missing file).
    agreed in Phase 0.
 9. `ctest -L 'units|integration'` green (system tests are not a criterion). Parity, stubs, doctests, sanitizers (for the C++ API; the generated library
    test runs without ASan if that is impractical, recorded) and quality gates pass.
+10. `python/examples/usage/simulation.py` was approved by a human before implementation started (reviewer
+    and date in the PR), is unchanged since or its changes were re-approved, and runs in
+    `test_usage_examples.py` (L4b).
 
 ## 6. Exit artifacts
 

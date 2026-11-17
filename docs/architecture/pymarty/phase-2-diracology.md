@@ -7,6 +7,11 @@ Pure Dirac / gamma-matrix algebra on top of SGL, usable on its own. The C++ faca
 
 Prerequisites: Phase 0 accepted. Phase 1 is not required (duck typing).
 
+Usage example gate: before any C++ API or binding work starts, `python/examples/usage/diracology.py` is
+written and approved by a human reviewer ([testing-strategy.md](testing-strategy.md) section 1.2). It fixes
+the Python API of this phase (and decides what of the old `api/gamma` binding is kept) and is the first
+deliverable.
+
 ## 1. Scope
 
 In scope:
@@ -114,6 +119,9 @@ executed by `nbmake` or equivalent in the examples job, no output change allowed
    checks both the exception class and the message.
 8. Existing `ctest -L integration` still green (including the unchanged `gammaAPI` test).
 9. Stubs and doctests pass. Quality gates pass.
+10. `python/examples/usage/diracology.py` was approved by a human before implementation started (reviewer and
+    date in the PR), is unchanged since or its changes were re-approved, and runs in
+    `test_usage_examples.py` (L4b).
 
 ## 6. Exit artifacts
 

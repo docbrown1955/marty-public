@@ -5,6 +5,10 @@ index/tensor objects that later phases need.
 
 Prerequisites: Phase 0 accepted.
 
+Usage example gate: before any C++ API or binding work starts, `python/examples/usage/symbolic.py` is written
+and approved by a human reviewer ([testing-strategy.md](testing-strategy.md) section 1.2). It fixes the
+Python API of this phase and is the first deliverable.
+
 ## 1. Scope
 
 In scope:
@@ -126,6 +130,9 @@ L4/L5: none yet. The existing C++ unit tests are the reference:
    test (recorded, not a hard performance guarantee, reported in the PR).
 8. State neutrality, lifetime and sanitizer gates pass. Quality gates pass.
 9. `symbolic.pyi` stub is complete (mypy strict clean), and the doctests pass.
+10. `python/examples/usage/symbolic.py` was approved by a human before implementation started (reviewer and
+    date in the PR), is unchanged since or its changes were re-approved, and runs in
+    `test_usage_examples.py` (L4b).
 
 ## 6. Exit artifacts
 

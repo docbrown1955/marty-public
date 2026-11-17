@@ -6,6 +6,10 @@ Pure group theory, usable without any model. Wraps `SemiSimpleGroup`, `SemiSimpl
 
 Prerequisites: Phase 0 accepted. Independent of Phases 1 and 2.
 
+Usage example gate: before any C++ API or binding work starts, `python/examples/usage/group_theory.py` is
+written and approved by a human reviewer ([testing-strategy.md](testing-strategy.md) section 1.2). It fixes
+the Python API of this phase and is the first deliverable.
+
 ## 1. Scope
 
 In scope:
@@ -120,6 +124,9 @@ of `test_flavor_groups.cpp` (dimension queries and structure of flavour irreps).
    not even `symbolic`: the module returns exact `Fraction`/`complex`, not expressions).
 7. Parity checker green. Port of the group part of `test_flavor_groups.cpp` passes.
 8. `ctest -L 'units|integration'` green. Quality gates pass.
+9. `python/examples/usage/group_theory.py` was approved by a human before implementation started (reviewer
+   and date in the PR), is unchanged since or its changes were re-approved, and runs in
+   `test_usage_examples.py` (L4b).
 
 ## 6. Exit artifacts
 

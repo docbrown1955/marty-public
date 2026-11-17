@@ -5,6 +5,11 @@ and launcher path for the GRAFED diagram viewer.
 
 Prerequisites: Phase 4 accepted.
 
+Usage example gate: before any C++ API or binding work starts, `python/examples/usage/calculation.py` is
+written and approved by a human reviewer ([testing-strategy.md](testing-strategy.md) section 1.2). It fixes
+the Python API of this phase, including the export towards the diagram viewer, and is the first
+deliverable. It may be drafted earlier, in parallel with Phase 4.
+
 ## 1. Scope
 
 In scope, calculation:
@@ -144,6 +149,9 @@ print (recorded once in golden files by the C++ side).
 9. `ctest -L 'units|integration'` green. System tests are not a criterion; the PR lists the ones that touch
    `Show` or `drawer.cpp` (by name, if any) for an optional manual run.
 10. Parity, stubs, doctests, sanitizers and quality gates pass.
+11. `python/examples/usage/calculation.py` was approved by a human before implementation started (reviewer
+    and date in the PR), is unchanged since or its changes were re-approved, and runs in
+    `test_usage_examples.py` (L4b).
 
 ## 6. Exit artifacts
 

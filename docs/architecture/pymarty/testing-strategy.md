@@ -13,6 +13,7 @@ behaviour is tested.
 | L2 Python unit tests | `python/tests/<module>/` | pytest | `python` (ctest) / marker `unit` | Binding fidelity: coercion, duck typing, operators, iteration, repr, exceptions, lifetime | every PR |
 | L3 Parity | `python/tools/check_parity.py` | script | part of `python` | Every L1 test has an L2 counterpart (or a documented exemption) and conversely | every PR |
 | L4 Examples | `python/examples/*.py` | pytest runs them | marker `example` | Python reproduces `examples/*.cpp` (output compared with the C++ example where deterministic) | every PR (fast ones); slow ones manual only |
+| L4b Usage examples | `python/examples/usage/<module>.py` | pytest runs them (`python/tests/test_usage_examples.py`) | marker `usage_example` | One short, human-readable example per module (`errors`, `symbolic`, `group_theory`, `diracology`, `modeling`, `calculation`, `simulation`) that fixes the agreed Python API; they must run, they are not about coverage | every PR |
 | L5 System ports | `python/tests/system/` | pytest | markers `slow`, `loops`, `needs_compiler`, `quad` | Python reproduces `tests/system/src/*.cpp` and matches the reference files in `tests/system/data/output/` | manual only, see section 1.1 |
 | L6 Wheel tests | CI job | cibuildwheel test command | marker `wheel` | Wheel installs in a clean environment and works | every PR touching packaging, release |
 | L7 Quality gates | CI | compilers, sanitizers, mypy, ruff, coverage | n/a | See section 5 | every PR |
@@ -38,6 +39,24 @@ system tests automatically. In practice:
   `slow`) run in the PR like any other Python test.
 - The GitHub job `manual-system` in `.github/workflows/python.yml` is `workflow_dispatch` only (manual
   trigger), not scheduled.
+
+### 1.2 Usage examples are reviewed before the implementation
+
+Each module has one usage example, `python/examples/usage/<module>.py`, written for a human reader:
+short, linear, commented, printing what it shows, using the real public API and nothing private.
+It is the first deliverable of the module's phase, not the last:
+
+1. The example is written first, together with the module's Python name table.
+2. A human reviews it and agrees on the Python API it shows (gate G1 of [process/README.md](process/README.md)).
+   Implementation (C++ API and bindings)
+   starts only after that approval, recorded in the PR or issue (reviewer and date).
+3. The example is then made to run. A change of the example after approval needs a new review.
+4. `test_usage_examples.py` runs every file of `python/examples/usage/` and fails when a module present
+   in the package has no example. The test is about keeping the example true, not about coverage:
+   assertions in the example are there for the reader.
+5. An approved example whose module is not in the package yet is skipped by the test, with a clear
+   reason, until the implementation reaches it.
+6. Examples are shipped in the source distribution; they are not part of the wheel.
 
 ## 2. Parity rule
 
@@ -70,7 +89,7 @@ system tests automatically. In practice:
 
 ## 4. Markers, fixtures and environment
 
-Markers (registered in `pyproject.toml`, `--strict-markers`): `unit`, `parity(id)`, `example`,
+Markers (registered in `pyproject.toml`, `--strict-markers`): `unit`, `parity(id)`, `example`, `usage_example`,
 `slow`, `loops` (needs LoopTools), `needs_compiler`, `quad`, `needs_grafed`, `wheel`.
 
 Default local run: `pytest -m "not slow and not needs_compiler"`. CI per PR: that plus

@@ -31,6 +31,9 @@ Language: C++23 (GNU compilers, GCC 11 or newer, with matching `gfortran`). Buil
   source files per step), [build system and test suites](docs/architecture/build-and-tests.md)
 - Reading order: this file, then `functionalities.md`, then the `OVERVIEW.md` of the folder you
   work in, then the Doxygen pages for exact class interfaces
+- Python binding plan (pymarty): [docs/architecture/pymarty/README.md](docs/architecture/pymarty/README.md)
+- How pymarty phases are run (subagent roles, gates, files):
+  [docs/architecture/pymarty/process/README.md](docs/architecture/pymarty/process/README.md)
 - User manual: `docs/doc/marty-manual.pdf`; CSL manual: `docs/doc/csl-manual.pdf`
 - Generated API docs: `docs/doc/marty/html/`, `docs/doc/csl/html/`
 - Getting started example: `examples/gettingStarted.cpp`
@@ -46,10 +49,14 @@ or [tests/README.md](tests/README.md).
 - Respect the layering: CSL must not depend on MARTY; MARTY must not depend on its plugins;
   GRAFED is only reached through `Show()` (a `system()` call).
 - Build out of tree (`mkdir build && cd build && cmake .. && make`), and run `ctest` before
-  declaring a change done. Use `ctest -L units` (or `integration`, `system`) for a faster loop.
+  declaring a change done. Use `ctest -L units` (or `integration`, `api`) for a faster loop.
 - Tests are slow, especially the system tests (very slow in Debug builds). Run only the tests
   relevant to your change (for example a single target such as `test_latex.x`, or
   `ctest -R <name>`), and avoid the full suite unless it is really needed.
+- Never run the `system` suite (`ctest -L system`, or an unfiltered `ctest`) and never schedule it in
+  CI: the maintainer runs it by hand from time to time. Run a single named system test with
+  `ctest -R <name>` only when debugging it, and list the system tests a change affects in the PR
+  description instead.
 - Test programs compare numbers against reference files in `tests/system/data/output/`. Do not
   edit reference data to make a test pass unless the physics change is intended and explained.
 - Do not edit generated or third-party content: `build/`, `dep/LoopTools-2.16/`, and the

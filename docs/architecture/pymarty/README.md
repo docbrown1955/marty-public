@@ -4,12 +4,15 @@ Status: plan only. No implementation has started.
 
 `pymarty` is a Python package on top of the MARTY C++ libraries. This folder is the plan. Read
 this file first, then [api-conventions.md](api-conventions.md) and
-[testing-strategy.md](testing-strategy.md), then the phase document you are working on.
+[testing-strategy.md](testing-strategy.md), then the phase document you are working on. Phases 1 to 8
+are run with the process of [process/README.md](process/README.md); each phase keeps its working
+documents in `phase-N/` next to its plan document.
 
 | Document | Content |
 |----------|---------|
 | [api-conventions.md](api-conventions.md) | Rules for the C++ API layer and for the Python layer (duck typing, errors, state, ownership) |
 | [testing-strategy.md](testing-strategy.md) | Test levels, parity rule, shared data, markers, quality gates, global "definition of done" |
+| [process/README.md](process/README.md) | How phases 1 to 8 are run: investigation, Q&A, spec, implementation, AI review, human review; roles and gates; the orchestrator, investigator, implementer and reviewer instructions |
 | [phase-0-foundations.md](phase-0-foundations.md) | Build, packaging, error/state hardening, spikes, test harness |
 | [phase-1-symbolic.md](phase-1-symbolic.md) | `pymarty.symbolic` (CSL expressions, indices, tensors) |
 | [phase-2-diracology.md](phase-2-diracology.md) | `pymarty.diracology` (SGL / gamma matrices) |
@@ -61,6 +64,7 @@ this file first, then [api-conventions.md](api-conventions.md) and
 | D6 | numpy is not a dependency | Not needed. Plain sequences, `fractions.Fraction` and `complex` are used. An optional `pymarty[numpy]` extra may accept buffer-protocol objects later. |
 | D7 | Diagram display is a separate module, `pymarty.visualization`, with a GRAFED backend `pymarty.visualization.grafed` | Export must work without Qt. The GUI is optional and not bundled in the wheel. |
 | D8 | Existing C++ behaviour, test reference data and public headers stay unchanged unless a phase says otherwise | `AGENTS.md`: do not edit reference data to make a test pass. |
+| D9 | Each module has one human-readable usage example, reviewed and approved before its implementation starts; errors are imported from `pymarty.errors` | [testing-strategy.md](testing-strategy.md) section 1.2; `python/examples/usage/`. |
 
 ## 4. Layered architecture
 
@@ -90,6 +94,7 @@ python/
   tests/<module>/           pytest tests
   tests/system/             ports of tests/system (slow)
   examples/                 ports of examples/*.cpp
+  examples/usage/           one human-reviewed usage example per module (errors, symbolic, ...), run by the tests
   tools/check_parity.py     C++/Python test parity checker (Phase 0 or 1, see testing-strategy.md)
 src/csl/api/                C++ API for symbolic
 src/marty/api/<module>/     C++ API per module

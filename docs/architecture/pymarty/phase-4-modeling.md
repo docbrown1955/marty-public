@@ -7,6 +7,11 @@ models in `src/marty/models/`.
 
 Prerequisites: Phase 1 (`symbolic`) and Phase 3 (`group_theory`) accepted.
 
+Usage example gate: before any C++ API or binding work starts, `python/examples/usage/modeling.py` is
+written and approved by a human reviewer ([testing-strategy.md](testing-strategy.md) section 1.2). It fixes
+the Python API of this phase (it should read like `examples/gettingStarted.cpp` up to the Feynman rules) and
+is the first deliverable. It may be drafted earlier, in parallel with Phases 1 and 3.
+
 ## 1. Scope
 
 In scope:
@@ -140,6 +145,9 @@ L5: none.
 8. `ctest -L 'units|integration'` green. This phase changes core code only if a spike shows it is needed;
    the PR then lists the `system` tests worth a manual run (informational, testing-strategy.md section 1.1).
 9. Parity, stubs, doctests, sanitizers and quality gates pass.
+10. `python/examples/usage/modeling.py` was approved by a human before implementation started (reviewer and
+    date in the PR), is unchanged since or its changes were re-approved, and runs in
+    `test_usage_examples.py` (L4b).
 
 ## 6. Exit artifacts
 

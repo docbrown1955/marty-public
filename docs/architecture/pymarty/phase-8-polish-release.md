@@ -104,6 +104,10 @@ Prerequisites: Phases 0 to 7 accepted (or the unaccepted parts listed as known l
    package (a dedicated review PR), with no open findings.
 10. Known limitations are listed in the documentation (single threaded, in-process loading risk, GRAFED
     optional, platforms).
+11. The seven usage examples of `python/examples/usage/` (`errors`, `symbolic`, `group_theory`,
+    `diracology`, `modeling`, `calculation`, `simulation`) exist, run in `test_usage_examples.py` (L4b),
+    are in the source distribution, are linked from the getting-started page of the documentation, and none
+    changed since its approval without a new review.
 
 ## 5. Exit artifacts
 

@@ -7,6 +7,10 @@ later phases.
 Prerequisites: none. See [api-conventions.md](api-conventions.md) and
 [testing-strategy.md](testing-strategy.md).
 
+Usage example: `python/examples/usage/errors.py` shows the error module (`from pymarty.errors import
+MartyError`). Like every module example it is reviewed by a human before the implementation is built on it
+([testing-strategy.md](testing-strategy.md) section 1.2).
+
 ## 1. Scope
 
 In scope:
@@ -179,6 +183,10 @@ All of the following, with evidence in the PR:
    other than distribution has a mitigation agreed before closing the phase.
 8. Quality gates of [testing-strategy.md](testing-strategy.md) pass (format, warnings, mypy, ruff,
    coverage >= thresholds for the new files).
+9. Errors live in `pymarty.errors` (`from pymarty.errors import MartyError`) and are not re-exported at the
+   top level. `python/examples/usage/errors.py` was approved by a human (reviewer and date in the PR),
+   runs in `python/tests/test_usage_examples.py` (L4b), and the L4b test fails for a module that has no
+   example.
 
 ## 7. Exit artifacts
 

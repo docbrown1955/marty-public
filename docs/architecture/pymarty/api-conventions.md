@@ -68,7 +68,9 @@ Location: `src/csl/api/` and `src/marty/api/<module>/`, built as object librarie
    - Return values are standard Python types (`int`, `Fraction`, `complex`, `str`, `tuple`, `dict`)
      or pymarty objects.
    - Type stubs use `typing.Protocol` for these inputs (`SupportsExpr`, `SupportsRational`, ...).
-3. **Exceptions.** One base `pymarty.MartyError`. Each subclass also derives from the matching
+3. **Exceptions.** One base `pymarty.errors.MartyError`, imported as `from pymarty.errors import MartyError`
+   (all error classes live in the `pymarty.errors` module and are not re-exported at the top level).
+   Each subclass also derives from the matching
    built-in (`MartyValueError(MartyError, ValueError)`, `MartyTypeError(..., TypeError)`,
    `MartyLookupError(..., LookupError)`, ...) so duck-typed callers catching built-ins keep working.
    The message comes from C++. Pybind default translation of `std::exception` is never relied on.

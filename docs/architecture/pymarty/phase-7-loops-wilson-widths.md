@@ -109,6 +109,11 @@ Per sub-milestone (7a to 7f), all of:
    within the memory observed for the C++ test plus 25%, measured with `/usr/bin/time -v`).
 7. Parity, stubs, doctests, sanitizers (L1 part) and quality gates pass. L0 suites unchanged.
 
+8. Usage examples: the `calculation` and `simulation` examples are extended with the loop-level, Wilson
+   coefficient and width snippets of the sub-milestone. The extension is approved by a human before the
+   sub-milestone's implementation starts (testing-strategy.md section 1.2), and the examples still run in
+   `test_usage_examples.py` (L4b).
+
 Phase 7 is complete when all sub-milestones are accepted, or the remaining ones are listed in an issue
 tracker with their status and a clear `NotImplementedError` in the API.
 
