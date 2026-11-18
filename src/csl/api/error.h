@@ -40,6 +40,12 @@ class ValueError : public Error {
     using Error::Error;
 };
 
+/// Division by zero, for example zero raised to a negative power.
+class ZeroDivisionError : public Error {
+  public:
+    using Error::Error;
+};
+
 /// Argument has an incorrect type.
 class TypeError : public Error {
   public:

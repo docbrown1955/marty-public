@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
+#include "csl/api/error.h"
 #include "marty/api/common/config.h"
 #include "marty/api/common/error.h"
 #include "marty/api/common/session.h"
@@ -27,6 +28,9 @@
 
 namespace py = pybind11;
 
+// Defined in symbolic.cpp.
+void bindSymbolic(py::module_ &m);
+
 namespace {
 
 // Python classes of the error hierarchy. They are owned by the module
@@ -38,6 +42,7 @@ py::handle g_lookupError;
 py::handle g_notImplementedError;
 py::handle g_stateError;
 py::handle g_buildError;
+py::handle g_zeroDivisionError;
 
 // Creates `pymarty.errors.<name>` deriving from `base` and, when given, from
 // the builtin exception `builtin`, so that `except ValueError` also catches
@@ -45,6 +50,7 @@ py::handle g_buildError;
 py::object defineError(py::module_ &m,
                        char const  *name,
                        py::handle   base,
+                       char const  *doc,
                        PyObject    *builtin = nullptr)
 {
     py::tuple bases(builtin ? 2 : 1);
@@ -53,8 +59,10 @@ py::object defineError(py::module_ &m,
         bases[1] = py::reinterpret_borrow<py::object>(builtin);
     }
     std::string const qualified = std::string("pymarty.errors.") + name;
-    PyObject         *cls
-        = PyErr_NewException(qualified.c_str(), bases.ptr(), nullptr);
+    py::dict          attributes;
+    attributes["__doc__"] = doc;
+    PyObject *cls
+        = PyErr_NewException(qualified.c_str(), bases.ptr(), attributes.ptr());
     if (!cls) {
         throw py::error_already_set();
     }
@@ -104,6 +112,9 @@ void translateException(std::exception_ptr p)
     }
     catch (mty::api::ValueError const &e) {
         PyErr_SetString(g_valueError.ptr(), e.what());
+    }
+    catch (csl::api::ZeroDivisionError const &e) {
+        PyErr_SetString(g_zeroDivisionError.ptr(), e.what());
     }
     catch (mty::api::Error const &e) {
         PyErr_SetString(g_martyError.ptr(), e.what());
@@ -194,28 +205,68 @@ PYBIND11_MODULE(_pymarty, m)
     m.doc()               = "Compiled core of the pymarty package.";
     m.attr("__version__") = PYMARTY_VERSION;
 
-    py::object martyError = defineError(m, "MartyError", PyExc_Exception);
+    py::object martyError = defineError(m,
+                                        "MartyError",
+                                        PyExc_Exception,
+                                        "Base class of the errors raised by "
+                                        "pymarty.");
     g_martyError          = martyError;
-    py::object valueError
-        = defineError(m, "MartyValueError", martyError, PyExc_ValueError);
-    g_valueError = valueError;
-    py::object typeError
-        = defineError(m, "MartyTypeError", martyError, PyExc_TypeError);
-    g_typeError = typeError;
-    py::object lookupError
-        = defineError(m, "MartyLookupError", martyError, PyExc_LookupError);
+    py::object valueError = defineError(m,
+                                        "MartyValueError",
+                                        martyError,
+                                        "Invalid value passed to pymarty. "
+                                        "Also a ValueError.",
+                                        PyExc_ValueError);
+    g_valueError          = valueError;
+    py::object typeError  = defineError(m,
+                                        "MartyTypeError",
+                                        martyError,
+                                        "Argument or index of the wrong type. "
+                                        "Also a TypeError.",
+                                        PyExc_TypeError);
+    g_typeError           = typeError;
+    py::object lookupError         = defineError(m,
+                                                 "MartyLookupError",
+                                                 martyError,
+                                                 "Unknown name or key. Also a "
+                                                 "LookupError.",
+                                                 PyExc_LookupError);
     g_lookupError                  = lookupError;
-    py::object notImplementedError = defineError(
-        m, "MartyNotImplementedError", martyError, PyExc_NotImplementedError);
-    g_notImplementedError = notImplementedError;
-    py::object stateError
-        = defineError(m, "MartyStateError", martyError, PyExc_RuntimeError);
-    g_stateError = stateError;
-    py::object buildError
-        = defineError(m, "MartyBuildError", martyError, PyExc_RuntimeError);
-    g_buildError = buildError;
+    py::object notImplementedError = defineError(m,
+                                                 "MartyNotImplementedError",
+                                                 martyError,
+                                                 "Feature not implemented. "
+                                                 "Also a NotImplementedError.",
+                                                 PyExc_NotImplementedError);
+    g_notImplementedError          = notImplementedError;
+    py::object stateError = defineError(m,
+                                        "MartyStateError",
+                                        martyError,
+                                        "Library in an unexpected state. Also "
+                                        "a RuntimeError.",
+                                        PyExc_RuntimeError);
+    g_stateError          = stateError;
+    py::object buildError = defineError(m,
+                                        "MartyBuildError",
+                                        martyError,
+                                        "Build input, such as a compiler, a "
+                                        "path or a program, cannot be found "
+                                        "or run. Also a RuntimeError.",
+                                        PyExc_RuntimeError);
+    g_buildError          = buildError;
+    py::object zeroDivisionError = defineError(m,
+                                               "MartyZeroDivisionError",
+                                               martyError,
+                                               "Division by zero that the "
+                                               "library refuses, such as 0 ** "
+                                               "-1. Also a "
+                                               "ZeroDivisionError.",
+                                               PyExc_ZeroDivisionError);
+    g_zeroDivisionError          = zeroDivisionError;
 
     py::register_exception_translator(translateException);
+
+    bindSymbolic(m);
 
     // Test hooks for the error and output layers. Not part of the public API.
     py::module_ debug
@@ -236,31 +287,54 @@ PYBIND11_MODULE(_pymarty, m)
         py::arg("text"));
 
     py::class_<mty::api::Config>(
-        m, "Config", "Run-time discovery of paths and programs.")
-        .def(py::init([](std::string const &includePath,
-                         std::string const &libraryPath,
-                         std::string const &cxx,
-                         std::string const &make,
-                         std::string const &grafed,
-                         std::string const &packageData) {
-                 mty::api::ConfigArguments args;
-                 args.includePath = includePath;
-                 args.libraryPath = libraryPath;
-                 args.cxx         = cxx;
-                 args.make        = make;
-                 args.grafed      = grafed;
-                 args.packageData = packageData;
-                 return mty::api::Config::resolve(args);
-             }),
-             py::arg("include_path") = "",
-             py::arg("library_path") = "",
-             py::arg("cxx")          = "",
-             py::arg("make")         = "",
-             py::arg("grafed")       = "",
-             py::arg("package_data") = "")
-        .def_property_readonly("include_path", &mty::api::Config::includePath)
-        .def_property_readonly("library_path", &mty::api::Config::libraryPath)
-        .def_property_readonly("cxx", &mty::api::Config::cxx)
-        .def_property_readonly("make", &mty::api::Config::make)
-        .def_property_readonly("grafed", &mty::api::Config::grafed);
+        m,
+        "Config",
+        R"doc(Paths and programs used to build and run generated code.
+
+An empty argument is discovered at run time. The order is: the argument, then
+the environment (MARTY_INCLUDE_PATH, MARTY_LIBRARY_PATH, MARTY_CXX then CXX,
+MARTY_GRAFED), then the package data, then the system locations. Programs
+are looked up in PATH. Use pymarty.config.resolve() to build one from the
+current environment.)doc")
+        .def(
+            py::init([](std::string const &includePath,
+                        std::string const &libraryPath,
+                        std::string const &cxx,
+                        std::string const &make,
+                        std::string const &grafed,
+                        std::string const &packageData) {
+                mty::api::ConfigArguments args;
+                args.includePath = includePath;
+                args.libraryPath = libraryPath;
+                args.cxx         = cxx;
+                args.make        = make;
+                args.grafed      = grafed;
+                args.packageData = packageData;
+                return mty::api::Config::resolve(args);
+            }),
+            py::arg("include_path") = "",
+            py::arg("library_path") = "",
+            py::arg("cxx")          = "",
+            py::arg("make")         = "",
+            py::arg("grafed")       = "",
+            py::arg("package_data") = "",
+            R"doc(Config(include_path='', library_path='', cxx='', make='', grafed='', package_data='')
+
+Each argument is an explicit path or program name. An empty string means
+discovery at run time, as described in the class.)doc")
+        .def_property_readonly("include_path",
+                               &mty::api::Config::includePath,
+                               "Directory of the MARTY headers.")
+        .def_property_readonly("library_path",
+                               &mty::api::Config::libraryPath,
+                               "Directory of the MARTY libraries.")
+        .def_property_readonly("cxx",
+                               &mty::api::Config::cxx,
+                               "C++ compiler used to build generated code.")
+        .def_property_readonly("make",
+                               &mty::api::Config::make,
+                               "Make program used to build generated code.")
+        .def_property_readonly("grafed",
+                               &mty::api::Config::grafed,
+                               "GRAFED program to display diagrams.");
 }

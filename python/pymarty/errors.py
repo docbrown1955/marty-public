@@ -17,6 +17,7 @@ from pymarty._pymarty import (
     MartyStateError,
     MartyTypeError,
     MartyValueError,
+    MartyZeroDivisionError,
 )
 
 __all__ = [
@@ -27,4 +28,5 @@ __all__ = [
     "MartyStateError",
     "MartyTypeError",
     "MartyValueError",
+    "MartyZeroDivisionError",
 ]

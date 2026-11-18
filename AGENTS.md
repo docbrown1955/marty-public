@@ -66,3 +66,27 @@ or [tests/README.md](tests/README.md).
   `OVERVIEW.md`.
 - Code style: `.clang-format` at the repository root. Comment only code that needs
   clarification.
+
+## Python binding (pymarty)
+
+- Layout: extension `_pymarty` built from `python/src/module.cpp` and `python/src/symbolic.cpp`
+  (pybind11); Python package in `python/pymarty/` (wrappers `symbolic.py`, `config.py`,
+  `errors.py`; stubs `_pymarty.pyi`, `symbolic.pyi`, `py.typed`). The build copies the package to
+  `<build>/python/pymarty/`.
+- Build: configure with `-DMARTY_BUILD_PYTHON=ON -DPython_EXECUTABLE=<venv python>` (venv with pytest),
+  then `cmake --build . --target _pymarty -j`. Source builds only; wheels are not published.
+- Tests (from the build directory): `ctest -L python` runs the pytest suite and the parity check.
+  Direct pytest: `cd /tmp && PYTHONPATH=<build>/python <venv>/bin/python -m pytest -c python/pyproject.toml
+  --rootdir python python/tests -m "not slow" -q`. Never drop `-m "not slow"`.
+- Gates (in `python/`): `ruff check .`, `ruff format --check .`, `mypy --strict pymarty tests tools`.
+  Parity: `PYTHONPATH=<build>/python <venv>/bin/python python/tools/check_parity.py` from the repo root.
+  C++ format: `clang-format --dry-run --Werror` on the edited `python/src/*.cpp`.
+- Docstrings: every public class, function and property has a docstring. Examples use `>>>` and are
+  executed by `python/tests/symbolic/test_docstrings.py`; keep them correct.
+- Names: keep the C++ names internally; the Python names are `infinity` (C++ `oo`) and `replace`
+  (C++ `subs`). Do not write `oo` or `subs` in Python docs. Printed output is CSL text (`INF`).
+- Layering: CSL must not depend on MARTY. The facade `src/csl/api/` must not include MARTY headers.
+- Stub sync: `_pymarty.pyi`, `symbolic.pyi` and `symbolic.py` must agree when a binding changes.
+- `Expr.depends_on` follows CSL: variables may depend on each other, so a variable absent from a sum
+  still reports `True`. Use a `constant()` to get `False`.
+- Forbidden: `ctest -L system`, unfiltered `ctest`, and pytest without `-m "not slow"`.

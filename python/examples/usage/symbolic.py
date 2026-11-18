@@ -15,6 +15,8 @@ Run it with ``python symbolic.py``. It is also run by the test suite
 import gc
 from fractions import Fraction
 
+from pymarty import symbolic
+from pymarty.errors import MartyError, MartyValueError, MartyZeroDivisionError
 from pymarty.symbolic import (
     Expr,
     Minkowski,
@@ -29,13 +31,10 @@ from pymarty.symbolic import (
     variable,
 )
 
-from pymarty import symbolic
-from pymarty.errors import MartyError, MartyValueError, MartyZeroDivisionError
-
 # 1. Numbers and arithmetic. Python numbers mix with Expr on either side, and
 #    like terms are combined directly.
 x = variable("x")
-y = variable("y")
+y = constant("y")
 total = 2 * x + 3 * x
 print("2x + 3x =", total)
 assert total == 5 * x
@@ -74,7 +73,7 @@ collected = (a * x + b * x + y).collect([x])
 print("a x + b x + y collected in x:", collected)
 assert collected == (a + b) * x + y
 
-# 4. Derivatives and substitution. subs hands all the replacements to CSL
+# 4. Derivatives and substitution. replace hands all the replacements to CSL
 #    Replace, which makes a single bottom-up pass: a symbol that was just
 #    substituted is not visited again.
 f = x**3 + 2 * x * y
@@ -84,12 +83,12 @@ assert derivative == 3 * x**2 + 2 * y
 assert f.diff(y) == 2 * x
 
 # Swapping two symbols works with this single pass.
-swapped = (x + 2 * y).subs({x: y, y: x})
+swapped = (x + 2 * y).replace({x: y, y: x})
 print("swap x and y in x + 2y:", swapped)
 assert swapped == y + 2 * x
 
-shifted = f.subs({x: y + 1})
-print("subs x -> y + 1:", shifted)
+shifted = f.replace({x: y + 1})
+print("replace x -> y + 1:", shifted)
 assert (shifted - ((y + 1) ** 3 + 2 * (y + 1) * y)).expand() == 0
 
 # 5. Numeric values. evaluate(**values) returns a new expression. complex()
@@ -164,15 +163,15 @@ except MartyZeroDivisionError as error:
     assert isinstance(error, (MartyError, ZeroDivisionError))
 
 try:
-    _ = symbolic.oo**2
-    raise AssertionError("oo ** 2 must fail")
+    _ = symbolic.infinity**2
+    raise AssertionError("infinity ** 2 must fail")
 except MartyValueError as error:
     print(f"caught {type(error).__name__}: {error}")
 assert Expr(2) ** 3 == 8
 
 # A division by zero is not an error in CSL: it gives infinity (and CSL writes
 # a warning on stderr).
-assert Expr(5) / 0 == symbolic.oo
+assert Expr(5) / 0 == symbolic.infinity
 
 # 9. Equality is CSL identity. Two calls to constant("a") make two different
 #    symbols, even though they print the same.
@@ -257,7 +256,7 @@ assert delta(la, lb).to_latex() == r"\delta_{\alpha\beta}"
 
 mink_mu = Minkowski.index(r"\mu")
 mink_nu = Minkowski.index(r"\nu")
-assert metric(mink_mu, mink_nu).to_latex() == r"g^{\mu\nu}"
+assert metric(mink_mu, mink_nu).to_latex() == r"g_{\mu\nu}"
 
 # In a signed space a contraction needs one index of each sign.
 tv = tensor("v", [Minkowski])

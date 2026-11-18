@@ -5,3 +5,4 @@ ErrorApi.LegacyThrowStillCatchableAsCoreException | C++ compatibility of existin
 ErrorApi.ExistingErrorPathKeepsStderrTextAndIsCatchable | acceptance 3 for C++ users: legacy stderr text of a core error; the Python binding is quiet by design
 SessionApi.* | Session is an internal C++ RAII guard; its effect is checked from Python by the clean_state fixture
 TerminatingCallsApi.* | former exit() sites; no Python API reaches them before Phases 3 and 6
+SymbolicApi.SubsCompoundKeyBehaviourPinned | Python dict keys must be hashable; a compound Expr is unhashable, so the compound-key replacement is pinned by the C++ test only

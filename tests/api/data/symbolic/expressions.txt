@@ -1,0 +1,57 @@
+# Golden set of the CSL API facade, LaTeX form (csl::api::latex).
+# One expression per line.
+# Lines starting with '#' are comments.
+# Expressions: tests/units/csl/test_latex.cpp.
+# Source line of each: tests/api/src/symbolic_golden.cpp.
+# Rewrite only for an intended change:
+# MARTY_UPDATE_GOLDEN=1 symbolic_golden.x
+3
+-3
+x
+M_{W}
+i
+2i
+a + i\,b
+a + b
+a - b
+a - 2b
+a - bc
+a - \frac{b}{2}
+a - i\,b
+2ab
+-2a
+-a
+a\cdot\left(b + c\right)
+\frac{1}{a}
+\frac{a}{b}
+\frac{a}{\left(b + c\right)}
+\frac{2a}{b}
+\frac{ac}{b}
+\frac{a}{2}
+\frac{a}{2b}
+\frac{x}{y}
+a^{2}
+a^{b^{c}}
+\left(a + b\right)^{2}
+\frac{1}{a^{2}}
+\sqrt{a}
+\sqrt{a + b}
+\left|a\right|
+\cos\left(a\right)
+e^{a + b}
+M_{ij}y_{i}
+x_{j}y_{i}{M_{1}}_{ij}
+y_{i}{M_{1}}_{ij}
+{M_{1}}_{ii}
+\left(a + \frac{1}{b}\right)^{2}
+\frac{2\left|a\right|\cos\left(b\right)}{c}
+a^{\frac{b}{c}}
+x_{\alpha}x_{\beta}x_{\alpha_{1}}y_{\alpha}y_{\beta}y_{\alpha_{1}}
+x_{\beta}y_{\beta}z_{\alpha}
+x_{\alpha}y_{\alpha}
+z_{\alpha}
+\delta_{\alpha\beta}
+g^{\mu\nu}
+\delta^{\mu\nu}
+x_{alpha}
+\left(a + b\right)\cdot\left(c + d\right)

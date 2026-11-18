@@ -39,6 +39,19 @@ TEST(csl_numbers, integer_constants)
     ASSERT_EQ(static_cast<int>(CSL_M_1->evaluateScalar()), -1);
     ASSERT_EQ(static_cast<int>(CSL_M_2->evaluateScalar()), -2);
 }
+TEST(csl_numbers, modulus_of_real_numbers)
+{
+    ASSERT_EQ(
+        static_cast<int>(csl::GetComplexModulus(CSL_M_2)->evaluateScalar()),
+        2);
+    ASSERT_EQ(
+        static_cast<int>(csl::GetComplexModulus(CSL_2)->evaluateScalar()), 2);
+    ASSERT_FLOAT_EQ(
+        csl::GetComplexModulus(csl::float_s(-0.5))->evaluateScalar(), 0.5);
+    ASSERT_FLOAT_EQ(
+        csl::GetComplexModulus(csl::intfraction_s(-1, 2))->evaluateScalar(),
+        0.5);
+}
 TEST(csl_numbers, integers_complex)
 {
     ASSERT_TRUE(CSL_2->isReal());
