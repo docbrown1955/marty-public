@@ -275,17 +275,6 @@ Unrun. Expected values are proposals and must be confirmed by building and runni
 5. `Factor` and `Collect` mutate in place in C++ (`interface.cpp:115-118`, `:135-139`), while `Factored` and `Collected` return new values. Should Python expose mutating or returning forms, or both?
 6. `DeepCollect` has no test coverage (fact 58). Should it be exposed in the first Python phase?
 
-## 7. Verified by orchestrator (2026-11-17)
-
-Re-run or re-read by the orchestrator:
-
-- Fact 11 and 55, `Simplify`: `grep -rnE "\bSimplify\(|Simplified\(" src/csl` gives only the declaration at `src/csl/simplification.h:124` (and its Doxygen header at `:118`). Confirmed: `csl::Simplify` has no definition. Fact 56 confirmed: `src/csl/algorithms/simplification.cpp` and `patternMatch.cpp` are 0 bytes.
-- Fact 58: `grep -rnE "Collect|Collected|DeepCollect" tests` (cpp and h): no hit. Confirmed.
-- Facts 13 to 15: `src/csl/abstract.cpp:645-667` confirmed (`getRealPart` and `getComplexConjugate` return `nullopt`, `getImaginaryPart` returns `CSL_0`).
-- Fact 1 and 2, `Factor` and `Factored`: `src/csl/interface.cpp:115-123` confirmed.
-
-Not re-checked: the test line numbers of `test_numbers.cpp`, the `[E]` items and everything under "Not verified".
-
 ## Not verified
 
 - Body of `Sum::collect` after line 800, and of `AbstractMultiFunc::collect` after line 917.

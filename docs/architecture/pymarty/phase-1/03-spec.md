@@ -1,8 +1,8 @@
-Status: READY
+Status: APPROVED
 Updated: 2026-11-17
 Author: orchestrator
-Reviewer (G1): _pending_
-Usage example: `python/examples/usage/symbolic.py` (status READY, approval pending)
+Reviewer (G1): user, 2026-11-17
+Usage example: `python/examples/usage/symbolic.py` (approved 2026-11-17)
 
 Inputs: `01-investigation-core-classes.md`, `01-investigation-equality-hash-printing.md`, `01-investigation-tests-and-wiring.md`, `01-investigation-transforms.md`, `01-investigation-transforms-2.md`, `01-investigation-indices-tensors.md` (all READY; each carries a "Verified by orchestrator" section with what was re-checked and what was not), `02-questions.md` (Q1 to Q17, all answered), `../phase-1-symbolic.md` (plan, to be reconciled with this spec, section 11).
 
@@ -22,7 +22,7 @@ Inputs: `01-investigation-core-classes.md`, `01-investigation-equality-hash-prin
 | Q1 | Equality of same-named symbols | CSL identity | `constant("a") == constant("a")` is `False`. |
 | Q2 | `pow` with base `oo`, or base 0 with negative exponent | change `pow_s` to throw | **C++ core change** (section 5.1). Base `oo`: `ValueError`. Base 0 with a negative exponent: `ZeroDivisionError`. |
 | Q3 | Output form of `sqrt(4)` | change CSL so that perfect powers are exact | **C++ core change** (section 5.2). |
-| Q4 | Lifetime of spaces and indices | the handle keeps its owner alive | `Space`, `Index` and tensor handles hold shared ownership. |
+| Q4 | Lifetime of spaces and indices | the handle keeps its owner alive | `Space`, `Index` and tensor handles hold shared ownership. **Amended 2026-11-18 (user decision):** expressions (`Expr`) do not keep their space alive; `ExprHandle` holds a raw `csl::Expr` only. Spaces, indices and tensor handles keep their owner. An expression used after its space is gone is the user's responsibility. Test `ExpressionKeepsSpaceAlive` is removed. |
 | Q5 | Transform set | `expand`, `diff`, `subs`, `evaluate`, `depends_on`, `free_symbols`, `conjugate`, `real`, `imag`, `factor`, `collect`, `simplify`. Fixed signatures, no callbacks. | `deep_expand` was not selected, so it is deferred. `simplify` is dropped by Q14. |
 | Q6 | Indices and tensors | in scope, with asserted usage example | WP4. |
 | Q7 | `subs` semantics | call `Replace` as is | One bottom-up pass; behaviour for compound keys is what `Replace` does and is pinned by tests (section 7.3). |
@@ -46,7 +46,7 @@ Q2, Q3 and Q14 change C++ code for every MARTY user and need explicit approval a
 - `Expr`: arithmetic, comparison, text and LaTeX printing, numeric conversion, copy, hash (section 4).
 - Constructors for integers, rationals, floats, complex numbers, the imaginary unit, constants and variables.
 - Mathematical functions CSL provides without callback: `sqrt`, `exp`, `log`, `sin`, `cos`, `tan` and the hyperbolic and inverse ones (the exact list is fixed in WP2 from `src/csl/interface.h`).
-- Transformations: `expand`, `factor`, `collect`, `diff`, `subs`, `evaluate`, `conjugate`, `real_part`, `imag_part`, `depends_on`, `free_symbols` (section 6.2).
+- Transformations: `expand`, `factor`, `collect`, `diff`, `replace`, `evaluate`, `conjugate`, `real_part`, `imag_part`, `depends_on`, `free_symbols` (section 6.2).
 - Spaces: user-created (integer dimension, index names) and the predefined `Minkowski`, `Euclid_R2`, `Euclid_R3`, `Euclid_R4`.
 - `Index` (free, fixed, sign flip), `tensor(...)` with symmetries, element access, `delta`, `metric`, `epsilon`, contraction by product, `free_indices`, `dummy_indices`, `relabel`.
 
@@ -87,7 +87,7 @@ Current behaviour (`src/csl/operations.cpp:3156-3171`, verified): `pow_s` calls 
 - Base 0 with a negative numerical exponent: `CALL_SMERROR(CSLError::ZeroDivisionError)` with a message. `CSLError::ZeroDivisionError` already exists (`src/csl/error.h:54`, verified); the facade translates it to `csl::api::ZeroDivisionError`.
 - Behaviour change for C++ callers: a program that reached these paths used to abort with `SIGSEGV`; it now gets an exception through the existing error machinery.
 
-Division is a different path. `div_s` prints "Warning division by zero" to `std::cerr` and returns `CSL_INF` (`src/csl/operations.cpp:2520-2529`, verified), and `intfraction_s(5, 0)` is `CSL_INF` (`tests/units/csl/test_numbers.cpp:119-120`, verified). Q16 keeps this. So in Python `x / 0` returns `oo` and writes the C++ warning to stderr, while `Expr(0) ** -1` raises `MartyZeroDivisionError`. G1 item 4 asks whether this split is intended.
+Division is a different path. `div_s` prints "Warning division by zero" to `std::cerr` and returns `CSL_INF` (`src/csl/operations.cpp:2520-2529`, verified), and `intfraction_s(5, 0)` is `CSL_INF` (`tests/units/csl/test_numbers.cpp:119-120`, verified). Q16 keeps this. So in Python `x / 0` returns `symbolic.infinity` (printed `oo`) and writes the C++ warning to stderr, while `Expr(0) ** -1` raises `MartyZeroDivisionError`. G1 item 4 asks whether this split is intended.
 
 ### 5.2 Exact perfect powers (Q3 and Q15)
 
@@ -117,15 +117,15 @@ Flat `python/pymarty/symbolic.py` and `symbolic.pyi` (the CMake copy step only c
 | C++ facade (sketch) | Python | Signature (proposed) | Returns | Raises |
 |---|---|---|---|---|
 | `ExprHandle` | `symbolic.Expr` | `Expr(value)`; coercion order: `Expr`, `__marty_expr__`, `__index__`, rational-like (`Fraction`), `__complex__` with non-zero imaginary part, `__float__` | `Expr` | `TypeError` for `bool` and `str`; `ValueError` if not convertible |
-| numbers | `Expr(3)`, `Expr(Fraction(1, 3))`, `Expr(0.5)`, `Expr(1 + 2j)`, `symbolic.I`, `symbolic.oo` | `oo` is CSL's infinity (`CSL_INF`) | `Expr` | |
-| `constant`, `variable` | `symbolic.constant(name)`, `symbolic.variable(name)` | `(name: str) -> Expr`; each call makes a new symbol (Q1) | `Expr` | `ValueError` for an invalid name |
+| numbers | `Expr(3)`, `Expr(Fraction(1, 3))`, `Expr(0.5)`, `Expr(1 + 2j)`, `symbolic.I`, `symbolic.infinity` | `infinity` is CSL's infinity (`CSL_INF`, printed `oo`) | `Expr` | |
+| `constant`, `variable` | `symbolic.constant(name)`, `symbolic.variable(name)` | `(name: str) -> Expr`; each call makes a new symbol (Q1) | `Expr` | none; no name check, CSL accepts any string (user decision 2026-11-17) |
 | operators | `+ - * / ** unary -`, reflected | | `Expr` | `MartyZeroDivisionError` for `0 ** -1`; `ValueError` for base `oo` |
 | functions | `symbolic.sqrt(e)`, `exp`, `log`, `sin`, ... | `(e) -> Expr` (an `Expr` or a number) | `Expr` | |
 | `.expand()` | `expand` | `expand() -> Expr` | `Expr` | |
 | `.factor(...)` | `factor` | `factor(by: Expr \| None = None, *, full: bool = False)` | `Expr` (the input if nothing factors out) | |
 | `.collect(...)` | `collect` | `collect(factors: Iterable[Expr], *, full: bool = False)` | `Expr` | `MartyTypeError` for an indexed factor (CSL asserts `TypeError`, `operations.cpp:782-786`) |
 | `.diff(x)` | `diff` | `diff(symbol: Expr) -> Expr` | `Expr` | |
-| `.subs(mapping)` | `subs` | `subs(mapping: Mapping[Expr, Expr \| number])`, passed to `Replace` in dict order, one pass (Q7) | `Expr` | |
+| `.replace(mapping)` | `replace` | `replace(mapping: Mapping[Expr, Expr \| number])`, passed to `Replace` in dict order, one pass (Q7) | `Expr` | |
 | `.evaluate(...)` | `evaluate` | `evaluate(mapping=None, /, **by_name)`; values are `Expr` or numbers; a name that matches several distinct symbols raises `MartyValueError`; free symbols stay (Q8); applied by replacement, never by `setValue` | `Expr` | |
 | numeric conversion | `complex(e)`, `float(e)`, `int(e)` where exact | | `complex`, `float` | `MartyValueError` listing the free symbols |
 | `.conjugate()`, `.real_part()`, `.imag_part()` | | no arguments | `Expr` | |
@@ -217,7 +217,7 @@ Each package has one verification command. Order is fixed. The implementers are 
 - Depends on: WP2.
 
 **WP4: `Space`, `Index`, `tensor`, `delta`, `metric`, `epsilon`, contraction, relabelling.**
-- Goal: section 6.3. Owner keep-alive (Q4): an `Index` created in a function still works after the function returns and after `gc.collect()`.
+- Goal: section 6.3. Owner keep-alive (Q4, amended 2026-11-18 for expressions only): an `Index` created in a function still works after the function returns and after `gc.collect()`. Expressions do not keep the space alive (amendment in section 2).
 - Files: `src/csl/api/tensor.*`; binding; `symbolic.py`/`.pyi`; `python/tests/symbolic/test_indices.py`, `test_tensors.py`; `tests/api/src/symbolic_indices.cpp`, `symbolic_tensors.cpp`.
 - Tests (C++ first): `IndexOutlivesScope`, `IndicesFromListAreDistinct` (10 indices on a space with fewer default names), `FixedIndexRange`, `IndexSpaceMismatchRaises`, `RepeatedIndexContracts`, `SignedSpaceSameSignContractionRaises`, `MetricDeltaInvariant`, `EpsilonAntisymmetry`, `SymmetricTensorPair`, `AntisymmetricTensorPair`, `FullySymmetricTensor`, `ConflictingSymmetryRaises`, `FreeAndDummyIndexQueries`, `RelabelIndicesCanonical` (literals from `test_relabel_indices.cpp` and `test_latex.cpp`), `RelabelDoesNotMutate`, `IndexHashIgnoresSign`.
 - Verify: `ctest -L api -R 'Index|Tensor|Metric|Relabel|Epsilon|Symmetr'`; `python -m pytest python/tests/symbolic/test_indices.py python/tests/symbolic/test_tensors.py -m "not slow"`.
@@ -278,7 +278,7 @@ The 133 cases of the eight CSL unit files are classified in `01-investigation-te
 - Canonical form: printed text is CSL canonical form; tests compare with C++ output.
 - Global flags: `csl::option::fullComparison` (default `true`) changes `<` and the argument order of sums and products; `checkCommutations` changes `==`. Both are in `MTY_CSL_OPTION_FLAGS`, so `clean_state` covers them.
 - Tensor ordering is pointer based (`01-investigation-equality-hash-printing.md`, point 13, not run). Printed order may vary between runs; parity tests must not rely on it until verified.
-- `subs` with compound keys is whatever `Replace` does (Q7); WP3 pins the cases and the docstring says "one pass".
+- `replace` with compound keys is whatever `Replace` does (Q7); WP3 pins the cases and the docstring says "one pass".
 - The `Space` is mutable (index counters) while expressions are not.
 - `factor`, `collect`, `conjugate`, `real_part`, `imag_part` have thin test coverage (section 7.3); their semantics are pinned in WP3 from reading, not from existing tests.
 - `src/csl/index_new.h` has suspicious code (`indices[0] == first;`, an `operator+` without a return) and is listed in `src/csl/CMakeLists.txt:45-46`; compile status unknown, not used by the facade.
@@ -298,5 +298,14 @@ Approval needed on:
 8. Running the two missing investigations (section 10.1) as WP0 after G1.
 9. `Integer::operator==` int cast: record as a limitation (proposal) or fix in this phase.
 10. The usage example `python/examples/usage/symbolic.py`.
+
+## 12. Amendments
+
+### A1. Python names `infinity` and `replace` (2026-11-18, G3 review)
+
+- What: `symbolic.oo` is renamed `symbolic.infinity`; `Expr.subs(mapping)` is renamed `Expr.replace(mapping)`. No alias is kept for the old names (phase 1 is not released).
+- Why: the reviewer's G3 notes (`symbolic.oo` is infinity, prefer `symbolic.infinity`; `.subs` is substitute, `.replace` is clearer).
+- Not changed: the C++ names (`ExprHandle::infinity()`, `csl::api::replaced`), CSL's printed form `oo`, and the Q&A rows of section 2 (historical record).
+- Who: the user, at G3 review of phase 1.
 
 Reviewer and date for the usage example are recorded here on approval.

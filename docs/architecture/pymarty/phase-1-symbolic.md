@@ -16,7 +16,7 @@ In scope:
 - Constructors for numbers (exact integers, rationals, floats, complex), constants and variables.
 - Mathematical functions (`sqrt`, `exp`, `log`, `sin`, `cos`, `tan`, `pow`, hyperbolic and inverse ones
   that CSL provides).
-- Transformations with a fixed signature and no callback: `expand`, `factor`, `collect`, `diff`, `subs`,
+- Transformations with a fixed signature and no callback: `expand`, `factor`, `collect`, `diff`, `replace`,
   `evaluate`, `conjugate`, `real_part`, `imag_part`, `depends_on`, `free_symbols`. `simplify` is not exposed
   (`csl::Simplify` has no definition, Q14) and `deep_expand` is deferred.
 - Level-2 objects needed by modeling and diracology: `Space` (user-created, integer dimension, plus
@@ -39,11 +39,11 @@ Header set (proposal): `expr.h`, `functions.h`, `transform.h`, `tensor.h`.
 | Concern | C++ API (sketch) | Python spelling |
 |---------|------------------|-----------------|
 | Handle | `class ExprHandle` wrapping `csl::Expr`; value semantics, never mutated after construction | `Expr` |
-| Numbers | `integer(int64)`, `rational(Rational)`, `real(double)`, `complex(re, im)`, `imaginary_unit()`, `infinity()` | `Expr(3)`, `Expr(Fraction(1,3))`, `Expr(0.5)`, `Expr(1+2j)`, `I`, `oo` |
+| Numbers | `integer(int64)`, `rational(Rational)`, `real(double)`, `complex(re, im)`, `imaginary_unit()`, `infinity()` | `Expr(3)`, `Expr(Fraction(1,3))`, `Expr(0.5)`, `Expr(1+2j)`, `I`, `infinity` |
 | Symbols | `constant(name)`, `variable(name)`; name validation | `constant("g")`, `variable("x")` |
 | Operators | `add`, `sub`, `mul`, `div`, `neg`, `pow` | `+ - * / ** unary -` |
 | Functions | `exp`, `log`, `sqrt`, `sin`, `cos`, ... | `symbolic.sin(x)` |
-| Transform | `expanded(e)`, `factored(e, by, full)`, `collected(e, factors, full)`, `derived(e, var)`, `replaced(e, mapping)`, `conjugated(e)`, `real_part(e)`, `imag_part(e)` | `.expand()`, `.factor()`, `.collect(...)`, `.diff(x)`, `.subs(...)`, `.conjugate()`, `.real_part()`, `.imag_part()` |
+| Transform | `expanded(e)`, `factored(e, by, full)`, `collected(e, factors, full)`, `derived(e, var)`, `replaced(e, mapping)`, `conjugated(e)`, `real_part(e)`, `imag_part(e)` | `.expand()`, `.factor()`, `.collect(...)`, `.diff(x)`, `.replace(...)`, `.conjugate()`, `.real_part()`, `.imag_part()` |
 | Evaluation | `evaluated(e, mode)`, `to_complex(e)` (error if free symbols), `to_double(e)` | `.evaluate(**values)`, `complex(e)`, `float(e)` |
 | Analysis | `depends_on(e, sym)`, `free_symbols(e)`, `type_of(e)` | `.depends_on(s)`, `.free_symbols`, `.kind` |
 | Printing | `to_string(e)`, `to_latex(e)`, `to_code(e)` | `str(e)`, `.to_latex()`, `._repr_latex_()` |
@@ -53,7 +53,7 @@ Header set (proposal): `expr.h`, `functions.h`, `transform.h`, `tensor.h`.
 | Properties | symbol properties (real, positive, ...) as an enum | `constant("m", real=True)` |
 
 Facade requirements specific to this phase:
-- `subs` accepts a mapping and passes all its pairs to CSL `Replace` (decided, Q7): one bottom-up pass,
+- `replace` accepts a mapping and passes all its pairs to CSL `Replace` (decided, Q7): one bottom-up pass,
   behaviour for compound keys is whatever `Replace` does and is pinned by tests. It is not guaranteed to be
   a simultaneous substitution beyond what the tests pin.
 - `evaluate` with values substitutes by replacement (no `setValue` on the shared parent), never changes the
@@ -115,7 +115,7 @@ L2 (`python/tests/symbolic/`):
 - Operators with reflected operands, `sum(...)` builtin over expressions, `functools.reduce`.
 - `repr`, `str`, `_repr_latex_`, `copy`, `deepcopy`, doctests of every docstring.
 - Properties: `(a+b)**2 - (a**2 + 2*a*b + b**2)` expands to 0, derivative of sum equals sum of
-  derivatives, `expr.subs({}) == expr`, `expr.diff(x)` of a symbol independent of x is 0
+  derivatives, `expr.replace({}) == expr`, `expr.diff(x)` of a symbol independent of x is 0
   (parametrised with `hypothesis` if adopted as a dev-only dependency; otherwise a fixed grid).
 - Lifetime: tensor element outlives its `Tensor` object; gc loop of expressions does not grow the live
   object counter.
@@ -160,5 +160,5 @@ L4/L5: none yet. The existing C++ unit tests are the reference:
 - **Canonical form changes** during simplification: results are not necessarily what a user expects;
   documented as "CSL canonical form", and tests compare against the C++ output.
 - **Global `Space` registry** and indices: the lifetime and thread-safety answer comes from spike B.
-- CSL `Replace` semantics: `subs` is not a guaranteed simultaneous substitution (Q7); the C++ tests
+- CSL `Replace` semantics: `replace` is not a guaranteed simultaneous substitution (Q7); the C++ tests
   `SubsSymbolSwap` and `SubsCompoundKeyBehaviourPinned` pin the behaviour.
