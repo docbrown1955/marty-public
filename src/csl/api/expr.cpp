@@ -98,14 +98,16 @@ ExprHandle ExprHandle::e()
     return ExprHandle(CSL_E);
 }
 
-ExprHandle ExprHandle::constant(std::string const &name)
+ExprHandle ExprHandle::constant(std::string const   &name,
+                                csl::ComplexProperty complexProperty)
 {
-    return ExprHandle(csl::constant_s(name));
+    return ExprHandle(csl::constant_s(name, complexProperty));
 }
 
-ExprHandle ExprHandle::variable(std::string const &name)
+ExprHandle ExprHandle::variable(std::string const   &name,
+                                csl::ComplexProperty complexProperty)
 {
-    return ExprHandle(csl::variable_s(name));
+    return ExprHandle(csl::variable_s(name, complexProperty));
 }
 
 std::optional<Number> ExprHandle::number() const

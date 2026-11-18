@@ -134,7 +134,7 @@ It is possible to get the output of failed tests (e.g. to include in a bug fix r
 
 ## Python API (`pymarty`)
 
-The Python binding exposes the symbolic API (`Expr`, transforms, `Space`, `Index`, `tensor()`, `relabel()`) as the `pymarty` package. It is built from source only: wheels are not published yet.
+The Python binding exposes the symbolic API (`Expr`, transforms, `Space`, `Index`, `tensor()`, `tensor_field()`, `tensor_derivative()`, `ComplexProperty`, `relabel()`) as the `pymarty` package. It is built from source only: wheels are not published yet.
 
 Requirements: Python 3.10 or newer (with development headers), a C++23 compiler, CMake 3.22+. pybind11 is fetched automatically if it is not installed.
 
@@ -182,6 +182,23 @@ Add the build copy to `PYTHONPATH`:
     print(expr.replace({x: 2}))      # (2 + y)^2
     print(symbolic.sqrt(4) == 2)     # True
 ```
+
+Tensor fields and their tensorial derivatives are built from a point tensor `X` of a space. A field takes its indices, then the point; a derivative takes the derivative index, then the point, and is applied to an operand with a call:
+
+``` python
+    from pymarty import symbolic
+
+    euclid = symbolic.Euclid_R3
+    X = symbolic.tensor("X", [euclid])
+    F = symbolic.tensor_field("F", euclid, [euclid])
+    d = symbolic.tensor_derivative("d", euclid)
+    mu = euclid.index("mu")
+    nu = euclid.index("nu")
+    expr = d(mu, X)(X(nu))           # free indices: mu, nu
+    field = F(mu, X)                 # free index: mu
+```
+
+The `complex_property=` keyword of `constant()`, `variable()` and `tensor()` takes a `ComplexProperty` value (`Complex`, `Real` or `Imaginary`).
 
 Printed output uses the CSL notation: infinity prints as `INF` (Python name `symbolic.infinity`), and `Expr.to_latex()` gives LaTeX. Docstrings are in the modules and carry runnable examples (`python -m doctest`-style, also checked by `python/tests/symbolic/test_docstrings.py`). Errors are raised as subclasses of `pymarty.errors.MartyError`.
 

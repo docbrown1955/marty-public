@@ -7,6 +7,8 @@ The ``Expr`` methods transform expressions: ``expand()``, ``factor()``,
 
 Indices and tensors: ``Space`` creates indices, ``tensor()`` creates tensors,
 and ``delta``, ``metric`` and ``epsilon`` are the built-in tensors.
+``tensor_field()`` and ``tensor_derivative()`` build tensor fields and their
+derivatives with respect to a point tensor.
 ``relabel()`` renames the indices of an expression. ``Minkowski`` and
 ``Euclid_R2``, ``Euclid_R3``, ``Euclid_R4`` are predefined spaces.
 
@@ -21,6 +23,7 @@ True
 
 from pymarty._pymarty import (
     DEFAULT_INDEX_NAMES,
+    ComplexProperty,
     Euclid_R2,
     Euclid_R3,
     Euclid_R4,
@@ -32,6 +35,8 @@ from pymarty._pymarty import (
     Minkowski,
     Space,
     Tensor,
+    TensorDerivative,
+    TensorField,
     abs,
     acos,
     acosh,
@@ -61,11 +66,14 @@ from pymarty._pymarty import (
     tan,
     tanh,
     tensor,
+    tensor_derivative,
+    tensor_field,
     variable,
 )
 
 __all__ = [
     "DEFAULT_INDEX_NAMES",
+    "ComplexProperty",
     "Euclid_R2",
     "Euclid_R3",
     "Euclid_R4",
@@ -77,6 +85,8 @@ __all__ = [
     "Minkowski",
     "Space",
     "Tensor",
+    "TensorDerivative",
+    "TensorField",
     "abs",
     "acos",
     "acosh",
@@ -106,5 +116,7 @@ __all__ = [
     "tan",
     "tanh",
     "tensor",
+    "tensor_derivative",
+    "tensor_field",
     "variable",
 ]

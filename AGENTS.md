@@ -85,6 +85,8 @@ or [tests/README.md](tests/README.md).
   executed by `python/tests/symbolic/test_docstrings.py`; keep them correct.
 - Names: keep the C++ names internally; the Python names are `infinity` (C++ `oo`) and `replace`
   (C++ `subs`). Do not write `oo` or `subs` in Python docs. Printed output is CSL text (`INF`).
+- Tensor derivatives: `d(mu, X)` is a derivative element; it is applied with `Expr.__call__` only
+  (`d(mu, X)(operand)`). Calling any other expression raises `MartyTypeError`.
 - Layering: CSL must not depend on MARTY. The facade `src/csl/api/` must not include MARTY headers.
 - Stub sync: `_pymarty.pyi`, `symbolic.pyi` and `symbolic.py` must agree when a binding changes.
 - `Expr.depends_on` follows CSL: variables may depend on each other, so a variable absent from a sum

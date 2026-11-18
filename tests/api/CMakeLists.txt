@@ -15,6 +15,7 @@ ADD_API_TEST(symbolic_transform)
 ADD_API_TEST(symbolic_printing)
 ADD_API_TEST(symbolic_indices)
 ADD_API_TEST(symbolic_tensors)
+ADD_API_TEST(symbolic_tensor_fields)
 ADD_API_TEST(symbolic_golden)
 target_compile_definitions(symbolic_golden.x PRIVATE
     MARTY_API_DATA_PATH="${CMAKE_CURRENT_SOURCE_DIR}/data")

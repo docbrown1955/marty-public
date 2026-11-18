@@ -5,6 +5,7 @@
 #include "csl/api/functions.h"
 #include "csl/api/tensor.h"
 #include "csl/api/transform.h"
+#include "csl/enum.h"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -513,6 +514,8 @@ using csl::api::IndexRenamingHandle;
 using csl::api::IndexType;
 using csl::api::SpaceHandle;
 using csl::api::SymmetrySpec;
+using csl::api::TensorDerivativeHandle;
+using csl::api::TensorFieldHandle;
 using csl::api::TensorHandle;
 
 /// Python `Index`: an index handle and the Python `Space` it belongs to.
@@ -788,7 +791,7 @@ from it, in order.
             [](py::object const &self, py::object const &name) {
                 SpaceHandle const &space = self.cast<SpaceHandle const &>();
                 auto const         given = optionalName(name,
-                                                        "index: name must be "
+                                                "index: name must be "
                                                         "a str or None");
                 IndexHandle        index
                     = given ? space.index(*given) : space.index();
@@ -816,7 +819,7 @@ default name of the space.
                                                "negative");
                 }
                 auto const         given = optionalName(name,
-                                                        "indices: name must "
+                                                "indices: name must "
                                                         "be a str "
                                                         "or None");
                 SpaceHandle const &space = self.cast<SpaceHandle const &>();
@@ -879,27 +882,31 @@ True
 
     m.def(
         "tensor",
-        [](py::object const &name,
-           py::object const &spaces,
-           py::object const &symmetric,
-           py::object const &antisymmetric) {
+        [](py::object const    &name,
+           py::object const    &spaces,
+           py::object const    &symmetric,
+           py::object const    &antisymmetric,
+           csl::ComplexProperty complexProperty) {
             return TensorHandle(
                 stringArgument(name, "tensor: name must be a str"),
                 spaceList(spaces),
                 symmetrySpec(symmetric),
-                symmetrySpec(antisymmetric));
+                symmetrySpec(antisymmetric),
+                complexProperty);
         },
         py::arg("name"),
         py::arg("spaces"),
         py::kw_only(),
-        py::arg("symmetric")     = false,
-        py::arg("antisymmetric") = false,
+        py::arg("symmetric")        = false,
+        py::arg("antisymmetric")    = false,
+        py::arg("complex_property") = csl::ComplexProperty::Real,
         R"doc(Tensor with one space per index position. Call it with indices to get an
 element.
 
 symmetric and antisymmetric give the symmetries of the tensor: True for full
 symmetry, or a sequence of position pairs, such as [(0, 1)], for the symmetry
-between two positions.
+between two positions. complex_property is the complex property of the tensor,
+Real by default.
 
 >>> sp = Space("S", 4)
 >>> A = tensor("A", [sp, sp], antisymmetric=[(0, 1)])
@@ -907,6 +914,104 @@ between two positions.
 >>> A(i, j) == -A(j, i)
 True
 )doc");
+
+    py::class_<TensorFieldHandle>(
+        m,
+        "TensorField",
+        R"doc(Tensor field: a tensor that depends on a point tensor. Create it with
+tensor_field().
+
+Call it with one index per space of the field, then the point, a rank-1 Tensor
+in the point space, to get an element.
+)doc")
+        .def(
+            "__call__",
+            [](TensorFieldHandle const &self, py::args args) {
+                std::vector<py::handle> items;
+                for (py::handle item : args) {
+                    items.push_back(item);
+                }
+                if (items.empty()
+                    or !py::isinstance<TensorHandle>(items.back())) {
+                    throw csl::api::TypeError("tensor field element: the last "
+                                              "argument must be a "
+                                              "Tensor point");
+                }
+                std::vector<IndexHandle> indices;
+                for (std::size_t i = 0; i + 1 < items.size(); ++i) {
+                    indices.push_back(indexHandle(items[i]));
+                }
+                return self(indices,
+                            items.back().cast<TensorHandle const &>());
+            },
+            "Element of the field at a point, with one index per space, then "
+            "the point.");
+    m.def(
+        "tensor_field",
+        [](py::object const &name,
+           py::object const &pointSpace,
+           py::object const &spaces) {
+            if (!py::isinstance<SpaceHandle>(pointSpace)) {
+                throw csl::api::TypeError("tensor_field: point_space must be "
+                                          "a Space");
+            }
+            return TensorFieldHandle(
+                stringArgument(name, "tensor_field: name must be a str"),
+                pointSpace.cast<SpaceHandle const &>(),
+                spaceList(spaces));
+        },
+        py::arg("name"),
+        py::arg("point_space"),
+        py::arg("spaces") = py::list(),
+        R"doc(Tensor field, depending on a point tensor in point_space. spaces gives
+the spaces of the field indices, in order; [] by default.
+
+>>> sp = Space("S", 4)
+>>> X = tensor("X", [sp])
+>>> F = tensor_field("F", sp, [sp])
+>>> [index.name for index in F(sp.index("i"), X).free_indices]
+['i']
+)doc");
+
+    py::class_<TensorDerivativeHandle>(
+        m,
+        "TensorDerivative",
+        R"doc(Derivative with respect to a point tensor. Create it with
+tensor_derivative().
+
+Call it with an index and the point tensor to get the derivative element. Apply
+it to an expression with Expr.__call__ to differentiate that expression.
+)doc")
+        .def(
+            "__call__",
+            [](TensorDerivativeHandle const &self,
+               py::handle                    index,
+               py::handle                    point) {
+                if (!py::isinstance<TensorHandle>(point)) {
+                    throw csl::api::TypeError("tensor derivative element: the "
+                                              "point must be a "
+                                              "Tensor");
+                }
+                return self(indexHandle(index),
+                            point.cast<TensorHandle const &>());
+            },
+            py::arg("index"),
+            py::arg("point"),
+            R"doc(Derivative element with respect to the point, with a free or dummy index.)doc");
+    m.def(
+        "tensor_derivative",
+        [](py::object const &name, py::object const &space) {
+            if (!py::isinstance<SpaceHandle>(space)) {
+                throw csl::api::TypeError("tensor_derivative: space must be a "
+                                          "Space");
+            }
+            return TensorDerivativeHandle(
+                stringArgument(name, "tensor_derivative: name must be a str"),
+                space.cast<SpaceHandle const &>());
+        },
+        py::arg("name"),
+        py::arg("space"),
+        R"doc(Tensor derivative with respect to a point tensor in space.)doc");
     m.def(
         "delta",
         [](py::handle i, py::handle j) {
@@ -1134,6 +1239,21 @@ Use it as a dictionary key for compound expressions.
 True
 )doc");
     bindTransforms(expr);
+    expr.def(
+        "__call__",
+        [](ExprHandle const &self, py::handle operand) {
+            return csl::api::applyTensorDerivative(self, coerce(operand));
+        },
+        py::arg("operand"),
+        R"doc(Applies a tensor derivative to an expression. Only a derivative element made by a TensorDerivative can be called this way.
+
+>>> sp = Space("S", 4)
+>>> X = tensor("X", [sp])
+>>> d = tensor_derivative("d", sp)
+>>> i, j = sp.index("i"), sp.index("j")
+>>> [index.name for index in d(i, X)(X(j)).free_indices]
+['i', 'j']
+)doc");
     expr.def_property_readonly(
             "free_indices",
             [](ExprHandle const &self) {
@@ -1152,13 +1272,25 @@ True
     m.attr("pi")       = py::cast(ExprHandle::pi());
     m.attr("e")        = py::cast(ExprHandle::e());
 
+    py::enum_<csl::ComplexProperty>(m,
+                                    "ComplexProperty",
+                                    "Complex property of a symbol or a "
+                                    "tensor: Complex, Real or Imaginary.")
+        .value("Complex", csl::ComplexProperty::Complex)
+        .value("Real", csl::ComplexProperty::Real)
+        .value("Imaginary", csl::ComplexProperty::Imaginary);
     m.def(
         "constant",
-        [](std::string const &name) { return ExprHandle::constant(name); },
+        [](std::string const &name, csl::ComplexProperty complexProperty) {
+            return ExprHandle::constant(name, complexProperty);
+        },
         py::arg("name"),
+        py::kw_only(),
+        py::arg("complex_property") = csl::ComplexProperty::Real,
         R"doc(Creates a constant symbol. Each call gives a distinct symbol, even with the same name.
 
 A constant does not depend on the variables: diff() treats it as a fixed value.
+complex_property is ComplexProperty.Real by default.
 
 >>> a = constant("a")
 >>> a == constant("a")
@@ -1166,9 +1298,14 @@ False
 )doc");
     m.def(
         "variable",
-        [](std::string const &name) { return ExprHandle::variable(name); },
+        [](std::string const &name, csl::ComplexProperty complexProperty) {
+            return ExprHandle::variable(name, complexProperty);
+        },
         py::arg("name"),
+        py::kw_only(),
+        py::arg("complex_property") = csl::ComplexProperty::Real,
         R"doc(Creates a variable symbol. Each call gives a distinct symbol, even with the same name.
+complex_property is ComplexProperty.Real by default.
 
 >>> x = variable("x")
 >>> x == variable("x")

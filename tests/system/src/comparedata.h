@@ -10,7 +10,6 @@
 #define ERRORFONT "\033[1m\033[31m"   /* Red */
 #define SUCCESSFONT "\033[1m\033[32m" /* Green */
 
-
 inline std::vector<double> readLine(std::ifstream &fin)
 {
     std::vector<double> res;
@@ -18,7 +17,7 @@ inline std::vector<double> readLine(std::ifstream &fin)
     std::string line;
     std::getline(fin, line);
     std::istringstream sin(line);
-    double value;
+    double             value;
     while (sin >> value) {
         res.push_back(value);
     }
@@ -79,7 +78,8 @@ compare(char const *file1, char const *file2, double eps)
     while (!f1.eof()) {
         auto diff_i = compare(readLine(f1), readLine(f2), eps);
         if (diff_i.first == -1 || diff_i.second == -1) {
-            std::cout << ERRORFONT << "Error: size mismatch in results at line " << n+1
+            std::cout << ERRORFONT
+                      << "Error: size mismatch in results at line " << n + 1
                       << RESET << '\n';
             return {-1, -1};
         }

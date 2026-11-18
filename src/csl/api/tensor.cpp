@@ -72,7 +72,8 @@ void checkSymmetries(std::size_t         rank,
 csl::Tensor makeTensor(std::string const              &name,
                        std::vector<SpaceHandle> const &spaces,
                        SymmetrySpec const             &symmetric,
-                       SymmetrySpec const             &antisymmetric)
+                       SymmetrySpec const             &antisymmetric,
+                       csl::ComplexProperty            complexProperty)
 {
     if (spaces.empty())
         throw ValueError("tensor " + name
@@ -98,8 +99,46 @@ csl::Tensor makeTensor(std::string const              &name,
             for (auto const &[first, second] : antisymmetric.pairs)
                 tensor->addAntiSymmetry(static_cast<int>(first),
                                         static_cast<int>(second));
+        tensor->setComplexProperty(complexProperty);
         return tensor;
     });
+}
+
+/* Field of a point space and of index spaces. */
+csl::TensorField makeField(std::string const              &name,
+                           SpaceHandle const              &pointSpace,
+                           std::vector<SpaceHandle> const &spaces)
+{
+    std::vector<csl::Space const *> raw;
+    raw.reserve(spaces.size());
+    for (auto const &space : spaces)
+        raw.push_back(&space.raw());
+
+    return detail::guarded("tensor field creation", [&] {
+        return csl::TensorField(name, &pointSpace.raw(), raw);
+    });
+}
+
+/* Index must belong to the space \p space. */
+void checkIndexSpace(IndexHandle const &index,
+                     csl::Space const  *space,
+                     std::string_view   what)
+{
+    if (index.raw().getSpace() != space)
+        throw ValueError(std::string(what)
+                         + ": index belongs to another space");
+}
+
+/* Point must be a rank-1 tensor of the space \p space. */
+void checkPoint(TensorHandle const &point,
+                csl::Space const   *space,
+                std::string_view    what)
+{
+    if (point.rank() != 1
+        or point.raw()->getSpace() != std::vector<csl::Space const *>{space})
+        throw ValueError(std::string(what)
+                         + ": point must be a rank-1 tensor of the point "
+                           "space");
 }
 
 /* Space shared by all indices. Raises ValueError if they differ or if the
@@ -348,15 +387,22 @@ csl::Index const &IndexHandle::raw() const
 TensorHandle::TensorHandle(std::string const              &name,
                            std::vector<SpaceHandle> const &spaces,
                            SymmetrySpec const             &symmetric,
-                           SymmetrySpec const             &antisymmetric)
+                           SymmetrySpec const             &antisymmetric,
+                           csl::ComplexProperty            complexProperty)
     : m_spaces(spaces),
-      m_tensor(makeTensor(name, m_spaces, symmetric, antisymmetric))
+      m_tensor(makeTensor(
+          name, m_spaces, symmetric, antisymmetric, complexProperty))
 {
 }
 
 std::size_t TensorHandle::rank() const
 {
     return m_spaces.size();
+}
+
+csl::Tensor const &TensorHandle::raw() const
+{
+    return m_tensor;
 }
 
 ExprHandle
@@ -376,6 +422,91 @@ TensorHandle::operator()(std::vector<IndexHandle> const &indices) const
     }
     return detail::guarded("tensor element",
                            [&] { return ExprHandle((*m_tensor)(raw)); });
+}
+
+// TensorFieldHandle
+
+TensorFieldHandle::TensorFieldHandle(std::string const &name,
+                                     SpaceHandle const &pointSpace,
+                                     std::vector<SpaceHandle> const &spaces)
+    : m_pointSpace(pointSpace),
+      m_spaces(spaces),
+      m_field(makeField(name, m_pointSpace, m_spaces))
+{
+}
+
+ExprHandle
+TensorFieldHandle::operator()(std::vector<IndexHandle> const &indices,
+                              TensorHandle const             &point) const
+{
+    if (indices.size() != m_spaces.size())
+        throw ValueError("tensor field element: expected "
+                         + std::to_string(m_spaces.size()) + " indices, got "
+                         + std::to_string(indices.size()));
+    std::vector<csl::Index> raw;
+    raw.reserve(indices.size());
+    for (std::size_t i = 0; i < indices.size(); ++i) {
+        checkIndexSpace(
+            indices[i], &m_spaces[i].raw(), "tensor field element");
+        raw.push_back(indices[i].raw());
+    }
+    checkPoint(point, &m_pointSpace.raw(), "tensor field element");
+
+    return detail::guarded("tensor field element", [&] {
+        if (raw.empty())
+            return ExprHandle((*m_field)(point.raw()));
+        return ExprHandle((*m_field)(raw, point.raw()));
+    });
+}
+
+// TensorDerivativeHandle
+
+TensorDerivativeHandle::TensorDerivativeHandle(std::string const &name,
+                                               SpaceHandle const &space)
+    : m_space(space),
+      m_derivative(detail::guarded("tensor derivative creation", [&] {
+          return csl::TDerivative(name, &m_space.raw());
+      }))
+{
+}
+
+ExprHandle TensorDerivativeHandle::operator()(IndexHandle const  &index,
+                                              TensorHandle const &point) const
+{
+    if (index.isFixed())
+        throw ValueError("tensor derivative: index must be free or dummy");
+    checkIndexSpace(index, &m_space.raw(), "tensor derivative");
+    checkPoint(point, &m_space.raw(), "tensor derivative");
+
+    return detail::guarded("tensor derivative element", [&] {
+        return ExprHandle((*m_derivative)(index.raw(), point.raw()));
+    });
+}
+
+ExprHandle applyTensorDerivative(ExprHandle const &derivative,
+                                 ExprHandle const &operand)
+{
+    auto const *derivativeElement
+        = dynamic_cast<csl::TDerivativeElement const *>(
+            derivative.raw().get());
+    if (derivativeElement == nullptr)
+        throw TypeError("only a tensor derivative element can be called with "
+                        "an operand");
+
+    return detail::guarded("tensor derivative application", [&] {
+        auto const *tensorElement
+            = dynamic_cast<csl::TensorElement const *>(operand.raw().get());
+        if (tensorElement != nullptr and tensorElement->getNIndices() == 1
+            and derivativeElement->getPoint().get()
+                    == tensorElement->getParent().get()) {
+            auto const delta
+                = csl::GetDelta(derivativeElement->getIndex(0).getSpace());
+            return ExprHandle((*delta)(std::vector<csl::Index>{
+                derivativeElement->getIndex(0), tensorElement->getIndex(0)}));
+        }
+        return ExprHandle(
+            derivative.raw()->applyOperator(operand.raw(), false));
+    });
 }
 
 // IndexRenamingHandle

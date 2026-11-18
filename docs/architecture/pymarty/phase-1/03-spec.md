@@ -308,4 +308,15 @@ Approval needed on:
 - Not changed: the C++ names (`ExprHandle::infinity()`, `csl::api::replaced`), CSL's printed form `oo`, and the Q&A rows of section 2 (historical record).
 - Who: the user, at G3 review of phase 1.
 
+### A2. Complex property, tensor fields and tensorial derivatives (2026-11-18)
+
+- What:
+  - `ComplexProperty` enum (`Complex`, `Real`, `Imaginary`, as in CSL). `constant(name, *, complex_property=ComplexProperty.Real)`, `variable(name, *, complex_property=ComplexProperty.Real)` and `tensor(..., complex_property=ComplexProperty.Real)` (keyword-only). Constants with a value (`constant(name, value)`) stay deferred.
+  - `tensor_field(name, point_space, spaces=[])` returns a `TensorField`. Call order is CSL's: index arguments first, the point last, `field(*indices, point)`. The point must be a rank-1 `Tensor` in `point_space`; the indices must match `spaces` position by position. Symmetric tensor fields stay deferred.
+  - `tensor_derivative(name, space)` returns a `TensorDerivative`. Call `d(mu, X)` builds the derivative element of the rank-1 point `X` in `space`, with `mu` a free or dummy index of `space` (fixed indices are rejected). The order `d(X, mu)` is not provided.
+  - `Expr.__call__(operand)` applies a tensorial derivative element to `operand` through CSL's `applyOperator`, so `d(mu, X)(X(nu))` is the derivative of `X(nu)`, and CSL decides the result. It is accepted only for tensorial derivative expressions (`TypeError` otherwise). The operand is always given by call; no separate operand argument is added to `tensor_derivative`.
+  - Section 10.2, item A9: the complex property of constants, variables and tensors is brought forward into this phase. Complex-valued constants with a value stay deferred.
+- Why: the user asked for the complex property, `tensor_field` and a tensorial derivative with a call operator (`d(mu, X)(X(nu))`).
+- Who: the user, 2026-11-18. Approved: argument order `d(mu, X)` only, `Expr.__call__` for the operand, no separate operand form.
+
 Reviewer and date for the usage example are recorded here on approval.

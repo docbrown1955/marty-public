@@ -205,32 +205,32 @@ PYBIND11_MODULE(_pymarty, m)
     m.doc()               = "Compiled core of the pymarty package.";
     m.attr("__version__") = PYMARTY_VERSION;
 
-    py::object martyError = defineError(m,
+    py::object martyError          = defineError(m,
                                         "MartyError",
                                         PyExc_Exception,
                                         "Base class of the errors raised by "
-                                        "pymarty.");
-    g_martyError          = martyError;
-    py::object valueError = defineError(m,
+                                                 "pymarty.");
+    g_martyError                   = martyError;
+    py::object valueError          = defineError(m,
                                         "MartyValueError",
                                         martyError,
                                         "Invalid value passed to pymarty. "
-                                        "Also a ValueError.",
+                                                 "Also a ValueError.",
                                         PyExc_ValueError);
-    g_valueError          = valueError;
-    py::object typeError  = defineError(m,
-                                        "MartyTypeError",
-                                        martyError,
-                                        "Argument or index of the wrong type. "
-                                        "Also a TypeError.",
-                                        PyExc_TypeError);
-    g_typeError           = typeError;
+    g_valueError                   = valueError;
+    py::object typeError           = defineError(m,
+                                       "MartyTypeError",
+                                       martyError,
+                                       "Argument or index of the wrong type. "
+                                                 "Also a TypeError.",
+                                       PyExc_TypeError);
+    g_typeError                    = typeError;
     py::object lookupError         = defineError(m,
-                                                 "MartyLookupError",
-                                                 martyError,
-                                                 "Unknown name or key. Also a "
+                                         "MartyLookupError",
+                                         martyError,
+                                         "Unknown name or key. Also a "
                                                  "LookupError.",
-                                                 PyExc_LookupError);
+                                         PyExc_LookupError);
     g_lookupError                  = lookupError;
     py::object notImplementedError = defineError(m,
                                                  "MartyNotImplementedError",
@@ -239,30 +239,30 @@ PYBIND11_MODULE(_pymarty, m)
                                                  "Also a NotImplementedError.",
                                                  PyExc_NotImplementedError);
     g_notImplementedError          = notImplementedError;
-    py::object stateError = defineError(m,
+    py::object stateError          = defineError(m,
                                         "MartyStateError",
                                         martyError,
                                         "Library in an unexpected state. Also "
-                                        "a RuntimeError.",
+                                                 "a RuntimeError.",
                                         PyExc_RuntimeError);
-    g_stateError          = stateError;
-    py::object buildError = defineError(m,
+    g_stateError                   = stateError;
+    py::object buildError          = defineError(m,
                                         "MartyBuildError",
                                         martyError,
                                         "Build input, such as a compiler, a "
-                                        "path or a program, cannot be found "
-                                        "or run. Also a RuntimeError.",
+                                                 "path or a program, cannot be found "
+                                                 "or run. Also a RuntimeError.",
                                         PyExc_RuntimeError);
-    g_buildError          = buildError;
-    py::object zeroDivisionError = defineError(m,
+    g_buildError                   = buildError;
+    py::object zeroDivisionError   = defineError(m,
                                                "MartyZeroDivisionError",
                                                martyError,
                                                "Division by zero that the "
-                                               "library refuses, such as 0 ** "
-                                               "-1. Also a "
-                                               "ZeroDivisionError.",
+                                                 "library refuses, such as 0 ** "
+                                                 "-1. Also a "
+                                                 "ZeroDivisionError.",
                                                PyExc_ZeroDivisionError);
-    g_zeroDivisionError          = zeroDivisionError;
+    g_zeroDivisionError            = zeroDivisionError;
 
     py::register_exception_translator(translateException);
 

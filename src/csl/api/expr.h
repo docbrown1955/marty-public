@@ -27,6 +27,7 @@
 #define CSL_API_EXPR_H_INCLUDED
 
 #include "../abstract.h" // csl::Expr is defined there
+#include "../enum.h"     // csl::ComplexProperty
 #include "../error.h"    // CSLError
 #include "error.h"
 
@@ -94,10 +95,18 @@ class ExprHandle {
     [[nodiscard]] static ExprHandle pi();
     /// Euler's number e (CSL_E).
     [[nodiscard]] static ExprHandle e();
-    /// Constant symbol. Each call creates a new symbol, whatever the name.
-    [[nodiscard]] static ExprHandle constant(std::string const &name);
-    /// Variable symbol. Each call creates a new symbol, whatever the name.
-    [[nodiscard]] static ExprHandle variable(std::string const &name);
+    /// Constant symbol with a complex property. Each call creates a new
+    /// symbol, whatever the name.
+    [[nodiscard]] static ExprHandle
+    constant(std::string const   &name,
+             csl::ComplexProperty complexProperty
+             = csl::ComplexProperty::Real);
+    /// Variable symbol with a complex property. Each call creates a new
+    /// symbol, whatever the name.
+    [[nodiscard]] static ExprHandle
+    variable(std::string const   &name,
+             csl::ComplexProperty complexProperty
+             = csl::ComplexProperty::Real);
 
     /// Exact numerical value, or nothing if the expression is not a number.
     [[nodiscard]] std::optional<Number> number() const;

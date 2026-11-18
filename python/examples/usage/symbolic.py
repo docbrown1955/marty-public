@@ -18,6 +18,7 @@ from fractions import Fraction
 from pymarty import symbolic
 from pymarty.errors import MartyError, MartyValueError, MartyZeroDivisionError
 from pymarty.symbolic import (
+    ComplexProperty,
     Expr,
     Minkowski,
     Space,
@@ -28,6 +29,8 @@ from pymarty.symbolic import (
     relabel,
     sqrt,
     tensor,
+    tensor_derivative,
+    tensor_field,
     variable,
 )
 
@@ -274,6 +277,27 @@ eps = epsilon(a4, b4, c4, d4)
 assert eps != 0
 assert epsilon(b4, a4, c4, d4) == -eps
 assert epsilon(a4, a4, c4, d4) == 0
+
+# 11b. Tensor derivatives, tensor fields and complex properties. The
+# derivative with respect to the point tensor gives the Kronecker delta.
+X = tensor("X", [space])
+d = tensor_derivative("d", space)
+derivative = d(mu, X)(X(nu))
+print("d_mu(X_nu) =", derivative)
+assert derivative == delta(mu, nu)
+
+field = tensor_field("F", space, [space])
+field_element = field(mu, X)
+print("F_mu(X) =", field_element)
+assert field_element.free_indices[0].name == "mu"
+
+scalar_field = tensor_field("s", space)
+print("s(X) =", scalar_field(X))
+assert scalar_field(X).free_indices == ()
+
+imaginary = constant("z", complex_property=ComplexProperty.Imaginary)
+print("imaginary symbol:", imaginary)
+assert imaginary.conjugate() == -imaginary
 
 # 12. Immutability. The handle is never mutated, even when a transformation
 #     is applied to a shared sub-expression.

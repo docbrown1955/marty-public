@@ -25,10 +25,12 @@
 #ifndef CSL_API_TENSOR_H_INCLUDED
 #define CSL_API_TENSOR_H_INCLUDED
 
-#include "../index.h"     // csl::Index
-#include "../indicial.h"  // csl::Tensor
-#include "../interface.h" // csl::IndexRenaming
-#include "../space.h"     // csl::Space
+#include "../enum.h"        // csl::ComplexProperty
+#include "../index.h"       // csl::Index
+#include "../indicial.h"    // csl::Tensor
+#include "../interface.h"   // csl::IndexRenaming
+#include "../space.h"       // csl::Space
+#include "../tensorField.h" // csl::TensorField, csl::TDerivative
 #include "expr.h"
 
 #include <cstddef>
@@ -153,11 +155,13 @@ struct SymmetrySpec {
 class TensorHandle {
   public:
     /*! \brief Build a tensor. Conflicting symmetries raise ValueError before
-     * the CSL tensor is created. */
+     * the CSL tensor is created. The complex property is Real by default. */
     TensorHandle(std::string const              &name,
                  std::vector<SpaceHandle> const &spaces,
                  SymmetrySpec const             &symmetric     = {},
-                 SymmetrySpec const             &antisymmetric = {});
+                 SymmetrySpec const             &antisymmetric = {},
+                 csl::ComplexProperty            complexProperty
+                 = csl::ComplexProperty::Real);
 
     [[nodiscard]] std::size_t rank() const;
 
@@ -166,10 +170,63 @@ class TensorHandle {
     [[nodiscard]] ExprHandle
     operator()(std::vector<IndexHandle> const &indices) const;
 
+    [[nodiscard]] csl::Tensor const &raw() const;
+
   private:
     std::vector<SpaceHandle> m_spaces;
     csl::Tensor              m_tensor;
 };
+
+/*! \brief Tensor field: a tensor that depends on a point of a space.
+ *
+ * The field has one index space per index position, given by \p spaces (none
+ * for a scalar field), and a point space. Calling the field with the indices
+ * and a rank-1 point tensor of the point space gives a field element.
+ */
+class TensorFieldHandle {
+  public:
+    TensorFieldHandle(std::string const              &name,
+                      SpaceHandle const              &pointSpace,
+                      std::vector<SpaceHandle> const &spaces);
+
+    /*! \brief Element of the field at \p point. ValueError if the indices do
+     * not match the index spaces, or if the point is not a rank-1 tensor of
+     * the point space. */
+    [[nodiscard]] ExprHandle
+    operator()(std::vector<IndexHandle> const &indices,
+               TensorHandle const             &point) const;
+
+  private:
+    SpaceHandle              m_pointSpace;
+    std::vector<SpaceHandle> m_spaces;
+    csl::TensorField         m_field;
+};
+
+/*! \brief Tensorial derivative with respect to a space.
+ *
+ * Calling it with an index and a rank-1 point tensor of the space gives a
+ * derivative element, which is then applied to an operand with
+ * applyTensorDerivative().
+ */
+class TensorDerivativeHandle {
+  public:
+    TensorDerivativeHandle(std::string const &name, SpaceHandle const &space);
+
+    /*! \brief Derivative element d(index, point). ValueError if the index is
+     * fixed or does not belong to the space, or if the point is not a rank-1
+     * tensor of the space. */
+    [[nodiscard]] ExprHandle operator()(IndexHandle const  &index,
+                                        TensorHandle const &point) const;
+
+  private:
+    SpaceHandle      m_space;
+    csl::TDerivative m_derivative;
+};
+
+/*! \brief Applies a derivative element to \p operand, as CSL applyOperator()
+ * does. TypeError unless \p derivative is a tensorial derivative element. */
+[[nodiscard]] ExprHandle applyTensorDerivative(ExprHandle const &derivative,
+                                               ExprHandle const &operand);
 
 /*! \brief Renaming of the indices of an expression, filled by
  * relabelIndices() and read by applyIndexRenaming().

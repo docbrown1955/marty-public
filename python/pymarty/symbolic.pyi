@@ -1,4 +1,5 @@
 from pymarty._pymarty import DEFAULT_INDEX_NAMES as DEFAULT_INDEX_NAMES
+from pymarty._pymarty import ComplexProperty as ComplexProperty
 from pymarty._pymarty import Euclid_R2 as Euclid_R2
 from pymarty._pymarty import Euclid_R3 as Euclid_R3
 from pymarty._pymarty import Euclid_R4 as Euclid_R4
@@ -10,6 +11,8 @@ from pymarty._pymarty import IndexType as IndexType
 from pymarty._pymarty import Minkowski as Minkowski
 from pymarty._pymarty import Space as Space
 from pymarty._pymarty import Tensor as Tensor
+from pymarty._pymarty import TensorDerivative as TensorDerivative
+from pymarty._pymarty import TensorField as TensorField
 from pymarty._pymarty import abs as abs
 from pymarty._pymarty import acos as acos
 from pymarty._pymarty import acosh as acosh
@@ -39,10 +42,13 @@ from pymarty._pymarty import sqrt as sqrt
 from pymarty._pymarty import tan as tan
 from pymarty._pymarty import tanh as tanh
 from pymarty._pymarty import tensor as tensor
+from pymarty._pymarty import tensor_derivative as tensor_derivative
+from pymarty._pymarty import tensor_field as tensor_field
 from pymarty._pymarty import variable as variable
 
 __all__ = [
     "DEFAULT_INDEX_NAMES",
+    "ComplexProperty",
     "Euclid_R2",
     "Euclid_R3",
     "Euclid_R4",
@@ -54,6 +60,8 @@ __all__ = [
     "Minkowski",
     "Space",
     "Tensor",
+    "TensorDerivative",
+    "TensorField",
     "abs",
     "acos",
     "acosh",
@@ -83,5 +91,7 @@ __all__ = [
     "tan",
     "tanh",
     "tensor",
+    "tensor_derivative",
+    "tensor_field",
     "variable",
 ]
