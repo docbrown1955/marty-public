@@ -1616,6 +1616,24 @@ True
 False
 )doc")
         .def_property_readonly(
+            "parent_id",
+            [](ExprHandle const &self) -> py::object {
+                auto const identity = self.parentIdentity();
+                if (!identity) {
+                    return py::none();
+                }
+                return py::int_(static_cast<unsigned long long>(*identity));
+            },
+            R"doc(Identity of the CSL parent (tensor, tensor field, variable, constant, ...), or None if there is none.
+Equal for expressions sharing a parent, such as two elements of one tensor.
+
+>>> x = variable("x")
+>>> x.parent_id == x.parent_id
+True
+>>> (x + 1).parent_id is None
+True
+)doc")
+        .def_property_readonly(
             "is_an_operator",
             [](ExprHandle const &self) { return self.isAnOperator(); },
             R"doc(True for an operator (derivative, conjugate, ...).

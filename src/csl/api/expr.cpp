@@ -156,6 +156,15 @@ std::uintptr_t ExprHandle::symbolIdentity() const
     return reinterpret_cast<std::uintptr_t>(m_expr->getParent_info());
 }
 
+std::optional<std::uintptr_t> ExprHandle::parentIdentity() const
+{
+    auto const parent = m_expr->getParent_info();
+    if (parent == nullptr) {
+        return std::nullopt;
+    }
+    return reinterpret_cast<std::uintptr_t>(parent);
+}
+
 void ExprHandle::checkHashable() const
 {
     if (number() or isSymbol())

@@ -99,3 +99,30 @@ def test_predicates_of_operators() -> None:
     assert not z.is_complex_conjugate
     assert z.real_part().is_an_operator
     assert not z.is_an_operator
+
+
+@pytest.mark.unit
+def test_parent_id_is_shared_by_references_to_one_variable() -> None:
+    x = symbolic.variable("x")
+    other = symbolic.variable("y")
+    assert x.parent_id == x.parent_id
+    assert x.parent_id != other.parent_id
+    assert x.parent_id == (x * 2).args[1].parent_id
+
+
+@pytest.mark.unit
+def test_parent_id_is_shared_by_elements_of_one_tensor() -> None:
+    euclid = symbolic.Euclid_R3
+    tensor = symbolic.tensor("T", [euclid])
+    other = symbolic.tensor("U", [euclid])
+    a = euclid.index("a")
+    b = euclid.index("b")
+    assert tensor(a).parent_id is not None
+    assert tensor(a).parent_id == tensor(b).parent_id
+    assert tensor(a).parent_id != other(a).parent_id
+
+
+@pytest.mark.unit
+def test_parent_id_is_none_without_parent() -> None:
+    assert Expr(3).parent_id is None
+    assert (symbolic.variable("x") + 1).parent_id is None

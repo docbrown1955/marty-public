@@ -118,6 +118,9 @@ class ExprHandle {
     [[nodiscard]] bool isSymbol() const;
     /// Identity of the symbol: the address of its parent. Requires isSymbol().
     [[nodiscard]] std::uintptr_t symbolIdentity() const;
+    /// Identity of the CSL parent (tensor, field, variable, ...), or nothing
+    /// if the expression has no parent.
+    [[nodiscard]] std::optional<std::uintptr_t> parentIdentity() const;
     /// Throws TypeError unless the expression is a number or a symbol.
     void checkHashable() const;
     /// CSL equality (Abstract::operator==).

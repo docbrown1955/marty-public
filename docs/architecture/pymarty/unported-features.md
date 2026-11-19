@@ -43,7 +43,7 @@ All of these are unported unless noted. Error model: rules section 8 (addendum d
 | Symmetry and contraction | `getPermutations`, `getCanonicalPermutation`, `getContractedPair`, `getNContractedPairs`, `getContractionProperties`, `getNFactor` | unported |
 | Boundaries and ranges | `getInfBoundary`, `getSupBoundary`, `getRegularExpression` | unported |
 | Vector and subvector | `getSubVectorial`, `getVectorialModulus`, `getSubSymbols` | unported |
-| Parents and points | `getParent`, `getPoint` | deferred (user decision: no Python parent model yet). `getParent` returns a null parent for a legitimate absence (`src/csl/abstract.cpp:260-263`). |
+| Parents and points | `getParent`, `getPoint` | partial: `Expr.parent_id` ported (an integer identity, `None` without a parent). Parent objects are not exposed. `getPoint` deferred. `getParent` returns a null parent for a legitimate absence (`src/csl/abstract.cpp:260-263`). |
 | Dependencies and libraries | `getAllDependencies`, `getLibDependency`, `getCommutable`, `getElementary` | unported |
 
 ### 2.2 Predicates
