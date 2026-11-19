@@ -88,7 +88,7 @@ principle 5). Decision: addendum C2.
 |--------|---------------|-----------------|-------|
 | `AbstractParent` | `src/csl/parent.h:93+` | unported (read-only getters: `getSpace`, `getBaseName`, `getEncapsulated`, `getFieldSpace`, `getTensor`) | |
 | `TensorParent` | `src/csl/indicial.h:242+` | partial: `Tensor.name`, `spaces`, `fully_symmetric`, `fully_antisymmetric` ported. Unported: `getSymmetry`, `getPermutation`, `getTensor`, `getTrace`, `getDim`, `getType`, `getPrimaryType`, `isValued`, `isTraceLessIn` | `getTensor` and `getTrace` may be exempt from Python; see addendum. `getPermutation` and `getSymmetry` need a design for symmetry specs. |
-| `TensorField` | `src/csl/tensorField.h:34-139` | partial: `TensorField.name`, `point_space`, `index_spaces` ported. Unported: `getArgument`, `getOperand`, `getIndexStructure`, `getSubSymbols`, `getLatexPointSuffix`, `getComplexConjugate`, `getPrimaryType`, `getType`, `isIndexed` | |
+| `TensorField` | `src/csl/tensorField.h:34-139` | partial: `TensorField.name`, `point_space`, `index_spaces`, `primary_type` ported. Unported: `getArgument`, `getOperand`, `getIndexStructure`, `getSubSymbols`, `getLatexPointSuffix`, `getComplexConjugate`, `getType` (CSL returns `TensorFieldElement` for the field parent, a value to clarify before exposing), `isIndexed` | |
 | `Space` | `src/csl/space.h` | `name` and `dimension` ported | |
 | `Tensor` | `src/csl/api/` | `__call__` and read-only getters above (ported) | |
 | `TensorDerivative` | `d(mu, X)` | `__call__` only (ported) | Rule in `AGENTS.md`: `d(mu, X)(operand)` only. |

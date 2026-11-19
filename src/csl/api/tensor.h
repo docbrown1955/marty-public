@@ -206,6 +206,8 @@ class TensorFieldHandle {
     [[nodiscard]] SpaceHandle const &pointSpace() const;
     /*! \brief Index spaces, one per index position (empty for a scalar). */
     [[nodiscard]] std::vector<SpaceHandle> const &indexSpaces() const;
+    /*! \brief Primary type of the field (csl::PrimaryType::Field). */
+    [[nodiscard]] csl::PrimaryType primaryType() const;
 
     /*! \brief Element of the field at \p point. ValueError if the indices do
      * not match the index spaces, or if the point is not a rank-1 tensor of

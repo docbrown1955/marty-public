@@ -475,6 +475,19 @@ std::vector<SpaceHandle> const &TensorFieldHandle::indexSpaces() const
     return m_spaces;
 }
 
+csl::PrimaryType TensorFieldHandle::primaryType() const
+{
+    switch (m_field->getPrimaryType()) {
+    case cslParent::Literal:
+        return csl::PrimaryType::Literal;
+    case cslParent::Indicial:
+        return csl::PrimaryType::Indicial;
+    case cslParent::Field:
+        return csl::PrimaryType::Field;
+    }
+    throw TypeError("tensor field: unknown primary type");
+}
+
 ExprHandle
 TensorFieldHandle::operator()(std::vector<IndexHandle> const &indices,
                               TensorHandle const             &point) const

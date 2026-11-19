@@ -122,3 +122,10 @@ def test_tensor_field_read_only_getters() -> None:
     assert field.name == "F"
     assert field.point_space.name == "Point"
     assert [s.name for s in field.index_spaces] == ["Index", "Point"]
+
+
+@pytest.mark.unit
+def test_tensor_field_primary_type_is_field() -> None:
+    point = symbolic.Space("Point", 3)
+    field = symbolic.tensor_field("F", point, [point])
+    assert field.primary_type == symbolic.PrimaryType.Field

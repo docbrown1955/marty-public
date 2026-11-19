@@ -1089,6 +1089,15 @@ in the point space, to get an element.
                                &TensorFieldHandle::indexSpaces,
                                "Index spaces of the field, one per index "
                                "position.")
+        .def_property_readonly(
+            "primary_type",
+            &TensorFieldHandle::primaryType,
+            R"doc(Primary type of the field, as a PrimaryType (always PrimaryType.Field).
+
+>>> sp = Space("S", 4)
+>>> tensor_field("F", sp, [sp]).primary_type == PrimaryType.Field
+True
+)doc")
         .def(
             "__call__",
             [](TensorFieldHandle const &self, py::args args) {
