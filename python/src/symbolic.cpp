@@ -1334,6 +1334,39 @@ True
             },
             R"doc(Dummy indices of the expression, without duplicates. Their space is None.)doc")
         .def_property_readonly(
+            "index_count",
+            [](ExprHandle const &self) { return csl::api::indexCount(self); },
+            R"doc(Number of indices of an indexed element, 0 for any other expression.
+
+>>> (variable("x") * variable("y")).index_count
+0
+)doc")
+        .def(
+            "index",
+            [](ExprHandle const &self, long long index) {
+                if (index < 0) {
+                    throw csl::api::LookupError("index: negative index");
+                }
+                return IndexWrapper{
+                    csl::api::indexAt(self, static_cast<std::size_t>(index)),
+                    py::none()};
+            },
+            py::arg("index"),
+            R"doc(Index at the given position of an indexed element. MartyLookupError when out of range.
+
+>>> euclid = Euclid_R3
+>>> tensor("T", [euclid])(euclid.index("a")).index(1)
+Traceback (most recent call last):
+    ...
+pymarty.errors.MartyLookupError: index: index 1 is out of range
+)doc")
+        .def_property_readonly(
+            "index_structure",
+            [](ExprHandle const &self) {
+                return indexTuple(csl::api::indexStructure(self), py::none());
+            },
+            R"doc(Raw index structure of the expression, in CSL order, with repetitions. Their space is None.)doc")
+        .def_property_readonly(
             "args",
             [](ExprHandle const &self) { return exprTuple(self.arguments()); },
             R"doc(Arguments of a compound expression, in order. Empty for a symbol or a number.

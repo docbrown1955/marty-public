@@ -204,3 +204,35 @@ TEST(SymbolicTensors, FreeAndDummyIndexQueries)
     EXPECT_TRUE(csl::api::freeIndices(closed).empty());
     EXPECT_EQ(csl::api::dummyIndices(closed).size(), 1U);
 }
+
+TEST(SymbolicTensors, IndexAccessorsOfTensorElement)
+{
+    auto         r3 = SpaceHandle::euclid3();
+    TensorHandle T("T", {r3, r3});
+    auto         a       = r3.index("a");
+    auto         b       = r3.index("b");
+    ExprHandle   element = T({a, b});
+
+    EXPECT_EQ(csl::api::indexCount(element), 2U);
+    EXPECT_EQ(csl::api::indexAt(element, 0).name(), "a");
+    EXPECT_EQ(csl::api::indexAt(element, 1).name(), "b");
+    EXPECT_THROW(csl::api::indexAt(element, 2), csl::api::LookupError);
+
+    auto structure = csl::api::indexStructure(element);
+    ASSERT_EQ(structure.size(), 2U);
+    EXPECT_EQ(structure[1].name(), "b");
+}
+
+TEST(SymbolicTensors, IndexAccessorsOfNonIndicialExpressions)
+{
+    auto         r3 = SpaceHandle::euclid3();
+    TensorHandle U("U", {r3});
+    auto         a       = r3.index("a");
+    ExprHandle   product = ExprHandle::variable("x") * U({a});
+
+    EXPECT_EQ(csl::api::indexCount(product), 0U);
+    EXPECT_THROW(csl::api::indexAt(product, 0), csl::api::LookupError);
+    ASSERT_EQ(csl::api::indexStructure(product).size(), 1U);
+    EXPECT_EQ(csl::api::indexStructure(product)[0].name(), "a");
+    EXPECT_TRUE(csl::api::indexStructure(ExprHandle::variable("x")).empty());
+}

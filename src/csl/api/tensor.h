@@ -286,6 +286,18 @@ class IndexRenamingHandle {
 /*! \brief Dummy indices of an expression, without duplicates. */
 [[nodiscard]] std::vector<IndexHandle> dummyIndices(ExprHandle const &expr);
 
+/*! \brief Number of indices of an indicial expression, 0 for any other
+ * expression. */
+[[nodiscard]] std::size_t indexCount(ExprHandle const &expr);
+
+/*! \brief Index at \p index of an indicial expression. LookupError when out
+ * of range, including for expressions that are not indicial. */
+[[nodiscard]] IndexHandle indexAt(ExprHandle const &expr, std::size_t index);
+
+/*! \brief Raw index structure of an expression, in CSL order, with
+ * repetitions. Empty for an expression without indices. */
+[[nodiscard]] std::vector<IndexHandle> indexStructure(ExprHandle const &expr);
+
 } // namespace csl::api
 
 #endif

@@ -624,4 +624,36 @@ std::vector<IndexHandle> dummyIndices(ExprHandle const &expr)
     });
 }
 
+std::size_t indexCount(ExprHandle const &expr)
+{
+    return detail::guarded("index count", [&] {
+        if (expr.primaryType() != csl::PrimaryType::Indicial)
+            return std::size_t{0};
+        return static_cast<std::size_t>(expr.raw()->getNIndices());
+    });
+}
+
+IndexHandle indexAt(ExprHandle const &expr, std::size_t index)
+{
+    if (index >= indexCount(expr))
+        throw LookupError("index: index " + std::to_string(index)
+                          + " is out of range");
+    return detail::guarded("index", [&] {
+        return IndexHandle(nullptr,
+                           expr.raw()->getIndex(static_cast<int>(index)));
+    });
+}
+
+std::vector<IndexHandle> indexStructure(ExprHandle const &expr)
+{
+    return detail::guarded("index structure", [&] {
+        auto const               structure = expr.raw()->getIndexStructure();
+        std::vector<IndexHandle> result;
+        result.reserve(structure.getIndexView().size());
+        for (auto const &index : structure.getIndexView())
+            result.emplace_back(nullptr, index);
+        return result;
+    });
+}
+
 } // namespace csl::api
