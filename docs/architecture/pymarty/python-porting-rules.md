@@ -105,6 +105,8 @@ replacing callbacks with data in C++ is dropped.
 Recommendation: (a) only. The C++ algorithms keep their callbacks. Each Python duplicate lives in
 `python/pymarty/symbolic_algorithms.py` and has parity tests against C++ on shared golden expressions.
 Duplicates must not contain physics or algebra that is not also tested against C++.
+The parity checker only counts C++ suites whose name ends in `Api` (`check_parity.py`, `API_TEST`), so the golden test
+is `TEST(SymbolicAlgorithmsApi, GoldenValuesStable)`.
 
 ## 7. Verification
 

@@ -70,6 +70,17 @@ from pymarty._pymarty import (
     tensor_field,
     variable,
 )
+from pymarty.symbolic_algorithms import (
+    all_of_leafs,
+    all_of_nodes,
+    any_of_leafs,
+    any_of_nodes,
+    find_if_leaf,
+    find_if_node,
+    visit_each_node_cut,
+    visit_first_of_leaf,
+    visit_first_of_node,
+)
 
 __all__ = [
     "DEFAULT_INDEX_NAMES",
@@ -92,6 +103,10 @@ __all__ = [
     "abs",
     "acos",
     "acosh",
+    "all_of_leafs",
+    "all_of_nodes",
+    "any_of_leafs",
+    "any_of_nodes",
     "argument",
     "asin",
     "asinh",
@@ -104,6 +119,8 @@ __all__ = [
     "e",
     "epsilon",
     "exp",
+    "find_if_leaf",
+    "find_if_node",
     "infinity",
     "log",
     "make_abbreviation",
@@ -119,4 +136,7 @@ __all__ = [
     "tensor_derivative",
     "tensor_field",
     "variable",
+    "visit_each_node_cut",
+    "visit_first_of_leaf",
+    "visit_first_of_node",
 ]

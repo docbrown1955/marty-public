@@ -41,9 +41,17 @@ using Substitution = std::pair<ExprHandle, ExprHandle>;
 /// Pair (name, value) of a value given by symbol name.
 using NamedValue = std::pair<std::string, ExprHandle>;
 
-/// Python: `expand()`. Full (deep) expansion of products and integer powers
-/// of sums. The non-deep CSL `Expanded` leaves `(x+y)^2` unchanged.
-[[nodiscard]] ExprHandle expanded(ExprHandle const &expr);
+/// Python: `expand(full=True)`. Expansion of products and integer powers of
+/// sums; `full` also expands the sub-expressions (CSL `Expanded`). With
+/// `full = false` only the top-level products are expanded, so `(x+y)^2` is
+/// left unchanged.
+[[nodiscard]] ExprHandle expanded(ExprHandle const &expr, bool full = true);
+
+/// Python: `Expr.rebuilt(arguments)`. A new expression of the same head with
+/// the given arguments, refreshed. Raises ValueError if the number of
+/// arguments differs from the current one.
+[[nodiscard]] ExprHandle rebuilt(ExprHandle const              &expr,
+                                 std::vector<ExprHandle> const &arguments);
 
 /// Python: `factor(full=full)`. Factors the common factors out of sums.
 [[nodiscard]] ExprHandle factored(ExprHandle const &expr, bool full = false);

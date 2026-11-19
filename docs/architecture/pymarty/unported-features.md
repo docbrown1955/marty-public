@@ -100,9 +100,12 @@ These take C++ function callbacks, so they cannot be ported by binding. Plan: Py
 
 | Algorithm | CSL reference | Status | Notes |
 |-----------|---------------|--------|-------|
-| `ExpandIf` | `src/csl/` (see [phase-1-symbolic.md](phase-1-symbolic.md) section 1) | py-algorithm (decided, not written) | |
-| `DistributeIf` | same | py-algorithm (decided, not written) | |
-| Predicate-driven searches on accessors | same | py-algorithm (decided, not written) | Needs the accessors of section 2 first. |
+| `AnyOfLeafs`, `AllOfLeafs`, `AnyOfNodes`, `AllOfNodes` | `src/csl/algo.h` | ported (`symbolic_algorithms.py`) | Parity: `SymbolicAlgorithmsApi.GoldenValuesStable`. |
+| `FindIfLeaf`, `FindIfNode`, `VisitEachNodeCut`, `VisitFirstOf*` | `src/csl/algo.h` | ported (`symbolic_algorithms.py`) | Same parity test. |
+| `expand` (full `ExpandAll`-style) | `src/csl/interface.cpp` | ported (`Expr.expand`) | Non-callback. |
+| `rebuilt` | `src/csl/api/transform.cpp` | ported (`Expr.rebuilt`) | Non-callback. |
+| `ExpandIf` | `src/csl/` (see [phase-1-symbolic.md](phase-1-symbolic.md) section 1) | deferred | Needs per-type semantics design. |
+| `DistributeIf` | `src/csl/interface.cpp:256-290` | deferred, blocked by CSL bug | The mutating overload never assigns `finalRes` back to `expr`, so it is a no-op for products. Needs the user's decision on fixing the C++. |
 
 ## 6. Other CSL and MARTY features
 

@@ -262,15 +262,39 @@ void bindTransforms(py::class_<ExprHandle> &expr)
 {
     expr.def(
             "expand",
-            [](ExprHandle const &self) { return csl::api::expanded(self); },
-            R"doc(Full expansion of products and integer powers of sums.
+            [](ExprHandle const &self, bool full) {
+                return csl::api::expanded(self, full);
+            },
+            py::kw_only(),
+            py::arg("full") = true,
+            R"doc(Expansion of products and integer powers of sums. Returns a new expression.
 
-Returns a new expression.
+``full`` is a keyword-only flag, default True. With ``full=False`` only the
+top-level products are expanded and ``(x + y)**2`` is left unchanged.
 
 >>> x = variable("x")
 >>> y = variable("y")
 >>> print(((x + y) ** 2).expand())
 x^2 + 2*x*y + y^2
+>>> print(((x + y) ** 2).expand(full=False))
+(x + y)^2
+)doc")
+        .def(
+            "rebuilt",
+            [](ExprHandle const              &self,
+               std::vector<ExprHandle> const &arguments) {
+                return csl::api::rebuilt(self, arguments);
+            },
+            py::arg("arguments"),
+            R"doc(Same head with the given arguments. Returns a new expression.
+
+The number of arguments must match ``args``, otherwise ``ValueError`` is raised.
+
+>>> x = variable("x")
+>>> y = variable("y")
+>>> z = variable("z")
+>>> print((x + y).rebuilt([x, z]))
+x + z
 )doc")
         .def(
             "factor",

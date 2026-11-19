@@ -16,9 +16,11 @@
 #include "transform.h"
 
 #include "../abstract.h"
+#include "../algo.h"
 #include "../evaluation.h"
 #include "../interface.h"
 #include "../replace.h"
+#include "../utils.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -73,10 +75,25 @@ ExprHandle replacedInCopy(ExprHandle const                &expr,
 
 } // namespace
 
-ExprHandle expanded(ExprHandle const &expr)
+ExprHandle expanded(ExprHandle const &expr, bool full)
 {
     return detail::guarded("expand", [&] {
-        return ExprHandle(csl::Expanded(expr.raw(), true, false));
+        return ExprHandle(csl::Expanded(expr.raw(), full, false));
+    });
+}
+
+ExprHandle rebuilt(ExprHandle const              &expr,
+                   std::vector<ExprHandle> const &arguments)
+{
+    if (arguments.size() != expr.arguments().size())
+        throw ValueError("rebuilt: " + std::to_string(expr.arguments().size())
+                         + " arguments expected, "
+                         + std::to_string(arguments.size()) + " given");
+    return detail::guarded("rebuilt", [&] {
+        csl::Expr copy = csl::Copy(expr.raw());
+        for (std::size_t i = 0; i != arguments.size(); ++i)
+            copy->setArgument(arguments[i].raw(), i);
+        return ExprHandle(csl::Refreshed(copy));
     });
 }
 

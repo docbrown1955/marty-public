@@ -145,7 +145,11 @@ searches) cannot be bound directly. The phase-1 plan lists them in section 1 of
 **Decision E (resolved).** Duplicate every callback algorithm in Python, in a consistent way: option
 (a) only. The C++ algorithms keep their callbacks, and no C++ API is changed for them. Each duplicate
 lives in `python/pymarty/symbolic_algorithms.py`, is imported by `symbolic.py`, and has parity tests
-against C++ on shared golden expressions. The Python duplicate is not written until section C exists.
+against C++ on shared golden expressions (`tests/api/data/symbolic/algorithms.txt`).
+
+**Status.** The nine search and visit algorithms are ported. `ExpandIf` is deferred. `DistributeIf`
+is deferred because the CSL implementation does not assign its result back to `expr`
+(`src/csl/interface.cpp:256-290`), so it has no effect on products. The C++ fix is pending the user's decision.
 
 ## F. `evaluate` and the eval mode
 

@@ -45,6 +45,15 @@ from pymarty._pymarty import tensor as tensor
 from pymarty._pymarty import tensor_derivative as tensor_derivative
 from pymarty._pymarty import tensor_field as tensor_field
 from pymarty._pymarty import variable as variable
+from pymarty.symbolic_algorithms import all_of_leafs as all_of_leafs
+from pymarty.symbolic_algorithms import all_of_nodes as all_of_nodes
+from pymarty.symbolic_algorithms import any_of_leafs as any_of_leafs
+from pymarty.symbolic_algorithms import any_of_nodes as any_of_nodes
+from pymarty.symbolic_algorithms import find_if_leaf as find_if_leaf
+from pymarty.symbolic_algorithms import find_if_node as find_if_node
+from pymarty.symbolic_algorithms import visit_each_node_cut as visit_each_node_cut
+from pymarty.symbolic_algorithms import visit_first_of_leaf as visit_first_of_leaf
+from pymarty.symbolic_algorithms import visit_first_of_node as visit_first_of_node
 
 __all__ = [
     "DEFAULT_INDEX_NAMES",
