@@ -10,15 +10,19 @@ A negative ``depth`` (the default) means no limit. ``depth=0`` looks at the root
 
 from __future__ import annotations
 
-from collections.abc import Callable
+import operator
+from collections.abc import Callable, Iterable, Sequence
+from functools import reduce
 
-from pymarty._pymarty import Expr
+from pymarty._pymarty import Expr, ExprType
 
 __all__ = [
     "all_of_leafs",
     "all_of_nodes",
     "any_of_leafs",
     "any_of_nodes",
+    "distribute_if",
+    "expand_if",
     "find_if_leaf",
     "find_if_node",
     "visit_each_node_cut",
@@ -200,3 +204,170 @@ def visit_first_of_leaf(
     return any(
         visit_first_of_leaf(a, visitor, depth=_child_depth(depth)) for a in expr.args
     )
+
+
+ONE = Expr(1)
+ZERO = Expr(0)
+
+
+def _prod(factors: Iterable[Expr]) -> Expr:
+    """Product of the factors, built with the CSL operator."""
+    return reduce(operator.mul, factors, ONE)
+
+
+def _sum(terms: Iterable[Expr]) -> Expr:
+    """Sum of the terms, built with the CSL operator."""
+    return reduce(operator.add, terms, ZERO)
+
+
+def distribute_if(expr: Expr, predicate: Predicate, *, full: bool = True) -> Expr:
+    """Distributes the factors satisfying the predicate over the sums they multiply.
+
+    Mirrors CSL ``DistributedIf``: for a product, each factor that satisfies the
+    predicate is multiplied into every other sum factor, and the resulting terms
+    are added. With ``full=True`` the result is distributed recursively.
+
+    >>> from pymarty.symbolic import variable
+    >>> x, y, z = variable("x"), variable("y"), variable("z")
+    >>> is_z = lambda e: e.type == ExprType.Variable and e.name == "z"
+    >>> print(distribute_if((x + y) * z, is_z, full=False))
+    x*z + y*z
+    """
+    if expr.type == ExprType.Prod:
+        for i, factor in enumerate(expr.args):
+            if not predicate(factor):
+                continue
+            results: list[Expr] = []
+            for j, other in enumerate(expr.args):
+                if i != j and other.type == ExprType.Sum:
+                    args = list(expr.args)
+                    args[i] = ONE
+                    args[j] = (factor * other).expand(full=True)
+                    results.append(expr.rebuilt(args))
+            if results:
+                total = _sum(results)
+                if total.type == ExprType.Sum:
+                    return total.rebuilt(
+                        [distribute_if(a, predicate, full=full) for a in total.args]
+                    )
+                if full:
+                    return distribute_if(total, predicate, full=True)
+                return total
+    if full and expr.args:
+        return expr.rebuilt([distribute_if(a, predicate, full=full) for a in expr.args])
+    return expr
+
+
+def expand_if(
+    expr: Expr, predicate: Predicate, *, full: bool = True, inplace: bool = False
+) -> Expr:
+    """Expands the products and integer powers of sums, restricted by the predicate.
+
+    Mirrors CSL ``ExpandedIf``. A sum factor is developed only if it satisfies the
+    predicate, and then only the terms satisfying it are developed. With
+    ``inplace=True`` the factors failing the predicate are kept outside the
+    expanded sum. Sums and leaves are returned unchanged. Other function nodes
+    with arguments are not ported and raise ``NotImplementedError``.
+
+    >>> from pymarty.symbolic import variable
+    >>> x, y, z = variable("x"), variable("y"), variable("z")
+    >>> is_sum_or_x = lambda e: e.type == ExprType.Sum or (
+    ...     e.type == ExprType.Variable and e.name == "x"
+    ... )
+    >>> print(expand_if((x + y) * z, is_sum_or_x, full=False))
+    x*z + y*z
+    """
+    result = _expand_or_none(expr, predicate, full=full, inplace=inplace)
+    return expr if result is None else result
+
+
+def _expand_or_none(
+    expr: Expr, predicate: Predicate, *, full: bool, inplace: bool
+) -> Expr | None:
+    """Expanded expression, or None when the node is unchanged."""
+    if expr.type == ExprType.Prod:
+        return _expand_factors(expr.args, predicate, full=full, inplace=inplace)
+    if expr.type == ExprType.Pow:
+        return _expand_pow(expr, predicate, full=full, inplace=inplace)
+    if expr.type == ExprType.Sum or not expr.args:
+        return None
+    raise NotImplementedError(
+        f"expand_if is not ported for {expr.type.name} nodes with arguments"
+    )
+
+
+def _expand_factors(
+    factors: Sequence[Expr], predicate: Predicate, *, full: bool, inplace: bool
+) -> Expr | None:
+    """CSL ``Prod::expand_if`` on the factors; negative powers form the denominator."""
+    args = list(factors)
+    if full:
+        args = [expand_if(a, predicate, full=True, inplace=inplace) for a in args]
+    expanded = full
+    in_place_factors: list[Expr] = []
+    numerator: list[Expr] = []
+    denom: list[Expr] = []
+    for arg in args:
+        exponent = arg.argument(1) if arg.type == ExprType.Pow else None
+        if exponent is not None and exponent.is_integer and exponent.value < 0:
+            denom.append(
+                arg.argument(0)
+                if exponent.value == -1
+                else arg.argument(0) ** -exponent
+            )
+        else:
+            numerator.append(arg)
+
+    new_abstracts: list[list[Expr]] = [[ONE]]
+    for arg in numerator:
+        if arg.type == ExprType.Sum and predicate(arg):
+            expanded = True
+            to_develop = [a for a in arg.args if predicate(a)]
+            kept = [a for a in arg.args if not predicate(a)]
+            if kept:
+                to_develop.append(_sum(kept))
+            new_abstracts = [
+                abstract + [term] for term in to_develop for abstract in new_abstracts
+            ]
+        elif not inplace or predicate(arg):
+            new_abstracts = [abstract + [arg] for abstract in new_abstracts]
+        else:
+            in_place_factors.append(arg)
+
+    expanded_denom: Expr | None = None
+    if denom:
+        expanded_denom = _expand_factors(denom, predicate, full=full, inplace=inplace)
+        if not expanded and expanded_denom is None:
+            return None
+        if expanded_denom is None:
+            expanded_denom = _prod(denom)
+
+    terms = []
+    for abstract in new_abstracts:
+        if expanded_denom is not None:
+            abstract = abstract + [ONE / expanded_denom]
+        terms.append(_prod(abstract))
+    if not inplace:
+        return _sum(terms)
+    return _prod(in_place_factors + [_sum(terms)])
+
+
+def _expand_pow(
+    expr: Expr, predicate: Predicate, *, full: bool, inplace: bool
+) -> Expr | None:
+    """CSL ``Pow::expand_if``: integer powers of a sum satisfying the predicate."""
+    if not full:
+        return None
+    base = expand_if(expr.argument(0), predicate, full=True, inplace=inplace)
+    exponent = expand_if(expr.argument(1), predicate, full=True, inplace=inplace)
+    if (
+        exponent.is_integer
+        and exponent.value > 0
+        and base.type == ExprType.Sum
+        and predicate(base)
+    ):
+        result = ONE
+        for _ in range(round(abs(exponent.value))):
+            result = result * base
+        return result.expand(full=True)
+    return base**exponent

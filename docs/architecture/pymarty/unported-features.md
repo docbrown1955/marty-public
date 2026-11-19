@@ -104,8 +104,8 @@ These take C++ function callbacks, so they cannot be ported by binding. Plan: Py
 | `FindIfLeaf`, `FindIfNode`, `VisitEachNodeCut`, `VisitFirstOf*` | `src/csl/algo.h` | ported (`symbolic_algorithms.py`) | Same parity test. |
 | `expand` (full `ExpandAll`-style) | `src/csl/interface.cpp` | ported (`Expr.expand`) | Non-callback. |
 | `rebuilt` | `src/csl/api/transform.cpp` | ported (`Expr.rebuilt`) | Non-callback. |
-| `ExpandIf` | `src/csl/` (see [phase-1-symbolic.md](phase-1-symbolic.md) section 1) | deferred | Needs per-type semantics design. |
-| `DistributeIf` | `src/csl/interface.cpp:256-290` | deferred, blocked by CSL bug | The mutating overload never assigns `finalRes` back to `expr`, so it is a no-op for products. Needs the user's decision on fixing the C++. |
+| `ExpandIf` | `src/csl/operations.cpp` (`Prod::expand_if`, `Pow::expand_if`) | ported (`symbolic_algorithms.expand_if`) | Products and integer powers of sums. Other function nodes with arguments raise `NotImplementedError`: the `Exp`, scalar, duo and multi functions, vectorial and tensor-derivative overrides still need porting. |
+| `DistributeIf` | `src/csl/interface.cpp:256-290` | ported (`symbolic_algorithms.distribute_if`) | The CSL mutating overload now writes the result back (`expr = Refreshed(finalRes)`). Golden parity in `SymbolicAlgorithmsApi.GoldenValuesStable`. |
 
 ## 6. Other CSL and MARTY features
 

@@ -121,6 +121,29 @@ std::vector<std::pair<std::string, std::string>> goldenValues()
         {"expand_square_nonfull",
          latex(csl::api::expanded((x + y) * (x + y), false).raw())},
         {"rebuilt_sum", latex(csl::api::rebuilt(x + y, {x, z}).raw())},
+        {"distribute_if_z",
+         latex(
+             csl::DistributedIf(((x + y) * z).raw(), isVariable("z"), false))},
+        {"distribute_if_none",
+         latex(
+             csl::DistributedIf(((x + y) * z).raw(), isVariable("w"), false))},
+        {"distribute_if_full",
+         latex(csl::DistributedIf(
+             ((x + y) * (z + x)).raw(), isType(csl::Type::Sum), true))},
+        {"expand_if_sums",
+         latex(csl::ExpandedIf(((x + y) * (z + x)).raw(),
+                               isType(csl::Type::Sum),
+                               false,
+                               false))},
+        {"expand_if_contains_x",
+         latex(csl::ExpandedIf(
+             ((x + y) * (z + y)).raw(), isVariable("x"), false, false))},
+        {"expand_if_square_full",
+         latex(csl::ExpandedIf(
+             ((x + y) * (x + y)).raw(), isType(csl::Type::Sum), true, false))},
+        {"expand_if_inplace",
+         latex(csl::ExpandedIf(
+             ((x + y) * (z + y)).raw(), isVariable("x"), false, true))},
     };
 }
 

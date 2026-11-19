@@ -147,9 +147,11 @@ searches) cannot be bound directly. The phase-1 plan lists them in section 1 of
 lives in `python/pymarty/symbolic_algorithms.py`, is imported by `symbolic.py`, and has parity tests
 against C++ on shared golden expressions (`tests/api/data/symbolic/algorithms.txt`).
 
-**Status.** The nine search and visit algorithms are ported. `ExpandIf` is deferred. `DistributeIf`
-is deferred because the CSL implementation does not assign its result back to `expr`
-(`src/csl/interface.cpp:256-290`), so it has no effect on products. The C++ fix is pending the user's decision.
+**Status.** The nine search and visit algorithms, `DistributeIf` and `ExpandIf` are ported.
+`DistributeIf` required the CSL fix at `src/csl/interface.cpp:256-290`: the mutating overload now
+writes its result back to `expr`. `ExpandIf` covers products and integer powers. Function nodes
+with arguments (`Exp`, scalar, duo and multi functions, vectorial and tensor derivative) are not
+ported yet and raise `NotImplementedError`; see [unported-features.md](unported-features.md) section 5.
 
 ## F. `evaluate` and the eval mode
 

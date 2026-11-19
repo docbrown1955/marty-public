@@ -20,3 +20,10 @@ visit_first_node_w	False
 expand_product_nonfull	xz + yz
 expand_square_nonfull	\left(x + y\right)^{2}
 rebuilt_sum	x + z
+distribute_if_z	xz + yz
+distribute_if_none	\left(x + y\right)z
+distribute_if_full	x^{2} + xy + xz + yz
+expand_if_sums	\left(x + y\right)\cdot\left(x + z\right)
+expand_if_contains_x	\left(x + y\right)\cdot\left(y + z\right)
+expand_if_square_full	x^{2} + 2xy + y^{2}
+expand_if_inplace	\left(x + y\right)\cdot\left(y + z\right)

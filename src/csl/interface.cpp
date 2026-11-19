@@ -276,9 +276,7 @@ void DistributeIf(Expr &expr, std::function<bool(Expr const &)> f, bool full)
                     }
                     else if (full)
                         DistributeIf(finalRes, f, true);
-                    else
-                        return;
-                    finalRes = Refreshed(finalRes);
+                    expr = Refreshed(finalRes);
                     return;
                 }
             }

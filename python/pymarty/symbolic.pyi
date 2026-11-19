@@ -49,6 +49,8 @@ from pymarty.symbolic_algorithms import all_of_leafs as all_of_leafs
 from pymarty.symbolic_algorithms import all_of_nodes as all_of_nodes
 from pymarty.symbolic_algorithms import any_of_leafs as any_of_leafs
 from pymarty.symbolic_algorithms import any_of_nodes as any_of_nodes
+from pymarty.symbolic_algorithms import distribute_if as distribute_if
+from pymarty.symbolic_algorithms import expand_if as expand_if
 from pymarty.symbolic_algorithms import find_if_leaf as find_if_leaf
 from pymarty.symbolic_algorithms import find_if_node as find_if_node
 from pymarty.symbolic_algorithms import visit_each_node_cut as visit_each_node_cut

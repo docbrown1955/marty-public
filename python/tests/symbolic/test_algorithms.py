@@ -18,6 +18,8 @@ from pymarty.symbolic_algorithms import (
     all_of_nodes,
     any_of_leafs,
     any_of_nodes,
+    distribute_if,
+    expand_if,
     find_if_leaf,
     find_if_node,
     visit_each_node_cut,
@@ -137,6 +139,13 @@ def test_expand_without_full_only_expands_the_top_level_product() -> None:
 
 
 @pytest.mark.unit
+def test_expand_if_raises_for_unported_function_nodes() -> None:
+    x, y = variable("x"), variable("y")
+    with pytest.raises(NotImplementedError):
+        expand_if(sin(x * (x + y)), is_type(ExprType.Sum))
+
+
+@pytest.mark.unit
 @pytest.mark.parity("SymbolicAlgorithmsApi.GoldenValuesStable")
 def test_algorithms_match_cpp_golden_values() -> None:
     golden = read_golden()
@@ -146,15 +155,20 @@ def test_algorithms_match_cpp_golden_values() -> None:
 
 
 def _x() -> Expr:
-    return variable("x")
+    return _SYMBOLS["x"]
 
 
 def _y() -> Expr:
-    return variable("y")
+    return _SYMBOLS["y"]
 
 
 def _z() -> Expr:
-    return variable("z")
+    return _SYMBOLS["z"]
+
+
+# One object per symbol: CSL compares variables by identity, so `x * x` only merges
+# into `x**2` when both factors are the same object.
+_SYMBOLS = {name: variable(name) for name in "xyz"}
 
 
 CASES: dict[str, Callable[[], str]] = {
@@ -176,6 +190,29 @@ CASES: dict[str, Callable[[], str]] = {
     "expand_product_nonfull": lambda: latex(((_x() + _y()) * _z()).expand(full=False)),
     "expand_square_nonfull": lambda: latex(((_x() + _y()) ** 2).expand(full=False)),
     "rebuilt_sum": lambda: latex((_x() + _y()).rebuilt([_x(), _z()])),
+    "distribute_if_z": lambda: latex(
+        distribute_if((_x() + _y()) * _z(), is_variable("z"), full=False)
+    ),
+    "distribute_if_none": lambda: latex(
+        distribute_if((_x() + _y()) * _z(), is_variable("w"), full=False)
+    ),
+    "distribute_if_full": lambda: latex(
+        distribute_if((_x() + _y()) * (_z() + _x()), is_type(ExprType.Sum), full=True)
+    ),
+    "expand_if_sums": lambda: latex(
+        expand_if((_x() + _y()) * (_z() + _x()), is_type(ExprType.Sum), full=False)
+    ),
+    "expand_if_contains_x": lambda: latex(
+        expand_if((_x() + _y()) * (_z() + _y()), is_variable("x"), full=False)
+    ),
+    "expand_if_square_full": lambda: latex(
+        expand_if((_x() + _y()) * (_x() + _y()), is_type(ExprType.Sum), full=True)
+    ),
+    "expand_if_inplace": lambda: latex(
+        expand_if(
+            (_x() + _y()) * (_z() + _y()), is_variable("x"), full=False, inplace=True
+        )
+    ),
 }
 
 
