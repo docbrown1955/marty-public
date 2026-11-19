@@ -22,7 +22,7 @@ Phase numbers refer to [phase-N plan documents](README.md).
 | `free_indices`, `dummy_indices` | `src/csl/api/` | ported | 1 | |
 | `name`, `complex_property`, `structural_key` | `src/csl/Abstract.h` | ported | 1 | |
 | `constant`, `variable` | `src/csl/api/` | ported | 1 | |
-| `evaluate` with eval mode | `csl::Evaluated`, `csl::eval::mode` | unported | 1 | Facade hardcodes `eval::all` (`src/csl/api/transform.cpp:129`). Addendum decision F. |
+| `evaluate` with eval mode | `csl::Evaluated`, `csl::eval::mode` | ported | 1 | `evaluate(mode=EvalMode.*)`, default `All`. Addendum decision F. |
 | `replace` on expressions | `csl::Replace(Expr, Expr, Expr)` | ported | 1 | Expression only. Index and parent replacement are unported (see section 3). |
 | `Expr.relabel_indices` | `csl::api::relabelIndices` | ported | 1 | Addendum decision A. Renaming dict is input and output. `apply_renaming` removed. |
 | `deep_expand`, `simplify` | `src/csl/api/` | unported / open | 1 | Check the current facade for `simplify` before porting. |
@@ -105,7 +105,7 @@ These take C++ function callbacks, so they cannot be ported by binding. Plan: Py
 |---------|-----------|--------|-------|-------|
 | Pseudo-integrals | `src/csl/pseudoIntegral.h`, `src/csl/pseudoIntegral.cpp` | unported (not yet investigated in depth) | open | Verify exposed API and whether it is needed for phase 1. |
 | Multi-dimensional arrays to fill indexed tensors | not yet located | unported (not yet investigated) | open | Locate the CSL/MARTY reference first. |
-| Abbreviation management | CSL abbreviations, `eval::abbreviation` | unported | 1 (in scope, addendum F) | Needed for `evaluate` with `EvalMode.ABBREVIATION`. Port-table rows 80-83 are marked out of scope and must be re-marked. |
+| Abbreviation management | CSL abbreviations, `eval::abbreviation` | ported | 1 | `make_abbreviation` and `EvalMode.Abbreviation`. Port-table rows 80-83 are ported (`test_abbreviations.py`). |
 | `ISum`, `IProd` (indicial sums and products) | `src/csl/` | unported | 1 | |
 | General symmetry permutations | `src/csl/` | unported | 1 | |
 | Signed and symbolic-dimension spaces | `src/csl/` | unported | 1 | |

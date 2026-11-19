@@ -16,8 +16,8 @@ PY_DIR = Path(__file__).resolve().parent
 
 # Verified totals of the WP5b pass; update together with port-table.md.
 EXPECTED_ROWS = 133
-EXPECTED_CLASSES = {"P": 54, "P+": 55, "L1": 13, "X": 11}
-EXPECTED_STATUSES = {"ported": 61, "gap": 5, "deferred": 44, "covered": 10, "n/a": 13}
+EXPECTED_CLASSES = {"P": 58, "P+": 55, "L1": 13, "X": 7}
+EXPECTED_STATUSES = {"ported": 65, "gap": 5, "deferred": 44, "covered": 10, "n/a": 9}
 EXPECTED_FILES = {
     "test_equality.cpp": 5,
     "test_literals.cpp": 2,

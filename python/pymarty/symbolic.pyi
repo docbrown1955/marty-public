@@ -3,6 +3,7 @@ from pymarty._pymarty import ComplexProperty as ComplexProperty
 from pymarty._pymarty import Euclid_R2 as Euclid_R2
 from pymarty._pymarty import Euclid_R3 as Euclid_R3
 from pymarty._pymarty import Euclid_R4 as Euclid_R4
+from pymarty._pymarty import EvalMode as EvalMode
 from pymarty._pymarty import Expr as Expr
 from pymarty._pymarty import I as I
 from pymarty._pymarty import Index as Index
@@ -29,6 +30,7 @@ from pymarty._pymarty import epsilon as epsilon
 from pymarty._pymarty import exp as exp
 from pymarty._pymarty import infinity as infinity
 from pymarty._pymarty import log as log
+from pymarty._pymarty import make_abbreviation as make_abbreviation
 from pymarty._pymarty import metric as metric
 from pymarty._pymarty import modulus as modulus
 from pymarty._pymarty import pi as pi
@@ -45,6 +47,7 @@ from pymarty._pymarty import variable as variable
 __all__ = [
     "DEFAULT_INDEX_NAMES",
     "ComplexProperty",
+    "EvalMode",
     "Euclid_R2",
     "Euclid_R3",
     "Euclid_R4",
@@ -73,6 +76,7 @@ __all__ = [
     "exp",
     "infinity",
     "log",
+    "make_abbreviation",
     "metric",
     "modulus",
     "pi",

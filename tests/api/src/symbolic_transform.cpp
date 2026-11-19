@@ -215,3 +215,32 @@ TEST(SymbolicApi, ImagPartOfRealSymbol)
 
     EXPECT_TRUE(csl::api::imagPart(x).equals(num(0)));
 }
+
+TEST(SymbolicApi, EvaluateAllExpandsAbbreviations)
+{
+    auto a  = ExprHandle::variable("a");
+    auto b  = ExprHandle::variable("b");
+    auto ab = csl::api::makeAbbreviation("Tab", a * b);
+    EXPECT_TRUE(csl::api::evaluated(num(3) * ab, {}, csl::api::EvalMode::All)
+                    .equals(num(3) * a * b));
+}
+
+TEST(SymbolicApi, EvaluateAbbreviationModeExpandsNestedAbbreviations)
+{
+    auto a     = ExprHandle::variable("a");
+    auto b     = ExprHandle::variable("b");
+    auto inner = csl::api::makeAbbreviation("Tin", a + b);
+    auto outer = csl::api::makeAbbreviation("Tout", num(2) * inner);
+    EXPECT_TRUE(
+        csl::api::evaluated(outer, {}, csl::api::EvalMode::Abbreviation)
+            .equals(num(2) * (a + b)));
+}
+
+TEST(SymbolicApi, EvaluateBaseModeKeepsAbbreviations)
+{
+    auto a  = ExprHandle::variable("a");
+    auto b  = ExprHandle::variable("b");
+    auto ab = csl::api::makeAbbreviation("Tkeep", a * b);
+    EXPECT_TRUE(
+        csl::api::evaluated(ab, {}, csl::api::EvalMode::Base).equals(ab));
+}

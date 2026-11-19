@@ -70,16 +70,42 @@ using NamedValue = std::pair<std::string, ExprHandle>;
 replaced(ExprHandle const                &expr,
          std::vector<Substitution> const &substitutions);
 
-/// Python: `evaluate(mapping)`. Replaces the symbols by their values, then
-/// evaluates the numerical operations. Free symbols are kept.
-[[nodiscard]] ExprHandle evaluated(ExprHandle const                &expr,
-                                   std::vector<Substitution> const &values);
+/// Evaluation modes of `evaluate`, one bit per CSL `eval` flag. Modes combine
+/// with `|`. `All` is the union of the other modes and is the default.
+enum class EvalMode : unsigned {
+    Base         = 0,
+    Literal      = 1,
+    Numerical    = 2,
+    Indicial     = 4,
+    Abbreviation = 8,
+    All          = 15
+};
 
-/// Python: `evaluate(**by_name)`. Each name is matched against the free
+constexpr EvalMode operator|(EvalMode lhs, EvalMode rhs)
+{
+    return static_cast<EvalMode>(static_cast<unsigned>(lhs)
+                                 | static_cast<unsigned>(rhs));
+}
+
+constexpr EvalMode operator&(EvalMode lhs, EvalMode rhs)
+{
+    return static_cast<EvalMode>(static_cast<unsigned>(lhs)
+                                 & static_cast<unsigned>(rhs));
+}
+
+/// Python: `evaluate(mapping, mode=...)`. Replaces the symbols by their
+/// values, then evaluates the operations selected by `mode`. Free symbols are
+/// kept.
+[[nodiscard]] ExprHandle evaluated(ExprHandle const                &expr,
+                                   std::vector<Substitution> const &values,
+                                   EvalMode mode = EvalMode::All);
+
+/// Python: `evaluate(**by_name, mode=...)`. Each name is matched against the free
 /// symbols of `expr`. Throws ValueError if a name matches several distinct
 /// symbols. A name that matches no symbol is ignored.
 [[nodiscard]] ExprHandle
-evaluatedByName(ExprHandle const &expr, std::vector<NamedValue> const &values);
+evaluatedByName(ExprHandle const &expr, std::vector<NamedValue> const &values,
+                EvalMode mode = EvalMode::All);
 
 /// Python: `conjugate()`. Complex conjugate (CSL `GetComplexConjugate`).
 [[nodiscard]] ExprHandle conjugated(ExprHandle const &expr);

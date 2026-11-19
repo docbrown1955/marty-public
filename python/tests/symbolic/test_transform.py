@@ -147,7 +147,7 @@ def test_evaluate_ambiguous_name_raises() -> None:
 def test_evaluate_rejects_two_positional_mappings() -> None:
     x = symbolic.variable("x")
     with pytest.raises(TypeError):
-        x.evaluate({x: 1}, {x: 2})  # type: ignore[call-arg]
+        x.evaluate({x: 1}, {x: 2})  # type: ignore[call-arg,arg-type]
 
 
 @pytest.mark.unit

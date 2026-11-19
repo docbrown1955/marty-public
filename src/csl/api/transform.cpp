@@ -122,16 +122,19 @@ ExprHandle replaced(ExprHandle const                &expr,
 }
 
 ExprHandle evaluated(ExprHandle const                &expr,
-                     std::vector<Substitution> const &values)
+                     std::vector<Substitution> const &values,
+                     EvalMode                         mode)
 {
     return detail::guarded("evaluation", [&] {
         ExprHandle const substituted = replacedInCopy(expr, values);
-        return ExprHandle(csl::Evaluated(substituted.raw(), csl::eval::all));
+        csl::eval::mode const cslMode(static_cast<unsigned>(mode));
+        return ExprHandle(csl::Evaluated(substituted.raw(), cslMode));
     });
 }
 
 ExprHandle evaluatedByName(ExprHandle const              &expr,
-                           std::vector<NamedValue> const &values)
+                           std::vector<NamedValue> const &values,
+                           EvalMode                       mode)
 {
     std::vector<ExprHandle> const symbols = freeSymbols(expr);
     std::vector<Substitution>     substitutions;
@@ -150,7 +153,7 @@ ExprHandle evaluatedByName(ExprHandle const              &expr,
             substitutions.emplace_back(matches.front(), value);
         }
     }
-    return evaluated(expr, substitutions);
+    return evaluated(expr, substitutions, mode);
 }
 
 ExprHandle conjugated(ExprHandle const &expr)

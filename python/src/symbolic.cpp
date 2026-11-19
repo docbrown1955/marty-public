@@ -356,25 +356,38 @@ True
                     throw py::type_error("evaluate takes at most one "
                                          "positional mapping");
                 }
-                ExprHandle result = self;
-                if (args.size() == 1) {
-                    py::object mapping = args[0];
-                    if (!mapping.is_none()) {
-                        result = csl::api::evaluated(result,
-                                                     substitutions(mapping));
+                csl::api::EvalMode mode = csl::api::EvalMode::All;
+                py::kwargs         names;
+                for (auto const &item : kwargs) {
+                    if (item.first.cast<std::string>() == "mode") {
+                        if (!py::isinstance<csl::api::EvalMode>(item.second)) {
+                            throw py::type_error(
+                                "evaluate: mode must be an EvalMode");
+                        }
+                        mode = item.second.cast<csl::api::EvalMode>();
+                    } else {
+                        names[item.first] = item.second;
                     }
                 }
-                if (!kwargs.empty()) {
+                std::vector<csl::api::Substitution> mapping;
+                if (args.size() == 1 && !args[0].is_none()) {
+                    mapping = substitutions(args[0]);
+                }
+                ExprHandle result = csl::api::evaluated(self, mapping, mode);
+                if (!names.empty()) {
                     result = csl::api::evaluatedByName(result,
-                                                       namedValues(kwargs));
+                                                       namedValues(names),
+                                                       mode);
                 }
                 return result;
             },
-            R"doc(Replaces symbols by values, then evaluates the numerical operations.
+            R"doc(Replaces symbols by values, then evaluates the operations selected by mode.
 Returns a new expression. Symbols that are not given are kept.
 
 Takes an optional mapping, as for replace(), and keyword arguments that give
-the values of symbols by name.
+the values of symbols by name. The keyword ``mode`` (an EvalMode, default
+``EvalMode.All``) selects the operations: with ``EvalMode.All`` the abbreviations
+are expanded too. A symbol named ``mode`` cannot be given by keyword.
 
 >>> x = variable("x")
 >>> (x**2 + 1).evaluate({x: 3}) == 10
@@ -698,6 +711,27 @@ void bindTensorFacade(py::module_ &m)
         .value("Free", IndexType::Free)
         .value("Dummy", IndexType::Dummy)
         .value("Fixed", IndexType::Fixed);
+
+    py::enum_<csl::api::EvalMode>(
+        m,
+        "EvalMode",
+        "Evaluation mode of evaluate(): the operations it performs. Modes combine "
+        "with | (for example EvalMode.Literal | EvalMode.Numerical). All is the "
+        "union of the other modes and the default.")
+        .value("Base", csl::api::EvalMode::Base)
+        .value("Literal", csl::api::EvalMode::Literal)
+        .value("Numerical", csl::api::EvalMode::Numerical)
+        .value("Indicial", csl::api::EvalMode::Indicial)
+        .value("Abbreviation", csl::api::EvalMode::Abbreviation)
+        .value("All", csl::api::EvalMode::All)
+        .def(
+            "__or__",
+            [](csl::api::EvalMode a, csl::api::EvalMode b) { return a | b; },
+            py::is_operator())
+        .def(
+            "__and__",
+            [](csl::api::EvalMode a, csl::api::EvalMode b) { return a & b; },
+            py::is_operator());
 
     py::class_<IndexWrapper>(m,
                              "Index",
@@ -1265,6 +1299,24 @@ True
         .value("Complex", csl::ComplexProperty::Complex)
         .value("Real", csl::ComplexProperty::Real)
         .value("Imaginary", csl::ComplexProperty::Imaginary);
+    m.def(
+        "make_abbreviation",
+        [](std::string const &name, ExprHandle const &expr) {
+            return csl::api::makeAbbreviation(name, expr);
+        },
+        py::arg("name"),
+        py::arg("expr"),
+        R"doc(Abbreviation named ``name`` standing for ``expr``.
+
+The abbreviation is an expression of its own. ``evaluate()`` replaces it by
+``expr``, and the abbreviations it contains are expanded too.
+
+>>> a = variable("a")
+>>> b = variable("b")
+>>> ab = make_abbreviation("ab", a * b)
+>>> (3 * ab).evaluate() == 3 * a * b
+True
+)doc");
     m.def(
         "constant",
         [](std::string const &name, csl::ComplexProperty complexProperty) {

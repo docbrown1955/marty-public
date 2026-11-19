@@ -28,6 +28,12 @@
 
 namespace csl::api {
 
+/// Abbreviation named `name` for `expr`. Python: `make_abbreviation(name,
+/// expr)`. Evaluating with `EvalMode::Abbreviation` (or `All`) replaces it by
+/// `expr`.
+[[nodiscard]] ExprHandle makeAbbreviation(std::string const &name,
+                                          ExprHandle const  &expr);
+
 /// Square root, `sqrt(e)`.
 [[nodiscard]] ExprHandle Sqrt(ExprHandle const &e);
 /// Absolute value, `abs(e)`.

@@ -15,6 +15,7 @@
 
 #include "functions.h"
 
+#include "../abreviation.h"
 #include "../abstract.h"
 #include "../mathFunctions.h"
 
@@ -32,6 +33,13 @@ applyUnary(std::string_view name, ExprHandle const &e, Function function)
 }
 
 } // namespace
+
+ExprHandle makeAbbreviation(std::string const &name, ExprHandle const &expr)
+{
+    return detail::guarded("abbreviation", [&] {
+        return ExprHandle(csl::Abbrev::makeAbbreviation(name, expr.raw()));
+    });
+}
 
 ExprHandle Sqrt(ExprHandle const &e)
 {

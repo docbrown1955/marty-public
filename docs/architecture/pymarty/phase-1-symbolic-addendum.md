@@ -158,18 +158,21 @@ indicial, abbreviation and all (`src/csl/evaluation.h:30-37`). `Evaluated(expr, 
 `INDICIAL`, `ABBREVIATION` and `ALL`, and `evaluate(mode=EvalMode.ALL)`. The C++ facade takes the
 mode as an argument. The default stays `ALL`, so behaviour does not change for existing callers.
 
-**Decision F (accepted).** Expose the eval mode as an `EvalMode` flag, default `ALL`, so existing
-behaviour is unchanged. `ABBREVIATION` is in scope, so abbreviation management is in scope for phase 1
-too. This supersedes the A11 exclusion in `phase-1/03-spec.md` (line 273). The abbreviation tests in
-the port table (rows 80-83, marked X) must be re-marked when they are ported.
+**Decision F (accepted and implemented).** `EvalMode` is a flag enum: modes combine with `|` and
+test with `&`. Members are `Base`, `Literal`, `Numerical`, `Indicial`, `Abbreviation` and `All`
+(Title case, as for `IndexType`). `All` is the union and the default, so `evaluate()` now expands
+abbreviations. `evaluate` takes
+`mode=` as a keyword, which is reserved and cannot be used as a variable name. `ABBREVIATION` is in
+scope, so abbreviation management is in scope for phase 1. This supersedes the A11 exclusion in
+`phase-1/03-spec.md` (line 273). Port-table rows 80-83 are now `ported`.
 
 ## G. Order of work
 
 1. User review of [python-porting-rules.md](python-porting-rules.md), section 9, and of this addendum.
    All decisions A to F are resolved, and so are C1 to C3. Setters are never ported.
    Abbreviation management is in phase 1 scope.
-2. Abbreviation management becomes its own work item, with failing tests first (rules section 3).
-3. Update [unported-features.md](unported-features.md) with the accepted statuses.
+2. Abbreviation management: done (`make_abbreviation`, `EvalMode`), tests first.
+3. [unported-features.md](unported-features.md) is updated with the accepted statuses.
 4. For each accepted item: failing tests first (rules section 3), then the C++ facade and the
    binding, then the Python layer. Run `ctest -L units` and `ctest -L integration` (and `api` for
    facade changes) after any C++ change. Never run the system suite.

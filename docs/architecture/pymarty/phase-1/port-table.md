@@ -101,10 +101,10 @@ Rule: a row is `ported` only when a Python test checks the same behaviour. Gaps 
 | 77 | test_latex.cpp | LatexPrintLatex.relabelDoesNotModifyTheInput | P | ported | `test_tensors.py::test_relabel_does_not_mutate` |
 | 78 | test_latex.cpp | LatexPrintLatex.freeIndicesAreRenamedToo | P+ | deferred to phase 2 (A3) | LaTeX index names are deferred (spec 10.2) |
 | 79 | test_latex.cpp | LatexNames.kroneckerDeltaHasLatexForm | P+ | deferred to phase 2 (A3) | LaTeX index names are deferred (spec 10.2) |
-| 80 | test_latex.cpp | EvaluatedAbbreviations.abbreviationIsReplacedByItsDefinition | X | n/a (out of scope) | abbreviation management is out of scope (A11) |
-| 81 | test_latex.cpp | EvaluatedAbbreviations.nestedAbbreviationsAreExpandedFully | X | n/a (out of scope) | abbreviation management is out of scope (A11) |
-| 82 | test_latex.cpp | EvaluatedAbbreviations.expressionWithoutAbbreviationsIsUnchanged | X | n/a (out of scope) | abbreviation management is out of scope (A11) |
-| 83 | test_latex.cpp | EvaluatedAbbreviations.inputIsNotModified | X | n/a (out of scope) | abbreviation management is out of scope (A11) |
+| 80 | test_latex.cpp | EvaluatedAbbreviations.abbreviationIsReplacedByItsDefinition | P | ported | `test_abbreviations.py::test_abbreviation_is_replaced_by_its_definition` |
+| 81 | test_latex.cpp | EvaluatedAbbreviations.nestedAbbreviationsAreExpandedFully | P | ported | `test_abbreviations.py::test_nested_abbreviations_are_expanded_fully` |
+| 82 | test_latex.cpp | EvaluatedAbbreviations.expressionWithoutAbbreviationsIsUnchanged | P | ported | `test_abbreviations.py::test_expression_without_abbreviations_is_unchanged` |
+| 83 | test_latex.cpp | EvaluatedAbbreviations.inputIsNotModified | P | ported | `test_abbreviations.py::test_expansion_does_not_modify_the_abbreviation` |
 | 84 | test_latex.cpp | LatexSignedIndices.metricWithEqualSignsIsG | P+ | deferred to phase 2 (A4) | signed indices are deferred except the Minkowski flip (spec 10.2) |
 | 85 | test_latex.cpp | LatexSignedIndices.freeDeltaIndicesAreRelabelledUpper | P+ | deferred to phase 2 (A4) | signed indices are deferred except the Minkowski flip (spec 10.2) |
 | 86 | test_latex.cpp | LatexSignedIndices.unsignedSpaceKeepsSubscripts | P+ | deferred to phase 2 (A4) | signed indices are deferred except the Minkowski flip (spec 10.2) |
