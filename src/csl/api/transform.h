@@ -47,11 +47,14 @@ using NamedValue = std::pair<std::string, ExprHandle>;
 /// left unchanged.
 [[nodiscard]] ExprHandle expanded(ExprHandle const &expr, bool full = true);
 
-/// Python: `Expr.rebuilt(arguments)`. A new expression of the same head with
-/// the given arguments, refreshed. Raises ValueError if the number of
-/// arguments differs from the current one.
-[[nodiscard]] ExprHandle rebuilt(ExprHandle const              &expr,
-                                 std::vector<ExprHandle> const &arguments);
+/// Python: `copy(deep=False)`. A new expression equal to `expr`; `deep` also
+/// copies the sub-expressions (CSL `DeepCopy`).
+[[nodiscard]] ExprHandle copied(ExprHandle const &expr, bool deep = false);
+
+/// Python: `refresh(deep=False)`. A new expression equal to `expr` with its
+/// canonical form restored; `deep` also refreshes the sub-expressions (CSL
+/// `DeepRefreshed`).
+[[nodiscard]] ExprHandle refreshed(ExprHandle const &expr, bool deep = false);
 
 /// Python: `factor(full=full)`. Factors the common factors out of sums.
 [[nodiscard]] ExprHandle factored(ExprHandle const &expr, bool full = false);

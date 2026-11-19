@@ -123,11 +123,16 @@ def test_visit_first_helpers_return_whether_a_match_was_visited() -> None:
 
 
 @pytest.mark.unit
-def test_rebuilt_replaces_arguments_and_checks_their_count() -> None:
+def test_distribute_if_keeps_function_nodes_whose_arguments_do_not_change() -> None:
+    x, y = variable("x"), variable("y")
+    assert distribute_if(sin(x + y), is_variable("z")) == sin(x + y)
+
+
+@pytest.mark.unit
+def test_distribute_if_raises_when_a_function_argument_changes() -> None:
     x, y, z = variable("x"), variable("y"), variable("z")
-    assert (x + y).rebuilt([x, z]).to_latex() == (x + z).to_latex()
-    with pytest.raises(ValueError):
-        (x + y).rebuilt([x])
+    with pytest.raises(NotImplementedError):
+        distribute_if(sin((x + y) * z), is_variable("z"))
 
 
 @pytest.mark.unit
@@ -189,7 +194,6 @@ CASES: dict[str, Callable[[], str]] = {
     "visit_first_node_w": lambda: str(visit_first_of_node(sample(), is_variable("w"))),
     "expand_product_nonfull": lambda: latex(((_x() + _y()) * _z()).expand(full=False)),
     "expand_square_nonfull": lambda: latex(((_x() + _y()) ** 2).expand(full=False)),
-    "rebuilt_sum": lambda: latex((_x() + _y()).rebuilt([_x(), _z()])),
     "distribute_if_z": lambda: latex(
         distribute_if((_x() + _y()) * _z(), is_variable("z"), full=False)
     ),

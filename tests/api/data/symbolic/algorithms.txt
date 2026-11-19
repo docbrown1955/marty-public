@@ -19,7 +19,6 @@ visit_first_leaf_y	True
 visit_first_node_w	False
 expand_product_nonfull	xz + yz
 expand_square_nonfull	\left(x + y\right)^{2}
-rebuilt_sum	x + z
 distribute_if_z	xz + yz
 distribute_if_none	\left(x + y\right)z
 distribute_if_full	x^{2} + xy + xz + yz

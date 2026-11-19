@@ -220,6 +220,27 @@ def _sum(terms: Iterable[Expr]) -> Expr:
     return reduce(operator.add, terms, ZERO)
 
 
+def _rebuilt(expr: Expr, args: Sequence[Expr]) -> Expr:
+    """``expr`` with new arguments, rebuilt with the operators of its head.
+
+    Returns ``expr`` itself when no argument changed. Only sums, products and
+    powers can be rebuilt; other nodes raise ``NotImplementedError``.
+    """
+    if len(args) == len(expr.args) and all(
+        new == old for new, old in zip(args, expr.args, strict=True)
+    ):
+        return expr
+    if expr.type == ExprType.Sum:
+        return _sum(args)
+    if expr.type == ExprType.Prod:
+        return _prod(args)
+    if expr.type == ExprType.Pow:
+        return args[0] ** args[1]
+    raise NotImplementedError(
+        f"rebuilding {expr.type.name} nodes with new arguments is not ported"
+    )
+
+
 def distribute_if(expr: Expr, predicate: Predicate, *, full: bool = True) -> Expr:
     """Distributes the factors satisfying the predicate over the sums they multiply.
 
@@ -243,18 +264,21 @@ def distribute_if(expr: Expr, predicate: Predicate, *, full: bool = True) -> Exp
                     args = list(expr.args)
                     args[i] = ONE
                     args[j] = (factor * other).expand(full=True)
-                    results.append(expr.rebuilt(args))
+                    results.append(_rebuilt(expr, args))
             if results:
                 total = _sum(results)
                 if total.type == ExprType.Sum:
-                    return total.rebuilt(
-                        [distribute_if(a, predicate, full=full) for a in total.args]
+                    return _rebuilt(
+                        total,
+                        [distribute_if(a, predicate, full=full) for a in total.args],
                     )
                 if full:
                     return distribute_if(total, predicate, full=True)
                 return total
     if full and expr.args:
-        return expr.rebuilt([distribute_if(a, predicate, full=full) for a in expr.args])
+        return _rebuilt(
+            expr, [distribute_if(a, predicate, full=full) for a in expr.args]
+        )
     return expr
 
 

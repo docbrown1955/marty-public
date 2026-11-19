@@ -4,7 +4,27 @@ import pytest
 
 from pymarty import symbolic
 from pymarty.errors import MartyTypeError, MartyValueError
-from pymarty.symbolic import Expr
+from pymarty.symbolic import Expr, sin
+
+
+@pytest.mark.unit
+def test_copy_returns_an_equal_new_expression() -> None:
+    x = symbolic.variable("x")
+    y = symbolic.variable("y")
+    expr = (x + y) ** 2
+    assert expr.copy() == expr
+    assert expr.copy() is not expr
+    assert expr.copy(deep=True) == expr
+
+
+@pytest.mark.unit
+def test_refresh_returns_an_equal_new_expression() -> None:
+    x = symbolic.variable("x")
+    y = symbolic.variable("y")
+    expr = x * y + sin(x)
+    assert expr.refresh() == expr
+    assert expr.refresh() is not expr
+    assert expr.refresh(deep=True) == expr
 
 
 @pytest.mark.unit

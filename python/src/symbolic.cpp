@@ -280,21 +280,39 @@ x^2 + 2*x*y + y^2
 (x + y)^2
 )doc")
         .def(
-            "rebuilt",
-            [](ExprHandle const              &self,
-               std::vector<ExprHandle> const &arguments) {
-                return csl::api::rebuilt(self, arguments);
+            "copy",
+            [](ExprHandle const &self, bool deep) {
+                return csl::api::copied(self, deep);
             },
-            py::arg("arguments"),
-            R"doc(Same head with the given arguments. Returns a new expression.
+            py::kw_only(),
+            py::arg("deep") = false,
+            R"doc(A new expression equal to this one. Returns a new expression.
 
-The number of arguments must match ``args``, otherwise ``ValueError`` is raised.
+``deep`` is a keyword-only flag, default False. With ``deep=True`` the
+sub-expressions are copied too.
 
 >>> x = variable("x")
 >>> y = variable("y")
->>> z = variable("z")
->>> print((x + y).rebuilt([x, z]))
-x + z
+>>> e = x + y
+>>> print(e.copy(deep=True))
+x + y
+)doc")
+        .def(
+            "refresh",
+            [](ExprHandle const &self, bool deep) {
+                return csl::api::refreshed(self, deep);
+            },
+            py::kw_only(),
+            py::arg("deep") = false,
+            R"doc(A new expression with its canonical form restored. Returns a new expression.
+
+``deep`` is a keyword-only flag, default False. With ``deep=True`` the
+sub-expressions are refreshed too.
+
+>>> x = variable("x")
+>>> y = variable("y")
+>>> print((x * y).refresh(deep=True))
+x*y
 )doc")
         .def(
             "factor",

@@ -120,7 +120,6 @@ std::vector<std::pair<std::string, std::string>> goldenValues()
          latex(csl::api::expanded((x + y) * z, false).raw())},
         {"expand_square_nonfull",
          latex(csl::api::expanded((x + y) * (x + y), false).raw())},
-        {"rebuilt_sum", latex(csl::api::rebuilt(x + y, {x, z}).raw())},
         {"distribute_if_z",
          latex(
              csl::DistributedIf(((x + y) * z).raw(), isVariable("z"), false))},

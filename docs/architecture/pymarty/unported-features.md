@@ -103,7 +103,8 @@ These take C++ function callbacks, so they cannot be ported by binding. Plan: Py
 | `AnyOfLeafs`, `AllOfLeafs`, `AnyOfNodes`, `AllOfNodes` | `src/csl/algo.h` | ported (`symbolic_algorithms.py`) | Parity: `SymbolicAlgorithmsApi.GoldenValuesStable`. |
 | `FindIfLeaf`, `FindIfNode`, `VisitEachNodeCut`, `VisitFirstOf*` | `src/csl/algo.h` | ported (`symbolic_algorithms.py`) | Same parity test. |
 | `expand` (full `ExpandAll`-style) | `src/csl/interface.cpp` | ported (`Expr.expand`) | Non-callback. |
-| `rebuilt` | `src/csl/api/transform.cpp` | ported (`Expr.rebuilt`) | Non-callback. |
+| `Copy`, `DeepCopy` | `src/csl/utils.h` | ported (`Expr.copy(deep=)`) | Non-callback. |
+| `Refreshed`, `DeepRefreshed` | `src/csl/utils.h` | ported (`Expr.refresh(deep=)`) | Non-callback. `rebuilt` was removed: the algorithms rebuild sums, products and powers with the operators, and raise `NotImplementedError` for other nodes whose arguments change. |
 | `ExpandIf` | `src/csl/operations.cpp` (`Prod::expand_if`, `Pow::expand_if`) | ported (`symbolic_algorithms.expand_if`) | Products and integer powers of sums. Other function nodes with arguments raise `NotImplementedError`: the `Exp`, scalar, duo and multi functions, vectorial and tensor-derivative overrides still need porting. |
 | `DistributeIf` | `src/csl/interface.cpp:256-290` | ported (`symbolic_algorithms.distribute_if`) | The CSL mutating overload now writes the result back (`expr = Refreshed(finalRes)`). Golden parity in `SymbolicAlgorithmsApi.GoldenValuesStable`. |
 

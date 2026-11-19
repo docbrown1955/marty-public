@@ -82,18 +82,19 @@ ExprHandle expanded(ExprHandle const &expr, bool full)
     });
 }
 
-ExprHandle rebuilt(ExprHandle const              &expr,
-                   std::vector<ExprHandle> const &arguments)
+ExprHandle copied(ExprHandle const &expr, bool deep)
 {
-    if (arguments.size() != expr.arguments().size())
-        throw ValueError("rebuilt: " + std::to_string(expr.arguments().size())
-                         + " arguments expected, "
-                         + std::to_string(arguments.size()) + " given");
-    return detail::guarded("rebuilt", [&] {
-        csl::Expr copy = csl::Copy(expr.raw());
-        for (std::size_t i = 0; i != arguments.size(); ++i)
-            copy->setArgument(arguments[i].raw(), i);
-        return ExprHandle(csl::Refreshed(copy));
+    return detail::guarded("copy", [&] {
+        return ExprHandle(deep ? csl::DeepCopy(expr.raw())
+                               : csl::Copy(expr.raw()));
+    });
+}
+
+ExprHandle refreshed(ExprHandle const &expr, bool deep)
+{
+    return detail::guarded("refresh", [&] {
+        return ExprHandle(deep ? csl::DeepRefreshed(expr.raw())
+                               : csl::Refreshed(expr.raw()));
     });
 }
 
