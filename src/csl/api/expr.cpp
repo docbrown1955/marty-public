@@ -236,6 +236,30 @@ ExprHandle ExprHandle::numericalFactor() const
     });
 }
 
+long long ExprHandle::numerator() const
+{
+    auto const num = number();
+    if (not num
+        or (num->kind != NumberKind::Integer
+            and num->kind != NumberKind::Rational)) {
+        throw TypeError("numerator: expression is not an integer or a "
+                        "rational");
+    }
+    return num->num;
+}
+
+long long ExprHandle::denominator() const
+{
+    auto const num = number();
+    if (not num
+        or (num->kind != NumberKind::Integer
+            and num->kind != NumberKind::Rational)) {
+        throw TypeError("denominator: expression is not an integer or a "
+                        "rational");
+    }
+    return num->den;
+}
+
 bool ExprHandle::valued() const
 {
     if (auto const num = number())

@@ -112,3 +112,13 @@ def test_call_on_non_derivative_expression_is_type_error() -> None:
     mu = euclid.index("mu")
     with pytest.raises(MartyTypeError):
         field(mu, point)(point(euclid.index("nu")))
+
+
+@pytest.mark.unit
+def test_tensor_field_read_only_getters() -> None:
+    point = symbolic.Space("Point", 3)
+    index = symbolic.Space("Index", 2)
+    field = symbolic.tensor_field("F", point, [index, point])
+    assert field.name == "F"
+    assert field.point_space.name == "Point"
+    assert [s.name for s in field.index_spaces] == ["Index", "Point"]

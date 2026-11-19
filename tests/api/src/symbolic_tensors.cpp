@@ -96,7 +96,7 @@ TEST(SymbolicTensors, SymmetricTensorPair)
     auto         a  = r3.index("a");
     auto         b  = r3.index("b");
     SymmetrySpec symmetric;
-    symmetric.pairs.emplace_back(0, 1);
+    symmetric.fully = true;
     TensorHandle S("S", {r3, r3}, symmetric);
     EXPECT_TRUE(S({a, b}).equals(S({b, a})));
 }
@@ -107,7 +107,7 @@ TEST(SymbolicTensors, AntisymmetricTensorPair)
     auto         a  = r3.index("a");
     auto         b  = r3.index("b");
     SymmetrySpec antisymmetric;
-    antisymmetric.pairs.emplace_back(0, 1);
+    antisymmetric.fully = true;
     TensorHandle A("A", {r3, r3}, {}, antisymmetric);
     ExprHandle   minusAba = ExprHandle::integer(-1) * A({b, a});
     EXPECT_TRUE(A({a, b}).equals(minusAba));
@@ -235,4 +235,41 @@ TEST(SymbolicTensors, IndexAccessorsOfNonIndicialExpressions)
     ASSERT_EQ(csl::api::indexStructure(product).size(), 1U);
     EXPECT_EQ(csl::api::indexStructure(product)[0].name(), "a");
     EXPECT_TRUE(csl::api::indexStructure(ExprHandle::variable("x")).empty());
+}
+
+TEST(SymbolicTensors, TensorAccessorsAreReadOnlyGetters)
+{
+    SpaceHandle  big("Big", 3, {"b"});
+    SpaceHandle  small("Small", 2, {"s"});
+    TensorHandle S("S", {big, small});
+    EXPECT_EQ(S.name(), "S");
+    ASSERT_EQ(S.spaces().size(), 2U);
+    EXPECT_EQ(S.spaces()[0].name(), "Big");
+    EXPECT_EQ(S.spaces()[1].name(), "Small");
+    EXPECT_FALSE(S.fullySymmetric());
+    EXPECT_FALSE(S.fullyAntiSymmetric());
+
+    SymmetrySpec symmetric;
+    symmetric.fully = true;
+    TensorHandle T("T", {big, big}, symmetric);
+    EXPECT_TRUE(T.fullySymmetric());
+    EXPECT_FALSE(T.fullyAntiSymmetric());
+
+    SymmetrySpec antisymmetric;
+    antisymmetric.fully = true;
+    TensorHandle A("A", {big, big}, {}, antisymmetric);
+    EXPECT_TRUE(A.fullyAntiSymmetric());
+    EXPECT_FALSE(A.fullySymmetric());
+}
+
+TEST(SymbolicTensors, TensorFieldAccessorsAreReadOnlyGetters)
+{
+    SpaceHandle                 point("Point", 3, {"p"});
+    SpaceHandle                 index("Index", 2, {"x"});
+    csl::api::TensorFieldHandle F("F", point, {index, point});
+    EXPECT_EQ(F.name(), "F");
+    EXPECT_EQ(F.pointSpace().name(), "Point");
+    ASSERT_EQ(F.indexSpaces().size(), 2U);
+    EXPECT_EQ(F.indexSpaces()[0].name(), "Index");
+    EXPECT_EQ(F.indexSpaces()[1].name(), "Point");
 }

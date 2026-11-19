@@ -6,6 +6,7 @@ from fractions import Fraction
 import pytest
 
 from pymarty import symbolic
+from pymarty.errors import MartyTypeError
 from pymarty.symbolic import Expr
 
 
@@ -209,3 +210,21 @@ def test_expr_rejects_bool_and_str(value: object) -> None:
 def test_expr_rejects_unconvertible_value() -> None:
     with pytest.raises(ValueError):
         Expr(object())
+
+
+@pytest.mark.unit
+@pytest.mark.parity("SymbolicApi.NumeratorAndDenominatorOfIntegersAndRationals")
+def test_numerator_and_denominator_of_integers_and_rationals() -> None:
+    assert Expr(Fraction(3, 4)).numerator == 3
+    assert Expr(Fraction(3, 4)).denominator == 4
+    assert Expr(5).numerator == 5
+    assert Expr(5).denominator == 1
+
+
+@pytest.mark.unit
+@pytest.mark.parity("SymbolicApi.NumeratorOfNonRationalThrows")
+def test_numerator_of_non_rational_raises() -> None:
+    with pytest.raises(MartyTypeError):
+        _ = Expr(1.5).numerator
+    with pytest.raises(MartyTypeError):
+        _ = symbolic.variable("x").denominator

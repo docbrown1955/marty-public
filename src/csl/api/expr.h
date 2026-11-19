@@ -110,6 +110,10 @@ class ExprHandle {
 
     /// Exact numerical value, or nothing if the expression is not a number.
     [[nodiscard]] std::optional<Number> number() const;
+    /// Numerator of an integer or rational. Throws TypeError otherwise.
+    [[nodiscard]] long long numerator() const;
+    /// Denominator of an integer (1) or rational. Throws TypeError otherwise.
+    [[nodiscard]] long long denominator() const;
     /// True for a constant or a variable.
     [[nodiscard]] bool isSymbol() const;
     /// Identity of the symbol: the address of its parent. Requires isSymbol().

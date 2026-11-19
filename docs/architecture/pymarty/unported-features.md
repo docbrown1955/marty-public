@@ -37,7 +37,7 @@ All of these are unported unless noted. Error model: rules section 8 (addendum d
 |-------|-------------|--------|
 | Structure | `getArgument`, `getArguments`, `getNArgs`, `getOperand`, `getFactors`, `getTerm`, `getExponents`, `getNumericalFactor` | ported as `argument`, `args` (and `len(args)` for `getNArgs`), `operand`, `factors`, `term`, `exponents`, `numerical_factor`. `getSum` and `getProduct` are unported: they exist only on `Vectorial` (`src/csl/vector.h:144-146`), not on `Expr`. |
 | Index access | `getNIndices`, `getIndex`, `getIndexStructure`, `getFreeIndexStructure` | ported as `index_count`, `index(i)` and `index_structure`. `index_count` is 0 for non-indicial expressions (only `TensorElement` overrides `getNIndices`). `index(i)` raises `MartyLookupError` when out of range. `index_structure` is the raw CSL structure, with repetitions, and is empty for expressions without indices. `getFreeIndexStructure` stays covered by `free_indices`. |
-| Numerical parts | `getNum`, `getDenom`, `getSign`, `getParity`, `getOrder` | unported. `getNum` returns 0 silently on wrong kind (`src/csl/abstract.cpp:189-192`). |
+| Numerical parts | `getNum`, `getDenom`, `getSign`, `getParity`, `getOrder` | `numerator` and `denominator` ported (rationals and integers; integers have denominator 1; other kinds raise `MartyTypeError`). The rest is unported. CSL `getNum` returns 0 silently on wrong kind (`src/csl/abstract.cpp:189-192`), so the facade raises instead. |
 | Complex parts | `getRealPart`, `getImaginaryPart`, `getComplexArgument`, `getComplexModulus`, `getComplexConjugate`, `getTransposed`, `getPolynomialTerm` | unported |
 | Values and types | `getValued`, `getValue`, `getType`, `getPrimaryType`, `getName`, `getLatexName`, `getShape`, `getDim` | ported as `valued`, `value`, `type` (`ExprType`), `primary_type` (`PrimaryType`), `dim`, `shape`, `latex_name`. `getName` is not re-bound: the existing `name` property already covers it, but it raises `MartyTypeError` on non-symbols whereas CSL returns `""`. `value` raises `MartyTypeError` when not valued; `valued` is true for real numbers and valued constants or variables. |
 | Symmetry and contraction | `getPermutations`, `getCanonicalPermutation`, `getContractedPair`, `getNContractedPairs`, `getContractionProperties`, `getNFactor` | unported |
@@ -83,9 +83,10 @@ principle 5). Decision: addendum C2.
 | Object | CSL reference | Accessor status | Notes |
 |--------|---------------|-----------------|-------|
 | `AbstractParent` | `src/csl/parent.h:93+` | unported (read-only getters: `getSpace`, `getBaseName`, `getEncapsulated`, `getFieldSpace`, `getTensor`) | |
-| `TensorParent` | `src/csl/indicial.h:242+` | unported (getters: `getSpace`, `getSymmetry`, `getFullySymmetric`, `getFullyAntiSymmetric`, `getPermutation`, `getTensor`, `getTrace`, `getDim`, `getType`, `getPrimaryType`, `isValued`, `isTraceLessIn`) | `getTensor` and `getTrace` may be exempt from Python; see addendum. |
-| `TensorField` | `src/csl/tensorField.h:34-139` | unported (getters: `getFieldSpace`, `getPoint`, `getArgument`, `getOperand`, `getIndexStructure`, `getSubSymbols`, `getLatexPointSuffix`, `getComplexConjugate`, `getPrimaryType`, `getType`, `isIndexed`) | |
-| `Tensor` | `src/csl/api/` | `__call__` only (ported); no accessors | |
+| `TensorParent` | `src/csl/indicial.h:242+` | partial: `Tensor.name`, `spaces`, `fully_symmetric`, `fully_antisymmetric` ported. Unported: `getSymmetry`, `getPermutation`, `getTensor`, `getTrace`, `getDim`, `getType`, `getPrimaryType`, `isValued`, `isTraceLessIn` | `getTensor` and `getTrace` may be exempt from Python; see addendum. `getPermutation` and `getSymmetry` need a design for symmetry specs. |
+| `TensorField` | `src/csl/tensorField.h:34-139` | partial: `TensorField.name`, `point_space`, `index_spaces` ported. Unported: `getArgument`, `getOperand`, `getIndexStructure`, `getSubSymbols`, `getLatexPointSuffix`, `getComplexConjugate`, `getPrimaryType`, `getType`, `isIndexed` | |
+| `Space` | `src/csl/space.h` | `name` and `dimension` ported | |
+| `Tensor` | `src/csl/api/` | `__call__` and read-only getters above (ported) | |
 | `TensorDerivative` | `d(mu, X)` | `__call__` only (ported) | Rule in `AGENTS.md`: `d(mu, X)(operand)` only. |
 
 ## 5. Callback-based algorithms

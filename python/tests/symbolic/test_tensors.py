@@ -506,3 +506,20 @@ def test_renaming_maps_free_indices_to_new_names() -> None:
         ("j", "beta"),
     ]
     assert all(old.type == symbolic.IndexType.Free for old in renaming)
+
+
+@pytest.mark.unit
+def test_tensor_read_only_getters() -> None:
+    big = symbolic.Space("Big", 3)
+    small = symbolic.Space("Small", 2)
+    plain = symbolic.tensor("S", [big, small])
+    assert plain.name == "S"
+    assert [s.name for s in plain.spaces] == ["Big", "Small"]
+    assert plain.fully_symmetric is False
+    assert plain.fully_antisymmetric is False
+    sym = symbolic.tensor("T", [big, big], symmetric=True)
+    assert sym.fully_symmetric is True
+    assert sym.fully_antisymmetric is False
+    anti = symbolic.tensor("A", [big, big], antisymmetric=True)
+    assert anti.fully_antisymmetric is True
+    assert anti.fully_symmetric is False

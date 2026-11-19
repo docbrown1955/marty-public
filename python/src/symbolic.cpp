@@ -927,6 +927,8 @@ from it, in order.
 )doc")
         .def_property_readonly(
             "dimension", &SpaceHandle::dimension, "Dimension of the space.")
+        .def_property_readonly(
+            "name", &SpaceHandle::name, "Name of the space.")
         .def(
             "index",
             [](py::object const &self, py::object const &name) {
@@ -1010,6 +1012,19 @@ to the space of its position.
 >>> T(i, j) == T(j, i)
 True
 )doc")
+        .def_property_readonly(
+            "name", &TensorHandle::name, "Name of the tensor.")
+        .def_property_readonly("spaces",
+                               &TensorHandle::spaces,
+                               "Index spaces of the tensor, one per index "
+                               "position.")
+        .def_property_readonly("fully_symmetric",
+                               &TensorHandle::fullySymmetric,
+                               "True if all index positions are symmetric.")
+        .def_property_readonly("fully_antisymmetric",
+                               &TensorHandle::fullyAntiSymmetric,
+                               "True if all index positions are "
+                               "antisymmetric.")
         .def(
             "__call__",
             [](TensorHandle const &self, py::args args) {
@@ -1065,6 +1080,15 @@ tensor_field().
 Call it with one index per space of the field, then the point, a rank-1 Tensor
 in the point space, to get an element.
 )doc")
+        .def_property_readonly(
+            "name", &TensorFieldHandle::name, "Name of the field.")
+        .def_property_readonly("point_space",
+                               &TensorFieldHandle::pointSpace,
+                               "Space of the point the field depends on.")
+        .def_property_readonly("index_spaces",
+                               &TensorFieldHandle::indexSpaces,
+                               "Index spaces of the field, one per index "
+                               "position.")
         .def(
             "__call__",
             [](TensorFieldHandle const &self, py::args args) {
@@ -1438,6 +1462,26 @@ True
 >>> x, y, z = variable("x"), variable("y"), variable("z")
 >>> [str(e) for e in (x**2 * y).exponents([x, y, z])]
 ['2', '1', '0']
+)doc")
+        .def_property_readonly(
+            "numerator",
+            [](ExprHandle const &self) { return self.numerator(); },
+            R"doc(Numerator of an integer or rational. MartyTypeError for other expressions.
+
+>>> variable("x").numerator
+Traceback (most recent call last):
+    ...
+pymarty.errors.MartyTypeError: numerator: expression is not an integer or a rational
+)doc")
+        .def_property_readonly(
+            "denominator",
+            [](ExprHandle const &self) { return self.denominator(); },
+            R"doc(Denominator of an integer (1) or rational. MartyTypeError for other expressions.
+
+>>> variable("x").denominator
+Traceback (most recent call last):
+    ...
+pymarty.errors.MartyTypeError: denominator: expression is not an integer or a rational
 )doc")
         .def_property_readonly(
             "valued",

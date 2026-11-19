@@ -263,6 +263,22 @@ TEST(SymbolicApi, ValueOfNumberAndValuedFlag)
     EXPECT_FALSE(x.valued());
 }
 
+TEST(SymbolicApi, NumeratorAndDenominatorOfIntegersAndRationals)
+{
+    EXPECT_EQ(ExprHandle::rational(3, 4).numerator(), 3);
+    EXPECT_EQ(ExprHandle::rational(3, 4).denominator(), 4);
+    EXPECT_EQ(ExprHandle::integer(5).numerator(), 5);
+    EXPECT_EQ(ExprHandle::integer(5).denominator(), 1);
+}
+
+TEST(SymbolicApi, NumeratorOfNonRationalThrows)
+{
+    EXPECT_THROW(static_cast<void>(ExprHandle::real(1.5).numerator()),
+                 csl::api::TypeError);
+    EXPECT_THROW(static_cast<void>(ExprHandle::variable("x").denominator()),
+                 csl::api::TypeError);
+}
+
 TEST(SymbolicApi, ValueOfSymbolThrows)
 {
     auto x = ExprHandle::variable("x");

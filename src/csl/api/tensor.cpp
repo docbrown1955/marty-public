@@ -241,6 +241,11 @@ int SpaceHandle::dimension() const
     return m_space->getDim();
 }
 
+std::string SpaceHandle::name() const
+{
+    return m_space->getName();
+}
+
 IndexHandle SpaceHandle::index(std::string const &name) const
 {
     if (name.empty())
@@ -400,6 +405,26 @@ std::size_t TensorHandle::rank() const
     return m_spaces.size();
 }
 
+std::string TensorHandle::name() const
+{
+    return m_tensor->getName();
+}
+
+std::vector<SpaceHandle> const &TensorHandle::spaces() const
+{
+    return m_spaces;
+}
+
+bool TensorHandle::fullySymmetric() const
+{
+    return m_tensor->getFullySymmetric();
+}
+
+bool TensorHandle::fullyAntiSymmetric() const
+{
+    return m_tensor->getFullyAntiSymmetric();
+}
+
 csl::Tensor const &TensorHandle::raw() const
 {
     return m_tensor;
@@ -433,6 +458,21 @@ TensorFieldHandle::TensorFieldHandle(std::string const &name,
       m_spaces(spaces),
       m_field(makeField(name, m_pointSpace, m_spaces))
 {
+}
+
+std::string TensorFieldHandle::name() const
+{
+    return m_field->getName();
+}
+
+SpaceHandle const &TensorFieldHandle::pointSpace() const
+{
+    return m_pointSpace;
+}
+
+std::vector<SpaceHandle> const &TensorFieldHandle::indexSpaces() const
+{
+    return m_spaces;
 }
 
 ExprHandle

@@ -77,6 +77,8 @@ class SpaceHandle {
     [[nodiscard]] static SpaceHandle euclid4();
 
     [[nodiscard]] int dimension() const;
+    /*! \brief Name of the space. */
+    [[nodiscard]] std::string name() const;
 
     /*! \brief Free index with name \p name. */
     [[nodiscard]] IndexHandle index(std::string const &name) const;
@@ -165,6 +167,15 @@ class TensorHandle {
 
     [[nodiscard]] std::size_t rank() const;
 
+    /*! \brief Name of the tensor. */
+    [[nodiscard]] std::string name() const;
+    /*! \brief Index spaces, one per index position. */
+    [[nodiscard]] std::vector<SpaceHandle> const &spaces() const;
+    /*! \brief True if all index positions are symmetric. */
+    [[nodiscard]] bool fullySymmetric() const;
+    /*! \brief True if all index positions are antisymmetric. */
+    [[nodiscard]] bool fullyAntiSymmetric() const;
+
     /*! \brief Element of the tensor. The indices must match the spaces of the
      * tensor, position by position. */
     [[nodiscard]] ExprHandle
@@ -188,6 +199,13 @@ class TensorFieldHandle {
     TensorFieldHandle(std::string const              &name,
                       SpaceHandle const              &pointSpace,
                       std::vector<SpaceHandle> const &spaces);
+
+    /*! \brief Name of the field. */
+    [[nodiscard]] std::string name() const;
+    /*! \brief Space of the point the field depends on. */
+    [[nodiscard]] SpaceHandle const &pointSpace() const;
+    /*! \brief Index spaces, one per index position (empty for a scalar). */
+    [[nodiscard]] std::vector<SpaceHandle> const &indexSpaces() const;
 
     /*! \brief Element of the field at \p point. ValueError if the indices do
      * not match the index spaces, or if the point is not a rank-1 tensor of
