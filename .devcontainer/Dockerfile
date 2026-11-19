@@ -31,6 +31,7 @@ RUN apt-get update && \
         python3 \
         python3-pip \
         python3-venv \
+        clang-format \
         ca-certificates && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
