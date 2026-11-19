@@ -37,8 +37,8 @@ All of these are unported unless noted. Error model: rules section 8 (addendum d
 |-------|-------------|--------|
 | Structure | `getArgument`, `getArguments`, `getNArgs`, `getOperand`, `getFactors`, `getTerm`, `getExponents`, `getNumericalFactor` | ported as `argument`, `args` (and `len(args)` for `getNArgs`), `operand`, `factors`, `term`, `exponents`, `numerical_factor`. `getSum` and `getProduct` are unported: they exist only on `Vectorial` (`src/csl/vector.h:144-146`), not on `Expr`. |
 | Index access | `getNIndices`, `getIndex`, `getIndexStructure`, `getFreeIndexStructure` | ported as `index_count`, `index(i)` and `index_structure`. `index_count` is 0 for non-indicial expressions (only `TensorElement` overrides `getNIndices`). `index(i)` raises `MartyLookupError` when out of range. `index_structure` is the raw CSL structure, with repetitions, and is empty for expressions without indices. `getFreeIndexStructure` stays covered by `free_indices`. |
-| Numerical parts | `getNum`, `getDenom`, `getSign`, `getParity`, `getOrder` | `numerator` and `denominator` ported (rationals and integers; integers have denominator 1; other kinds raise `MartyTypeError`). The rest is unported. CSL `getNum` returns 0 silently on wrong kind (`src/csl/abstract.cpp:189-192`), so the facade raises instead. |
-| Complex parts | `getRealPart`, `getImaginaryPart`, `getComplexArgument`, `getComplexModulus`, `getComplexConjugate`, `getTransposed`, `getPolynomialTerm` | unported |
+| Numerical parts | `getNum`, `getDenom`, `getSign`, `getParity`, `getOrder` | `numerator` and `denominator` ported (rationals and integers; integers have denominator 1; other kinds raise `MartyTypeError`). `getSign` and `getOrder` are unported: their `Abstract` default throws, and only `Commutator`, `Polynomial` and `Derivative` override them. `getParity` is unported. CSL `getNum` returns 0 silently on wrong kind (`src/csl/abstract.cpp:189-192`), so the facade raises instead. |
+| Complex parts | `getRealPart`, `getImaginaryPart`, `getComplexArgument`, `getComplexModulus`, `getComplexConjugate`, `getTransposed`, `getPolynomialTerm` | Evaluated transforms already exist: `conjugate()`, `real_part()`, `imag_part()`, `modulus`, `argument`. The raw accessors are unported. `getTransposed` takes a `Space*` (needs `tensor.h`), and `getPolynomialTerm` needs a variable and an order. |
 | Values and types | `getValued`, `getValue`, `getType`, `getPrimaryType`, `getName`, `getLatexName`, `getShape`, `getDim` | ported as `valued`, `value`, `type` (`ExprType`), `primary_type` (`PrimaryType`), `dim`, `shape`, `latex_name`. `getName` is not re-bound: the existing `name` property already covers it, but it raises `MartyTypeError` on non-symbols whereas CSL returns `""`. `value` raises `MartyTypeError` when not valued; `valued` is true for real numbers and valued constants or variables. |
 | Symmetry and contraction | `getPermutations`, `getCanonicalPermutation`, `getContractedPair`, `getNContractedPairs`, `getContractionProperties`, `getNFactor` | unported |
 | Boundaries and ranges | `getInfBoundary`, `getSupBoundary`, `getRegularExpression` | unported |
@@ -48,9 +48,13 @@ All of these are unported unless noted. Error model: rules section 8 (addendum d
 
 ### 2.2 Predicates
 
-`isReal`, `isPurelyImaginary`, `isInteger`, `isIndexed`, `isPolynomial`, `isEmpty`, `isArbitrary`,
-`isBuildingBlock`, and the other `is*` and `has*` virtuals in `src/csl/Abstract.h`. Status:
-unported. Group them in the Python API by role (Python naming in rules section 4).
+Ported as read-only properties: `is_building_block`, `is_arbitrary`, `is_indexed`, `is_real`,
+`is_purely_imaginary`, `is_complex_conjugate`, `is_hermitian_conjugate`, `is_integer`, `is_an_operator`.
+
+Unported:
+- `isEmpty`: its `Abstract` default throws (`src/csl/abstract.cpp:623`), and only `Operator` overrides it.
+- `isPolynomial` and the `has*` virtuals (`hasContractionProperty` takes an `Expr_info`, so it needs a
+  design before porting).
 
 ### 2.3 Setters (never ported)
 

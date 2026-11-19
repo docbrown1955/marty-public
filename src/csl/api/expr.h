@@ -158,6 +158,25 @@ class ExprHandle {
     /// LaTeX name of the expression, empty when it has none.
     [[nodiscard]] std::string latexName() const;
 
+    /// Building block (symbol, number or tensor element), as CSL reports it.
+    [[nodiscard]] bool isBuildingBlock() const;
+    /// Arbitrary symbol (CSL Abstract::isArbitrary).
+    [[nodiscard]] bool isArbitrary() const;
+    /// True for an expression carrying indices.
+    [[nodiscard]] bool isIndexed() const;
+    /// True when CSL considers the expression real.
+    [[nodiscard]] bool isReal() const;
+    /// True for an expression purely imaginary.
+    [[nodiscard]] bool isPurelyImaginary() const;
+    /// True for a complex conjugate operator.
+    [[nodiscard]] bool isComplexConjugate() const;
+    /// True for a hermitian conjugate operator.
+    [[nodiscard]] bool isHermitianConjugate() const;
+    /// True for an integer number.
+    [[nodiscard]] bool isInteger() const;
+    /// True for an operator (derivative, conjugate, ...).
+    [[nodiscard]] bool isAnOperator() const;
+
   private:
     Expr m_expr;
 };

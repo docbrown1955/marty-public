@@ -1548,6 +1548,82 @@ True
 'x'
 >>> (variable("x") + variable("y")).latex_name
 ''
+)doc")
+        .def_property_readonly(
+            "is_building_block",
+            [](ExprHandle const &self) { return self.isBuildingBlock(); },
+            R"doc(True for a building block (symbol, number or tensor element).
+
+>>> variable("x").is_building_block
+True
+)doc")
+        .def_property_readonly(
+            "is_arbitrary",
+            [](ExprHandle const &self) { return self.isArbitrary(); },
+            R"doc(True for an arbitrary symbol.
+
+>>> variable("x").is_arbitrary
+False
+)doc")
+        .def_property_readonly(
+            "is_indexed",
+            [](ExprHandle const &self) { return self.isIndexed(); },
+            R"doc(True for an expression carrying indices.
+
+>>> variable("x").is_indexed
+False
+)doc")
+        .def_property_readonly(
+            "is_real",
+            [](ExprHandle const &self) { return self.isReal(); },
+            R"doc(True when the expression is real.
+
+>>> Expr(1.5).is_real
+True
+)doc")
+        .def_property_readonly(
+            "is_purely_imaginary",
+            [](ExprHandle const &self) { return self.isPurelyImaginary(); },
+            R"doc(True for a purely imaginary expression.
+
+>>> Expr(1.5).is_purely_imaginary
+False
+)doc")
+        .def_property_readonly(
+            "is_complex_conjugate",
+            [](ExprHandle const &self) { return self.isComplexConjugate(); },
+            R"doc(True for a complex conjugate operator.
+
+>>> variable("z", complex_property=ComplexProperty.Complex).conjugate().is_complex_conjugate
+True
+)doc")
+        .def_property_readonly(
+            "is_hermitian_conjugate",
+            [](ExprHandle const &self) { return self.isHermitianConjugate(); },
+            R"doc(True for a hermitian conjugate operator.
+
+>>> variable("x").is_hermitian_conjugate
+False
+)doc")
+        .def_property_readonly(
+            "is_integer",
+            [](ExprHandle const &self) { return self.isInteger(); },
+            R"doc(True for an integer number.
+
+>>> Expr(3).is_integer
+True
+>>> Expr(1.5).is_integer
+False
+)doc")
+        .def_property_readonly(
+            "is_an_operator",
+            [](ExprHandle const &self) { return self.isAnOperator(); },
+            R"doc(True for an operator (derivative, conjugate, ...).
+
+>>> variable("z", complex_property=ComplexProperty.Complex).real_part().is_an_operator
+True
+>>> variable("x").is_an_operator
+False
 )doc");
     expr.def(
         "relabel_indices",

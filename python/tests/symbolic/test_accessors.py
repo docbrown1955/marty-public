@@ -1,9 +1,12 @@
 """Structure accessors of Expr: args, argument, operand, factors, term, exponents."""
 
+from fractions import Fraction
+
 import pytest
 
 from pymarty import symbolic
 from pymarty.errors import MartyTypeError
+from pymarty.symbolic import Expr
 
 
 @pytest.mark.unit
@@ -71,3 +74,28 @@ def test_factors_and_exponents_of_product() -> None:
     assert exps[0] == 2
     assert exps[1] == 1
     assert exps[2] == 0
+
+
+@pytest.mark.unit
+@pytest.mark.parity("SymbolicApi.PredicatesOfNumbersAndSymbols")
+def test_predicates_of_numbers_and_symbols() -> None:
+    x = symbolic.variable("x")
+    assert Expr(3).is_integer
+    assert Expr(3).is_real
+    assert not Expr(Fraction(1, 2)).is_integer
+    assert Expr(1.5).is_real
+    assert not Expr(1.5).is_integer
+    assert not Expr(3).is_indexed
+    assert not Expr(3).is_an_operator
+    assert not x.is_an_operator
+    assert not x.is_indexed
+
+
+@pytest.mark.unit
+@pytest.mark.parity("SymbolicApi.PredicatesOfOperators")
+def test_predicates_of_operators() -> None:
+    z = symbolic.variable("z", complex_property=symbolic.ComplexProperty.Complex)
+    assert z.conjugate().is_complex_conjugate
+    assert not z.is_complex_conjugate
+    assert z.real_part().is_an_operator
+    assert not z.is_an_operator

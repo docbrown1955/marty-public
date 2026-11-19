@@ -279,6 +279,29 @@ TEST(SymbolicApi, NumeratorOfNonRationalThrows)
                  csl::api::TypeError);
 }
 
+TEST(SymbolicApi, PredicatesOfNumbersAndSymbols)
+{
+    auto x = ExprHandle::variable("x");
+    EXPECT_TRUE(ExprHandle::integer(3).isInteger());
+    EXPECT_TRUE(ExprHandle::integer(3).isReal());
+    EXPECT_FALSE(ExprHandle::rational(1, 2).isInteger());
+    EXPECT_TRUE(ExprHandle::real(1.5).isReal());
+    EXPECT_FALSE(ExprHandle::real(1.5).isInteger());
+    EXPECT_FALSE(ExprHandle::integer(3).isIndexed());
+    EXPECT_FALSE(ExprHandle::integer(3).isAnOperator());
+    EXPECT_FALSE(x.isAnOperator());
+    EXPECT_FALSE(x.isIndexed());
+}
+
+TEST(SymbolicApi, PredicatesOfOperators)
+{
+    auto z = ExprHandle::variable("z", csl::ComplexProperty::Complex);
+    EXPECT_TRUE(conjugated(z).isComplexConjugate());
+    EXPECT_FALSE(z.isComplexConjugate());
+    EXPECT_TRUE(realPart(z).isAnOperator());
+    EXPECT_FALSE(z.isAnOperator());
+}
+
 TEST(SymbolicApi, ValueOfSymbolThrows)
 {
     auto x = ExprHandle::variable("x");

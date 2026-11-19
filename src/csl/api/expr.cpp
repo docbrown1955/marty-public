@@ -305,6 +305,51 @@ std::string ExprHandle::latexName() const
     return m_expr->getLatexName();
 }
 
+bool ExprHandle::isBuildingBlock() const
+{
+    return m_expr->isBuildingBlock();
+}
+
+bool ExprHandle::isArbitrary() const
+{
+    return m_expr->isArbitrary();
+}
+
+bool ExprHandle::isIndexed() const
+{
+    return m_expr->isIndexed();
+}
+
+bool ExprHandle::isReal() const
+{
+    return m_expr->isReal();
+}
+
+bool ExprHandle::isPurelyImaginary() const
+{
+    return m_expr->isPurelyImaginary();
+}
+
+bool ExprHandle::isComplexConjugate() const
+{
+    return m_expr->isComplexConjugate();
+}
+
+bool ExprHandle::isHermitianConjugate() const
+{
+    return m_expr->isHermitianConjugate();
+}
+
+bool ExprHandle::isInteger() const
+{
+    return m_expr->isInteger();
+}
+
+bool ExprHandle::isAnOperator() const
+{
+    return m_expr->isAnOperator();
+}
+
 std::optional<ExprHandle> ExprHandle::term() const
 {
     return detail::guarded("term", [&] {

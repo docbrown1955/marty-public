@@ -66,7 +66,8 @@ subject.
 | Constant | module attribute | `I`, `pi`, `e`, `infinity` |
 | Accessor without argument (read-only, total on its kind) | read-only property | `Expr.name`, `Expr.operand`, `Expr.free_indices`, `Tensor.name`, `Space.dimension` |
 | Accessor with argument | method | `Expr.argument(i)`, `Expr.index(i)`, `TensorParent.permutation(...)` |
-| Predicate on the subject | method | `Expr.depends_on(s)`, `Expr.is_real()` |
+| Predicate without argument | read-only property (`is_` prefix) | `Expr.is_real`, `Expr.is_integer` |
+| Predicate with argument | method | `Expr.depends_on(s)` |
 | Transformation of one object (returns a new object) | method | `expand`, `factor`, `collect`, `diff`, `replace`, `evaluate`, `relabel_indices` |
 | Operation with no privileged subject, or n-ary construction | free function | `sum_of(...)` if needed |
 | Callback algorithm (Python only) | free function in `symbolic_algorithms.py` (section 6) | |
