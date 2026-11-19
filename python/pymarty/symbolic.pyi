@@ -5,10 +5,12 @@ from pymarty._pymarty import Euclid_R3 as Euclid_R3
 from pymarty._pymarty import Euclid_R4 as Euclid_R4
 from pymarty._pymarty import EvalMode as EvalMode
 from pymarty._pymarty import Expr as Expr
+from pymarty._pymarty import ExprType as ExprType
 from pymarty._pymarty import I as I
 from pymarty._pymarty import Index as Index
 from pymarty._pymarty import IndexType as IndexType
 from pymarty._pymarty import Minkowski as Minkowski
+from pymarty._pymarty import PrimaryType as PrimaryType
 from pymarty._pymarty import Space as Space
 from pymarty._pymarty import Tensor as Tensor
 from pymarty._pymarty import TensorDerivative as TensorDerivative
@@ -53,8 +55,10 @@ __all__ = [
     "Euclid_R4",
     "I",
     "Expr",
+    "ExprType",
     "IndexType",
     "Minkowski",
+    "PrimaryType",
     "Space",
     "Tensor",
     "TensorDerivative",

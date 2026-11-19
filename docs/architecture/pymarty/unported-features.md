@@ -39,7 +39,7 @@ All of these are unported unless noted. Error model: rules section 8 (addendum d
 | Index access | `getNIndices`, `getIndex`, `getIndexStructure`, `getFreeIndexStructure` | unported |
 | Numerical parts | `getNum`, `getDenom`, `getSign`, `getParity`, `getOrder` | unported. `getNum` returns 0 silently on wrong kind (`src/csl/abstract.cpp:189-192`). |
 | Complex parts | `getRealPart`, `getImaginaryPart`, `getComplexArgument`, `getComplexModulus`, `getComplexConjugate`, `getTransposed`, `getPolynomialTerm` | unported |
-| Values and types | `getValued`, `getValue`, `getType`, `getPrimaryType`, `getName`, `getLatexName`, `getShape`, `getDim` | unported |
+| Values and types | `getValued`, `getValue`, `getType`, `getPrimaryType`, `getName`, `getLatexName`, `getShape`, `getDim` | ported as `valued`, `value`, `type` (`ExprType`), `primary_type` (`PrimaryType`), `dim`, `shape`, `latex_name`. `getName` is not re-bound: the existing `name` property already covers it, but it raises `MartyTypeError` on non-symbols whereas CSL returns `""`. `value` raises `MartyTypeError` when not valued; `valued` is true for real numbers and valued constants or variables. |
 | Symmetry and contraction | `getPermutations`, `getCanonicalPermutation`, `getContractedPair`, `getNContractedPairs`, `getContractionProperties`, `getNFactor` | unported |
 | Boundaries and ranges | `getInfBoundary`, `getSupBoundary`, `getRegularExpression` | unported |
 | Vector and subvector | `getSubVectorial`, `getVectorialModulus`, `getSubSymbols` | unported |

@@ -254,3 +254,35 @@ TEST(SymbolicApi, FactorsAndExponentsOfProduct)
     EXPECT_TRUE(exponents[1].equals(ExprHandle::integer(1)));
     EXPECT_TRUE(exponents[2].equals(ExprHandle::integer(0)));
 }
+
+TEST(SymbolicApi, ValueOfNumberAndValuedFlag)
+{
+    auto x = ExprHandle::variable("x");
+    EXPECT_TRUE(ExprHandle::integer(3).valued());
+    EXPECT_DOUBLE_EQ(ExprHandle::integer(3).value(), 3.0);
+    EXPECT_FALSE(x.valued());
+}
+
+TEST(SymbolicApi, ValueOfSymbolThrows)
+{
+    auto x = ExprHandle::variable("x");
+    EXPECT_THROW(static_cast<void>(x.value()), csl::api::TypeError);
+}
+
+TEST(SymbolicApi, TypeAndPrimaryTypeOfExpressions)
+{
+    auto x = ExprHandle::variable("x");
+    auto y = ExprHandle::variable("y");
+    EXPECT_EQ(x.type(), csl::Type::Variable);
+    EXPECT_EQ(x.primaryType(), csl::PrimaryType::Literal);
+    EXPECT_EQ((x + y).type(), csl::Type::Sum);
+}
+
+TEST(SymbolicApi, ShapeOfScalarAndLatexName)
+{
+    auto x = ExprHandle::variable("x");
+    auto y = ExprHandle::variable("y");
+    EXPECT_EQ(x.shape(), std::vector<int>{1});
+    EXPECT_EQ(x.latexName(), "x");
+    EXPECT_EQ((x + y).latexName(), "");
+}

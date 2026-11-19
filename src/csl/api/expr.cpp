@@ -236,6 +236,51 @@ ExprHandle ExprHandle::numericalFactor() const
     });
 }
 
+bool ExprHandle::valued() const
+{
+    if (auto const num = number())
+        return num->kind != NumberKind::Complex;
+    if (m_expr->getType() == csl::Type::Constant
+        || m_expr->getType() == csl::Type::Variable)
+        return m_expr->getValued();
+    return false;
+}
+
+long double ExprHandle::value() const
+{
+    if (not valued()) {
+        throw TypeError("value: expression is not valued");
+    }
+    if (number())
+        return m_expr->evaluateScalar();
+    return detail::guarded("value", [&] { return m_expr->getValue(); });
+}
+
+csl::Type ExprHandle::type() const
+{
+    return m_expr->getType();
+}
+
+csl::PrimaryType ExprHandle::primaryType() const
+{
+    return m_expr->getPrimaryType();
+}
+
+int ExprHandle::dim() const
+{
+    return m_expr->getDim();
+}
+
+std::vector<int> ExprHandle::shape() const
+{
+    return m_expr->getShape();
+}
+
+std::string ExprHandle::latexName() const
+{
+    return m_expr->getLatexName();
+}
+
 std::optional<ExprHandle> ExprHandle::term() const
 {
     return detail::guarded("term", [&] {

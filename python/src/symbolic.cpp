@@ -721,6 +721,78 @@ void bindTensorFacade(py::module_ &m)
         .value("Dummy", IndexType::Dummy)
         .value("Fixed", IndexType::Fixed);
 
+    py::enum_<csl::PrimaryType>(m,
+                                "PrimaryType",
+                                "Primary type of an expression: a family of "
+                                "expression types, such as "
+                                "MultiFunction for Sum, Prod and Pow. Mirrors "
+                                "csl::PrimaryType.")
+        .value("Arbitrary", csl::PrimaryType::Arbitrary)
+        .value("Numerical", csl::PrimaryType::Numerical)
+        .value("Literal", csl::PrimaryType::Literal)
+        .value("MultiFunction", csl::PrimaryType::MultiFunction)
+        .value("ScalarFunction", csl::PrimaryType::ScalarFunction)
+        .value("Vectorial", csl::PrimaryType::Vectorial)
+        .value("Indicial", csl::PrimaryType::Indicial)
+        .value("Field", csl::PrimaryType::Field);
+
+    py::enum_<csl::Type>(m,
+                         "ExprType",
+                         "Type of an expression, such as Sum, Prod, Variable "
+                         "or Integer. "
+                         "Mirrors csl::Type.")
+        .value("InheritanceType", csl::Type::InheritanceType)
+        .value("NoType", csl::Type::NoType)
+        .value("Integer", csl::Type::Integer)
+        .value("Float", csl::Type::Float)
+        .value("IntFraction", csl::Type::IntFraction)
+        .value("IntFactorial", csl::Type::IntFactorial)
+        .value("Complex", csl::Type::Complex)
+        .value("NumericalEval", csl::Type::NumericalEval)
+        .value("Imaginary", csl::Type::Imaginary)
+        .value("Constant", csl::Type::Constant)
+        .value("Variable", csl::Type::Variable)
+        .value("Exp", csl::Type::Exp)
+        .value("Log", csl::Type::Log)
+        .value("DiracDelta", csl::Type::DiracDelta)
+        .value("Abs", csl::Type::Abs)
+        .value("Cos", csl::Type::Cos)
+        .value("Sin", csl::Type::Sin)
+        .value("Tan", csl::Type::Tan)
+        .value("Cosh", csl::Type::Cosh)
+        .value("Sinh", csl::Type::Sinh)
+        .value("Tanh", csl::Type::Tanh)
+        .value("ACos", csl::Type::ACos)
+        .value("ASin", csl::Type::ASin)
+        .value("ATan", csl::Type::ATan)
+        .value("ACosh", csl::Type::ACosh)
+        .value("ASinh", csl::Type::ASinh)
+        .value("ATanh", csl::Type::ATanh)
+        .value("Scalar", csl::Type::Scalar)
+        .value("RealPart", csl::Type::RealPart)
+        .value("ImaginaryPart", csl::Type::ImaginaryPart)
+        .value("BooleanOperator", csl::Type::BooleanOperator)
+        .value("TensorElement", csl::Type::TensorElement)
+        .value("ScalarField", csl::Type::ScalarField)
+        .value("TensorFieldElement", csl::Type::TensorFieldElement)
+        .value("TDerivativeElement", csl::Type::TDerivativeElement)
+        .value("StandardDuo", csl::Type::StandardDuo)
+        .value("StandardMult", csl::Type::StandardMult)
+        .value("Pow", csl::Type::Pow)
+        .value("Prod", csl::Type::Prod)
+        .value("Sum", csl::Type::Sum)
+        .value("Polynomial", csl::Type::Polynomial)
+        .value("Derivative", csl::Type::Derivative)
+        .value("Commutator", csl::Type::Commutator)
+        .value("Angle", csl::Type::Angle)
+        .value("Factorial", csl::Type::Factorial)
+        .value("Integral", csl::Type::Integral)
+        .value("ScalarIntegral", csl::Type::ScalarIntegral)
+        .value("VectorIntegral", csl::Type::VectorIntegral)
+        .value("Vector", csl::Type::Vector)
+        .value("Matrix", csl::Type::Matrix)
+        .value("HighDTensor", csl::Type::HighDTensor);
+
     py::enum_<csl::api::EvalMode>(m,
                                   "EvalMode",
                                   "Evaluation mode of evaluate(): the "
@@ -1333,6 +1405,72 @@ True
 >>> x, y, z = variable("x"), variable("y"), variable("z")
 >>> [str(e) for e in (x**2 * y).exponents([x, y, z])]
 ['2', '1', '0']
+)doc")
+        .def_property_readonly(
+            "valued",
+            [](ExprHandle const &self) { return self.valued(); },
+            R"doc(True for a real number, or for a valued constant or variable. Compound expressions are not valued.
+
+>>> variable("x").valued
+False
+)doc")
+        .def_property_readonly(
+            "value",
+            [](ExprHandle const &self) {
+                return static_cast<double>(self.value());
+            },
+            R"doc(Numerical value of a valued expression. MartyTypeError when the expression is not valued.
+
+>>> variable("x").value
+Traceback (most recent call last):
+    ...
+pymarty.errors.MartyTypeError: value: expression is not valued
+)doc")
+        .def_property_readonly(
+            "type",
+            [](ExprHandle const &self) { return self.type(); },
+            R"doc(Type of the expression, as an ExprType.
+
+>>> x, y = variable("x"), variable("y")
+>>> (x + y).type == ExprType.Sum
+True
+)doc")
+        .def_property_readonly(
+            "primary_type",
+            [](ExprHandle const &self) { return self.primaryType(); },
+            R"doc(Primary type of the expression, as a PrimaryType.
+
+>>> variable("x").primary_type == PrimaryType.Literal
+True
+)doc")
+        .def_property_readonly(
+            "dim",
+            [](ExprHandle const &self) { return self.dim(); },
+            R"doc(Dimension of the expression, 0 when it does not apply.)doc")
+        .def_property_readonly(
+            "shape",
+            [](ExprHandle const &self) {
+                std::vector<int> const shape = self.shape();
+                py::tuple              result(shape.size());
+                for (std::size_t i = 0; i < shape.size(); ++i) {
+                    result[i] = shape[i];
+                }
+                return result;
+            },
+            R"doc(Shape of the expression as a tuple. A scalar has shape (1,).
+
+>>> variable("x").shape
+(1,)
+)doc")
+        .def_property_readonly(
+            "latex_name",
+            [](ExprHandle const &self) { return self.latexName(); },
+            R"doc(LaTeX name of the expression, an empty string when it has none.
+
+>>> variable("x").latex_name
+'x'
+>>> (variable("x") + variable("y")).latex_name
+''
 )doc");
     expr.def(
         "relabel_indices",

@@ -138,6 +138,22 @@ class ExprHandle {
     [[nodiscard]] std::vector<ExprHandle>
     exponents(std::vector<ExprHandle> const &factors) const;
 
+    /// True for real numbers and for valued constants or variables. Complex
+    /// numbers and compound expressions are not valued.
+    [[nodiscard]] bool valued() const;
+    /// Numerical value. Throws TypeError when the expression is not valued.
+    [[nodiscard]] long double value() const;
+    /// CSL type of the expression.
+    [[nodiscard]] csl::Type type() const;
+    /// CSL primary type of the expression.
+    [[nodiscard]] csl::PrimaryType primaryType() const;
+    /// Dimension of the expression (0 when not applicable).
+    [[nodiscard]] int dim() const;
+    /// Shape of the expression, as CSL reports it.
+    [[nodiscard]] std::vector<int> shape() const;
+    /// LaTeX name of the expression, empty when it has none.
+    [[nodiscard]] std::string latexName() const;
+
   private:
     Expr m_expr;
 };
