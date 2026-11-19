@@ -5,17 +5,17 @@
 //       "Podman compose up" as docker compose binary in the settings
 
 {
-	"name": "DarkPackTesting",
+	"name": "marty-dev",
 
 	// The following uses the designed Dockerfile in the current folder to build the image.
 	"build": {
 		"dockerfile": "Dockerfile"
 	},
 
-	// Custom arguments to pass to the container manager when creating the container from the image
+	// Custom arguments to pass to the container manager when creating the container from the image.
+	// With Podman, add "--userns=keep-id" here so the container can write into the host filesystem.
+	// Docker rejects this flag, so it is not set by default.
 	"runArgs": [
-		"--userns=keep-id" // <- If you are using Podman container mannager, this  argument is needed to
-		                   //    allow podman containers to have writing permission into the host filesystem
 	//   "--memory=8g",
 	//   "--memory-swap=10g",
 	//   "--cpus=6"

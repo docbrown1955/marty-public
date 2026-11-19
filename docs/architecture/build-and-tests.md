@@ -99,7 +99,7 @@ Notes:
 `.github/workflows/c-cpp.yml` runs one job per toolchain: Ubuntu 24.04 with GCC 14, Ubuntu 22.04
 with GCC 11, and Ubuntu 24.04 with Clang 18 (libstdc++ from GCC 14). Each job
 installs the dependencies, runs `cmake`, `make` and `ctest --output-on-failure`. The
-`.devcontainer/` folder provides a Fedora 41 image (GCC 14) for development.
+`.devcontainer/` folder provides an Ubuntu 22.04 image (GCC 11) with the README dependencies for development.
 
 ## 5. Adding a test
 
