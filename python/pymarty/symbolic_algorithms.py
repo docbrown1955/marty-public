@@ -265,6 +265,9 @@ def distribute_if(expr: Expr, predicate: Predicate, *, full: bool = True) -> Exp
                     args[i] = ONE
                     args[j] = (factor * other).expand(full=True)
                     results.append(_rebuilt(expr, args))
+                    # One sum suffices: the other sums remain factors, so one
+                    # term per sum would double count the product.
+                    break
             if results:
                 total = _sum(results)
                 if total.type == ExprType.Sum:

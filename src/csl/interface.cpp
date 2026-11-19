@@ -177,6 +177,7 @@ void Distribute(Expr &expr, Parent_info factor, bool full)
                         results.back()->setArgument(CSL_1, i);
                         Expr newSum = Expanded((*expr)[i] * (*expr)[j]);
                         results.back()->setArgument(newSum, j);
+                        break;
                     }
                 if (results.size() > 0) {
                     for (auto &res : results)
@@ -188,9 +189,7 @@ void Distribute(Expr &expr, Parent_info factor, bool full)
                     }
                     else if (full)
                         Distribute(finalRes, factor, true);
-                    else
-                        return;
-                    finalRes = Refreshed(finalRes);
+                    expr = Refreshed(finalRes);
                     return;
                 }
             }
@@ -220,6 +219,7 @@ void Distribute(Expr &expr, Expr_info factor, bool full)
                         results.back()->setArgument(CSL_1, i);
                         Expr newSum = Expanded((*expr)[i] * (*expr)[j]);
                         results.back()->setArgument(newSum, j);
+                        break;
                     }
                 if (results.size() > 0) {
                     for (auto &res : results)
@@ -231,9 +231,7 @@ void Distribute(Expr &expr, Expr_info factor, bool full)
                     }
                     else if (full)
                         Distribute(finalRes, factor, true);
-                    else
-                        return;
-                    finalRes = Refreshed(finalRes);
+                    expr = Refreshed(finalRes);
                     return;
                 }
             }
@@ -265,6 +263,9 @@ void DistributeIf(Expr &expr, std::function<bool(Expr const &)> f, bool full)
                         results.back()->setArgument(CSL_1, i);
                         Expr newSum = Expanded((*expr)[i] * (*expr)[j]);
                         results.back()->setArgument(newSum, j);
+                        // One sum suffices: the other sums remain factors, so
+                        // one term per sum would double count the product.
+                        break;
                     }
                 if (results.size() > 0) {
                     for (auto &res : results)

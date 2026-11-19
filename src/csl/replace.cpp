@@ -519,8 +519,15 @@ void applyRenamingMap(
             return;
         auto key = csl::IndexRenaming::Key{
             i.getSpace(), i.getID(), std::string(i.getName())};
-        if (auto found = renamed.find(key); found != renamed.end())
-            i = found->second;
+        auto found = renamed.find(key);
+        if (found == renamed.end())
+            return;
+        // A dummy index is shared by two occurrences with opposite signs:
+        // each occurrence keeps its own sign.
+        Index target = found->second;
+        if (i.getType() == cslIndex::Dummy)
+            target.setSign(i.getSign());
+        i = target;
     });
 }
 

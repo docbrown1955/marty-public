@@ -73,6 +73,23 @@ TEST(RelabelIndices, dummyPairSharesOneLabel)
     EXPECT_EQ(printLatex(x(p) * y(p)), "x_{alpha}y_{alpha}");
 }
 
+TEST(RelabelIndices, dummyPairKeepsOppositeSignsOnBothOccurrences)
+{
+    Space const &S = buildMinkowski();
+    Tensor       x{"x", &S};
+    Tensor       y{"y", &S};
+    Index        p     = S.generateIndex("mu");
+    Index        q     = p.getFlipped();
+    auto         input = indicesOf(x(p) * y(q));
+    ASSERT_EQ(input.size(), 2u);
+    ASSERT_NE(input[0].getSign(), input[1].getSign());
+    auto renamed = RelabelIndices(x(p) * y(q));
+    auto indices = indicesOf(renamed);
+    ASSERT_EQ(indices.size(), 2u);
+    EXPECT_EQ(indices[0].getName(), indices[1].getName());
+    EXPECT_NE(indices[0].getSign(), indices[1].getSign());
+}
+
 TEST(RelabelIndices, distinctPairsTakeNamesInOrder)
 {
     Space  S{"S", 4, {"alpha", "beta"}};
