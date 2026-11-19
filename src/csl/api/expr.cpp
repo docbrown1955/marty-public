@@ -200,6 +200,83 @@ Structure ExprHandle::structure() const
     return result;
 }
 
+std::vector<ExprHandle> ExprHandle::arguments() const
+{
+    std::vector<ExprHandle> result;
+    int const               count = m_expr->getNArgs();
+    result.reserve(static_cast<std::size_t>(count));
+    for (int i = 0; i < count; ++i) {
+        result.emplace_back(m_expr->getArgument(i));
+    }
+    return result;
+}
+
+ExprHandle ExprHandle::argument(std::size_t index) const
+{
+    if (index >= static_cast<std::size_t>(m_expr->getNArgs())) {
+        throw LookupError("argument: index " + std::to_string(index)
+                          + " is out of range");
+    }
+    return ExprHandle(m_expr->getArgument(static_cast<int>(index)));
+}
+
+ExprHandle ExprHandle::operand() const
+{
+    if (not m_expr->isAnOperator()) {
+        throw TypeError("operand: expression is not an operator");
+    }
+    return detail::guarded("operand",
+                           [&] { return ExprHandle(m_expr->getOperand()); });
+}
+
+ExprHandle ExprHandle::numericalFactor() const
+{
+    return detail::guarded("numerical factor", [&] {
+        return ExprHandle(m_expr->getNumericalFactor());
+    });
+}
+
+std::optional<ExprHandle> ExprHandle::term() const
+{
+    return detail::guarded("term", [&] {
+        std::optional<Expr> const term = m_expr->getTerm();
+        if (not term)
+            return std::optional<ExprHandle>();
+        return std::optional<ExprHandle>(ExprHandle(*term));
+    });
+}
+
+std::vector<ExprHandle> ExprHandle::factors() const
+{
+    return detail::guarded("factors", [&] {
+        std::vector<ExprHandle> result;
+        for (auto const &factor : m_expr->getFactors()) {
+            result.emplace_back(factor);
+        }
+        return result;
+    });
+}
+
+std::vector<ExprHandle>
+ExprHandle::exponents(std::vector<ExprHandle> const &factors) const
+{
+    return detail::guarded("exponents", [&] {
+        std::vector<Expr> given;
+        given.reserve(factors.size());
+        for (auto const &factor : factors) {
+            given.push_back(factor.raw());
+        }
+        std::vector<Expr> found(given.size(), CSL_0);
+        m_expr->getExponents(given, found);
+        std::vector<ExprHandle> result;
+        result.reserve(found.size());
+        for (auto const &exponent : found) {
+            result.emplace_back(exponent);
+        }
+        return result;
+    });
+}
+
 ExprHandle operator+(ExprHandle const &lhs, ExprHandle const &rhs)
 {
     return detail::guarded("addition", [&] {

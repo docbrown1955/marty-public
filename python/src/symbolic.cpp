@@ -361,11 +361,12 @@ True
                 for (auto const &item : kwargs) {
                     if (item.first.cast<std::string>() == "mode") {
                         if (!py::isinstance<csl::api::EvalMode>(item.second)) {
-                            throw py::type_error(
-                                "evaluate: mode must be an EvalMode");
+                            throw py::type_error("evaluate: mode must be an "
+                                                 "EvalMode");
                         }
                         mode = item.second.cast<csl::api::EvalMode>();
-                    } else {
+                    }
+                    else {
                         names[item.first] = item.second;
                     }
                 }
@@ -375,9 +376,8 @@ True
                 }
                 ExprHandle result = csl::api::evaluated(self, mapping, mode);
                 if (!names.empty()) {
-                    result = csl::api::evaluatedByName(result,
-                                                       namedValues(names),
-                                                       mode);
+                    result = csl::api::evaluatedByName(
+                        result, namedValues(names), mode);
                 }
                 return result;
             },
@@ -548,6 +548,15 @@ IndexHandle indexHandle(py::handle value)
 }
 
 /// Tuple of `Index` objects, all with the same Python `space`.
+py::tuple exprTuple(std::vector<ExprHandle> const &exprs)
+{
+    py::tuple result(exprs.size());
+    for (std::size_t i = 0; i < exprs.size(); ++i) {
+        result[i] = py::cast(exprs[i]);
+    }
+    return result;
+}
+
 py::tuple indexTuple(std::vector<IndexHandle> const &indices,
                      py::object const               &space)
 {
@@ -712,12 +721,13 @@ void bindTensorFacade(py::module_ &m)
         .value("Dummy", IndexType::Dummy)
         .value("Fixed", IndexType::Fixed);
 
-    py::enum_<csl::api::EvalMode>(
-        m,
-        "EvalMode",
-        "Evaluation mode of evaluate(): the operations it performs. Modes combine "
-        "with | (for example EvalMode.Literal | EvalMode.Numerical). All is the "
-        "union of the other modes and the default.")
+    py::enum_<csl::api::EvalMode>(m,
+                                  "EvalMode",
+                                  "Evaluation mode of evaluate(): the "
+                                  "operations it performs. Modes combine "
+                                  "with | (for example EvalMode.Literal | "
+                                  "EvalMode.Numerical). All is the "
+                                  "union of the other modes and the default.")
         .value("Base", csl::api::EvalMode::Base)
         .value("Literal", csl::api::EvalMode::Literal)
         .value("Numerical", csl::api::EvalMode::Numerical)
@@ -850,7 +860,7 @@ from it, in order.
             [](py::object const &self, py::object const &name) {
                 SpaceHandle const &space = self.cast<SpaceHandle const &>();
                 auto const         given = optionalName(name,
-                                                        "index: name must be "
+                                                "index: name must be "
                                                         "a str or None");
                 IndexHandle        index
                     = given ? space.index(*given) : space.index();
@@ -878,7 +888,7 @@ default name of the space.
                                                "negative");
                 }
                 auto const         given = optionalName(name,
-                                                        "indices: name must "
+                                                "indices: name must "
                                                         "be a str "
                                                         "or None");
                 SpaceHandle const &space = self.cast<SpaceHandle const &>();
@@ -1250,7 +1260,80 @@ True
             [](ExprHandle const &self) {
                 return indexTuple(csl::api::dummyIndices(self), py::none());
             },
-            R"doc(Dummy indices of the expression, without duplicates. Their space is None.)doc");
+            R"doc(Dummy indices of the expression, without duplicates. Their space is None.)doc")
+        .def_property_readonly(
+            "args",
+            [](ExprHandle const &self) { return exprTuple(self.arguments()); },
+            R"doc(Arguments of a compound expression, in order. Empty for a symbol or a number.
+
+>>> x, y = variable("x"), variable("y")
+>>> len((x + y).args)
+2
+>>> x.args
+()
+)doc")
+        .def(
+            "argument",
+            [](ExprHandle const &self, long long index) {
+                if (index < 0) {
+                    throw csl::api::LookupError("argument: negative index");
+                }
+                return self.argument(static_cast<std::size_t>(index));
+            },
+            py::arg("index"),
+            R"doc(Argument at the given position. MartyLookupError when out of range.
+
+>>> x, y = variable("x"), variable("y")
+>>> (x * y).argument(5)
+Traceback (most recent call last):
+    ...
+pymarty.errors.MartyLookupError: argument: index 5 is out of range
+)doc")
+        .def_property_readonly(
+            "operand",
+            [](ExprHandle const &self) { return self.operand(); },
+            R"doc(Operand of an operator, such as a derivative or a real part. MartyTypeError for other expressions.)doc")
+        .def_property_readonly(
+            "numerical_factor",
+            [](ExprHandle const &self) { return self.numericalFactor(); },
+            R"doc(Numerical factor in front of the expression, 1 if there is none.
+
+>>> x = variable("x")
+>>> (3 * x).numerical_factor
+3
+)doc")
+        .def_property_readonly(
+            "term",
+            [](ExprHandle const &self) -> py::object {
+                auto term = self.term();
+                return term ? py::cast(*term) : py::none();
+            },
+            R"doc(Expression without its numerical factor, None if there is none.
+
+>>> x, y = variable("x"), variable("y")
+>>> (3 * x * y).term == x * y
+True
+)doc")
+        .def_property_readonly(
+            "factors",
+            [](ExprHandle const &self) { return exprTuple(self.factors()); },
+            R"doc(Factors of a product, each power as its own entry. The expression alone for other expressions.)doc")
+        .def(
+            "exponents",
+            [](ExprHandle const &self, py::iterable factors) {
+                std::vector<ExprHandle> list;
+                for (py::handle factor : factors) {
+                    list.push_back(coerce(factor));
+                }
+                return exprTuple(self.exponents(list));
+            },
+            py::arg("factors"),
+            R"doc(Exponent of each given factor in the expression, 0 when the factor is absent.
+
+>>> x, y, z = variable("x"), variable("y"), variable("z")
+>>> [str(e) for e in (x**2 * y).exponents([x, y, z])]
+['2', '1', '0']
+)doc");
     expr.def(
         "relabel_indices",
         [](ExprHandle const &self, py::object renaming, bool relabelFree) {

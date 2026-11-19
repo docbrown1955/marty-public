@@ -25,6 +25,7 @@
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cmath>
 #include <numbers>
 #include <string>
@@ -199,4 +200,57 @@ TEST(SymbolicApi, AbsoluteValue)
         csl::api::Abs(ExprHandle::integer(3)).equals(ExprHandle::integer(3)));
     EXPECT_TRUE(csl::api::Abs(ExprHandle::rational(-1, 2))
                     .equals(ExprHandle::rational(1, 2)));
+}
+
+TEST(SymbolicApi, ArgumentsOfSumAreTerms)
+{
+    auto x    = ExprHandle::variable("x");
+    auto y    = ExprHandle::variable("y");
+    auto args = (x + y).arguments();
+    EXPECT_EQ(args.size(), 2u);
+    EXPECT_TRUE(std::any_of(args.begin(),
+                            args.end(),
+                            [&](ExprHandle const &a) { return a.equals(x); }));
+}
+
+TEST(SymbolicApi, ArgumentOutOfRangeThrows)
+{
+    auto x = ExprHandle::variable("x");
+    auto y = ExprHandle::variable("y");
+    EXPECT_THROW((x * y).argument(2), csl::api::LookupError);
+    EXPECT_TRUE(x.arguments().empty());
+    EXPECT_THROW(x.argument(0), csl::api::LookupError);
+}
+
+TEST(SymbolicApi, OperandOfNonOperatorThrows)
+{
+    auto x = ExprHandle::variable("x");
+    EXPECT_THROW(x.operand(), csl::api::TypeError);
+}
+
+TEST(SymbolicApi, NumericalFactorAndTerm)
+{
+    auto x = ExprHandle::variable("x");
+    auto y = ExprHandle::variable("y");
+    EXPECT_TRUE((ExprHandle::integer(3) * x)
+                    .numericalFactor()
+                    .equals(ExprHandle::integer(3)));
+    EXPECT_TRUE((x + y).numericalFactor().equals(ExprHandle::integer(1)));
+    auto term = (ExprHandle::integer(3) * x * y).term();
+    ASSERT_TRUE(term.has_value());
+    EXPECT_TRUE(term->equals(x * y));
+}
+
+TEST(SymbolicApi, FactorsAndExponentsOfProduct)
+{
+    auto x    = ExprHandle::variable("x");
+    auto y    = ExprHandle::variable("y");
+    auto z    = ExprHandle::variable("z");
+    auto expr = csl::api::power(x, ExprHandle::integer(2)) * y;
+    EXPECT_EQ(expr.factors().size(), 3u);
+    auto exponents = expr.exponents({x, y, z});
+    ASSERT_EQ(exponents.size(), 3u);
+    EXPECT_TRUE(exponents[0].equals(ExprHandle::integer(2)));
+    EXPECT_TRUE(exponents[1].equals(ExprHandle::integer(1)));
+    EXPECT_TRUE(exponents[2].equals(ExprHandle::integer(0)));
 }

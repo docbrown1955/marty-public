@@ -121,6 +121,23 @@ class ExprHandle {
     /// Canonical description of the expression tree.
     [[nodiscard]] Structure structure() const;
 
+    /// Arguments of a compound expression, in order. Empty for a leaf.
+    [[nodiscard]] std::vector<ExprHandle> arguments() const;
+    /// Argument at \p index. Throws LookupError when out of range.
+    [[nodiscard]] ExprHandle argument(std::size_t index) const;
+    /// Operand of an operator (derivative, real part, ...). Throws TypeError
+    /// for an expression that is not an operator.
+    [[nodiscard]] ExprHandle operand() const;
+    /// Numerical factor in front of the expression, 1 if there is none.
+    [[nodiscard]] ExprHandle numericalFactor() const;
+    /// Expression without its numerical factor, nothing if there is none.
+    [[nodiscard]] std::optional<ExprHandle> term() const;
+    /// Candidate factors of a product, or of the expression itself.
+    [[nodiscard]] std::vector<ExprHandle> factors() const;
+    /// Exponent of each given factor in the expression, 0 when absent.
+    [[nodiscard]] std::vector<ExprHandle>
+    exponents(std::vector<ExprHandle> const &factors) const;
+
   private:
     Expr m_expr;
 };

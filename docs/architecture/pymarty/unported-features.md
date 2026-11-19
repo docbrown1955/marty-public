@@ -18,7 +18,7 @@ Phase numbers refer to [phase-N plan documents](README.md).
 | Feature | CSL reference | Status | Phase / blocker | Notes |
 |---------|---------------|--------|-----------------|-------|
 | Arithmetic operators, `__call__` | `src/csl/Abstract.h` | ported | 1 | |
-| `operand` | `Abstract::getOperand` | ported | 1 | Verify exact semantics against C++ before relying on it. |
+| `operand` | `Abstract::getOperand` | ported | 1 | Raises `MartyTypeError` on non-operators (addendum C1). |
 | `free_indices`, `dummy_indices` | `src/csl/api/` | ported | 1 | |
 | `name`, `complex_property`, `structural_key` | `src/csl/Abstract.h` | ported | 1 | |
 | `constant`, `variable` | `src/csl/api/` | ported | 1 | |
@@ -35,7 +35,7 @@ All of these are unported unless noted. Error model: rules section 8 (addendum d
 
 | Group | CSL getters | Status |
 |-------|-------------|--------|
-| Structure | `getArgument`, `getArguments`, `getNArgs`, `getOperand`, `getFactors`, `getTerm`, `getSum`, `getProduct`, `getExponents`, `getNumericalFactor` | unported |
+| Structure | `getArgument`, `getArguments`, `getNArgs`, `getOperand`, `getFactors`, `getTerm`, `getExponents`, `getNumericalFactor` | ported as `argument`, `args` (and `len(args)` for `getNArgs`), `operand`, `factors`, `term`, `exponents`, `numerical_factor`. `getSum` and `getProduct` are unported: they exist only on `Vectorial` (`src/csl/vector.h:144-146`), not on `Expr`. |
 | Index access | `getNIndices`, `getIndex`, `getIndexStructure`, `getFreeIndexStructure` | unported |
 | Numerical parts | `getNum`, `getDenom`, `getSign`, `getParity`, `getOrder` | unported. `getNum` returns 0 silently on wrong kind (`src/csl/abstract.cpp:189-192`). |
 | Complex parts | `getRealPart`, `getImaginaryPart`, `getComplexArgument`, `getComplexModulus`, `getComplexConjugate`, `getTransposed`, `getPolynomialTerm` | unported |
