@@ -1,34 +1,42 @@
-# Fedora 41 uses gcc-14
-FROM registry.fedoraproject.org/fedora:41
+# Ubuntu 22.04 with GCC 11 (validated toolchain in the README)
+FROM ubuntu:22.04
 
 ARG username=vscode
 
-RUN dnf update -y && \
-    dnf upgrade -y && \
-    dnf install \
-        gcc \
-        gfortran \
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y \
+        gcc-11 \
+        g++-11 \
         g++ \
-        gsl \
-        gsl-devel \
+        gfortran-11 \
+        gfortran \
+        libgsl-dev \
+        libgslcblas0 \
         texlive \
-        ImageMagick \
+        texlive-luatex \
         dvipng \
         coreutils \
+        imagemagick \
+        qtbase5-dev \
+        qtbase5-dev-tools \
         qtchooser \
+        qt5-qmake \
         cmake \
+        make \
         git \
-        ninja-build \
-        git-clang-format \
-        -y && \
-    dnf clean all  
+        git-lfs \
+        python3 \
+        python3-pip \
+        python3-venv \
+        ca-certificates && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN useradd ${username}
-
-USER ${username}
-
-ENV CC=gcc
-ENV CXX=g++
-ENV FC=gfortran
+ENV CC=gcc-11
+ENV CXX=g++-11
+ENV FC=gfortran-11
 
 CMD ["sleep", "infinity"]
