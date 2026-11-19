@@ -395,13 +395,42 @@ TEST(RelabelIndices, renamingAppliedToAnotherExpressionGivesSameLabels)
     Tensor        w{"w", &S};
     Index         f      = S.generateIndex("beta");
     Index         p      = S.generateIndex("alpha");
-    Expr          first  = x(p) * x(p) * w(f);
-    Expr          second = w(f) * x(p) * x(p);
+    Expr          first  = w(f) * x(p);
+    Expr          second = x(p) * w(f);
     IndexRenaming renaming;
     auto          relabelled = RelabelIndices(first, true, renaming);
     auto          applied    = ApplyIndexRenaming(second, renaming);
-    EXPECT_EQ(applied->printLaTeX(0), "w_{alpha}x_{beta}x_{beta}");
-    EXPECT_EQ(relabelled->printLaTeX(0), "w_{alpha}x_{beta}x_{beta}");
+    EXPECT_EQ(applied->printLaTeX(0), relabelled->printLaTeX(0));
+    EXPECT_EQ(relabelled->printLaTeX(0), "w_{alpha}x_{beta}");
+}
+
+TEST(RelabelIndices, renamingKeepsOnlyFreeIndices)
+{
+    Space         S{"S", 4, {"alpha", "beta"}};
+    Tensor        x{"x", &S};
+    Tensor        w{"w", &S};
+    Index         f    = S.generateIndex("beta");
+    Index         p    = S.generateIndex("alpha");
+    Expr          expr = w(f) * x(p) * x(p);
+    IndexRenaming renaming;
+    RelabelIndices(expr, true, renaming);
+    ASSERT_EQ(renaming.renamed.size(), 1U);
+    EXPECT_EQ(
+        renaming.renamed.begin()->first,
+        IndexRenaming::Key(f.getSpace(), f.getID(), std::string(f.getName())));
+}
+
+TEST(RelabelIndices, applyRenamingDoesNotRenameDummyIndices)
+{
+    Space         S{"S", 4, {"alpha", "beta"}};
+    Tensor        x{"x", &S};
+    Tensor        w{"w", &S};
+    Index         f = S.generateIndex("beta");
+    IndexRenaming renaming;
+    RelabelIndices(w(f), true, renaming);
+    Expr expr = x(f) * x(f);
+    EXPECT_EQ(ApplyIndexRenaming(expr, renaming)->printLaTeX(0),
+              expr->printLaTeX(0));
 }
 
 TEST(RelabelIndices, applyingRenamingWithoutMatchingIndicesIsUnchanged)

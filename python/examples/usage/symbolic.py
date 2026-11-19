@@ -26,7 +26,6 @@ from pymarty.symbolic import (
     delta,
     epsilon,
     metric,
-    relabel,
     sqrt,
     tensor,
     tensor_derivative,
@@ -219,25 +218,25 @@ try:
 except MartyValueError as error:
     print(f"caught {type(error).__name__}: {error}")
 
-# 11. Tensors. A repeated index contracts in a product, and relabel gives the
-#     canonical names of the space.
+# 11. Tensors. A repeated index contracts in a product, and relabel_indices gives
+#     the canonical names of the space.
 tx = tensor("x", [space])
 ty = tensor("y", [space])
 tz = tensor("z", [space])
 contracted = tx(mu) * ty(mu)
-print("x_mu y_mu =", relabel(contracted))
-assert relabel(contracted).to_latex() == "x_{alpha}y_{alpha}"
+print("x_mu y_mu =", contracted.relabel_indices())
+assert contracted.relabel_indices().to_latex() == "x_{alpha}y_{alpha}"
 assert contracted.free_indices == ()
 assert len(contracted.dummy_indices) == 1
 assert tx(mu).free_indices[0].name == "mu"
-assert relabel(tx(mu) + ty(mu)).to_latex() == "x_{alpha} + y_{alpha}"
+assert (tx(mu) + ty(mu)).relabel_indices().to_latex() == "x_{alpha} + y_{alpha}"
 
 # Free indices take the first names, dummy indices the following ones.
 mixed_names = tx(mu) * ty(mu) * tz(nu)
-assert relabel(mixed_names).to_latex() == "x_{beta}y_{beta}z_{alpha}"
+assert mixed_names.relabel_indices().to_latex() == "x_{beta}y_{beta}z_{alpha}"
 
-# Fixed indices are not renamed, and relabel does not change its input.
-assert relabel(tx(space.fixed_index(1))).to_latex() == "x_{1}"
+# Fixed indices are not renamed, and relabel_indices does not change its input.
+assert tx(space.fixed_index(1)).relabel_indices().to_latex() == "x_{1}"
 assert contracted.dummy_indices[0].name == "mu"
 
 # Symmetries: full, or by pair of index positions.

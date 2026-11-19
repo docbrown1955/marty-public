@@ -545,6 +545,31 @@ py::tuple indexTuple(std::vector<IndexHandle> const &indices,
     return result;
 }
 
+/// Renaming argument: a `dict` of free `Index` to free `Index`. Raises
+/// `TypeError` for other objects and `ValueError` for dummy indices. Its
+/// entries are read as presets by relabel_indices().
+IndexRenamingHandle renamingArgument(py::handle value)
+{
+    if (!py::isinstance<py::dict>(value)) {
+        throw csl::api::TypeError("renaming must be a dict of Index to Index");
+    }
+    IndexRenamingHandle renaming;
+    for (auto const &item : py::reinterpret_borrow<py::dict>(value)) {
+        renaming.add(indexHandle(item.first), indexHandle(item.second));
+    }
+    return renaming;
+}
+
+/// Adds the pairs of a renaming to the `dict` it was read from. Existing keys
+/// keep their Python objects, only their values change.
+void storeRenaming(py::dict &dict, IndexRenamingHandle const &renaming)
+{
+    for (auto const &[old, fresh] : renaming.pairs()) {
+        dict[py::cast(IndexWrapper{old, py::none()})]
+            = py::cast(IndexWrapper{fresh, py::none()});
+    }
+}
+
 /// `str` argument. Raises `TypeError` for other objects.
 std::string stringArgument(py::handle value, char const *what)
 {
@@ -791,7 +816,7 @@ from it, in order.
             [](py::object const &self, py::object const &name) {
                 SpaceHandle const &space = self.cast<SpaceHandle const &>();
                 auto const         given = optionalName(name,
-                                                "index: name must be "
+                                                        "index: name must be "
                                                         "a str or None");
                 IndexHandle        index
                     = given ? space.index(*given) : space.index();
@@ -819,7 +844,7 @@ default name of the space.
                                                "negative");
                 }
                 auto const         given = optionalName(name,
-                                                "indices: name must "
+                                                        "indices: name must "
                                                         "be a str "
                                                         "or None");
                 SpaceHandle const &space = self.cast<SpaceHandle const &>();
@@ -1039,80 +1064,6 @@ it to an expression with Expr.__call__ to differentiate that expression.
         },
         R"doc(Levi-Civita symbol: one index per dimension of the space. Works for
 dimensions 2 to 4.)doc");
-    m.def(
-        "relabel",
-        [](py::handle expr, bool relabelFree) {
-            return csl::api::relabelIndices(coerce(expr), relabelFree);
-        },
-        py::arg("expr"),
-        py::kw_only(),
-        py::arg("relabel_free") = true,
-        R"doc(Renames the indices of an expression to canonical names. Returns a new
-expression. Dummy indices are always renamed. With relabel_free=False, free
-indices keep their names.
-
->>> sp = Space("S", 4)
->>> i, j = sp.index("i"), sp.index("j")
->>> A = tensor("A", [sp, sp])
->>> relabel(A(i, j), relabel_free=False) == A(i, j)
-True
-)doc");
-    m.def(
-        "relabel_with_renaming",
-        [](py::handle expr, bool relabelFree) {
-            IndexRenamingHandle renaming;
-            ExprHandle          relabelled = csl::api::relabelIndices(
-                coerce(expr), relabelFree, renaming);
-            return py::make_tuple(relabelled, renaming);
-        },
-        py::arg("expr"),
-        py::kw_only(),
-        py::arg("relabel_free") = true,
-        R"doc(Same as relabel(), and also returns the IndexRenaming of the relabelled
-indices, as a tuple (expression, renaming).
-
->>> sp = Space("S", 4)
->>> i, j = sp.index("i"), sp.index("j")
->>> A = tensor("A", [sp, sp])
->>> relabelled, renaming = relabel_with_renaming(A(i, j))
->>> len(renaming.pairs)
-2
-)doc");
-    m.def(
-        "apply_renaming",
-        [](py::handle expr, IndexRenamingHandle const &renaming) {
-            return csl::api::applyIndexRenaming(coerce(expr), renaming);
-        },
-        py::arg("expr"),
-        py::arg("renaming"),
-        R"doc(Replaces each index of expr found in the renaming by its new index. Other
-indices are unchanged.
-
->>> sp = Space("S", 4)
->>> i, j = sp.index("i"), sp.index("j")
->>> A = tensor("A", [sp, sp])
->>> relabelled, renaming = relabel_with_renaming(A(i, j))
->>> apply_renaming(A(i, j), renaming) == relabelled
-True
-)doc");
-    py::class_<IndexRenamingHandle>(m,
-                                    "IndexRenaming",
-                                    "Renaming of the indices of an "
-                                    "expression, as returned by "
-                                    "relabel_with_renaming().")
-        .def_property_readonly(
-            "pairs",
-            [](IndexRenamingHandle const &self) {
-                auto const pairs = self.pairs();
-                py::tuple  result(pairs.size());
-                for (std::size_t i = 0; i < pairs.size(); ++i) {
-                    result[i] = py::make_tuple(
-                        IndexWrapper{pairs[i].first, py::object(py::none())},
-                        IndexWrapper{pairs[i].second, py::object(py::none())});
-                }
-                return result;
-            },
-            R"doc((old, new) index pairs, in order of first occurrence. Their space is None.)doc");
 }
 
 } // namespace
@@ -1266,6 +1217,41 @@ True
                 return indexTuple(csl::api::dummyIndices(self), py::none());
             },
             R"doc(Dummy indices of the expression, without duplicates. Their space is None.)doc");
+    expr.def(
+        "relabel_indices",
+        [](ExprHandle const &self, py::object renaming, bool relabelFree) {
+            if (renaming.is_none()) {
+                return csl::api::relabelIndices(self, relabelFree);
+            }
+            IndexRenamingHandle handle = renamingArgument(renaming);
+            py::dict   dict = py::reinterpret_borrow<py::dict>(renaming);
+            ExprHandle relabelled
+                = csl::api::relabelIndices(self, relabelFree, handle);
+            storeRenaming(dict, handle);
+            return relabelled;
+        },
+        py::arg("renaming") = py::none(),
+        py::kw_only(),
+        py::arg("relabel_free") = true,
+        R"doc(Renames the indices of the expression to canonical names. Returns a new
+expression. Dummy indices are always renamed. With relabel_free=False, free
+indices keep their names.
+
+renaming is an optional dict from free Index to free Index, used as input and
+output. A free index of the expression already in the dict keeps the new index
+given there. The other free indices get canonical names, which are added to the
+dict. Entries for other indices are kept. Dummy indices never enter the dict.
+
+>>> sp = Space("S", 4)
+>>> i, j = sp.index("i"), sp.index("j")
+>>> A = tensor("A", [sp, sp])
+>>> A(i, j).relabel_indices(relabel_free=False) == A(i, j)
+True
+>>> renaming = {}
+>>> relabelled = A(i, j).relabel_indices(renaming)
+>>> len(renaming)
+2
+)doc");
 
     m.attr("I")        = py::cast(ExprHandle::imaginaryUnit());
     m.attr("infinity") = py::cast(ExprHandle::infinity());

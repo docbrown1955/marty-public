@@ -11,6 +11,9 @@ documents in `phase-N/` next to its plan document.
 | Document | Content |
 |----------|---------|
 | [api-conventions.md](api-conventions.md) | Rules for the C++ API layer and for the Python layer (duck typing, errors, state, ownership) |
+| [python-porting-rules.md](python-porting-rules.md) | Ground rules for porting a C++/CSL feature to Python: thin layers, files to touch, tests first, Expr methods vs free functions, callback algorithms, accessor error model |
+| [unported-features.md](unported-features.md) | Living list of C++ features not yet exposed in Python, with status and phase |
+| [phase-1-symbolic-addendum.md](phase-1-symbolic-addendum.md) | Addendum to phase 1: relabel_indices, replace and index replacement, accessors, parent accessors, callback algorithms, eval mode |
 | [testing-strategy.md](testing-strategy.md) | Test levels, parity rule, shared data, markers, quality gates, global "definition of done" |
 | [process/README.md](process/README.md) | How phases 1 to 8 are run: investigation, Q&A, spec, implementation, AI review, human review; roles and gates; the orchestrator, investigator, implementer and reviewer instructions |
 | [phase-0-foundations.md](phase-0-foundations.md) | Build, packaging, error/state hardening, spikes, test harness |

@@ -9,7 +9,7 @@ Indices and tensors: ``Space`` creates indices, ``tensor()`` creates tensors,
 and ``delta``, ``metric`` and ``epsilon`` are the built-in tensors.
 ``tensor_field()`` and ``tensor_derivative()`` build tensor fields and their
 derivatives with respect to a point tensor.
-``relabel()`` renames the indices of an expression. ``Minkowski`` and
+``Expr.relabel_indices()`` renames the indices of an expression. ``Minkowski`` and
 ``Euclid_R2``, ``Euclid_R3``, ``Euclid_R4`` are predefined spaces.
 
 Constants: ``I`` (imaginary unit), ``pi``, ``e`` and ``infinity``.
@@ -30,7 +30,6 @@ from pymarty._pymarty import (
     Expr,
     I,
     Index,
-    IndexRenaming,
     IndexType,
     Minkowski,
     Space,
@@ -40,7 +39,6 @@ from pymarty._pymarty import (
     abs,
     acos,
     acosh,
-    apply_renaming,
     argument,
     asin,
     asinh,
@@ -58,8 +56,6 @@ from pymarty._pymarty import (
     metric,
     modulus,
     pi,
-    relabel,
-    relabel_with_renaming,
     sin,
     sinh,
     sqrt,
@@ -80,7 +76,6 @@ __all__ = [
     "I",
     "Expr",
     "Index",
-    "IndexRenaming",
     "IndexType",
     "Minkowski",
     "Space",
@@ -90,7 +85,6 @@ __all__ = [
     "abs",
     "acos",
     "acosh",
-    "apply_renaming",
     "argument",
     "asin",
     "asinh",
@@ -108,8 +102,6 @@ __all__ = [
     "metric",
     "modulus",
     "pi",
-    "relabel",
-    "relabel_with_renaming",
     "sin",
     "sinh",
     "sqrt",

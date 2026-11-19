@@ -511,6 +511,16 @@ ExprHandle applyTensorDerivative(ExprHandle const &derivative,
 
 // IndexRenamingHandle
 
+void IndexRenamingHandle::add(IndexHandle const &original,
+                              IndexHandle const &renamed)
+{
+    if (original.type() != IndexType::Free
+        or renamed.type() != IndexType::Free) {
+        throw ValueError("index renaming: only free indices can be renamed");
+    }
+    m_renaming.renamed[renamingKey(original.raw())] = renamed.raw();
+}
+
 std::vector<std::pair<IndexHandle, IndexHandle>>
 IndexRenamingHandle::pairs() const
 {
@@ -569,9 +579,8 @@ ExprHandle epsilon(std::vector<IndexHandle> const &indices)
 
 ExprHandle relabelIndices(ExprHandle const &expr, bool relabelFree)
 {
-    return detail::guarded("index relabelling", [&] {
-        return ExprHandle(csl::RelabelIndices(expr.raw(), relabelFree));
-    });
+    IndexRenamingHandle renaming;
+    return relabelIndices(expr, relabelFree, renaming);
 }
 
 ExprHandle relabelIndices(ExprHandle const    &expr,
@@ -581,15 +590,12 @@ ExprHandle relabelIndices(ExprHandle const    &expr,
     std::vector<csl::Index> originals;
     for (auto const &index : freeIndices(expr))
         originals.push_back(index.raw());
-    for (auto const &index : dummyIndices(expr))
-        originals.push_back(index.raw());
 
-    csl::IndexRenaming fresh;
-    ExprHandle         relabelled = detail::guarded("index relabelling", [&] {
-        return ExprHandle(csl::RelabelIndices(expr.raw(), relabelFree, fresh));
+    ExprHandle relabelled = detail::guarded("index relabelling", [&] {
+        return ExprHandle(
+            csl::RelabelIndices(expr.raw(), relabelFree, renaming.m_renaming));
     });
 
-    renaming.m_renaming = std::move(fresh);
     renaming.m_pairs.clear();
     std::set<csl::IndexRenaming::Key> seen;
     for (auto const &original : originals) {
@@ -600,15 +606,6 @@ ExprHandle relabelIndices(ExprHandle const    &expr,
             renaming.m_pairs.emplace_back(original, found->second);
     }
     return relabelled;
-}
-
-ExprHandle applyIndexRenaming(ExprHandle const          &expr,
-                              IndexRenamingHandle const &renaming)
-{
-    return detail::guarded("index renaming", [&] {
-        return ExprHandle(
-            csl::ApplyIndexRenaming(expr.raw(), renaming.m_renaming));
-    });
 }
 
 std::vector<IndexHandle> freeIndices(ExprHandle const &expr)

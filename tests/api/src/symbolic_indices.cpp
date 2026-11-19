@@ -201,26 +201,29 @@ TEST(SymbolicIndices, RenamingPairsGiveOldAndNewIndices)
     EXPECT_TRUE(relabelled.equals(csl::api::relabelIndices(expr)));
 }
 
-TEST(SymbolicIndices, ApplyRenamingReproducesRelabelling)
+TEST(SymbolicIndices, RenamingPairsExcludeDummyIndices)
 {
-    SpaceHandle  space("Applied", 3, {"alpha", "beta"});
+    SpaceHandle  space("Dummies", 3, {"alpha", "beta"});
     TensorHandle T("T", {space, space});
-    TensorHandle U("U", {space});
-    auto         a    = space.index("a");
-    auto         b    = space.index("b");
-    ExprHandle   expr = T({a, b}) * U({b});
+    auto         i    = space.index("i");
+    ExprHandle   expr = T({i, i});
 
     csl::api::IndexRenamingHandle renaming;
     ExprHandle relabelled = csl::api::relabelIndices(expr, true, renaming);
-    EXPECT_TRUE(
-        csl::api::applyIndexRenaming(expr, renaming).equals(relabelled));
+    EXPECT_TRUE(csl::api::freeIndices(relabelled).empty());
+    EXPECT_TRUE(renaming.pairs().empty());
+}
 
-    auto pairs = renaming.pairs();
-    ASSERT_EQ(pairs.size(), 2U);
-    EXPECT_TRUE(pairs[0].first.equals(a));
-    EXPECT_EQ(pairs[0].first.type(), IndexType::Free);
-    EXPECT_EQ(pairs[0].second.name(), "alpha");
-    EXPECT_EQ(pairs[1].first.name(), "b");
-    EXPECT_EQ(pairs[1].first.type(), IndexType::Dummy);
-    EXPECT_EQ(pairs[1].second.name(), "beta");
+TEST(SymbolicIndices, RenamingRejectsDummyIndices)
+{
+    SpaceHandle  space("Rejected", 3, {"alpha", "beta"});
+    auto         i = space.index("i");
+    TensorHandle x("x", {space});
+    auto         dummies = csl::api::dummyIndices(x({i}) * x({i}));
+    ASSERT_EQ(dummies.size(), 1U);
+    csl::api::IndexRenamingHandle renaming;
+    EXPECT_THROW(renaming.add(dummies[0], space.index("j")),
+                 csl::api::ValueError);
+    EXPECT_THROW(renaming.add(space.index("k"), dummies[0]),
+                 csl::api::ValueError);
 }

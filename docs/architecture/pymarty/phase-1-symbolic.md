@@ -49,7 +49,7 @@ Header set (proposal): `expr.h`, `functions.h`, `transform.h`, `tensor.h`.
 | Printing | `to_string(e)`, `to_latex(e)`, `to_code(e)` | `str(e)`, `.to_latex()`, `._repr_latex_()` |
 | Equality | `equals(a, b)` (documented meaning), `hash(e)` | `==`, `hash(e)` |
 | Copy | `deep_copy(e)` | `copy.copy`, `copy.deepcopy` |
-| Index objects | `SpaceHandle`, `IndexHandle`, `TensorHandle`; `tensor(name, spaces, symmetric, antisymmetric)`; element creation validates index spaces; `delta(i, j)`, `metric(i, j)`, `epsilon(indices)` (the space comes from the indices); `relabel_indices(e)` | `Space`, `Index`, `tensor`, `T(i, j)`, `delta`, `metric`, `epsilon`, `relabel(e)`, `space.index()`, `space.indices(n)` |
+| Index objects | `SpaceHandle`, `IndexHandle`, `TensorHandle`; `tensor(name, spaces, symmetric, antisymmetric)`; element creation validates index spaces; `delta(i, j)`, `metric(i, j)`, `epsilon(indices)` (the space comes from the indices); `relabel_indices(e, renaming, relabel_free)` as an Expr method | `Space`, `Index`, `tensor`, `T(i, j)`, `delta`, `metric`, `epsilon`, `e.relabel_indices(renaming=None, *, relabel_free=True)`, `space.index()`, `space.indices(n)` |
 | Properties | symbol properties (real, positive, ...) as an enum | `constant("m", real=True)` |
 
 Facade requirements specific to this phase:

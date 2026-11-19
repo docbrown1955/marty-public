@@ -139,7 +139,7 @@ def test_relabel_canonical_names() -> None:
     a, b, c, d = (euclid.index(name) for name in ("a", "b", "c", "d"))
     first = T(a, b) * U(b)
     second = T(c, d) * U(d)
-    assert symbolic.relabel(first) == symbolic.relabel(second)
+    assert first.relabel_indices() == second.relabel_indices()
 
 
 @pytest.mark.unit
@@ -151,7 +151,7 @@ def test_relabel_does_not_mutate() -> None:
     b = euclid.index("b")
     expr = T(a, b) * U(b)
     before = str(expr)
-    relabelled = symbolic.relabel(expr)
+    relabelled = expr.relabel_indices()
     assert str(expr) == before
     assert [i.name for i in expr.free_indices] == ["a"]
     assert str(relabelled) != before
@@ -165,9 +165,9 @@ def test_relabel_free_keeps_free_names_when_disabled() -> None:
     a = euclid.index("a")
     b = euclid.index("b")
     expr = T(a, b) * U(b)
-    kept = symbolic.relabel(expr, relabel_free=False)
+    kept = expr.relabel_indices(relabel_free=False)
     assert [i.name for i in kept.free_indices] == ["a"]
-    assert [i.name for i in symbolic.relabel(expr).free_indices] != ["a"]
+    assert [i.name for i in expr.relabel_indices().free_indices] != ["a"]
 
 
 @pytest.mark.unit
@@ -175,14 +175,14 @@ def test_relabel_expression_without_indices_is_unchanged() -> None:
     a = symbolic.variable("a")
     b = symbolic.variable("b")
     expr = a + 2 * b
-    assert symbolic.relabel(expr).to_latex() == expr.to_latex()
+    assert expr.relabel_indices().to_latex() == expr.to_latex()
 
 
 @pytest.mark.unit
 def test_relabel_single_free_index_takes_first_name() -> None:
     space = symbolic.Space("S", 4, index_names=("alpha", "beta"))
     x = symbolic.tensor("x", [space])
-    relabelled = symbolic.relabel(x(space.index("f")))
+    relabelled = x(space.index("f")).relabel_indices()
     assert relabelled.to_latex() == "x_{alpha}"
     assert [(i.name, i.id) for i in relabelled.free_indices] == [("alpha", 0)]
 
@@ -191,7 +191,7 @@ def test_relabel_single_free_index_takes_first_name() -> None:
 def test_relabel_distinct_free_indices_take_distinct_names() -> None:
     space = symbolic.Space("S", 4, index_names=("alpha", "beta"))
     T = symbolic.tensor("T", [space, space])
-    relabelled = symbolic.relabel(T(space.index("f"), space.index("g")))
+    relabelled = T(space.index("f"), space.index("g")).relabel_indices()
     assert {i.name for i in relabelled.free_indices} == {"alpha", "beta"}
 
 
@@ -201,7 +201,7 @@ def test_relabel_repeated_free_index_in_sum_keeps_one_label() -> None:
     x = symbolic.tensor("x", [space])
     y = symbolic.tensor("y", [space])
     i = space.index("i")
-    relabelled = symbolic.relabel(x(i) + y(i))
+    relabelled = (x(i) + y(i)).relabel_indices()
     assert {idx.name for idx in relabelled.free_indices} == {"alpha"}
     latex = relabelled.to_latex()
     assert "x_{alpha}" in latex
@@ -214,7 +214,7 @@ def test_relabel_dummy_pair_shares_one_label() -> None:
     x = symbolic.tensor("x", [space])
     y = symbolic.tensor("y", [space])
     i = space.index("i")
-    relabelled = symbolic.relabel(x(i) * y(i))
+    relabelled = (x(i) * y(i)).relabel_indices()
     assert {idx.name for idx in relabelled.dummy_indices} == {"alpha"}
     assert relabelled.to_latex() == "x_{alpha}y_{alpha}"
 
@@ -228,7 +228,7 @@ def test_relabel_distinct_pairs_take_names_in_order() -> None:
     w = symbolic.tensor("w", [space])
     i = space.index("i")
     j = space.index("j")
-    relabelled = symbolic.relabel(x(i) * y(i) * z(j) * w(j))
+    relabelled = (x(i) * y(i) * z(j) * w(j)).relabel_indices()
     assert {idx.name for idx in relabelled.dummy_indices} == {"alpha", "beta"}
 
 
@@ -241,7 +241,7 @@ def test_relabel_pool_wrap_around_adds_suffixes() -> None:
     for k in range(5):
         index = space.index(f"k{k}")
         expr = expr * tensors[k](index) * tensors_u[k](index)
-    latex = symbolic.relabel(expr).to_latex()
+    latex = expr.relabel_indices().to_latex()
     assert "alpha_{1}" in latex
     assert "alpha_{2}" in latex
     assert "alpha_{3}" not in latex
@@ -255,7 +255,7 @@ def test_relabel_free_indices_take_names_before_dummies() -> None:
     z = symbolic.tensor("z", [space])
     p = space.index("p")
     f = space.index("f")
-    relabelled = symbolic.relabel(x(p) * y(p) * z(f))
+    relabelled = (x(p) * y(p) * z(f)).relabel_indices()
     assert relabelled.to_latex() == "x_{beta}y_{beta}z_{alpha}"
 
 
@@ -269,7 +269,7 @@ def test_relabel_spaces_keep_their_own_sequences() -> None:
     m = lorentz.index("m")
     n = lorentz.index("n")
     s = spatial.index("s")
-    relabelled = symbolic.relabel(g(m, n) * g(m, n) * x(s) * y(s))
+    relabelled = (g(m, n) * g(m, n) * x(s) * y(s)).relabel_indices()
     names = {idx.name for idx in relabelled.dummy_indices}
     assert names == {"mu", "nu", "alpha"}
 
@@ -283,7 +283,7 @@ def test_relabel_free_of_one_space_dummy_of_another() -> None:
     mu = lorentz.index("m")
     i = spatial.index("i")
     j = spatial.index("j")
-    relabelled = symbolic.relabel(g(mu, i, j) * h(i, j))
+    relabelled = (g(mu, i, j) * h(i, j)).relabel_indices()
     assert {idx.name for idx in relabelled.free_indices} == {"mu"}
 
 
@@ -294,7 +294,7 @@ def test_relabel_resets_all_ids_to_zero() -> None:
     y = symbolic.tensor("y", [space])
     z = symbolic.tensor("z", [space])
     i = space.index("i")
-    relabelled = symbolic.relabel(x(i) * y(i) * z(space.index("f")))
+    relabelled = (x(i) * y(i) * z(space.index("f"))).relabel_indices()
     assert all(idx.id == 0 for idx in relabelled.free_indices)
     assert all(idx.id == 0 for idx in relabelled.dummy_indices)
 
@@ -305,15 +305,15 @@ def test_relabel_twice_gives_same_labels() -> None:
     x = symbolic.tensor("x", [space])
     y = symbolic.tensor("y", [space])
     i = space.index("i")
-    once = symbolic.relabel(x(i) * y(i))
-    assert symbolic.relabel(once).to_latex() == once.to_latex()
+    once = (x(i) * y(i)).relabel_indices()
+    assert once.relabel_indices().to_latex() == once.to_latex()
 
 
 @pytest.mark.unit
 def test_relabel_fixed_index_is_not_renamed() -> None:
     space = symbolic.Space("S", 4, index_names=("alpha", "beta"))
     x = symbolic.tensor("x", [space])
-    assert symbolic.relabel(x(space.fixed_index(1))).to_latex() == "x_{1}"
+    assert x(space.fixed_index(1)).relabel_indices().to_latex() == "x_{1}"
 
 
 @pytest.mark.unit
@@ -323,9 +323,7 @@ def test_relabel_dummy_pairs_avoid_kept_free_names() -> None:
     y = symbolic.tensor("y", [space])
     free = space.index("alpha")
     i = space.index("i")
-    relabelled, _renaming = symbolic.relabel_with_renaming(
-        x(free) * y(i) * x(i), relabel_free=False
-    )
+    relabelled = (x(free) * y(i) * x(i)).relabel_indices(relabel_free=False)
     assert {idx.name for idx in relabelled.free_indices} == {"alpha"}
     assert {idx.name for idx in relabelled.dummy_indices} == {"beta"}
 
@@ -339,7 +337,7 @@ def test_dummy_pairs_relabelled_in_order() -> None:
     j = space.index("j")
     k = space.index("k")
     expr = x(i) * y(i) * x(j) * y(j) * x(k) * y(k)
-    relabelled = symbolic.relabel(expr)
+    relabelled = expr.relabel_indices()
     assert relabelled.to_latex() == (
         "x_{alpha}x_{beta}x_{alpha_{1}}y_{alpha}y_{beta}y_{alpha_{1}}"
     )
@@ -352,7 +350,7 @@ def test_relabel_same_name_different_ids_are_different() -> None:
     y = symbolic.tensor("y", [space])
     free = space.index("f")
     dummy = space.index("p")
-    latex = symbolic.relabel(x(free) * y(dummy) * x(dummy)).to_latex()
+    latex = (x(free) * y(dummy) * x(dummy)).relabel_indices().to_latex()
     assert "x_{alpha}" in latex
     assert "x_{beta}" in latex
     assert "y_{beta}" in latex
@@ -365,7 +363,7 @@ def test_relabel_leaves_user_index_unchanged() -> None:
     y = symbolic.tensor("y", [space])
     i = space.index("i")
     before = (i.name, i.id, i.type)
-    symbolic.relabel(x(i) * y(i))
+    (x(i) * y(i)).relabel_indices()
     assert (i.name, i.id, i.type) == before
 
 
@@ -376,7 +374,71 @@ def test_relabel_repeated_subexpression_stays_valid() -> None:
     y = symbolic.tensor("y", [space])
     i = space.index("i")
     sub = x(i) * y(i)
-    assert symbolic.relabel(sub + sub) == 2 * symbolic.relabel(sub)
+    assert (sub + sub).relabel_indices() == 2 * sub.relabel_indices()
+
+
+@pytest.mark.unit
+def test_relabel_indices_method_gives_canonical_names() -> None:
+    euclid = symbolic.Euclid_R3
+    T = symbolic.tensor("T", [euclid, euclid])
+    U = symbolic.tensor("U", [euclid])
+    a, b, c, d = (euclid.index(name) for name in ("a", "b", "c", "d"))
+    assert (T(a, b) * U(b)).relabel_indices() == (T(c, d) * U(d)).relabel_indices()
+
+
+@pytest.mark.unit
+def test_relabel_indices_method_keeps_free_names_when_disabled() -> None:
+    euclid = symbolic.Euclid_R3
+    T = symbolic.tensor("T", [euclid, euclid])
+    U = symbolic.tensor("U", [euclid])
+    a = euclid.index("a")
+    b = euclid.index("b")
+    expr = T(a, b) * U(b)
+    kept = expr.relabel_indices(relabel_free=False)
+    assert [i.name for i in kept.free_indices] == ["a"]
+    assert [i.name for i in expr.relabel_indices().free_indices] != ["a"]
+
+
+@pytest.mark.unit
+def test_relabel_indices_fills_empty_renaming_map() -> None:
+    space = symbolic.Space("S", 4, index_names=("alpha", "beta"))
+    x = symbolic.tensor("x", [space])
+    y = symbolic.tensor("y", [space])
+    z = symbolic.tensor("z", [space])
+    f = space.index("f")
+    i = space.index("i")
+    expr = x(f) * y(i) * z(i)
+    renaming: dict[symbolic.Index, symbolic.Index] = {}
+    relabelled = expr.relabel_indices(renaming)
+    assert [k.name for k in renaming] == ["f"]
+    assert renaming[f] == relabelled.free_indices[0]
+
+
+@pytest.mark.unit
+def test_relabel_indices_uses_preset_renaming_entries() -> None:
+    space = symbolic.Space("S", 4, index_names=("alpha", "beta"))
+    x = symbolic.tensor("x", [space])
+    y = symbolic.tensor("y", [space])
+    z = symbolic.tensor("z", [space])
+    f = space.index("f")
+    i = space.index("i")
+    preset = space.index("g")
+    renaming = {f: preset}
+    relabelled = (x(f) * y(i) * z(i)).relabel_indices(renaming)
+    assert renaming[f] == preset
+    assert preset in relabelled.free_indices
+    assert [k.name for k in renaming] == ["f"]
+
+
+@pytest.mark.unit
+def test_renaming_rejects_dummy_index_keys() -> None:
+    space = symbolic.Space("S", 4, index_names=("alpha", "beta"))
+    x = symbolic.tensor("x", [space])
+    i = space.index("i")
+    expr = x(i) * x(i)
+    (dummy,) = expr.dummy_indices
+    with pytest.raises(MartyValueError):
+        expr.relabel_indices({dummy: space.index("g")})
 
 
 @pytest.mark.unit
@@ -415,17 +477,32 @@ def test_contracted_index_is_dummy() -> None:
 
 
 @pytest.mark.unit
-def test_renaming_pairs_map_dummies_to_new_names() -> None:
+def test_renaming_ignores_dummy_indices() -> None:
     space = symbolic.Space("S", 4, index_names=("alpha", "beta"))
     x = symbolic.tensor("x", [space])
     y = symbolic.tensor("y", [space])
     i = space.index("i")
     j = space.index("j")
     expr = x(i) * y(i) * x(j) * y(j)
-    relabelled, renaming = symbolic.relabel_with_renaming(expr)
-    assert [(old.name, new.name) for old, new in renaming.pairs] == [
+    renaming: dict[symbolic.Index, symbolic.Index] = {}
+    relabelled = expr.relabel_indices(renaming)
+    assert renaming == {}
+    assert relabelled.to_latex() == "x_{alpha}x_{beta}y_{alpha}y_{beta}"
+
+
+@pytest.mark.unit
+def test_renaming_maps_free_indices_to_new_names() -> None:
+    space = symbolic.Space("S", 4, index_names=("alpha", "beta"))
+    x = symbolic.tensor("x", [space])
+    y = symbolic.tensor("y", [space])
+    i = space.index("i")
+    j = space.index("j")
+    k = space.index("k")
+    expr = x(i) * y(j) * x(k) * y(k)
+    renaming: dict[symbolic.Index, symbolic.Index] = {}
+    expr.relabel_indices(renaming)
+    assert [(old.name, new.name) for old, new in renaming.items()] == [
         ("i", "alpha"),
         ("j", "beta"),
     ]
-    assert all(old.type == symbolic.IndexType.Dummy for old, _ in renaming.pairs)
-    assert relabelled.to_latex() == "x_{alpha}x_{beta}y_{alpha}y_{beta}"
+    assert all(old.type == symbolic.IndexType.Free for old in renaming)

@@ -228,8 +228,8 @@ class TensorDerivativeHandle {
 [[nodiscard]] ExprHandle applyTensorDerivative(ExprHandle const &derivative,
                                                ExprHandle const &operand);
 
-/*! \brief Renaming of the indices of an expression, filled by
- * relabelIndices() and read by applyIndexRenaming().
+/*! \brief Renaming of the free indices of an expression, read and filled by
+ * relabelIndices().
  *
  * Each pair holds an index of the input expression (old) and its new index.
  * The indices of pairs() have no owner: their space is only kept alive by the
@@ -237,8 +237,13 @@ class TensorDerivativeHandle {
  */
 class IndexRenamingHandle {
   public:
-    /*! \brief (old, new) pairs, in order of first occurrence in the input:
-     * free indices first, then dummy indices. */
+    /*! \brief Sets the new index of the free index \p original. Used as input
+     * by relabelIndices(): a free index of the expression keeps this new
+     * index. ValueError if either index is not free. */
+    void add(IndexHandle const &original, IndexHandle const &renamed);
+
+    /*! \brief (old, new) pairs of the free indices, in order of first
+     * occurrence in the input. Dummy indices are not included. */
     [[nodiscard]] std::vector<std::pair<IndexHandle, IndexHandle>>
     pairs() const;
 
@@ -246,8 +251,6 @@ class IndexRenamingHandle {
     friend ExprHandle relabelIndices(ExprHandle const    &expr,
                                      bool                 relabelFree,
                                      IndexRenamingHandle &renaming);
-    friend ExprHandle applyIndexRenaming(ExprHandle const          &expr,
-                                         IndexRenamingHandle const &renaming);
 
     csl::IndexRenaming                             m_renaming;
     std::vector<std::pair<csl::Index, csl::Index>> m_pairs;
@@ -269,18 +272,13 @@ class IndexRenamingHandle {
 [[nodiscard]] ExprHandle relabelIndices(ExprHandle const &expr,
                                         bool              relabelFree = true);
 
-/*! \brief Same as relabelIndices(expr, relabelFree), and fills \p renaming
- * with the old and new index of each relabelled index of \p expr. Any
- * previous content of \p renaming is replaced. */
+/*! \brief Same as relabelIndices(expr, relabelFree), with renaming as input
+ * and output. Indices of \p expr already in \p renaming keep their new index,
+ * the others get canonical names. Both are added to \p renaming. Entries for
+ * other indices are kept. */
 [[nodiscard]] ExprHandle relabelIndices(ExprHandle const    &expr,
                                         bool                 relabelFree,
                                         IndexRenamingHandle &renaming);
-
-/*! \brief Replace each index of \p expr found in \p renaming by its new index.
- * Other indices are unchanged. */
-[[nodiscard]] ExprHandle
-applyIndexRenaming(ExprHandle const          &expr,
-                   IndexRenamingHandle const &renaming);
 
 /*! \brief Free indices of an expression, without duplicates. */
 [[nodiscard]] std::vector<IndexHandle> freeIndices(ExprHandle const &expr);

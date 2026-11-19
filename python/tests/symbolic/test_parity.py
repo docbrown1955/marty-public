@@ -29,7 +29,6 @@ from pymarty.symbolic import (
     exp,
     log,
     metric,
-    relabel,
     sin,
     sqrt,
     tan,
@@ -86,41 +85,41 @@ def _dummy_pairs() -> Expr:
     s = _alpha_space()
     x, y = tensor("x", [s]), tensor("y", [s])
     p1, p2, p3 = s.index("alpha"), s.index("alpha"), s.index("alpha")
-    return relabel(x(p1) * y(p1) * x(p2) * y(p2) * x(p3) * y(p3))
+    return (x(p1) * y(p1) * x(p2) * y(p2) * x(p3) * y(p3)).relabel_indices()
 
 
 def _free_names_skipped() -> Expr:
     s = _alpha_space()
     x, y, z = tensor("x", [s]), tensor("y", [s]), tensor("z", [s])
     p, f = s.index("alpha"), s.index("alpha")
-    return relabel(x(p) * y(p) * z(f))
+    return (x(p) * y(p) * z(f)).relabel_indices()
 
 
 def _relabelled_product() -> Expr:
     s = _alpha_space()
     x, y = tensor("x", [s]), tensor("y", [s])
     p = s.index("alpha")
-    return relabel(x(p) * y(p))
+    return (x(p) * y(p)).relabel_indices()
 
 
 def _free_index_renamed() -> Expr:
     s = _alpha_space()
-    return relabel(tensor("z", [s])(s.index("beta")))
+    return tensor("z", [s])(s.index("beta")).relabel_indices()
 
 
 def _relabelled_delta() -> Expr:
     s = _alpha_space()
-    return relabel(delta(s.index("alpha"), s.index("beta")))
+    return delta(s.index("alpha"), s.index("beta")).relabel_indices()
 
 
 def _relabelled_metric() -> Expr:
     mu, nu = Minkowski.index("\\mu"), Minkowski.index("\\nu")
-    return relabel(metric(mu, nu))
+    return metric(mu, nu).relabel_indices()
 
 
 def _relabelled_delta_upper() -> Expr:
     mu, nu = Minkowski.index("\\mu"), Minkowski.index("\\nu")
-    return relabel(delta(mu, nu.flipped()))
+    return delta(mu, nu.flipped()).relabel_indices()
 
 
 def _unsigned_subscripts() -> Expr:

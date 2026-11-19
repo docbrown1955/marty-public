@@ -509,12 +509,13 @@ void visitIndicesOfTensors(csl::Expr                               &expr,
 
 void applyRenamingMap(
     csl::Expr                                           &expr,
-    std::map<csl::IndexRenaming::Key, csl::Index> const &renamed)
+    std::map<csl::IndexRenaming::Key, csl::Index> const &renamed,
+    bool                                                 withDummies)
 {
-    visitIndicesOfTensors(expr, [&renamed](csl::Index &i) {
-        if (not i.getSpace()
-            or (i.getType() != cslIndex::Dummy
-                and i.getType() != cslIndex::Free))
+    visitIndicesOfTensors(expr, [&](csl::Index &i) {
+        bool renamable = i.getType() == cslIndex::Free
+                         or (withDummies and i.getType() == cslIndex::Dummy);
+        if (not i.getSpace() or not renamable)
             return;
         auto key = csl::IndexRenaming::Key{
             i.getSpace(), i.getID(), std::string(i.getName())};
@@ -583,7 +584,19 @@ Expr RelabelIndices(Expr const    &expr,
     std::map<std::pair<Space const *, std::string>, size_t> uses;
     for (auto const &kept : keptNames)
         uses[kept] = 1;
+    // Only free indices take part in the renaming map: dummy indices are
+    // renamed in the result but never read from or written to the map.
+    for (auto const &index : freeIndices) {
+        auto found = renaming.renamed.find(keyOf(index));
+        if (found == renaming.renamed.end())
+            continue;
+        renamed.emplace(keyOf(index), found->second);
+        ++uses[{found->second.getSpace(),
+                std::string(found->second.getName())}];
+    }
     auto relabel = [&](Index const &index) {
+        if (renamed.count(keyOf(index)))
+            return;
         Space const *space = index.getSpace();
         auto const  &pool  = space->getDefaultIndexNames();
         auto         next
@@ -609,9 +622,9 @@ Expr RelabelIndices(Expr const    &expr,
     for (auto const &index : dummyIndices)
         relabel(index);
 
-    applyRenamingMap(res, renamed);
-    for (auto const &[key, index] : renamed)
-        renaming.renamed[key] = index;
+    applyRenamingMap(res, renamed, true);
+    for (auto const &index : freeIndices)
+        renaming.renamed[keyOf(index)] = renamed.at(keyOf(index));
     return res;
 }
 
@@ -625,7 +638,7 @@ Expr ApplyIndexRenaming(Expr const &expr, IndexRenaming const &renaming)
 {
     Expr res = expr;
     csl::WeakDeepCopy(res);
-    applyRenamingMap(res, renaming.renamed);
+    applyRenamingMap(res, renaming.renamed, false);
     return res;
 }
 

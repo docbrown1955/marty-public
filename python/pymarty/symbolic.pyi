@@ -6,7 +6,6 @@ from pymarty._pymarty import Euclid_R4 as Euclid_R4
 from pymarty._pymarty import Expr as Expr
 from pymarty._pymarty import I as I
 from pymarty._pymarty import Index as Index
-from pymarty._pymarty import IndexRenaming as IndexRenaming
 from pymarty._pymarty import IndexType as IndexType
 from pymarty._pymarty import Minkowski as Minkowski
 from pymarty._pymarty import Space as Space
@@ -16,7 +15,6 @@ from pymarty._pymarty import TensorField as TensorField
 from pymarty._pymarty import abs as abs
 from pymarty._pymarty import acos as acos
 from pymarty._pymarty import acosh as acosh
-from pymarty._pymarty import apply_renaming as apply_renaming
 from pymarty._pymarty import argument as argument
 from pymarty._pymarty import asin as asin
 from pymarty._pymarty import asinh as asinh
@@ -34,8 +32,6 @@ from pymarty._pymarty import log as log
 from pymarty._pymarty import metric as metric
 from pymarty._pymarty import modulus as modulus
 from pymarty._pymarty import pi as pi
-from pymarty._pymarty import relabel as relabel
-from pymarty._pymarty import relabel_with_renaming as relabel_with_renaming
 from pymarty._pymarty import sin as sin
 from pymarty._pymarty import sinh as sinh
 from pymarty._pymarty import sqrt as sqrt
@@ -54,8 +50,6 @@ __all__ = [
     "Euclid_R4",
     "I",
     "Expr",
-    "Index",
-    "IndexRenaming",
     "IndexType",
     "Minkowski",
     "Space",
@@ -65,7 +59,6 @@ __all__ = [
     "abs",
     "acos",
     "acosh",
-    "apply_renaming",
     "argument",
     "asin",
     "asinh",
@@ -83,8 +76,6 @@ __all__ = [
     "metric",
     "modulus",
     "pi",
-    "relabel",
-    "relabel_with_renaming",
     "sin",
     "sinh",
     "sqrt",

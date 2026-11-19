@@ -375,9 +375,10 @@ inline void SetComplexProperty(T parent, ComplexProperty prop)
 [[nodiscard]] Expr GetComplexArgument(const Expr &expression);
 
 /*!
- * \brief Correspondence between the original indices of an expression and
- * their new names, as produced by RelabelIndices(). An index is identified by
- * its space, ID and name.
+ * \brief Correspondence between the free indices of an expression and their
+ * new names, as produced by RelabelIndices(). A free index is identified by
+ * its space, ID and name. Dummy indices are never part of a renaming: they
+ * are local to each expression.
  */
 struct IndexRenaming {
     using Key = std::tuple<Space const *, Index::ID_type, std::string>;
@@ -398,10 +399,13 @@ Expr RelabelIndices(Expr const &expr, bool relabelFree = true);
 
 /*!
  * \brief Same as RelabelIndices(expr, relabelFree), and fills \p renaming with
- * the new index of each relabelled index of \p expr.
+ * the new index of each relabelled free index of \p expr.
  * \param expr The expression to relabel.
  * \param relabelFree See RelabelIndices(expr, relabelFree).
- * \param renaming Receives the renaming of the indices of \p expr.
+ * \param renaming Input and output. A free index of \p expr already in
+ * \p renaming keeps the new index given there. The other free indices get
+ * canonical names, which are added to \p renaming. Entries for other indices
+ * are kept.
  * \return The relabelled copy.
  */
 Expr RelabelIndices(Expr const    &expr,
@@ -409,7 +413,7 @@ Expr RelabelIndices(Expr const    &expr,
                     IndexRenaming &renaming);
 
 /*!
- * \brief Returns a copy of the expression where every index found in
+ * \brief Returns a copy of the expression where every free index found in
  * \p renaming is replaced by its new index. Other indices are unchanged. The
  * input is not modified.
  * \param expr The expression to rename.
