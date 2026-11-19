@@ -886,6 +886,17 @@ False
 True
 )doc")
         .def(
+            "__invert__",
+            [](IndexWrapper const &self) {
+                return IndexWrapper{self.handle.flipped(), self.space};
+            },
+            R"doc(Index with the opposite sign, written ``~i``.
+
+>>> i = Space("S", 4).index()
+>>> ~i == i.flipped()
+True
+)doc")
+        .def(
             "flipped",
             [](IndexWrapper const &self) {
                 return IndexWrapper{self.handle.flipped(), self.space};

@@ -100,6 +100,16 @@ def test_index_hash_ignores_sign() -> None:
 
 
 @pytest.mark.unit
+def test_tilde_toggles_the_index_sign_like_flipped() -> None:
+    mu = symbolic.Minkowski.index("mu")
+    A = symbolic.tensor("A", [symbolic.Minkowski])
+    assert (~mu).flipped() == mu
+    assert A(~mu) == A(mu.flipped())
+    assert A(~mu) != A(mu)
+    assert A(~~mu) == A(mu)
+
+
+@pytest.mark.unit
 def test_index_is_not_equal_to_non_index() -> None:
     mu = symbolic.Minkowski.index("mu")
     assert mu != 1
