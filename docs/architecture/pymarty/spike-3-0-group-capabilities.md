@@ -39,10 +39,9 @@ The approved usage example `python/examples/usage/group_theory.py` asserts
 `fund.casimir == Fraction(4, 3)` (line 38) and `adj.casimir == 3` (line 45). These will fail against
 the core as it stands.
 
-Decision needed (open): either (a) Python exposes the core's Casimir as-is and the example is
-amended to `4/9` and `1`, which needs a new G1 review, or (b) the C++ API applies the standard
-normalisation (for example by multiplying by N), which is a core change beyond phase 3 scope.
-The Python layer must not rescale on its own (no algebra in Python).
+Decision (user, option "core"): Python exposes the core's Casimir as-is. The usage example now
+asserts `4/9` and `1`, and needs a new G1 review. The core is not changed. The Python layer must
+not rescale on its own (no algebra in Python).
 
 ## Other conventions to assert in tests
 

@@ -33,16 +33,16 @@ assert fund.highest_weight == (1, 0)
 assert antifund == su3.irrep(0, 1)
 assert not fund.is_self_conjugate
 
-# Casimir and Dynkin index, exact rationals in MARTY's normalisation
+# Casimir and Dynkin index, exact rationals in MARTY's normalisation. The
+# Casimir is the core value, which is 1/N of the standard SU(N) value.
 print("C2(fundamental) =", fund.casimir, " T(fundamental) =", fund.dynkin_index)
-assert fund.casimir == Fraction(4, 3)
+assert fund.casimir == Fraction(4, 9)
 assert fund.dynkin_index == Fraction(1, 2)
 
-# The adjoint has C2 equal to the dual Coxeter number of SU(3)
 adj = su3.adjoint()
 print("adjoint:", adj, "dim", adj.dim, "C2 =", adj.casimir)
 assert adj.dim == 8
-assert adj.casimir == 3
+assert adj.casimir == 1
 
 # Tensor product: 3 x 3bar = 1 + 8
 prod = fund * antifund
