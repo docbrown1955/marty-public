@@ -49,16 +49,44 @@ not rescale on its own (no algebra in Python).
 - Products: `Irrep * Irrep` returns a sum with multiplicities, with dimensions summing to the product.
 - The probe ran without exceptions for every group and product listed.
 
+## Second probe round (core Casimir, index and remaining groups)
+
+Core values, using `getQuadraticCasimir(highestWeight)` and `getIndex(r, 2)`:
+
+| Group | Irrep | dim | C2 (core) | T (core, `getIndex(r,2)`) |
+|-------|-------|-----|-----------|---------------------------|
+| SU(5) | fund | 5 | 12/25 | 1/2 |
+| SU(5) | adj | 24 | 1 | 1/2 |
+| SO(10) | vector | 10 | 9/8 | 1 |
+| SO(10) | adj | 45 | 2 | 1 |
+| SO(10) | spinor | 16 | 45/32 | 1 |
+| Sp(4) | fund | 4 | 11/15 | 1 |
+| E6 | 27 | 27 | 13/9 | 1 |
+| E6 | adj | 78 | 2 | 1 |
+
+- Constructs without error: SU(5), SO(4), SO(5), SO(10), Sp(4), E6, E7, E8, F4, G2.
+- `getDim()` on the group object returns 1 for E6, E7, E8, F4, G2. Do not use it for the group
+  dimension; use the algebra dimension instead.
+- SO(3) (B1) aborts. The core prints a `ValueError` and the process then segfaults. The API must
+  validate SO dimension before construction.
+- U(1): the charge of `highestWeightRep({1,3})` is `1/3`, and `q*q` returns a single irrep with dim 1.
+  `getQuadraticCasimir` segfaults, and `getIndex` throws a core `NotImplementedError` that is not
+  caught. The API must map these to typed errors and must not call the Casimir on U(1).
+- Index conventions are unresolved. `getIndex(adj of SU(3), 2) = 1/2` and `getIndex(adj of SO(10), 2) = 1`
+  do not match the standard Dynkin values (SU(3) adjoint 3, SO(10) adjoint 8). Do not assert these
+  until the meaning of the second argument is checked in `semiSimpleAlgebra.cpp`.
+- Sp(4) fund index 1 and C2 11/15 are not checked against a reference. Do not assert them yet.
+
 ## Not covered by this spike
 
-- U(1) charge arithmetic (`Fraction` labels) was not probed beyond construction.
-- Casimir and index for SU(5), SO(10) and E6 were not probed. Phase 3 WP3.1 must decide their
-  expected values before writing tests.
 - Generators and structure constants (`src/marty/core/su_n_algebra.h`) were not probed.
+- Sp(2n) beyond Sp(4), and index conventions for groups other than SU(N) fundamental.
 
 ## Consequences for phase 3
 
-- Supported in the core for SU(N), SO(N), E6 and U(1). E7, E8, F4, G2 and Sp were not probed and
-  should be assumed unsupported until checked, so their Python surface raises `NotImplementedError`.
+- Supported in the core for SU(N), SO(N) with N ≥ 4, Sp, E6, E7, E8, F4, G2 construction and U(1)
+  charges. The Python surface must not call Casimir or index on U(1).
+- Index and Casimir for non-fundamental irreps are the main risk. Assert only the values listed in
+  the Casimir column (core convention) and the Dynkin index for SU(N) fundamental.
 - The timing budget for the performance guard can be based on E6 27 x 27bar (about 0.4 s).
 - The usage example needs a decision before WP3.2 (see Decision needed above).
