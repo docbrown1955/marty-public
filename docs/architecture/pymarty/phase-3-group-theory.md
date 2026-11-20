@@ -151,14 +151,15 @@ decompositions, the capability matrix.
   rather than silently approximated.
 - Conjugation conventions of `Irrep` (labels order, self-conjugate U(1) rep) need to be pinned by tests
   that read MARTY's outputs once and then assert literal values.
-- **E8 is untested (open).** The core gives dimension 3875 for both the fundamental and the adjoint
-  (expected 248 for the adjoint). E8 stays exposed but has no tests until the core is fixed, which needs
-  a separate decision. Tracked in [phase-3/04-implementation-log.md](phase-3/04-implementation-log.md).
+- **E8 fixed and tested.** The core Cartan matrix used a node order that did not match the index tables
+  in `src/marty/core/groupIndices.h`. The matrix is relabelled to the table order, and one index row
+  that duplicated node 11 and dropped node 7 is corrected. The defining and adjoint representations are
+  now 248, and 248 x 248 decomposes as 1 + 248 + 3875 + 27000 + 30380. See
+  [phase-3/04-implementation-log.md](phase-3/04-implementation-log.md).
 
 ## Status (end of phase 3 implementation)
 
-- Implemented: SU(n), SO(n>=4), Sp(n), E6, E7, F4, G2 and U(1) construction. E8 is exposed but untested
-  because its core dimensions are wrong (3875 for the adjoint; see [phase-3/04-implementation-log.md](phase-3/04-implementation-log.md)).
+- Implemented: SU(n), SO(n>=4), Sp(n), E6, E7, E8, F4, G2 and U(1) construction, all tested.
 - Core fix: conjugation per algebra type in `src/marty/core/representation.cpp` (see the implementation log).
 - Port table: [phase-3/port-table.md](phase-3/port-table.md). Implementation log: [phase-3/04-implementation-log.md](phase-3/04-implementation-log.md).
 - Exit artifacts: `python/examples/usage/group_theory.py` (approved) and `python/examples/group_theory_basics.py`.

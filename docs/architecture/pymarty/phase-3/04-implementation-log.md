@@ -12,7 +12,8 @@ mapping: [port-table.md](port-table.md). Capability record: [../spike-3-0-group-
 | WP3.1 | C++ `mty::api::group_theory` facade and gtests | done |
 | WP3.2 | `pymarty.group_theory` binding, wrappers, stubs, parity tests | done |
 | WP3.3 | Port of the U(1) charge part of `test_flavor_groups.cpp` | done |
-| Families | Sp(n), E7, E8 (untested), F4, G2 added to facade, binding and tests | done |
+| Families | Sp(n), E7, E8, F4, G2 added to facade, binding and tests | done |
+| E8 fix | Cartan node order matched to the index tables; duplicated index row fixed | done |
 | Core fix | `Irrep::getConjugatedRep` per algebra type | done |
 | Exit artifacts | usage example, `group_theory_basics.py`, port table, this log | done |
 
@@ -39,8 +40,11 @@ mapping: [port-table.md](port-table.md). Capability record: [../spike-3-0-group-
 
 ## Known defect (not fixed, flagged)
 
-- E8: the core gives dimension 3875 for both `getDefiningRep()` and `getAdjointRep()`. The adjoint should be 248.
-  E8 is exposed in the API and binding but has no tests (user decision). A core fix needs a separate decision.
+- E8 (fixed): the core gave 3875 for both `getDefiningRep()` and `getAdjointRep()`. Two causes: the Cartan
+  matrix in `E8::setCartanMatrix` (`src/marty/core/semiSimpleAlgebra.cpp`) used a node order that did not match
+  the index tables in `src/marty/core/groupIndices.h`, and the 29th row of each E8 table was labelled
+  `{0,0,0,0,1,0,0}` (a duplicate of node 11, dropping node 7). The matrix now uses the table order, so
+  label `{1,0,...}` is 248 and `{0,...,0,1}` is node 7. Note: E8 labels written by users change meaning.
 - Spike record: the E6 27 x 27bar row in the spike (`27 = 27 + 351 + 1728`, dim 2106) was wrong. The correct
   decomposition is 1 + 78 + 650 (dim 729). See the correction note in the spike record.
 

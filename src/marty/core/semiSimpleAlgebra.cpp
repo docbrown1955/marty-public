@@ -1208,16 +1208,15 @@ mty::algebra::Type E8::getType() const
 
 void E8::setCartanMatrix()
 {
-    for (int i = 0; i != l; ++i) {
+    // Node ordering matches the E8 index tables in groupIndices.h:
+    // node 0 is the adjoint, node 7 is the branch node.
+    for (int i = 0; i != l; ++i)
         cartanMatrix[i][i] = 2;
-        if (i == 2) {
-            cartanMatrix[i][l - 1] = -1;
-            cartanMatrix[l - 1][i] = -1;
-        }
-        if (i < l - 2) {
-            cartanMatrix[i][i + 1] = -1;
-            cartanMatrix[i + 1][i] = -1;
-        }
+    std::vector<std::pair<int, int>> const edges
+        = {{0, 1}, {1, 2}, {2, 3}, {3, 7}, {4, 7}, {4, 5}, {6, 7}};
+    for (auto const &[i, j] : edges) {
+        cartanMatrix[i][j] = -1;
+        cartanMatrix[j][i] = -1;
     }
 }
 

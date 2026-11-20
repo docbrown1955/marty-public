@@ -15,8 +15,7 @@ behaviour is checked by a `GroupTheoryApi` gtest, mapped to Python by `@pytest.m
 | Dynkin index `T(fund SU(3)) = 1/6` | ported | `test_group_theory_api.py`, `examples/usage/group_theory.py` (convention chosen by the user) |
 | U(1) charge group construction | ported | `test_flavor_groups_group_part.py` (3 tests) |
 | SO(10) spinor and vector products | ported (C++ gtest) | `GroupTheoryApi` decomposition tests |
-| Sp(n), F4, E6, E7, G2 decompositions and dimensions | new coverage | `GroupTheoryApi.SymplecticAndExceptionalDecompositions`, `SymplecticDimensionIsValidated`, `ConjugationFollowsDiagramAutomorphism` |
-| E8 | exposed, not tested | user decision: port without testing. The core returns 3875 for both the fundamental and the adjoint (expected 248 adjoint); see the implementation log |
+| Sp(n), F4, E6, E7, E8, G2 decompositions and dimensions | new coverage | `GroupTheoryApi.SymplecticAndExceptionalDecompositions`, `SymplecticDimensionIsValidated`, `ConjugationFollowsDiagramAutomorphism` |
 | SO(3) | dropped | the core aborts the process; the facade requires SO(n) with n >= 4 |
 | U(1) Casimir and index | dropped | the core segfaults or throws an uncaught error; the facade raises `NotImplementedError` |
 

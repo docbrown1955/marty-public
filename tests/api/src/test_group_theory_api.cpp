@@ -174,6 +174,13 @@ TEST(GroupTheoryApi, SymplecticAndExceptionalDecompositions)
     EXPECT_EQ(e7->adjoint().dim(), 133);
     EXPECT_EQ(dimsOf(e7->tensorProduct(e7->fundamental(), e7->fundamental())),
               (std::map<int, int>{{1, 1}, {133, 1}, {1463, 1}, {1539, 1}}));
+
+    auto e8 = gt::Group::e8();
+    EXPECT_EQ(e8->fundamental().dim(), 248);
+    EXPECT_EQ(e8->adjoint().dim(), 248);
+    EXPECT_EQ(dimsOf(e8->tensorProduct(e8->fundamental(), e8->fundamental())),
+              (std::map<int, int>{
+                  {1, 1}, {248, 1}, {3875, 1}, {27000, 1}, {30380, 1}}));
 }
 
 TEST(GroupTheoryApi, SymplecticDimensionIsValidated)

@@ -9,6 +9,7 @@ from pymarty.errors import MartyValueError
 from pymarty.group_theory import (
     E6,
     E7,
+    E8,
     F4,
     G2,
     SO,
@@ -158,6 +159,16 @@ def test_symplectic_and_exceptional_decompositions() -> None:
         133: 1,
         1463: 1,
         1539: 1,
+    }
+
+    e8 = E8()
+    assert (e8.fundamental().dim, e8.adjoint().dim) == (248, 248)
+    assert dims_of(e8.fundamental() * e8.fundamental()) == {
+        1: 1,
+        248: 1,
+        3875: 1,
+        27000: 1,
+        30380: 1,
     }
 
 
