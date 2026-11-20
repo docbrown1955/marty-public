@@ -34,7 +34,7 @@ The existing facade is kept as is (installed header, existing tests, public beha
 
 | Item | Description |
 |------|-------------|
-| Alias | `namespace mty::api::diracology = mty::gamma_api;` and a header `diracology/diracology.h` forwarding to `gamma.h`, so that all modules have the same layout |
+| Alias | No alias. A new namespace `mty::api::diracology` in `src/marty/api/diracology/` (`diracology.h`, `diracology.cpp`) wraps `gamma.h`. `namespace X = Y` cannot be used for a whole namespace in this way, and `gamma.h` stays unchanged. Details: [03-spec.md](phase-2/03-spec.md) section 3 |
 | Introspection | `size(expr)`, `argument(expr, i)` (the old binding used `expr->size()` / `expr->argument(i)` directly: move that into the API) |
 | Comparison | `equals(a, b)`, `less(a, b)` (the old binding converted through `sgl_to_csl` with `defaultSGLTensorSet()` in the binding: move into the API) |
 | Scalars | `from_int`, `from_rational`, `from_double`, `scale(expr, Rational)`; coefficient from `csl::Expr` where the build links CSL |
@@ -44,6 +44,8 @@ The existing facade is kept as is (installed header, existing tests, public beha
 | Hardening | Review `gamma.cpp` throw sites (lines near 200, 206, 216, 347, 406) so that every invalid input produces a clear typed message and never a crash. Add input validation for negative indices, `trace` of an empty list, `current` index collisions |
 
 `tests/integration/src/gammaAPI.cpp` is kept in place and registered as an API test source for parity.
+New C++ tests go in a flat file `tests/api/src/test_diracology_api.cpp` (decision O1 in
+[03-spec.md](phase-2/03-spec.md)), because `tests/api/CMakeLists.txt` registers tests with a flat `ADD_API_TEST(name)` macro.
 
 ## 3. Python layer
 
@@ -56,7 +58,7 @@ The existing facade is kept as is (installed header, existing tests, public beha
 | `DMinko()`, `imaginaryUnit()` | `D`, `I` module constants |
 | `current(chain, iL, iR)`, `trace(chain)` | `current([...], 0, 1)`, `trace([...])` |
 | `simplified`, `ordered`, `project` | `.simplify()`, `.order()`, `.project(basis)` |
-| `applySingleFierz`, `applyDoubleFierz` | `single_fierz(c1, c2, basis=...)`, `double_fierz(...)` |
+| `applySingleFierz`, `applyDoubleFierz` | `single_fierz(c1, c2, basis=...)`, `double_fierz(...)`, returning a named `(rhs, lhs)` result (Q3) |
 | `FierzBasis::{Standard, Chiral}` | `FierzBasis.STANDARD`, `FierzBasis.CHIRAL` (an `enum.Enum`) |
 | `keepSymbolic4D(bool)` | `set_symbolic_dimension(keep_symbolic=...)` and `with symbolic_dimension():` |
 | `generateString`, `generateLatex` | `str(e)`, `.to_latex()`, `_repr_latex_()` |

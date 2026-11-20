@@ -172,13 +172,25 @@ Expr simplified(Expr const &expr)
         sgl::Simplified(sgl::DeepRefreshed(clean), false));
 }
 
+// A single OrderChains + Simplify pass is not idempotent (anticommutation can
+// create new out-of-order chains), so the pass is repeated until it reaches a
+// fixed point. The bound guards against non-terminating rewrites.
 Expr ordered(Expr const &expr)
 {
-    Expr res = sgl::DeepCopy(expr);
-    sgl::OrderChains(res);
-    Expr clean
-        = IndexManager::renameIndices(relative_chain_order(simplified(res)));
-    return clean;
+    constexpr int maxPasses = 10;
+    Expr          current   = expr;
+    for (int pass = 0; pass < maxPasses; ++pass) {
+        Expr res = sgl::DeepCopy(current);
+        sgl::OrderChains(res);
+        Expr next = IndexManager::renameIndices(
+            relative_chain_order(simplified(res)));
+        if (sgl::sgl_to_csl(next, mty::defaultSGLTensorSet())
+            == sgl::sgl_to_csl(current, mty::defaultSGLTensorSet())) {
+            return next;
+        }
+        current = next;
+    }
+    return current;
 }
 
 Expr project(Expr const &expr, FierzBasis basis)
@@ -201,7 +213,8 @@ Expr project(Expr const &expr, FierzBasis basis)
 
 std::pair<Expr, sgl::IndexChain const *> getIndexChainAssert(Expr const &expr);
 
-static Expr applySingleFierz(Expr const &chain1, Expr const &chain2, FierzBasis basis)
+static Expr
+applySingleFierz(Expr const &chain1, Expr const &chain2, FierzBasis basis)
 {
     auto [fl, left]  = getIndexChainAssert(chain1);
     auto [fr, right] = getIndexChainAssert(chain2);
@@ -212,7 +225,8 @@ static Expr applySingleFierz(Expr const &chain1, Expr const &chain2, FierzBasis 
                        basis));
 }
 
-static Expr applyDoubleFierz(Expr const &chain1, Expr const &chain2, FierzBasis basis)
+static Expr
+applyDoubleFierz(Expr const &chain1, Expr const &chain2, FierzBasis basis)
 {
     auto [fl, left]  = getIndexChainAssert(chain1);
     auto [fr, right] = getIndexChainAssert(chain2);
@@ -223,7 +237,8 @@ static Expr applyDoubleFierz(Expr const &chain1, Expr const &chain2, FierzBasis 
                        basis));
 }
 
-FierzResult singleFierz(Expr const &chain1, Expr const &chain2, FierzBasis basis)
+FierzResult
+singleFierz(Expr const &chain1, Expr const &chain2, FierzBasis basis)
 {
     return translateFierzErrors([&] {
         // lhs is copied first: the Fierz rearrangement may modify its inputs.
@@ -232,7 +247,8 @@ FierzResult singleFierz(Expr const &chain1, Expr const &chain2, FierzBasis basis
     });
 }
 
-FierzResult doubleFierz(Expr const &chain1, Expr const &chain2, FierzBasis basis)
+FierzResult
+doubleFierz(Expr const &chain1, Expr const &chain2, FierzBasis basis)
 {
     return translateFierzErrors([&] {
         Expr lhs = sgl::DeepCopy(chain1) * sgl::DeepCopy(chain2);

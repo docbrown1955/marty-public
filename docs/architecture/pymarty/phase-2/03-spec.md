@@ -106,7 +106,7 @@ distinct SGL indices (`src/marty/api/diracology.cpp`, `IndexManager`). Equal Dir
 
 Rules:
 - Indices accept anything with `__index__`.
-- Coefficients accept `int`, `float`, `Fraction`, or an object with `__marty_expr__` (open risk, section 8).
+- Coefficients accept `int`, `float`, `Fraction`, or a `pymarty.symbolic` `Expr` (the C++ binding unwraps `ExprHandle`).
 - `current` and `trace` accept any iterable of `DiracExpr` (tuple, list, generator).
 - `__eq__` is canonical; `__hash__` is `None`.
 - The module imports nothing from other pymarty modules, so it works without `pymarty.symbolic`.
@@ -157,7 +157,7 @@ the port table (`phase-2/port-table.md`, written in WP3):
 
 ## 8. Risks
 
-- Symbolic coefficients (`__marty_expr__`): WP1 spike decides. If SGL accepts a CSL expression as a coefficient, support it by duck typing (no import of `pymarty.symbolic`). If not, raise `NotImplementedError` and document it (Q5).
+- Symbolic coefficients: supported. The `diracology` → `symbolic` dependency is accepted, mirroring SGL → CSL in C++ (decided by the maintainer). The spike confirmed SGL handles a CSL coefficient in `g*x`, `x*g` and `==`.
 - SGL can assert or throw `sgl::MathError` on unusual input. The invalid-input matrix finds these; the fix goes in the API layer.
 - Unhashable `DiracExpr` breaks code that puts expressions in sets or dict keys. Accepted per Q2.
 - Build time: a full build of `_pymarty` is long. Use the smallest target (`--target _pymarty`) and single test targets.

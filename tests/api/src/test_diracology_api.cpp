@@ -60,6 +60,15 @@ TEST(DiracologyApi, EqualityIsCanonical)
 }
 
 
+TEST(DiracologyApi, OrderIsIdempotent)
+{
+    auto chain = dirac::current(
+        {dirac::gamma(0), dirac::gamma(1), dirac::gamma(2)}, 1, 2);
+    auto once  = dirac::ordered(chain);
+    auto twice = dirac::ordered(once);
+    EXPECT_TRUE(dirac::equals(once, twice));
+}
+
 TEST(DiracologyApi, SymbolicDimensionIsRestoredOnException)
 {
     bool const before = sgl::option::keepEvanescentOperators;

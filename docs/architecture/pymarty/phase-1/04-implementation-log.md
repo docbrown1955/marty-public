@@ -1,4 +1,4 @@
-Status: IN PROGRESS
+Status: ACCEPTED (user, 2026-11-20). Phase 1 is accepted; the G3 record is below.
 Updated: 2026-11-17
 Author: orchestrator
 
@@ -519,7 +519,7 @@ Known limitations (not fixed, to report):
 
 ## G3 review round: API renames (2026-11-18)
 
-Status: awaiting user acceptance at G3. Not accepted yet.
+Status: accepted by the user at G3 (2026-11-20). User input: "0 & 1 are done & accepted. Proceed with 2."
 
 G2 AI review: not completed. The round 1 reviewer subagent failed three times (connection timeout to `api.business.githubcopilot.com:443`). The user skipped G2. No `05-ai-review-round-1.md` was written.
 

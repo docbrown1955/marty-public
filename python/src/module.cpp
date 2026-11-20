@@ -30,6 +30,8 @@ namespace py = pybind11;
 
 // Defined in symbolic.cpp.
 void bindSymbolic(py::module_ &m);
+// Defined in diracology.cpp.
+void bindDiracology(py::module_ &m);
 
 namespace {
 
@@ -267,6 +269,7 @@ PYBIND11_MODULE(_pymarty, m)
     py::register_exception_translator(translateException);
 
     bindSymbolic(m);
+    bindDiracology(m);
 
     // Test hooks for the error and output layers. Not part of the public API.
     py::module_ debug

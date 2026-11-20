@@ -3,13 +3,14 @@
 Submodules:
 
 - ``symbolic``: expressions, symbols, indices, spaces and tensors.
+- ``diracology``: gamma matrices, traces and Fierz identities.
 - ``config``: run-time discovery of MARTY paths and programs.
 - ``errors``: the exception hierarchy, rooted at ``MartyError``.
 
 The package is built from source; see the README for the build steps.
 """
 
-from pymarty import config, errors
+from pymarty import config, diracology, errors
 from pymarty._pymarty import __version__
 
-__all__ = ["__version__", "config", "errors"]
+__all__ = ["__version__", "config", "diracology", "errors"]

@@ -17,7 +17,7 @@ if(NOT pybind11_FOUND)
     FetchContent_MakeAvailable(pybind11)
 endif()
 
-pybind11_add_module(_pymarty src/module.cpp src/symbolic.cpp)
+pybind11_add_module(_pymarty src/module.cpp src/symbolic.cpp src/diracology.cpp)
 target_link_libraries(_pymarty PRIVATE marty-static)
 target_compile_definitions(_pymarty PRIVATE PYMARTY_VERSION="${PYMARTY_VERSION}")
 set_target_properties(_pymarty PROPERTIES
