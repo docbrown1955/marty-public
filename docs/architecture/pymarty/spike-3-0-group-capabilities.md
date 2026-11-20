@@ -88,5 +88,12 @@ Core values, using `getQuadraticCasimir(highestWeight)` and `getIndex(r, 2)`:
   charges. The Python surface must not call Casimir or index on U(1).
 - Index and Casimir for non-fundamental irreps are the main risk. Assert only the values listed in
   the Casimir column (core convention) and the Dynkin index for SU(N) fundamental.
+
+## Decision: Dynkin index convention (after the probes above)
+
+The index used by the binding is `T(r) = C2(r) dim(r) / dim(G)`, with the core Casimir. This gives
+T(fund of SU(3)) = 1/6, T(adj of SU(3)) = 1, T(vector of SO(10)) = 1/4, T(spinor of SO(10)) = 1/2, and
+T(27 of E6) = 1/2. The `getIndex(r, 2)` values in the tables above are not used, because that core
+function returns a constant that cancels in the normalisation.
 - The timing budget for the performance guard can be based on E6 27 x 27bar (about 0.4 s).
 - The usage example needs a decision before WP3.2 (see Decision needed above).

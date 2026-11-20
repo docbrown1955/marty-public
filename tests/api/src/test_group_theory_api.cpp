@@ -1,0 +1,141 @@
+// This file is part of MARTY.
+//
+// MARTY is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// MARTY is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with MARTY. If not, see <https://www.gnu.org/licenses/>.
+
+#include "marty/api/common/error.h"
+#include "marty/api/group_theory/group_theory.h"
+
+#include <gtest/gtest.h>
+
+#include <map>
+#include <vector>
+
+namespace gt = mty::api::group_theory;
+using Labels = std::vector<int>;
+
+namespace {
+
+std::map<Labels, int> labelsOf(gt::Decomposition const &decomp)
+{
+    std::map<Labels, int> out;
+    for (auto const &[irrep, mult] : decomp.terms)
+        out[irrep.labels()] += mult;
+    return out;
+}
+
+double toDouble(gt::Rational const &r)
+{
+    return static_cast<double>(r.num) / static_cast<double>(r.den);
+}
+
+} // namespace
+
+TEST(GroupTheoryApi, SU3Decompositions)
+{
+    auto su3      = gt::Group::su(3);
+    auto fund     = su3->fundamental();
+    auto antifund = fund.conjugate();
+    auto adj      = su3->adjoint();
+
+    EXPECT_EQ(labelsOf(su3->tensorProduct(fund, antifund)),
+              (std::map<Labels, int>{{{0, 0}, 1}, {{1, 1}, 1}}));
+    EXPECT_EQ(labelsOf(su3->tensorProduct(fund, fund)),
+              (std::map<Labels, int>{{{2, 0}, 1}, {{0, 1}, 1}}));
+    EXPECT_EQ(
+        labelsOf(su3->tensorProduct(adj, adj)),
+        (std::map<Labels, int>{
+            {{0, 0}, 1}, {{1, 1}, 2}, {{3, 0}, 1}, {{0, 3}, 1}, {{2, 2}, 1}}));
+    EXPECT_EQ(su3->tensorProduct(adj, adj).dim(), 64);
+}
+
+TEST(GroupTheoryApi, OtherGroupDecompositions)
+{
+    auto su5 = gt::Group::su(5);
+    auto f5  = su5->fundamental();
+    EXPECT_EQ(labelsOf(su5->tensorProduct(f5, f5.conjugate())),
+              (std::map<Labels, int>{{{0, 0, 0, 0}, 1}, {{1, 0, 0, 1}, 1}}));
+
+    auto so10   = gt::Group::so(10);
+    auto spinor = so10->irrep({0, 0, 0, 0, 1});
+    ASSERT_EQ(spinor.dim(), 16);
+    auto prod = so10->tensorProduct(spinor, spinor);
+    EXPECT_EQ(prod.dim(), 256);
+    std::map<int, int> dims;
+    for (auto const &[irrep, mult] : prod.terms)
+        dims[irrep.dim()] += mult;
+    EXPECT_EQ(dims, (std::map<int, int>{{10, 1}, {120, 1}, {126, 1}}));
+}
+
+TEST(GroupTheoryApi, CasimirAndDynkinIndexUseCoreNormalisation)
+{
+    auto su3  = gt::Group::su(3);
+    auto fund = su3->fundamental();
+    auto adj  = su3->adjoint();
+
+    EXPECT_EQ(fund.casimir(), gt::Rational(4, 9));
+    EXPECT_EQ(adj.casimir(), gt::Rational(1, 1));
+    EXPECT_EQ(fund.dynkinIndex(), gt::Rational(1, 6));
+    EXPECT_EQ(adj.dynkinIndex(), gt::Rational(1, 1));
+}
+
+TEST(GroupTheoryApi, DynkinIndexSumRule)
+{
+    // T(r1 x r2) = dim(r1) T(r2) + dim(r2) T(r1)
+    auto   su3    = gt::Group::su(3);
+    auto   fund   = su3->fundamental();
+    auto   adj    = su3->adjoint();
+    auto   decomp = su3->tensorProduct(fund, adj);
+    double total  = 0.0;
+    for (auto const &[irrep, mult] : decomp.terms)
+        total += mult * toDouble(irrep.dynkinIndex());
+    double expected = fund.dim() * toDouble(adj.dynkinIndex())
+                      + adj.dim() * toDouble(fund.dynkinIndex());
+    EXPECT_NEAR(total, expected, 1e-12);
+}
+
+TEST(GroupTheoryApi, GroupsAreCachedAndIrrepsCompareWithinAGroup)
+{
+    EXPECT_EQ(gt::Group::su(3), gt::Group::su(3));
+    EXPECT_NE(gt::Group::su(3), gt::Group::su(5));
+
+    auto fund = gt::Group::su(3)->fundamental();
+    EXPECT_EQ(fund.conjugate().conjugate(), fund);
+    EXPECT_TRUE(gt::Group::su(3)->adjoint().isSelfConjugate());
+    EXPECT_FALSE(fund.isSelfConjugate());
+
+    EXPECT_THROW(fund == gt::Group::su(5)->fundamental(), mty::api::TypeError);
+}
+
+TEST(GroupTheoryApi, InvalidGroupAndLabelsAreRejected)
+{
+    EXPECT_THROW(gt::Group::su(1), mty::api::ValueError);
+    EXPECT_THROW(gt::Group::so(3), mty::api::ValueError);
+    EXPECT_THROW(gt::Group::su(3)->irrep({1}), mty::api::ValueError);
+    EXPECT_THROW(gt::Group::su(3)->irrep({1, -1}), mty::api::ValueError);
+}
+
+TEST(GroupTheoryApi, U1ChargesAddExactly)
+{
+    auto u1 = gt::Group::u1();
+    auto q  = u1->u1Irrep(gt::Rational(1, 3));
+    EXPECT_EQ(q.charge(), gt::Rational(1, 3));
+
+    auto prod = u1->tensorProduct(q, q);
+    ASSERT_EQ(prod.terms.size(), 1u);
+    EXPECT_EQ(prod.terms[0].first.charge(), gt::Rational(2, 3));
+    EXPECT_EQ(prod.terms[0].second, 1);
+
+    EXPECT_THROW(q.casimir(), mty::api::NotImplementedError);
+    EXPECT_THROW(q.dynkinIndex(), mty::api::NotImplementedError);
+}

@@ -129,7 +129,6 @@ def test_import_without_other_pymarty_modules() -> None:
             "pymarty.modeling",
             "pymarty.calculation",
             "pymarty.simulation",
-            "pymarty.group_theory",
         ):
             sys.modules[name] = None
 

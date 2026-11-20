@@ -33,11 +33,11 @@ assert fund.highest_weight == (1, 0)
 assert antifund == su3.irrep(0, 1)
 assert not fund.is_self_conjugate
 
-# Casimir and Dynkin index, exact rationals in MARTY's normalisation. The
-# Casimir is the core value, which is 1/N of the standard SU(N) value.
+# Casimir and Dynkin index, exact rationals in MARTY's normalisation. Both are
+# 1/N of the standard SU(N) values (4/3 and 1/2 for N = 3).
 print("C2(fundamental) =", fund.casimir, " T(fundamental) =", fund.dynkin_index)
 assert fund.casimir == Fraction(4, 9)
-assert fund.dynkin_index == Fraction(1, 2)
+assert fund.dynkin_index == Fraction(1, 6)
 
 adj = su3.adjoint()
 print("adjoint:", adj, "dim", adj.dim, "C2 =", adj.casimir)
@@ -56,7 +56,7 @@ print("trivial in 3 x 3bar:", su3.trivial() in prod)
 assert su3.trivial() in prod
 no_singlet = fund * fund
 print("3 x 3 =", dict(no_singlet))
-assert no_singlet == {su3.irrep(0, 2): 1, su3.irrep(2, 0): 1}
+assert no_singlet == {su3.irrep(0, 1): 1, su3.irrep(2, 0): 1}
 print("trivial in 3 x 3:", su3.trivial() in no_singlet)
 assert su3.trivial() not in no_singlet
 

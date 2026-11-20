@@ -12,10 +12,12 @@ the Python API of this phase and is the first deliverable.
 
 Gate G1 status: `python/examples/usage/group_theory.py` approved by @gregoire-uhlrich_SAGCP on 2026-11-20,
 after one revision (singlet search in 3 x 3bar and 3 x 3, and the 8 x 8 product). Spike 3.0
-(`spike-3-0-group-capabilities.md`) confirmed the decompositions and T(fundamental) = 1/2, but found the
-core Casimir is 1/N of the standard value. The user chose the core normalisation, so the example now
-asserts C2(fundamental) = 4/9 and C2(adjoint) = 1. The re-review was approved by @gregoire-uhlrich_SAGCP on
-2026-11-20. The example is skipped by `test_usage_examples.py` until `pymarty.group_theory` exists.
+(`spike-3-0-group-capabilities.md`) confirmed the decompositions, but found the core Casimir is 1/N of the
+standard value. The user chose the core normalisation, so the example asserts C2(fundamental) = 4/9 and
+C2(adjoint) = 1. The re-review was approved by @gregoire-uhlrich_SAGCP on 2026-11-20.
+Once `pymarty.group_theory` existed, the example's Dynkin index assertion was corrected to the core value
+T(fundamental) = 1/6 (it was 1/2), and the SU(3) 3 x 3 check was corrected to 3bar = [0,1] (it was [0,2]).
+These two corrections need the user's re-approval of G1. `test_usage_examples.py` runs the example now.
 
 ## 1. Scope
 
