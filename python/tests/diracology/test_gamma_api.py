@@ -17,6 +17,7 @@ from pymarty.diracology import (
     current,
     double_fierz,
     eps,
+    epsilon_index_ordering,
     g,
     gamma,
     gamma5,
@@ -24,6 +25,7 @@ from pymarty.diracology import (
     symbolic_dimension,
     trace,
 )
+from pymarty.errors import MartyValueError
 
 HALF = Fraction(1, 2)
 QUARTER = Fraction(1, 4)
@@ -219,11 +221,11 @@ def test_simple_traces() -> None:
         assert trace([gamma(0), gamma(1), gamma(2), gamma(3), gamma5()]) == (
             -4 * I * eps(0, 1, 2, 3)
         )
-        with pytest.raises(RuntimeError):
+        with pytest.raises(MartyValueError, match="Unexpected index in trace"):
             trace([C()])
-        with pytest.raises(RuntimeError):
+        with pytest.raises(MartyValueError, match="Unexpected index in trace"):
             trace([gamma(0), C()])
-        with pytest.raises(RuntimeError):
+        with pytest.raises(MartyValueError, match="Unexpected index in trace"):
             trace([gamma(0), gamma5(), C()])
 
 
@@ -270,9 +272,25 @@ def test_complex_traces() -> None:
 
 @pytest.mark.parity("marty_gamma_api.chisholm_identities")
 def test_chisholm_identities() -> None:
-    # The C++ "simple" Chisholm case sets sgl::option::orderEspilonIndices to
-    # false, which is not exposed to Python. This test covers the sigma and
-    # fully contracted Chisholm identities.
+    with epsilon_index_ordering(order=False), symbolic_dimension(keep=False):
+        for m in ALL_DISTINCT_EPSILON_INDICES:
+            m0, m1, m2, m3 = m
+            c = eps(m0, m1, m2, m3) * current([gamma(m3)], 0, 1)
+            expected = (
+                -I * current([gamma(m0), gamma(m1), gamma(m2), gamma5()], 0, 1)
+                + I * g(m0, m1) * current([gamma(m2), gamma5()], 0, 1)
+                - I * g(m0, m2) * current([gamma(m1), gamma5()], 0, 1)
+                + I * g(m1, m2) * current([gamma(m0), gamma5()], 0, 1)
+            )
+            assert c.simplify() == expected.simplify()
+            wrong = (
+                -I * current([gamma(m0), gamma(m1), gamma(m2), gamma5()], 0, 1)
+                - I * g(m0, m1) * current([gamma(m2), gamma5()], 0, 1)
+                + I * g(m0, m2) * current([gamma(m1), gamma5()], 0, 1)
+                - I * g(m1, m2) * current([gamma(m0), gamma5()], 0, 1)
+            )
+            assert c.simplify() != wrong.simplify()
+    # Sigma tensor form, with the default epsilon-index ordering.
     with symbolic_dimension(keep=False):
         for m in ALL_DISTINCT_EPSILON_INDICES:
             m0, m1, m2, m3 = m

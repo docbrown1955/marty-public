@@ -17,6 +17,7 @@
 #include "marty/api/common/error.h"
 #include "marty/api/common/session.h"
 #include "marty/core/amplitude.h"
+#include "marty/sgl/exceptions.h"
 
 #include <gtest/gtest.h>
 
@@ -104,6 +105,19 @@ TEST(ErrorApi, StdExceptionIsTranslated)
     std::string const msg = messageOf<mty::api::Error>(
         [] { throw std::out_of_range("index too large"); });
     EXPECT_EQ(msg, "index too large");
+}
+
+TEST(ErrorApi, SglExceptionsAreTyped)
+{
+    EXPECT_EQ(
+        messageOf<mty::api::ValueError>([] { throw sgl::MathError("math "); }),
+        "math ");
+    EXPECT_EQ(
+        messageOf<mty::api::TypeError>([] { throw sgl::TypeError("type "); }),
+        "type ");
+    EXPECT_EQ(messageOf<mty::api::LookupError>(
+                  [] { throw sgl::IndexError("index "); }),
+              "index ");
 }
 
 TEST(ErrorApi, LegacyThrowStillCatchableAsCoreException)

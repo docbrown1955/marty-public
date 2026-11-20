@@ -100,20 +100,21 @@ py::object equal(Expr const &self, py::handle other)
     return py::cast(dirac::equalsCoefficient(self, coefficient));
 }
 
-// Activates a symbolic-dimension convention for a `with` block.
-class SymbolicDimension {
+// Activates a global convention of the facade for a `with` block. Guard is one
+// of the Scoped* classes of marty/api/diracology.h, built from a bool.
+template <typename Guard>
+class ScopedBlock {
   public:
-    explicit SymbolicDimension(bool keep) : _keep(keep)
+    explicit ScopedBlock(bool value) : _value(value)
     {
     }
 
     void enter()
     {
         if (_guard) {
-            throw mty::api::StateError("symbolic_dimension block entered "
-                                       "twice");
+            throw mty::api::StateError("context manager entered twice");
         }
-        _guard = std::make_unique<dirac::ScopedSymbolicDimension>(_keep);
+        _guard = std::make_unique<Guard>(_value);
     }
 
     void exit()
@@ -122,9 +123,31 @@ class SymbolicDimension {
     }
 
   private:
-    bool                                            _keep;
-    std::unique_ptr<dirac::ScopedSymbolicDimension> _guard;
+    bool                   _value;
+    std::unique_ptr<Guard> _guard;
 };
+
+using SymbolicDimension    = ScopedBlock<dirac::ScopedSymbolicDimension>;
+using EpsilonIndexOrdering = ScopedBlock<dirac::ScopedEpsilonIndexOrdering>;
+
+// Binds a ScopedBlock as a context manager named `pyName`.
+template <typename Block>
+void bindScopedBlock(py::module_ &m, char const *pyName)
+{
+    py::class_<Block>(m, pyName)
+        .def(py::init<bool>(), py::arg("value"))
+        .def(
+            "__enter__",
+            [](Block &self) {
+                self.enter();
+                return &self;
+            },
+            py::return_value_policy::reference_internal)
+        .def("__exit__", [](Block &self, py::args) {
+            self.exit();
+            return false;
+        });
+}
 
 } // namespace
 
@@ -269,17 +292,6 @@ void bindDiracology(py::module_ &m)
           &dirac::keepSymbolic4D,
           py::arg("keep_symbolic"));
 
-    py::class_<SymbolicDimension>(d, "SymbolicDimension")
-        .def(py::init<bool>(), py::arg("keep"))
-        .def(
-            "__enter__",
-            [](SymbolicDimension &self) {
-                self.enter();
-                return &self;
-            },
-            py::return_value_policy::reference_internal)
-        .def("__exit__", [](SymbolicDimension &self, py::args) {
-            self.exit();
-            return false;
-        });
+    bindScopedBlock<SymbolicDimension>(d, "SymbolicDimension");
+    bindScopedBlock<EpsilonIndexOrdering>(d, "EpsilonIndexOrdering");
 }

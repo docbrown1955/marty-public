@@ -74,6 +74,7 @@ Not reachable from Python, so no Python test:
 | `fromRational` zero denominator | `fractions.Fraction` cannot hold a zero denominator |
 | null expression, and the other non-pure-current branches | the binding never builds a null `DiracExpr`; the branches are unreachable through the typed Python constructors |
 
-Trace errors (`trace([g(0,1)])`, `trace([C()])`) are raised by the algebra core and reach Python as
-`RuntimeError`, not through the facade. They are tested as they are:
-`test_diracology_api.py::test_trace_of_non_gamma_index_chain_is_runtime_error`.
+Trace errors (`trace([g(0,1)])`, `trace([C()])`) are raised by the algebra core as `sgl::MathError`
+and reach Python as `MartyValueError`. `rethrowAsApiError()` converts `sgl` and `std` exceptions to
+typed API errors, so no bare `RuntimeError` escapes the binding. Tested in
+`test_diracology_api.py::test_trace_of_non_gamma_index_chain_is_value_error` and `test_errors.py`.

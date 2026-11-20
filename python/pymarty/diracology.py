@@ -102,6 +102,21 @@ def symbolic_dimension(*, keep: bool) -> _core.SymbolicDimension:
     return _core.SymbolicDimension(keep)
 
 
+def epsilon_index_ordering(*, order: bool) -> _core.EpsilonIndexOrdering:
+    """Context manager setting whether epsilon indices are ordered in products.
+
+    The option is global, as in the C++ API (``sgl::option::orderEspilonIndices``).
+    It is needed to reproduce the Chisholm identities, where the reference
+    expressions are written with ``order=False``. The previous setting is
+    restored on exit, also on exception.
+
+    >>> from pymarty.diracology import epsilon_index_ordering
+    >>> with epsilon_index_ordering(order=False):
+    ...     pass
+    """
+    return _core.EpsilonIndexOrdering(order)
+
+
 def set_symbolic_dimension(*, keep_symbolic: bool) -> None:
     """Sets the dimension convention until it is changed again.
 
@@ -122,6 +137,7 @@ __all__ = [
     "current",
     "double_fierz",
     "eps",
+    "epsilon_index_ordering",
     "g",
     "gamma",
     "gamma5",

@@ -17,6 +17,7 @@
 #include "marty/api/common/config.h"
 #include "marty/api/common/error.h"
 #include "marty/api/common/session.h"
+#include "marty/sgl/exceptions.h"
 
 #include <pybind11/iostream.h>
 #include <pybind11/pybind11.h>
@@ -24,6 +25,7 @@
 #include <cstdint>
 #include <exception>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 
 namespace py = pybind11;
@@ -73,11 +75,10 @@ py::object defineError(py::module_ &m,
     return obj;
 }
 
-// Maps the errors of the core and of the API layer onto the Python hierarchy.
-// Core forms (mty::error::Exception, the bare mty::error::Type and CSLError
-// enums, GammaAPIError) are first converted with rethrowAsApiError().
-// Anything else keeps the default translation of pybind11 (the translator
-// rethrows it, which makes pybind11 try the next translator).
+// Maps the errors of the core, of the API layer and of sgl onto the Python
+// hierarchy. Core forms (mty::error::Exception, the bare mty::error::Type and
+// CSLError enums, GammaAPIError, sgl and std exceptions) are first converted
+// with rethrowAsApiError(), so that no error escapes as a bare RuntimeError.
 void translateException(std::exception_ptr p)
 {
     try {
@@ -94,6 +95,18 @@ void translateException(std::exception_ptr p)
             mty::api::rethrowAsApiError();
         }
         catch (GammaAPIError const &) {
+            mty::api::rethrowAsApiError();
+        }
+        catch (sgl::Exception const &) {
+            mty::api::rethrowAsApiError();
+        }
+        catch (py::builtin_exception const &) {
+            throw;
+        }
+        catch (py::error_already_set const &) {
+            throw;
+        }
+        catch (std::exception const &) {
             mty::api::rethrowAsApiError();
         }
     }
@@ -196,6 +209,18 @@ void raiseError(std::string const &kind, std::string const &message)
     }
     if (kind == "gamma") {
         throw GammaAPIError(message);
+    }
+    if (kind == "std") {
+        throw std::runtime_error(message);
+    }
+    if (kind == "sgl_math") {
+        throw sgl::MathError(message);
+    }
+    if (kind == "sgl_type") {
+        throw sgl::TypeError(message);
+    }
+    if (kind == "sgl_index") {
+        throw sgl::IndexError(message);
     }
     throw mty::api::ValueError("unknown error kind: " + kind);
 }

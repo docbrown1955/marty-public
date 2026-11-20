@@ -25,8 +25,11 @@ Scope and acceptance criteria: [03-spec.md](03-spec.md), section 6. Old-to-new t
   facade (`dirac::Coefficient`, `dirac::equalsCoefficient`). The binding keeps one `csl::` use, the
   `csl::api::ExprHandle` cast that accepts a symbolic coefficient (accepted diracology→symbolic
   dependency).
-- Trace errors from the algebra core reach Python as `RuntimeError`, not through the facade. They are
-  tested as they are; translating them would be a separate change.
+- Trace errors from the algebra core reach Python as `MartyValueError`. The `sgl` and `std` exception
+  types are converted in `rethrowAsApiError()`, so no bare `RuntimeError` escapes the binding.
+- Chisholm identities: the sigma and fully-contracted cases use the default epsilon-index ordering. The
+  simple case sets it with `epsilon_index_ordering(order=False)`, a scoped guard over
+  `sgl::option::orderEspilonIndices`, matching the C++ `ScopedProperty(false)` reference.
 - `set_symbolic_dimension` is kept as a plain setter; the `symbolic_dimension` context manager is the
   preferred form.
 - A `P_L`/`P_R` merge rule in `src/marty/sgl/simplify.cpp` was tried and reverted: it broke
@@ -48,6 +51,4 @@ Not run: `ctest -L system` and unfiltered `ctest` (forbidden by [AGENTS.md](../.
 
 ## Known gaps carried forward
 
-- Chisholm simple case: the C++ test sets `orderEspilonIndices=false`, which Python cannot expose.
-  Python covers the sigma and fully-contracted cases only.
 - The CHANGELOG question is open: the repository has no CHANGELOG file.

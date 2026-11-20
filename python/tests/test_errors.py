@@ -91,6 +91,28 @@ def test_gamma_api_error_is_translated() -> None:
 
 
 @pytest.mark.unit
+@pytest.mark.parity("ErrorApi.StdExceptionIsTranslated")
+def test_std_exception_is_translated() -> None:
+    with pytest.raises(errors.MartyError, match="index too large"):
+        _debug.raise_error("std", "index too large")
+
+
+@pytest.mark.unit
+@pytest.mark.parity("ErrorApi.SglExceptionsAreTyped")
+@pytest.mark.parametrize(
+    ("kind", "expected"),
+    [
+        ("sgl_math", errors.MartyValueError),
+        ("sgl_type", errors.MartyTypeError),
+        ("sgl_index", errors.MartyLookupError),
+    ],
+)
+def test_sgl_exceptions_are_typed(kind: str, expected: type[Exception]) -> None:
+    with pytest.raises(expected, match="boom"):
+        _debug.raise_error(kind, "boom")
+
+
+@pytest.mark.unit
 @pytest.mark.parity("ErrorApi.NothingIsPrintedToStderrInQuietMode")
 @pytest.mark.parametrize("kind", ["core_value", "csl_value", "gamma"])
 def test_core_errors_print_nothing_to_stderr(

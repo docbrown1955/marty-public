@@ -642,4 +642,15 @@ ScopedSymbolicDimension::~ScopedSymbolicDimension()
     keepSymbolic4D(_previous);
 }
 
+ScopedEpsilonIndexOrdering::ScopedEpsilonIndexOrdering(bool order)
+    : _previous(sgl::option::orderEspilonIndices)
+{
+    sgl::option::orderEspilonIndices = order;
+}
+
+ScopedEpsilonIndexOrdering::~ScopedEpsilonIndexOrdering()
+{
+    sgl::option::orderEspilonIndices = _previous;
+}
+
 } // namespace mty::api::diracology

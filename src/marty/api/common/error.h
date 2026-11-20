@@ -18,8 +18,8 @@
  * @brief Typed errors of the MARTY API layer and translation of core errors.
  *
  * Core errors (mty::error::Exception, the bare mty::error::Type and CSLError
- * enums, GammaAPIError and std::exception) are converted to the typed
- * hierarchy at the API boundary with rethrowAsApiError().
+ * enums, GammaAPIError), sgl exceptions and std::exception are converted to
+ * the typed hierarchy at the API boundary with rethrowAsApiError().
  */
 
 #ifndef MTY_API_COMMON_ERROR_H_INCLUDED
@@ -28,6 +28,7 @@
 #include "../../../csl/api/error.h"
 #include "../../../csl/error.h"
 #include "../../core/mrtError.h"
+#include "../../sgl/exceptions.h"
 #include "../gamma_api_error.h"
 
 #include <sstream>
@@ -123,6 +124,21 @@ namespace detail {
         detail::throwFromCSLType(type, sout.str());
     }
     catch (GammaAPIError const &ex) {
+        throw Error(ex.what());
+    }
+    catch (sgl::ValueError const &ex) {
+        throw ValueError(ex.what());
+    }
+    catch (sgl::MathError const &ex) {
+        throw ValueError(ex.what());
+    }
+    catch (sgl::TypeError const &ex) {
+        throw TypeError(ex.what());
+    }
+    catch (sgl::IndexError const &ex) {
+        throw LookupError(ex.what());
+    }
+    catch (sgl::Exception const &ex) {
         throw Error(ex.what());
     }
     catch (std::exception const &ex) {

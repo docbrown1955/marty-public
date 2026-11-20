@@ -103,6 +103,20 @@ class ScopedSymbolicDimension {
     bool _previous;
 };
 
+/// Sets whether epsilon indices are ordered in products, and restores the
+/// previous setting when the guard goes out of scope, also on exception.
+class ScopedEpsilonIndexOrdering {
+  public:
+    explicit ScopedEpsilonIndexOrdering(bool order);
+    ~ScopedEpsilonIndexOrdering();
+    ScopedEpsilonIndexOrdering(ScopedEpsilonIndexOrdering const &) = delete;
+    ScopedEpsilonIndexOrdering &operator=(ScopedEpsilonIndexOrdering const &)
+        = delete;
+
+  private:
+    bool _previous;
+};
+
 } // namespace mty::api::diracology
 
 #endif

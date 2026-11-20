@@ -108,8 +108,8 @@ def test_fierz_on_sum_argument_is_value_error() -> None:
         single_fierz(chain, current([P_L()], 2, 3), basis=FierzBasis.CHIRAL)
 
 
-def test_trace_of_non_gamma_index_chain_is_runtime_error() -> None:
-    with pytest.raises(RuntimeError, match="not a gamma index"):
+def test_trace_of_non_gamma_index_chain_is_value_error() -> None:
+    with pytest.raises(MartyValueError, match="not a gamma index"):
         trace([g(0, 1)])
 
 
