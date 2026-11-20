@@ -97,3 +97,10 @@ T(27 of E6) = 1/2. The `getIndex(r, 2)` values in the tables above are not used,
 function returns a constant that cancels in the normalisation.
 - The timing budget for the performance guard can be based on E6 27 x 27bar (about 0.4 s).
 - The usage example needs a decision before WP3.2 (see Decision needed above).
+
+## Correction note (phase 3)
+
+The E6 row above (`27 x 27bar = 27 + 351 + 1728 (dim 2106)`) is wrong. The correct decomposition is
+`27 x 27bar = 1 + 78 + 650` (dim 729). The figures came from the conjugation bug that reversed Dynkin
+labels for non-SU groups, fixed in `src/marty/core/representation.cpp` during phase 3. The E6 entry in
+the "all decompositions add up" line should read 729, not 2106.

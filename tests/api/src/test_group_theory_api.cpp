@@ -139,3 +139,68 @@ TEST(GroupTheoryApi, U1ChargesAddExactly)
     EXPECT_THROW(q.casimir(), mty::api::NotImplementedError);
     EXPECT_THROW(q.dynkinIndex(), mty::api::NotImplementedError);
 }
+
+TEST(GroupTheoryApi, SymplecticAndExceptionalDecompositions)
+{
+    auto dimsOf = [](gt::Decomposition const &decomp) {
+        std::map<int, int> dims;
+        for (auto const &[irrep, mult] : decomp.terms)
+            dims[irrep.dim()] += mult;
+        return dims;
+    };
+
+    auto sp4 = gt::Group::sp(4);
+    EXPECT_EQ(sp4->fundamental().dim(), 4);
+    EXPECT_EQ(sp4->adjoint().dim(), 10);
+    EXPECT_EQ(
+        dimsOf(sp4->tensorProduct(sp4->fundamental(), sp4->fundamental())),
+        (std::map<int, int>{{1, 1}, {5, 1}, {10, 1}}));
+
+    auto g2 = gt::Group::g2();
+    EXPECT_EQ(g2->fundamental().dim(), 7);
+    EXPECT_EQ(g2->adjoint().dim(), 14);
+    EXPECT_EQ(dimsOf(g2->tensorProduct(g2->fundamental(), g2->fundamental())),
+              (std::map<int, int>{{1, 1}, {7, 1}, {14, 1}, {27, 1}}));
+
+    auto f4 = gt::Group::f4();
+    EXPECT_EQ(f4->fundamental().dim(), 26);
+    EXPECT_EQ(f4->adjoint().dim(), 52);
+    EXPECT_EQ(
+        dimsOf(f4->tensorProduct(f4->fundamental(), f4->fundamental())),
+        (std::map<int, int>{{1, 1}, {26, 1}, {52, 1}, {273, 1}, {324, 1}}));
+
+    auto e7 = gt::Group::e7();
+    EXPECT_EQ(e7->fundamental().dim(), 56);
+    EXPECT_EQ(e7->adjoint().dim(), 133);
+    EXPECT_EQ(dimsOf(e7->tensorProduct(e7->fundamental(), e7->fundamental())),
+              (std::map<int, int>{{1, 1}, {133, 1}, {1463, 1}, {1539, 1}}));
+}
+
+TEST(GroupTheoryApi, SymplecticDimensionIsValidated)
+{
+    EXPECT_THROW(gt::Group::sp(2), mty::api::ValueError);
+    EXPECT_THROW(gt::Group::sp(5), mty::api::ValueError);
+}
+
+TEST(GroupTheoryApi, ConjugationFollowsDiagramAutomorphism)
+{
+    auto e6  = gt::Group::e6();
+    auto c27 = e6->fundamental().conjugate();
+    EXPECT_EQ(c27.dim(), 27);
+    EXPECT_EQ(c27.labels(), (std::vector<int>{0, 0, 0, 0, 1, 0}));
+    EXPECT_FALSE(e6->fundamental().isSelfConjugate());
+    EXPECT_TRUE(e6->adjoint().isSelfConjugate());
+
+    auto sp4 = gt::Group::sp(4);
+    EXPECT_TRUE(sp4->fundamental().isSelfConjugate());
+
+    auto so10   = gt::Group::so(10);
+    auto spinor = so10->irrep({0, 0, 0, 0, 1});
+    EXPECT_EQ(spinor.dim(), 16);
+    EXPECT_EQ(spinor.conjugate().labels(), (std::vector<int>{0, 0, 0, 1, 0}));
+    EXPECT_FALSE(spinor.isSelfConjugate());
+    EXPECT_TRUE(so10->fundamental().isSelfConjugate());
+
+    auto e7 = gt::Group::e7();
+    EXPECT_TRUE(e7->fundamental().isSelfConjugate());
+}

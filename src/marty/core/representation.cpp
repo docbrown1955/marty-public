@@ -15,6 +15,7 @@
 
 #include "representation.h"
 #include "mrtError.h"
+#include <algorithm>
 
 using namespace std;
 
@@ -33,9 +34,9 @@ Irrep::Irrep() : dim(0)
     mult          = vector<int>(1, 1);
 }
 
-Irrep::Irrep(const SemiSimpleAlgebra *   t_algebra,
+Irrep::Irrep(const SemiSimpleAlgebra    *t_algebra,
              const vector<AlgebraState> &t_rep,
-             const vector<int> &         multiplicities)
+             const vector<int>          &multiplicities)
     : dim(0),
       algebra(t_algebra),
       highestWeight(t_rep[0]),
@@ -116,17 +117,41 @@ vector<int> Irrep::getMult() const
     return mult;
 }
 
+namespace {
+
+// The conjugate of a highest weight is -w0 applied to it. On Dynkin labels,
+// -w0 is a permutation of the nodes of the diagram (the node labelling of the
+// Cartan matrices in semiSimpleAlgebra.cpp).
+vector<int> conjugateLabels(algebra::Type type, vector<int> labels)
+{
+    int l = labels.size();
+    switch (type) {
+    case algebra::Type::A:
+        std::reverse(labels.begin(), labels.end());
+        break;
+    case algebra::Type::D:
+        if (l % 2 == 1)
+            std::swap(labels[l - 2], labels[l - 1]);
+        break;
+    case algebra::Type::E6:
+        std::swap(labels[0], labels[4]);
+        std::swap(labels[1], labels[3]);
+        break;
+    default:
+        break;
+    }
+    return labels;
+}
+
+} // namespace
+
 Irrep Irrep::getConjugatedRep() const
 {
     if (algebra->getType() == algebra::Type::R)
         return algebra->highestWeightRep(
             {-highestWeight[0], highestWeight[1]});
-    vector<int> labels = highestWeight.getLabels();
-    vector<int> inverted(labels.size());
-    auto        jter = inverted.begin();
-    for (auto iter = labels.rbegin(); iter != labels.rend(); ++iter, ++jter)
-        *jter = *iter;
-    return algebra->highestWeightRep(AlgebraState(inverted));
+    return algebra->highestWeightRep(AlgebraState(
+        conjugateLabels(algebra->getType(), highestWeight.getLabels())));
 }
 
 AlgebraState &Irrep::operator[](int i)

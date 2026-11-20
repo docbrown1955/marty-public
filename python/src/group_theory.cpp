@@ -95,8 +95,8 @@ py::tuple labelsTuple(group::Irrep const &irrep)
     return result;
 }
 
-// Irrep(*labels) for SU, SO and E6; Irrep(charge) for U(1). A single iterable
-// argument is accepted as the list of labels.
+// Irrep(*labels) for SU, SO, Sp and the exceptional groups; Irrep(charge) for
+// U(1). A single iterable argument is accepted as the list of labels.
 group::Irrep groupIrrep(GroupHolder const &self, py::args args)
 {
     if (self->isU1()) {
@@ -177,7 +177,15 @@ void bindGroupTheory(py::module_ &m)
             "so",
             [](int n) { return asHolder(group::Group::so(n)); },
             py::arg("n"))
+        .def_static(
+            "sp",
+            [](int n) { return asHolder(group::Group::sp(n)); },
+            py::arg("n"))
         .def_static("e6", [] { return asHolder(group::Group::e6()); })
+        .def_static("e7", [] { return asHolder(group::Group::e7()); })
+        .def_static("e8", [] { return asHolder(group::Group::e8()); })
+        .def_static("f4", [] { return asHolder(group::Group::f4()); })
+        .def_static("g2", [] { return asHolder(group::Group::g2()); })
         .def_static("u1", [] { return asHolder(group::Group::u1()); })
         .def_property_readonly("name", &group::Group::name)
         .def_property_readonly("rank", &group::Group::rank)

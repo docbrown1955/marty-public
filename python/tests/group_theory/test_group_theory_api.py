@@ -6,7 +6,18 @@ from fractions import Fraction
 import pytest
 
 from pymarty.errors import MartyValueError
-from pymarty.group_theory import E6, SO, SU, U1, Decomposition, Irrep
+from pymarty.group_theory import (
+    E6,
+    E7,
+    F4,
+    G2,
+    SO,
+    SU,
+    U1,
+    Decomposition,
+    Irrep,
+    Sp,
+)
 
 
 @pytest.mark.parity("GroupTheoryApi.SU3Decompositions")
@@ -112,3 +123,67 @@ def test_irrep_repr_and_type() -> None:
     assert repr(SU(3).fundamental()) == "SU(3)[1,0]"
     assert isinstance(SU(3).fundamental(), Irrep)
     assert E6().fundamental().dim == 27
+
+
+@pytest.mark.parity("GroupTheoryApi.SymplecticAndExceptionalDecompositions")
+def test_symplectic_and_exceptional_decompositions() -> None:
+    def dims_of(prod: Decomposition) -> dict[int, int]:
+        dims: dict[int, int] = {}
+        for r, m in prod.items():
+            dims[r.dim] = dims.get(r.dim, 0) + m
+        return dims
+
+    sp4 = Sp(4)
+    assert (sp4.fundamental().dim, sp4.adjoint().dim) == (4, 10)
+    assert dims_of(sp4.fundamental() * sp4.fundamental()) == {1: 1, 5: 1, 10: 1}
+
+    g2 = G2()
+    assert (g2.fundamental().dim, g2.adjoint().dim) == (7, 14)
+    assert dims_of(g2.fundamental() * g2.fundamental()) == {1: 1, 7: 1, 14: 1, 27: 1}
+
+    f4 = F4()
+    assert (f4.fundamental().dim, f4.adjoint().dim) == (26, 52)
+    assert dims_of(f4.fundamental() * f4.fundamental()) == {
+        1: 1,
+        26: 1,
+        52: 1,
+        273: 1,
+        324: 1,
+    }
+
+    e7 = E7()
+    assert (e7.fundamental().dim, e7.adjoint().dim) == (56, 133)
+    assert dims_of(e7.fundamental() * e7.fundamental()) == {
+        1: 1,
+        133: 1,
+        1463: 1,
+        1539: 1,
+    }
+
+
+@pytest.mark.parity("GroupTheoryApi.SymplecticDimensionIsValidated")
+def test_symplectic_dimension_is_validated() -> None:
+    with pytest.raises(MartyValueError):
+        Sp(2)
+    with pytest.raises(MartyValueError):
+        Sp(5)
+
+
+@pytest.mark.parity("GroupTheoryApi.ConjugationFollowsDiagramAutomorphism")
+def test_conjugation_follows_diagram_automorphism() -> None:
+    e6 = E6()
+    c27 = ~e6.fundamental()
+    assert (c27.dim, c27.highest_weight) == (27, (0, 0, 0, 0, 1, 0))
+    assert not e6.fundamental().is_self_conjugate
+    assert e6.adjoint().is_self_conjugate
+
+    assert Sp(4).fundamental().is_self_conjugate
+
+    so10 = SO(10)
+    spinor = so10.irrep(0, 0, 0, 0, 1)
+    assert spinor.dim == 16
+    assert (~spinor).highest_weight == (0, 0, 0, 1, 0)
+    assert not spinor.is_self_conjugate
+    assert so10.fundamental().is_self_conjugate
+
+    assert E7().fundamental().is_self_conjugate

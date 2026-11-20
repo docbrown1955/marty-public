@@ -1,6 +1,7 @@
 """Group theory: simple gauge groups, irreps and tensor products.
 
-Groups are built with ``SU(n)``, ``SO(n)``, ``E6()`` and ``U1()``. Irreps are
+Groups are built with ``SU(n)``, ``SO(n)``, ``Sp(n)``, ``E6()``, ``E7()``,
+``E8()``, ``F4()``, ``G2()`` and ``U1()``. Irreps are
 labelled by Dynkin labels, or by an exact charge for U(1), and are immutable
 and hashable. ``r1 * r2`` is the tensor product, returned as a
 ``Decomposition``: a read-only mapping from irreps to multiplicities.
@@ -40,9 +41,34 @@ def SO(n: int) -> Group:
     return _core.Group.so(n)
 
 
+def Sp(n: int) -> Group:
+    """Symplectic group Sp(n), with n the fundamental dimension (even, >= 4)."""
+    return _core.Group.sp(n)
+
+
 def E6() -> Group:
     """Exceptional group E6."""
     return _core.Group.e6()
+
+
+def E7() -> Group:
+    """Exceptional group E7."""
+    return _core.Group.e7()
+
+
+def E8() -> Group:
+    """Exceptional group E8."""
+    return _core.Group.e8()
+
+
+def F4() -> Group:
+    """Exceptional group F4."""
+    return _core.Group.f4()
+
+
+def G2() -> Group:
+    """Exceptional group G2."""
+    return _core.Group.g2()
 
 
 def U1() -> Group:

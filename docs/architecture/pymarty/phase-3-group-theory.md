@@ -151,3 +151,11 @@ decompositions, the capability matrix.
   rather than silently approximated.
 - Conjugation conventions of `Irrep` (labels order, self-conjugate U(1) rep) need to be pinned by tests
   that read MARTY's outputs once and then assert literal values.
+
+## Status (end of phase 3 implementation)
+
+- Implemented: SU(n), SO(n>=4), Sp(n), E6, E7, F4, G2 and U(1) construction. E8 is exposed but untested
+  because its core dimensions are wrong (3875 for the adjoint; see [phase-3/04-implementation-log.md](phase-3/04-implementation-log.md)).
+- Core fix: conjugation per algebra type in `src/marty/core/representation.cpp` (see the implementation log).
+- Port table: [phase-3/port-table.md](phase-3/port-table.md). Implementation log: [phase-3/04-implementation-log.md](phase-3/04-implementation-log.md).
+- Exit artifacts: `python/examples/usage/group_theory.py` (approved) and `python/examples/group_theory_basics.py`.

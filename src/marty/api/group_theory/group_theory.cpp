@@ -211,12 +211,67 @@ std::shared_ptr<const Group> Group::so(int n)
     });
 }
 
+std::shared_ptr<const Group> Group::sp(int n)
+{
+    return guarded([&] {
+        if (n < 4 || n % 2 != 0)
+            throw ValueError("Sp(n) requires an even fundamental dimension "
+                             ">= 4, got "
+                             + std::to_string(n));
+        return cached("Sp" + std::to_string(n), [n] {
+            return std::shared_ptr<const Group>(
+                new Group(std::make_shared<mty::group::Sp>(n),
+                          "Sp(" + std::to_string(n) + ")"));
+        });
+    });
+}
+
 std::shared_ptr<const Group> Group::e6()
 {
     return guarded([&] {
         return cached("E6", [] {
             return std::shared_ptr<const Group>(
                 new Group(std::make_shared<mty::group::E6>(), "E6"));
+        });
+    });
+}
+
+std::shared_ptr<const Group> Group::e7()
+{
+    return guarded([&] {
+        return cached("E7", [] {
+            return std::shared_ptr<const Group>(
+                new Group(std::make_shared<mty::group::E7>(), "E7"));
+        });
+    });
+}
+
+std::shared_ptr<const Group> Group::e8()
+{
+    return guarded([&] {
+        return cached("E8", [] {
+            return std::shared_ptr<const Group>(
+                new Group(std::make_shared<mty::group::E8>(), "E8"));
+        });
+    });
+}
+
+std::shared_ptr<const Group> Group::f4()
+{
+    return guarded([&] {
+        return cached("F4", [] {
+            return std::shared_ptr<const Group>(
+                new Group(std::make_shared<mty::group::F4>(), "F4"));
+        });
+    });
+}
+
+std::shared_ptr<const Group> Group::g2()
+{
+    return guarded([&] {
+        return cached("G2", [] {
+            return std::shared_ptr<const Group>(
+                new Group(std::make_shared<mty::group::G2>(), "G2"));
         });
     });
 }
@@ -286,6 +341,10 @@ Irrep Group::u1Irrep(Rational const &charge) const
 Irrep Group::fundamental() const
 {
     return guarded([&] {
+        // The core's G2 defining representation is the 14; the 7 is {1,0}.
+        if (name_ == "G2")
+            return Irrep(shared_from_this(),
+                         core_->getAlgebra()->highestWeightRep({1, 0}));
         return Irrep(shared_from_this(),
                      core_->getAlgebra()->getDefiningRep());
     });

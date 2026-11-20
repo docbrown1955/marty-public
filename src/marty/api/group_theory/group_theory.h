@@ -92,7 +92,12 @@ class Group : public std::enable_shared_from_this<Group> {
   public:
     static std::shared_ptr<const Group> su(int n);
     static std::shared_ptr<const Group> so(int n);
+    static std::shared_ptr<const Group> sp(int n);
     static std::shared_ptr<const Group> e6();
+    static std::shared_ptr<const Group> e7();
+    static std::shared_ptr<const Group> e8();
+    static std::shared_ptr<const Group> f4();
+    static std::shared_ptr<const Group> g2();
     static std::shared_ptr<const Group> u1();
 
     std::string name() const;
