@@ -599,12 +599,17 @@ Expr deepCopy(Expr const &expr)
     return sgl::DeepCopy(expr);
 }
 
-csl::Expr fromInt(long value)
+bool equalsCoefficient(Expr const &expr, Coefficient const &coefficient)
+{
+    return sgl::sgl_to_csl(expr, mty::defaultSGLTensorSet()) == coefficient;
+}
+
+Coefficient fromInt(long value)
 {
     return csl::Expr(value);
 }
 
-csl::Expr fromRational(long numerator, long denominator)
+Coefficient fromRational(long numerator, long denominator)
 {
     if (denominator == 0) {
         throw ValueError("rational denominator must be non-zero");
@@ -612,7 +617,7 @@ csl::Expr fromRational(long numerator, long denominator)
     return csl::Expr(numerator) / csl::Expr(denominator);
 }
 
-csl::Expr fromDouble(double value)
+Coefficient fromDouble(double value)
 {
     if (!std::isfinite(value)) {
         throw ValueError("coefficient must be finite, got "
@@ -621,7 +626,7 @@ csl::Expr fromDouble(double value)
     return csl::Expr(value);
 }
 
-Expr scale(Expr const &expr, csl::Expr const &coefficient)
+Expr scale(Expr const &expr, Coefficient const &coefficient)
 {
     return coefficient * expr;
 }

@@ -17,8 +17,6 @@
 #include "csl/api/expr.h"
 #include "marty/api/common/error.h"
 #include "marty/core/diracology.h"
-#include "marty/sgl/cslconverter.h"
-#include "marty/sgl/sgl.h"
 
 #include <pybind11/pybind11.h>
 
@@ -35,7 +33,7 @@ using Expr = dirac::Expr;
 
 // Converts a Python number or symbolic expression into a CSL coefficient.
 // Returns false when the type is not a supported coefficient.
-bool toCoefficient(py::handle obj, csl::Expr &out)
+bool toCoefficient(py::handle obj, dirac::Coefficient &out)
 {
     if (py::isinstance<py::int_>(obj)) {
         out = dirac::fromInt(obj.cast<long>());
@@ -81,7 +79,7 @@ py::object binary(Expr const &self, py::handle other, bool reflected, Op op)
         Expr rhs = other.cast<Expr>();
         return py::cast(reflected ? op(rhs, self) : op(self, rhs));
     }
-    csl::Expr coefficient;
+    dirac::Coefficient coefficient;
     if (!toCoefficient(other, coefficient)) {
         return py::reinterpret_borrow<py::object>(Py_NotImplemented);
     }
@@ -95,12 +93,11 @@ py::object equal(Expr const &self, py::handle other)
     if (py::isinstance<Expr>(other)) {
         return py::cast(dirac::equals(self, other.cast<Expr>()));
     }
-    csl::Expr coefficient;
+    dirac::Coefficient coefficient;
     if (!toCoefficient(other, coefficient)) {
         return py::reinterpret_borrow<py::object>(Py_NotImplemented);
     }
-    return py::cast(sgl::sgl_to_csl(self, mty::defaultSGLTensorSet())
-                    == coefficient);
+    return py::cast(dirac::equalsCoefficient(self, coefficient));
 }
 
 // Activates a symbolic-dimension convention for a `with` block.

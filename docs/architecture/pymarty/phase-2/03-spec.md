@@ -135,11 +135,11 @@ Each criterion has a command. "Done" means the command passes and its output is 
 
 1. Every case of `tests/integration/src/gammaAPI.cpp` has a Python counterpart in parity, or an exemption with a reason. Command: `python/tools/check_parity.py`.
 2. The four old Python test files are ported; each assertion is present or has a documented reason for dropping. Command: `pytest python/tests/diracology -m "not slow"`.
-3. Identity checks from the plan hold in C++ and in Python: `gamma5()*gamma5() == 1`, `P_L()+P_R() == 1`, `P_L()*P_R() == 0`, `P_L()*P_L() == P_L()`, `trace([gamma(0), gamma(1)]) == 4*g(0,1)`, odd trace is 0, `eps(0,1,2,3)*eps(0,1,2,4) == -6*g(3,4)`. Command: `ctest -R test_diracology_api` and pytest.
-4. The binding has no algebra: `grep -n "sgl::\|csl::" python/src/diracology.cpp` returns nothing. Command: the grep.
+3. Identity checks from the plan hold in C++ and in Python: `current([gamma5(), gamma5()], 0, 1).simplify() == current([], 0, 1)` (a bare `gamma5()` outside a chain raises RuntimeError, so the plan's `gamma5()*gamma5() == 1` is written in its chain form), `P_L()*P_R() == 0`, `P_L()*P_L() == P_L()`, `trace([gamma(0), gamma(1)]) == 4*g(0,1)`, odd trace is 0, `eps(0,1,2,3)*eps(0,1,2,4) == -6*g(3,4)`. `P_L()+P_R()` is the canonical chiral decomposition and is deliberately not simplified to `1`. Command: `ctest -R test_diracology_api` and pytest.
+4. The binding has no algebra: `grep -n "sgl::\|csl::" python/src/diracology.cpp` returns only the `csl::api::ExprHandle` cast that accepts a symbolic coefficient (the accepted diracology→symbolic dependency). Scalar construction, `equals` and `equalsCoefficient` live in the C++ facade, which owns the `Coefficient` alias (decided by the user, option A).
 5. State neutrality: the symbolic-dimension flag is the same before and after every test, including after an error. Command: pytest fixture check.
 6. Independence: `pymarty.diracology` imports succeed with `pymarty.modeling`, `calculation`, `simulation`, `group_theory` blocked. Command: pytest subprocess test.
-7. Invalid-input matrix: one Python test per validation rule and per `gamma.cpp` throw site (lines 200, 206, 216, 347, 406), checking exception class and message.
+7. Invalid-input matrix: one Python test per validation rule and per throw site in `src/marty/api/diracology.cpp` (the former `gamma.cpp`; the reachable sites are listed in [port-table.md](port-table.md)), checking exception class and message.
 8. `ctest -L integration` stays green, including `gammaAPI`. Command: `ctest -L integration` (not `system`).
 9. Stubs, doctests, `ruff check .`, `ruff format --check .`, `mypy --strict pymarty tests tools`, `clang-format --dry-run --Werror python/src/diracology.cpp`. Commands as listed.
 10. `python/examples/usage/diracology.py` is approved by a human before implementation (G1), and runs in `test_usage_examples.py`. Command: `pytest python/tests/test_usage_examples.py -m "not slow"`.

@@ -33,7 +33,6 @@ TEST(DiracologyApi, NegativeIndicesAreValueErrors)
                  mty::api::ValueError);
 }
 
-
 TEST(DiracologyApi, InvalidFierzInputIsValueError)
 {
     EXPECT_THROW(dirac::singleFierz(dirac::gamma(0), dirac::gamma(1)),
@@ -53,12 +52,29 @@ TEST(DiracologyApi, EqualityIsCanonical)
         return dirac::current({dirac::gamma(0)}, iL, iR);
     };
     EXPECT_TRUE(dirac::equals(cur(1, 2), dirac::deepCopy(cur(1, 2))));
-    EXPECT_FALSE(dirac::equals(cur(1, 2), dirac::scale(cur(1, 2), dirac::fromInt(2))));
+    EXPECT_FALSE(
+        dirac::equals(cur(1, 2), dirac::scale(cur(1, 2), dirac::fromInt(2))));
     // Exactly one of the two orderings holds for distinct expressions.
-    EXPECT_NE(dirac::less(cur(1, 2), dirac::scale(cur(1, 2), dirac::fromInt(2))),
-              dirac::less(dirac::scale(cur(1, 2), dirac::fromInt(2)), cur(1, 2)));
+    EXPECT_NE(
+        dirac::less(cur(1, 2), dirac::scale(cur(1, 2), dirac::fromInt(2))),
+        dirac::less(dirac::scale(cur(1, 2), dirac::fromInt(2)), cur(1, 2)));
 }
 
+TEST(DiracologyApi, ProjectorAndTraceIdentities)
+{
+    auto simp = [](dirac::Expr const &e) { return dirac::simplified(e); };
+    auto cur  = [](std::vector<dirac::Expr> const &gammas) {
+        return dirac::current(gammas, 1, 2);
+    };
+    EXPECT_TRUE(dirac::equals(simp(cur({dirac::P_L(), dirac::P_L()})),
+                              simp(cur({dirac::P_L()}))));
+    EXPECT_TRUE(dirac::equals(
+        simp(cur({dirac::P_L(), dirac::P_R()})),
+        simp(dirac::scale(cur({dirac::P_L()}), dirac::fromInt(0)))));
+    EXPECT_TRUE(
+        dirac::equals(simp(dirac::trace({dirac::gamma(0), dirac::gamma(1)})),
+                      simp(dirac::scale(dirac::g(0, 1), dirac::fromInt(4)))));
+}
 
 TEST(DiracologyApi, OrderIsIdempotent)
 {

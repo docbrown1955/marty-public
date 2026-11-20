@@ -17,8 +17,8 @@ it reaches a fixed point, so ``e.order().order() == e.order()``.
 
 ``DiracExpr`` compares canonically with ``==``, so it is unhashable.
 
->>> from pymarty.diracology import g, gamma5, trace
->>> gamma5() * gamma5() == 1
+>>> from pymarty.diracology import current, gamma5, trace
+>>> current([gamma5(), gamma5()], 0, 1).simplify() == current([], 0, 1)
 True
 >>> trace([]) == 4
 True

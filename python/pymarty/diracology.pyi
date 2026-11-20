@@ -1,14 +1,10 @@
-import enum
 from collections.abc import Iterable
 from typing import NamedTuple
 
 from pymarty._pymarty import diracology as _core
 
 DiracExpr = _core.DiracExpr
-
-class FierzBasis(enum.Enum):
-    STANDARD = ...
-    CHIRAL = ...
+FierzBasis = _core.FierzBasis
 
 D: DiracExpr
 I: DiracExpr

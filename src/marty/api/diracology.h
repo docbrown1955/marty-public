@@ -80,11 +80,14 @@ bool less(Expr const &a, Expr const &b);
 Expr deepCopy(Expr const &expr);
 
 /// Scalar coefficients, as CSL numbers.
-csl::Expr fromInt(long value);
-csl::Expr fromRational(long numerator, long denominator);
-csl::Expr fromDouble(double value);
+using Coefficient = csl::Expr;
+Coefficient fromInt(long value);
+Coefficient fromRational(long numerator, long denominator);
+Coefficient fromDouble(double value);
 /// coefficient * expr.
-Expr scale(Expr const &expr, csl::Expr const &coefficient);
+Expr scale(Expr const &expr, Coefficient const &coefficient);
+/// Canonical equality between an expression and a scalar coefficient.
+bool equalsCoefficient(Expr const &expr, Coefficient const &coefficient);
 
 /// Sets the dimension convention (keepSymbolic4D) and restores the previous
 /// one when the guard goes out of scope, also on exception.
@@ -92,8 +95,9 @@ class ScopedSymbolicDimension {
   public:
     explicit ScopedSymbolicDimension(bool keepSymbolic);
     ~ScopedSymbolicDimension();
-    ScopedSymbolicDimension(ScopedSymbolicDimension const &)            = delete;
-    ScopedSymbolicDimension &operator=(ScopedSymbolicDimension const &) = delete;
+    ScopedSymbolicDimension(ScopedSymbolicDimension const &) = delete;
+    ScopedSymbolicDimension &operator=(ScopedSymbolicDimension const &)
+        = delete;
 
   private:
     bool _previous;
