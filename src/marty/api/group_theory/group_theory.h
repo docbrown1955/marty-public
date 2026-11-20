@@ -95,6 +95,7 @@ class Group : public std::enable_shared_from_this<Group> {
     static std::shared_ptr<const Group> sp(int n);
     static std::shared_ptr<const Group> e6();
     static std::shared_ptr<const Group> e7();
+    // Untested: core dimension is 3875 for fund and adj (expected 248 adj).
     static std::shared_ptr<const Group> e8();
     static std::shared_ptr<const Group> f4();
     static std::shared_ptr<const Group> g2();

@@ -151,6 +151,9 @@ decompositions, the capability matrix.
   rather than silently approximated.
 - Conjugation conventions of `Irrep` (labels order, self-conjugate U(1) rep) need to be pinned by tests
   that read MARTY's outputs once and then assert literal values.
+- **E8 is untested (open).** The core gives dimension 3875 for both the fundamental and the adjoint
+  (expected 248 for the adjoint). E8 stays exposed but has no tests until the core is fixed, which needs
+  a separate decision. Tracked in [phase-3/04-implementation-log.md](phase-3/04-implementation-log.md).
 
 ## Status (end of phase 3 implementation)
 
