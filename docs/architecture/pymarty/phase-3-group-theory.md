@@ -14,8 +14,8 @@ Gate G1 status: `python/examples/usage/group_theory.py` approved by @gregoire-uh
 after one revision (singlet search in 3 x 3bar and 3 x 3, and the 8 x 8 product). Spike 3.0
 (`spike-3-0-group-capabilities.md`) confirmed the decompositions and T(fundamental) = 1/2, but found the
 core Casimir is 1/N of the standard value. The user chose the core normalisation, so the example now
-asserts C2(fundamental) = 4/9 and C2(adjoint) = 1. This change needs a new G1 review. The example is
-skipped by `test_usage_examples.py` until `pymarty.group_theory` exists.
+asserts C2(fundamental) = 4/9 and C2(adjoint) = 1. The re-review was approved by @gregoire-uhlrich_SAGCP on
+2026-11-20. The example is skipped by `test_usage_examples.py` until `pymarty.group_theory` exists.
 
 ## 1. Scope
 
