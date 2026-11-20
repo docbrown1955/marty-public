@@ -1,12 +1,41 @@
-#include "gamma.h"
+#include "diracology.h"
+#include "marty/api/common/error.h"
+#include "marty/core/diracology.h"
+#include "marty/sgl/cslconverter.h"
 #include "marty/sgl/sgl.h"
 #include "marty/sgl/sgloptions.h"
 
+#include <cmath>
 #include <iostream>
 #include <map>
 #include <set>
+#include <string>
 
-namespace mty::gamma_api {
+namespace mty::api::diracology {
+
+namespace {
+
+void requireNonNegative(int index, char const *role)
+{
+    if (index < 0) {
+        throw ValueError(std::string(role) + " must be non-negative, got "
+                         + std::to_string(index));
+    }
+}
+
+// Translates the algebra core's GammaAPIError into the typed ValueError.
+template <class F>
+auto translateFierzErrors(F &&f) -> decltype(f())
+{
+    try {
+        return f();
+    }
+    catch (GammaAPIError const &ex) {
+        throw ValueError(ex.what());
+    }
+}
+
+} // namespace
 
 class IndexManager {
 
@@ -172,7 +201,7 @@ Expr project(Expr const &expr, FierzBasis basis)
 
 std::pair<Expr, sgl::IndexChain const *> getIndexChainAssert(Expr const &expr);
 
-Expr applySingleFierz(Expr const &chain1, Expr const &chain2, FierzBasis basis)
+static Expr applySingleFierz(Expr const &chain1, Expr const &chain2, FierzBasis basis)
 {
     auto [fl, left]  = getIndexChainAssert(chain1);
     auto [fr, right] = getIndexChainAssert(chain2);
@@ -183,7 +212,7 @@ Expr applySingleFierz(Expr const &chain1, Expr const &chain2, FierzBasis basis)
                        basis));
 }
 
-Expr applyDoubleFierz(Expr const &chain1, Expr const &chain2, FierzBasis basis)
+static Expr applyDoubleFierz(Expr const &chain1, Expr const &chain2, FierzBasis basis)
 {
     auto [fl, left]  = getIndexChainAssert(chain1);
     auto [fr, right] = getIndexChainAssert(chain2);
@@ -192,6 +221,23 @@ Expr applyDoubleFierz(Expr const &chain1, Expr const &chain2, FierzBasis basis)
                project(simplified(left->applyGeneralFierzTwice(
                            *right, basis == FierzBasis::Chiral)),
                        basis));
+}
+
+FierzResult singleFierz(Expr const &chain1, Expr const &chain2, FierzBasis basis)
+{
+    return translateFierzErrors([&] {
+        // lhs is copied first: the Fierz rearrangement may modify its inputs.
+        Expr lhs = sgl::DeepCopy(chain1) * sgl::DeepCopy(chain2);
+        return FierzResult{applySingleFierz(chain1, chain2, basis), lhs};
+    });
+}
+
+FierzResult doubleFierz(Expr const &chain1, Expr const &chain2, FierzBasis basis)
+{
+    return translateFierzErrors([&] {
+        Expr lhs = sgl::DeepCopy(chain1) * sgl::DeepCopy(chain2);
+        return FierzResult{applyDoubleFierz(chain1, chain2, basis), lhs};
+    });
 }
 
 std::pair<Expr, sgl::IndexChain const *> getIndexChainAssert(Expr const &expr)
@@ -419,6 +465,7 @@ std::string generateLatex(Expr const &expr)
 
 csl::Index IndexManager::getMinkoIndex(int mu)
 {
+    requireNonNegative(mu, "Lorentz index");
     auto pos = minkoIndices.find(mu);
     if (pos == minkoIndices.end()) {
         minkoIndices[mu]
@@ -429,6 +476,7 @@ csl::Index IndexManager::getMinkoIndex(int mu)
 
 csl::Index IndexManager::getDiracIndex(int mu)
 {
+    requireNonNegative(mu, "Dirac index");
     auto pos = diracIndices.find(mu);
     if (pos == diracIndices.end()) {
         diracIndices[mu] = csl::Index(createDiracIndexName(mu), &mty::dirac4);
@@ -503,4 +551,74 @@ void IndexManager::renameIndicesImpl(
     }
 }
 
-} // namespace mty::gamma_api
+std::size_t size(Expr const &expr)
+{
+    return expr->size();
+}
+
+Expr argument(Expr const &expr, std::size_t i)
+{
+    if (i >= expr->size()) {
+        throw LookupError("Index " + std::to_string(i)
+                          + " is out of range of expression of size "
+                          + std::to_string(expr->size()));
+    }
+    return expr->argument(i);
+}
+
+bool equals(Expr const &a, Expr const &b)
+{
+    return sgl::sgl_to_csl(a, mty::defaultSGLTensorSet())
+           == sgl::sgl_to_csl(b, mty::defaultSGLTensorSet());
+}
+
+bool less(Expr const &a, Expr const &b)
+{
+    return sgl::sgl_to_csl(a, mty::defaultSGLTensorSet())
+           < sgl::sgl_to_csl(b, mty::defaultSGLTensorSet());
+}
+
+Expr deepCopy(Expr const &expr)
+{
+    return sgl::DeepCopy(expr);
+}
+
+csl::Expr fromInt(long value)
+{
+    return csl::Expr(value);
+}
+
+csl::Expr fromRational(long numerator, long denominator)
+{
+    if (denominator == 0) {
+        throw ValueError("rational denominator must be non-zero");
+    }
+    return csl::Expr(numerator) / csl::Expr(denominator);
+}
+
+csl::Expr fromDouble(double value)
+{
+    if (!std::isfinite(value)) {
+        throw ValueError("coefficient must be finite, got "
+                         + std::to_string(value));
+    }
+    return csl::Expr(value);
+}
+
+Expr scale(Expr const &expr, csl::Expr const &coefficient)
+{
+    return coefficient * expr;
+}
+
+ScopedSymbolicDimension::ScopedSymbolicDimension(bool keepSymbolic)
+    : _previous(sgl::option::keepEvanescentOperators)
+{
+    keepSymbolic4D(keepSymbolic);
+}
+
+ScopedSymbolicDimension::~ScopedSymbolicDimension()
+{
+    keepSymbolic4D(_previous);
+}
+
+} // namespace mty::api::diracology

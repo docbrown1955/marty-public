@@ -15,7 +15,7 @@
 
 #include "csl/options.h"
 #include "marty/api/common/session.h"
-#include "marty/api/gamma.h"
+#include "marty/api/diracology.h"
 #include "marty/core/model.h"
 #include "marty/core/mrtError.h"
 #include "marty/core/mrtOptions.h"
@@ -109,7 +109,7 @@ TEST(SessionApi, RestoresGammaSymbolicFlag)
     bool const before = sgl::option::keepEvanescentOperators;
     {
         mty::api::Session session;
-        mty::gamma_api::keepSymbolic4D(!before);
+        mty::api::diracology::keepSymbolic4D(!before);
         EXPECT_EQ(sgl::option::keepEvanescentOperators, !before);
     }
     EXPECT_EQ(sgl::option::keepEvanescentOperators, before);

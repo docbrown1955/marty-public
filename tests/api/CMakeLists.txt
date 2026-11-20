@@ -7,6 +7,7 @@ endfunction()
 
 ADD_API_TEST(test_error_api)
 ADD_API_TEST(test_session_api)
+ADD_API_TEST(test_diracology_api)
 ADD_API_TEST(test_terminating_calls_api)
 ADD_API_TEST(test_config_api)
 ADD_API_TEST(symbolic_numbers)
