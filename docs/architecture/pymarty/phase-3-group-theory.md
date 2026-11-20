@@ -10,6 +10,11 @@ Usage example gate: before any C++ API or binding work starts, `python/examples/
 written and approved by a human reviewer ([testing-strategy.md](testing-strategy.md) section 1.2). It fixes
 the Python API of this phase and is the first deliverable.
 
+Gate G1 status: `python/examples/usage/group_theory.py` approved by @gregoire-uhlrich_SAGCP on 2026-11-20,
+after one revision (singlet search in 3 x 3bar and 3 x 3, and the 8 x 8 product). The conventions it
+asserts (C2 and T of the fundamental, C2 of the adjoint, the 8 x 8 decomposition) are to be confirmed by
+spike 3.0. The example is skipped by `test_usage_examples.py` until `pymarty.group_theory` exists.
+
 ## 1. Scope
 
 In scope:
