@@ -114,7 +114,7 @@ L2 (`python/tests/group_theory/`): parity tests for all L1 cases, plus
 - independence from other modules (subprocess import test)
 - doctests of the docstring examples
 
-L5-style cross-check: `python/tests/system/test_flavor_groups_group_part.py` reproduces the group part
+L5-style cross-check: `python/tests/group_theory/test_flavor_groups_group_part.py` reproduces the U(1) group part
 of `test_flavor_groups.cpp` (dimension queries and structure of flavour irreps).
 
 ## 5. Acceptance criteria
