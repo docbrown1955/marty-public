@@ -12,3 +12,5 @@ ModelingApi.ParticleFactoriesAndRefresh | temporary until WP4.5 binds the facade
 ModelingApi.RenameParticleChecksNames | temporary until WP4.5 binds the facade; then replace with a Python counterpart and remove this line
 ModelingApi.CouplingIsCreatedThenFound | temporary until WP4.5 binds the facade; then replace with a Python counterpart and remove this line
 ModelingApi.MassAndRotationRejectInconsistentInput | temporary until WP4.5 binds the facade; then replace with a Python counterpart and remove this line
+ModelingApi.QedMatchesCoreParticlesAndRules | temporary until WP4.5 binds the facade; then replace with a Python counterpart and remove this line
+ModelingApi.StandardModelMatchesCoreParticlesAndRules | temporary until WP4.5 binds the facade; then replace with a Python counterpart and remove this line

@@ -16,6 +16,8 @@
 #include "marty/api/common/error.h"
 #include "marty/api/group_theory/group_theory.h"
 #include "marty/api/modeling/modeling.h"
+#include "marty/models/qed.h"
+#include "marty/models/sm.h"
 
 #include <gtest/gtest.h>
 
@@ -129,4 +131,40 @@ TEST(ModelingApi, UnknownChiralityIsValueError)
 {
     auto toy = makeToy();
     EXPECT_THROW(toy.weylFermion("Q_L", "X"), mty::api::ValueError);
+}
+
+namespace {
+
+std::vector<std::string> facadeNames(mod::Model const &model)
+{
+    std::vector<std::string> names;
+    for (auto const &part : model.particles())
+        names.push_back(part.name());
+    return names;
+}
+
+std::vector<std::string> coreNames(mty::Model const &model)
+{
+    std::vector<std::string> names;
+    for (auto const &part : model.getParticles())
+        names.push_back(part->getName());
+    return names;
+}
+
+} // namespace
+
+TEST(ModelingApi, QedMatchesCoreParticlesAndRules)
+{
+    mty::QED_Model core;
+    auto           model = mod::Model::qed();
+    EXPECT_EQ(facadeNames(model), coreNames(core));
+    EXPECT_EQ(model.feynmanRules().size(), core.getFeynmanRules().size());
+}
+
+TEST(ModelingApi, StandardModelMatchesCoreParticlesAndRules)
+{
+    mty::SM_Model core;
+    auto          model = mod::Model::standardModel();
+    EXPECT_EQ(facadeNames(model), coreNames(core));
+    EXPECT_EQ(model.feynmanRules().size(), core.getFeynmanRules().size());
 }
