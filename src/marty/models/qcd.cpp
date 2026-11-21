@@ -22,7 +22,7 @@ Particle colorTriplet(Model &QCD, std::string const &name)
 {
     Particle part = diracfermion_s(name, QCD);
     SetMass(part, csl::prefixedNameWithLatex("m_", name));
-    SetGroupRep(part, "SU3_c", {1, 0});
+    SetGroupRep(part, "C", {1, 0});
     AddParticle(QCD, part);
     return part;
 }
@@ -31,7 +31,7 @@ Particle colorSextet(Model &QCD, std::string const &name)
 {
     Particle part = diracfermion_s(name, QCD);
     SetMass(part, csl::prefixedNameWithLatex("m_", name));
-    SetGroupRep(part, "SU3_c", {2, 0});
+    SetGroupRep(part, "C", {2, 0});
     AddParticle(QCD, part);
     return part;
 }
