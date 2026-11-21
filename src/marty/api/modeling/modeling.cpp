@@ -503,6 +503,24 @@ void Model::breakGaugeSymmetry(
     });
 }
 
+void Model::breakFlavorSymmetry(std::string const &flavor)
+{
+    guarded([&] {
+        Session session(m_state->core.get());
+        m_state->core->breakFlavorSymmetry(flavor);
+    });
+}
+
+void Model::breakFlavorSymmetry(
+    std::string const                                     &flavor,
+    std::map<std::string, std::vector<std::string>> const &renaming)
+{
+    guarded([&] {
+        Session session(m_state->core.get());
+        m_state->core->breakFlavorSymmetry(flavor, renaming);
+    });
+}
+
 csl::Index Model::generateIndex(std::string const &group) const
 {
     return guarded([&] {

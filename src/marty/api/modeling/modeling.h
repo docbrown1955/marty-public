@@ -241,6 +241,14 @@ class Model {
         std::string const                                     &group,
         std::map<std::string, std::vector<std::string>> const &renaming);
 
+    /// Breaks a flavor group, the broken particles get default names.
+    void breakFlavorSymmetry(std::string const &flavor);
+
+    /// Breaks a flavor group, with explicit names for some particles.
+    void breakFlavorSymmetry(
+        std::string const                                     &flavor,
+        std::map<std::string, std::vector<std::string>> const &renaming);
+
     /// Fresh index of the fundamental representation of a gauge or flavor
     /// group.
     csl::Index generateIndex(std::string const &group) const;

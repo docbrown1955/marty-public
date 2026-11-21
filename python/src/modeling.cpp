@@ -126,31 +126,51 @@ csl::Expr exprOf(py::handle value)
     return py::cast<ExprHandle const &>(value).raw();
 }
 
-void breakGaugeSymmetry(modeling::Model   &self,
-                        std::string const &group,
-                        py::object         renaming)
+using Renaming = std::map<std::string, std::vector<std::string>>;
+
+/// Parses renaming: "default" gives an empty map, a dict gives the renaming.
+std::optional<Renaming> parseRenaming(py::object renaming)
 {
     if (py::isinstance<py::str>(renaming)) {
         if (renaming.cast<std::string>() != "default")
             throw mty::api::ValueError("renaming must be \"default\" or a "
                                        "dict, got \""
                                        + renaming.cast<std::string>() + "\"");
-        self.breakGaugeSymmetry(group);
-        return;
+        return std::nullopt;
     }
     if (!py::isinstance<py::dict>(renaming))
         throw mty::api::TypeError("renaming must be \"default\" or a dict, "
                                   "not "
                                   + typeName(renaming));
-    std::map<std::string, std::vector<std::string>> map;
     try {
-        map = renaming.cast<std::map<std::string, std::vector<std::string>>>();
+        return renaming.cast<Renaming>();
     }
     catch (py::cast_error const &) {
         throw mty::api::TypeError("renaming must map particle names to lists "
                                   "of new names");
     }
-    self.breakGaugeSymmetry(group, map);
+}
+
+void breakGaugeSymmetry(modeling::Model   &self,
+                        std::string const &group,
+                        py::object         renaming)
+{
+    auto map = parseRenaming(renaming);
+    if (map)
+        self.breakGaugeSymmetry(group, *map);
+    else
+        self.breakGaugeSymmetry(group);
+}
+
+void breakFlavorSymmetry(modeling::Model   &self,
+                         std::string const &flavor,
+                         py::object         renaming)
+{
+    auto map = parseRenaming(renaming);
+    if (map)
+        self.breakFlavorSymmetry(flavor, *map);
+    else
+        self.breakFlavorSymmetry(flavor);
 }
 
 } // namespace
@@ -549,6 +569,12 @@ rule, negative indices count from the end.)doc")
              py::arg("group"),
              py::arg("renaming") = py::str("default"),
              "Breaks a gauge group. renaming is \"default\" or a dict from "
+             "particle names to lists of new names; it may be partial.")
+        .def("break_flavor_symmetry",
+             &breakFlavorSymmetry,
+             py::arg("flavor"),
+             py::arg("renaming") = py::str("default"),
+             "Breaks a flavor group. renaming is \"default\" or a dict from "
              "particle names to lists of new names; it may be partial.")
         .def("__str__",
              &modeling::Model::describe,

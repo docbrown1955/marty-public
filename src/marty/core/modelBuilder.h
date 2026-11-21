@@ -347,6 +347,19 @@ class ModelBuilder : public ModelData {
 
     void breakFlavorSymmetry(std::string const &nameGroup);
 
+    /**
+     * \brief Breaks a flavor group with explicit names for some particles.
+     *
+     * Particles missing from renaming get the default names
+     * "<particle>_<index>".
+     *
+     * \param flavorName Name of the flavor group to break.
+     * \param renaming   Partial map from particle name to new names.
+     */
+    void breakFlavorSymmetry(
+        std::string const                                     &flavorName,
+        std::map<std::string, std::vector<std::string>> const &renaming);
+
     void breakFlavorSymmetry(std::string const &        flavorName,
                              std::vector<size_t> const &subGroups,
                              std::vector<std::string>   newFlavorNames

@@ -2,12 +2,11 @@
 
 Ported: gauge groups C, L, Y; the first-generation-like quark doublet Q with
 SM_flavor; the Higgs doublet H; gauge symmetry breaking of Y and then L with
-the Q renaming used by the C++ model.
+the Q renaming used by the C++ model; the flavour symmetry breaking.
 
-Not yet ported (no declarative API): flavour symmetry breaking
-(BreakFlavorSymmetry), ghost-boson replacements, gauge-fixing terms,
-explicit Yukawa/CKM matrices, and the Higgs potential/VEV expansion steps
-that depend on them.
+Not yet ported: ghost-boson replacements, gauge-fixing terms, explicit
+Yukawa/CKM matrices, and the Higgs potential/VEV expansion steps that depend
+on them.
 """
 
 from fractions import Fraction
@@ -41,4 +40,11 @@ def build() -> Model:
 
     model.break_gauge_symmetry("Y")
     model.break_gauge_symmetry("L", renaming={"Q": ["U_L", "D_L"]})
+    model.break_flavor_symmetry(
+        "SM_flavor",
+        renaming={
+            "U_L": ["u_L", "c_L", "t_L"],
+            "D_L": ["d_L", "s_L", "b_L"],
+        },
+    )
     return model

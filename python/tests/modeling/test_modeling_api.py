@@ -171,3 +171,37 @@ def test_feynman_rule_index_out_of_range_is_lookup_error() -> None:
     with pytest.raises(MartyLookupError):
         rules.latex(len(rules))
     assert rules[-1] == rules[0]
+
+
+def make_flavored_model() -> Model:
+    model = Model(
+        gauge=[GaugeGroup(SU(2), name="L", boson_name="W")],
+        flavor=[FlavorGroup("F", 2)],
+    )
+    Q = model.weyl_fermion("Q", chirality="L")
+    Q.set_rep("L", 1)
+    Q.set_fundamental_flavor_rep("F")
+    model.add_particle(Q)
+    H = model.scalar_boson("H")
+    H.set_rep("L", 1)
+    model.add_particle(H)
+    return model
+
+
+@pytest.mark.unit
+def test_flavor_breaking_partial_renaming_keeps_default_names() -> None:
+    model = make_flavored_model()
+    model.break_flavor_symmetry("F", renaming={"Q": ["u_L", "d_L"]})
+    names = {p.name for p in model.particles}
+    assert {"u_L", "d_L", "H"} <= names
+    assert "Q" not in names
+
+
+@pytest.mark.unit
+def test_flavor_breaking_default_names_and_unbroken_rename_is_value_error() -> None:
+    model = make_flavored_model()
+    with pytest.raises(MartyValueError):
+        model.break_flavor_symmetry("F", renaming={"H": ["h1", "h2"]})
+    model = make_flavored_model()
+    model.break_flavor_symmetry("F")
+    assert {"Q_1", "Q_2", "H"} <= {p.name for p in model.particles}
