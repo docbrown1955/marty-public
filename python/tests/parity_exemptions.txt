@@ -1,0 +1,8 @@
+# C++ API tests that deliberately have no Python counterpart.
+# Format: <Module>Api.<Behaviour> | <reason>   ('*' wildcards allowed)
+ErrorApi.LegacyThrowStillCatchableAsCoreException | C++ compatibility of existing handlers; no Python equivalent
+ErrorApi.ExistingErrorPathKeepsStderrTextAndIsCatchable | acceptance 3 for C++ users: legacy stderr text of a core error; the Python binding is quiet by design
+SessionApi.* | Session is an internal C++ RAII guard; its effect is checked from Python by the clean_state fixture
+TerminatingCallsApi.* | former exit() sites; no Python API reaches them before Phases 3 and 6
+DiracologyApi.ArgumentOutOfRangeIsLookupError | the Python binding exposes no argument/size accessor on DiracExpr, so the lookup path is pinned by the C++ test only
+SymbolicApi.SubsCompoundKeyBehaviourPinned | Python dict keys must be hashable; a compound Expr is unhashable, so the compound-key replacement is pinned by the C++ test only

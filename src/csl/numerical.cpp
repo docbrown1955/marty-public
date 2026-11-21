@@ -75,6 +75,11 @@ std::optional<Expr> AbstractNumerical::getComplexArgument() const
     return evaluateScalar() < 0 ? CSL_PI : CSL_0;
 }
 
+std::optional<Expr> AbstractNumerical::getComplexModulus() const
+{
+    return evaluateScalar() < 0 ? -copy() : copy();
+}
+
 ///////////////////////////////////////////////////
 /*************************************************/
 // Class Float                                  //
@@ -516,8 +521,8 @@ void IntFraction::printCode(int, std::ostream &out) const
 
 string IntFraction::printLaTeX(int mode) const
 {
-    std::string frac = "\\frac{" + std::to_string(num) + "}{"
-                       + std::to_string(denom) + "}";
+    std::string frac
+        = "\\frac{" + std::to_string(num) + "}{" + std::to_string(denom) + "}";
     if (mode >= 4)
         return "\\left(" + frac + "\\right)";
     return frac;
@@ -782,7 +787,7 @@ void Complex::printCode(int, std::ostream &out) const
 std::string Complex::printLaTeX(int mode) const
 {
     ostringstream sout;
-    bool hasImag = imag != CSL_0;
+    bool          hasImag = imag != CSL_0;
     if (mode >= 2 and hasImag)
         sout << "\\left(";
     sout << real->printLaTeX(1);

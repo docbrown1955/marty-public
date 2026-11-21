@@ -1,0 +1,146 @@
+"""Symbolic expressions: numbers, symbols, operators and elementary functions.
+
+Build expressions with ``variable()`` and ``constant()``, with the operators and
+with the functions of this module (``sqrt``, ``exp``, ``log``, ``sin``, ...).
+The ``Expr`` methods transform expressions: ``expand()``, ``factor()``,
+``collect()``, ``diff()``, ``replace()`` and ``evaluate()``.
+
+Indices and tensors: ``Space`` creates indices, ``tensor()`` creates tensors,
+and ``delta``, ``metric`` and ``epsilon`` are the built-in tensors.
+``tensor_field()`` and ``tensor_derivative()`` build tensor fields and their
+derivatives with respect to a point tensor.
+``Expr.relabel_indices()`` renames the indices of an expression. ``Minkowski`` and
+``Euclid_R2``, ``Euclid_R3``, ``Euclid_R4`` are predefined spaces.
+
+Constants: ``I`` (imaginary unit), ``pi``, ``e`` and ``infinity``.
+Errors are described in ``pymarty.errors``.
+
+>>> from pymarty import symbolic
+>>> x = symbolic.variable("x")
+>>> symbolic.sqrt(4) == 2
+True
+"""
+
+from pymarty._pymarty import (
+    DEFAULT_INDEX_NAMES,
+    ComplexProperty,
+    Euclid_R2,
+    Euclid_R3,
+    Euclid_R4,
+    EvalMode,
+    Expr,
+    ExprType,
+    I,
+    Index,
+    IndexType,
+    Minkowski,
+    PrimaryType,
+    Space,
+    Tensor,
+    TensorDerivative,
+    TensorField,
+    abs,
+    acos,
+    acosh,
+    argument,
+    asin,
+    asinh,
+    atan,
+    atanh,
+    constant,
+    cos,
+    cosh,
+    delta,
+    e,
+    epsilon,
+    exp,
+    infinity,
+    log,
+    make_abbreviation,
+    metric,
+    modulus,
+    pi,
+    sin,
+    sinh,
+    sqrt,
+    tan,
+    tanh,
+    tensor,
+    tensor_derivative,
+    tensor_field,
+    variable,
+)
+from pymarty.symbolic_algorithms import (
+    all_of_leafs,
+    all_of_nodes,
+    any_of_leafs,
+    any_of_nodes,
+    distribute_if,
+    expand_if,
+    find_if_leaf,
+    find_if_node,
+    visit_each_node_cut,
+    visit_first_of_leaf,
+    visit_first_of_node,
+)
+
+__all__ = [
+    "DEFAULT_INDEX_NAMES",
+    "ComplexProperty",
+    "EvalMode",
+    "Euclid_R2",
+    "Euclid_R3",
+    "Euclid_R4",
+    "I",
+    "Expr",
+    "ExprType",
+    "Index",
+    "IndexType",
+    "Minkowski",
+    "PrimaryType",
+    "Space",
+    "Tensor",
+    "TensorDerivative",
+    "TensorField",
+    "abs",
+    "acos",
+    "acosh",
+    "all_of_leafs",
+    "all_of_nodes",
+    "any_of_leafs",
+    "any_of_nodes",
+    "argument",
+    "asin",
+    "asinh",
+    "atan",
+    "atanh",
+    "constant",
+    "cos",
+    "cosh",
+    "delta",
+    "distribute_if",
+    "e",
+    "epsilon",
+    "exp",
+    "expand_if",
+    "find_if_leaf",
+    "find_if_node",
+    "infinity",
+    "log",
+    "make_abbreviation",
+    "metric",
+    "modulus",
+    "pi",
+    "sin",
+    "sinh",
+    "sqrt",
+    "tan",
+    "tanh",
+    "tensor",
+    "tensor_derivative",
+    "tensor_field",
+    "variable",
+    "visit_each_node_cut",
+    "visit_first_of_leaf",
+    "visit_first_of_node",
+]

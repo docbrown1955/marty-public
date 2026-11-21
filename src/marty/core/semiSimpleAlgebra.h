@@ -28,6 +28,7 @@
 
 #include "../../csl/csl.h"
 #include "algebraState.h"
+#include "mrtError.h"
 #include <algorithm>
 #include <initializer_list>
 #include <iostream>
@@ -199,6 +200,17 @@ class SemiSimpleAlgebra {
      * \return **l**
      */
     int getOrderL() const;
+
+    /*!
+     * \brief Compares two algebras.
+     * \details Two algebras are equal if they are the same object, or if they
+     * have the same type and rank. For example \f$ SU(2)_{s} \f$ and
+     * \f$ SU(2)_L \f$ are equal.
+     * \param other Algebra to compare.
+     * \return \b True if the algebras are equal.
+     * \return \b False else.
+     */
+    bool operator==(const SemiSimpleAlgebra &other) const;
 
     /*!
      * \brief Pure virtual function overriden in derived classes.
@@ -979,9 +991,9 @@ template <typename T>
 std::vector<T> operator+(const std::vector<T> &x, const std::vector<T> &y)
 {
     if (x.size() != y.size()) {
-        std::cout << "Type: two std::vectors must have "
-                  << "the same dimension in product.\n";
-        std::exit(1);
+        CallHEPError(mty::error::ValueError,
+                     "Type: two std::vectors must have "
+                     "the same dimension in product.");
     }
     std::vector<T> rep(x.size());
     for (size_t i = 0; i != x.size(); ++i)
@@ -994,9 +1006,9 @@ template <typename T>
 std::vector<T> operator-(const std::vector<T> &x, const std::vector<T> &y)
 {
     if (x.size() != y.size()) {
-        std::cout << "Type: two std::vectors must have "
-                  << "the same dimension in product.\n";
-        std::exit(1);
+        CallHEPError(mty::error::ValueError,
+                     "Type: two std::vectors must have "
+                     "the same dimension in product.");
     }
     std::vector<T> rep(x.size());
     for (size_t i = 0; i != x.size(); ++i)
@@ -1036,9 +1048,9 @@ template <typename T>
 T operator*(const std::vector<T> &x, const std::vector<T> &y)
 {
     if (x.size() != y.size()) {
-        std::cout << "Type: two std::vectors must have "
-                  << "the same dimension in product.\n";
-        std::exit(1);
+        CallHEPError(mty::error::ValueError,
+                     "Type: two std::vectors must have "
+                     "the same dimension in product.");
     }
     T rep = 0;
     for (size_t i = 0; i != x.size(); ++i)
@@ -1054,9 +1066,9 @@ std::vector<T> operator*(const std::vector<std::vector<T>> &A,
     if (A.size() == 0)
         return std::vector<T>(0);
     if (A[0].size() != x.size()) {
-        std::cout << "Type: two std::vectors must have "
-                  << "the same dimension in product.\n";
-        std::exit(1);
+        CallHEPError(mty::error::ValueError,
+                     "Type: two std::vectors must have "
+                     "the same dimension in product.");
     }
     std::vector<T> rep(A.size(), 0);
     for (size_t i = 0; i != A.size(); ++i)
@@ -1073,9 +1085,9 @@ std::vector<T> operator*(const std::vector<T> &             x,
     if (A.size() == 0)
         return std::vector<T>(0);
     if (A[0].size() != x.size()) {
-        std::cout << "Type: two std::vectors must have "
-                  << "the same dimension in product.\n";
-        std::exit(1);
+        CallHEPError(mty::error::ValueError,
+                     "Type: two std::vectors must have "
+                     "the same dimension in product.");
     }
     std::vector<T> rep(A.size(), 0);
     for (size_t i = 0; i != A.size(); ++i)
@@ -1093,9 +1105,9 @@ std::vector<std::vector<T>> operator*(const std::vector<std::vector<T>> &A,
         return std::vector<std::vector<T>>(0);
     }
     if (A[0].size() != B.size()) {
-        std::cout << "Type: two std::vectors must have "
-                  << "the same dimension in product.\n";
-        std::exit(1);
+        CallHEPError(mty::error::ValueError,
+                     "Type: two std::vectors must have "
+                     "the same dimension in product.");
     }
     std::vector<std::vector<T>> rep(A.size(), std::vector<T>(B[0].size(), 0));
     for (size_t i = 0; i != A.size(); ++i)

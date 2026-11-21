@@ -26,10 +26,7 @@ int main()
 {
 
     mty::option::decomposeInOperators = false;
-    mty::Model model;
-    model.addGaugedGroup(mty::group::Type::U1, "U_1");
-    model.init();
-    model.renameParticle("A_U_1", "\\gamma");
+    mty::Model model({mty::GaugeGroupSpec{mty::group::Type::U, 1, "U_1", "\\gamma"}});
 
     int           Q      = 1; // U(1) charge of S, P and psi
     mty::Particle psi    = diracfermion_s("\\psi", model);

@@ -36,7 +36,9 @@ namespace mty {
 ///////////////////////////////////////////////////
 
 MSSM_Model::MSSM_Model(std::string const &t_saveFile, bool init)
-    : mty::Model(), mty::MSSM_Data(), saveFile(t_saveFile)
+    : mty::Model(mty::Model::DeferredInit{}),
+      mty::MSSM_Data(),
+      saveFile(t_saveFile)
 {
     if (init) {
         std::ofstream save;

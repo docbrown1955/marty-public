@@ -14,15 +14,11 @@ int main() {
     Index a = DiracIndex();
     Index b = DiracIndex();
     
-    Model toyModel;
-    toyModel.addGaugedGroup(group::Type::SU, "D", 2);
-    toyModel.addGaugedGroup(group::Type::SU, "L", 2);
-    toyModel.addFlavorGroup("dark_flavor", 10);
-    //toyModel.addFlavorGroup("Psi_flavor", 2);
-    toyModel.init();
-    
-    toyModel.renameParticle("A_D", "VD");
-    toyModel.renameParticle("A_L", "W");
+    Model toyModel({    GaugeGroupSpec{group::Type::SU, 2, "D", "VD"},
+                        GaugeGroupSpec{group::Type::SU, 2, "L", "W"}},
+                   {FlavorGroupSpec{10, "dark_flavor"}
+                                       //, FlavorGroupSpec{2, "Psi_flavor"}
+    });
     
     Particle H = scalarboson_s("H", toyModel);
     H->setGroupRep("L", 1);

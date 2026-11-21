@@ -622,7 +622,12 @@ csl::Expr getE7Index(std::vector<int> const &rep, size_t n)
 csl::Expr getE8Index(std::vector<int> const &rep, size_t n)
 {
     ASSERT_SIZE(rep, 8)
-    std::array<int, 8> arrep = toArray<int, 8>(rep);
+    // The index tables use the node order of van Ritbergen et al.; labels
+    // use the manual order of E8::setCartanMatrix.
+    constexpr std::array<size_t, 8> paperToManual = {6, 5, 4, 3, 1, 0, 7, 2};
+    std::array<int, 8>              arrep;
+    for (size_t k = 0; k != 8; ++k)
+        arrep[k] = rep[paperToManual[k]];
 
     if (n == 2)
         return getRationalIndex(arrep, I2_E8_data, 30);

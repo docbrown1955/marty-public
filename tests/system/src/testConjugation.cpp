@@ -52,8 +52,7 @@ auto createKinematics()
 int main()
 {
 
-    Model model;
-    model.init();
+    Model model(std::vector<GaugeGroupSpec>{});
 
     Particle psi = diracfermion_s("psi ; \\psi", model);
     Particle lam = diracfermion_s("lam ; \\lambda", model);

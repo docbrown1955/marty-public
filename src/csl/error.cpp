@@ -67,7 +67,7 @@ std::ostream &operator<<(std::ostream &fout, CSLError error)
         fout << "ZeroDivisionError";
         break;
     default:
-        std::cout << "Error ";
+        fout << "Error ";
         break;
     }
     return fout;
@@ -77,8 +77,9 @@ void CallErrorImpl(CSLError         error,
                    std::string_view file,
                    int              line)
 {
-    std::cerr << error << " in " << func << " (" << file << " l. " << line
-              << ").\n";
+    if (csl::option::printErrors)
+        std::cerr << error << " in " << func << " (" << file << " l. " << line
+                  << ").\n";
     throw error;
 }
 
@@ -88,7 +89,8 @@ void CallErrorImpl(CSLError         error,
                    int              line,
                    std::string_view message)
 {
-    std::cerr << error << " in " << func << " (" << file << " l. " << line
-              << "): " << message << '\n';
+    if (csl::option::printErrors)
+        std::cerr << error << " in " << func << " (" << file << " l. " << line
+                  << "): " << message << '\n';
     throw error;
 }

@@ -30,14 +30,11 @@ Particle colorSextet(Model &QCD, std::string const &name)
 int main()
 {
 
-    Model QCD;
-    AddGaugedGroup(QCD, group::Type::SU, "C", 3, constant_s("g"));
-    Init(QCD);
+    Model QCD({GaugeGroupSpec{group::Type::SU, 3, "C", "G", constant_s("g")}});
 
     Particle u = colorTriplet(QCD, "u");
     Particle d = colorTriplet(QCD, "d");
     Particle X = colorSextet(QCD, "X");
-    Rename(QCD, "A_C", "G");
     Particle gluon = GetParticle(QCD, "G");
 
     std::cout << QCD << std::endl;

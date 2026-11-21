@@ -8,6 +8,15 @@ set(ALL_SOURCES
     alloc_monitor.cpp
     alloc_monitor.h
     allocator.h
+    api/error.h
+    api/expr.cpp
+    api/expr.h
+    api/functions.cpp
+    api/functions.h
+    api/tensor.cpp
+    api/tensor.h
+    api/transform.cpp
+    api/transform.h
     booleanOperators.cpp
     booleanOperators.h
     buildingBlock.cpp

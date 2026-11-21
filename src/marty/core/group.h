@@ -47,6 +47,7 @@ enum class Type {
     O,       /*!< Orthogonal group \f$ O(N) \f$. */
     SO,      /*!< Special orthogonal group \f$ SO(N) \f$. */
     U1,      /*!< Commutative unitary group \f$ U(1) \f$. */
+    U,       /*!< Commutative unitary group \f$ U(1) \f$, dimension must be 1. */
     SU,      /*!< Special unitary group \f$ SU(N) \f$. */
     Sp,      /*!< Symplectic group \f$ Sp(N) \f$. */
     E6,      /*!< Group exponential of exceptionnal algebra \f$E_6\f$. */

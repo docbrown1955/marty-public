@@ -509,17 +509,25 @@ void visitIndicesOfTensors(csl::Expr                               &expr,
 
 void applyRenamingMap(
     csl::Expr                                           &expr,
-    std::map<csl::IndexRenaming::Key, csl::Index> const &renamed)
+    std::map<csl::IndexRenaming::Key, csl::Index> const &renamed,
+    bool                                                 withDummies)
 {
-    visitIndicesOfTensors(expr, [&renamed](csl::Index &i) {
-        if (not i.getSpace()
-            or (i.getType() != cslIndex::Dummy
-                and i.getType() != cslIndex::Free))
+    visitIndicesOfTensors(expr, [&](csl::Index &i) {
+        bool renamable = i.getType() == cslIndex::Free
+                         or (withDummies and i.getType() == cslIndex::Dummy);
+        if (not i.getSpace() or not renamable)
             return;
         auto key = csl::IndexRenaming::Key{
             i.getSpace(), i.getID(), std::string(i.getName())};
-        if (auto found = renamed.find(key); found != renamed.end())
-            i = found->second;
+        auto found = renamed.find(key);
+        if (found == renamed.end())
+            return;
+        // A dummy index is shared by two occurrences with opposite signs:
+        // each occurrence keeps its own sign.
+        Index target = found->second;
+        if (i.getType() == cslIndex::Dummy)
+            target.setSign(i.getSign());
+        i = target;
     });
 }
 
@@ -583,11 +591,32 @@ Expr RelabelIndices(Expr const    &expr,
     std::map<std::pair<Space const *, std::string>, size_t> uses;
     for (auto const &kept : keptNames)
         uses[kept] = 1;
+    // Only free indices take part in the renaming map: dummy indices are
+    // renamed in the result but never read from or written to the map.
+    for (auto const &index : freeIndices) {
+        auto found = renaming.renamed.find(keyOf(index));
+        if (found == renaming.renamed.end())
+            continue;
+        // Targets carry IDs from the global counter: reset them so that the
+        // output does not depend on the indices created before.
+        Index target = found->second;
+        target.setID(0);
+        renamed.emplace(keyOf(index), target);
+        ++uses[{target.getSpace(), std::string(target.getName())}];
+    }
     auto relabel = [&](Index const &index) {
+        if (renamed.count(keyOf(index)))
+            return;
         Space const *space = index.getSpace();
         auto const  &pool  = space->getDefaultIndexNames();
-        auto         next
-            = [&]() { return pool[identitiesInSpace[space]++ % pool.size()]; };
+        // The ID counts how many times the name pool has been cycled through,
+        // so it stays deterministic and is non-zero beyond one pass.
+        size_t cycle = 0;
+        auto   next  = [&]() {
+            size_t count = identitiesInSpace[space]++;
+            cycle        = count / pool.size();
+            return pool[count % pool.size()];
+        };
         std::string base = next();
         for (size_t tries = 1;
              tries != pool.size() and keptNames.count({space, base});
@@ -596,7 +625,7 @@ Expr RelabelIndices(Expr const    &expr,
         size_t n      = uses[{space, base}]++;
         Index  result = index;
         result.setName(n == 0 ? base : base + "_" + std::to_string(n));
-        result.setID(0);
+        result.setID(cycle);
         if (result.getType() == cslIndex::Free) {
             result
                 = +result; // Default to upper indices for free indices
@@ -609,9 +638,9 @@ Expr RelabelIndices(Expr const    &expr,
     for (auto const &index : dummyIndices)
         relabel(index);
 
-    applyRenamingMap(res, renamed);
-    for (auto const &[key, index] : renamed)
-        renaming.renamed[key] = index;
+    applyRenamingMap(res, renamed, true);
+    for (auto const &index : freeIndices)
+        renaming.renamed[keyOf(index)] = renamed.at(keyOf(index));
     return res;
 }
 
@@ -625,7 +654,7 @@ Expr ApplyIndexRenaming(Expr const &expr, IndexRenaming const &renaming)
 {
     Expr res = expr;
     csl::WeakDeepCopy(res);
-    applyRenamingMap(res, renaming.renamed);
+    applyRenamingMap(res, renaming.renamed, false);
     return res;
 }
 

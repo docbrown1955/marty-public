@@ -27,7 +27,7 @@ using namespace csl;
 namespace mty {
 
 // Write the SM initialization
-SM_Model::SM_Model(bool initialize)
+SM_Model::SM_Model(bool initialize) : mty::Model(mty::Model::DeferredInit{})
 {
     if (initialize) {
         SM_Model::init();

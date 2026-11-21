@@ -24,7 +24,9 @@
 #include "../../csl/csl.h"
 #include "lagrangian.h"
 #include "quantumField.h"
+#include <string>
 #include <type_traits>
+#include <vector>
 
 /*!
  * \brief Namespace of MARTY.
@@ -53,6 +55,31 @@ namespace mty {
  * variable deleted at the end of the main function.
  * \sa ModelBuilder, Model
  */
+
+/*!
+ * \brief Declares a gauged group for the declarative constructors of
+ * ModelData.
+ * \details The dimension is the dimension of the fundamental representation
+ * (3 for SU(3)). It is required for SU, SO and Sp, and must be left to -1 for
+ * U(1) and exceptional algebras.
+ */
+struct GaugeGroupSpec {
+    group::Type      type;
+    int              dim       = -1;
+    std::string      name;
+    std::string      bosonName = ""; ///< Empty keeps the default A_<name>.
+    csl::Expr        coupling  = nullptr; ///< Null keeps g_<name>.
+};
+
+/*!
+ * \brief Declares a flavor group for the declarative constructors of
+ * ModelData.
+ */
+struct FlavorGroupSpec {
+    csl::Expr   dim;
+    std::string name;
+};
+
 class ModelData {
 
   public:
@@ -82,6 +109,21 @@ class ModelData {
      * state and you can add gauge groups through addGaugedGroup().
      */
     ModelData();
+    /*!
+     * \brief Declarative constructor: builds the complete gauge and flavor
+     * content of the model in one call.
+     * \details Adds the flavor groups, then the gauged groups, then calls
+     * init(initGaugeTerms), and finally renames the gauge bosons that have a
+     * boson name. The order is handled here, so it cannot be got wrong by
+     * the user. Groups are not added to a model that already has particles.
+     * \param gaugeGroups     Gauge groups to build the model with.
+     * \param flavorGroups    Flavor groups (default: none).
+     * \param initGaugeTerms  Forwarded to init().
+     * \sa GaugeGroupSpec, FlavorGroupSpec, init()
+     */
+    explicit ModelData(std::vector<GaugeGroupSpec> const &gaugeGroups,
+                       std::vector<FlavorGroupSpec> const &flavorGroups = {},
+                       bool initGaugeTerms = true);
     /*!
      * \brief Constructor with one parameter.
      * \details Instantiates a null flavor, and the gauge to \b t_gauge.
@@ -1288,6 +1330,14 @@ class ModelData {
     ///////////////////////////////////////////////////
     // Protected member functions
     ///////////////////////////////////////////////////
+
+    /*!
+     * \brief Adds the groups given by the specs and initializes the model.
+     * \sa ModelData(std::vector<GaugeGroupSpec> const &, std::vector<FlavorGroupSpec> const &, bool)
+     */
+    void initFromSpecs(std::vector<GaugeGroupSpec> const  &gaugeGroups,
+                       std::vector<FlavorGroupSpec> const &flavorGroups,
+                       bool                                initGaugeTerms);
 
     ///////////////////////////////////////////////////
     // Init functions

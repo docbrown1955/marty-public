@@ -1,0 +1,71 @@
+[build-system]
+requires = ["scikit-build-core>=0.8", "pybind11>=2.11"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "pymarty"
+version = "0.1.0.dev0"
+description = "Python interface to MARTY, a code generator for BSM calculations"
+requires-python = ">=3.10"
+license = { text = "GPL-3.0-or-later" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: C++",
+    "Operating System :: POSIX :: Linux",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+
+# The extension links the MARTY libraries of the repository, so the CMake
+# project is the top-level one. Run the build from a full checkout.
+[tool.scikit-build]
+cmake.source-dir = ".."
+cmake.build-type = "Release"
+wheel.packages = []
+wheel.install-dir = "pymarty/_data"
+sdist.include = ["../CMakeLists.txt", "../src", "../dep", "../tests/CMakeLists.txt"]
+sdist.exclude = ["../docs", "../build"]
+
+[tool.scikit-build.cmake.define]
+MARTY_BUILD_PYTHON = "ON"
+MARTY_BUILD_GRAFED_GUI = "OFF"
+MARTY_REQUIRE_LATEX_TOOLS = "OFF"
+
+[tool.cibuildwheel]
+build = "cp310-manylinux_x86_64 cp311-manylinux_x86_64 cp312-manylinux_x86_64"
+manylinux-x86_64-image = "manylinux_2_28"
+test-requires = ["pytest"]
+test-command = "pytest {project}/python/tests -m 'wheel or unit'"
+
+[tool.cibuildwheel.linux]
+repair-wheel-command = "auditwheel repair -w {dest_dir} {wheel}"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers"
+markers = [
+    "unit: binding fidelity tests (L2)",
+    "parity(id): counterpart of the C++ API test <Module>Api.<Behaviour>",
+    "example: Python port of an examples/*.cpp program",
+    "usage_example: human-readable usage example of a module (python/examples/usage)",
+    "slow: slow test, run nightly",
+    "loops: needs LoopTools",
+    "needs_compiler: needs a C++ compiler at run time",
+    "quad: needs the quadruple precision build",
+    "needs_grafed: needs the GRAFED executable",
+    "wheel: run against the installed wheel",
+]
+
+[tool.mypy]
+strict = true
+files = ["pymarty", "tests", "tools"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]

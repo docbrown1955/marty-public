@@ -11,13 +11,8 @@ int main() {
 
     // Model building
 
-    Model toyModel;
-    toyModel.addGaugedGroup(group::Type::SU, "L", 2);
-    toyModel.addGaugedGroup(group::Type::U1, "Y");
-    toyModel.init();
-
-    toyModel.renameParticle("A_L", "W");
-    toyModel.renameParticle("A_Y", "B");
+    Model toyModel({    GaugeGroupSpec{group::Type::SU, 2, "L", "W"},
+                        GaugeGroupSpec{group::Type::U, 1, "Y", "B"}});
 
     Particle Q_L = weylfermion_s("Q_L", toyModel, Chirality::Left);
     Particle u_R = weylfermion_s("u_R", toyModel, Chirality::Right);

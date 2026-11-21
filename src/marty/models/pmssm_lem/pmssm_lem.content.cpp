@@ -19,7 +19,14 @@
 namespace mty {
 
 PMSSM_LEM::PMSSM_LEM()
-    : mty::Model(), mty::PMSSM_data(mty::dirac4, csl::Minkowski)
+    : mty::Model({mty::GaugeGroupSpec{mty::group::Type::SU,
+                                      3,
+                                      "C",
+                                      "",
+                                      sm_input::g_s}},
+                 {},
+                 false),
+      mty::PMSSM_data(mty::dirac4, csl::Minkowski)
 
 {
     setEnableChecks(false);
@@ -48,14 +55,7 @@ void PMSSM_LEM::initContent()
     ///////////////////////////////////
 
     g_s = sm_input::g_s;
-    addGaugedGroup(mty::group::Type::SU, "C", 3, g_s);
     Color = getGauge()->getGaugedGroup(0);
-
-    ///////////////////////////////////
-    // Flavor definition             //
-    ///////////////////////////////////
-
-    init(false);
 
     ///////////////////////////////////
     // Particle masses definitions   //

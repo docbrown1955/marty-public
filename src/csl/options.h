@@ -37,6 +37,24 @@ inline bool fullComparison             = true;
 inline bool permissiveCovariantIndices = false;
 inline bool printIndexIds              = true;
 
+/// When false, CSL errors are not printed to std::cerr before being thrown.
+/// The API Session turns it off for the duration of an API call.
+inline bool printErrors = true;
+
 } // namespace csl::option
+
+/// X-macro over every flag of csl::option. Session snapshots exactly this
+/// list. The C++ API tests fail if a flag declared in this header is missing.
+#define MTY_CSL_OPTION_FLAGS(X)                 \
+    X(csl::option, errorStopsProgram)           \
+    X(csl::option, checkCommutations)           \
+    X(csl::option, freezeMerge)                 \
+    X(csl::option, canonicalSumNumericalFactor) \
+    X(csl::option, applySelfContractions)       \
+    X(csl::option, applyChainContractions)      \
+    X(csl::option, fullComparison)              \
+    X(csl::option, permissiveCovariantIndices)  \
+    X(csl::option, printIndexIds)               \
+    X(csl::option, printErrors)
 
 #endif

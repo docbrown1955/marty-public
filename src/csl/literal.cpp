@@ -143,14 +143,13 @@ void Constant::print(int mode, std::ostream &out, LibraryMode libMode) const
         for (char &c : name)
             if (c == '\\')
                 c = '_';
-    if (mode == 0)
-        out << name << endl;
-    else
-        out << name;
+    out << name;
     if (conj)
         out << ")";
     else
         printProp(out);
+    if (mode == 0)
+        out << endl;
 }
 
 void Constant::printCode(int, std::ostream &out) const

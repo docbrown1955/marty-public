@@ -1,3 +1,6 @@
+#ifndef MARTY_API_GAMMA_API_ERROR_H_INCLUDED
+#define MARTY_API_GAMMA_API_ERROR_H_INCLUDED
+
 #include <exception>
 #include <sstream>
 #include <string>
@@ -24,3 +27,5 @@ GammaAPIError::GammaAPIError(Args &&...args)
     (sout << ... << args);
     this->msg = sout.str();
 }
+
+#endif

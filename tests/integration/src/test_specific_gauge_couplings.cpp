@@ -3,12 +3,8 @@
 
 TEST(specific_gauge_couplings, scalar)
 {
-    mty::Model sQED;
     csl::Expr  e = csl::constant_s("e");
-    sQED.addGaugedGroup(mty::group::Type::U1, "em", e);
-    sQED.init();
-
-    sQED.renameParticle("A_em", "A");
+    mty::Model sQED({mty::GaugeGroupSpec{mty::group::Type::U, 1, "em", "A", e}});
 
     mty::Particle A   = sQED.getParticle("A");
     mty::Particle phi = mty::scalarboson_s("phi ; \\phi", sQED);
@@ -43,12 +39,8 @@ TEST(specific_gauge_couplings, scalar)
 
 TEST(specific_gauge_couplings, scalar_quadratic_term)
 {
-    mty::Model sQED;
     csl::Expr  e = csl::constant_s("e");
-    sQED.addGaugedGroup(mty::group::Type::U1, "em", e);
-    sQED.init();
-
-    sQED.renameParticle("A_em", "A");
+    mty::Model sQED({mty::GaugeGroupSpec{mty::group::Type::U, 1, "em", "A", e}});
 
     mty::Particle A   = sQED.getParticle("A");
     mty::Particle phi = mty::scalarboson_s("phi ; \\phi", sQED);
@@ -88,11 +80,8 @@ TEST(specific_gauge_couplings, scalar_quadratic_term)
 TEST(specific_gauge_coupling, fermion)
 {
     csl::Expr  e = csl::constant_s("e");
-    mty::Model QED;
-    QED.addGaugedGroup(mty::group::Type::U1, "em", e);
-    QED.init();
+    mty::Model QED({mty::GaugeGroupSpec{mty::group::Type::U, 1, "em", "A", e}});
 
-    QED.renameParticle("A_em", "A");
     mty::Particle A = QED.getParticle("A");
 
     mty::Particle psi = mty::diracfermion_s("\\psi", QED);
@@ -128,11 +117,8 @@ TEST(specific_gauge_coupling, fermion)
 TEST(specific_gauge_coupling, fermion_multi)
 {
     csl::Expr  e = csl::constant_s("e");
-    mty::Model QED;
-    QED.addGaugedGroup(mty::group::Type::U1, "em", e);
-    QED.init();
+    mty::Model QED({mty::GaugeGroupSpec{mty::group::Type::U, 1, "em", "A", e}});
 
-    QED.renameParticle("A_em", "A");
     mty::Particle A = QED.getParticle("A");
 
     mty::Particle el = mty::diracfermion_s("e", QED);
@@ -217,11 +203,8 @@ TEST(specific_gauge_coupling, fermion_multi)
 TEST(specific_gauge_coupling, vector)
 {
     csl::Expr  e = csl::constant_s("e");
-    mty::Model toyVectorModel;
-    toyVectorModel.addGaugedGroup(mty::group::Type::U1, "em", e);
-    toyVectorModel.init();
+    mty::Model toyVectorModel({mty::GaugeGroupSpec{mty::group::Type::U, 1, "em", "A", e}});
 
-    toyVectorModel.renameParticle("A_em", "A");
     mty::Particle A = toyVectorModel.getParticle("A");
 
     mty::Particle B   = mty::vectorboson_s("B", toyVectorModel);
@@ -256,14 +239,23 @@ TEST(specific_gauge_coupling, vector)
     ASSERT_TRUE(term_found);
 }
 
+TEST(specific_gauge_coupling, u_group_requires_dimension_one)
+{
+    EXPECT_NO_THROW(mty::createGroup(mty::group::Type::U, "Y", 1));
+    try {
+        mty::createGroup(mty::group::Type::U, "Y", 2);
+        ADD_FAILURE() << "no exception was thrown";
+    }
+    catch (mty::error::Exception const &ex) {
+        EXPECT_EQ(ex.type(), mty::error::ValueError);
+    }
+}
+
 TEST(specific_gauge_coupling, vector_quadratic_term)
 {
     csl::Expr  e = csl::constant_s("e");
-    mty::Model toyVectorModel;
-    toyVectorModel.addGaugedGroup(mty::group::Type::U1, "em", e);
-    toyVectorModel.init();
+    mty::Model toyVectorModel({mty::GaugeGroupSpec{mty::group::Type::U, 1, "em", "A", e}});
 
-    toyVectorModel.renameParticle("A_em", "A");
     mty::Particle A = toyVectorModel.getParticle("A");
 
     mty::Particle B = mty::vectorboson_s("B", toyVectorModel);

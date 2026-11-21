@@ -26,7 +26,9 @@
 #include <csignal>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 #include <string>
+#include <string_view>
 
 namespace mty::error {
 
@@ -41,8 +43,8 @@ enum Type {
     IndexError,         // Raised when index of a sequence is out of range.
     KeyError,           // Raised when a key is not found in a dictionary.
     KeyboardInterrupt,  // Raised when the user hits interrupt key (Ctrl+c or
-                       // delete).
-    MemoryError, // Raised when an operation runs out of memory.
+                        // delete).
+    MemoryError,        // Raised when an operation runs out of memory.
     ModelBuildingError,
     NameError, // Raised when a variable is not found in local or global scope.
     NotImplementedError, // Raised by abstract methods.
@@ -50,29 +52,29 @@ enum Type {
     OverflowError, // Raised when result of an arithmetic operation is too
                    // large to be represented.
     PhysicsError,
-    ReferenceError, // Raised when a weak reference proxy is used to access a
-                    // garbage collected referent.
-    RuntimeError, // Raised when an error does not fall under any other
-                  // category.
-    StopIteration, // Raised by next() function to indicate that there is no
-                   // further item to be returned by iterator.
+    ReferenceError,   // Raised when a weak reference proxy is used to access a
+                      // garbage collected referent.
+    RuntimeError,     // Raised when an error does not fall under any other
+                      // category.
+    StopIteration,    // Raised by next() function to indicate that there is no
+                      // further item to be returned by iterator.
     SyntaxError,      // Raised by parser when syntax error is encountered.
     IndentationError, // Raised when there is incorrect indentation.
-    TabError, // Raised when indentation consists of inconsistent tabs and
-              // spaces.
+    TabError,    // Raised when indentation consists of inconsistent tabs and
+                 // spaces.
     SystemError, // Raised when interpreter detects internal error.
     SystemExit,  // Raised by sys.exit() function.
     TypeError,   // Raised when a function or operation is applied to an object
-               // of incorrect type.
+                 // of incorrect type.
     UnboundLocalError, // Raised when a reference is made to a local variable
                        // in a function or method, but no value has been bound
                        // to that variable.
     UnicodeError, // Raised when a Unicode-related encoding or decoding error
                   // occurs.
-    UnicodeEncodeError, // Raised when a Unicode-related error occurs during
-                        // encoding.
-    UnicodeDecodeError, // Raised when a Unicode-related error occurs during
-                        // decoding.
+    UnicodeEncodeError,    // Raised when a Unicode-related error occurs during
+                           // encoding.
+    UnicodeDecodeError,    // Raised when a Unicode-related error occurs during
+                           // decoding.
     UnicodeTranslateError, // Raised when a Unicode-related error occurs during
                            // translating.
     ValueError, // Raised when a function gets argument of correct type but
@@ -188,13 +190,68 @@ inline std::ostream &operator<<(std::ostream &fout, mty::error::Type error)
     return fout;
 }
 
+/// Exception thrown by CallHEPError (and HEPAssert). It derives from
+/// std::runtime_error so that the API boundary can translate it.
+class Exception : public std::runtime_error {
+  public:
+    Exception(Type             type,
+              std::string_view function,
+              std::string_view file,
+              int              line,
+              std::string_view message)
+        : std::runtime_error(compose(type, function, file, line, message)),
+          m_type(type),
+          m_message(message)
+    {
+    }
+
+    Type type() const noexcept
+    {
+        return m_type;
+    }
+
+    std::string const &message() const noexcept
+    {
+        return m_message;
+    }
+
+  private:
+    static std::string compose(Type             type,
+                               std::string_view function,
+                               std::string_view file,
+                               int              line,
+                               std::string_view message)
+    {
+        std::ostringstream sout;
+        sout << type << " in function " << function << "() (file " << file
+             << " l." << line << "): " << message;
+        return sout.str();
+    }
+
+    Type        m_type;
+    std::string m_message;
+};
+
 } // End of namespace mty::error
 
-#define CallHEPError(error, spec)                                            \
-    {                                                                        \
-        std::cerr << error << " in function " << __func__ << "() (file "     \
-                  << __FILE__ << " l." << __LINE__ << "): " << spec << '\n'; \
-        throw error;                                                         \
+namespace mty::option {
+
+/// When false, CallHEPError does not print to std::cerr before throwing.
+/// The API Session turns it off for the duration of an API call.
+inline bool printErrors = true;
+
+} // namespace mty::option
+
+#define CallHEPError(kind, spec)                                            \
+    {                                                                       \
+        std::ostringstream mtyErrorSpec;                                    \
+        mtyErrorSpec << spec;                                               \
+        if (mty::option::printErrors)                                       \
+            std::cerr << kind << " in function " << __func__ << "() (file " \
+                      << __FILE__ << " l." << __LINE__                      \
+                      << "): " << mtyErrorSpec.str() << '\n';               \
+        throw mty::error::Exception(                                        \
+            kind, __func__, __FILE__, __LINE__, mtyErrorSpec.str());        \
     }
 
 #define HEPAssert(condition, error, spec) \
