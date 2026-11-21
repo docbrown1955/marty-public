@@ -20,18 +20,18 @@
 
 namespace mty {
 
-QED_Model::QED_Model() : Model()
+QED_Model::QED_Model()
+    : Model({GaugeGroupSpec{group::Type::U,
+                            1,
+                            "em",
+                            "A",
+                            csl::constant_s("e")}})
 {
-    csl::Expr e = csl::constant_s("e");
-    addGaugedGroup(group::Type::U1, "em", e);
-    init();
-
     Particle psi = diracfermion_s("\\psi", *this);
     auto     m   = csl::constant_s("m");
     psi->setGroupRep("em", -1);
     psi->setMass(m);
     addParticle(psi);
-    renameParticle("A_em", "A");
 
     computeFeynmanRules();
 }

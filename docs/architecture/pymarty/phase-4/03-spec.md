@@ -27,7 +27,8 @@ not a code issue.
 | Q2 THDM variant | Deferred with THDM ("see later"). |
 | Q3 particle handles | **A**: shared handles, as in the core. A handle sees later changes made by the model. |
 | Q4 spacetime | **A**: `pymarty.modeling.spacetime` is in scope. |
-| Q5 construction (review of the G1 draft) | `Model(gauge=[...], flavor=[...])`. Groups come from `pymarty.group_theory` (`SU(2)`, `U1()`, ...). `GaugeGroup(group, name, boson_name=None, coupling=None)` and `FlavorGroup(name=, dim=)`, keyword style. The constructor declares the groups, calls `init`, and renames the bosons. No `add_gauge_group`, `init` or `rename_particle` in the public API for this step. |
+| Q5 construction (review of the G1 draft) | `Model(gauge=[...], flavor=[...])`. Groups come from `pymarty.group_theory` (`SU(2)`, `U(1)`, ...). `GaugeGroup(group, name, boson_name=None, coupling=None)` and `FlavorGroup(name=, dim=)`, keyword style. The constructor declares the groups, calls `init`, and renames the bosons. No `add_gauge_group`, `init` or `rename_particle` in the public API for this step. |
+| Q6 gauge symmetry breaking | `break_gauge_symmetry(group, *, renaming="default")` takes a required keyword. `renaming` is either `"default"` or a dict of explicit renamings, for example `{"Q_L": ["u_L", "d_L"]}`. The dict may be partial: unspecified particles keep the default names. Users never call `rename_particle` after a breaking step. The core dict overload of `breakGaugeSymmetry` is in `src/marty/core/modelBuilder.cpp`. |
 
 Core ordering (`src/marty/core/modelData.cpp`): `addGaugedGroup` and `addFlavorGroup` assert `particles.empty()`;
 `init()` runs once (`gaugeLocked`), creates the bosons and ghosts as particles, and attaches the flavor groups.
@@ -52,7 +53,7 @@ non-template overloads of `addGaugedGroup`.
 
 | Header | Contents |
 |--------|----------|
-| `modelingTypes.h` | `enum class GroupKind {U1, SU, SO, Sp, ...}` (only kinds the core supports), `enum class ModelKind {QED, SM}`, `Chirality` reuse |
+| `modelingTypes.h` | `enum class GroupKind {U, SU, SO, Sp, ...}` (only kinds the core supports), `enum class ModelKind {QED, SM}`, `Chirality` reuse |
 | `modelHandle.h` | `ModelHandle`: owns `shared_ptr<mty::Model>`, wraps every call in `mty::api::Session`. Constructor takes a list of gauge group descriptors and a list of flavor group descriptors, declares them, calls `init`, then renames the bosons. Exposes `refresh`, `add_particle`, `particle`, `add_term`, `replace`, `break_gauge_symmetry`, `rotate_fields`, `birotate_fields`, `add_bosonic_mass`, `add_fermionic_mass`, `coupling`. `rename_particle` stays internal (used for bosons, and exposed as a method for particles) |
 | `particleHandle.h` | `ParticleHandle`: holds the `Particle` (`shared_ptr`) and its `ModelHandle` (keeps the model alive); `set_rep`, `set_mass`, `set_flavor_rep`, `set_self_conjugate`, `similar(name)`, `field_strength` |
 | `spacetime.h` | Minkowski and Dirac index factories and `gamma`, `P_L`, `P_R` (built on the `csl` tensor API, Phase 1) |

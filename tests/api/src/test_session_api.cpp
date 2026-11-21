@@ -32,6 +32,13 @@
 #include <vector>
 
 namespace {
+mty::Model emptyModel()
+{
+    return mty::Model(std::vector<mty::GaugeGroupSpec>{});
+}
+} // namespace
+
+namespace {
 
 std::string readHeader(std::string const &relative)
 {
@@ -117,8 +124,8 @@ TEST(SessionApi, RestoresGammaSymbolicFlag)
 
 TEST(SessionApi, RestoresCurrentModelOnExit)
 {
-    mty::Model outer;
-    mty::Model inner;
+    mty::Model outer = emptyModel();
+    mty::Model inner = emptyModel();
     {
         mty::api::Session session(&outer);
         EXPECT_EQ(mty::Model::current, &outer);
@@ -128,8 +135,8 @@ TEST(SessionApi, RestoresCurrentModelOnExit)
 
 TEST(SessionApi, RestoresCurrentModelOnException)
 {
-    mty::Model outer;
-    mty::Model inner;
+    mty::Model outer = emptyModel();
+    mty::Model inner = emptyModel();
     try {
         mty::api::Session session(&outer);
         throw std::runtime_error("failure inside session");
@@ -141,8 +148,8 @@ TEST(SessionApi, RestoresCurrentModelOnException)
 
 TEST(SessionApi, TwoModelsSequentialAndInterleaved)
 {
-    mty::Model        first;
-    mty::Model        second;
+    mty::Model        first  = emptyModel();
+    mty::Model        second = emptyModel();
     mty::Model *const before = mty::Model::current;
     {
         mty::api::Session outerSession(&first);
@@ -167,9 +174,9 @@ TEST(SessionApi, TwoModelsSequentialAndInterleaved)
 
 TEST(SessionApi, ModelDestructorClearsCurrent)
 {
-    mty::Model outer;
+    mty::Model outer = emptyModel();
     {
-        mty::Model inner;
+        mty::Model inner = emptyModel();
         EXPECT_EQ(mty::Model::current, &inner);
     }
     EXPECT_EQ(mty::Model::current, nullptr);

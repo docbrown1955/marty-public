@@ -59,7 +59,7 @@ Out of scope: amplitudes (Phase 5), diagrams display (Phase 5), libraries (Phase
 | C++ | Python |
 |-----|--------|
 | `mty::Model m;` + `addGaugedGroup(group::Type::SU, "L", 2)`, `init()`, `renameParticle("A_L", "W")` | `Model(gauge=[GaugeGroup(SU(2), name="L", boson_name="W")], flavor=[FlavorGroup(name="Gen", dim=3)])` |
-| `m.addGaugedGroup(group::Type::U1, "Y")` | `GaugeGroup(U1(), name="Y", boson_name="B")` |
+| `m.addGaugedGroup(group::Type::U1, "Y")` | `GaugeGroup(U(1), name="Y", boson_name="B")` |
 | `weylfermion_s("Q_L", m, Chirality::Left)` | `m.weyl_fermion("Q_L", chirality="L")` (returns a `Particle`, not yet added) |
 | `Q->setGroupRep("L", 1)`, `setGroupRep("Y", {1, 6})` | `Q.set_rep("L", 1)`, `Q.set_rep("Y", Fraction(1, 6))` |
 | `m.addParticle(Q)` | `m.add_particle(Q)` |

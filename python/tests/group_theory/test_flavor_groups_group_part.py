@@ -7,11 +7,11 @@ scalars, their conjugates, and a neutral gauge boson.
 
 from fractions import Fraction
 
-from pymarty.group_theory import U1
+from pymarty.group_theory import U
 
 
 def test_charged_scalar_pair_contains_the_singlet() -> None:
-    u1 = U1()
+    u1 = U(1)
     p = u1.irrep(1)
     p_bar = ~p
     assert p.charge == 1
@@ -20,7 +20,7 @@ def test_charged_scalar_pair_contains_the_singlet() -> None:
 
 
 def test_gauge_boson_is_neutral_and_self_conjugate() -> None:
-    u1 = U1()
+    u1 = U(1)
     a_x = u1.trivial()
     assert a_x.charge == 0
     assert a_x.is_self_conjugate
@@ -28,7 +28,7 @@ def test_gauge_boson_is_neutral_and_self_conjugate() -> None:
 
 
 def test_charged_scalar_pair_has_no_neutral_leftover() -> None:
-    u1 = U1()
+    u1 = U(1)
     p = u1.irrep(Fraction(1))
     products = dict((r.charge, m) for r, m in (p * p).items())
     assert products == {Fraction(2): 1}

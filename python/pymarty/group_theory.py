@@ -26,6 +26,7 @@ Fraction(1, 6)
 from collections.abc import Mapping
 
 from pymarty._pymarty import group_theory as _core
+from pymarty.errors import MartyValueError
 
 Group = _core.Group
 Irrep = _core.Irrep

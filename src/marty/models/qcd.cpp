@@ -36,16 +36,17 @@ Particle colorSextet(Model &QCD, std::string const &name)
     return part;
 }
 
-QCD_Model::QCD_Model() : Model()
+QCD_Model::QCD_Model()
+    : Model({GaugeGroupSpec{group::Type::SU,
+                            3,
+                            "C",
+                            "G",
+                            csl::constant_s("g")}})
 {
-    addGaugedGroup(group::Type::SU, "C", 3, csl::constant_s("g"));
-    init();
-
     Particle u = colorTriplet(*this, "u");
     Particle d = colorTriplet(*this, "d");
     // Uncomment to have a color sextet X
     // Particle X = colorSextet(*this, "X");
-    renameParticle("A_C", "G");
     Particle gluon = getParticle("G");
 
     computeFeynmanRules();

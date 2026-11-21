@@ -4,10 +4,8 @@
 TEST(flavor_groups, test_symbolic_flavor)
 {
     csl::Expr Nf = csl::constant_s("Nf");
-    mty::Model model;
-    model.addFlavorGroup("F", Nf);
-    model.addGaugedGroup(mty::group::Type::U1, "X");
-    model.init();
+    mty::Model model({mty::GaugeGroupSpec{mty::group::Type::U, 1, "X"}},
+                     {mty::FlavorGroupSpec{Nf, "F"}});
 
     mty::Particle p1 = mty::scalarboson_s("p1", model);
     p1->setFundamentalFlavorRep("F");
@@ -58,11 +56,9 @@ TEST(flavor_groups, test_symbolic_flavor)
 
 TEST(flavor_groups, test_numerical_flavor)
 {
-    int Nf = 3;
-    mty::Model model;
-    model.addFlavorGroup("F", Nf);
-    model.addGaugedGroup(mty::group::Type::U1, "X");
-    model.init();
+    int        Nf = 3;
+    mty::Model model({mty::GaugeGroupSpec{mty::group::Type::U, 1, "X"}},
+                     {mty::FlavorGroupSpec{Nf, "F"}});
 
     mty::Particle p1 = mty::scalarboson_s("p1", model);
     p1->setFundamentalFlavorRep("F");

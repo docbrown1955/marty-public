@@ -16,7 +16,7 @@ Run it with ``python group_theory.py``. It is also run by the test suite
 from fractions import Fraction
 
 from pymarty.errors import MartyValueError
-from pymarty.group_theory import SU, U1
+from pymarty.group_theory import SU, U
 
 su3 = SU(3)
 print("group:", su3, "rank", su3.rank, "dim", su3.dim)
@@ -83,7 +83,7 @@ else:
     raise AssertionError("SU(3) accepted three Dynkin labels")
 
 # U(1) charges are exact rationals
-u1 = U1()
+u1 = U(1)
 charge = u1.irrep(Fraction(1, 3))
 print("U(1) charge:", charge, "dim", charge.dim)
 assert charge.dim == 1

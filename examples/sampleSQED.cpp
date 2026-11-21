@@ -12,11 +12,7 @@ using namespace mty;
 int main()
 {
 
-    Model sQED;
-    sQED.addGaugedGroup(group::Type::U1, "em", constant_s("e"));
-    sQED.init();
-
-    sQED.renameParticle("A_em", "A");
+    Model sQED({GaugeGroupSpec{group::Type::U, 1, "em", "A", constant_s("e")}});
 
     Particle phi = scalarboson_s("phi ; \\phi", sQED);
     Expr     m   = constant_s("m");

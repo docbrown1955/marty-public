@@ -26,6 +26,7 @@
 
 #include "modelData.h"
 #include "spectrum.h"
+#include <map>
 
 namespace mty {
 
@@ -309,6 +310,19 @@ class ModelBuilder : public ModelData {
     void breakU1GaugeSymmetry(std::string const &groupName);
 
     void breakGaugeSymmetry(std::string const &brokenGroup);
+
+    /*!
+     * \brief Breaks a gauged group, with explicit names for some particles.
+     * \details The map gives, for each broken particle, the names of the
+     * particles it becomes (one per component of its representation). Broken
+     * particles that are not in the map get the default names <name>_1,
+     * <name>_2, ...
+     * \param brokenGroup Name of the group to break.
+     * \param renaming    Partial map from particle name to new names.
+     */
+    void breakGaugeSymmetry(
+        std::string const                                     &brokenGroup,
+        std::map<std::string, std::vector<std::string>> const &renaming);
 
     void
     breakGaugeSymmetry(std::string const &               brokenGroup,

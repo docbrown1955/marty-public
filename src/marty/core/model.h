@@ -70,6 +70,56 @@ class Model : public ModelBuilder {
     // Constructors
     ///////////////////////////////////////////////////
 
+    /*!
+     * \brief Builds the model from its gauge and flavor groups.
+     * \details See ModelData::ModelData(std::vector<GaugeGroupSpec> const &,
+     * std::vector<FlavorGroupSpec> const &, bool).
+     */
+    explicit Model(std::vector<GaugeGroupSpec> const  &gaugeGroups,
+                   std::vector<FlavorGroupSpec> const &flavorGroups   = {},
+                   bool                                initGaugeTerms = true)
+        : ModelBuilder()
+    {
+        current = this;
+        initFromSpecs(gaugeGroups, flavorGroups, initGaugeTerms);
+    }
+
+    /*!
+     * \brief Same as the constructor taking a vector, for braced lists.
+     */
+    explicit Model(std::initializer_list<GaugeGroupSpec> gaugeGroups,
+                   std::vector<FlavorGroupSpec> const   &flavorGroups = {},
+                   bool                                  initGaugeTerms = true)
+        : Model(std::vector<GaugeGroupSpec>(gaugeGroups),
+                flavorGroups,
+                initGaugeTerms)
+    {
+    }
+
+    /*!
+     * \brief Empty model, to add the gauge groups with addGaugedGroup().
+     * \deprecated Kept for compatibility. Use the constructor taking the
+     * gauge and flavor groups instead.
+     */
+    [[deprecated("Use Model(gaugeGroups, flavorGroups) instead")]]
+    Model() : ModelBuilder()
+    {
+        current = this;
+    }
+
+  protected:
+    /*!
+     * \brief Tag selecting the constructor for built-in models, which declare
+     * their groups in their own init() instead of through the constructor.
+     */
+    struct DeferredInit {};
+
+    explicit Model(DeferredInit) : ModelBuilder()
+    {
+        current = this;
+    }
+
+  public:
     template <class... Args>
     explicit Model(Args &&...args) : ModelBuilder(std::forward<Args>(args)...)
     {

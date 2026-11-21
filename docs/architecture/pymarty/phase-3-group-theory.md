@@ -22,7 +22,7 @@ These two corrections need the user's re-approval of G1. `test_usage_examples.py
 ## 1. Scope
 
 In scope:
-- Groups: `U1`, `SU(n)`, and the other simple groups that the core can construct from an
+- Groups: `U(1)`, `SU(n)`, and the other simple groups that the core can construct from an
   algebra type (`algebra::Type`: A, B, C, D, E6, E7, E8, F4, G2). Spike 3.0 establishes exactly which are
   constructible and which operations work for each. Classes unavailable in the core are not
   invented: they raise `NotImplementedError`.
@@ -59,7 +59,7 @@ Out of scope: gauge fields, couplings, anything touching `Model`, `GaugedGroup`,
 
 | C++ API | Python |
 |---------|--------|
-| `GroupHandle su(int n)`, `u1()`, `so(n)`, `sp(n)`, `exceptional(Type)` | `SU(3)`, `U1()`, `SO(10)`, `Sp(4)`, `E6()`, `G2()` ... |
+| `GroupHandle su(int n)`, `u1()`, `so(n)`, `sp(n)`, `exceptional(Type)` | `SU(3)`, `U(1)`, `SO(10)`, `Sp(4)`, `E6()`, `G2()` ... |
 | `IrrepHandle irrep(group, vector<Rational> dynkin)` | `g.irrep(1, 0)` (accepts any iterable via `*labels` or a sequence) |
 | `fundamental`, `adjoint`, `trivial`, `irrep_from_dim(dim, conjugate)` | `g.fundamental()`, `g.adjoint()`, `g.trivial()`, `g.irrep_from_dim(3)`; ambiguity gives `ValueError` listing the candidates |
 | `dim(irrep)`, `highest_weight`, `is_self_conjugate`, `conjugate` | `r.dim`, `r.highest_weight`, `r.is_self_conjugate`, `r.conjugate()` or `~r` |

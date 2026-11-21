@@ -14,7 +14,7 @@ from pymarty.group_theory import (
     G2,
     SO,
     SU,
-    U1,
+    U,
     Decomposition,
     Irrep,
     Sp,
@@ -97,7 +97,7 @@ def test_invalid_group_and_labels_are_rejected() -> None:
 
 @pytest.mark.parity("GroupTheoryApi.U1ChargesAddExactly")
 def test_u1_charges_add_exactly() -> None:
-    u1 = U1()
+    u1 = U(1)
     q = u1.irrep(Fraction(1, 3))
     assert q.charge == Fraction(1, 3)
     assert list((q * q).items()) == [(u1.irrep(Fraction(2, 3)), 1)]
