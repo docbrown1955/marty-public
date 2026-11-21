@@ -75,8 +75,11 @@ MARTY. The C++ doc comment and Python docstring state them explicitly (for the f
 the Dynkin index convention is verified in spike 3.0 and written down; tests assert MARTY's convention
 and the cross-checks below that hold for any normalisation).
 
-Python details: `Irrep` is hashable and comparable (`==` within one group, `TypeError` across
-groups), immutable, with `__repr__` such as `SU(3)[1,0]`. Dynkin labels are accepted as `int`, or
+Python details: `Irrep` is hashable and comparable. Irreps are equal when their algebras have the same
+type and rank and their highest weights match, as in core MARTY (`SemiSimpleAlgebra::operator==`), so
+irreps of identical but distinct groups compare equal and cross-group comparisons return `False`. Spin
+and weak-isospin SU(2) irreps therefore compare equal. Ordering (`<`) follows the core, which orders by
+dimension. The type is immutable, with `__repr__` such as `SU(3)[1,0]`. Dynkin labels are accepted as `int`, or
 `Fraction` for U(1) charges.
 
 ## 4. Test plan
@@ -108,7 +111,7 @@ L1 (`tests/api/group_theory/`):
 L2 (`python/tests/group_theory/`): parity tests for all L1 cases, plus
 - duck typing of Dynkin labels (`int`, `Fraction`, objects with `__index__`, any iterable), irreps used
   as dict keys and set members, decompositions compared to plain dicts
-- operators: `r1 * r2`, `~r`, comparisons across groups raise `TypeError`
+- operators: `r1 * r2`, `~r`, comparisons across groups return `False` (equality follows the core rule above)
 - `Fraction` types returned (never `float`) and `Decomposition` is a `Mapping`
 - generators returned as nested tuples whose elements are numbers (no pybind internals)
 - independence from other modules (subprocess import test)
