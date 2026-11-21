@@ -1,8 +1,7 @@
 import pytest
+from cpp_models.qed import build
 
 from pymarty import models
-
-from cpp_models.qed import build
 
 
 @pytest.mark.unit

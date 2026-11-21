@@ -1,5 +1,4 @@
 import pytest
-
 from cpp_models.qcd import build
 
 # Reference output of the C++ QCD_Model (qcd.cpp), obtained from a scratch program.
