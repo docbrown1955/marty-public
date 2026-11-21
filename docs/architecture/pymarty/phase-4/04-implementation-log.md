@@ -46,11 +46,17 @@ Checks: `pytest -m "not slow"` on `tests/modeling` and `test_usage_examples.py` 
   - QED and QCD: complete. Particle names and rule counts match the C++ models (QCD: 8 particles, 5 rules).
   - SM, MSSM, THDM, GTHDM, NMFV, PMSSM: partial. Strict xfails record the missing counts. The C++ references are SM 42 particles / 190 rules, MSSM_HEM 29 / 148, THDM 45 / 349, GTHDM 45 / 413, PMSSM 87 / 3984.
   - `pmssm_lem` is excluded, as agreed.
+### Gap closure, round 2
+
+- Flavour symmetry breaking with explicit renaming. Core gains `ModelBuilder::breakFlavorSymmetry(flavor, map)` (`src/marty/core/modelBuilder.cpp`), mirroring the gauge map overload. Unlisted particles keep the default `name_j` names. Python: `Model.break_flavor_symmetry(flavor, renaming="default")`, sharing `parseRenaming` with `break_gauge_symmetry` (`python/src/modeling.cpp`). The SM builder now uses this in place of the C++ `renameParticle` follow-up.
+- Ghost bosons: `Particle.ghost_boson()`, `Particle.set_conjugated_ghost_boson()` and `Model.ghost_boson(vector_boson, name, conjugated=False)` wrap the core calls. The default ghosts of gauge bosons already exist in the model (`c_W`, `c_B`).
+- Decision: the new Python surface stays a thin facade over core methods. The C++ `mrtInterface.h` free functions were not copied one by one. No interface change was needed in core for this round.
+- Decision: the MSSM rule-count check is a strict xfail rather than a pin on the current value.
+- Remaining SM ghost steps (`c_Wp`/`c_Wm` on the broken `W`) depend on electroweak breaking, which is not ported yet.
 - Bindings still missing for full ports:
   - Model flavour space (`getVectorSpace`) and tensor couplings, so Yukawa and soft-mass tensors cannot be written from Python.
   - Hermitian tensor properties (`addHermitianProperty`).
-  - `BreakFlavorSymmetry`.
-  - Ghost-boson access (`getGhostBoson`) and gauge fixing (`xi`).
+  - Gauge fixing (`xi`).
   - Mass diagonalisation (`DiagonalizeMassMatrices`, `gatherMass`) and Majorana promotion.
   - `Particle.setMass` and `getEpsilon()`.
   - `mergeTerms`.
