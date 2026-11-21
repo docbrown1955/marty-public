@@ -37,6 +37,24 @@ Facade additions for the ports: `Particle.expr`, `Particle.__call__(*indices)`, 
 
 Checks: `pytest -m "not slow"` on `tests/modeling` and `test_usage_examples.py` passes. `ctest -L 'units|integration|api'` passes (361 tests). The C++ `RelabelIndices` test was updated to the approved cycling behaviour: 3 indices over a 2-name pool give IDs `{0, 1}`.
 
+### Irrep comparison, index pool and model recreations
+
+- Irrep equality reuses `SemiSimpleAlgebra::operator==` (type and rank), so `SU(2)_s` equals `SU(2)_L`. Core tests: `tests/units/marty/test_irrep_equality.cpp`.
+- `csl::SpaceIndexPool` (`src/csl/space_index_pool.h`) owns the name cycling and the ID counter that `csl::Space` previously held globally. A plain `RelabelIndices(expr)` uses a fresh pool per call, so it starts at name 0 with ID 0. A renaming shared across expressions keeps its pools and keeps cycling. Decision to review: there is no persistent pool on `Space` itself.
+- `QCD_Model` triplets used `SU3_c`, which no longer exists after the `GaugeGroupSpec` constructor; they now use the declared group name `C` (`src/marty/models/qcd.cpp`). Without this the C++ QCD model throws at runtime.
+- Model recreations live in `python/tests/modeling/cpp_models/` (one `build() -> Model` per model), checked by `test_cpp_*.py`:
+  - QED and QCD: complete. Particle names and rule counts match the C++ models (QCD: 8 particles, 5 rules).
+  - SM, MSSM, THDM, GTHDM, NMFV, PMSSM: partial. Strict xfails record the missing counts. The C++ references are SM 42 particles / 190 rules, MSSM_HEM 29 / 148, THDM 45 / 349, GTHDM 45 / 413, PMSSM 87 / 3984.
+  - `pmssm_lem` is excluded, as agreed.
+- Bindings still missing for full ports:
+  - Model flavour space (`getVectorSpace`) and tensor couplings, so Yukawa and soft-mass tensors cannot be written from Python.
+  - Hermitian tensor properties (`addHermitianProperty`).
+  - `BreakFlavorSymmetry`.
+  - Ghost-boson access (`getGhostBoson`) and gauge fixing (`xi`).
+  - Mass diagonalisation (`DiagonalizeMassMatrices`, `gatherMass`) and Majorana promotion.
+  - `Particle.setMass` and `getEpsilon()`.
+  - `mergeTerms`.
+
 ### Timed run
 
 | Command | Result | Time |
