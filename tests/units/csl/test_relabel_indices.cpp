@@ -183,7 +183,7 @@ TEST(RelabelIndices, freeIndexOfOneSpaceAndDummyOfAnother)
 
 // IDs and input
 
-TEST(RelabelIndices, resetsAllIdsToZero)
+TEST(RelabelIndices, idsCycleThroughNamePool)
 {
     Space  S{"S", 4, {"alpha", "beta"}};
     Tensor x{"x", &S};
@@ -192,9 +192,13 @@ TEST(RelabelIndices, resetsAllIdsToZero)
     Index  q       = S.generateIndex("alpha");
     Index  f       = S.generateIndex("beta");
     auto   renamed = RelabelIndices(x(p) * y(p) * x(q) * y(q) * x(f));
+    // Three distinct indices over a pool of two names: the first pass gives
+    // ID 0, the index beyond the pool gets ID 1.
+    std::set<size_t> ids;
     for (auto const &factor : renamed->getFactors())
         for (auto const &index : indicesOf(factor))
-            EXPECT_EQ(index.getID(), 0u);
+            ids.insert(index.getID());
+    EXPECT_EQ(ids, (std::set<size_t>{0, 1}));
 }
 
 TEST(RelabelIndices, inputIsNotModified)

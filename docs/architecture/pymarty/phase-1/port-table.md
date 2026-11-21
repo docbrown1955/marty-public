@@ -122,7 +122,7 @@ Rule: a row is `ported` only when a Python test checks the same behaviour. Gaps 
 | 98 | test_relabel_indices.cpp | RelabelIndices.freeIndicesTakeNamesBeforeDummies | P | ported | `test_tensors.py::test_relabel_free_indices_take_names_before_dummies` |
 | 99 | test_relabel_indices.cpp | RelabelIndices.spacesKeepTheirOwnSequences | P | ported | `test_tensors.py::test_relabel_spaces_keep_their_own_sequences` |
 | 100 | test_relabel_indices.cpp | RelabelIndices.freeIndexOfOneSpaceAndDummyOfAnother | P+ | ported | `test_tensors.py::test_relabel_free_of_one_space_dummy_of_another` |
-| 101 | test_relabel_indices.cpp | RelabelIndices.resetsAllIdsToZero | P+ | ported | `test_tensors.py::test_relabel_resets_all_ids_to_zero` |
+| 101 | test_relabel_indices.cpp | RelabelIndices.idsCycleThroughNamePool | P+ | ported | `test_tensors.py::test_relabel_resets_all_ids_to_zero` |
 | 102 | test_relabel_indices.cpp | RelabelIndices.inputIsNotModified | P | ported | `test_tensors.py::test_relabel_does_not_mutate` |
 | 103 | test_relabel_indices.cpp | RelabelIndices.relabellingTwiceGivesTheSameLabels | P | ported | `test_tensors.py::test_relabel_twice_gives_same_labels` |
 | 104 | test_relabel_indices.cpp | RelabelIndices.derivativeIndexIsRelabelledWithItsPair | P+ | gap | A7; derivative indices are in scope; no Python test |
