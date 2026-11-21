@@ -40,15 +40,23 @@ mapping: [port-table.md](port-table.md). Capability record: [../spike-3-0-group-
 
 ## Known defect (not fixed, flagged)
 
-- E8 (fixed): the core gave 3875 for both `getDefiningRep()` and `getAdjointRep()`. Two causes: the Cartan
-  matrix in `E8::setCartanMatrix` (`src/marty/core/semiSimpleAlgebra.cpp`) used a node order that did not match
-  the index tables in `src/marty/core/groupIndices.h`, and the 29th row of each E8 table was labelled
-  `{0,0,0,0,1,0,0}` (a duplicate of node 11, dropping node 7). The matrix now uses the table order, so
-  label `{1,0,...}` is 248 and `{0,...,0,1}` is node 7. Note: E8 labels written by users change meaning.
-- Open (E8 labelling vs manual): the fixed order follows the paper (van Ritbergen et al., Table 3, 248 = `(1,0,...,0)`).
-  The manual's Table 4.8 (p. 67) still uses the pre-fix order (248 = `(0,...,0,1,0)`, 3875 = `(1,0,...,0)`), and so do
-  E6 and E7 in the manual. The PDF is not edited. Index normalisation also differs from the paper (MARTY 1/30 for 248
-  vs paper 60). Both need a maintainer decision.
+- E8 (fixed, manual convention): the core gave 3875 for both `getDefiningRep()` and `getAdjointRep()`. The
+  Cartan matrix in `E8::setCartanMatrix` (`src/marty/core/semiSimpleAlgebra.cpp`) is back to the manual's node
+  order (chain 0-1-2-3-4-5-6 with node 7 attached to node 2). Labels follow the manual: 248 = `(0,...,0,1,0)`
+  (node 6), 3875 = `(1,0,...,0)`, 30380 = `(0,0,0,0,0,1,0,0)`. The index tables in `groupIndices.h` stay in the
+  paper's order (van Ritbergen et al.); `getE8Index` maps manual labels to that order with the permutation
+  `{6,5,4,3,1,0,7,2}`. The 29th row of each table was a duplicate of node 11 and is corrected (`085a396`).
+  The manual's Table 4.8 (p. 67) is consistent with this.
+- Normalisation (documented in `python/pymarty/group_theory.py` and `group_theory.h`):
+  - Casimir: core `getQuadraticCasimir`, with per-algebra root scale `absoluteNorms`. The adjoint Casimir is 1
+    for SU(N) and 2 for E6, E7 and E8. This is not the standard `(lambda, lambda+2rho)` normalisation (SU(N)
+    adjoint = N there). Values are algebra-dependent and are not comparable across algebras.
+  - Dynkin index: the facade gives `T(r) = C2(r) dim(r) / dim(G)`. For E8 this equals the core index (248 gives 2
+    both ways, `getE8IndexNorm` 60 times the table entry 1/30).
+  - Open inconsistency: for SU(N) the facade gives T(fund) = 1/(2N) (SU(3): 1/6), but the core `getIndex(r, 2)`
+    gives 1/2 (see the spike record). The two indices differ by N for SU(N). Aligning them is a design decision
+    for the maintainer.
+  - No section of the manual defines the index normalisation; references are in the paper only.
 - Spike record: the E6 27 x 27bar row in the spike (`27 = 27 + 351 + 1728`, dim 2106) was wrong. The correct
   decomposition is 1 + 78 + 650 (dim 729). See the correction note in the spike record.
 

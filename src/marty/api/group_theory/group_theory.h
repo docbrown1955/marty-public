@@ -14,9 +14,11 @@
  * construction, irreps, tensor products, Casimirs and Dynkin indices.
  *
  * Normalisation: Casimirs are the core values (SemiSimpleAlgebra::
- * getQuadraticCasimir). The Dynkin index is T(r) = C2(r) dim(r) / dim(G) in
- * the same normalisation, so that T(fund SU(3)) = 1/6 and the sum rule T(r1 x
- * r2) = dim(r1) T(r2) + dim(r2) T(r1) holds.
+ * getQuadraticCasimir), with a per-algebra root scale: the adjoint Casimir is 1
+ * for SU(N) and 2 for E6, E7 and E8. The Dynkin index is T(r) = C2(r) dim(r) /
+ * dim(G), so that T(fund SU(3)) = 1/6. This differs from the core getIndex for
+ * SU(N) (1/2 for the fundamental); the two are not yet aligned.
+ * E8 labels follow the MARTY manual: 248 = (0,...,0,1,0).
  *
  * Irreps keep their group alive through shared ownership, so an Irrep may
  * outlive the Group it was created from.

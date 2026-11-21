@@ -152,10 +152,11 @@ decompositions, the capability matrix.
 - Conjugation conventions of `Irrep` (labels order, self-conjugate U(1) rep) need to be pinned by tests
   that read MARTY's outputs once and then assert literal values.
 - **E8 fixed and tested.** The core Cartan matrix used a node order that did not match the index tables
-  in `src/marty/core/groupIndices.h`. The matrix is relabelled to the table order, and one index row
-  that duplicated node 11 and dropped node 7 is corrected. The defining and adjoint representations are
-  now 248, and 248 x 248 decomposes as 1 + 248 + 3875 + 27000 + 30380. See
-  [phase-3/04-implementation-log.md](phase-3/04-implementation-log.md).
+  in `src/marty/core/groupIndices.h`, and one index row was duplicated. The Cartan matrix now follows the
+  MARTY manual (248 = `(0,...,0,1,0)`), and the index lookup maps labels to the table order. The defining and
+  adjoint representations are 248, and 248 x 248 decomposes as 1 + 248 + 3875 + 27000 + 30380. See
+  [phase-3/04-implementation-log.md](phase-3/04-implementation-log.md) for the normalisation and the open SU(N)
+  index mismatch.
 
 ## Status (end of phase 3 implementation)
 

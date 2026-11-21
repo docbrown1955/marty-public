@@ -163,6 +163,7 @@ def test_symplectic_and_exceptional_decompositions() -> None:
 
     e8 = E8()
     assert (e8.fundamental().dim, e8.adjoint().dim) == (248, 248)
+    assert e8.fundamental().highest_weight == (0, 0, 0, 0, 0, 0, 1, 0)
     assert dims_of(e8.fundamental() * e8.fundamental()) == {
         1: 1,
         248: 1,

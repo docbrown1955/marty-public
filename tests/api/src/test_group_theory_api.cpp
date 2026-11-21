@@ -177,6 +177,8 @@ TEST(GroupTheoryApi, SymplecticAndExceptionalDecompositions)
 
     auto e8 = gt::Group::e8();
     EXPECT_EQ(e8->fundamental().dim(), 248);
+    EXPECT_EQ(e8->fundamental().labels(),
+              (std::vector<int>{0, 0, 0, 0, 0, 0, 1, 0}));
     EXPECT_EQ(e8->adjoint().dim(), 248);
     EXPECT_EQ(dimsOf(e8->tensorProduct(e8->fundamental(), e8->fundamental())),
               (std::map<int, int>{

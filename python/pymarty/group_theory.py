@@ -1,15 +1,19 @@
 """Group theory: simple gauge groups, irreps and tensor products.
 
 Groups are built with ``SU(n)``, ``SO(n)``, ``Sp(n)``, ``E6()``, ``E7()``,
-``E8()``, ``F4()``, ``G2()`` and ``U1()``. Irreps are
+``E8()``, ``F4()``, ``G2()`` and ``U(1)`` (``U(n)`` only accepts ``n == 1``). Irreps are
 labelled by Dynkin labels, or by an exact charge for U(1), and are immutable
 and hashable. ``r1 * r2`` is the tensor product, returned as a
 ``Decomposition``: a read-only mapping from irreps to multiplicities.
 
 Casimirs and Dynkin indices are ``fractions.Fraction`` objects in MARTY's core
-normalisation. The Dynkin index is ``T(r) = C2(r) dim(r) / dim(G)``, so that
-``T(fundamental of SU(3)) = 1/6``. Irreps of different groups cannot be
-compared, and comparing them raises ``TypeError``.
+normalisation. The Casimir is the core ``getQuadraticCasimir`` value with a
+per-algebra root scale: the adjoint Casimir is 1 for SU(N) and 2 for E6, E7 and
+E8, so values are not comparable across algebras and differ from the standard
+``(lambda, lambda + 2 rho)`` convention. The Dynkin index is
+``T(r) = C2(r) dim(r) / dim(G)``. For E8 it matches the core index (``T(248) = 2``).
+For SU(N) it does not match the core ``getIndex``: ``T(fundamental of SU(3)) = 1/6``
+here, against ``1/2`` in the core. Irreps of different groups cannot becompared, and comparing them raises ``TypeError``.
 
 >>> from pymarty.group_theory import SU
 >>> su3 = SU(3)
@@ -71,6 +75,8 @@ def G2() -> Group:
     return _core.Group.g2()
 
 
-def U1() -> Group:
-    """Abelian group U(1). Its irreps are labelled by a rational charge."""
+def U(n: int) -> Group:
+    """Abelian group U(n). Only U(1) is supported, so n must be 1."""
+    if n != 1:
+        raise MartyValueError(f"U({n}) is not supported, only U(1) is")
     return _core.Group.u1()

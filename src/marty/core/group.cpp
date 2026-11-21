@@ -467,7 +467,7 @@ mty::group::Type E8::getType() const
 mty::Irrep E8::getAdjointRep() const
 {
     vector<int> labels(8, 0);
-    labels[0] = 1;
+    labels[6] = 1;
     return algebra->highestWeightRep(labels);
 }
 
