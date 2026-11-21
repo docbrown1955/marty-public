@@ -432,9 +432,7 @@ def test_relabel_indices_uses_preset_renaming_entries() -> None:
 
 @pytest.mark.unit
 def test_relabel_indices_ids_cycle_through_name_pool() -> None:
-    space = symbolic.Space(
-        "S", 4, index_names=("alpha", "beta", "gamma", "delta")
-    )
+    space = symbolic.Space("S", 4, index_names=("alpha", "beta", "gamma", "delta"))
     x = symbolic.tensor("x", [space, space])
     pairs = [space.index(name) for name in ("p", "q", "r", "s", "t")]
     expr = x(pairs[0], pairs[0]) * x(pairs[1], pairs[1])

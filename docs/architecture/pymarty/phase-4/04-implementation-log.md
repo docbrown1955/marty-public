@@ -6,9 +6,11 @@
 
 | Source | Part | Status | Python counterpart |
 |--------|------|--------|--------------------|
-| `examples/gettingStarted.cpp` | Model: gauge groups, fermions, representations, breaking, renaming | Ported | `python/tests/modeling/test_ports.py` (`test_getting_started_*`) |
-| `examples/gettingStarted.cpp` | Lagrangian terms, rotations, masses, `refresh`, amplitudes | Exempt | Not in WP4.6 scope (approved reduced scope) |
-| `tests/system/src/simpleSpectrum.cpp` | Model part | Exempt | Needs flavour representations, generated indices and Dirac indices, not exposed by the facade yet |
+| `examples/gettingStarted.cpp` | Model: gauge groups, fermions, representations, breaking, renaming | Ported | `test_getting_started_model_particles_match_cpp` |
+| `examples/gettingStarted.cpp` | Rotation to `Z`/`A`, amplitude (6 diagrams), squared amplitude | Ported | `test_getting_started_tree_amplitude_matches_cpp_diagram_count` |
+| `examples/gettingStarted.cpp` | `Display`/`Show` (GRAFED), `mty::Library`, `make` builds | Exempt | Not Python-facing: GUI and library generation |
+| `tests/system/src/simpleSpectrum.cpp` | Model part: flavour groups, breaking, promotion to Goldstone | Ported | `test_simple_spectrum_model_particles_match_cpp` |
+| `tests/system/src/simpleSpectrum.cpp` | Spectrum generation and comparison with `tests/system/data/output/simplespectrum.txt` | Exempt | Not run here: system tests are maintainer-run only |
 | `examples/sampleSMFeynmanRulesLatex.cpp` | Standard Model Feynman rules as LaTeX | Ported | `test_sm_latex_document_has_one_entry_per_cpp_feynman_rule` |
 | `python/examples/usage/modeling.py` | Usage example | Runs in `test_usage_examples.py` | n/a |
 
@@ -24,7 +26,15 @@ The two LaTeX texts differ in size (159787 vs 159570 bytes). Generated index lab
 ### Known gaps found while porting
 
 - `str(Model)` prints only particle names. The C++ `operator<<` also prints spin, mass, irreps and the Lagrangian. `Particle` does not expose spin or irreps in Python yet.
-- `Particle` extras (`field_strength`, `similar`, `set_self_conjugate`, `set_mass`) are not bound. They are needed for the full `gettingStarted` and `simpleSpectrum` ports.
+- `Model.rotate_fields` takes existing particles only. The C++ string overload creates the new fields with `generateSimilar`. The port creates them with `Particle.similar(name)` first.
+- The C++ final particle list of `simpleSpectrum` was not captured (the reference run stops on a missing `libooptools.so`). The Python test checks the list that the Python port produces, following the same steps as the C++ file.
+- `gettingStarted` library generation fails in this environment (missing `clooptools.h`). It is outside the port scope.
+
+### Full ports (WP4.6, second step)
+
+Facade additions for the ports: `Particle.expr`, `Particle.__call__(*indices)`, `field_strength`, `similar`, `set_self_conjugate`, `set_fundamental_flavor_rep`; `Model.generate_index`, `promote_to_goldstone`, `compute_amplitude`, `compute_squared_amplitude`; `Order`, `Leg`, `Amplitude`; `dirac_index`, `renamed_indices`.
+
+Checks: `pytest -m "not slow"` on `tests/modeling` and `test_usage_examples.py` passes. `ctest -L 'units|integration|api'` passes (361 tests). The C++ `RelabelIndices` test was updated to the approved cycling behaviour: 3 indices over a 2-name pool give IDs `{0, 1}`.
 
 ### Timed run
 

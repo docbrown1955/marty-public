@@ -6,6 +6,7 @@
 #include "csl/api/tensor.h"
 #include "csl/api/transform.h"
 #include "csl/enum.h"
+#include "symbolic_bridge.h"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -1269,6 +1270,16 @@ dimensions 2 to 4.)doc");
 }
 
 } // namespace
+
+csl::Index coreIndex(py::handle value)
+{
+    return indexHandle(value).raw();
+}
+
+py::object pyIndex(csl::Index const &index)
+{
+    return py::cast(IndexWrapper{IndexHandle(nullptr, index), py::none()});
+}
 
 void bindSymbolic(py::module_ &m)
 {

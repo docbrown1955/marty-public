@@ -30,6 +30,7 @@
 #include "../group_theory/group_theory.h"
 #include "feynmanRules.h"
 
+#include <cstddef>
 #include <map>
 #include <memory>
 #include <string>
@@ -79,6 +80,23 @@ class Particle {
     /// Sets the charge num/den of a U(1) group.
     void setCharge(std::string const &group, int num, int den);
 
+    /// The particle as an expression, without indices.
+    csl::Expr expr() const;
+
+    /// The particle as an expression with the given indices.
+    csl::Expr operator()(std::vector<csl::Index> const &indices) const;
+
+    /// Field strength tensor of the particle, as a new particle.
+    Particle fieldStrength() const;
+
+    /// Particle of the same kind with another name, as a new particle.
+    Particle similar(std::string const &name) const;
+
+    void setSelfConjugate(bool selfConjugate);
+
+    /// Sets the representation of the particle in a flavor group.
+    void setFundamentalFlavorRep(std::string const &flavorGroup);
+
     mty::Particle const &raw() const
     {
         return m_particle;
@@ -87,6 +105,34 @@ class Particle {
   private:
     std::shared_ptr<detail::ModelState> m_state;
     mty::Particle                       m_particle;
+};
+
+/// Order of a perturbative calculation.
+enum class Order { TreeLevel, OneLoop };
+
+/// An external leg of an amplitude: incoming or outgoing, particle or
+/// antiparticle.
+struct Leg {
+    Particle field;
+    bool     incoming;
+    bool     antiparticle = false;
+};
+
+/// Amplitude computed by a Model.
+class Amplitude {
+  public:
+    explicit Amplitude(mty::Amplitude amplitude);
+
+    /// Number of Feynman diagrams of the amplitude.
+    std::size_t diagramCount() const;
+
+    mty::Amplitude const &raw() const
+    {
+        return *m_amplitude;
+    }
+
+  private:
+    std::shared_ptr<mty::Amplitude const> m_amplitude;
 };
 
 /// A model: gauge groups, particles, breaking and Feynman rules.
@@ -179,6 +225,24 @@ class Model {
         std::string const                                     &group,
         std::map<std::string, std::vector<std::string>> const &renaming);
 
+    /// Fresh index of the fundamental representation of a gauge or flavor
+    /// group.
+    csl::Index generateIndex(std::string const &group) const;
+
+    /// Fresh index of the representation of a field in a gauge group.
+    csl::Index generateIndex(std::string const &group,
+                             std::string const &field) const;
+
+    /// Promotes a scalar to the Goldstone boson of a gauge boson.
+    void promoteToGoldstone(std::string const &goldstone,
+                            std::string const &gaugeBoson);
+
+    /// Amplitude of the given external legs at the given order.
+    Amplitude computeAmplitude(Order order, std::vector<Leg> const &legs);
+
+    /// Squared amplitude, summed over the spins and polarizations.
+    csl::Expr computeSquaredAmplitude(Amplitude const &amplitude);
+
     /// Space-separated particle names, for printing.
     std::string describe() const;
 
@@ -187,6 +251,12 @@ class Model {
 
     std::shared_ptr<detail::ModelState> m_state;
 };
+
+/// Fresh Dirac index, named if name is not empty.
+csl::Index diracIndex(std::string const &name = "");
+
+/// Expression with its dummy indices renamed, see csl::RenamedIndices.
+csl::Expr renamedIndices(csl::Expr const &expr);
 
 } // namespace mty::api::modeling
 

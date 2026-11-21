@@ -17,7 +17,10 @@
 
 #include "../common/error.h"
 #include "../common/session.h"
+#include "csl/replace.h"
+#include "marty/core/amplitude.h"
 #include "marty/core/fermionicField.h"
+#include "marty/core/mrtInterface.h"
 #include "marty/core/scalarField.h"
 #include "marty/models/qed.h"
 #include "marty/models/sm.h"
@@ -76,6 +79,71 @@ void Particle::setCharge(std::string const &group, int num, int den)
     int const              divisor = std::gcd(num, den);
     std::vector<int> const charge{num / divisor, den / divisor};
     guarded([&] { m_particle->setGroupRep(group, charge); });
+}
+
+csl::Expr Particle::expr() const
+{
+    return guarded([&] {
+        Session session(m_state->core.get());
+        return static_cast<csl::Expr>(*m_particle);
+    });
+}
+
+csl::Expr Particle::operator()(std::vector<csl::Index> const &indices) const
+{
+    if (indices.empty())
+        return expr();
+    return guarded([&] {
+        Session session(m_state->core.get());
+        return (*m_particle)(indices);
+    });
+}
+
+Particle Particle::fieldStrength() const
+{
+    auto field = guarded([&] {
+        Session session(m_state->core.get());
+        return m_particle->getFieldStrength();
+    });
+    if (!field) {
+        throw TypeError("particle \"" + name() + "\" has no field strength");
+    }
+    return Particle(m_state, field);
+}
+
+Particle Particle::similar(std::string const &name) const
+{
+    auto field = guarded([&] {
+        Session session(m_state->core.get());
+        return m_particle->generateSimilar(name);
+    });
+    return Particle(m_state, field);
+}
+
+void Particle::setSelfConjugate(bool selfConjugate)
+{
+    guarded([&] {
+        Session session(m_state->core.get());
+        m_particle->setSelfConjugate(selfConjugate);
+    });
+}
+
+void Particle::setFundamentalFlavorRep(std::string const &flavorGroup)
+{
+    guarded([&] {
+        Session session(m_state->core.get());
+        m_particle->setFundamentalFlavorRep(flavorGroup);
+    });
+}
+
+Amplitude::Amplitude(mty::Amplitude amplitude)
+    : m_amplitude(std::make_shared<mty::Amplitude const>(std::move(amplitude)))
+{
+}
+
+std::size_t Amplitude::diagramCount() const
+{
+    return m_amplitude->getDiagrams().size();
 }
 
 Model::Model(std::vector<GaugeGroup> const  &gauge,
@@ -369,6 +437,57 @@ void Model::breakGaugeSymmetry(
     });
 }
 
+csl::Index Model::generateIndex(std::string const &group) const
+{
+    return guarded([&] {
+        Session session(m_state->core.get());
+        return m_state->core->generateIndex(group);
+    });
+}
+
+csl::Index Model::generateIndex(std::string const &group,
+                                std::string const &field) const
+{
+    return guarded([&] {
+        Session session(m_state->core.get());
+        return m_state->core->generateIndex(group, field);
+    });
+}
+
+void Model::promoteToGoldstone(std::string const &goldstone,
+                               std::string const &gaugeBoson)
+{
+    guarded([&] {
+        Session session(m_state->core.get());
+        m_state->core->promoteToGoldstone(goldstone, gaugeBoson);
+    });
+}
+
+Amplitude Model::computeAmplitude(Order order, std::vector<Leg> const &legs)
+{
+    std::vector<mty::Insertion> insertions;
+    for (auto const &leg : legs) {
+        mty::Insertion insertion(leg.field.raw());
+        insertion.setIncoming(leg.incoming);
+        insertion.setParticle(!leg.antiparticle);
+        insertions.push_back(insertion);
+    }
+    int const coreOrder
+        = order == Order::TreeLevel ? mty::TreeLevel : mty::OneLoop;
+    return Amplitude(guarded([&] {
+        Session session(m_state->core.get());
+        return m_state->core->computeAmplitude(coreOrder, insertions);
+    }));
+}
+
+csl::Expr Model::computeSquaredAmplitude(Amplitude const &amplitude)
+{
+    return guarded([&] {
+        Session session(m_state->core.get());
+        return m_state->core->computeSquaredAmplitude(amplitude.raw());
+    });
+}
+
 std::string Model::describe() const
 {
     std::ostringstream sout;
@@ -378,6 +497,16 @@ std::string Model::describe() const
         first = false;
     }
     return sout.str();
+}
+
+csl::Index diracIndex(std::string const &name)
+{
+    return guarded([&] { return mty::DiracIndex(name); });
+}
+
+csl::Expr renamedIndices(csl::Expr const &expr)
+{
+    return guarded([&] { return csl::RenamedIndices(expr); });
 }
 
 } // namespace mty::api::modeling

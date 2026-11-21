@@ -17,6 +17,7 @@
 #include "csl/api/expr.h"
 #include "marty/api/common/error.h"
 #include "marty/api/group_theory/group_theory.h"
+#include "symbolic_bridge.h"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -116,6 +117,15 @@ void setRep(modeling::Particle &self,
 }
 
 // renaming is "default" or a (partial) dict from particle name to new names.
+/// Expression of an `Expr` or of a `Particle`.
+csl::Expr exprOf(py::handle value)
+{
+    if (py::isinstance<modeling::Particle>(value)) {
+        return py::cast<modeling::Particle const &>(value).expr();
+    }
+    return py::cast<ExprHandle const &>(value).raw();
+}
+
 void breakGaugeSymmetry(modeling::Model   &self,
                         std::string const &group,
                         py::object         renaming)
@@ -208,8 +218,76 @@ void bindModeling(py::module_ &m)
              py::arg("value"),
              "Sets the representation under a gauge group: Dynkin labels, an "
              "int, or a Fraction for U(1).")
+        .def(
+            "expr",
+            [](modeling::Particle const &self) {
+                return ExprHandle(self.expr());
+            },
+            "The particle as an expression, without indices.")
+        .def(
+            "__call__",
+            [](modeling::Particle const &self, py::args args) {
+                std::vector<csl::Index> indices;
+                for (py::handle item : args) {
+                    indices.push_back(coreIndex(item));
+                }
+                return ExprHandle(self(indices));
+            },
+            "The particle with the given indices, as an expression: "
+            "field(mu, nu).")
+        .def("field_strength",
+             &modeling::Particle::fieldStrength,
+             "Field strength tensor of the particle, as a new particle.")
+        .def("similar",
+             &modeling::Particle::similar,
+             py::arg("name"),
+             "Particle of the same kind with another name, as a new particle.")
+        .def("set_self_conjugate",
+             &modeling::Particle::setSelfConjugate,
+             py::arg("self_conjugate"),
+             "Sets whether the particle is its own antiparticle.")
+        .def("set_fundamental_flavor_rep",
+             &modeling::Particle::setFundamentalFlavorRep,
+             py::arg("flavor_group"),
+             "Sets the particle in the fundamental representation of a flavor "
+             "group.")
         .def("__repr__", [](modeling::Particle const &self) {
             return "Particle(" + self.name() + ")";
+        });
+
+    py::enum_<modeling::Order>(
+        mod, "Order", "Order of a perturbative calculation.")
+        .value("TreeLevel", modeling::Order::TreeLevel)
+        .value("OneLoop", modeling::Order::OneLoop);
+
+    py::class_<modeling::Leg>(mod,
+                              "Leg",
+                              "External leg of an amplitude: an incoming or "
+                              "outgoing particle, or "
+                              "its antiparticle.")
+        .def(py::init([](modeling::Particle const &field,
+                         bool                      incoming,
+                         bool                      antiparticle) {
+                 return modeling::Leg{field, incoming, antiparticle};
+             }),
+             py::arg("field"),
+             py::arg("incoming"),
+             py::arg("antiparticle") = false,
+             "Leg of a particle of the model.")
+        .def_readonly("field", &modeling::Leg::field, "Particle of the leg.")
+        .def_readonly("incoming", &modeling::Leg::incoming, "Incoming leg.")
+        .def_readonly("antiparticle",
+                      &modeling::Leg::antiparticle,
+                      "Whether the leg is an antiparticle.");
+
+    py::class_<modeling::Amplitude>(
+        mod, "Amplitude", "Amplitude computed by a model.")
+        .def_property_readonly("diagram_count",
+                               &modeling::Amplitude::diagramCount,
+                               "Number of Feynman diagrams.")
+        .def("__repr__", [](modeling::Amplitude const &self) {
+            return "Amplitude(" + std::to_string(self.diagramCount())
+                   + " diagrams)";
         });
 
     py::class_<modeling::FeynmanRules>(
@@ -316,14 +394,50 @@ rule, negative indices count from the end.)doc")
             "conjugate.")
         .def(
             "replace",
-            [](modeling::Model  &self,
-               ExprHandle const &oldExpr,
-               ExprHandle const &newExpr) {
-                self.replace(oldExpr.raw(), newExpr.raw());
+            [](modeling::Model &self,
+               py::handle       oldValue,
+               py::handle       newValue) {
+                self.replace(exprOf(oldValue), exprOf(newValue));
             },
             py::arg("old"),
             py::arg("new"),
-            "Replaces an expression everywhere in the model.")
+            "Replaces an expression (or a particle) everywhere in the model.")
+        .def(
+            "generate_index",
+            [](modeling::Model const &self, std::string const &group) {
+                return pyIndex(self.generateIndex(group));
+            },
+            py::arg("group"),
+            "Fresh index of the fundamental representation of a gauge or "
+            "flavor "
+            "group.")
+        .def(
+            "generate_index",
+            [](modeling::Model const &self,
+               std::string const     &group,
+               std::string const     &field) {
+                return pyIndex(self.generateIndex(group, field));
+            },
+            py::arg("group"),
+            py::arg("field"),
+            "Fresh index of the representation of a field in a gauge group.")
+        .def("promote_to_goldstone",
+             &modeling::Model::promoteToGoldstone,
+             py::arg("goldstone"),
+             py::arg("gauge_boson"),
+             "Promotes a scalar to the Goldstone boson of a gauge boson.")
+        .def("compute_amplitude",
+             &modeling::Model::computeAmplitude,
+             py::arg("order"),
+             py::arg("legs"),
+             "Amplitude of the given external legs at the given order.")
+        .def(
+            "compute_squared_amplitude",
+            [](modeling::Model &self, modeling::Amplitude const &amplitude) {
+                return ExprHandle(self.computeSquaredAmplitude(amplitude));
+            },
+            py::arg("amplitude"),
+            "Squared amplitude, summed over spins and polarizations.")
         .def(
             "rotate_fields",
             [](modeling::Model                            &self,
@@ -415,4 +529,19 @@ rule, negative indices count from the end.)doc")
             &modeling::Model::standardModel,
             "The built-in Standard Model.");
     mod.def("qed", &modeling::Model::qed, "The built-in QED model.");
+    mod.def(
+        "dirac_index",
+        [](std::string const &name) {
+            return pyIndex(modeling::diracIndex(name));
+        },
+        py::arg("name") = "",
+        "Fresh Dirac index, named if name is not empty.");
+    mod.def(
+        "renamed_indices",
+        [](ExprHandle const &expr) {
+            return ExprHandle(modeling::renamedIndices(expr.raw()));
+        },
+        py::arg("expr"),
+        "Expression with its dummy indices renamed, so that equal "
+        "expressions get the same printed form.");
 }
