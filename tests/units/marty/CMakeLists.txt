@@ -1,1 +1,2 @@
 ADD_UNIT_TEST(test_smparam_definition)
+ADD_UNIT_TEST(test_irrep_equality)
