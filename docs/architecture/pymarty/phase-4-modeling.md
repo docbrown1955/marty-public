@@ -15,8 +15,8 @@ is the first deliverable. It may be drafted earlier, in parallel with Phases 1 a
 ## 1. Scope
 
 In scope:
-- `Model` creation, `add_gauge_group`, `add_flavor_group`, `init`, `refresh`, `__str__` (what
-  `cout << model` prints).
+- `Model` creation with `gauge=` and `flavor=` lists (groups from `pymarty.group_theory`; the constructor runs
+  the group declarations, `init` and the boson renames), `refresh`, `__str__` (what `cout << model` prints).
 - Particle creation (scalar, Dirac, Majorana, Weyl with chirality, vector, ghost where the core allows),
   properties: mass, representation per group (Dynkin labels, rational charge for U(1)), self
   conjugation, flavour representation, naming, field strength, generating "similar" particles.
@@ -27,9 +27,8 @@ In scope:
   `add_bosonic_mass`, `add_fermionic_mass`, `get_scalar_coupling`.
 - Spacetime objects needed to write terms: Minkowski and Dirac indices, `gamma`, `P_L`, `P_R`
   (`dirac4`), metrics. Exposed as `pymarty.modeling.spacetime`, built on `symbolic.Index/Tensor`.
-- Built-in models: `models.QED()`, `models.SM()`, `models.THDM()`, `models.MSSM()`, `models.PMSSM()` (names
-  follow the classes in `src/marty/models/`; others such as GTHDM or NMFV only if they are public and
-  tested later).
+- Built-in models (phase 4 scope, Q1=C): `models.QED()` and `models.SM()`. `THDM`, `MSSM` and `PMSSM`
+  move to a later phase (listed in `unported-features.md`). Other models (GTHDM, NMFV) only if public and tested later.
 - Feynman rules: computation, iteration, expressions, LaTeX output (`LatexFeynmanRules`).
 
 Out of scope: amplitudes (Phase 5), diagrams display (Phase 5), libraries (Phase 6), LHA (Phase 7).
@@ -40,8 +39,9 @@ Out of scope: amplitudes (Phase 5), diagrams display (Phase 5), libraries (Phase
   (`scalarboson_s(name, model)` style helpers); define which API functions need a `Session`.
 - WP4.2 C++ API `src/marty/api/modeling/`: `ModelHandle`, `ParticleHandle`, `GaugeGroupHandle`,
   `FeynmanRuleHandle`, with explicit non-template methods replacing variadics:
-  - `add_gauge_group(kind, name, n, coupling_name_or_expr)` with `enum class GroupKind {U1, SU, SO, Sp, ...}`
-    (names limited to what `addGaugedGroup` supports in the core)
+  - `ModelHandle(gauge_groups, flavor_groups)` declares the groups, calls `init`, and renames the bosons;
+    `GaugeGroupHandle` / `FlavorGroupHandle` hold the group type, name, dimension and boson name
+    (group type and fundamental dimension are read from the `pymarty.group_theory` object)
   - `add_particle(...)` split by kind (`add_scalar`, `add_dirac_fermion`, `add_majorana_fermion`,
     `add_weyl_fermion`, `add_vector_boson`), each returning a handle that holds its model
   - `set_mass`, `set_group_rep` (Rational charges and Dynkin labels), `set_flavor_rep`, `set_self_conjugate`
@@ -58,9 +58,8 @@ Out of scope: amplitudes (Phase 5), diagrams display (Phase 5), libraries (Phase
 
 | C++ | Python |
 |-----|--------|
-| `mty::Model m;` | `Model()` |
-| `m.addGaugedGroup(group::Type::SU, "L", 2)` | `m.add_gauge_group("SU", "L", 2)` (kind accepts `GroupKind` enum or its name) |
-| `m.addGaugedGroup(group::Type::U1, "Y")` | `m.add_gauge_group("U1", "Y")` |
+| `mty::Model m;` + `addGaugedGroup(group::Type::SU, "L", 2)`, `init()`, `renameParticle("A_L", "W")` | `Model(gauge=[GaugeGroup(SU(2), name="L", boson_name="W")], flavor=[FlavorGroup(name="Gen", dim=3)])` |
+| `m.addGaugedGroup(group::Type::U1, "Y")` | `GaugeGroup(U1(), name="Y", boson_name="B")` |
 | `weylfermion_s("Q_L", m, Chirality::Left)` | `m.weyl_fermion("Q_L", chirality="L")` (returns a `Particle`, not yet added) |
 | `Q->setGroupRep("L", 1)`, `setGroupRep("Y", {1, 6})` | `Q.set_rep("L", 1)`, `Q.set_rep("Y", Fraction(1, 6))` |
 | `m.addParticle(Q)` | `m.add_particle(Q)` |
@@ -77,7 +76,7 @@ Out of scope: amplitudes (Phase 5), diagrams display (Phase 5), libraries (Phase
 | `m.getScalarCoupling("g_Y")` | `m.coupling("g_Y")` |
 | `m.getFeynmanRules()` | `m.feynman_rules` (lazy property, iterable, sized) |
 | `LatexFeynmanRules(...)` | `m.feynman_rules.to_latex()` |
-| `mty::SM_Model` etc. | `models.SM()`, `models.QED()`, `models.THDM()`, `models.MSSM()`, `models.PMSSM()` |
+| `mty::SM_Model` etc. | `models.SM()`, `models.QED()` (THDM, MSSM, PMSSM in a later phase) |
 
 Duck typing: group and particle arguments accept either handles or names; numbers (masses, charges,
 matrix entries) accept anything `symbolic` accepts; rotation matrices are any nested iterable.
@@ -97,9 +96,8 @@ L1 (`tests/api/modeling/`):
   through the API, and the two outputs must be identical; golden file as second guard).
 - Rotations: `RotateFieldsMatchesCore`, `RotationMatrixSizeMismatchFails`, `BirotateFields`.
 - Masses: `AddBosonicMass`, `AddFermionicMass`.
-- Built-in models: `QedModelHasExpectedParticlesAndRules`, `SmModelParticleList`,
-  `Thdm`, `Mssm`, `Pmssm` (rule counts and particle name lists from the core; the PMSSM test is
-  marked slow, as `samplePMSSM` is).
+- Built-in models: `QedModelHasExpectedParticlesAndRules`, `SmModelParticleList` (rule counts and
+  particle name lists from the core).
 - Feynman rules: `RulesComputedOnce`, `RuleHandlesImmutable`, `LatexMatchesExistingTests` (reuse the
   cases of `tests/integration/src/test_feynman_rules_latex.cpp`).
 - Physics latex and couplings: reuse cases of `test_physics_latex.cpp` and
@@ -120,15 +118,14 @@ L2 (`python/tests/modeling/`): parity tests for all L1 cases plus
 
 L4 examples (Python ports, compared against the C++ example outputs where deterministic):
 - `gettingStarted` first half (model, rules), `simpleSpectrum` (model part), `sampleSMFeynmanRulesLatex`
-  (the LaTeX file content equals the C++ one), `samplePMSSM` (slow).
+  (the LaTeX file content equals the C++ one). `samplePMSSM` moves with PMSSM to the later phase.
 
 L5: none.
 
 ## 5. Acceptance criteria
 
 1. The scenario test in section 4 shows that API and direct core calls produce identical model
-   printouts and Feynman-rule expressions (string equality) for: the getting-started model, QED, SM, 2HDM.
-   For MSSM/PMSSM the comparison covers particle names and rule counts (full comparison: `slow` test, run manually).
+   printouts and Feynman-rule expressions (string equality) for: the getting-started model, QED, SM.
 2. Every method of the list in section 1 exists in C++ with a documented Python spelling, and in Python
    as a call-through (checked by a script listing each C++ API method and its binding).
 3. No variadic, template or `initializer_list` in the public C++ API headers of this module (compile
@@ -164,4 +161,4 @@ record of the `Model::current` audit.
   full.
 - Some core operations need a particular order (add groups, `init`, add particles, break). The API
   checks the order and raises `StateError` rather than letting the core assert.
-- Built-in model construction time (especially PMSSM) may be long: tests marked slow.
+- Built-in model construction time for the deferred PMSSM model may be long: tests marked slow once it is ported.

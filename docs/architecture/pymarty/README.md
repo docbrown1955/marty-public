@@ -117,7 +117,7 @@ implementation before the previous phase is accepted, except for explicitly list
 | 1 | `symbolic` | 0 | `tests/units/csl/*` |
 | 2 | `diracology` | 0 (1 optional) | `tests/integration/src/gammaAPI.cpp` |
 | 3 | `group_theory` | 0 | group parts of `test_flavor_groups.cpp` |
-| 4 | `modeling` | 1, 3 | `simpleSpectrum`, `sampleSMFeynmanRulesLatex`, `samplePMSSM`, `test_feynman_rules_latex`, `test_physics_latex`, `test_specific_gauge_couplings`, first half of `gettingStarted` |
+| 4 | `modeling` | 1, 3 | `simpleSpectrum`, `sampleSMFeynmanRulesLatex`, `test_feynman_rules_latex`, `test_physics_latex`, `test_specific_gauge_couplings`, first half of `gettingStarted` (models QED and SM only) |
 | 5 | `calculation` (tree level) + `visualization` | 4 | `sampleQED`, `sampleSQED`, `sampleQCDSextet`, `test_flavor_groups`, symbolic parts of `Zmumu`, `gg_to_tt`, `EWGauge`, `testConjugation` |
 | 6 | `simulation` | 5 | full `gettingStarted`, `Zmumu`, `gg_to_tt`, `EWGauge`, `simpleSpectrum`, `testModelWidth` |
 | 7 | One loop, Wilson, widths, spectra, LHA, MSSM, quad, plugins | 6 | `sampleScalar`, `sample2HDM`, `C7/C8/C9`, `BsMixing*`, `widthsSM`, `gm2*`, `wilsons_GTHDM`, `FItests`, `test_lha_reader`, `NLepto`, `Bgenesis`, `test_fullMSSM`, `majoranaLoop`, `SM_*` |
