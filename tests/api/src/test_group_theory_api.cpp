@@ -114,7 +114,8 @@ TEST(GroupTheoryApi, GroupsAreCachedAndIrrepsCompareWithinAGroup)
     EXPECT_TRUE(gt::Group::su(3)->adjoint().isSelfConjugate());
     EXPECT_FALSE(fund.isSelfConjugate());
 
-    EXPECT_THROW(fund == gt::Group::su(5)->fundamental(), mty::api::TypeError);
+    EXPECT_NE(fund, gt::Group::su(5)->fundamental());
+    EXPECT_EQ(fund, gt::Group::su(3)->fundamental());
 }
 
 TEST(GroupTheoryApi, InvalidGroupAndLabelsAreRejected)

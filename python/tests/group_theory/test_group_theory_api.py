@@ -14,10 +14,10 @@ from pymarty.group_theory import (
     G2,
     SO,
     SU,
-    U,
     Decomposition,
     Irrep,
     Sp,
+    U,
 )
 
 
@@ -79,8 +79,8 @@ def test_groups_are_cached_and_irreps_compare_within_a_group() -> None:
     assert ~~fund == fund
     assert SU(3).adjoint().is_self_conjugate
     assert not fund.is_self_conjugate
-    with pytest.raises(TypeError):
-        _ = fund == SU(5).fundamental()
+    assert fund != SU(5).fundamental()
+    assert fund == SU(3).fundamental()
 
 
 @pytest.mark.parity("GroupTheoryApi.InvalidGroupAndLabelsAreRejected")

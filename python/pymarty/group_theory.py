@@ -13,7 +13,9 @@ E8, so values are not comparable across algebras and differ from the standard
 ``(lambda, lambda + 2 rho)`` convention. The Dynkin index is
 ``T(r) = C2(r) dim(r) / dim(G)``. For E8 it matches the core index (``T(248) = 2``).
 For SU(N) it does not match the core ``getIndex``: ``T(fundamental of SU(3)) = 1/6``
-here, against ``1/2`` in the core. Irreps of different groups cannot becompared, and comparing them raises ``TypeError``.
+here, against ``1/2`` in the core. Irreps compare equal when they have the same
+algebra (type and rank) and the same highest weight, as in the core, so
+``SU(2).fundamental()`` equals the doublet of any SU(2) gauge group.
 
 >>> from pymarty.group_theory import SU
 >>> su3 = SU(3)

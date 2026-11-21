@@ -233,10 +233,10 @@ class Irrep {
 
     /*!
      * \brief Compares two Irreps.
-     * \details If the algebras of the two Irrep are identical but different
-     * objects in memory, this function return \b false. For example
-     * \f$ SU(2)_{s} \f$ and \f$ SU(2)_L \f$ for spin and weak isospin have
-     * the same algebra but are different objects.
+     * \details Two algebras are the same if they are the same object or if
+     * they have the same type and rank. For example \f$ SU(2)_{s} \f$ and
+     * \f$ SU(2)_L \f$ for spin and weak isospin have the same algebra, so
+     * their irreps with equal highest weights compare \b true.
      * \param other Irrep to compare.
      * \return \b True  if the two Irrep have the same highest weight, in the
      * same algebra.

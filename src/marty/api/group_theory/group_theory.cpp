@@ -165,16 +165,12 @@ bool Irrep::isSelfConjugate() const
 
 bool Irrep::operator==(Irrep const &other) const
 {
-    if (group_ != other.group_)
-        throw TypeError("Irreps of different groups cannot be compared");
-    return highestWeight(irrep_) == highestWeight(other.irrep_);
+    return irrep_ == other.irrep_;
 }
 
 bool Irrep::operator<(Irrep const &other) const
 {
-    if (group_ != other.group_)
-        throw TypeError("Irreps of different groups cannot be compared");
-    return highestWeight(irrep_) < highestWeight(other.irrep_);
+    return irrep_ < other.irrep_;
 }
 
 Group::Group(std::shared_ptr<mty::AbstractGroup> core,

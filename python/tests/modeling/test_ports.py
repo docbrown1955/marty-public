@@ -165,6 +165,12 @@ def test_built_in_models_expose_group_irreps() -> None:
     assert e_L.irrep("Y").charge == Fraction(-1, 2)
 
 
+def test_model_irreps_compare_with_group_irreps() -> None:
+    toy = make_unbroken_model()
+    assert toy.particle("Q_L").irrep("L") == SU(2).fundamental()
+    assert toy.particle("Q_L").irrep("L") != SU(2).adjoint()
+
+
 def test_str_model_lists_particles_with_spin_irrep_and_lagrangian() -> None:
     toy = make_toy_model()
     text = str(toy)

@@ -202,6 +202,17 @@ class SemiSimpleAlgebra {
     int getOrderL() const;
 
     /*!
+     * \brief Compares two algebras.
+     * \details Two algebras are equal if they are the same object, or if they
+     * have the same type and rank. For example \f$ SU(2)_{s} \f$ and
+     * \f$ SU(2)_L \f$ are equal.
+     * \param other Algebra to compare.
+     * \return \b True if the algebras are equal.
+     * \return \b False else.
+     */
+    bool operator==(const SemiSimpleAlgebra &other) const;
+
+    /*!
      * \brief Pure virtual function overriden in derived classes.
      * \return The type of the algebra, see the enum algebra::Type.
      */

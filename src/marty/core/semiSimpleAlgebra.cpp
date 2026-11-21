@@ -123,6 +123,13 @@ int SemiSimpleAlgebra::getOrderL() const
     return l;
 }
 
+bool SemiSimpleAlgebra::operator==(const SemiSimpleAlgebra &other) const
+{
+    return this == &other
+           or (getType() == other.getType()
+               and getOrderL() == other.getOrderL());
+}
+
 void SemiSimpleAlgebra::init()
 {
     setCartanMatrix();

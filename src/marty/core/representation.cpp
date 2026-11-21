@@ -202,7 +202,10 @@ bool Irrep::operator>=(const Irrep &other) const
 
 bool Irrep::operator==(const Irrep &other) const
 {
-    return algebra == other.algebra and highestWeight == other.highestWeight;
+    bool const sameAlgebra
+        = algebra == other.algebra
+          or (algebra and other.algebra and *algebra == *other.algebra);
+    return sameAlgebra and highestWeight == other.highestWeight;
 }
 
 bool Irrep::operator!=(const Irrep &other) const
