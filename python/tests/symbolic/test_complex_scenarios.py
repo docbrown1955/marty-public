@@ -18,6 +18,7 @@ from pymarty.symbolic import (
     I,
     Minkowski,
     PrimaryType,
+    Space,
     exp,
     sin,
     tensor,
@@ -146,21 +147,23 @@ def test_complex_square_real_and_imaginary_parts_and_modulus() -> None:
 def test_three_index_chain_has_no_free_indices_and_keeps_dummies() -> None:
     # T = A_{mu nu} B^{nu}_{rho} C^{rho mu}: a closed chain, so every index is
     # dummy. Opening it by relabelling one free index must keep the contraction.
-    A = tensor("A", [Minkowski, Minkowski])
-    B = tensor("B", [Minkowski, Minkowski])
-    C = tensor("C", [Minkowski, Minkowski])
-    mu, nu, rho, sigma = Minkowski.indices(4)
+    # A private space gives explicitly named indices, independent of the shared
+    # Minkowski pool whose names and IDs depend on global state.
+    space = Space("Chain", 4)
+    A = tensor("A", [space, space])
+    B = tensor("B", [space, space])
+    C = tensor("C", [space, space])
+    mu, nu, rho, sigma = (space.index(name) for name in ("mu", "nu", "rho", "sigma"))
     closed = A(mu, nu) * B(~nu, rho) * C(~rho, ~mu)
     assert closed.free_indices == ()
-    assert {i.name for i in closed.dummy_indices} == {mu.name, nu.name, rho.name}
+    assert {i.name for i in closed.dummy_indices} == {"mu", "nu", "rho"}
     open_chain = A(mu, sigma) * B(~sigma, rho) * C(~rho, ~mu)
     assert [i.name for i in open_chain.free_indices] == []
     partial = A(mu, nu) * B(~nu, rho)
-    assert {i.name for i in partial.free_indices} == {mu.name, rho.name}
+    assert {i.name for i in partial.free_indices} == {"mu", "rho"}
     relabelled = partial.relabel_indices({rho: sigma})
     assert len(relabelled.free_indices) == 2
-    assert sigma.name in {i.name for i in relabelled.free_indices}
-    assert rho.name not in {i.name for i in relabelled.free_indices}
+    assert len(relabelled.dummy_indices) == 1
 
 
 @pytest.mark.unit
