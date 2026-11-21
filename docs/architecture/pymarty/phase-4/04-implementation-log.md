@@ -25,8 +25,9 @@ The two LaTeX texts differ in size (159787 vs 159570 bytes). Generated index lab
 
 ### Known gaps found while porting
 
-- `str(Model)` prints only particle names. The C++ `operator<<` also prints spin, mass, irreps and the Lagrangian. `Particle` does not expose spin or irreps in Python yet.
-- `Model.rotate_fields` takes existing particles only. The C++ string overload creates the new fields with `generateSimilar`. The port creates them with `Particle.similar(name)` first.
+- Resolved: `str(Model)` now uses the C++ `operator<<` (particles with spin, mass, irrep, and the Lagrangian). `Particle.spin` and `Particle.irrep(group)` are exposed.
+- Resolved: `Model.rotate_fields` accepts names (C++ string overload, delegating to the core `rotateFields`), so the port no longer needs `Particle.similar` as a workaround.
+- Limitation: `standardModel()` and `qed()` do not populate group objects, so `Particle.irrep` raises `LookupError` on them.
 - The C++ final particle list of `simpleSpectrum` was not captured (the reference run stops on a missing `libooptools.so`). The Python test checks the list that the Python port produces, following the same steps as the C++ file.
 - `gettingStarted` library generation fails in this environment (missing `clooptools.h`). It is outside the port scope.
 

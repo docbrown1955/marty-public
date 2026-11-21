@@ -444,6 +444,9 @@ class modeling:
     class Particle:
         @property
         def name(self) -> str: ...
+        @property
+        def spin(self) -> Fraction: ...
+        def irrep(self, group: str) -> group_theory.Irrep: ...
         def set_rep(self, group: str, value: object) -> None: ...
         def expr(self) -> Expr: ...
         def __call__(self, *indices: Index) -> Expr: ...
@@ -520,10 +523,20 @@ class modeling:
             self, order: modeling.Order, legs: list[modeling.Leg]
         ) -> modeling.Amplitude: ...
         def compute_squared_amplitude(self, amplitude: modeling.Amplitude) -> Expr: ...
+        @overload
         def rotate_fields(
             self,
             fields: list[modeling.Particle],
             new_fields: list[modeling.Particle],
+            rotation: list[list[Expr]],
+            diagonalize_masses: bool = False,
+            n_mass_less_fields: int = 0,
+        ) -> None: ...
+        @overload
+        def rotate_fields(
+            self,
+            fields: list[str],
+            new_fields: list[str],
             rotation: list[list[Expr]],
             diagonalize_masses: bool = False,
             n_mass_less_fields: int = 0,

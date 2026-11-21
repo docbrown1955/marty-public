@@ -212,6 +212,18 @@ void bindModeling(py::module_ &m)
         mod, "Particle", "Particle of a model, with its representations.")
         .def_property_readonly(
             "name", &modeling::Particle::name, "Name of the particle.")
+        .def_property_readonly(
+            "spin",
+            [](modeling::Particle const &self) {
+                auto const spin = self.spin();
+                return py::module_::import("fractions")
+                    .attr("Fraction")(spin.num, spin.den);
+            },
+            "Spin of the particle, as a Fraction: 0, 1/2, 1, ...")
+        .def("irrep",
+             &modeling::Particle::irrep,
+             py::arg("group"),
+             "Irrep of the particle under a gauge group.")
         .def("set_rep",
              &setRep,
              py::arg("group"),
@@ -459,6 +471,27 @@ rule, negative indices count from the end.)doc")
             py::arg("n_mass_less_fields") = 0,
             "Rotates fields into new_fields with a unitary matrix given as "
             "rows of expressions.")
+        .def(
+            "rotate_fields",
+            [](modeling::Model                            &self,
+               std::vector<std::string> const             &fields,
+               std::vector<std::string> const             &newFields,
+               std::vector<std::vector<ExprHandle>> const &rotation,
+               bool                                        diagonalize,
+               int                                         nMassLess) {
+                self.rotateFields(fields,
+                                  newFields,
+                                  rawRows(rotation),
+                                  diagonalize,
+                                  nMassLess);
+            },
+            py::arg("fields"),
+            py::arg("new_fields"),
+            py::arg("rotation"),
+            py::arg("diagonalize_masses") = false,
+            py::arg("n_mass_less_fields") = 0,
+            "Rotates the fields named in fields into new particles named in "
+            "new_fields, with a unitary matrix given as rows of expressions.")
         .def("birotate_fields",
              &modeling::Model::birotateFields,
              py::arg("fields1"),

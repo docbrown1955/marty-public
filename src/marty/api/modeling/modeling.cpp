@@ -128,6 +128,39 @@ void Particle::setSelfConjugate(bool selfConjugate)
     });
 }
 
+group_theory::Rational Particle::spin() const
+{
+    return guarded([&] {
+        Session session(m_state->core.get());
+        return group_theory::Rational(m_particle->getSpinDimension() - 1, 2);
+    });
+}
+
+group_theory::Irrep Particle::irrep(std::string const &group) const
+{
+    auto found = m_state->groupObjects.find(group);
+    if (found == m_state->groupObjects.end())
+        throw LookupError("no gauge group named \"" + group + "\"");
+    int const position = guarded([&] {
+        Session     session(m_state->core.get());
+        auto const *target = m_state->core->getGaugedGroup(group);
+        auto const *gauge  = m_state->core->getGauge();
+        for (std::size_t pos = 0; pos < gauge->size(); ++pos) {
+            if (gauge->getGaugedGroup(pos) == target)
+                return static_cast<int>(pos);
+        }
+        return -1;
+    });
+    if (position < 0)
+        throw LookupError("particle \"" + name() + "\" has no irrep under \""
+                          + group + "\"");
+    return guarded([&] {
+        Session session(m_state->core.get());
+        return group_theory::Irrep(found->second,
+                                   m_particle->getGaugeIrrep()[position]);
+    });
+}
+
 void Particle::setFundamentalFlavorRep(std::string const &flavorGroup)
 {
     guarded([&] {
@@ -165,7 +198,8 @@ Model::Model(std::vector<GaugeGroup> const  &gauge,
         spec.bosonName = item.bosonName;
         if (!item.coupling.empty())
             spec.coupling = csl::constant_s(item.coupling);
-        m_state->groups[item.name] = spec.type;
+        m_state->groups[item.name]       = spec.type;
+        m_state->groupObjects[item.name] = item.group;
         specs.push_back(spec);
     }
     for (auto const &item : flavor) {
@@ -318,6 +352,19 @@ void Model::rotateFields(std::vector<Particle> const               &fields,
                                     rotation,
                                     diagonalizeMasses,
                                     nMassLessFields);
+    });
+}
+
+void Model::rotateFields(std::vector<std::string> const            &fields,
+                         std::vector<std::string> const            &newFields,
+                         std::vector<std::vector<csl::Expr>> const &rotation,
+                         bool diagonalizeMasses,
+                         int  nMassLessFields)
+{
+    guarded([&] {
+        Session session(m_state->core.get());
+        m_state->core->rotateFields(
+            fields, newFields, rotation, diagonalizeMasses, nMassLessFields);
     });
 }
 
@@ -490,13 +537,12 @@ csl::Expr Model::computeSquaredAmplitude(Amplitude const &amplitude)
 
 std::string Model::describe() const
 {
-    std::ostringstream sout;
-    bool               first = true;
-    for (auto const &part : m_state->core->getParticles()) {
-        sout << (first ? "" : " ") << part->getName();
-        first = false;
-    }
-    return sout.str();
+    return guarded([&] {
+        Session            session(m_state->core.get());
+        std::ostringstream sout;
+        sout << *m_state->core;
+        return sout.str();
+    });
 }
 
 csl::Index diracIndex(std::string const &name)

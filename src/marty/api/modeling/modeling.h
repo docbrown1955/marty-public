@@ -53,6 +53,8 @@ namespace detail {
 struct ModelState {
     std::shared_ptr<mty::Model>             core;
     std::map<std::string, mty::group::Type> groups;
+    std::map<std::string, std::shared_ptr<const group_theory::Group>>
+        groupObjects;
 };
 
 } // namespace detail
@@ -96,6 +98,12 @@ class Particle {
 
     /// Sets the representation of the particle in a flavor group.
     void setFundamentalFlavorRep(std::string const &flavorGroup);
+
+    /// Spin of the particle: (dim - 1) / 2 for its Lorentz representation.
+    group_theory::Rational spin() const;
+
+    /// Irrep of the particle under a gauge group.
+    group_theory::Irrep irrep(std::string const &group) const;
 
     mty::Particle const &raw() const
     {
@@ -178,6 +186,14 @@ class Model {
     /// Rotates the fields into newFields with the unitary matrix rotation.
     void rotateFields(std::vector<Particle> const               &fields,
                       std::vector<Particle> const               &newFields,
+                      std::vector<std::vector<csl::Expr>> const &rotation,
+                      bool diagonalizeMasses = false,
+                      int  nMassLessFields   = 0);
+
+    /// Rotates fields given by name; the new fields are created like the
+    /// first field, under the names newFields.
+    void rotateFields(std::vector<std::string> const            &fields,
+                      std::vector<std::string> const            &newFields,
                       std::vector<std::vector<csl::Expr>> const &rotation,
                       bool diagonalizeMasses = false,
                       int  nMassLessFields   = 0);

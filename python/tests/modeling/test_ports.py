@@ -122,6 +122,55 @@ def test_getting_started_renaming_is_explicit_and_partial() -> None:
     assert {"W_1", "W_2", "W_3"} <= {p.name for p in toy.particles}
 
 
+def make_unbroken_model() -> Model:
+    """Toy model before any symmetry breaking, so gauge irreps are meaningful."""
+    toy = Model(
+        gauge=[
+            GaugeGroup(SU(2), name="L", boson_name="W"),
+            GaugeGroup(U(1), name="Y", boson_name="B"),
+        ]
+    )
+    Q_L = toy.weyl_fermion("Q_L", chirality="L")
+    Q_L.set_rep("L", 1)
+    Q_L.set_rep("Y", Fraction(1, 6))
+    toy.add_particle(Q_L)
+    return toy
+
+
+def test_spin_follows_the_lorentz_representation() -> None:
+    assert make_toy_model().particle("W_1").spin == 1
+    toy = make_unbroken_model()
+    assert toy.particle("Q_L").spin == Fraction(1, 2)
+    assert toy.scalar_boson("H").spin == 0
+
+
+def test_irreps_are_read_per_gauge_group() -> None:
+    toy = make_unbroken_model()
+    Q_L = toy.particle("Q_L")
+    assert Q_L.irrep("L").highest_weight == (1,)
+    assert Q_L.irrep("L").dim == 2
+    assert Q_L.irrep("Y").charge == Fraction(1, 6)
+
+
+def test_irreps_of_broken_groups_are_trivial() -> None:
+    toy = make_toy_model()
+    u_L = toy.particle("u_L")
+    assert u_L.irrep("L").dim == 1
+    assert u_L.irrep("L").highest_weight == (0,)
+
+
+def test_str_model_lists_particles_with_spin_irrep_and_lagrangian() -> None:
+    toy = make_toy_model()
+    text = str(toy)
+    count = len(toy.particles)
+    assert text.startswith("Gauge = ")
+    assert f"Particle list, {count} particles:" in text
+    assert text.count("\n  -> ") == count
+    assert text.count("\n    spin: ") == count
+    assert text.count("\n    irrep: ") == count
+    assert "lagrangian" in text
+
+
 def test_sm_latex_document_has_one_entry_per_cpp_feynman_rule() -> None:
     rules = models.SM().feynman_rules
     assert len(rules) == CPP_SM_FEYNMAN_RULES
@@ -152,8 +201,8 @@ def make_getting_started_model() -> Model:
     c_w = cos(theta_w)
     s_w = sin(theta_w)
     toy.rotate_fields(
-        [toy.particle("W_3"), toy.particle("B")],
-        [toy.particle("W_3").similar("Z"), toy.particle("W_3").similar("A")],
+        ["W_3", "B"],
+        ["Z", "A"],
         [[c_w, s_w], [-s_w, c_w]],
     )
     e = constant("e")

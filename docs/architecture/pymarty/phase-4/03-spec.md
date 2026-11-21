@@ -43,7 +43,11 @@ vector), representations (Dynkin labels, rational charges), flavour groups, `add
 `birotate_fields`, `add_bosonic_mass`, `add_fermionic_mass`, `coupling`, Feynman rules (lazy, iterable, LaTeX),
 `spacetime`, built-in `models.QED()` and `models.SM()`.
 
-Out of scope: THDM, MSSM, PMSSM, GTHDM, NMFV, QCD (Q1); amplitudes and diagrams (phase 5); libraries (phase 6).
+Out of scope: THDM, MSSM, PMSSM, GTHDM, NMFV, QCD (Q1); amplitudes and diagrams (phase 5); library generation,
+compilation and execution (phase 6, a separate Python module).
+
+Particle `spin` (Lorentz representation: 0, 1/2, 1) and `irrep(group)` (gauge irrep labels) are read-only in scope.
+`str(Model)` matches the C++ printer. `rotate_fields` accepts particle handles or names.
 
 ## 4. C++ facade (`src/marty/api/modeling/`)
 
