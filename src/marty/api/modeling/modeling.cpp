@@ -29,17 +29,6 @@
 namespace mty::api::modeling {
 namespace {
 
-template <class F>
-auto guarded(F &&f)
-{
-    try {
-        return f();
-    }
-    catch (...) {
-        rethrowAsApiError();
-    }
-}
-
 mty::group::Type groupKind(detail::ModelState const &state,
                            std::string const        &group)
 {
@@ -353,18 +342,9 @@ std::vector<Particle> Model::particles() const
     return result;
 }
 
-std::vector<std::string> Model::feynmanRules() const
+FeynmanRules Model::feynmanRules() const
 {
-    return guarded([&] {
-        Session                  session(m_state->core.get());
-        std::vector<std::string> result;
-        for (auto const &rule : m_state->core->getFeynmanRules()) {
-            std::ostringstream sout;
-            sout << rule;
-            result.push_back(sout.str());
-        }
-        return result;
-    });
+    return FeynmanRules(m_state);
 }
 
 void Model::breakGaugeSymmetry(std::string const &group)

@@ -154,7 +154,15 @@ void bindModeling(py::module_ &m)
         .def("particle", &modeling::Model::particle, py::arg("name"))
         .def("__contains__", &modeling::Model::contains, py::arg("name"))
         .def_property_readonly("particles", &modeling::Model::particles)
-        .def_property_readonly("feynman_rules", &modeling::Model::feynmanRules)
+        .def_property_readonly("feynman_rules",
+                               [](modeling::Model const &self) {
+                                   std::vector<std::string> printed;
+                                   auto rules = self.feynmanRules();
+                                   for (std::size_t i = 0; i < rules.size();
+                                        ++i)
+                                       printed.push_back(rules.str(i));
+                                   return printed;
+                               })
         .def("break_gauge_symmetry",
              &breakGaugeSymmetry,
              py::arg("group"),

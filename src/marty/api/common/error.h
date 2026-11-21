@@ -149,6 +149,18 @@ namespace detail {
     }
 }
 
+/// Runs f and converts any core exception into a typed API error.
+template <class F>
+auto guarded(F &&f)
+{
+    try {
+        return f();
+    }
+    catch (...) {
+        rethrowAsApiError();
+    }
+}
+
 } // namespace mty::api
 
 #endif

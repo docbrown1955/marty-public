@@ -16,11 +16,14 @@
 #include "marty/api/common/error.h"
 #include "marty/api/group_theory/group_theory.h"
 #include "marty/api/modeling/modeling.h"
+#include "marty/core/mrtInterface.h"
 #include "marty/models/qed.h"
 #include "marty/models/sm.h"
 
 #include <gtest/gtest.h>
 
+#include <sstream>
+#include <string>
 #include <vector>
 
 namespace gt  = mty::api::group_theory;
@@ -151,6 +154,25 @@ std::vector<std::string> coreNames(mty::Model const &model)
     return names;
 }
 
+std::vector<std::string> ruleHeaders(std::string const &document)
+{
+    std::vector<std::string> headers;
+    std::istringstream       lines(document);
+    for (std::string line; std::getline(lines, line);)
+        if (line.rfind("Feynman vertex for ", 0) == 0)
+            headers.push_back(line);
+    return headers;
+}
+
+std::size_t countOccurrences(std::string const &text, std::string const &word)
+{
+    std::size_t count = 0;
+    for (auto pos = text.find(word); pos != std::string::npos;
+         pos      = text.find(word, pos + word.size()))
+        ++count;
+    return count;
+}
+
 } // namespace
 
 TEST(ModelingApi, QedMatchesCoreParticlesAndRules)
@@ -167,4 +189,28 @@ TEST(ModelingApi, StandardModelMatchesCoreParticlesAndRules)
     auto          model = mod::Model::standardModel();
     EXPECT_EQ(facadeNames(model), coreNames(core));
     EXPECT_EQ(model.feynmanRules().size(), core.getFeynmanRules().size());
+}
+
+TEST(ModelingApi, LatexMatchesExistingTests)
+{
+    mty::QED_Model core;
+    auto           rules     = mod::Model::qed().feynmanRules();
+    auto const    &coreRules = core.getFeynmanRules();
+    ASSERT_EQ(rules.size(), coreRules.size());
+
+    // The drawing layout (label angles, offsets) differs between two core
+    // instances, so the comparison covers the headers and the vertices only.
+    EXPECT_EQ(ruleHeaders(rules.latexDocument()),
+              ruleHeaders(mty::LatexFeynmanRules(coreRules)));
+    for (std::size_t i = 0; i < rules.size(); ++i)
+        EXPECT_EQ(
+            countOccurrences(rules.latex(i), "\\vertex"),
+            countOccurrences(mty::LatexFeynmanRule(coreRules[i]), "\\vertex"));
+}
+
+TEST(ModelingApi, FeynmanRuleIndexOutOfRangeIsLookupError)
+{
+    auto rules = mod::Model::qed().feynmanRules();
+    EXPECT_THROW(rules.str(rules.size()), mty::api::LookupError);
+    EXPECT_THROW(rules.latex(rules.size()), mty::api::LookupError);
 }

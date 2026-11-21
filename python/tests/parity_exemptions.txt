@@ -14,3 +14,5 @@ ModelingApi.CouplingIsCreatedThenFound | temporary until WP4.5 binds the facade;
 ModelingApi.MassAndRotationRejectInconsistentInput | temporary until WP4.5 binds the facade; then replace with a Python counterpart and remove this line
 ModelingApi.QedMatchesCoreParticlesAndRules | temporary until WP4.5 binds the facade; then replace with a Python counterpart and remove this line
 ModelingApi.StandardModelMatchesCoreParticlesAndRules | temporary until WP4.5 binds the facade; then replace with a Python counterpart and remove this line
+ModelingApi.LatexMatchesExistingTests | temporary until WP4.5 binds the facade; then replace with a Python counterpart and remove this line
+ModelingApi.FeynmanRuleIndexOutOfRangeIsLookupError | temporary until WP4.5 binds the facade; then replace with a Python counterpart and remove this line

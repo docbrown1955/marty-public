@@ -28,6 +28,7 @@
 #include "../../core/model.h"
 #include "../../core/quantumField.h"
 #include "../group_theory/group_theory.h"
+#include "feynmanRules.h"
 
 #include <map>
 #include <memory>
@@ -165,8 +166,8 @@ class Model {
 
     std::vector<Particle> particles() const;
 
-    /// Feynman rules, one printed string per rule.
-    std::vector<std::string> feynmanRules() const;
+    /// Lazy view on the Feynman rules; the core computes them on first use.
+    FeynmanRules feynmanRules() const;
 
     /// Breaks a gauge group, the broken particles get default names.
     void breakGaugeSymmetry(std::string const &group);
