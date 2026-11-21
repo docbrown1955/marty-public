@@ -15,6 +15,7 @@
 
 #include "marty/api/modeling/modeling.h"
 #include "csl/api/expr.h"
+#include "csl/api/tensor.h"
 #include "marty/api/common/error.h"
 #include "marty/api/group_theory/group_theory.h"
 #include "symbolic_bridge.h"
@@ -33,6 +34,7 @@ namespace group    = mty::api::group_theory;
 namespace modeling = mty::api::modeling;
 
 using csl::api::ExprHandle;
+using csl::api::TensorHandle;
 
 namespace {
 
@@ -565,6 +567,26 @@ rule, negative indices count from the end.)doc")
         .def("refresh",
              &modeling::Model::refresh,
              "Recomputes the derived quantities of the model.")
+        .def("finalize",
+             &modeling::Model::finalize,
+             "Completes the model and freezes it: builders and mutators then "
+             "raise MartyStateError. Calling it again does nothing.")
+        .def("is_finalized",
+             &modeling::Model::isFinalized,
+             "Whether the model was finalized.")
+        .def(
+            "add_tensor_coupling",
+            [](modeling::Model &self, TensorHandle const &tensor) {
+                self.addTensorCoupling(tensor.raw());
+            },
+            py::arg("tensor"),
+            "Adds a tensor, built with pymarty.symbolic.tensor, as a tensorial "
+            "coupling constant of the model.")
+        .def("vector_space",
+             &modeling::Model::vectorSpace,
+             py::arg("flavor"),
+             "Index space of a flavor group, to build tensors on, for example "
+             "Yukawa couplings.")
         .def(
             "add_term",
             [](modeling::Model  &self,

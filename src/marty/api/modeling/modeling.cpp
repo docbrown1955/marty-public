@@ -60,6 +60,12 @@ mty::group::Type groupKind(detail::ModelState const &state,
     return kind == mty::group::Type::U1 ? mty::group::Type::U : kind;
 }
 
+void checkOpen(detail::ModelState const &state, std::string const &action)
+{
+    if (state.finalized)
+        throw StateError("cannot " + action + ": the model is finalized");
+}
+
 std::shared_ptr<const group_theory::Group>
 groupHandle(detail::ModelState &state, mty::AbstractGroup *core)
 {
@@ -94,6 +100,7 @@ bool Particle::isU1(std::string const &group) const
 void Particle::setLabels(std::string const      &group,
                          std::vector<int> const &labels)
 {
+    checkOpen(*m_state, "set a representation");
     if (isU1(group))
         throw TypeError("group \"" + group
                         + "\" is U(1): set its charge with setCharge()");
@@ -102,6 +109,7 @@ void Particle::setLabels(std::string const      &group,
 
 void Particle::setCharge(std::string const &group, int num, int den)
 {
+    checkOpen(*m_state, "set a charge");
     if (!isU1(group))
         throw TypeError("group \"" + group
                         + "\" is not U(1): set its representation with "
@@ -133,6 +141,7 @@ csl::Expr Particle::operator()(std::vector<csl::Index> const &indices) const
 
 Particle Particle::fieldStrength() const
 {
+    checkOpen(*m_state, "create a field strength");
     auto field = guarded([&] {
         Session session(m_state->core.get());
         return m_particle->getFieldStrength();
@@ -145,6 +154,7 @@ Particle Particle::fieldStrength() const
 
 Particle Particle::createSimilarParticle(std::string const &name) const
 {
+    checkOpen(*m_state, "create a similar particle");
     auto field = guarded([&] {
         Session session(m_state->core.get());
         return m_particle->generateSimilar(name);
@@ -154,6 +164,7 @@ Particle Particle::createSimilarParticle(std::string const &name) const
 
 void Particle::setSelfConjugate(bool selfConjugate)
 {
+    checkOpen(*m_state, "set the self-conjugacy");
     guarded([&] {
         Session session(m_state->core.get());
         m_particle->setSelfConjugate(selfConjugate);
@@ -179,6 +190,7 @@ Particle Particle::ghostBoson() const
 
 void Particle::setConjugatedGhostBoson(Particle const &ghost)
 {
+    checkOpen(*m_state, "set the conjugated ghost boson");
     guarded([&] {
         Session session(m_state->core.get());
         m_particle->setConjugatedGhostBoson(ghost.raw());
@@ -210,6 +222,7 @@ group_theory::Irrep Particle::irrep(std::string const &group) const
 
 void Particle::setFundamentalFlavorRep(std::string const &flavorGroup)
 {
+    checkOpen(*m_state, "set a flavor representation");
     guarded([&] {
         Session session(m_state->core.get());
         m_particle->setFundamentalFlavorRep(flavorGroup);
@@ -275,6 +288,7 @@ Model Model::standardModel()
         Session session(nullptr);
         return std::make_shared<SM_Model>();
     });
+    state->finalized = true;
     return Model(std::move(state));
 }
 
@@ -285,12 +299,14 @@ Model Model::qed()
         Session session(nullptr);
         return std::make_shared<QED_Model>();
     });
+    state->finalized = true;
     return Model(std::move(state));
 }
 
 Particle Model::weylFermion(std::string const &name,
                             std::string const &chirality)
 {
+    checkOpen(*m_state, "add a particle");
     mty::Chirality chir = mty::Chirality::Left;
     if (chirality == "L")
         chir = mty::Chirality::Left;
@@ -308,6 +324,7 @@ Particle Model::weylFermion(std::string const &name,
 
 Particle Model::diracFermion(std::string const &name)
 {
+    checkOpen(*m_state, "add a particle");
     auto field = guarded([&] {
         Session session(nullptr);
         return std::make_shared<mty::DiracFermion>(name, *m_state->core);
@@ -317,6 +334,7 @@ Particle Model::diracFermion(std::string const &name)
 
 Particle Model::majoranaFermion(std::string const &name)
 {
+    checkOpen(*m_state, "add a particle");
     auto field = guarded([&] {
         Session session(nullptr);
         auto dirac = std::make_shared<mty::DiracFermion>(name, *m_state->core);
@@ -328,6 +346,7 @@ Particle Model::majoranaFermion(std::string const &name)
 
 Particle Model::scalarBoson(std::string const &name)
 {
+    checkOpen(*m_state, "add a particle");
     auto field = guarded([&] {
         Session session(nullptr);
         return std::make_shared<mty::ScalarBoson>(name, *m_state->core);
@@ -337,6 +356,7 @@ Particle Model::scalarBoson(std::string const &name)
 
 void Model::renameParticle(std::string const &name, std::string const &newName)
 {
+    checkOpen(*m_state, "rename a particle");
     auto part = particle(name);
     if (contains(newName))
         throw ValueError("a particle named \"" + newName
@@ -355,6 +375,40 @@ void Model::refresh()
     });
 }
 
+void Model::finalize()
+{
+    if (m_state->finalized)
+        return;
+    refresh();
+    m_state->finalized = true;
+}
+
+bool Model::isFinalized() const
+{
+    return m_state->finalized;
+}
+
+void Model::addTensorCoupling(csl::Tensor const &tensor)
+{
+    checkOpen(*m_state, "add a tensor coupling");
+    guarded([&] {
+        Session session(m_state->core.get());
+        m_state->core->addTensorCoupling(tensor);
+    });
+}
+
+csl::api::SpaceHandle Model::vectorSpace(std::string const &flavor) const
+{
+    auto space = guarded([&] {
+        Session session(m_state->core.get());
+        return m_state->core->getVectorSpace(flavor);
+    });
+    if (!space)
+        throw LookupError("no flavor group named \"" + flavor + "\"");
+    return csl::api::SpaceHandle(
+        std::shared_ptr<csl::Space const>(m_state, space));
+}
+
 namespace {
 
 std::vector<mty::Particle> rawParticles(std::vector<Particle> const &particles)
@@ -369,6 +423,7 @@ std::vector<mty::Particle> rawParticles(std::vector<Particle> const &particles)
 
 void Model::addTerm(csl::Expr const &term, bool addHermitic)
 {
+    checkOpen(*m_state, "add a term");
     guarded([&] {
         Session session(m_state->core.get());
         m_state->core->addLagrangianTerm(term, addHermitic);
@@ -378,6 +433,7 @@ void Model::addTerm(csl::Expr const &term, bool addHermitic)
 void Model::replace(csl::Expr const &oldExpression,
                     csl::Expr const &newExpression)
 {
+    checkOpen(*m_state, "replace an expression");
     guarded([&] {
         Session session(m_state->core.get());
         m_state->core->replace(oldExpression, newExpression);
@@ -390,6 +446,7 @@ void Model::rotateFields(std::vector<Particle> const               &fields,
                          bool diagonalizeMasses,
                          int  nMassLessFields)
 {
+    checkOpen(*m_state, "rotate fields");
     guarded([&] {
         Session session(m_state->core.get());
         m_state->core->rotateFields(rawParticles(fields),
@@ -406,6 +463,7 @@ void Model::rotateFields(std::vector<std::string> const            &fields,
                          bool diagonalizeMasses,
                          int  nMassLessFields)
 {
+    checkOpen(*m_state, "rotate fields");
     guarded([&] {
         Session session(m_state->core.get());
         m_state->core->rotateFields(
@@ -417,6 +475,7 @@ void Model::birotateFields(std::vector<Particle> const &fields1,
                            std::vector<Particle> const &fields2,
                            int                          nMassLessFields)
 {
+    checkOpen(*m_state, "rotate fields");
     guarded([&] {
         Session session(m_state->core.get());
         m_state->core->birotateFields(
@@ -426,6 +485,7 @@ void Model::birotateFields(std::vector<Particle> const &fields1,
 
 void Model::addBosonicMass(Particle const &field, csl::Expr const &mass)
 {
+    checkOpen(*m_state, "add a mass");
     guarded([&] {
         Session session(m_state->core.get());
         m_state->core->addBosonicMass(field.raw(), mass);
@@ -436,6 +496,7 @@ void Model::addFermionicMass(Particle const  &left,
                              Particle const  &right,
                              csl::Expr const &mass)
 {
+    checkOpen(*m_state, "add a mass");
     guarded([&] {
         Session session(m_state->core.get());
         m_state->core->addFermionicMass(left.raw(), right.raw(), mass);
@@ -445,6 +506,7 @@ void Model::addFermionicMass(Particle const  &left,
 void Model::addFermionicMass(Particle const  &diracFermion,
                              csl::Expr const &mass)
 {
+    checkOpen(*m_state, "add a mass");
     guarded([&] {
         Session session(m_state->core.get());
         m_state->core->addFermionicMass(diracFermion.raw(), mass);
@@ -463,6 +525,7 @@ csl::Expr Model::coupling(std::string const &name) const
 
 csl::Expr Model::newCoupling(std::string const &name)
 {
+    checkOpen(*m_state, "add a coupling");
     return guarded([&] {
         Session session(m_state->core.get());
         m_state->core->addScalarCoupling(name);
@@ -472,6 +535,7 @@ csl::Expr Model::newCoupling(std::string const &name)
 
 void Model::addParticle(Particle const &particle)
 {
+    checkOpen(*m_state, "add a particle");
     guarded([&] {
         Session session(m_state->core.get());
         m_state->core->addParticle(particle.raw());
@@ -491,6 +555,7 @@ Particle Model::ghostBoson(Particle const &vectorBoson,
                            std::string const &name,
                            bool               conjugated)
 {
+    checkOpen(*m_state, "add a ghost boson");
     auto ghost = guarded([&] {
         Session session(m_state->core.get());
         return ghostboson_s(name, vectorBoson.raw(), conjugated);
@@ -522,6 +587,7 @@ FeynmanRules Model::feynmanRules() const
 
 void Model::breakGaugeSymmetry(std::string const &group)
 {
+    checkOpen(*m_state, "break a gauge group");
     groupKind(*m_state, group);
     guarded([&] {
         Session session(m_state->core.get());
@@ -533,6 +599,7 @@ void Model::breakGaugeSymmetry(
     std::string const                                     &group,
     std::map<std::string, std::vector<std::string>> const &renaming)
 {
+    checkOpen(*m_state, "break a gauge group");
     groupKind(*m_state, group);
     guarded([&] {
         Session session(m_state->core.get());
@@ -542,6 +609,7 @@ void Model::breakGaugeSymmetry(
 
 void Model::breakFlavorSymmetry(std::string const &flavor)
 {
+    checkOpen(*m_state, "break a flavor group");
     guarded([&] {
         Session session(m_state->core.get());
         m_state->core->breakFlavorSymmetry(flavor);
@@ -552,6 +620,7 @@ void Model::breakFlavorSymmetry(
     std::string const                                     &flavor,
     std::map<std::string, std::vector<std::string>> const &renaming)
 {
+    checkOpen(*m_state, "break a flavor group");
     guarded([&] {
         Session session(m_state->core.get());
         m_state->core->breakFlavorSymmetry(flavor, renaming);
@@ -578,6 +647,7 @@ csl::Index Model::generateIndex(std::string const &group,
 void Model::promoteToGoldstone(std::string const &goldstone,
                                std::string const &gaugeBoson)
 {
+    checkOpen(*m_state, "promote a Goldstone boson");
     guarded([&] {
         Session session(m_state->core.get());
         m_state->core->promoteToGoldstone(goldstone, gaugeBoson);

@@ -26,6 +26,7 @@
 #define MTY_API_MODELING_MODELING_H_INCLUDED
 
 #include "../../core/model.h"
+#include "../../../csl/api/tensor.h"
 #include "../../core/quantumField.h"
 #include "../group_theory/group_theory.h"
 #include "feynmanRules.h"
@@ -55,6 +56,8 @@ struct ModelState {
     /// One API handle per core gauge group, so irreps of a model compare.
     std::map<mty::AbstractGroup *, std::shared_ptr<const group_theory::Group>>
         groupHandles;
+    /// Set by Model::finalize(): the builders and mutators then refuse changes.
+    bool finalized = false;
 };
 
 } // namespace detail
@@ -182,6 +185,19 @@ class Model {
 
     /// Recomputes the derived quantities of the model.
     void refresh();
+
+    /// Completes the model and freezes it: after this call, the builders and
+    /// mutators raise StateError. Calling it again does nothing.
+    void finalize();
+
+    /// Whether finalize() was called.
+    bool isFinalized() const;
+
+    /// Adds a tensorial coupling constant to the model.
+    void addTensorCoupling(csl::Tensor const &tensor);
+
+    /// Index space of a flavor group, to build tensors on (e.g. Yukawas).
+    csl::api::SpaceHandle vectorSpace(std::string const &flavor) const;
 
     /// Adds a term to the Lagrangian; addHermitic also adds its conjugate.
     void addTerm(csl::Expr const &term, bool addHermitic = false);

@@ -80,3 +80,14 @@ Checks: `pytest -m "not slow"` on `tests/modeling` and `test_usage_examples.py` 
 - Done: all recreations (`qed`, `qcd`, `sm`, `mssm`, `nmfv`, `pmssm`, `thdm`, `gthdm`), `test_ports.py`, `test_modeling_api.py` and the example use the builders.
 - Done: `Particle.is_self_conjugate()` getter (`Particle::isSelfConjugate` in the facade). `test_is_self_conjugate_reflects_builder_flags` checks it.
 
+
+### Finalization and freezing
+
+- Decision: `Model.finalize()` calls `refresh()` once and then freezes the model. It is idempotent. `Model.is_finalized()` is a method, so Phase 5 can assert it.
+- Decision: builders and mutators raise `MartyStateError` on a finalized model (`checkOpen` in `src/marty/api/modeling/modeling.cpp`). Reads stay open: `particle`, `particles`, `feynman_rules`, `compute_amplitude`, `describe`, `ghost_boson` and `generate_index`.
+- Decision: the freeze is a facade-level flag (`detail::ModelState::finalized`). The C++ core is unchanged.
+- Decision: `standard_model()` and `qed()` return finalized models.
+- Decision: `Model.add_tensor_coupling(tensor)` takes a `pymarty.symbolic` tensor directly. No facade tensor wrapper is added.
+- Decision: `Model.vector_space(flavor)` exposes the index space of a flavour group, for building Yukawa tensors. `SpaceHandle`'s constructor from a `Space` is now public in `src/csl/api/tensor.h`.
+- Not exposed: `gatherMasses`, which `refresh()` already calls.
+- Open: the SM, THDM, GTHDM, MSSM, PMSSM and NMFV ports are not done. They need facade primitives for mass-matrix diagonalisation, `set_mass`, scalar-coupling lookup, CKM construction, and Goldstone promotion with gauge fixing.

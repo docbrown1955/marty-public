@@ -5,10 +5,16 @@ from fractions import Fraction
 import pytest
 
 from pymarty import models
-from pymarty.errors import MartyError, MartyLookupError, MartyTypeError, MartyValueError
+from pymarty.errors import (
+    MartyError,
+    MartyLookupError,
+    MartyStateError,
+    MartyTypeError,
+    MartyValueError,
+)
 from pymarty.group_theory import SU, U
 from pymarty.modeling import FlavorGroup, GaugeGroup, Model
-from pymarty.symbolic import constant
+from pymarty.symbolic import ComplexProperty, constant, tensor
 
 
 def make_toy() -> Model:
@@ -257,3 +263,34 @@ def test_is_self_conjugate_reflects_builder_flags() -> None:
     assert not toy.create_similar_particle(
         "chi2", reference="chi", self_conjugate=False
     ).is_self_conjugate()
+
+
+@pytest.mark.unit
+def test_finalize_freezes_model_and_is_idempotent() -> None:
+    toy = make_toy()
+    assert not toy.is_finalized()
+    toy.finalize()
+    toy.finalize()
+    assert toy.is_finalized()
+    with pytest.raises(MartyStateError):
+        toy.add_scalar_boson("phi", gauge_rep={"L": 1})
+    with pytest.raises(MartyStateError):
+        toy.break_gauge_symmetry("Y")
+
+
+@pytest.mark.unit
+def test_finalized_model_still_allows_reads() -> None:
+    toy = make_toy()
+    toy.add_scalar_boson("phi", gauge_rep={"L": 1})
+    toy.finalize()
+    assert "phi" in toy
+
+
+@pytest.mark.unit
+def test_vector_space_builds_tensor_coupling() -> None:
+    toy = Model(gauge=[], flavor=[FlavorGroup("F", 2)])
+    space = toy.vector_space("F")
+    yukawa = tensor("Y", [space, space], complex_property=ComplexProperty.Complex)
+    toy.add_tensor_coupling(yukawa)
+    toy.finalize()
+    assert toy.is_finalized()

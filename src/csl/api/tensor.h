@@ -100,9 +100,11 @@ class SpaceHandle {
     [[nodiscard]] csl::Space const                        &raw() const;
     [[nodiscard]] std::shared_ptr<csl::Space const> const &owner() const;
 
-  private:
+    /*! \brief Handle on an existing space; \p space keeps the space alive
+     * (an aliasing pointer can share the lifetime of its owner). */
     explicit SpaceHandle(std::shared_ptr<csl::Space const> space);
 
+  private:
     std::shared_ptr<csl::Space const> m_space;
 };
 
