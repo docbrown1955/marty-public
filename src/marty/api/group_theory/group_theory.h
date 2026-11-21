@@ -6,6 +6,7 @@
 #include <utility>
 #include <vector>
 
+#include "marty/core/group.h"
 #include "marty/core/representation.h"
 
 /**
@@ -14,11 +15,11 @@
  * construction, irreps, tensor products, Casimirs and Dynkin indices.
  *
  * Normalisation: Casimirs are the core values (SemiSimpleAlgebra::
- * getQuadraticCasimir), with a per-algebra root scale: the adjoint Casimir is 1
- * for SU(N) and 2 for E6, E7 and E8. The Dynkin index is T(r) = C2(r) dim(r) /
- * dim(G), so that T(fund SU(3)) = 1/6. This differs from the core getIndex for
- * SU(N) (1/2 for the fundamental); the two are not yet aligned.
- * E8 labels follow the MARTY manual: 248 = (0,...,0,1,0).
+ * getQuadraticCasimir), with a per-algebra root scale: the adjoint Casimir is
+ * 1 for SU(N) and 2 for E6, E7 and E8. The Dynkin index is T(r) = C2(r) dim(r)
+ * / dim(G), so that T(fund SU(3)) = 1/6. This differs from the core getIndex
+ * for SU(N) (1/2 for the fundamental); the two are not yet aligned. E8 labels
+ * follow the MARTY manual: 248 = (0,...,0,1,0).
  *
  * Irreps keep their group alive through shared ownership, so an Irrep may
  * outlive the Group it was created from.
@@ -103,6 +104,17 @@ class Group : public std::enable_shared_from_this<Group> {
     static std::shared_ptr<const Group> u1();
 
     std::string name() const;
+    /// Core kind of the group, as used by GaugeGroupSpec.
+    mty::group::Type kind() const
+    {
+        return kind_;
+    }
+    /// The n of SU(n), SO(n) and Sp(n), 1 for U(1) and -1 for exceptional
+    /// groups. This is the dimension argument of GaugeGroupSpec.
+    int size() const
+    {
+        return size_;
+    }
     /// Rank of the group (order of the Cartan algebra).
     int rank() const;
     /// Dimension of the group, read from the adjoint representation.
@@ -126,10 +138,15 @@ class Group : public std::enable_shared_from_this<Group> {
     }
 
   private:
-    Group(std::shared_ptr<mty::AbstractGroup> core, std::string name);
+    Group(std::shared_ptr<mty::AbstractGroup> core,
+          std::string                         name,
+          mty::group::Type                    kind,
+          int                                 size = -1);
 
     std::shared_ptr<mty::AbstractGroup> core_;
     std::string                         name_;
+    mty::group::Type                    kind_;
+    int                                 size_;
 };
 
 } // namespace mty::api::group_theory

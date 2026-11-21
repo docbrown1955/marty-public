@@ -36,6 +36,8 @@ void bindSymbolic(py::module_ &m);
 void bindDiracology(py::module_ &m);
 // Defined in group_theory.cpp.
 void bindGroupTheory(py::module_ &m);
+// Defined in modeling.cpp.
+void bindModeling(py::module_ &m);
 
 namespace {
 
@@ -298,6 +300,7 @@ PYBIND11_MODULE(_pymarty, m)
     bindSymbolic(m);
     bindDiracology(m);
     bindGroupTheory(m);
+    bindModeling(m);
 
     // Test hooks for the error and output layers. Not part of the public API.
     py::module_ debug

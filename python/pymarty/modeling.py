@@ -1,0 +1,28 @@
+"""Model building: gauge groups, particles and breaking.
+
+``Model`` is built from its gauge groups in one call. Its weyl fermions are
+created unattached, given their representations with ``Particle.set_rep``,
+then added with ``Model.add_particle``. Breaking a gauge group names the
+particles it produces; ``renaming`` gives explicit names to some of them.
+See ``examples/usage/modeling.py`` for a complete model.
+"""
+
+from pymarty._pymarty import modeling as _core
+from pymarty.symbolic import Index, Minkowski
+
+GaugeGroup = _core.GaugeGroup
+Model = _core.Model
+Particle = _core.Particle
+
+
+class _Spacetime:
+    """Spacetime objects needed to write Lagrangian terms."""
+
+    def minkowski_index(self, name: str = "mu") -> Index:
+        """Return a Lorentz index of the Minkowski space, named ``name``."""
+        return Minkowski.index(name)
+
+
+spacetime = _Spacetime()
+
+__all__ = ["GaugeGroup", "Model", "Particle", "spacetime"]

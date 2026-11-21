@@ -177,8 +177,11 @@ bool Irrep::operator<(Irrep const &other) const
     return highestWeight(irrep_) < highestWeight(other.irrep_);
 }
 
-Group::Group(std::shared_ptr<mty::AbstractGroup> core, std::string name)
-    : core_(std::move(core)), name_(std::move(name))
+Group::Group(std::shared_ptr<mty::AbstractGroup> core,
+             std::string                         name,
+             mty::group::Type                    kind,
+             int                                 size)
+    : core_(std::move(core)), name_(std::move(name)), kind_(kind), size_(size)
 {
 }
 
@@ -191,7 +194,9 @@ std::shared_ptr<const Group> Group::su(int n)
         return cached("SU" + std::to_string(n), [n] {
             return std::shared_ptr<const Group>(
                 new Group(std::make_shared<mty::group::SU>(n),
-                          "SU(" + std::to_string(n) + ")"));
+                          "SU(" + std::to_string(n) + ")",
+                          mty::group::Type::SU,
+                          n));
         });
     });
 }
@@ -206,7 +211,9 @@ std::shared_ptr<const Group> Group::so(int n)
         return cached("SO" + std::to_string(n), [n] {
             return std::shared_ptr<const Group>(
                 new Group(std::make_shared<mty::group::SO>(n),
-                          "SO(" + std::to_string(n) + ")"));
+                          "SO(" + std::to_string(n) + ")",
+                          mty::group::Type::SO,
+                          n));
         });
     });
 }
@@ -221,7 +228,9 @@ std::shared_ptr<const Group> Group::sp(int n)
         return cached("Sp" + std::to_string(n), [n] {
             return std::shared_ptr<const Group>(
                 new Group(std::make_shared<mty::group::Sp>(n),
-                          "Sp(" + std::to_string(n) + ")"));
+                          "Sp(" + std::to_string(n) + ")",
+                          mty::group::Type::Sp,
+                          n));
         });
     });
 }
@@ -231,7 +240,9 @@ std::shared_ptr<const Group> Group::e6()
     return guarded([&] {
         return cached("E6", [] {
             return std::shared_ptr<const Group>(
-                new Group(std::make_shared<mty::group::E6>(), "E6"));
+                new Group(std::make_shared<mty::group::E6>(),
+                          "E6",
+                          mty::group::Type::E6));
         });
     });
 }
@@ -241,7 +252,9 @@ std::shared_ptr<const Group> Group::e7()
     return guarded([&] {
         return cached("E7", [] {
             return std::shared_ptr<const Group>(
-                new Group(std::make_shared<mty::group::E7>(), "E7"));
+                new Group(std::make_shared<mty::group::E7>(),
+                          "E7",
+                          mty::group::Type::E7));
         });
     });
 }
@@ -251,7 +264,9 @@ std::shared_ptr<const Group> Group::e8()
     return guarded([&] {
         return cached("E8", [] {
             return std::shared_ptr<const Group>(
-                new Group(std::make_shared<mty::group::E8>(), "E8"));
+                new Group(std::make_shared<mty::group::E8>(),
+                          "E8",
+                          mty::group::Type::E8));
         });
     });
 }
@@ -261,7 +276,9 @@ std::shared_ptr<const Group> Group::f4()
     return guarded([&] {
         return cached("F4", [] {
             return std::shared_ptr<const Group>(
-                new Group(std::make_shared<mty::group::F4>(), "F4"));
+                new Group(std::make_shared<mty::group::F4>(),
+                          "F4",
+                          mty::group::Type::F4));
         });
     });
 }
@@ -271,7 +288,9 @@ std::shared_ptr<const Group> Group::g2()
     return guarded([&] {
         return cached("G2", [] {
             return std::shared_ptr<const Group>(
-                new Group(std::make_shared<mty::group::G2>(), "G2"));
+                new Group(std::make_shared<mty::group::G2>(),
+                          "G2",
+                          mty::group::Type::G2));
         });
     });
 }
@@ -281,7 +300,10 @@ std::shared_ptr<const Group> Group::u1()
     return guarded([&] {
         return cached("U1", [] {
             return std::shared_ptr<const Group>(
-                new Group(std::make_shared<mty::group::U1>(), "U(1)"));
+                new Group(std::make_shared<mty::group::U1>(),
+                          "U(1)",
+                          mty::group::Type::U,
+                          1));
         });
     });
 }
