@@ -42,6 +42,8 @@ struct GaugeGroup {
     std::shared_ptr<const group_theory::Group> group;
     std::string                                name;
     std::string                                bosonName;
+    std::string
+        coupling; ///< Name of the gauge coupling; empty keeps g_<name>.
 };
 
 namespace detail {

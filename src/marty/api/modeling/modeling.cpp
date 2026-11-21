@@ -91,10 +91,12 @@ Model::Model(std::vector<GaugeGroup> const  &gauge,
         if (!names.insert(item.name).second)
             throw ValueError("duplicate gauge group \"" + item.name + "\"");
         mty::GaugeGroupSpec spec;
-        spec.type                  = item.group->kind();
-        spec.dim                   = item.group->size();
-        spec.name                  = item.name;
-        spec.bosonName             = item.bosonName;
+        spec.type      = item.group->kind();
+        spec.dim       = item.group->size();
+        spec.name      = item.name;
+        spec.bosonName = item.bosonName;
+        if (!item.coupling.empty())
+            spec.coupling = csl::constant_s(item.coupling);
         m_state->groups[item.name] = spec.type;
         specs.push_back(spec);
     }

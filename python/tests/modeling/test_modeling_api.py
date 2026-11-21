@@ -4,9 +4,10 @@ from fractions import Fraction
 
 import pytest
 
-from pymarty.errors import MartyLookupError, MartyTypeError, MartyValueError
+from pymarty import models
+from pymarty.errors import MartyError, MartyLookupError, MartyTypeError, MartyValueError
 from pymarty.group_theory import SU, U
-from pymarty.modeling import GaugeGroup, Model
+from pymarty.modeling import FlavorGroup, GaugeGroup, Model
 
 
 def make_toy() -> Model:
@@ -45,3 +46,128 @@ def test_labels_on_u1_group_is_type_error() -> None:
 def test_unknown_chirality_is_value_error() -> None:
     with pytest.raises(MartyValueError):
         make_toy().weyl_fermion("Q_L", chirality="X")
+
+
+@pytest.mark.parity("ModelingApi.CallsRestoreCurrentModel")
+def test_models_are_independent() -> None:
+    toy = make_toy()
+    other = make_toy()
+    toy.add_particle(toy.weyl_fermion("Q_L", chirality="L"))
+    assert "Q_L" in toy
+    assert "Q_L" not in other
+    with pytest.raises(MartyLookupError):
+        toy.particle("no_such_particle")
+    assert "Q_L" in toy
+
+
+@pytest.mark.parity("ModelingApi.RenameParticleChecksNames")
+def test_rename_particle_checks_names() -> None:
+    toy = make_toy()
+    toy.add_particle(toy.weyl_fermion("Q_L", chirality="L"))
+    toy.add_particle(toy.dirac_fermion("E"))
+    with pytest.raises(MartyLookupError):
+        toy.rename_particle("no_such_particle", "X")
+    with pytest.raises(MartyValueError):
+        toy.rename_particle("Q_L", "E")
+    toy.rename_particle("Q_L", "Q")
+    assert "Q" in toy
+    assert "Q_L" not in toy
+    assert toy.particle("Q").name == "Q"
+
+
+@pytest.mark.parity("ModelingApi.FlavorGroupNeedsAFlavor")
+def test_flavor_group_needs_a_flavor() -> None:
+    gauge = [GaugeGroup(SU(2), name="L", boson_name="W")]
+    with pytest.raises(MartyValueError):
+        Model(gauge, flavor=[FlavorGroup("F", 0)])
+    with pytest.raises(MartyValueError):
+        Model(gauge, flavor=[FlavorGroup("L", 3)])
+    Model(gauge, flavor=[FlavorGroup("F", 3)])
+
+
+@pytest.mark.parity("ModelingApi.ParticleFactoriesAndRefresh")
+def test_particle_factories_and_refresh() -> None:
+    toy = make_toy()
+    toy.add_particle(toy.scalar_boson("phi"))
+    toy.add_particle(toy.majorana_fermion("chi"))
+    assert "phi" in toy
+    assert "chi" in toy
+    toy.refresh()
+
+
+@pytest.mark.parity("ModelingApi.CouplingIsCreatedThenFound")
+def test_coupling_is_created_then_found() -> None:
+    toy = make_toy()
+    with pytest.raises(MartyLookupError):
+        toy.coupling("g")
+    created = toy.new_coupling("g")
+    assert toy.coupling("g") == created
+
+
+@pytest.mark.parity("ModelingApi.CustomGaugeCouplingNameIsUsed")
+def test_custom_gauge_coupling_name_is_used() -> None:
+    toy = Model(
+        [
+            GaugeGroup(SU(2), name="L", boson_name="W", coupling="g_weak"),
+            GaugeGroup(U(1), name="Y", boson_name="B"),
+        ]
+    )
+    toy.coupling("g_weak")
+    toy.coupling("g_Y")
+    with pytest.raises(MartyLookupError):
+        toy.coupling("g_L")
+
+
+@pytest.mark.parity("ModelingApi.MassAndRotationRejectInconsistentInput")
+def test_mass_and_rotation_reject_inconsistent_input() -> None:
+    toy = make_toy()
+    phi = toy.scalar_boson("phi")
+    qL = toy.weyl_fermion("Q_L", chirality="L")
+    qR = toy.weyl_fermion("Q_R", chirality="R")
+    for particle in (phi, qL, qR):
+        toy.add_particle(particle)
+    toy.add_bosonic_mass(phi, toy.new_coupling("m"))
+    toy.add_fermionic_mass(qL, qR, toy.new_coupling("y"))
+    with pytest.raises(MartyError):
+        toy.rotate_fields([phi], [phi, qL], [[]])
+
+
+@pytest.mark.parity("ModelingApi.QedMatchesCoreParticlesAndRules")
+def test_qed_matches_core_particles_and_rules() -> None:
+    qed = models.QED()
+    assert [p.name for p in qed.particles] == [
+        "A",
+        "c_A",
+        "\\psi",
+        "\\psi_L",
+        "\\psi_R",
+    ]
+    assert len(qed.feynman_rules) == 1
+
+
+@pytest.mark.parity("ModelingApi.StandardModelMatchesCoreParticlesAndRules")
+def test_standard_model_matches_core_particles_and_rules() -> None:
+    sm = models.SM()
+    assert len(sm.particles) == 42
+    assert len(sm.feynman_rules) == 190
+
+
+@pytest.mark.parity("ModelingApi.LatexMatchesExistingTests")
+def test_latex_matches_existing_tests() -> None:
+    rules = models.QED().feynman_rules
+    document = rules.latex_document()
+    headers = [
+        line for line in document.splitlines() if line.startswith("Feynman vertex for ")
+    ]
+    assert len(headers) == len(rules)
+    assert rules.latex(0).count("\\vertex") == 9
+
+
+@pytest.mark.parity("ModelingApi.FeynmanRuleIndexOutOfRangeIsLookupError")
+def test_feynman_rule_index_out_of_range_is_lookup_error() -> None:
+    rules = models.QED().feynman_rules
+    with pytest.raises(MartyLookupError):
+        rules[len(rules)]
+    with pytest.raises(MartyLookupError):
+        rules.latex(len(rules))
+    assert rules[-1] == rules[0]

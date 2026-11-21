@@ -35,7 +35,7 @@ mod::Model makeToy()
 {
     return mod::Model(std::vector<mod::GaugeGroup>{
         {gt::Group::su(2), "L", "W"},
-        {gt::Group::u1(), "Y", "B"},
+        {gt::Group::u(1), "Y", "B"},
     });
 }
 
@@ -206,6 +206,17 @@ TEST(ModelingApi, LatexMatchesExistingTests)
         EXPECT_EQ(
             countOccurrences(rules.latex(i), "\\vertex"),
             countOccurrences(mty::LatexFeynmanRule(coreRules[i]), "\\vertex"));
+}
+
+TEST(ModelingApi, CustomGaugeCouplingNameIsUsed)
+{
+    mod::Model model(std::vector<mod::GaugeGroup>{
+        {gt::Group::su(2), "L", "W", "g_weak"},
+        {gt::Group::u(1), "Y", "B"},
+    });
+    EXPECT_NO_THROW(model.coupling("g_weak"));
+    EXPECT_NO_THROW(model.coupling("g_Y"));
+    EXPECT_THROW(model.coupling("g_L"), mty::api::LookupError);
 }
 
 TEST(ModelingApi, FeynmanRuleIndexOutOfRangeIsLookupError)

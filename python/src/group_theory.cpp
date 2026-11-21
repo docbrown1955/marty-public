@@ -186,7 +186,10 @@ void bindGroupTheory(py::module_ &m)
         .def_static("e8", [] { return asHolder(group::Group::e8()); })
         .def_static("f4", [] { return asHolder(group::Group::f4()); })
         .def_static("g2", [] { return asHolder(group::Group::g2()); })
-        .def_static("u1", [] { return asHolder(group::Group::u1()); })
+        .def_static(
+            "u",
+            [](int n) { return asHolder(group::Group::u(n)); },
+            py::arg("n"))
         .def_property_readonly("name", &group::Group::name)
         .def_property_readonly("rank", &group::Group::rank)
         .def_property_readonly("dim", &group::Group::dim)

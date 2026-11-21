@@ -6,13 +6,3 @@ SessionApi.* | Session is an internal C++ RAII guard; its effect is checked from
 TerminatingCallsApi.* | former exit() sites; no Python API reaches them before Phases 3 and 6
 DiracologyApi.ArgumentOutOfRangeIsLookupError | the Python binding exposes no argument/size accessor on DiracExpr, so the lookup path is pinned by the C++ test only
 SymbolicApi.SubsCompoundKeyBehaviourPinned | Python dict keys must be hashable; a compound Expr is unhashable, so the compound-key replacement is pinned by the C++ test only
-ModelingApi.CallsRestoreCurrentModel | temporary until WP4.5 binds the facade; then replace with a Python counterpart and remove this line
-ModelingApi.FlavorGroupNeedsAFlavor | temporary until WP4.5 binds the facade; then replace with a Python counterpart and remove this line
-ModelingApi.ParticleFactoriesAndRefresh | temporary until WP4.5 binds the facade; then replace with a Python counterpart and remove this line
-ModelingApi.RenameParticleChecksNames | temporary until WP4.5 binds the facade; then replace with a Python counterpart and remove this line
-ModelingApi.CouplingIsCreatedThenFound | temporary until WP4.5 binds the facade; then replace with a Python counterpart and remove this line
-ModelingApi.MassAndRotationRejectInconsistentInput | temporary until WP4.5 binds the facade; then replace with a Python counterpart and remove this line
-ModelingApi.QedMatchesCoreParticlesAndRules | temporary until WP4.5 binds the facade; then replace with a Python counterpart and remove this line
-ModelingApi.StandardModelMatchesCoreParticlesAndRules | temporary until WP4.5 binds the facade; then replace with a Python counterpart and remove this line
-ModelingApi.LatexMatchesExistingTests | temporary until WP4.5 binds the facade; then replace with a Python counterpart and remove this line
-ModelingApi.FeynmanRuleIndexOutOfRangeIsLookupError | temporary until WP4.5 binds the facade; then replace with a Python counterpart and remove this line

@@ -26,7 +26,6 @@ Fraction(1, 6)
 from collections.abc import Mapping
 
 from pymarty._pymarty import group_theory as _core
-from pymarty.errors import MartyValueError
 
 Group = _core.Group
 Irrep = _core.Irrep
@@ -78,6 +77,4 @@ def G2() -> Group:
 
 def U(n: int) -> Group:
     """Abelian group U(n). Only U(1) is supported, so n must be 1."""
-    if n != 1:
-        raise MartyValueError(f"U({n}) is not supported, only U(1) is")
-    return _core.Group.u1()
+    return _core.Group.u(n)

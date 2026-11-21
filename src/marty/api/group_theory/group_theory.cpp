@@ -295,9 +295,12 @@ std::shared_ptr<const Group> Group::g2()
     });
 }
 
-std::shared_ptr<const Group> Group::u1()
+std::shared_ptr<const Group> Group::u(int n)
 {
     return guarded([&] {
+        if (n != 1)
+            throw ValueError("U(n) is not supported, only U(1) is, got n = "
+                             + std::to_string(n));
         return cached("U1", [] {
             return std::shared_ptr<const Group>(
                 new Group(std::make_shared<mty::group::U1>(),

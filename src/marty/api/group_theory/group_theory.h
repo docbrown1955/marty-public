@@ -101,7 +101,8 @@ class Group : public std::enable_shared_from_this<Group> {
     static std::shared_ptr<const Group> e8();
     static std::shared_ptr<const Group> f4();
     static std::shared_ptr<const Group> g2();
-    static std::shared_ptr<const Group> u1();
+    /// U(1). Only n = 1 is accepted, the dimension argument of U(n).
+    static std::shared_ptr<const Group> u(int n);
 
     std::string name() const;
     /// Core kind of the group, as used by GaugeGroupSpec.

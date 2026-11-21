@@ -127,7 +127,7 @@ TEST(GroupTheoryApi, InvalidGroupAndLabelsAreRejected)
 
 TEST(GroupTheoryApi, U1ChargesAddExactly)
 {
-    auto u1 = gt::Group::u1();
+    auto u1 = gt::Group::u(1);
     auto q  = u1->u1Irrep(gt::Rational(1, 3));
     EXPECT_EQ(q.charge(), gt::Rational(1, 3));
 
