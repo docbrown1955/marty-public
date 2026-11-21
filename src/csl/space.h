@@ -26,6 +26,7 @@
 #include "indicial.h"
 #include "literal.h"
 #include "numerical.h"
+#include "space_index_pool.h"
 #include "vector.h"
 
 namespace csl {
@@ -84,6 +85,13 @@ class Space {
     {
         return defaultIndexNames;
     }
+
+    /*!
+     * \brief Returns a new pool over the index names of the space, starting
+     * from the first name with ID 0. Pools are not shared: a renaming that
+     * stores its own pool gives the same labels for the same expression.
+     */
+    SpaceIndexPool createIndexPool() const;
 
     /*!
      * \return The LaTeX form of an index name of the space. The part before

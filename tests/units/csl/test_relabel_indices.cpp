@@ -486,3 +486,43 @@ TEST(RelabelIndices, applyRenamingDoesNotModifyTheInput)
     EXPECT_EQ(expr->printLaTeX(0), before);
     EXPECT_EQ(std::string(f.getName()), "beta");
 }
+
+TEST(SpaceIndexPool, cyclesNamesFromZero)
+{
+    Space S{"S", 4, {"alpha", "beta"}};
+    auto  pool = S.createIndexPool();
+    auto [n0, id0] = pool.next();
+    auto [n1, id1] = pool.next();
+    auto [n2, id2] = pool.next();
+    EXPECT_EQ(n0, "alpha");
+    EXPECT_EQ(id0, 0u);
+    EXPECT_EQ(n1, "beta");
+    EXPECT_EQ(id1, 0u);
+    EXPECT_EQ(n2, "alpha");
+    EXPECT_EQ(id2, 1u);
+}
+
+TEST(RelabelIndices, renamingKeepsItsPoolAcrossExpressions)
+{
+    Space         S{"S", 4, {"alpha", "beta"}};
+    Tensor        x{"x", &S};
+    Tensor        y{"y", &S};
+    Index         p = S.generateIndex("alpha");
+    Index         q = S.generateIndex("alpha");
+    auto          names = [](Expr const &expr) {
+        std::set<std::string> res;
+        for (auto const &factor : expr->getFactors())
+            for (auto const &index : indicesOf(factor))
+                res.insert(std::string(index.getName()));
+        return res;
+    };
+    IndexRenaming renaming;
+    auto first  = RelabelIndices(x(p) * y(p), true, renaming);
+    auto second = RelabelIndices(x(q) * y(q), true, renaming);
+    EXPECT_EQ(names(first), (std::set<std::string>{"alpha"}));
+    EXPECT_EQ(names(second), (std::set<std::string>{"beta"}));
+    // A fresh renaming starts again from the first name.
+    EXPECT_EQ(names(RelabelIndices(x(q) * y(q))),
+              (std::set<std::string>{"alpha"}));
+}
+

@@ -121,6 +121,7 @@ set(ALL_SOURCES
     sort.h
     space.cpp
     space.h
+    space_index_pool.h
     std_shared_ptr_inheritance.h
     std_vector_implementation.h
     support.cpp

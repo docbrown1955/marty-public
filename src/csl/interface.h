@@ -26,6 +26,7 @@
 #include "abstract.h"
 #include "index.h"
 #include "options.h"
+#include "space_index_pool.h"
 #include "parent.h"
 
 #include <map>
@@ -379,10 +380,16 @@ inline void SetComplexProperty(T parent, ComplexProperty prop)
  * new names, as produced by RelabelIndices(). A free index is identified by
  * its space, ID and name. Dummy indices are never part of a renaming: they
  * are local to each expression.
+ *
+ * The renaming also stores one SpaceIndexPool per space it has labelled. The
+ * pools keep the cycle over the index names going across calls that share
+ * this renaming, so a fresh renaming gives labels starting from the first
+ * name, and a renaming reused for several expressions keeps them distinct.
  */
 struct IndexRenaming {
     using Key = std::tuple<Space const *, Index::ID_type, std::string>;
-    std::map<Key, Index> renamed;
+    std::map<Key, Index>                   renamed;
+    std::map<Space const *, SpaceIndexPool> pools;
 };
 
 /*!

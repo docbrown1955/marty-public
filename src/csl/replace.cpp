@@ -587,7 +587,6 @@ Expr RelabelIndices(Expr const    &expr,
     });
 
     std::map<Key, Index>                                    renamed;
-    std::map<Space const *, size_t>                         identitiesInSpace;
     std::map<std::pair<Space const *, std::string>, size_t> uses;
     for (auto const &kept : keptNames)
         uses[kept] = 1;
@@ -608,20 +607,19 @@ Expr RelabelIndices(Expr const    &expr,
         if (renamed.count(keyOf(index)))
             return;
         Space const *space = index.getSpace();
-        auto const  &pool  = space->getDefaultIndexNames();
+        auto         found = renaming.pools.find(space);
+        if (found == renaming.pools.end())
+            found = renaming.pools.emplace(space, space->createIndexPool())
+                        .first;
+        auto &pool = found->second;
         // The ID counts how many times the name pool has been cycled through,
         // so it stays deterministic and is non-zero beyond one pass.
-        size_t cycle = 0;
-        auto   next  = [&]() {
-            size_t count = identitiesInSpace[space]++;
-            cycle        = count / pool.size();
-            return pool[count % pool.size()];
-        };
-        std::string base = next();
+        auto [base, cycle] = pool.next();
         for (size_t tries = 1;
-             tries != pool.size() and keptNames.count({space, base});
+             tries != space->getDefaultIndexNames().size()
+             and keptNames.count({space, base});
              ++tries)
-            base = next();
+            std::tie(base, cycle) = pool.next();
         size_t n      = uses[{space, base}]++;
         Index  result = index;
         result.setName(n == 0 ? base : base + "_" + std::to_string(n));
