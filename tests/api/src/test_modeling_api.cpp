@@ -58,6 +58,73 @@ TEST(ModelingApi, LabelsOnU1GroupIsTypeError)
     EXPECT_THROW(q.setLabels("Y", {1}), mty::api::TypeError);
 }
 
+TEST(ModelingApi, CallsRestoreCurrentModel)
+{
+    auto        toy    = makeToy();
+    auto const *before = mty::Model::current;
+    auto        q      = toy.weylFermion("Q_L", "L");
+    q.setCharge("Y", 1, 6);
+    toy.contains("Q_L");
+    EXPECT_THROW(toy.particle("no_such_particle"), mty::api::LookupError);
+    EXPECT_EQ(mty::Model::current, before);
+}
+
+TEST(ModelingApi, RenameParticleChecksNames)
+{
+    auto toy = makeToy();
+    toy.addParticle(toy.weylFermion("Q_L", "L"));
+    toy.addParticle(toy.diracFermion("E"));
+    EXPECT_THROW(toy.renameParticle("no_such_particle", "X"),
+                 mty::api::LookupError);
+    EXPECT_THROW(toy.renameParticle("Q_L", "E"), mty::api::ValueError);
+    toy.renameParticle("Q_L", "Q");
+    EXPECT_TRUE(toy.contains("Q"));
+    EXPECT_FALSE(toy.contains("Q_L"));
+    EXPECT_EQ(toy.particle("Q").name(), "Q");
+}
+
+TEST(ModelingApi, FlavorGroupNeedsAFlavor)
+{
+    std::vector<mod::GaugeGroup> gauge{{gt::Group::su(2), "L", "W"}};
+    EXPECT_THROW(mod::Model(gauge, {mod::FlavorGroup{"F", 0}}),
+                 mty::api::ValueError);
+    EXPECT_THROW(mod::Model(gauge, {mod::FlavorGroup{"L", 3}}),
+                 mty::api::ValueError);
+    EXPECT_NO_THROW(mod::Model(gauge, {mod::FlavorGroup{"F", 3}}));
+}
+
+TEST(ModelingApi, ParticleFactoriesAndRefresh)
+{
+    auto toy = makeToy();
+    toy.addParticle(toy.scalarBoson("phi"));
+    toy.addParticle(toy.majoranaFermion("chi"));
+    EXPECT_TRUE(toy.contains("phi"));
+    EXPECT_TRUE(toy.contains("chi"));
+    EXPECT_NO_THROW(toy.refresh());
+}
+
+TEST(ModelingApi, CouplingIsCreatedThenFound)
+{
+    auto toy = makeToy();
+    EXPECT_THROW(toy.coupling("g"), mty::api::LookupError);
+    auto created = toy.newCoupling("g");
+    EXPECT_EQ(toy.coupling("g"), created);
+}
+
+TEST(ModelingApi, MassAndRotationRejectInconsistentInput)
+{
+    auto toy = makeToy();
+    toy.addParticle(toy.scalarBoson("phi"));
+    toy.addParticle(toy.weylFermion("Q_L", "L"));
+    toy.addParticle(toy.weylFermion("Q_R", "R"));
+    auto phi = toy.particle("phi");
+    auto qL  = toy.particle("Q_L");
+    auto qR  = toy.particle("Q_R");
+    EXPECT_NO_THROW(toy.addBosonicMass(phi, toy.newCoupling("m")));
+    EXPECT_NO_THROW(toy.addFermionicMass(qL, qR, toy.newCoupling("y")));
+    EXPECT_THROW(toy.rotateFields({phi}, {phi, qL}, {{}}), mty::api::Error);
+}
+
 TEST(ModelingApi, UnknownChiralityIsValueError)
 {
     auto toy = makeToy();

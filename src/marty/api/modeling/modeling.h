@@ -53,6 +53,12 @@ struct ModelState {
 
 } // namespace detail
 
+/// A flavor group of a model: its name and its number of flavors.
+struct FlavorGroup {
+    std::string name;
+    int         dim;
+};
+
 /// A particle of a model, as held by the model.
 class Particle {
   public:
@@ -83,8 +89,9 @@ class Particle {
 /// A model: gauge groups, particles, breaking and Feynman rules.
 class Model {
   public:
-    /// Declares the gauge groups, then initializes the model.
-    explicit Model(std::vector<GaugeGroup> const &gauge);
+    /// Declares the gauge and flavor groups, then initializes the model.
+    explicit Model(std::vector<GaugeGroup> const  &gauge,
+                   std::vector<FlavorGroup> const &flavor = {});
 
     /// The built-in Standard Model.
     static Model standardModel();
@@ -95,6 +102,58 @@ class Model {
     /// Creates a Weyl fermion attached to this model. Chirality is "L" or "R".
     Particle weylFermion(std::string const &name,
                          std::string const &chirality);
+
+    /// Creates a Dirac fermion attached to this model.
+    Particle diracFermion(std::string const &name);
+
+    /// Creates a Majorana fermion attached to this model.
+    Particle majoranaFermion(std::string const &name);
+
+    /// Creates a real scalar boson attached to this model.
+    Particle scalarBoson(std::string const &name);
+
+    /// Renames a particle of the model (LookupError if absent, ValueError if
+    /// the new name is already used).
+    void renameParticle(std::string const &name, std::string const &newName);
+
+    /// Recomputes the derived quantities of the model.
+    void refresh();
+
+    /// Adds a term to the Lagrangian; addHermitic also adds its conjugate.
+    void addTerm(csl::Expr const &term, bool addHermitic = false);
+
+    /// Replaces an expression everywhere in the model.
+    void replace(csl::Expr const &oldExpression,
+                 csl::Expr const &newExpression);
+
+    /// Rotates the fields into newFields with the unitary matrix rotation.
+    void rotateFields(std::vector<Particle> const               &fields,
+                      std::vector<Particle> const               &newFields,
+                      std::vector<std::vector<csl::Expr>> const &rotation,
+                      bool diagonalizeMasses = false,
+                      int  nMassLessFields   = 0);
+
+    /// Rotates the left and right fields of a fermion or boson pair.
+    void birotateFields(std::vector<Particle> const &fields1,
+                        std::vector<Particle> const &fields2,
+                        int                          nMassLessFields = 0);
+
+    /// Adds a bosonic mass term for a field.
+    void addBosonicMass(Particle const &field, csl::Expr const &mass);
+
+    /// Adds a fermionic mass term between a left and a right fermion.
+    void addFermionicMass(Particle const  &left,
+                          Particle const  &right,
+                          csl::Expr const &mass);
+
+    /// Adds a Dirac fermion mass term.
+    void addFermionicMass(Particle const &diracFermion, csl::Expr const &mass);
+
+    /// Scalar coupling of the model (LookupError if absent).
+    csl::Expr coupling(std::string const &name) const;
+
+    /// Creates a scalar coupling of the model and returns it.
+    csl::Expr newCoupling(std::string const &name);
 
     /// Adds a particle to the model.
     void addParticle(Particle const &particle);

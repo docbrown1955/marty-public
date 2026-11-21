@@ -18,10 +18,12 @@
 #include "../common/error.h"
 #include "../common/session.h"
 #include "marty/core/fermionicField.h"
+#include "marty/core/scalarField.h"
 #include "marty/models/qed.h"
 #include "marty/models/sm.h"
 
 #include <numeric>
+#include <set>
 #include <sstream>
 
 namespace mty::api::modeling {
@@ -87,14 +89,17 @@ void Particle::setCharge(std::string const &group, int num, int den)
     guarded([&] { m_particle->setGroupRep(group, charge); });
 }
 
-Model::Model(std::vector<GaugeGroup> const &gauge)
+Model::Model(std::vector<GaugeGroup> const  &gauge,
+             std::vector<FlavorGroup> const &flavor)
     : m_state(std::make_shared<detail::ModelState>())
 {
-    std::vector<mty::GaugeGroupSpec> specs;
+    std::vector<mty::GaugeGroupSpec>  specs;
+    std::vector<mty::FlavorGroupSpec> flavorSpecs;
+    std::set<std::string>             names;
     for (auto const &item : gauge) {
         if (!item.group)
             throw ValueError("gauge group \"" + item.name + "\" is null");
-        if (m_state->groups.contains(item.name))
+        if (!names.insert(item.name).second)
             throw ValueError("duplicate gauge group \"" + item.name + "\"");
         mty::GaugeGroupSpec spec;
         spec.type                  = item.group->kind();
@@ -104,9 +109,19 @@ Model::Model(std::vector<GaugeGroup> const &gauge)
         m_state->groups[item.name] = spec.type;
         specs.push_back(spec);
     }
+    for (auto const &item : flavor) {
+        if (item.dim < 1)
+            throw ValueError("flavor group \"" + item.name
+                             + "\" must have at least one flavor");
+        if (!names.insert(item.name).second)
+            throw ValueError("duplicate group \"" + item.name + "\"");
+        flavorSpecs.push_back(
+            mty::FlavorGroupSpec{csl::Expr(item.dim), item.name});
+    }
     m_state->core = guarded([&] {
         Session session(nullptr);
-        return std::make_shared<mty::Model>(std::as_const(specs));
+        return std::make_shared<mty::Model>(std::as_const(specs),
+                                            std::as_const(flavorSpecs));
     });
 }
 
@@ -151,6 +166,157 @@ Particle Model::weylFermion(std::string const &name,
         return std::make_shared<mty::WeylFermion>(name, *m_state->core, chir);
     });
     return Particle(m_state, mty::Particle(field));
+}
+
+Particle Model::diracFermion(std::string const &name)
+{
+    auto field = guarded([&] {
+        Session session(nullptr);
+        return std::make_shared<mty::DiracFermion>(name, *m_state->core);
+    });
+    return Particle(m_state, mty::Particle(field));
+}
+
+Particle Model::majoranaFermion(std::string const &name)
+{
+    auto field = guarded([&] {
+        Session session(nullptr);
+        auto dirac = std::make_shared<mty::DiracFermion>(name, *m_state->core);
+        dirac->setSelfConjugate(true);
+        return dirac;
+    });
+    return Particle(m_state, mty::Particle(field));
+}
+
+Particle Model::scalarBoson(std::string const &name)
+{
+    auto field = guarded([&] {
+        Session session(nullptr);
+        return std::make_shared<mty::ScalarBoson>(name, *m_state->core);
+    });
+    return Particle(m_state, mty::Particle(field));
+}
+
+void Model::renameParticle(std::string const &name, std::string const &newName)
+{
+    auto part = particle(name);
+    if (contains(newName))
+        throw ValueError("a particle named \"" + newName
+                         + "\" already exists");
+    guarded([&] {
+        Session session(m_state->core.get());
+        m_state->core->renameParticle(part.raw(), newName);
+    });
+}
+
+void Model::refresh()
+{
+    guarded([&] {
+        Session session(m_state->core.get());
+        m_state->core->refresh();
+    });
+}
+
+namespace {
+
+std::vector<mty::Particle> rawParticles(std::vector<Particle> const &particles)
+{
+    std::vector<mty::Particle> result;
+    for (auto const &part : particles)
+        result.push_back(part.raw());
+    return result;
+}
+
+} // namespace
+
+void Model::addTerm(csl::Expr const &term, bool addHermitic)
+{
+    guarded([&] {
+        Session session(m_state->core.get());
+        m_state->core->addLagrangianTerm(term, addHermitic);
+    });
+}
+
+void Model::replace(csl::Expr const &oldExpression,
+                    csl::Expr const &newExpression)
+{
+    guarded([&] {
+        Session session(m_state->core.get());
+        m_state->core->replace(oldExpression, newExpression);
+    });
+}
+
+void Model::rotateFields(std::vector<Particle> const               &fields,
+                         std::vector<Particle> const               &newFields,
+                         std::vector<std::vector<csl::Expr>> const &rotation,
+                         bool diagonalizeMasses,
+                         int  nMassLessFields)
+{
+    guarded([&] {
+        Session session(m_state->core.get());
+        m_state->core->rotateFields(rawParticles(fields),
+                                    rawParticles(newFields),
+                                    rotation,
+                                    diagonalizeMasses,
+                                    nMassLessFields);
+    });
+}
+
+void Model::birotateFields(std::vector<Particle> const &fields1,
+                           std::vector<Particle> const &fields2,
+                           int                          nMassLessFields)
+{
+    guarded([&] {
+        Session session(m_state->core.get());
+        m_state->core->birotateFields(
+            rawParticles(fields1), rawParticles(fields2), nMassLessFields);
+    });
+}
+
+void Model::addBosonicMass(Particle const &field, csl::Expr const &mass)
+{
+    guarded([&] {
+        Session session(m_state->core.get());
+        m_state->core->addBosonicMass(field.raw(), mass);
+    });
+}
+
+void Model::addFermionicMass(Particle const  &left,
+                             Particle const  &right,
+                             csl::Expr const &mass)
+{
+    guarded([&] {
+        Session session(m_state->core.get());
+        m_state->core->addFermionicMass(left.raw(), right.raw(), mass);
+    });
+}
+
+void Model::addFermionicMass(Particle const  &diracFermion,
+                             csl::Expr const &mass)
+{
+    guarded([&] {
+        Session session(m_state->core.get());
+        m_state->core->addFermionicMass(diracFermion.raw(), mass);
+    });
+}
+
+csl::Expr Model::coupling(std::string const &name) const
+{
+    return guarded([&] {
+        Session session(m_state->core.get());
+        if (!m_state->core->findScalarCoupling(name))
+            throw LookupError("no coupling named \"" + name + "\"");
+        return m_state->core->getScalarCoupling(name);
+    });
+}
+
+csl::Expr Model::newCoupling(std::string const &name)
+{
+    return guarded([&] {
+        Session session(m_state->core.get());
+        m_state->core->addScalarCoupling(name);
+        return m_state->core->getScalarCoupling(name);
+    });
 }
 
 void Model::addParticle(Particle const &particle)
