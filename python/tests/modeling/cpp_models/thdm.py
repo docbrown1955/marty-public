@@ -234,7 +234,7 @@ def _replace_w_bosons(model: Model) -> None:
     """
     w_1 = model.particle("W_1")
     w_2 = model.particle("W_2")
-    w = w_1.similar("W")
+    w = w_1.create_similar_particle("W")
     w.set_self_conjugate(False)
     mu = Minkowski.index()
     nu = Minkowski.index()

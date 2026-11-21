@@ -29,20 +29,14 @@ toy = Model(
     ],
 )
 
-# Weyl fermions are created unattached, then given their representations
-Q_L = toy.weyl_fermion("Q_L", chirality="L")
-u_R = toy.weyl_fermion("u_R", chirality="R")
-d_R = toy.weyl_fermion("d_R", chirality="R")
-
-Q_L.set_rep("L", 1)
-Q_L.set_rep("Y", Fraction(1, 6))
-u_R.set_rep("Y", Fraction(2, 3))
-d_R.set_rep("Y", Fraction(-1, 3))
-
-toy.add_particle(Q_L)
-toy.add_particle(u_R)
-toy.add_particle(d_R)
-
+# Weyl fermions are added in one call, with their representations
+toy.add_weyl_fermion(
+    "Q_L",
+    chirality="L",
+    gauge_rep={"L": 1, "Y": Fraction(1, 6)},
+)
+toy.add_weyl_fermion("u_R", chirality="R", gauge_rep={"Y": Fraction(2, 3)})
+toy.add_weyl_fermion("d_R", chirality="R", gauge_rep={"Y": Fraction(-1, 3)})
 # Breaking names the resulting particles. Q_L gets explicit names, the other
 # broken particles keep the default names.
 toy.break_gauge_symmetry("Y")

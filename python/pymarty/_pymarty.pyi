@@ -451,7 +451,7 @@ class modeling:
         def expr(self) -> Expr: ...
         def __call__(self, *indices: Index) -> Expr: ...
         def field_strength(self) -> modeling.Particle: ...
-        def similar(self, name: str) -> modeling.Particle: ...
+        def create_similar_particle(self, name: str) -> modeling.Particle: ...
         def set_self_conjugate(self, self_conjugate: bool) -> None: ...
         def ghost_boson(self) -> modeling.Particle: ...
         def set_conjugated_ghost_boson(self, ghost: modeling.Particle) -> None: ...
@@ -501,6 +501,49 @@ class modeling:
         def dirac_fermion(self, name: str) -> modeling.Particle: ...
         def majorana_fermion(self, name: str) -> modeling.Particle: ...
         def scalar_boson(self, name: str) -> modeling.Particle: ...
+        def add_weyl_fermion(
+            self,
+            name: str,
+            chirality: str = "L",
+            *,
+            gauge_rep: dict[str, object] = ...,
+            flavor_rep: str | None = None,
+            self_conjugate: bool = False,
+        ) -> modeling.Particle: ...
+        def add_dirac_fermion(
+            self,
+            name: str,
+            *,
+            gauge_rep: dict[str, object] = ...,
+            flavor_rep: str | None = None,
+            mass: Expr | None = None,
+            self_conjugate: bool = False,
+        ) -> modeling.Particle: ...
+        def add_majorana_fermion(
+            self,
+            name: str,
+            *,
+            gauge_rep: dict[str, object] = ...,
+            flavor_rep: str | None = None,
+            mass: Expr | None = None,
+        ) -> modeling.Particle: ...
+        def add_scalar_boson(
+            self,
+            name: str,
+            *,
+            gauge_rep: dict[str, object] = ...,
+            flavor_rep: str | None = None,
+            mass: Expr | None = None,
+            self_conjugate: bool = True,
+        ) -> modeling.Particle: ...
+        def create_similar_particle(
+            self,
+            name: str,
+            reference: str,
+            *,
+            self_conjugate: bool | None = None,
+            mass: Expr | None = None,
+        ) -> modeling.Particle: ...
         def add_particle(self, particle: modeling.Particle) -> None: ...
         def ghost_boson(
             self, vector_boson: modeling.Particle, name: str, conjugated: bool = False

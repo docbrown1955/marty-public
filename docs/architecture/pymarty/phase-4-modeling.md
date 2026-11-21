@@ -65,7 +65,7 @@ Out of scope: amplitudes (Phase 5), diagrams display (Phase 5), libraries (Phase
 | `m.addParticle(Q)` | `m.add_particle(Q)` |
 | `m.breakGaugeSymmetry("Y")` | `m.break_gauge_symmetry("Y")` |
 | `m.renameParticle("A_L", "W")` | `m.rename_particle("A_L", "W")` |
-| `W_1->getFieldStrength()`, `W_1->generateSimilar("W")` | `W_1.field_strength`, `W_1.similar("W")` |
+| `W_1->getFieldStrength()`, `W_1->generateSimilar("W")` | `W_1.field_strength`, `W_1.create_similar_particle("W")` |
 | `Index mu = MinkowskiIndex();` | `mu = spacetime.minkowski_index()` |
 | `W(mu)`, `W({mu, nu})` | `W(mu)`, `W(mu, nu)` |
 | `GetComplexConjugate(x)` | `x.conjugate()` |

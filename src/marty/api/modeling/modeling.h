@@ -92,7 +92,7 @@ class Particle {
     Particle fieldStrength() const;
 
     /// Particle of the same kind with another name, as a new particle.
-    Particle similar(std::string const &name) const;
+    Particle createSimilarParticle(std::string const &name) const;
 
     void setSelfConjugate(bool selfConjugate);
 

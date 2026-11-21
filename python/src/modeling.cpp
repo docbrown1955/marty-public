@@ -126,6 +126,41 @@ csl::Expr exprOf(py::handle value)
     return py::cast<ExprHandle const &>(value).raw();
 }
 
+// Adds a mass term of a model particle: a bosonic mass for an integer spin,
+// the Dirac mass term otherwise.
+void addMassOf(modeling::Model          &self,
+               modeling::Particle const &particle,
+               ExprHandle const         &mass)
+{
+    if (particle.spin().den == 1)
+        self.addBosonicMass(particle, mass.raw());
+    else
+        self.addFermionicMass(particle, mass.raw());
+}
+
+// Configures a new particle, then adds it to the model. None leaves the
+// default of the particle kind unchanged.
+modeling::Particle addField(modeling::Model   &self,
+                            modeling::Particle particle,
+                            py::dict const    &gaugeRep,
+                            py::object const  &flavorRep,
+                            py::object const  &selfConjugate,
+                            py::object const  &mass)
+{
+    if (!selfConjugate.is_none())
+        particle.setSelfConjugate(selfConjugate.cast<bool>());
+    for (auto item : gaugeRep)
+        setRep(particle,
+               item.first.cast<std::string>(),
+               py::reinterpret_borrow<py::object>(item.second));
+    if (!flavorRep.is_none())
+        particle.setFundamentalFlavorRep(flavorRep.cast<std::string>());
+    self.addParticle(particle);
+    if (!mass.is_none())
+        addMassOf(self, particle, mass.cast<ExprHandle const &>());
+    return particle;
+}
+
 using Renaming = std::map<std::string, std::vector<std::string>>;
 
 /// Parses renaming: "default" gives an empty map, a dict gives the renaming.
@@ -270,10 +305,11 @@ void bindModeling(py::module_ &m)
         .def("field_strength",
              &modeling::Particle::fieldStrength,
              "Field strength tensor of the particle, as a new particle.")
-        .def("similar",
-             &modeling::Particle::similar,
+        .def("create_similar_particle",
+             &modeling::Particle::createSimilarParticle,
              py::arg("name"),
-             "Particle of the same kind with another name, as a new particle.")
+             "Particle of the same kind with another name, as a new particle "
+             "not yet added to a model.")
         .def("set_self_conjugate",
              &modeling::Particle::setSelfConjugate,
              py::arg("self_conjugate"),
@@ -396,6 +432,120 @@ rule, negative indices count from the end.)doc")
              &modeling::Model::scalarBoson,
              py::arg("name"),
              "Unattached real scalar boson.")
+        .def(
+            "add_weyl_fermion",
+            [](modeling::Model   &self,
+               std::string const &name,
+               std::string const &chirality,
+               py::dict const    &gaugeRep,
+               py::object const  &flavorRep,
+               py::object const  &selfConjugate) {
+                return addField(self,
+                                self.weylFermion(name, chirality),
+                                gaugeRep,
+                                flavorRep,
+                                selfConjugate,
+                                py::none());
+            },
+            py::arg("name"),
+            py::arg("chirality") = "L",
+            py::kw_only(),
+            py::arg("gauge_rep")      = py::dict(),
+            py::arg("flavor_rep")     = py::none(),
+            py::arg("self_conjugate") = false,
+            "Adds a Weyl fermion, chirality \"L\" or \"R\", with its gauge "
+            "and flavor representations. Its mass is set by "
+            "add_fermionic_mass.")
+        .def(
+            "add_dirac_fermion",
+            [](modeling::Model   &self,
+               std::string const &name,
+               py::dict const    &gaugeRep,
+               py::object const  &flavorRep,
+               py::object const  &mass,
+               py::object const  &selfConjugate) {
+                return addField(self,
+                                self.diracFermion(name),
+                                gaugeRep,
+                                flavorRep,
+                                selfConjugate,
+                                mass);
+            },
+            py::arg("name"),
+            py::kw_only(),
+            py::arg("gauge_rep")      = py::dict(),
+            py::arg("flavor_rep")     = py::none(),
+            py::arg("mass")           = py::none(),
+            py::arg("self_conjugate") = false,
+            "Adds a Dirac fermion, with its gauge and flavor representations "
+            "and optional Dirac mass.")
+        .def(
+            "add_majorana_fermion",
+            [](modeling::Model   &self,
+               std::string const &name,
+               py::dict const    &gaugeRep,
+               py::object const  &flavorRep,
+               py::object const  &mass) {
+                return addField(self,
+                                self.majoranaFermion(name),
+                                gaugeRep,
+                                flavorRep,
+                                py::none(),
+                                mass);
+            },
+            py::arg("name"),
+            py::kw_only(),
+            py::arg("gauge_rep")  = py::dict(),
+            py::arg("flavor_rep") = py::none(),
+            py::arg("mass")       = py::none(),
+            "Adds a Majorana fermion (self-conjugate Dirac fermion), with its "
+            "gauge and flavor representations and optional mass.")
+        .def(
+            "add_scalar_boson",
+            [](modeling::Model   &self,
+               std::string const &name,
+               py::dict const    &gaugeRep,
+               py::object const  &flavorRep,
+               py::object const  &mass,
+               py::object const  &selfConjugate) {
+                return addField(self,
+                                self.scalarBoson(name),
+                                gaugeRep,
+                                flavorRep,
+                                selfConjugate,
+                                mass);
+            },
+            py::arg("name"),
+            py::kw_only(),
+            py::arg("gauge_rep")      = py::dict(),
+            py::arg("flavor_rep")     = py::none(),
+            py::arg("mass")           = py::none(),
+            py::arg("self_conjugate") = true,
+            "Adds a scalar boson, real by default, with its gauge and flavor "
+            "representations and optional mass.")
+        .def(
+            "create_similar_particle",
+            [](modeling::Model   &self,
+               std::string const &name,
+               std::string const &reference,
+               py::object const  &selfConjugate,
+               py::object const  &mass) {
+                return addField(
+                    self,
+                    self.particle(reference).createSimilarParticle(name),
+                    py::dict(),
+                    py::none(),
+                    selfConjugate,
+                    mass);
+            },
+            py::arg("name"),
+            py::arg("reference"),
+            py::kw_only(),
+            py::arg("self_conjugate") = py::none(),
+            py::arg("mass")           = py::none(),
+            "Adds a particle of the same kind as reference, with another "
+            "name. "
+            "Its representations are those of the reference.")
         .def("add_particle",
              &modeling::Model::addParticle,
              py::arg("particle"),

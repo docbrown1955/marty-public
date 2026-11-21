@@ -202,7 +202,7 @@ def _diagonalize_2x2(model: Model) -> None:
 def _replace_w_bosons(model: Model) -> None:
     W1 = model.particle("W_1")
     W2 = model.particle("W_2")
-    W = W1.similar("W")
+    W = W1.create_similar_particle("W")
     W.set_self_conjugate(False)
     model.add_particle(W)
 

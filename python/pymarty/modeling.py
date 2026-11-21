@@ -1,9 +1,14 @@
 """Model building: gauge groups, particles and breaking.
 
-``Model`` is built from its gauge groups in one call. Its weyl fermions are
-created unattached, given their representations with ``Particle.set_rep``,
-then added with ``Model.add_particle``. Breaking a gauge group names the
-particles it produces; ``renaming`` gives explicit names to some of them.
+``Model`` is built from its gauge groups in one call. Fermions and bosons are
+added with ``Model.add_weyl_fermion``, ``add_dirac_fermion``,
+``add_majorana_fermion`` and ``add_scalar_boson``, which take their gauge and
+flavor representations, self-conjugacy and mass as keyword arguments.
+``Model.create_similar_particle`` adds a particle of the kind of another one.
+``Particle.set_rep`` and ``set_self_conjugate`` remain for particles created
+unattached (e.g. by ``Particle.create_similar_particle``). Breaking a gauge
+group names the particles it produces; ``renaming`` gives explicit names to
+some of them.
 See ``examples/usage/modeling.py`` for a complete model.
 """
 

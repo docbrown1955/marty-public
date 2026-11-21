@@ -59,7 +59,7 @@ non-template overloads of `addGaugedGroup`.
 |--------|----------|
 | `modelingTypes.h` | `enum class GroupKind {U, SU, SO, Sp, ...}` (only kinds the core supports), `enum class ModelKind {QED, SM}`, `Chirality` reuse |
 | `modelHandle.h` | `ModelHandle`: owns `shared_ptr<mty::Model>`, wraps every call in `mty::api::Session`. Constructor takes a list of gauge group descriptors and a list of flavor group descriptors, declares them, calls `init`, then renames the bosons. Exposes `refresh`, `add_particle`, `particle`, `add_term`, `replace`, `break_gauge_symmetry`, `rotate_fields`, `birotate_fields`, `add_bosonic_mass`, `add_fermionic_mass`, `coupling`. `rename_particle` stays internal (used for bosons, and exposed as a method for particles) |
-| `particleHandle.h` | `ParticleHandle`: holds the `Particle` (`shared_ptr`) and its `ModelHandle` (keeps the model alive); `set_rep`, `set_mass`, `set_flavor_rep`, `set_self_conjugate`, `similar(name)`, `field_strength` |
+| `particleHandle.h` | `ParticleHandle`: holds the `Particle` (`shared_ptr`) and its `ModelHandle` (keeps the model alive); `set_rep`, `set_mass`, `set_flavor_rep`, `set_self_conjugate`, `create_similar_particle(name)`, `field_strength` |
 | `spacetime.h` | Minkowski and Dirac index factories and `gamma`, `P_L`, `P_R` (built on the `csl` tensor API, Phase 1) |
 | `feynmanRules.h` | `feynman_rules(model)`: immutable vector of rule handles, computed on first use under a `Session`; LaTeX output |
 | `models.h` | `make_model(ModelKind)`: `QED_Model`, `SM_Model` construction, each in a `Session` |

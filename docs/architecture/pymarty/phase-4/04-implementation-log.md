@@ -68,3 +68,13 @@ Checks: `pytest -m "not slow"` on `tests/modeling` and `test_usage_examples.py` 
 | `pytest -m "not slow"` on `tests/modeling` and `tests/test_usage_examples.py` | 24 passed | 4.6 s |
 | `pytest -m "not slow"` on `tests/modeling/test_ports.py` | 3 passed | 1.7 s |
 | `sampleSMFeynmanRulesLatex.x` (C++ reference run) | 190 rules | about 1.7 s |
+
+### One-call model builders
+
+- `Model.add_weyl_fermion`, `add_dirac_fermion`, `add_majorana_fermion` and `add_scalar_boson` create the field and attach it in one call (`addField` in `python/src/modeling.cpp`). Arguments: `gauge_rep` (dict), `flavor_rep` (one flavour-group name), `mass` (`Expr`) and `self_conjugate`. Only the name is required.
+- Defaults: scalars are self-conjugate (real). Dirac and Weyl are not. Majorana is always self-conjugate, so it has no `self_conjugate` argument.
+- Decision: Weyl fermions take no `mass` argument. Use `add_fermionic_mass`.
+- Decision: the unattached factories (`weyl_fermion`, `dirac_fermion`, `majorana_fermion`, `scalar_boson`) and the setters (`set_rep`, `set_self_conjugate`, `set_fundamental_flavor_rep`) stay public. The partial model recreations still use them.
+- `Particle.similar` is renamed `Particle.create_similar_particle`. It stays unattached. `Model.create_similar_particle(name, reference, *, self_conjugate=None, mass=None)` attaches the result.
+- Deferred: migrating the remaining recreations (mssm, nmfv, pmssm, thdm, gthdm, sm, qed, qcd) to the builders. The `test_ports.py` and example call sites were migrated.
+- Gap: there is no Python getter for self-conjugacy, so tests cannot read it back. Adding one needs a facade getter (`Particle::isSelfConjugate`), which was not added in this round.

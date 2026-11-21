@@ -143,7 +143,7 @@ Particle Particle::fieldStrength() const
     return Particle(m_state, field);
 }
 
-Particle Particle::similar(std::string const &name) const
+Particle Particle::createSimilarParticle(std::string const &name) const
 {
     auto field = guarded([&] {
         Session session(m_state->core.get());

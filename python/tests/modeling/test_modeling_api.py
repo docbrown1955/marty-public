@@ -8,6 +8,7 @@ from pymarty import models
 from pymarty.errors import MartyError, MartyLookupError, MartyTypeError, MartyValueError
 from pymarty.group_theory import SU, U
 from pymarty.modeling import FlavorGroup, GaugeGroup, Model
+from pymarty.symbolic import constant
 
 
 def make_toy() -> Model:
@@ -223,3 +224,31 @@ def test_particle_without_ghost_is_type_error() -> None:
     fermion = toy.weyl_fermion("F", chirality="L")
     with pytest.raises(MartyTypeError):
         fermion.ghost_boson()
+
+
+@pytest.mark.unit
+def test_dirac_builder_attaches_particle_with_mass_and_reps() -> None:
+    toy = make_toy()
+    toy.add_dirac_fermion(
+        "psi",
+        gauge_rep={"L": 1, "Y": Fraction(1, 6)},
+        mass=constant("m_psi"),
+        self_conjugate=False,
+    )
+    assert "psi" in toy
+
+
+@pytest.mark.unit
+def test_builder_rejects_unknown_group_in_gauge_rep() -> None:
+    toy = make_toy()
+    with pytest.raises(MartyLookupError):
+        toy.add_weyl_fermion("Q", gauge_rep={"NoSuchGroup": 1})
+    assert "Q" not in toy
+
+
+@pytest.mark.unit
+def test_create_similar_particle_attaches_to_model() -> None:
+    toy = make_toy()
+    toy.add_scalar_boson("phi", gauge_rep={"L": 1})
+    toy.create_similar_particle("phi2", reference="phi", self_conjugate=False)
+    assert {"phi", "phi2"} <= {p.name for p in toy.particles}
