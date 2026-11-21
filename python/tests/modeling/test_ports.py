@@ -213,7 +213,7 @@ def make_getting_started_model() -> Model:
     toy.add_bosonic_mass(toy.particle("W"), constant("M_W"))
     toy.add_fermionic_mass(toy.particle("u_L"), toy.particle("u_R"), constant("m_u"))
     toy.add_fermionic_mass(toy.particle("d_L"), toy.particle("d_R"), constant("m_d"))
-    toy.refresh()
+    toy.finalize()
     return toy
 
 
@@ -295,7 +295,7 @@ def make_simple_spectrum_model() -> Model:
     toy.replace(F_VD_2(mu, nu), I * (VW(mu, nu) - cc(VW(mu, nu))) / sqrt(2))
     toy.promote_to_goldstone("php", "VW")
     toy.promote_to_goldstone("phI", "VZ")
-    toy.refresh()
+    toy.finalize()
     return toy
 
 

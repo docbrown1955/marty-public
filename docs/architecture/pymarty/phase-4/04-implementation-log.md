@@ -91,3 +91,13 @@ Checks: `pytest -m "not slow"` on `tests/modeling` and `test_usage_examples.py` 
 - Decision: `Model.vector_space(flavor)` exposes the index space of a flavour group, for building Yukawa tensors. `SpaceHandle`'s constructor from a `Space` is now public in `src/csl/api/tensor.h`.
 - Not exposed: `gatherMasses`, which `refresh()` already calls.
 - Open: the SM, THDM, GTHDM, MSSM, PMSSM and NMFV ports are not done. They need facade primitives for mass-matrix diagonalisation, `set_mass`, scalar-coupling lookup, CKM construction, and Goldstone promotion with gauge fixing.
+
+### Gap closure: primitives, renames and SM port
+
+- Added `Model.diagonalize_mass_matrices()` (facade `diagonalizeMassMatrices`) and `Model.build_ckm(flavor)` (facade `buildCkm`). `build_ckm` returns a `TensorHandle` with spaces `{space, space}`.
+- Added `pymarty.symbolic.diagonal_tensor(name, space, entries)`, backed by the C++ helper `diagonalTensor` in `src/csl/api/tensor.cpp`. Decision: diagonal mass matrices use numeric entries, not delta sums. Delta-sum diagonals trigger the "mixings in mass terms" warning in `gatherMass` (`src/marty/core/modelBuilder.cpp`).
+- Decision: `new_coupling` is renamed `create_coupling`, and `ghost_boson` is renamed `create_ghost_boson(name, vector_boson, *, conjugated=False)`. Both match the builder naming, with the name first.
+- Decision: `Model.refresh()` is removed from the Python surface. `finalize()` runs the refresh internally, so the recreations and tests call `finalize()` at the end of their builders. The C++ facade method stays.
+- Decision: `standard_model()`, `qed()` and `renamed_indices()` are module-level functions, not Model static methods.
+- Decision: `compute_amplitude`, `compute_squared_amplitude` and `build_ckm` stay on Model, since Phase 5 needs them.
+- SM port (`tests/modeling/cpp_models/sm.py`): particle names match `models.SM()`. The Feynman-rule test is still an xfail: 176 rules against 190. The missing parts are W/Z mass setting and gauge fixing, from `src/marty/models/sm.cpp` lines 52-53. This attribution is not confirmed.

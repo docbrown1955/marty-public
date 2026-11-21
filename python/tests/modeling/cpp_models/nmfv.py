@@ -119,5 +119,5 @@ def _add_higgs(model: Model) -> None:
     model.add_weyl_fermion(
         "sHd", chirality="L", gauge_rep={"L": 1, "Y": Fraction(-1, 2)}
     )
-    model.add_bosonic_mass(Hu, model.new_coupling("m_sHu"))
-    model.add_bosonic_mass(Hd, model.new_coupling("m_sHd"))
+    model.add_bosonic_mass(Hu, model.create_coupling("m_sHu"))
+    model.add_bosonic_mass(Hd, model.create_coupling("m_sHd"))

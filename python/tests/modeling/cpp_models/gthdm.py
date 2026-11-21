@@ -221,5 +221,5 @@ def build() -> Model:
     _replace_w_bosons(model)
     _diagonalize_2x2(model)
     model.promote_to_goldstone("Gp", "W")
-    model.refresh()
+    model.finalize()
     return model

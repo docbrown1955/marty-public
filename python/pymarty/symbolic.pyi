@@ -27,6 +27,7 @@ from pymarty._pymarty import constant as constant
 from pymarty._pymarty import cos as cos
 from pymarty._pymarty import cosh as cosh
 from pymarty._pymarty import delta as delta
+from pymarty._pymarty import diagonal_tensor as diagonal_tensor
 from pymarty._pymarty import e as e
 from pymarty._pymarty import epsilon as epsilon
 from pymarty._pymarty import exp as exp
@@ -86,6 +87,7 @@ __all__ = [
     "cos",
     "cosh",
     "delta",
+    "diagonal_tensor",
     "e",
     "epsilon",
     "exp",

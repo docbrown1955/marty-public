@@ -1125,6 +1125,23 @@ Real by default.
 True
 )doc");
 
+    m.def(
+        "diagonal_tensor",
+        [](std::string const             &name,
+           SpaceHandle const             &space,
+           std::vector<ExprHandle> const &diagonal) {
+            return diagonalTensor(name, space, diagonal);
+        },
+        py::arg("name"),
+        py::arg("space"),
+        py::arg("diagonal"),
+        R"doc(Square tensor on a space, with the given diagonal and zero off-diagonal
+entries. Call it with two indices of the space to get an element.
+
+Unlike a sum of Kronecker deltas, the core sees this tensor as a numerical
+diagonal matrix, as in the C++ models.
+)doc");
+
     py::class_<TensorFieldHandle>(
         m,
         "TensorField",

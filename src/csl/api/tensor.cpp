@@ -21,6 +21,8 @@
 
 #include "tensor.h"
 
+#include "../vector.h" // csl::diagonal_s
+
 #include <algorithm>
 #include <cstdlib>
 #include <set>
@@ -398,6 +400,32 @@ TensorHandle::TensorHandle(std::string const              &name,
       m_tensor(makeTensor(
           name, m_spaces, symmetric, antisymmetric, complexProperty))
 {
+}
+
+TensorHandle::TensorHandle(csl::Tensor tensor, std::vector<SpaceHandle> spaces)
+    : m_spaces(std::move(spaces)), m_tensor(std::move(tensor))
+{
+}
+
+TensorHandle diagonalTensor(std::string const             &name,
+                            SpaceHandle const             &space,
+                            std::vector<ExprHandle> const &diagonal)
+{
+    if (diagonal.size() != static_cast<std::size_t>(space.dimension()))
+        throw ValueError("diagonal tensor " + name + ": expected "
+                         + std::to_string(space.dimension())
+                         + " diagonal entries, got "
+                         + std::to_string(diagonal.size()));
+
+    csl::vector_expr entries;
+    for (auto const &value : diagonal)
+        entries.push_back(value.raw());
+
+    return detail::guarded("diagonal tensor creation", [&] {
+        csl::Tensor tensor = csl::tensor_s(
+            name, {&space.raw(), &space.raw()}, csl::diagonal_s(entries));
+        return TensorHandle(tensor, {space, space});
+    });
 }
 
 std::size_t TensorHandle::rank() const

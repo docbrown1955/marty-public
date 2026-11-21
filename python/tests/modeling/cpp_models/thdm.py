@@ -56,7 +56,7 @@ def build() -> Model:
     _diagonalize_2by2(model)
     _replace_w_bosons(model)
     _adjust(model)
-    model.refresh()
+    model.finalize()
     return model
 
 

@@ -167,6 +167,10 @@ class TensorHandle {
                  csl::ComplexProperty            complexProperty
                  = csl::ComplexProperty::Real);
 
+    /*! \brief Wraps an existing CSL tensor whose index positions have the
+     * spaces \p spaces (for example a tensor returned by the model). */
+    TensorHandle(csl::Tensor tensor, std::vector<SpaceHandle> spaces);
+
     [[nodiscard]] std::size_t rank() const;
 
     /*! \brief Name of the tensor. */
@@ -189,6 +193,13 @@ class TensorHandle {
     std::vector<SpaceHandle> m_spaces;
     csl::Tensor              m_tensor;
 };
+
+/*! \brief Square tensor on the space \p space, with the given diagonal and
+ * zero off-diagonal entries (as a numerical matrix, so that the core can see
+ * it is diagonal). */
+TensorHandle diagonalTensor(std::string const             &name,
+                            SpaceHandle const             &space,
+                            std::vector<ExprHandle> const &diagonal);
 
 /*! \brief Tensor field: a tensor that depends on a point of a space.
  *

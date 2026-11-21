@@ -199,6 +199,12 @@ class Model {
     /// Index space of a flavor group, to build tensors on (e.g. Yukawas).
     csl::api::SpaceHandle vectorSpace(std::string const &flavor) const;
 
+    /// Diagonalizes the bosonic and fermionic mass matrices where possible.
+    void diagonalizeMassMatrices();
+
+    /// Unitary CKM matrix on the vector space of a flavor group.
+    csl::Tensor buildCkm(std::string const &flavor);
+
     /// Adds a term to the Lagrangian; addHermitic also adds its conjugate.
     void addTerm(csl::Expr const &term, bool addHermitic = false);
 

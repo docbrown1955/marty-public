@@ -7,6 +7,7 @@ The ``Expr`` methods transform expressions: ``expand()``, ``factor()``,
 
 Indices and tensors: ``Space`` creates indices, ``tensor()`` creates tensors,
 and ``delta``, ``metric`` and ``epsilon`` are the built-in tensors.
+``diagonal_tensor()`` builds a rank-2 tensor from its diagonal entries.
 ``tensor_field()`` and ``tensor_derivative()`` build tensor fields and their
 derivatives with respect to a point tensor.
 ``Expr.relabel_indices()`` renames the indices of an expression. ``Minkowski`` and
@@ -51,6 +52,7 @@ from pymarty._pymarty import (
     cos,
     cosh,
     delta,
+    diagonal_tensor,
     e,
     epsilon,
     exp,
@@ -118,6 +120,7 @@ __all__ = [
     "cos",
     "cosh",
     "delta",
+    "diagonal_tensor",
     "distribute_if",
     "e",
     "epsilon",

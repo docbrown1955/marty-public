@@ -93,13 +93,15 @@ def test_flavor_group_needs_a_flavor() -> None:
 
 
 @pytest.mark.parity("ModelingApi.ParticleFactoriesAndRefresh")
-def test_particle_factories_and_refresh() -> None:
+def test_particle_factories_and_finalize() -> None:
     toy = make_toy()
     toy.add_scalar_boson("phi", self_conjugate=False)
     toy.add_majorana_fermion("chi")
     assert "phi" in toy
     assert "chi" in toy
-    toy.refresh()
+    assert not toy.is_finalized()
+    toy.finalize()
+    assert toy.is_finalized()
 
 
 @pytest.mark.parity("ModelingApi.CouplingIsCreatedThenFound")
@@ -107,7 +109,7 @@ def test_coupling_is_created_then_found() -> None:
     toy = make_toy()
     with pytest.raises(MartyLookupError):
         toy.coupling("g")
-    created = toy.new_coupling("g")
+    created = toy.create_coupling("g")
     assert toy.coupling("g") == created
 
 
@@ -131,8 +133,8 @@ def test_mass_and_rotation_reject_inconsistent_input() -> None:
     phi = toy.add_scalar_boson("phi", self_conjugate=False)
     qL = toy.add_weyl_fermion("Q_L", chirality="L")
     qR = toy.add_weyl_fermion("Q_R", chirality="R")
-    toy.add_bosonic_mass(phi, toy.new_coupling("m"))
-    toy.add_fermionic_mass(qL, qR, toy.new_coupling("y"))
+    toy.add_bosonic_mass(phi, toy.create_coupling("m"))
+    toy.add_fermionic_mass(qL, qR, toy.create_coupling("y"))
     with pytest.raises(MartyError):
         toy.rotate_fields([phi], [phi, qL], [[]])
 
@@ -212,7 +214,7 @@ def test_ghost_bosons_are_created_and_linked() -> None:
     toy = make_toy()
     boson = toy.particle("W")
     assert boson.ghost_boson().name == "c_W"
-    conjugated = toy.ghost_boson(boson, "c_Wm", conjugated=True)
+    conjugated = toy.create_ghost_boson("c_Wm", boson, conjugated=True)
     assert conjugated.name == "c_Wm"
     boson.set_conjugated_ghost_boson(conjugated)
 
@@ -294,3 +296,8 @@ def test_vector_space_builds_tensor_coupling() -> None:
     toy.add_tensor_coupling(yukawa)
     toy.finalize()
     assert toy.is_finalized()
+
+
+def test_build_ckm_unknown_flavor_is_lookup_error() -> None:
+    with pytest.raises(MartyLookupError):
+        make_toy().build_ckm("no_such_flavor")

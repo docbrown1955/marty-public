@@ -538,13 +538,19 @@ rule, negative indices count from the end.)doc")
              &modeling::Model::addParticle,
              py::arg("particle"),
              "Adds a particle to the model.")
-        .def("ghost_boson",
-             &modeling::Model::ghostBoson,
-             py::arg("vector_boson"),
-             py::arg("name"),
-             py::arg("conjugated") = false,
-             "Ghost boson of a vector boson with the given name, as a new "
-             "particle.")
+        .def(
+            "create_ghost_boson",
+            [](modeling::Model          &self,
+               std::string const        &name,
+               modeling::Particle const &vectorBoson,
+               bool                      conjugated) {
+                return self.ghostBoson(vectorBoson, name, conjugated);
+            },
+            py::arg("name"),
+            py::arg("vector_boson"),
+            py::kw_only(),
+            py::arg("conjugated") = false,
+            "Creates the ghost boson of a vector boson, with the given name.")
         .def("particle",
              &modeling::Model::particle,
              py::arg("name"),
@@ -564,9 +570,6 @@ rule, negative indices count from the end.)doc")
         .def_property_readonly("feynman_rules",
                                &modeling::Model::feynmanRules,
                                "Lazy view on the Feynman rules of the model.")
-        .def("refresh",
-             &modeling::Model::refresh,
-             "Recomputes the derived quantities of the model.")
         .def("finalize",
              &modeling::Model::finalize,
              "Completes the model and freezes it: builders and mutators then "
@@ -580,13 +583,25 @@ rule, negative indices count from the end.)doc")
                 self.addTensorCoupling(tensor.raw());
             },
             py::arg("tensor"),
-            "Adds a tensor, built with pymarty.symbolic.tensor, as a tensorial "
+            "Adds a tensor, built with pymarty.symbolic.tensor, as a "
+            "tensorial "
             "coupling constant of the model.")
         .def("vector_space",
              &modeling::Model::vectorSpace,
              py::arg("flavor"),
              "Index space of a flavor group, to build tensors on, for example "
              "Yukawa couplings.")
+        .def("diagonalize_mass_matrices",
+             &modeling::Model::diagonalizeMassMatrices,
+             "Diagonalizes the mass matrices of the model where possible.")
+        .def(
+            "build_ckm",
+            [](modeling::Model &self, std::string const &flavor) {
+                auto space = self.vectorSpace(flavor);
+                return TensorHandle(self.buildCkm(flavor), {space, space});
+            },
+            py::arg("flavor"),
+            "Unitary CKM matrix on the vector space of a flavor group.")
         .def(
             "add_term",
             [](modeling::Model  &self,
@@ -730,7 +745,7 @@ rule, negative indices count from the end.)doc")
             py::arg("name"),
             "Scalar coupling of the model (LookupError if absent).")
         .def(
-            "new_coupling",
+            "create_coupling",
             [](modeling::Model &self, std::string const &name) {
                 return ExprHandle(self.newCoupling(name));
             },
