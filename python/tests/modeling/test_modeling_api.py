@@ -4,7 +4,6 @@ from fractions import Fraction
 
 import pytest
 
-from pymarty import models
 from pymarty.errors import (
     MartyError,
     MartyLookupError,
@@ -109,7 +108,7 @@ def test_coupling_is_created_then_found() -> None:
     toy = make_toy()
     with pytest.raises(MartyLookupError):
         toy.coupling("g")
-    created = toy.create_coupling("g")
+    created = toy.add_coupling("g")
     assert toy.coupling("g") == created
 
 
@@ -133,51 +132,10 @@ def test_mass_and_rotation_reject_inconsistent_input() -> None:
     phi = toy.add_scalar_boson("phi", self_conjugate=False)
     qL = toy.add_weyl_fermion("Q_L", chirality="L")
     qR = toy.add_weyl_fermion("Q_R", chirality="R")
-    toy.add_bosonic_mass(phi, toy.create_coupling("m"))
-    toy.add_fermionic_mass(qL, qR, toy.create_coupling("y"))
+    toy.add_bosonic_mass(phi, toy.add_coupling("m"))
+    toy.add_fermionic_mass(qL, qR, toy.add_coupling("y"))
     with pytest.raises(MartyError):
         toy.rotate_fields([phi], [phi, qL], [[]])
-
-
-@pytest.mark.parity("ModelingApi.QedMatchesCoreParticlesAndRules")
-def test_qed_matches_core_particles_and_rules() -> None:
-    qed = models.QED()
-    assert [p.name for p in qed.particles] == [
-        "A",
-        "c_A",
-        "\\psi",
-        "\\psi_L",
-        "\\psi_R",
-    ]
-    assert len(qed.feynman_rules) == 1
-
-
-@pytest.mark.parity("ModelingApi.StandardModelMatchesCoreParticlesAndRules")
-def test_standard_model_matches_core_particles_and_rules() -> None:
-    sm = models.SM()
-    assert len(sm.particles) == 42
-    assert len(sm.feynman_rules) == 190
-
-
-@pytest.mark.parity("ModelingApi.LatexMatchesExistingTests")
-def test_latex_matches_existing_tests() -> None:
-    rules = models.QED().feynman_rules
-    document = rules.latex_document()
-    headers = [
-        line for line in document.splitlines() if line.startswith("Feynman vertex for ")
-    ]
-    assert len(headers) == len(rules)
-    assert rules.latex(0).count("\\vertex") == 9
-
-
-@pytest.mark.parity("ModelingApi.FeynmanRuleIndexOutOfRangeIsLookupError")
-def test_feynman_rule_index_out_of_range_is_lookup_error() -> None:
-    rules = models.QED().feynman_rules
-    with pytest.raises(MartyLookupError):
-        rules[len(rules)]
-    with pytest.raises(MartyLookupError):
-        rules.latex(len(rules))
-    assert rules[-1] == rules[0]
 
 
 def make_flavored_model() -> Model:
@@ -214,7 +172,7 @@ def test_ghost_bosons_are_created_and_linked() -> None:
     toy = make_toy()
     boson = toy.particle("W")
     assert boson.ghost_boson().name == "c_W"
-    conjugated = toy.create_ghost_boson("c_Wm", boson, conjugated=True)
+    conjugated = toy.add_ghost_boson("c_Wm", boson, conjugated=True)
     assert conjugated.name == "c_Wm"
     boson.set_conjugated_ghost_boson(conjugated)
 
@@ -248,10 +206,10 @@ def test_builder_rejects_unknown_group_in_gauge_rep() -> None:
 
 
 @pytest.mark.unit
-def test_create_similar_particle_attaches_to_model() -> None:
+def test_add_similar_particle_attaches_to_model() -> None:
     toy = make_toy()
     toy.add_scalar_boson("phi", gauge_rep={"L": 1})
-    toy.create_similar_particle("phi2", reference="phi", self_conjugate=False)
+    toy.add_similar_particle("phi2", reference="phi", self_conjugate=False)
     assert {"phi", "phi2"} <= {p.name for p in toy.particles}
 
 
@@ -262,7 +220,7 @@ def test_is_self_conjugate_reflects_builder_flags() -> None:
     complex_ = toy.add_scalar_boson("chi", gauge_rep={"L": 1}, self_conjugate=False)
     assert real.is_self_conjugate()
     assert not complex_.is_self_conjugate()
-    assert not toy.create_similar_particle(
+    assert not toy.add_similar_particle(
         "chi2", reference="chi", self_conjugate=False
     ).is_self_conjugate()
 
@@ -296,8 +254,3 @@ def test_vector_space_builds_tensor_coupling() -> None:
     toy.add_tensor_coupling(yukawa)
     toy.finalize()
     assert toy.is_finalized()
-
-
-def test_build_ckm_unknown_flavor_is_lookup_error() -> None:
-    with pytest.raises(MartyLookupError):
-        make_toy().build_ckm("no_such_flavor")

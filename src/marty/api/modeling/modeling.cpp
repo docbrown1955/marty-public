@@ -19,7 +19,6 @@
 #include "../common/session.h"
 #include "csl/replace.h"
 #include "marty/core/amplitude.h"
-#include "marty/core/ckm.h"
 #include "marty/core/fermionicField.h"
 #include "marty/core/ghostField.h"
 #include "marty/core/mrtInterface.h"
@@ -416,21 +415,6 @@ void Model::diagonalizeMassMatrices()
     guarded([&] {
         Session session(m_state->core.get());
         m_state->core->diagonalizeMassMatrices();
-    });
-}
-
-csl::Tensor Model::buildCkm(std::string const &flavor)
-{
-    checkOpen(*m_state, "build the CKM matrix");
-    auto space = guarded([&] {
-        Session session(m_state->core.get());
-        return m_state->core->getVectorSpace(flavor);
-    });
-    if (!space)
-        throw LookupError("no flavor group named \"" + flavor + "\"");
-    return guarded([&] {
-        Session session(m_state->core.get());
-        return mty::buildCKM(space);
     });
 }
 

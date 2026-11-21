@@ -1,26 +1,18 @@
 """Python ports of the model parts of the C++ examples.
 
-``gettingStarted``, ``sampleSMFeynmanRulesLatex`` and the model part of
-``simpleSpectrum`` are ported here. The expected values come from running the
-C++ examples in the same build: the 12 particles of the toy model before the
-symmetry breaking, the 13 particles after the full toy model, 6 diagrams for
-the amplitude, and the 190 Feynman rules of the Standard Model. The C++
-examples also display, draw and build libraries; those steps are not ported.
+``gettingStarted`` and the model part of ``simpleSpectrum`` are ported here.
+The expected values come from running the C++ examples in the same build: the
+12 particles of the toy model before the symmetry breaking and the 13 particles
+after the full toy model. The C++ examples also display, draw, build libraries
+and compute amplitudes; those steps are not ported.
 """
 
 from fractions import Fraction
 
-from pymarty import models
+from cpp_models.sm import build as build_sm
+
 from pymarty.group_theory import SU, U
-from pymarty.modeling import (
-    FlavorGroup,
-    GaugeGroup,
-    Leg,
-    Model,
-    Order,
-    dirac_index,
-    renamed_indices,
-)
+from pymarty.modeling import FlavorGroup, GaugeGroup, Model
 from pymarty.symbolic import Expr, I, Minkowski, constant, cos, sin, sqrt
 
 # Particle names printed by examples/gettingStarted.cpp (first half)
@@ -55,12 +47,6 @@ CPP_GETTING_STARTED_PARTICLES = {
     "u_L",
     "u_R",
 }
-
-# Number of diagrams of the u ubar -> d dbar tree-level amplitude
-CPP_GETTING_STARTED_DIAGRAMS = 6
-
-# Number of Feynman rules printed by examples/sampleSMFeynmanRulesLatex.cpp
-CPP_SM_FEYNMAN_RULES = 190
 
 # Particle names after the model part of simpleSpectrum.cpp (before generation)
 CPP_SIMPLE_SPECTRUM_PARTICLES = {
@@ -150,7 +136,7 @@ def test_irreps_of_broken_groups_are_trivial() -> None:
 
 
 def test_built_in_models_expose_group_irreps() -> None:
-    e_L = models.SM().particle("e_L")
+    e_L = build_sm().particle("e_L")
     assert e_L.irrep("L").dim == 1
     assert e_L.irrep("Y").charge == Fraction(-1, 2)
 
@@ -173,24 +159,14 @@ def test_str_model_lists_particles_with_spin_irrep_and_lagrangian() -> None:
     assert "lagrangian" in text
 
 
-def test_sm_latex_document_has_one_entry_per_cpp_feynman_rule() -> None:
-    rules = models.SM().feynman_rules
-    assert len(rules) == CPP_SM_FEYNMAN_RULES
-    document = rules.latex_document()
-    headers = [
-        line for line in document.splitlines() if line.startswith("Feynman vertex for ")
-    ]
-    assert len(headers) == CPP_SM_FEYNMAN_RULES
-
-
 def make_getting_started_model() -> Model:
-    """Build the full toy model of gettingStarted.cpp, ready for amplitudes."""
+    """Build the full toy model of gettingStarted.cpp."""
     toy = make_toy_model()
     W_1 = toy.particle("W_1")
     W_2 = toy.particle("W_2")
     F_W_1 = W_1.field_strength()
     F_W_2 = W_2.field_strength()
-    W = toy.create_similar_particle("W", reference="W_1", self_conjugate=False)
+    W = toy.add_similar_particle("W", reference="W_1", self_conjugate=False)
     mu = Minkowski.index()
     nu = Minkowski.index()
     toy.replace(W_1(mu), (W(mu) + W(mu).conjugate()) / sqrt(2))
@@ -223,20 +199,6 @@ def test_getting_started_model_particles_match_cpp() -> None:
     assert names == CPP_GETTING_STARTED_PARTICLES
 
 
-def test_getting_started_tree_amplitude_matches_cpp_diagram_count() -> None:
-    toy = make_getting_started_model()
-    u = toy.particle("u")
-    d = toy.particle("d")
-    amplitude = toy.compute_amplitude(
-        Order.TreeLevel,
-        [Leg(u, True), Leg(u, True, True), Leg(d, False), Leg(d, False, True)],
-    )
-    assert amplitude.diagram_count == CPP_GETTING_STARTED_DIAGRAMS
-    squared = toy.compute_squared_amplitude(amplitude)
-    assert isinstance(squared, Expr)
-    assert squared != Expr(0)
-
-
 def make_simple_spectrum_model() -> Model:
     """Build the model part of simpleSpectrum.cpp, before the spectrum step."""
     toy = Model(
@@ -246,7 +208,7 @@ def make_simple_spectrum_model() -> Model:
         ],
         flavor=[FlavorGroup("dark_flavor", 10)],
     )
-    spinor = dirac_index()
+    spinor = toy.generate_dirac_index()
     H = toy.add_scalar_boson("H", gauge_rep={"L": 1}, self_conjugate=False)
     phi = toy.add_scalar_boson("phi", gauge_rep={"D": 1}, self_conjugate=False)
     Psi = toy.add_dirac_fermion("Psi", gauge_rep={"D": 1}, flavor_rep="dark_flavor")
@@ -263,7 +225,7 @@ def make_simple_spectrum_model() -> Model:
         True,
     )
     prod = cc(phi(i_d)) * phi(i_d)
-    toy.add_term(constant("lSS") * prod * renamed_indices(prod))
+    toy.add_term(constant("lSS") * prod * prod.relabel_indices())
     toy.add_term(constant("mhH2") * cc(H(i)) * H(i))
     toy.add_term(constant("lSH") * cc(phi(i_d)) * phi(i_d) * cc(H(i)) * H(i))
 
@@ -279,12 +241,12 @@ def make_simple_spectrum_model() -> Model:
     VD_2 = toy.particle("VD_2")
     F_VD_1 = VD_1.field_strength()
     F_VD_2 = VD_2.field_strength()
-    VW = toy.create_similar_particle("VW", reference="VD_1", self_conjugate=False)
+    VW = toy.add_similar_particle("VW", reference="VD_1", self_conjugate=False)
     mu = Minkowski.index()
     nu = Minkowski.index()
     ph0 = toy.particle("ph0")
-    phR = toy.create_similar_particle("phR", reference="ph0", self_conjugate=True)
-    phI = toy.create_similar_particle("phI", reference="ph0", self_conjugate=True)
+    phR = toy.add_similar_particle("phR", reference="ph0", self_conjugate=True)
+    phI = toy.add_similar_particle("phI", reference="ph0", self_conjugate=True)
     toy.replace(
         ph0,
         (constant("vph") + phR.expr() + I * phI.expr()) / sqrt(2),

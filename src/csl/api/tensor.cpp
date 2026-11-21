@@ -21,7 +21,8 @@
 
 #include "tensor.h"
 
-#include "../vector.h" // csl::diagonal_s
+#include "../interface_indicial.h" // csl::Unitary
+#include "../vector.h"             // csl::diagonal_s
 
 #include <algorithm>
 #include <cstdlib>
@@ -424,6 +425,36 @@ TensorHandle diagonalTensor(std::string const             &name,
     return detail::guarded("diagonal tensor creation", [&] {
         csl::Tensor tensor = csl::tensor_s(
             name, {&space.raw(), &space.raw()}, csl::diagonal_s(entries));
+        return TensorHandle(tensor, {space, space});
+    });
+}
+
+TensorHandle unitaryTensor(std::string const                          &name,
+                           SpaceHandle const                          &space,
+                           std::vector<std::vector<ExprHandle>> const &rows)
+{
+    auto const dimension = static_cast<std::size_t>(space.dimension());
+    if (rows.size() != dimension)
+        throw ValueError("unitary tensor " + name + ": expected "
+                         + std::to_string(dimension) + " rows, got "
+                         + std::to_string(rows.size()));
+
+    csl::vector_expr matrixRows;
+    for (auto const &row : rows) {
+        if (row.size() != dimension)
+            throw ValueError("unitary tensor " + name + ": expected "
+                             + std::to_string(dimension)
+                             + " entries per row, got "
+                             + std::to_string(row.size()));
+        csl::vector_expr entries;
+        for (auto const &value : row)
+            entries.push_back(value.raw());
+        matrixRows.push_back(csl::vector_s(entries));
+    }
+
+    return detail::guarded("unitary tensor creation", [&] {
+        csl::Tensor tensor = csl::Unitary(name, &space.raw());
+        tensor->setTensor(csl::matrix_s(matrixRows));
         return TensorHandle(tensor, {space, space});
     });
 }

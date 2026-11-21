@@ -43,9 +43,6 @@ CPP_MSSM_HEM_PARTICLES = {
     "sG_R",
 }
 
-# Feynman rules of the C++ MSSM_HEM model
-CPP_MSSM_HEM_FEYNMAN_RULES = 148
-
 
 @pytest.mark.unit
 def test_mssm_particles_match_cpp() -> None:
@@ -53,12 +50,3 @@ def test_mssm_particles_match_cpp() -> None:
     names = [particle.name for particle in model.particles]
     assert len(names) == len(set(names))
     assert set(names) == CPP_MSSM_HEM_PARTICLES
-
-
-@pytest.mark.unit
-@pytest.mark.xfail(
-    strict=True,
-    reason="Soft masses, gaugino Yukawas and D-terms are blocked in the port",
-)
-def test_mssm_feynman_rule_count_matches_cpp() -> None:
-    assert len(build().feynman_rules) == CPP_MSSM_HEM_FEYNMAN_RULES

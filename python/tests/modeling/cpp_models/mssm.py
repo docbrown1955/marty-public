@@ -24,7 +24,7 @@ Not ported, because the declarative API has no binding for them:
 from fractions import Fraction
 
 from pymarty.group_theory import SU, U
-from pymarty.modeling import FlavorGroup, GaugeGroup, Model, dirac_index
+from pymarty.modeling import FlavorGroup, GaugeGroup, Model
 from pymarty.symbolic import constant, epsilon
 
 
@@ -109,5 +109,5 @@ def _add_higgsino_mass(model: Model) -> None:
     s_hd = model.particle("sHd")
     i = model.generate_index("L", "sHu")
     j = model.generate_index("L", "sHu")
-    a = dirac_index()
+    a = model.generate_dirac_index()
     model.add_term(-mu * s_hu(i, a) * epsilon(i, j) * s_hd(j, a), add_hermitic=True)

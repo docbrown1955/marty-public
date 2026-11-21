@@ -57,19 +57,6 @@ rawRows(std::vector<std::vector<ExprHandle>> const &rows)
 }
 
 // Python indices are relative to the end when negative.
-std::size_t feynmanRuleIndex(modeling::FeynmanRules const &rules,
-                             py::ssize_t                   index)
-{
-    py::ssize_t const size = static_cast<py::ssize_t>(rules.size());
-    if (index < 0)
-        index += size;
-    if (index < 0 or index >= size)
-        throw mty::api::LookupError("Feynman rule index "
-                                    + std::to_string(index)
-                                    + " is out of range");
-    return static_cast<std::size_t>(index);
-}
-
 std::string typeName(py::handle obj)
 {
     return py::str(py::type::of(obj).attr("__name__"));
@@ -307,7 +294,7 @@ void bindModeling(py::module_ &m)
         .def("field_strength",
              &modeling::Particle::fieldStrength,
              "Field strength tensor of the particle, as a new particle.")
-        .def("create_similar_particle",
+        .def("generate_similar_particle",
              &modeling::Particle::createSimilarParticle,
              py::arg("name"),
              "Particle of the same kind with another name, as a new particle "
@@ -333,77 +320,6 @@ void bindModeling(py::module_ &m)
              "group.")
         .def("__repr__", [](modeling::Particle const &self) {
             return "Particle(" + self.name() + ")";
-        });
-
-    py::enum_<modeling::Order>(
-        mod, "Order", "Order of a perturbative calculation.")
-        .value("TreeLevel", modeling::Order::TreeLevel)
-        .value("OneLoop", modeling::Order::OneLoop);
-
-    py::class_<modeling::Leg>(mod,
-                              "Leg",
-                              "External leg of an amplitude: an incoming or "
-                              "outgoing particle, or "
-                              "its antiparticle.")
-        .def(py::init([](modeling::Particle const &field,
-                         bool                      incoming,
-                         bool                      antiparticle) {
-                 return modeling::Leg{field, incoming, antiparticle};
-             }),
-             py::arg("field"),
-             py::arg("incoming"),
-             py::arg("antiparticle") = false,
-             "Leg of a particle of the model.")
-        .def_readonly("field", &modeling::Leg::field, "Particle of the leg.")
-        .def_readonly("incoming", &modeling::Leg::incoming, "Incoming leg.")
-        .def_readonly("antiparticle",
-                      &modeling::Leg::antiparticle,
-                      "Whether the leg is an antiparticle.");
-
-    py::class_<modeling::Amplitude>(
-        mod, "Amplitude", "Amplitude computed by a model.")
-        .def_property_readonly("diagram_count",
-                               &modeling::Amplitude::diagramCount,
-                               "Number of Feynman diagrams.")
-        .def("__repr__", [](modeling::Amplitude const &self) {
-            return "Amplitude(" + std::to_string(self.diagramCount())
-                   + " diagrams)";
-        });
-
-    py::class_<modeling::FeynmanRules>(
-        mod,
-        "FeynmanRules",
-        R"doc(Lazy view on the Feynman rules of a model.
-
-The rules are computed on first use. Indexing returns the printed form of a
-rule, negative indices count from the end.)doc")
-        .def("__len__", &modeling::FeynmanRules::size)
-        .def(
-            "__getitem__",
-            [](modeling::FeynmanRules const &self, py::ssize_t index) {
-                return self.str(feynmanRuleIndex(self, index));
-            },
-            py::arg("index"),
-            "Printed form of the rule at index.")
-        .def("__iter__",
-             [](modeling::FeynmanRules const &self) {
-                 std::vector<std::string> printed;
-                 for (std::size_t i = 0; i < self.size(); ++i)
-                     printed.push_back(self.str(i));
-                 return py::iter(py::cast(printed));
-             })
-        .def(
-            "latex",
-            [](modeling::FeynmanRules const &self, py::ssize_t index) {
-                return self.latex(feynmanRuleIndex(self, index));
-            },
-            py::arg("index"),
-            "LaTeX block of the rule at index.")
-        .def("latex_document",
-             &modeling::FeynmanRules::latexDocument,
-             "LaTeX document with all the rules.")
-        .def("__repr__", [](modeling::FeynmanRules const &self) {
-            return "FeynmanRules(" + std::to_string(self.size()) + ")";
         });
 
     py::class_<modeling::Model>(mod,
@@ -512,7 +428,7 @@ rule, negative indices count from the end.)doc")
             "Adds a scalar boson, self-conjugate (real) by default, with its "
             "gauge and flavor representations and optional mass.")
         .def(
-            "create_similar_particle",
+            "add_similar_particle",
             [](modeling::Model   &self,
                std::string const &name,
                std::string const &reference,
@@ -539,7 +455,7 @@ rule, negative indices count from the end.)doc")
              py::arg("particle"),
              "Adds a particle to the model.")
         .def(
-            "create_ghost_boson",
+            "add_ghost_boson",
             [](modeling::Model          &self,
                std::string const        &name,
                modeling::Particle const &vectorBoson,
@@ -567,9 +483,6 @@ rule, negative indices count from the end.)doc")
         .def_property_readonly("particles",
                                &modeling::Model::particles,
                                "Particles of the model.")
-        .def_property_readonly("feynman_rules",
-                               &modeling::Model::feynmanRules,
-                               "Lazy view on the Feynman rules of the model.")
         .def("finalize",
              &modeling::Model::finalize,
              "Completes the model and freezes it: builders and mutators then "
@@ -594,14 +507,6 @@ rule, negative indices count from the end.)doc")
         .def("diagonalize_mass_matrices",
              &modeling::Model::diagonalizeMassMatrices,
              "Diagonalizes the mass matrices of the model where possible.")
-        .def(
-            "build_ckm",
-            [](modeling::Model &self, std::string const &flavor) {
-                auto space = self.vectorSpace(flavor);
-                return TensorHandle(self.buildCkm(flavor), {space, space});
-            },
-            py::arg("flavor"),
-            "Unitary CKM matrix on the vector space of a flavor group.")
         .def(
             "add_term",
             [](modeling::Model  &self,
@@ -640,23 +545,18 @@ rule, negative indices count from the end.)doc")
             py::arg("group"),
             py::arg("field"),
             "Fresh index of the representation of a field in a gauge group.")
+        .def(
+            "generate_dirac_index",
+            [](modeling::Model const &, std::string const &name) {
+                return pyIndex(modeling::diracIndex(name));
+            },
+            py::arg("name") = "",
+            "Fresh Dirac index, named if name is not empty.")
         .def("promote_to_goldstone",
              &modeling::Model::promoteToGoldstone,
              py::arg("goldstone"),
              py::arg("gauge_boson"),
              "Promotes a scalar to the Goldstone boson of a gauge boson.")
-        .def("compute_amplitude",
-             &modeling::Model::computeAmplitude,
-             py::arg("order"),
-             py::arg("legs"),
-             "Amplitude of the given external legs at the given order.")
-        .def(
-            "compute_squared_amplitude",
-            [](modeling::Model &self, modeling::Amplitude const &amplitude) {
-                return ExprHandle(self.computeSquaredAmplitude(amplitude));
-            },
-            py::arg("amplitude"),
-            "Squared amplitude, summed over spins and polarizations.")
         .def(
             "rotate_fields",
             [](modeling::Model                            &self,
@@ -745,12 +645,12 @@ rule, negative indices count from the end.)doc")
             py::arg("name"),
             "Scalar coupling of the model (LookupError if absent).")
         .def(
-            "create_coupling",
+            "add_coupling",
             [](modeling::Model &self, std::string const &name) {
                 return ExprHandle(self.newCoupling(name));
             },
             py::arg("name"),
-            "Creates a scalar coupling of the model and returns it.")
+            "Adds a new scalar coupling to the model and returns it.")
         .def("break_gauge_symmetry",
              &breakGaugeSymmetry,
              py::arg("group"),
@@ -770,24 +670,4 @@ rule, negative indices count from the end.)doc")
             return "Model(" + std::to_string(self.particles().size())
                    + " particles)";
         });
-
-    mod.def("standard_model",
-            &modeling::Model::standardModel,
-            "The built-in Standard Model.");
-    mod.def("qed", &modeling::Model::qed, "The built-in QED model.");
-    mod.def(
-        "dirac_index",
-        [](std::string const &name) {
-            return pyIndex(modeling::diracIndex(name));
-        },
-        py::arg("name") = "",
-        "Fresh Dirac index, named if name is not empty.");
-    mod.def(
-        "renamed_indices",
-        [](ExprHandle const &expr) {
-            return ExprHandle(modeling::renamedIndices(expr.raw()));
-        },
-        py::arg("expr"),
-        "Expression with its dummy indices renamed, so that equal "
-        "expressions get the same printed form.");
 }

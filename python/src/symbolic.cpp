@@ -1142,6 +1142,22 @@ Unlike a sum of Kronecker deltas, the core sees this tensor as a numerical
 diagonal matrix, as in the C++ models.
 )doc");
 
+    m.def(
+        "unitary_tensor",
+        [](std::string const                          &name,
+           SpaceHandle const                          &space,
+           std::vector<std::vector<ExprHandle>> const &rows) {
+            return unitaryTensor(name, space, rows);
+        },
+        py::arg("name"),
+        py::arg("space"),
+        py::arg("rows"),
+        R"doc(Unitary square tensor on a space, whose numerical value is the given matrix,
+one list per row. Call it with two indices of the space to get an element.
+
+Built on the core unitary tensor, as for the CKM matrix of the Standard Model.
+)doc");
+
     py::class_<TensorFieldHandle>(
         m,
         "TensorField",

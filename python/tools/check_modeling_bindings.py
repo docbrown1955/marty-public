@@ -28,22 +28,37 @@ FACADE_DIR: Final = (
 CLASSES: Final[dict[str, tuple[str, Any]]] = {
     "Particle": ("modeling.h", core.Particle),
     "Model": ("modeling.h", core.Model),
-    "FeynmanRules": ("feynmanRules.h", core.FeynmanRules),
 }
 
-# C++ method -> Python attribute that replaces it. An empty string means the
-# method is internal (not part of the Python API) and needs no binding.
-ALIASES: Final[dict[str, str]] = {
-    "contains": "__contains__",
-    "describe": "__str__",
-    "feynmanRules": "feynman_rules",
-    "isU1": "set_rep",
-    "setLabels": "set_rep",
-    "setCharge": "set_rep",
-    "size": "__len__",
-    "str": "__getitem__",
-    "latexDocument": "latex_document",
-    "raw": "",
+# Per class: C++ method -> Python attribute that replaces it. An empty string
+# means the method is internal (not part of the Python API) and needs no binding.
+ALIASES: Final[dict[str, dict[str, str]]] = {
+    "Particle": {
+        "isU1": "set_rep",
+        "setLabels": "set_rep",
+        "setCharge": "set_rep",
+        "fieldStrength": "field_strength",
+        "createSimilarParticle": "generate_similar_particle",
+        "ghostBoson": "ghost_boson",
+        "raw": "",
+    },
+    "Model": {
+        "contains": "__contains__",
+        "describe": "__str__",
+        "renameParticle": "rename_particle",
+        "diracFermion": "add_dirac_fermion",
+        "majoranaFermion": "add_majorana_fermion",
+        "weylFermion": "add_weyl_fermion",
+        "scalarBoson": "add_scalar_boson",
+        "ghostBoson": "add_ghost_boson",
+        "newCoupling": "add_coupling",
+        "refresh": "",
+        "standardModel": "",
+        "qed": "",
+        "feynmanRules": "",
+        "computeAmplitude": "",
+        "computeSquaredAmplitude": "",
+    },
 }
 
 DECLARATION: Final = re.compile(
@@ -78,9 +93,9 @@ def public_methods(header: Path, class_name: str) -> list[str]:
     return names
 
 
-def python_target(obj: Any, name: str) -> Any:
+def python_target(obj: Any, class_name: str, name: str) -> Any:
     """Binding of a C++ method, on the class or on the modeling module."""
-    attribute = ALIASES.get(name, snake_case(name))
+    attribute = ALIASES[class_name].get(name, snake_case(name))
     if attribute == "":
         return None
     if hasattr(obj, attribute):
@@ -94,9 +109,9 @@ def main() -> int:
     failures: list[str] = []
     for class_name, (header_name, obj) in CLASSES.items():
         for method in public_methods(FACADE_DIR / header_name, class_name):
-            if ALIASES.get(method) == "":
+            if ALIASES[class_name].get(method) == "":
                 continue
-            target = python_target(obj, method)
+            target = python_target(obj, class_name, method)
             label = f"{class_name}::{method}"
             if target is None:
                 failures.append(f"{label}: no binding")

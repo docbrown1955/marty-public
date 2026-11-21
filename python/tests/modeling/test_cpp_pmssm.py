@@ -31,9 +31,8 @@ CPP_CONTENT_PARTICLES = {
     "sHd",
 }
 
-# Complete C++ PMSSM_Model (examples/samplePMSSM.cpp): 87 particles, 3984 rules
+# Complete C++ PMSSM_Model (examples/samplePMSSM.cpp): 87 particles
 CPP_FULL_PARTICLE_COUNT = 87
-CPP_FULL_FEYNMAN_RULES = 3984
 
 
 @pytest.mark.unit
@@ -60,13 +59,3 @@ def test_pmssm_representations_match_cpp() -> None:
 )
 def test_pmssm_full_particle_count_matches_cpp() -> None:
     assert len(build().particles) == CPP_FULL_PARTICLE_COUNT
-
-
-@pytest.mark.unit
-@pytest.mark.xfail(
-    strict=True,
-    reason="interactions and the low-energy breaking chain of pmssm.cpp are not "
-    "portable with the declarative API",
-)
-def test_pmssm_full_feynman_rules_match_cpp() -> None:
-    assert len(build().feynman_rules) == CPP_FULL_FEYNMAN_RULES

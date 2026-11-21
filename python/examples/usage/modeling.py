@@ -1,10 +1,9 @@
 """Usage example: model building (gauge groups, particles, breaking).
 
 ``pymarty.modeling`` builds a model the way ``examples/gettingStarted.cpp``
-does, up to the Feynman rules. A ``Model`` owns gauge groups and particles,
+does, up to the amplitudes. A ``Model`` owns gauge groups and particles,
 and a particle obtained by name from a model refers to the particle the model
-holds. Built-in models come from ``models``; this phase provides ``QED`` and
-``SM`` only.
+holds.
 
 Every step prints what it shows and asserts the result, so the example fails
 as soon as the library stops doing what is written here.
@@ -15,7 +14,6 @@ Run it with ``python modeling.py``. It is also run by the test suite
 
 from fractions import Fraction
 
-from pymarty import models
 from pymarty.errors import MartyLookupError
 from pymarty.group_theory import SU, U
 from pymarty.modeling import GaugeGroup, Model, spacetime
@@ -60,13 +58,3 @@ except MartyLookupError as error:
     print("expected error:", error)
 else:
     raise AssertionError("unknown particle name must raise")
-
-# Built-in models: the Standard Model and QED
-sm = models.SM()
-print("SM particles:", [p.name for p in sm.particles])
-assert len(sm.particles) > 0
-assert len(sm.feynman_rules) > 0
-
-qed = models.QED()
-print("QED particles:", [p.name for p in qed.particles])
-assert len(qed.feynman_rules) > 0

@@ -1,6 +1,0 @@
-from pymarty._pymarty import modeling as _core
-
-def SM() -> _core.Model: ...
-def QED() -> _core.Model: ...
-
-__all__ = ["QED", "SM"]

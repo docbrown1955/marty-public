@@ -101,3 +101,14 @@ Checks: `pytest -m "not slow"` on `tests/modeling` and `test_usage_examples.py` 
 - Decision: `standard_model()`, `qed()` and `renamed_indices()` are module-level functions, not Model static methods.
 - Decision: `compute_amplitude`, `compute_squared_amplitude` and `build_ckm` stay on Model, since Phase 5 needs them.
 - SM port (`tests/modeling/cpp_models/sm.py`): particle names match `models.SM()`. The Feynman-rule test is still an xfail: 176 rules against 190. The missing parts are W/Z mass setting and gauge fixing, from `src/marty/models/sm.cpp` lines 52-53. This attribution is not confirmed.
+
+### Model API cleanup (supersedes the naming and removal decisions above)
+
+- Removed from Python: `standard_model()`, `qed()`, `renamed_indices()`, `dirac_index()`, `build_ckm`, `compute_amplitude`, `compute_squared_amplitude`, `feynman_rules`, and the `Order`, `Leg`, `Amplitude`, `FeynmanRules` classes. The `pymarty.models` module is deleted. Calculation is Phase 5 scope. The C++ facade keeps these functions for Phase 5. Consumers adapt: `expr.relabel_indices()` replaces `renamed_indices`, and `model.generate_dirac_index()` replaces `dirac_index`.
+- Decision: the built-in SM and QED models are gone from Python. Parity tests in `python/tests/modeling/test_cpp_*.py` compare against reference particle names hard-coded from the C++ output (`CPP_SM_PARTICLES`, `CPP_QED_PARTICLES`) instead.
+- Naming: `add_*` modifies a model (`add_particle`, `add_similar_particle`, `add_ghost_boson`, `add_coupling`, `add_tensor_coupling`, `add_term`). `generate_*` only creates an object without attaching it (`generate_index`, `generate_dirac_index`, and on `Particle`: `generate_field_strength`, `generate_similar_particle`, `generate_ghost_boson`).
+- `coupling(name)` looks up an existing coupling and raises `LookupError` if it is absent. `add_coupling(name)` creates one. They are not duplicates.
+- `refresh()` is internal. `finalize()` is the public step and `is_finalized()` checks it.
+- Added `pymarty.symbolic.unitary_tensor(name, space, rows)`, backed by `csl::Unitary` through `unitaryTensor` in `src/csl/api/tensor.cpp`. The SM CKM matrix uses it.
+- Known deviation: the Python SM CKM (`cpp_models/sm.py`, `_ckm_matrix()`) uses symbolic constants `V_ud`, `V_us`, ... instead of the numerical values `sm_input::V_*` used by the core `buildCKM`.
+- `python/tools/check_modeling_bindings.py` maps facade names per class (`ALIASES`). Facade-only methods (`refresh`, `standardModel`, `qed`, `feynmanRules`, `computeAmplitude`, `computeSquaredAmplitude`, `Particle::raw`) are marked internal.

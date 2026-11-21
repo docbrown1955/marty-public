@@ -229,16 +229,18 @@ def _replace_w_bosons(model: Model) -> None:
     """
     w_1 = model.particle("W_1")
     w_2 = model.particle("W_2")
-    w = model.create_similar_particle("W", reference="W_1", self_conjugate=False)
+    w = model.add_similar_particle("W", reference="W_1", self_conjugate=False)
     mu = Minkowski.index()
     nu = Minkowski.index()
     model.replace(w_1(mu), (w(mu) + w(mu).conjugate()) / sqrt(2))
     model.replace(
-        w_1.field_strength()(mu, nu), (w(mu, nu) + w(mu, nu).conjugate()) / sqrt(2)
+        w_1.field_strength()(mu, nu),
+        (w(mu, nu) + w(mu, nu).conjugate()) / sqrt(2),
     )
     model.replace(w_2(mu), I * (w(mu) - w(mu).conjugate()) / sqrt(2))
     model.replace(
-        w_2.field_strength()(mu, nu), I * (w(mu, nu) - w(mu, nu).conjugate()) / sqrt(2)
+        w_2.field_strength()(mu, nu),
+        I * (w(mu, nu) - w(mu, nu).conjugate()) / sqrt(2),
     )
 
     theta_w = constant("theta_W;\\theta_{W}")

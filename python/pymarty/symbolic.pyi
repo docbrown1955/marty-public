@@ -45,6 +45,7 @@ from pymarty._pymarty import tanh as tanh
 from pymarty._pymarty import tensor as tensor
 from pymarty._pymarty import tensor_derivative as tensor_derivative
 from pymarty._pymarty import tensor_field as tensor_field
+from pymarty._pymarty import unitary_tensor as unitary_tensor
 from pymarty._pymarty import variable as variable
 from pymarty.symbolic_algorithms import all_of_leafs as all_of_leafs
 from pymarty.symbolic_algorithms import all_of_nodes as all_of_nodes
@@ -88,6 +89,7 @@ __all__ = [
     "cosh",
     "delta",
     "diagonal_tensor",
+    "unitary_tensor",
     "e",
     "epsilon",
     "exp",

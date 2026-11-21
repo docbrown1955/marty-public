@@ -50,7 +50,6 @@ CPP_GTHDM_PARTICLES = {
     "mu",
     "tau",
 }
-CPP_GTHDM_FEYNMAN_RULES = 413
 
 
 @pytest.mark.unit
@@ -69,12 +68,3 @@ def test_ported_particles_exist() -> None:
 def test_particle_names_match_cpp_gthdm() -> None:
     py_names = {p.name for p in build().particles}
     assert py_names == CPP_GTHDM_PARTICLES
-
-
-@pytest.mark.unit
-@pytest.mark.xfail(
-    strict=True,
-    reason="Flavour splitting, ghost bosons, Yukawa and mass steps are not ported",
-)
-def test_feynman_rule_count_matches_cpp_gthdm() -> None:
-    assert len(build().feynman_rules) == CPP_GTHDM_FEYNMAN_RULES

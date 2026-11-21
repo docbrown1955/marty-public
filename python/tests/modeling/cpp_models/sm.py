@@ -13,7 +13,7 @@ and the gauge-fixing terms.
 from fractions import Fraction
 
 from pymarty.group_theory import SU, U
-from pymarty.modeling import FlavorGroup, GaugeGroup, Model, dirac_index, spacetime
+from pymarty.modeling import FlavorGroup, GaugeGroup, Model, spacetime
 from pymarty.symbolic import (
     ComplexProperty,
     Expr,
@@ -25,9 +25,20 @@ from pymarty.symbolic import (
     sin,
     sqrt,
     tensor,
+    unitary_tensor,
 )
 
 FLAVOR = "SM_flavor"
+
+
+def _ckm_matrix() -> list[list[Expr]]:
+    """Return the CKM entries as symbolic constants named as in the C++ ``sm_input``."""
+    names = [
+        ["V_ud;V_{ud}", "V_us;V_{us}", "V_ub;V_{ub}"],
+        ["V_cd;V_{cd}", "V_cs;V_{cs}", "V_cb;V_{cb}"],
+        ["V_td;V_{td}", "V_ts;V_{ts}", "V_tb;V_{tb}"],
+    ]
+    return [[constant(name) for name in row] for row in names]
 
 
 def build() -> Model:
@@ -92,7 +103,7 @@ def build() -> Model:
     a = model.generate_index("C", "Q")
     il = model.generate_index("L", "Q")
     jl = model.generate_index("L", "Q")
-    al = dirac_index()
+    al = model.generate_dirac_index()
     Q = model.particle("Q")
     U_R = model.particle("U_R")
     D_R = model.particle("D_R")
@@ -127,9 +138,9 @@ def build() -> Model:
 
     W1 = model.particle("W_1")
     W2 = model.particle("W_2")
-    W_SM = model.create_similar_particle("W", reference="W_1", self_conjugate=False)
-    cWp = model.create_ghost_boson("c_Wp ; c_{+}", W_SM)
-    cWm = model.create_ghost_boson("c_Wm; c_{-}", W_SM, conjugated=True)
+    W_SM = model.add_similar_particle("W", reference="W_1", self_conjugate=False)
+    cWp = model.add_ghost_boson("c_Wp ; c_{+}", W_SM)
+    cWm = model.add_ghost_boson("c_Wm; c_{-}", W_SM, conjugated=True)
     W_SM.set_conjugated_ghost_boson(cWm)
     mu = spacetime.minkowski_index("mu")
     nu = spacetime.minkowski_index("nu")
@@ -187,10 +198,10 @@ def build() -> Model:
 
     m_d = [constant("m_d;m_{d}"), constant("m_s;m_{s}"), constant("m_b;m_{b}")]
     M_d = diagonal_tensor("M_d", flavor, m_d)
-    V = model.build_ckm(FLAVOR)
+    V = unitary_tensor("V_CKM", flavor, _ckm_matrix())
     model.replace(Yd(fi, fj), factor * V(fi, fk) * M_d(fk, fj))
     D_L = model.particle("D_L")
-    dirac = dirac_index()
+    dirac = model.generate_dirac_index()
     colour = model.generate_index("C", "D_L")
     model.replace(D_L(fj, colour, dirac), V(fj, fk) * D_L(fk, colour, dirac))
 

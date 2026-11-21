@@ -190,7 +190,7 @@ def _diagonalize_2x2(model: Model) -> None:
 def _replace_w_bosons(model: Model) -> None:
     W1 = model.particle("W_1")
     W2 = model.particle("W_2")
-    W = model.create_similar_particle("W", reference="W_1", self_conjugate=False)
+    W = model.add_similar_particle("W", reference="W_1", self_conjugate=False)
 
     mu = Minkowski.index()
     nu = Minkowski.index()
