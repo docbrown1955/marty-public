@@ -159,8 +159,8 @@ def test_three_index_chain_has_no_free_indices_and_keeps_dummies() -> None:
     assert {i.name for i in partial.free_indices} == {mu.name, rho.name}
     relabelled = partial.relabel_indices({rho: sigma})
     assert len(relabelled.free_indices) == 2
-    assert sigma in relabelled.free_indices
-    assert rho not in relabelled.free_indices
+    assert sigma.name in {i.name for i in relabelled.free_indices}
+    assert rho.name not in {i.name for i in relabelled.free_indices}
 
 
 @pytest.mark.unit

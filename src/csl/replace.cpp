@@ -597,17 +597,26 @@ Expr RelabelIndices(Expr const    &expr,
         auto found = renaming.renamed.find(keyOf(index));
         if (found == renaming.renamed.end())
             continue;
-        renamed.emplace(keyOf(index), found->second);
-        ++uses[{found->second.getSpace(),
-                std::string(found->second.getName())}];
+        // Targets carry IDs from the global counter: reset them so that the
+        // output does not depend on the indices created before.
+        Index target = found->second;
+        target.setID(0);
+        renamed.emplace(keyOf(index), target);
+        ++uses[{target.getSpace(), std::string(target.getName())}];
     }
     auto relabel = [&](Index const &index) {
         if (renamed.count(keyOf(index)))
             return;
         Space const *space = index.getSpace();
         auto const  &pool  = space->getDefaultIndexNames();
-        auto         next
-            = [&]() { return pool[identitiesInSpace[space]++ % pool.size()]; };
+        // The ID counts how many times the name pool has been cycled through,
+        // so it stays deterministic and is non-zero beyond one pass.
+        size_t cycle = 0;
+        auto   next  = [&]() {
+            size_t count = identitiesInSpace[space]++;
+            cycle        = count / pool.size();
+            return pool[count % pool.size()];
+        };
         std::string base = next();
         for (size_t tries = 1;
              tries != pool.size() and keptNames.count({space, base});
@@ -616,7 +625,7 @@ Expr RelabelIndices(Expr const    &expr,
         size_t n      = uses[{space, base}]++;
         Index  result = index;
         result.setName(n == 0 ? base : base + "_" + std::to_string(n));
-        result.setID(0);
+        result.setID(cycle);
         if (result.getType() == cslIndex::Free) {
             result
                 = +result; // Default to upper indices for free indices

@@ -425,9 +425,24 @@ def test_relabel_indices_uses_preset_renaming_entries() -> None:
     preset = space.index("g")
     renaming = {f: preset}
     relabelled = (x(f) * y(i) * z(i)).relabel_indices(renaming)
-    assert renaming[f] == preset
-    assert preset in relabelled.free_indices
+    assert renaming[f].name == preset.name
+    assert [i.name for i in relabelled.free_indices] == [preset.name]
     assert [k.name for k in renaming] == ["f"]
+
+
+@pytest.mark.unit
+def test_relabel_indices_ids_cycle_through_name_pool() -> None:
+    space = symbolic.Space(
+        "S", 4, index_names=("alpha", "beta", "gamma", "delta")
+    )
+    x = symbolic.tensor("x", [space, space])
+    pairs = [space.index(name) for name in ("p", "q", "r", "s", "t")]
+    expr = x(pairs[0], pairs[0]) * x(pairs[1], pairs[1])
+    expr = expr * x(pairs[2], pairs[2]) * x(pairs[3], pairs[3])
+    expr = expr * x(pairs[4], pairs[4])
+    first = expr.relabel_indices()
+    assert first == expr.relabel_indices()
+    assert sorted(i.id for i in first.dummy_indices) == [0, 0, 0, 0, 1]
 
 
 @pytest.mark.unit
