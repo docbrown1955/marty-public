@@ -104,6 +104,13 @@ class Group : public std::enable_shared_from_this<Group> {
     /// U(1). Only n = 1 is accepted, the dimension argument of U(n).
     static std::shared_ptr<const Group> u(int n);
 
+    /// Handle on an existing core group, without copying it. The handle
+    /// keeps the core alive. Group kinds the API does not expose raise
+    /// NotImplementedError. Each core group needs one handle, since irreps of
+    /// different handles do not compare.
+    static std::shared_ptr<const Group>
+    wrap(std::shared_ptr<mty::AbstractGroup> core);
+
     std::string name() const;
     /// Core kind of the group, as used by GaugeGroupSpec.
     mty::group::Type kind() const

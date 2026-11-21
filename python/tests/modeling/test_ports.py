@@ -159,6 +159,12 @@ def test_irreps_of_broken_groups_are_trivial() -> None:
     assert u_L.irrep("L").highest_weight == (0,)
 
 
+def test_built_in_models_expose_group_irreps() -> None:
+    e_L = models.SM().particle("e_L")
+    assert e_L.irrep("L").dim == 1
+    assert e_L.irrep("Y").charge == Fraction(-1, 2)
+
+
 def test_str_model_lists_particles_with_spin_irrep_and_lagrangian() -> None:
     toy = make_toy_model()
     text = str(toy)

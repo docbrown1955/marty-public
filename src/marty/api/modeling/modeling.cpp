@@ -32,13 +32,44 @@
 namespace mty::api::modeling {
 namespace {
 
+int gaugePosition(detail::ModelState const &state, std::string const &group)
+{
+    int const position = guarded([&] {
+        Session     session(state.core.get());
+        auto const *gauge = state.core->getGauge();
+        for (std::size_t pos = 0; pos < gauge->size(); ++pos) {
+            if ((*gauge)[static_cast<int>(pos)]->getName() == group)
+                return static_cast<int>(pos);
+        }
+        return -1;
+    });
+    if (position < 0)
+        throw LookupError("no gauge group named \"" + group + "\"");
+    return position;
+}
+
 mty::group::Type groupKind(detail::ModelState const &state,
                            std::string const        &group)
 {
-    auto found = state.groups.find(group);
-    if (found == state.groups.end())
-        throw LookupError("no gauge group named \"" + group + "\"");
-    return found->second;
+    int const position = gaugePosition(state, group);
+    auto      kind     = guarded([&] {
+        Session session(state.core.get());
+        return (*state.core->getGauge())[position]->getType();
+    });
+    return kind == mty::group::Type::U1 ? mty::group::Type::U : kind;
+}
+
+std::shared_ptr<const group_theory::Group>
+groupHandle(detail::ModelState &state, mty::AbstractGroup *core)
+{
+    auto &handle = state.groupHandles[core];
+    if (!handle) {
+        handle = guarded([&] {
+            return group_theory::Group::wrap(
+                std::shared_ptr<mty::AbstractGroup>(state.core, core));
+        });
+    }
+    return handle;
 }
 
 } // namespace
@@ -138,25 +169,15 @@ group_theory::Rational Particle::spin() const
 
 group_theory::Irrep Particle::irrep(std::string const &group) const
 {
-    auto found = m_state->groupObjects.find(group);
-    if (found == m_state->groupObjects.end())
-        throw LookupError("no gauge group named \"" + group + "\"");
-    int const position = guarded([&] {
-        Session     session(m_state->core.get());
-        auto const *target = m_state->core->getGaugedGroup(group);
-        auto const *gauge  = m_state->core->getGauge();
-        for (std::size_t pos = 0; pos < gauge->size(); ++pos) {
-            if (gauge->getGaugedGroup(pos) == target)
-                return static_cast<int>(pos);
-        }
-        return -1;
-    });
-    if (position < 0)
-        throw LookupError("particle \"" + name() + "\" has no irrep under \""
-                          + group + "\"");
+    int const position = gaugePosition(*m_state, group);
+    auto      handle   = groupHandle(*m_state, guarded([&] {
+        Session session(m_state->core.get());
+        return static_cast<mty::AbstractGroup *>(
+            (*m_state->core->getGauge())[position]);
+    }));
     return guarded([&] {
         Session session(m_state->core.get());
-        return group_theory::Irrep(found->second,
+        return group_theory::Irrep(handle,
                                    m_particle->getGaugeIrrep()[position]);
     });
 }
@@ -198,8 +219,6 @@ Model::Model(std::vector<GaugeGroup> const  &gauge,
         spec.bosonName = item.bosonName;
         if (!item.coupling.empty())
             spec.coupling = csl::constant_s(item.coupling);
-        m_state->groups[item.name]       = spec.type;
-        m_state->groupObjects[item.name] = item.group;
         specs.push_back(spec);
     }
     for (auto const &item : flavor) {

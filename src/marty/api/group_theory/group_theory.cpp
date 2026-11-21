@@ -311,6 +311,53 @@ std::shared_ptr<const Group> Group::u(int n)
     });
 }
 
+std::shared_ptr<const Group>
+Group::wrap(std::shared_ptr<mty::AbstractGroup> core)
+{
+    return guarded([&] {
+        auto kind = core->getType();
+        if (kind == mty::group::Type::U1)
+            kind = mty::group::Type::U;
+        std::string name;
+        int         size = -1;
+        switch (kind) {
+        case mty::group::Type::U:
+            name = "U(1)";
+            size = 1;
+            break;
+        case mty::group::Type::SU:
+        case mty::group::Type::SO:
+        case mty::group::Type::Sp:
+            size = core->getDim();
+            name = (kind == mty::group::Type::SU   ? "SU("
+                    : kind == mty::group::Type::SO ? "SO("
+                                                   : "Sp(")
+                   + std::to_string(size) + ")";
+            break;
+        case mty::group::Type::E6:
+            name = "E6";
+            break;
+        case mty::group::Type::E7:
+            name = "E7";
+            break;
+        case mty::group::Type::E8:
+            name = "E8";
+            break;
+        case mty::group::Type::F4:
+            name = "F4";
+            break;
+        case mty::group::Type::G2:
+            name = "G2";
+            break;
+        default:
+            throw NotImplementedError("the API does not expose this group "
+                                      "kind");
+        }
+        return std::shared_ptr<const Group>(
+            new Group(std::move(core), name, kind, size));
+    });
+}
+
 std::string Group::name() const
 {
     return name_;

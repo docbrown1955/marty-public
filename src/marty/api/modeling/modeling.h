@@ -51,10 +51,10 @@ namespace detail {
 
 /// Core model and gauge group kinds, shared by a Model and its Particles.
 struct ModelState {
-    std::shared_ptr<mty::Model>             core;
-    std::map<std::string, mty::group::Type> groups;
-    std::map<std::string, std::shared_ptr<const group_theory::Group>>
-        groupObjects;
+    std::shared_ptr<mty::Model> core;
+    /// One API handle per core gauge group, so irreps of a model compare.
+    std::map<mty::AbstractGroup *, std::shared_ptr<const group_theory::Group>>
+        groupHandles;
 };
 
 } // namespace detail
