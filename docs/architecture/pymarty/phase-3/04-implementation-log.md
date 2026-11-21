@@ -45,6 +45,10 @@ mapping: [port-table.md](port-table.md). Capability record: [../spike-3-0-group-
   the index tables in `src/marty/core/groupIndices.h`, and the 29th row of each E8 table was labelled
   `{0,0,0,0,1,0,0}` (a duplicate of node 11, dropping node 7). The matrix now uses the table order, so
   label `{1,0,...}` is 248 and `{0,...,0,1}` is node 7. Note: E8 labels written by users change meaning.
+- Open (E8 labelling vs manual): the fixed order follows the paper (van Ritbergen et al., Table 3, 248 = `(1,0,...,0)`).
+  The manual's Table 4.8 (p. 67) still uses the pre-fix order (248 = `(0,...,0,1,0)`, 3875 = `(1,0,...,0)`), and so do
+  E6 and E7 in the manual. The PDF is not edited. Index normalisation also differs from the paper (MARTY 1/30 for 248
+  vs paper 60). Both need a maintainer decision.
 - Spike record: the E6 27 x 27bar row in the spike (`27 = 27 + 351 + 1728`, dim 2106) was wrong. The correct
   decomposition is 1 + 78 + 650 (dim 729). See the correction note in the spike record.
 
