@@ -26,17 +26,16 @@ def build() -> Model:
         flavor=[FlavorGroup("SM_flavor", 3)],
     )
 
-    quark_doublet = model.weyl_fermion("Q", chirality="L")
-    quark_doublet.set_rep("C", (1, 0))
-    quark_doublet.set_rep("L", 1)
-    quark_doublet.set_rep("Y", Fraction(1, 6))
-    quark_doublet.set_fundamental_flavor_rep("SM_flavor")
-    model.add_particle(quark_doublet)
+    model.add_weyl_fermion(
+        "Q",
+        chirality="L",
+        gauge_rep={"C": (1, 0), "L": 1, "Y": Fraction(1, 6)},
+        flavor_rep="SM_flavor",
+    )
 
-    higgs = model.scalar_boson("H")
-    higgs.set_rep("L", 1)
-    higgs.set_rep("Y", Fraction(1, 2))
-    model.add_particle(higgs)
+    model.add_scalar_boson(
+        "H", gauge_rep={"L": 1, "Y": Fraction(1, 2)}, self_conjugate=False
+    )
 
     model.break_gauge_symmetry("Y")
     model.break_gauge_symmetry("L", renaming={"Q": ["U_L", "D_L"]})

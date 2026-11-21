@@ -24,80 +24,74 @@ def build() -> Model:
         flavor=[FlavorGroup("SM_flavor", 3)],
     )
 
-    gaugino_B = model.weyl_fermion("sB", chirality="L")
-    gaugino_W = model.weyl_fermion("sW", chirality="L")
-    gaugino_G = model.weyl_fermion("sG", chirality="L")
-    for gaugino in (gaugino_B, gaugino_W, gaugino_G):
-        gaugino.set_self_conjugate(True)
-    gaugino_W.set_rep("L", (2,))
-    gaugino_G.set_rep("C", (1, 1))
-    for gaugino in (gaugino_B, gaugino_W, gaugino_G):
-        model.add_particle(gaugino)
+    model.add_weyl_fermion("sB", "L", self_conjugate=True)
+    model.add_weyl_fermion("sW", "L", gauge_rep={"L": (2,)}, self_conjugate=True)
+    model.add_weyl_fermion("sG", "L", gauge_rep={"C": (1, 1)}, self_conjugate=True)
 
-    L_L = model.weyl_fermion("L_L", chirality="L")
-    E_R = model.weyl_fermion("E_R", chirality="R")
-    L_L.set_rep("L", 1)
-    L_L.set_rep("Y", Fraction(-1, 2))
-    E_R.set_rep("Y", -1)
-    for lepton in (L_L, E_R):
-        lepton.set_fundamental_flavor_rep("SM_flavor")
-        model.add_particle(lepton)
+    model.add_weyl_fermion(
+        "L_L",
+        "L",
+        gauge_rep={"L": 1, "Y": Fraction(-1, 2)},
+        flavor_rep="SM_flavor",
+    )
+    model.add_weyl_fermion("E_R", "R", gauge_rep={"Y": -1}, flavor_rep="SM_flavor")
 
-    sL_L = model.scalar_boson("sL_L")
-    sE_R = model.scalar_boson("sE_R")
-    sL_L.set_rep("L", 1)
-    sL_L.set_rep("Y", Fraction(-1, 2))
-    sE_R.set_rep("Y", -1)
-    for slepton in (sL_L, sE_R):
-        slepton.set_fundamental_flavor_rep("SM_flavor")
-        model.add_particle(slepton)
+    model.add_scalar_boson(
+        "sL_L",
+        gauge_rep={"L": 1, "Y": Fraction(-1, 2)},
+        flavor_rep="SM_flavor",
+        self_conjugate=False,
+    )
+    model.add_scalar_boson(
+        "sE_R", gauge_rep={"Y": -1}, flavor_rep="SM_flavor", self_conjugate=False
+    )
 
-    Q_L = model.weyl_fermion("Q_L", chirality="L")
-    U_R = model.weyl_fermion("U_R", chirality="R")
-    D_R = model.weyl_fermion("D_R", chirality="R")
-    Q_L.set_rep("C", (1, 0))
-    Q_L.set_rep("L", 1)
-    Q_L.set_rep("Y", Fraction(1, 6))
-    U_R.set_rep("C", (1, 0))
-    U_R.set_rep("Y", Fraction(2, 3))
-    D_R.set_rep("C", (1, 0))
-    D_R.set_rep("Y", Fraction(-1, 3))
-    for quark in (Q_L, U_R, D_R):
-        quark.set_fundamental_flavor_rep("SM_flavor")
-        model.add_particle(quark)
+    model.add_weyl_fermion(
+        "Q_L",
+        "L",
+        gauge_rep={"C": (1, 0), "L": 1, "Y": Fraction(1, 6)},
+        flavor_rep="SM_flavor",
+    )
+    model.add_weyl_fermion(
+        "U_R",
+        "R",
+        gauge_rep={"C": (1, 0), "Y": Fraction(2, 3)},
+        flavor_rep="SM_flavor",
+    )
+    model.add_weyl_fermion(
+        "D_R",
+        "R",
+        gauge_rep={"C": (1, 0), "Y": Fraction(-1, 3)},
+        flavor_rep="SM_flavor",
+    )
 
-    squarks = [
-        model.scalar_boson("sQ_L"),
-        model.scalar_boson("sU_R"),
-        model.scalar_boson("sD_R"),
-    ]
-    squarks[0].set_rep("C", (1, 0))
-    squarks[0].set_rep("L", 1)
-    squarks[0].set_rep("Y", Fraction(1, 6))
-    squarks[1].set_rep("C", (1, 0))
-    squarks[1].set_rep("Y", Fraction(2, 3))
-    squarks[2].set_rep("C", (1, 0))
-    squarks[2].set_rep("Y", Fraction(-1, 3))
-    for squark in squarks:
-        squark.set_fundamental_flavor_rep("SM_flavor")
-        model.add_particle(squark)
+    model.add_scalar_boson(
+        "sQ_L",
+        gauge_rep={"C": (1, 0), "L": 1, "Y": Fraction(1, 6)},
+        flavor_rep="SM_flavor",
+        self_conjugate=False,
+    )
+    model.add_scalar_boson(
+        "sU_R",
+        gauge_rep={"C": (1, 0), "Y": Fraction(2, 3)},
+        flavor_rep="SM_flavor",
+        self_conjugate=False,
+    )
+    model.add_scalar_boson(
+        "sD_R",
+        gauge_rep={"C": (1, 0), "Y": Fraction(-1, 3)},
+        flavor_rep="SM_flavor",
+        self_conjugate=False,
+    )
 
-    Hu = model.scalar_boson("Hu")
-    Hd = model.scalar_boson("Hd")
-    Hu.set_rep("L", 1)
-    Hu.set_rep("Y", Fraction(1, 2))
-    Hd.set_rep("L", 1)
-    Hd.set_rep("Y", Fraction(-1, 2))
-    model.add_particle(Hu)
-    model.add_particle(Hd)
+    model.add_scalar_boson(
+        "Hu", gauge_rep={"L": 1, "Y": Fraction(1, 2)}, self_conjugate=False
+    )
+    model.add_scalar_boson(
+        "Hd", gauge_rep={"L": 1, "Y": Fraction(-1, 2)}, self_conjugate=False
+    )
 
-    s_Hu = model.weyl_fermion("sHu", chirality="L")
-    s_Hd = model.weyl_fermion("sHd", chirality="L")
-    s_Hu.set_rep("L", 1)
-    s_Hu.set_rep("Y", Fraction(1, 2))
-    s_Hd.set_rep("L", 1)
-    s_Hd.set_rep("Y", Fraction(-1, 2))
-    model.add_particle(s_Hu)
-    model.add_particle(s_Hd)
+    model.add_weyl_fermion("sHu", "L", gauge_rep={"L": 1, "Y": Fraction(1, 2)})
+    model.add_weyl_fermion("sHd", "L", gauge_rep={"L": 1, "Y": Fraction(-1, 2)})
 
     return model

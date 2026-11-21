@@ -95,6 +95,7 @@ class Particle {
     Particle createSimilarParticle(std::string const &name) const;
 
     void setSelfConjugate(bool selfConjugate);
+    bool isSelfConjugate() const;
 
     /// Default ghost boson of a vector boson, created on first use.
     Particle ghostBoson() const;

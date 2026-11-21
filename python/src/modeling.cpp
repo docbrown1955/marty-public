@@ -314,6 +314,9 @@ void bindModeling(py::module_ &m)
              &modeling::Particle::setSelfConjugate,
              py::arg("self_conjugate"),
              "Sets whether the particle is its own antiparticle.")
+        .def("is_self_conjugate",
+             &modeling::Particle::isSelfConjugate,
+             "Whether the particle is its own antiparticle.")
         .def("ghost_boson",
              &modeling::Particle::ghostBoson,
              "Default ghost boson of a vector boson, as a new particle.")
@@ -415,23 +418,6 @@ rule, negative indices count from the end.)doc")
              py::arg("flavor") = std::vector<modeling::FlavorGroup>{},
              "Model with the given gauge and flavor groups, initialized and "
              "with its gauge bosons named.")
-        .def("weyl_fermion",
-             &modeling::Model::weylFermion,
-             py::arg("name"),
-             py::arg("chirality") = "L",
-             "Unattached Weyl fermion, chirality \"L\" or \"R\".")
-        .def("dirac_fermion",
-             &modeling::Model::diracFermion,
-             py::arg("name"),
-             "Unattached Dirac fermion.")
-        .def("majorana_fermion",
-             &modeling::Model::majoranaFermion,
-             py::arg("name"),
-             "Unattached Majorana fermion.")
-        .def("scalar_boson",
-             &modeling::Model::scalarBoson,
-             py::arg("name"),
-             "Unattached real scalar boson.")
         .def(
             "add_weyl_fermion",
             [](modeling::Model   &self,
@@ -521,8 +507,8 @@ rule, negative indices count from the end.)doc")
             py::arg("flavor_rep")     = py::none(),
             py::arg("mass")           = py::none(),
             py::arg("self_conjugate") = true,
-            "Adds a scalar boson, real by default, with its gauge and flavor "
-            "representations and optional mass.")
+            "Adds a scalar boson, self-conjugate (real) by default, with its "
+            "gauge and flavor representations and optional mass.")
         .def(
             "create_similar_particle",
             [](modeling::Model   &self,

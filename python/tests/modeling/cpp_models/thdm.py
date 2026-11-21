@@ -62,45 +62,46 @@ def build() -> Model:
 
 def _add_fermions(model: Model) -> None:
     """Add the fermion content of ``SM_Model::initFermions``."""
-    quark_doublet = model.weyl_fermion("Q", chirality="L")
-    quark_doublet.set_rep("C", (1, 0))
-    quark_doublet.set_rep("L", 1)
-    quark_doublet.set_rep("Y", Fraction(1, 6))
-    quark_doublet.set_fundamental_flavor_rep("SM_flavor")
-    model.add_particle(quark_doublet)
-
-    up = model.weyl_fermion("U_R", chirality="R")
-    up.set_rep("C", (1, 0))
-    up.set_rep("Y", Fraction(2, 3))
-    up.set_fundamental_flavor_rep("SM_flavor")
-    model.add_particle(up)
-
-    down = model.weyl_fermion("D_R", chirality="R")
-    down.set_rep("C", (1, 0))
-    down.set_rep("Y", Fraction(-1, 3))
-    down.set_fundamental_flavor_rep("SM_flavor")
-    model.add_particle(down)
-
-    lepton_doublet = model.weyl_fermion("L", chirality="L")
-    lepton_doublet.set_rep("L", 1)
-    lepton_doublet.set_rep("Y", Fraction(-1, 2))
-    lepton_doublet.set_fundamental_flavor_rep("SM_flavor")
-    model.add_particle(lepton_doublet)
-
-    lepton = model.weyl_fermion("E_R", chirality="R")
-    lepton.set_rep("Y", -1)
-    lepton.set_fundamental_flavor_rep("SM_flavor")
-    model.add_particle(lepton)
+    model.add_weyl_fermion(
+        "Q",
+        chirality="L",
+        gauge_rep={"C": (1, 0), "L": 1, "Y": Fraction(1, 6)},
+        flavor_rep="SM_flavor",
+    )
+    model.add_weyl_fermion(
+        "U_R",
+        chirality="R",
+        gauge_rep={"C": (1, 0), "Y": Fraction(2, 3)},
+        flavor_rep="SM_flavor",
+    )
+    model.add_weyl_fermion(
+        "D_R",
+        chirality="R",
+        gauge_rep={"C": (1, 0), "Y": Fraction(-1, 3)},
+        flavor_rep="SM_flavor",
+    )
+    model.add_weyl_fermion(
+        "L",
+        chirality="L",
+        gauge_rep={"L": 1, "Y": Fraction(-1, 2)},
+        flavor_rep="SM_flavor",
+    )
+    model.add_weyl_fermion(
+        "E_R",
+        chirality="R",
+        gauge_rep={"Y": -1},
+        flavor_rep="SM_flavor",
+    )
 
 
 def _add_higgs_doublets(model: Model) -> None:
     """Add Phi1 and Phi2 of ``THDM_Model::initHiggsSector``."""
     for name in ("Phi1 ; \\Phi_{1}", "Phi2 ; \\Phi_{2}"):
-        higgs = model.scalar_boson(name)
-        higgs.set_self_conjugate(False)
-        higgs.set_rep("L", 1)
-        higgs.set_rep("Y", Fraction(1, 2))
-        model.add_particle(higgs)
+        model.add_scalar_boson(
+            name,
+            gauge_rep={"L": 1, "Y": Fraction(1, 2)},
+            self_conjugate=False,
+        )
 
 
 def _add_higgs_potential(model: Model) -> None:
@@ -148,14 +149,12 @@ def _replace_higgs(model: Model) -> None:
     lambda4 = constant("lambda_4;\\lambda_{4}")
     lambda5 = constant("lambda_5;\\lambda_{5}")
 
-    phi1_charged = model.scalar_boson("phi_1")
-    phi2_charged = model.scalar_boson("phi_2")
-    rho_1 = model.scalar_boson("rho_1")
-    rho_2 = model.scalar_boson("rho_2")
-    eta_1 = model.scalar_boson("eta_1")
-    eta_2 = model.scalar_boson("eta_2")
-    for neutral in (rho_1, rho_2, eta_1, eta_2):
-        neutral.set_self_conjugate(True)
+    phi1_charged = model.add_scalar_boson("phi_1", self_conjugate=False)
+    phi2_charged = model.add_scalar_boson("phi_2", self_conjugate=False)
+    rho_1 = model.add_scalar_boson("rho_1", self_conjugate=True)
+    rho_2 = model.add_scalar_boson("rho_2", self_conjugate=True)
+    eta_1 = model.add_scalar_boson("eta_1", self_conjugate=True)
+    eta_2 = model.add_scalar_boson("eta_2", self_conjugate=True)
 
     model.replace(model.particle("Phi1_1"), phi1_charged())
     model.replace(model.particle("Phi1_2"), (rho_1() + I * eta_1() + v1) / sqrt(2))
@@ -188,10 +187,8 @@ def _diagonalize_2by2(model: Model) -> None:
 
     eta_1 = model.particle("eta_1")
     eta_2 = model.particle("eta_2")
-    goldstone_0 = model.scalar_boson("G0; G^0")
-    pseudoscalar = model.scalar_boson("A0; A^0")
-    goldstone_0.set_self_conjugate(True)
-    pseudoscalar.set_self_conjugate(True)
+    goldstone_0 = model.add_scalar_boson("G0; G^0", self_conjugate=True)
+    pseudoscalar = model.add_scalar_boson("A0; A^0", self_conjugate=True)
     model.rotate_fields(
         [eta_1, eta_2],
         [goldstone_0, pseudoscalar],
@@ -202,8 +199,8 @@ def _diagonalize_2by2(model: Model) -> None:
 
     phi_1 = model.particle("phi_1")
     phi_2 = model.particle("phi_2")
-    goldstone_p = model.scalar_boson("Gp; G^+")
-    charged_higgs = model.scalar_boson("Hp; H^+")
+    goldstone_p = model.add_scalar_boson("Gp; G^+", self_conjugate=False)
+    charged_higgs = model.add_scalar_boson("Hp; H^+", self_conjugate=False)
     model.rotate_fields(
         [phi_1, phi_2],
         [goldstone_p, charged_higgs],
@@ -214,10 +211,8 @@ def _diagonalize_2by2(model: Model) -> None:
 
     rho_1 = model.particle("rho_1")
     rho_2 = model.particle("rho_2")
-    h = model.scalar_boson("h; h^0")
-    heavy_h = model.scalar_boson("H0; H^0")
-    h.set_self_conjugate(True)
-    heavy_h.set_self_conjugate(True)
+    h = model.add_scalar_boson("h; h^0", self_conjugate=True)
+    heavy_h = model.add_scalar_boson("H0; H^0", self_conjugate=True)
     model.rotate_fields(
         [rho_1, rho_2],
         [h, heavy_h],
@@ -234,8 +229,7 @@ def _replace_w_bosons(model: Model) -> None:
     """
     w_1 = model.particle("W_1")
     w_2 = model.particle("W_2")
-    w = w_1.create_similar_particle("W")
-    w.set_self_conjugate(False)
+    w = model.create_similar_particle("W", reference="W_1", self_conjugate=False)
     mu = Minkowski.index()
     nu = Minkowski.index()
     model.replace(w_1(mu), (w(mu) + w(mu).conjugate()) / sqrt(2))

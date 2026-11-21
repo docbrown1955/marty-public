@@ -72,9 +72,11 @@ Checks: `pytest -m "not slow"` on `tests/modeling` and `test_usage_examples.py` 
 ### One-call model builders
 
 - `Model.add_weyl_fermion`, `add_dirac_fermion`, `add_majorana_fermion` and `add_scalar_boson` create the field and attach it in one call (`addField` in `python/src/modeling.cpp`). Arguments: `gauge_rep` (dict), `flavor_rep` (one flavour-group name), `mass` (`Expr`) and `self_conjugate`. Only the name is required.
-- Defaults: scalars are self-conjugate (real). Dirac and Weyl are not. Majorana is always self-conjugate, so it has no `self_conjugate` argument.
+- Defaults: scalars are self-conjugate (real) by default, as requested. Dirac and Weyl default to not self-conjugate. Majorana is always self-conjugate, so it has no `self_conjugate` argument.
 - Decision: Weyl fermions take no `mass` argument. Use `add_fermionic_mass`.
-- Decision: the unattached factories (`weyl_fermion`, `dirac_fermion`, `majorana_fermion`, `scalar_boson`) and the setters (`set_rep`, `set_self_conjugate`, `set_fundamental_flavor_rep`) stay public. The partial model recreations still use them.
-- `Particle.similar` is renamed `Particle.create_similar_particle`. It stays unattached. `Model.create_similar_particle(name, reference, *, self_conjugate=None, mass=None)` attaches the result.
-- Deferred: migrating the remaining recreations (mssm, nmfv, pmssm, thdm, gthdm, sm, qed, qcd) to the builders. The `test_ports.py` and example call sites were migrated.
-- Gap: there is no Python getter for self-conjugacy, so tests cannot read it back. Adding one needs a facade getter (`Particle::isSelfConjugate`), which was not added in this round.
+- Decision: the unattached factories (`weyl_fermion`, `dirac_fermion`, `majorana_fermion`, `scalar_boson`) are retired from the Python surface, because no recreation or test uses them. The C++ facade methods stay, since the builders call them. The `Particle` setters (`set_rep`, `set_self_conjugate`, `set_fundamental_flavor_rep`) stay for unattached particles from `Particle.create_similar_particle`.
+- Decision: charged or complex scalars in the recreations pass `self_conjugate=False` explicitly (SM `H`, the MSSM and PMSSM sfermions and Higgs doublets, NMFV `sL_L`, `sE_R`, `sQ_L`, `sU_R`, `sD_R`, `Hu`, `Hd`, and THDM/GTHDM doublets). The `True` default would make these invalid, for example `H` fails the gauge-invariance check.
+- `Particle.create_similar_particle` stays unattached. `Model.create_similar_particle(name, reference, *, self_conjugate=None, mass=None)` attaches the result.
+- Done: all recreations (`qed`, `qcd`, `sm`, `mssm`, `nmfv`, `pmssm`, `thdm`, `gthdm`), `test_ports.py`, `test_modeling_api.py` and the example use the builders.
+- Done: `Particle.is_self_conjugate()` getter (`Particle::isSelfConjugate` in the facade). `test_is_self_conjugate_reflects_builder_flags` checks it.
+

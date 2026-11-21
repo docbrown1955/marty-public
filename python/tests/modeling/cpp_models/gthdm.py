@@ -41,20 +41,21 @@ def _add_fermions(model: Model) -> None:
         ("E_R", "R", {"Y": Fraction(-1)}),
     ]
     for name, chirality, reps in fermions:
-        fermion = model.weyl_fermion(name, chirality=chirality)
-        for group, rep in reps.items():
-            fermion.set_rep(group, rep)
-        fermion.set_fundamental_flavor_rep(FLAVOR_GROUP)
-        model.add_particle(fermion)
+        model.add_weyl_fermion(
+            name,
+            chirality=chirality,
+            gauge_rep=reps,
+            flavor_rep=FLAVOR_GROUP,
+        )
 
 
 def _add_scalars(model: Model) -> None:
     for name in ("Phi1 ; \\Phi_{1}", "Phi2 ; \\Phi_{2}"):
-        phi = model.scalar_boson(name)
-        phi.set_self_conjugate(False)
-        phi.set_rep("L", 1)
-        phi.set_rep("Y", Fraction(1, 2))
-        model.add_particle(phi)
+        model.add_scalar_boson(
+            name,
+            gauge_rep={"L": 1, "Y": Fraction(1, 2)},
+            self_conjugate=False,
+        )
 
 
 def _add_higgs_potential(model: Model) -> None:
@@ -101,17 +102,12 @@ def _break_gauge_and_expand_higgs(model: Model) -> None:
     tan_beta = tan(beta)
     v2 = v1 * tan_beta
 
-    phi1_c = model.scalar_boson("phi_1")
-    phi2_c = model.scalar_boson("phi_2")
-    rho_1 = model.scalar_boson("rho_1")
-    rho_2 = model.scalar_boson("rho_2")
-    eta_1 = model.scalar_boson("eta_1")
-    eta_2 = model.scalar_boson("eta_2")
-    for particle in (phi1_c, phi2_c):
-        model.add_particle(particle)
-    for particle in (rho_1, rho_2, eta_1, eta_2):
-        particle.set_self_conjugate(True)
-        model.add_particle(particle)
+    phi1_c = model.add_scalar_boson("phi_1", self_conjugate=False)
+    phi2_c = model.add_scalar_boson("phi_2", self_conjugate=False)
+    rho_1 = model.add_scalar_boson("rho_1", self_conjugate=True)
+    rho_2 = model.add_scalar_boson("rho_2", self_conjugate=True)
+    eta_1 = model.add_scalar_boson("eta_1", self_conjugate=True)
+    eta_2 = model.add_scalar_boson("eta_2", self_conjugate=True)
 
     model.replace(model.particle("Phi1_1"), phi1_c.expr())
     model.replace(
@@ -158,11 +154,8 @@ def _diagonalize_2x2(model: Model) -> None:
     beta = constant("beta;\\beta")
     alpha = constant("alpha;\\alpha")
 
-    G0 = model.scalar_boson("G0; G^0")
-    A0 = model.scalar_boson("A0; A^0")
-    for particle in (G0, A0):
-        particle.set_self_conjugate(True)
-        model.add_particle(particle)
+    G0 = model.add_scalar_boson("G0; G^0", self_conjugate=True)
+    A0 = model.add_scalar_boson("A0; A^0", self_conjugate=True)
     model.rotate_fields(
         [model.particle("eta_1"), model.particle("eta_2")],
         [G0, A0],
@@ -171,10 +164,8 @@ def _diagonalize_2x2(model: Model) -> None:
         n_mass_less_fields=1,
     )
 
-    Gp = model.scalar_boson("Gp; G^+")
-    Hp = model.scalar_boson("Hp; H^+")
-    model.add_particle(Gp)
-    model.add_particle(Hp)
+    Gp = model.add_scalar_boson("Gp; G^+", self_conjugate=False)
+    Hp = model.add_scalar_boson("Hp; H^+", self_conjugate=False)
     model.rotate_fields(
         [model.particle("phi_1"), model.particle("phi_2")],
         [Gp, Hp],
@@ -183,11 +174,8 @@ def _diagonalize_2x2(model: Model) -> None:
         n_mass_less_fields=1,
     )
 
-    h = model.scalar_boson("h; h^0")
-    H = model.scalar_boson("H0; H^0")
-    for particle in (h, H):
-        particle.set_self_conjugate(True)
-        model.add_particle(particle)
+    h = model.add_scalar_boson("h; h^0", self_conjugate=True)
+    H = model.add_scalar_boson("H0; H^0", self_conjugate=True)
     model.rotate_fields(
         [model.particle("rho_1"), model.particle("rho_2")],
         [h, H],
@@ -202,9 +190,7 @@ def _diagonalize_2x2(model: Model) -> None:
 def _replace_w_bosons(model: Model) -> None:
     W1 = model.particle("W_1")
     W2 = model.particle("W_2")
-    W = W1.create_similar_particle("W")
-    W.set_self_conjugate(False)
-    model.add_particle(W)
+    W = model.create_similar_particle("W", reference="W_1", self_conjugate=False)
 
     mu = Minkowski.index()
     nu = Minkowski.index()

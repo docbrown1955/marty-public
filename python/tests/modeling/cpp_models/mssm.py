@@ -39,41 +39,37 @@ def build() -> Model:
         flavor=[FlavorGroup("SM_flavor", 3)],
     )
 
-    gaugino_b = model.majorana_fermion("sB ; \\tilde{B}")
-    gaugino_w = model.majorana_fermion("sW ; \\tilde{W}")
-    gaugino_w.set_rep("L", 2)
-    gaugino_g = model.majorana_fermion("sG; \\tilde{G}")
-    gaugino_g.set_rep("C", [1, 1])
-    for gaugino in (gaugino_b, gaugino_w, gaugino_g):
-        model.add_particle(gaugino)
+    model.add_majorana_fermion("sB ; \\tilde{B}")
+    model.add_majorana_fermion("sW ; \\tilde{W}", gauge_rep={"L": 2})
+    model.add_majorana_fermion("sG; \\tilde{G}", gauge_rep={"C": [1, 1]})
 
-    lepton = model.weyl_fermion("L_L", chirality="L")
-    lepton.set_rep("L", 1)
-    lepton.set_rep("Y", Fraction(-1, 2))
-    lepton.set_fundamental_flavor_rep("SM_flavor")
-
-    right_lepton = model.weyl_fermion("E_R", chirality="R")
-    right_lepton.set_rep("Y", -1)
-    right_lepton.set_fundamental_flavor_rep("SM_flavor")
-
-    quark = model.weyl_fermion("Q_L", chirality="L")
-    quark.set_rep("C", [1, 0])
-    quark.set_rep("L", 1)
-    quark.set_rep("Y", Fraction(1, 6))
-    quark.set_fundamental_flavor_rep("SM_flavor")
-
-    up = model.weyl_fermion("U_R", chirality="R")
-    up.set_rep("C", [1, 0])
-    up.set_rep("Y", Fraction(2, 3))
-    up.set_fundamental_flavor_rep("SM_flavor")
-
-    down = model.weyl_fermion("D_R", chirality="R")
-    down.set_rep("C", [1, 0])
-    down.set_rep("Y", Fraction(-1, 3))
-    down.set_fundamental_flavor_rep("SM_flavor")
-
-    for field in (lepton, right_lepton, quark, up, down):
-        model.add_particle(field)
+    model.add_weyl_fermion(
+        "L_L",
+        chirality="L",
+        gauge_rep={"L": 1, "Y": Fraction(-1, 2)},
+        flavor_rep="SM_flavor",
+    )
+    model.add_weyl_fermion(
+        "E_R", chirality="R", gauge_rep={"Y": -1}, flavor_rep="SM_flavor"
+    )
+    model.add_weyl_fermion(
+        "Q_L",
+        chirality="L",
+        gauge_rep={"C": [1, 0], "L": 1, "Y": Fraction(1, 6)},
+        flavor_rep="SM_flavor",
+    )
+    model.add_weyl_fermion(
+        "U_R",
+        chirality="R",
+        gauge_rep={"C": [1, 0], "Y": Fraction(2, 3)},
+        flavor_rep="SM_flavor",
+    )
+    model.add_weyl_fermion(
+        "D_R",
+        chirality="R",
+        gauge_rep={"C": [1, 0], "Y": Fraction(-1, 3)},
+        flavor_rep="SM_flavor",
+    )
 
     scalar_reps: dict[str, dict[str, object]] = {
         "sL_L ; \\tilde{L_L}": {"L": 1, "Y": Fraction(-1, 2)},
@@ -83,26 +79,24 @@ def build() -> Model:
         "sD_R ; \\tilde{D_R}": {"C": [1, 0], "Y": Fraction(-1, 3)},
     }
     for name, reps in scalar_reps.items():
-        scalar = model.scalar_boson(name)
-        for group, rep in reps.items():
-            scalar.set_rep(group, rep)
-        scalar.set_fundamental_flavor_rep("SM_flavor")
-        model.add_particle(scalar)
+        model.add_scalar_boson(
+            name, gauge_rep=reps, flavor_rep="SM_flavor", self_conjugate=False
+        )
 
-    higgs_up = model.scalar_boson("Hu;H_{u}")
-    higgs_up.set_rep("L", 1)
-    higgs_up.set_rep("Y", Fraction(1, 2))
-    model.add_particle(higgs_up)
+    model.add_scalar_boson(
+        "Hu;H_{u}",
+        gauge_rep={"L": 1, "Y": Fraction(1, 2)},
+        self_conjugate=False,
+    )
 
-    higgs_down = model.scalar_boson("Hd;H_{d}")
-    higgs_down.set_rep("L", 1)
-    higgs_down.set_rep("Y", Fraction(-1, 2))
-    model.add_particle(higgs_down)
+    model.add_scalar_boson(
+        "Hd;H_{d}",
+        gauge_rep={"L": 1, "Y": Fraction(-1, 2)},
+        self_conjugate=False,
+    )
 
     for name in ("sHu ; \\tilde{Hu}", "sHd ; \\tilde{Hd}"):
-        higgsino = model.weyl_fermion(name, chirality="L")
-        higgsino.set_rep("L", 1)
-        model.add_particle(higgsino)
+        model.add_weyl_fermion(name, chirality="L", gauge_rep={"L": 1})
 
     _add_higgsino_mass(model)
     return model

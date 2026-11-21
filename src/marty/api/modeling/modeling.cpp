@@ -160,6 +160,11 @@ void Particle::setSelfConjugate(bool selfConjugate)
     });
 }
 
+bool Particle::isSelfConjugate() const
+{
+    return guarded([&] { return m_particle->isSelfConjugate(); });
+}
+
 Particle Particle::ghostBoson() const
 {
     auto ghost = guarded([&] {

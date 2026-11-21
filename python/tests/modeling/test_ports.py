@@ -92,16 +92,9 @@ def make_toy_model() -> Model:
             GaugeGroup(U(1), name="Y", boson_name="B"),
         ]
     )
-    Q_L = toy.weyl_fermion("Q_L", chirality="L")
-    u_R = toy.weyl_fermion("u_R", chirality="R")
-    d_R = toy.weyl_fermion("d_R", chirality="R")
-    Q_L.set_rep("L", 1)
-    Q_L.set_rep("Y", Fraction(1, 6))
-    u_R.set_rep("Y", Fraction(2, 3))
-    d_R.set_rep("Y", Fraction(-1, 3))
-    toy.add_particle(Q_L)
-    toy.add_particle(u_R)
-    toy.add_particle(d_R)
+    toy.add_weyl_fermion("Q_L", chirality="L", gauge_rep={"L": 1, "Y": Fraction(1, 6)})
+    toy.add_weyl_fermion("u_R", chirality="R", gauge_rep={"Y": Fraction(2, 3)})
+    toy.add_weyl_fermion("d_R", chirality="R", gauge_rep={"Y": Fraction(-1, 3)})
     toy.break_gauge_symmetry("Y")
     toy.break_gauge_symmetry("L", renaming={"Q_L": ["u_L", "d_L"]})
     return toy
@@ -130,10 +123,7 @@ def make_unbroken_model() -> Model:
             GaugeGroup(U(1), name="Y", boson_name="B"),
         ]
     )
-    Q_L = toy.weyl_fermion("Q_L", chirality="L")
-    Q_L.set_rep("L", 1)
-    Q_L.set_rep("Y", Fraction(1, 6))
-    toy.add_particle(Q_L)
+    toy.add_weyl_fermion("Q_L", chirality="L", gauge_rep={"L": 1, "Y": Fraction(1, 6)})
     return toy
 
 
@@ -141,7 +131,7 @@ def test_spin_follows_the_lorentz_representation() -> None:
     assert make_toy_model().particle("W_1").spin == 1
     toy = make_unbroken_model()
     assert toy.particle("Q_L").spin == Fraction(1, 2)
-    assert toy.scalar_boson("H").spin == 0
+    assert toy.add_scalar_boson("H", self_conjugate=False).spin == 0
 
 
 def test_irreps_are_read_per_gauge_group() -> None:
@@ -200,8 +190,7 @@ def make_getting_started_model() -> Model:
     W_2 = toy.particle("W_2")
     F_W_1 = W_1.field_strength()
     F_W_2 = W_2.field_strength()
-    W = W_1.create_similar_particle("W")
-    W.set_self_conjugate(False)
+    W = toy.create_similar_particle("W", reference="W_1", self_conjugate=False)
     mu = Minkowski.index()
     nu = Minkowski.index()
     toy.replace(W_1(mu), (W(mu) + W(mu).conjugate()) / sqrt(2))
@@ -258,16 +247,9 @@ def make_simple_spectrum_model() -> Model:
         flavor=[FlavorGroup("dark_flavor", 10)],
     )
     spinor = dirac_index()
-    H = toy.scalar_boson("H")
-    H.set_rep("L", 1)
-    toy.add_particle(H)
-    phi = toy.scalar_boson("phi")
-    phi.set_rep("D", 1)
-    toy.add_particle(phi)
-    Psi = toy.dirac_fermion("Psi")
-    Psi.set_rep("D", 1)
-    Psi.set_fundamental_flavor_rep("dark_flavor")
-    toy.add_particle(Psi)
+    H = toy.add_scalar_boson("H", gauge_rep={"L": 1}, self_conjugate=False)
+    phi = toy.add_scalar_boson("phi", gauge_rep={"D": 1}, self_conjugate=False)
+    Psi = toy.add_dirac_fermion("Psi", gauge_rep={"D": 1}, flavor_rep="dark_flavor")
 
     flavor_i = toy.generate_index("dark_flavor")
     i = toy.generate_index("L", "H")
@@ -297,15 +279,12 @@ def make_simple_spectrum_model() -> Model:
     VD_2 = toy.particle("VD_2")
     F_VD_1 = VD_1.field_strength()
     F_VD_2 = VD_2.field_strength()
-    VW = VD_1.create_similar_particle("VW")
-    VW.set_self_conjugate(False)
+    VW = toy.create_similar_particle("VW", reference="VD_1", self_conjugate=False)
     mu = Minkowski.index()
     nu = Minkowski.index()
     ph0 = toy.particle("ph0")
-    phR = ph0.create_similar_particle("phR")
-    phR.set_self_conjugate(True)
-    phI = ph0.create_similar_particle("phI")
-    phI.set_self_conjugate(True)
+    phR = toy.create_similar_particle("phR", reference="ph0", self_conjugate=True)
+    phI = toy.create_similar_particle("phI", reference="ph0", self_conjugate=True)
     toy.replace(
         ph0,
         (constant("vph") + phR.expr() + I * phI.expr()) / sqrt(2),

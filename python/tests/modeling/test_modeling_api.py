@@ -30,30 +30,30 @@ def test_unknown_particle_is_lookup_error() -> None:
 
 @pytest.mark.parity("ModelingApi.ChargeOnNonU1GroupIsTypeError")
 def test_charge_on_non_u1_group_is_type_error() -> None:
-    q = make_toy().weyl_fermion("Q_L", chirality="L")
+    toy = make_toy()
     with pytest.raises(MartyTypeError):
-        q.set_rep("L", Fraction(1, 6))
-    q.set_rep("Y", Fraction(1, 6))
+        toy.add_weyl_fermion("Q_L", chirality="L", gauge_rep={"L": Fraction(1, 6)})
+    toy.add_weyl_fermion("Q_L", chirality="L", gauge_rep={"Y": Fraction(1, 6)})
 
 
 @pytest.mark.parity("ModelingApi.LabelsOnU1GroupIsTypeError")
 def test_labels_on_u1_group_is_type_error() -> None:
-    q = make_toy().weyl_fermion("Q_L", chirality="L")
+    toy = make_toy()
     with pytest.raises(MartyTypeError):
-        q.set_rep("Y", [1])
+        toy.add_weyl_fermion("Q_L", chirality="L", gauge_rep={"Y": [1]})
 
 
 @pytest.mark.parity("ModelingApi.UnknownChiralityIsValueError")
 def test_unknown_chirality_is_value_error() -> None:
     with pytest.raises(MartyValueError):
-        make_toy().weyl_fermion("Q_L", chirality="X")
+        make_toy().add_weyl_fermion("Q_L", chirality="X")
 
 
 @pytest.mark.parity("ModelingApi.CallsRestoreCurrentModel")
 def test_models_are_independent() -> None:
     toy = make_toy()
     other = make_toy()
-    toy.add_particle(toy.weyl_fermion("Q_L", chirality="L"))
+    toy.add_weyl_fermion("Q_L", chirality="L")
     assert "Q_L" in toy
     assert "Q_L" not in other
     with pytest.raises(MartyLookupError):
@@ -64,8 +64,8 @@ def test_models_are_independent() -> None:
 @pytest.mark.parity("ModelingApi.RenameParticleChecksNames")
 def test_rename_particle_checks_names() -> None:
     toy = make_toy()
-    toy.add_particle(toy.weyl_fermion("Q_L", chirality="L"))
-    toy.add_particle(toy.dirac_fermion("E"))
+    toy.add_weyl_fermion("Q_L", chirality="L")
+    toy.add_dirac_fermion("E")
     with pytest.raises(MartyLookupError):
         toy.rename_particle("no_such_particle", "X")
     with pytest.raises(MartyValueError):
@@ -89,8 +89,8 @@ def test_flavor_group_needs_a_flavor() -> None:
 @pytest.mark.parity("ModelingApi.ParticleFactoriesAndRefresh")
 def test_particle_factories_and_refresh() -> None:
     toy = make_toy()
-    toy.add_particle(toy.scalar_boson("phi"))
-    toy.add_particle(toy.majorana_fermion("chi"))
+    toy.add_scalar_boson("phi", self_conjugate=False)
+    toy.add_majorana_fermion("chi")
     assert "phi" in toy
     assert "chi" in toy
     toy.refresh()
@@ -122,11 +122,9 @@ def test_custom_gauge_coupling_name_is_used() -> None:
 @pytest.mark.parity("ModelingApi.MassAndRotationRejectInconsistentInput")
 def test_mass_and_rotation_reject_inconsistent_input() -> None:
     toy = make_toy()
-    phi = toy.scalar_boson("phi")
-    qL = toy.weyl_fermion("Q_L", chirality="L")
-    qR = toy.weyl_fermion("Q_R", chirality="R")
-    for particle in (phi, qL, qR):
-        toy.add_particle(particle)
+    phi = toy.add_scalar_boson("phi", self_conjugate=False)
+    qL = toy.add_weyl_fermion("Q_L", chirality="L")
+    qR = toy.add_weyl_fermion("Q_R", chirality="R")
     toy.add_bosonic_mass(phi, toy.new_coupling("m"))
     toy.add_fermionic_mass(qL, qR, toy.new_coupling("y"))
     with pytest.raises(MartyError):
@@ -179,13 +177,8 @@ def make_flavored_model() -> Model:
         gauge=[GaugeGroup(SU(2), name="L", boson_name="W")],
         flavor=[FlavorGroup("F", 2)],
     )
-    Q = model.weyl_fermion("Q", chirality="L")
-    Q.set_rep("L", 1)
-    Q.set_fundamental_flavor_rep("F")
-    model.add_particle(Q)
-    H = model.scalar_boson("H")
-    H.set_rep("L", 1)
-    model.add_particle(H)
+    model.add_weyl_fermion("Q", chirality="L", gauge_rep={"L": 1}, flavor_rep="F")
+    model.add_scalar_boson("H", gauge_rep={"L": 1}, self_conjugate=False)
     return model
 
 
@@ -221,7 +214,7 @@ def test_ghost_bosons_are_created_and_linked() -> None:
 @pytest.mark.unit
 def test_particle_without_ghost_is_type_error() -> None:
     toy = make_toy()
-    fermion = toy.weyl_fermion("F", chirality="L")
+    fermion = toy.add_weyl_fermion("F", chirality="L")
     with pytest.raises(MartyTypeError):
         fermion.ghost_boson()
 
@@ -252,3 +245,15 @@ def test_create_similar_particle_attaches_to_model() -> None:
     toy.add_scalar_boson("phi", gauge_rep={"L": 1})
     toy.create_similar_particle("phi2", reference="phi", self_conjugate=False)
     assert {"phi", "phi2"} <= {p.name for p in toy.particles}
+
+
+@pytest.mark.unit
+def test_is_self_conjugate_reflects_builder_flags() -> None:
+    toy = make_toy()
+    real = toy.add_scalar_boson("phi", gauge_rep={"L": 1}, self_conjugate=True)
+    complex_ = toy.add_scalar_boson("chi", gauge_rep={"L": 1}, self_conjugate=False)
+    assert real.is_self_conjugate()
+    assert not complex_.is_self_conjugate()
+    assert not toy.create_similar_particle(
+        "chi2", reference="chi", self_conjugate=False
+    ).is_self_conjugate()
