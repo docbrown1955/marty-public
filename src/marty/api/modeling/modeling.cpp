@@ -20,6 +20,7 @@
 #include "csl/replace.h"
 #include "marty/core/amplitude.h"
 #include "marty/core/fermionicField.h"
+#include "marty/core/ghostField.h"
 #include "marty/core/mrtInterface.h"
 #include "marty/core/scalarField.h"
 #include "marty/models/qed.h"
@@ -156,6 +157,26 @@ void Particle::setSelfConjugate(bool selfConjugate)
     guarded([&] {
         Session session(m_state->core.get());
         m_particle->setSelfConjugate(selfConjugate);
+    });
+}
+
+Particle Particle::ghostBoson() const
+{
+    auto ghost = guarded([&] {
+        Session session(m_state->core.get());
+        return m_particle->getGhostBoson();
+    });
+    if (!ghost) {
+        throw TypeError("particle \"" + name() + "\" has no ghost boson");
+    }
+    return Particle(m_state, ghost);
+}
+
+void Particle::setConjugatedGhostBoson(Particle const &ghost)
+{
+    guarded([&] {
+        Session session(m_state->core.get());
+        m_particle->setConjugatedGhostBoson(ghost.raw());
     });
 }
 
@@ -459,6 +480,17 @@ Particle Model::particle(std::string const &name) const
             return Particle(m_state, part);
     }
     throw LookupError("no particle named \"" + name + "\"");
+}
+
+Particle Model::ghostBoson(Particle const &vectorBoson,
+                           std::string const &name,
+                           bool               conjugated)
+{
+    auto ghost = guarded([&] {
+        Session session(m_state->core.get());
+        return ghostboson_s(name, vectorBoson.raw(), conjugated);
+    });
+    return Particle(m_state, ghost);
 }
 
 bool Model::contains(std::string const &name) const

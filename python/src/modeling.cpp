@@ -278,6 +278,13 @@ void bindModeling(py::module_ &m)
              &modeling::Particle::setSelfConjugate,
              py::arg("self_conjugate"),
              "Sets whether the particle is its own antiparticle.")
+        .def("ghost_boson",
+             &modeling::Particle::ghostBoson,
+             "Default ghost boson of a vector boson, as a new particle.")
+        .def("set_conjugated_ghost_boson",
+             &modeling::Particle::setConjugatedGhostBoson,
+             py::arg("ghost"),
+             "Declares the conjugated ghost boson of a vector boson.")
         .def("set_fundamental_flavor_rep",
              &modeling::Particle::setFundamentalFlavorRep,
              py::arg("flavor_group"),
@@ -393,6 +400,13 @@ rule, negative indices count from the end.)doc")
              &modeling::Model::addParticle,
              py::arg("particle"),
              "Adds a particle to the model.")
+        .def("ghost_boson",
+             &modeling::Model::ghostBoson,
+             py::arg("vector_boson"),
+             py::arg("name"),
+             py::arg("conjugated") = false,
+             "Ghost boson of a vector boson with the given name, as a new "
+             "particle.")
         .def("particle",
              &modeling::Model::particle,
              py::arg("name"),

@@ -205,3 +205,21 @@ def test_flavor_breaking_default_names_and_unbroken_rename_is_value_error() -> N
     model = make_flavored_model()
     model.break_flavor_symmetry("F")
     assert {"Q_1", "Q_2", "H"} <= {p.name for p in model.particles}
+
+
+@pytest.mark.unit
+def test_ghost_bosons_are_created_and_linked() -> None:
+    toy = make_toy()
+    boson = toy.particle("W")
+    assert boson.ghost_boson().name == "c_W"
+    conjugated = toy.ghost_boson(boson, "c_Wm", conjugated=True)
+    assert conjugated.name == "c_Wm"
+    boson.set_conjugated_ghost_boson(conjugated)
+
+
+@pytest.mark.unit
+def test_particle_without_ghost_is_type_error() -> None:
+    toy = make_toy()
+    fermion = toy.weyl_fermion("F", chirality="L")
+    with pytest.raises(MartyTypeError):
+        fermion.ghost_boson()

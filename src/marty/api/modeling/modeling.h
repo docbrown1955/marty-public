@@ -96,6 +96,12 @@ class Particle {
 
     void setSelfConjugate(bool selfConjugate);
 
+    /// Default ghost boson of a vector boson, created on first use.
+    Particle ghostBoson() const;
+
+    /// Declares the conjugated ghost boson of a vector boson.
+    void setConjugatedGhostBoson(Particle const &ghost);
+
     /// Sets the representation of the particle in a flavor group.
     void setFundamentalFlavorRep(std::string const &flavorGroup);
 
@@ -222,6 +228,11 @@ class Model {
 
     /// Adds a particle to the model.
     void addParticle(Particle const &particle);
+
+    /// Ghost boson of a vector boson, with a given name, as a new particle.
+    Particle ghostBoson(Particle const &vectorBoson,
+                        std::string const &name,
+                        bool               conjugated = false);
 
     /// Particle of the model with the given name (LookupError if absent).
     Particle particle(std::string const &name) const;
