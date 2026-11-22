@@ -254,3 +254,29 @@ def test_vector_space_builds_tensor_coupling() -> None:
     toy.add_tensor_coupling(yukawa)
     toy.finalize()
     assert toy.is_finalized()
+
+
+@pytest.mark.unit
+def test_covariant_derivative_of_doublet_contains_gauge_boson() -> None:
+    toy = make_toy()
+    phi = toy.add_scalar_boson("phi", gauge_rep={"L": 1}, self_conjugate=False)
+    index = toy.generate_index("L", "phi")
+    mu = toy.generate_minkowski_index()
+    derivative = toy.covariant_derivative("L", phi, mu, [index])
+    assert "W" in str(derivative)
+
+
+@pytest.mark.unit
+def test_covariant_derivative_of_singlet_vanishes() -> None:
+    toy = make_toy()
+    singlet = toy.add_scalar_boson("s", self_conjugate=False)
+    mu = toy.generate_minkowski_index()
+    assert str(toy.covariant_derivative("L", singlet, mu)) == "0"
+
+
+@pytest.mark.unit
+def test_collect_terms_on_finalized_model_is_state_error() -> None:
+    toy = make_toy()
+    toy.finalize()
+    with pytest.raises(MartyStateError):
+        toy.collect_terms()

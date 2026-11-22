@@ -6,7 +6,9 @@ adjust steps are shared with THDM (``add_thdm_content``). Only the Yukawa
 replacement differs: it is ``replace_gthdm_yukawas``, with the xi
 parametrisation of the second doublet couplings and the generic CKM matrix.
 
-Not ported, as for THDM: ``getMass``/``setMass`` and ``mergeTerms``.
+Not ported, as for THDM: ``getMass``/``setMass``. ``mergeTerms`` is exposed as
+``Model.collect_terms`` but not called: calling it after the adjust steps did not
+split generations 2 and 3.
 """
 
 from pymarty.group_theory import SU, U

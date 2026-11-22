@@ -570,6 +570,29 @@ void bindModeling(py::module_ &m)
              py::arg("goldstone"),
              py::arg("gauge_boson"),
              "Promotes a scalar to the Goldstone boson of a gauge boson.")
+        .def("collect_terms",
+             &modeling::Model::collectTerms,
+             "Collects the Lagrangian terms with the same fields, summing "
+             "their expressions.")
+        .def(
+            "covariant_derivative",
+            [](modeling::Model const    &self,
+               std::string const        &group,
+               modeling::Particle const &field,
+               py::handle                mu,
+               py::iterable              indices) {
+                std::vector<csl::Index> fieldIndices;
+                for (py::handle item : indices)
+                    fieldIndices.push_back(coreIndex(item));
+                return ExprHandle(self.covariantDerivative(
+                    group, field, coreIndex(mu), fieldIndices));
+            },
+            py::arg("group"),
+            py::arg("field"),
+            py::arg("mu"),
+            py::arg("indices") = py::tuple(),
+            "Covariant derivative D_mu of a field under a gauge group, where "
+            "indices are the indices of the field.")
         .def(
             "rotate_fields",
             [](modeling::Model                            &self,

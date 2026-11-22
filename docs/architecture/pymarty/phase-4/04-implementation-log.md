@@ -59,7 +59,10 @@ Checks: `pytest -m "not slow"` on `tests/modeling` and `test_usage_examples.py` 
   - Gauge fixing (`xi`).
   - Mass diagonalisation (`DiagonalizeMassMatrices`, `gatherMass`) and Majorana promotion.
   - `Particle.setMass` and `getEpsilon()`.
-  - `mergeTerms`.
+
+Exposed: `Model.covariant_derivative(group, field, mu, indices)` and
+`Model.collect_terms()` (C++ `mergeTerms`, renamed only in Python). Calling
+`collect_terms` after the GTHDM adjust steps does not split generations 2 and 3.
 
 ### Timed run
 

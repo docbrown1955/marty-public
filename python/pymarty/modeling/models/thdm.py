@@ -10,7 +10,8 @@ expansion; the 2x2 rotations; the W_1/W_2 replacements; the gauge-boson masses
 and the adjust substitutions.
 
 Not ported (the declarative API has no binding for these C++ calls):
-  - ``getMass``/``setMass`` (replaced by ``add_bosonic_mass``) and ``mergeTerms``;
+  - ``getMass``/``setMass`` (replaced by ``add_bosonic_mass``);
+  - ``mergeTerms`` is exposed as ``Model.collect_terms`` but not called here;
   - the numerical ``sm_input`` values: masses and couplings stay symbolic.
 """
 

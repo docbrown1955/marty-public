@@ -1144,6 +1144,14 @@ class ModelData {
                            bool addHermitic = false);
 
     /**
+     * @brief Collects the Lagrangian terms that have the same fields, summing
+     * their expressions.
+     *
+     * @sa mty::Lagrangian::mergeTerms()
+     */
+    void mergeTerms();
+
+    /**
      * @brief Adds a bosonic mass term to the model.
      *
      * @details A bosonic mass term for a field \f$ \phi \f$ of mass \f$ m \f$

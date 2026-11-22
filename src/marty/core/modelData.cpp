@@ -1163,6 +1163,11 @@ void ModelData::addLagrangianTerm(csl::Expr const &term, bool addHermitic)
         addLagrangianTerm(hermitic, false);
     }
 }
+void ModelData::mergeTerms()
+{
+    L.mergeTerms();
+}
+
 void ModelData::addLagrangianTerm(mty::Lagrangian::TermType const &term, bool)
 {
     if (enableChecks)

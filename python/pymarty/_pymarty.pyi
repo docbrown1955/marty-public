@@ -589,6 +589,14 @@ class modeling:
             self, group: str, renaming: object = "default"
         ) -> None: ...
         def promote_to_goldstone(self, goldstone: str, gauge_boson: str) -> None: ...
+        def collect_terms(self) -> None: ...
+        def covariant_derivative(
+            self,
+            group: str,
+            field: modeling.Particle,
+            mu: Index,
+            indices: Iterable[Index] = (),
+        ) -> Expr: ...
         @overload
         def rotate_fields(
             self,

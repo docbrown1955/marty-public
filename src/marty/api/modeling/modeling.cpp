@@ -439,6 +439,27 @@ void Model::addTerm(csl::Expr const &term, bool addHermitic)
     });
 }
 
+void Model::collectTerms()
+{
+    checkOpen(*m_state, "collect terms");
+    guarded([&] { m_state->core->mergeTerms(); });
+}
+
+csl::Expr
+Model::covariantDerivative(std::string const             &group,
+                           Particle const                &field,
+                           csl::Index const              &mu,
+                           std::vector<csl::Index> const &fieldIndices) const
+{
+    return guarded([&] {
+        Session session(m_state->core.get());
+        mty::GaugedGroup *gaugedGroup = m_state->core->getGaugedGroup(group);
+        csl::Tensor       point       = mty::defaultSpaceTimePoint;
+        return gaugedGroup->covariantDerivative(
+            *field.raw(), mu, fieldIndices, point);
+    });
+}
+
 void Model::replace(csl::Expr const &oldExpression,
                     csl::Expr const &newExpression)
 {

@@ -205,6 +205,17 @@ class Model {
     /// Adds a term to the Lagrangian; addHermitic also adds its conjugate.
     void addTerm(csl::Expr const &term, bool addHermitic = false);
 
+    /// Collects the Lagrangian terms with the same fields, summing them.
+    void collectTerms();
+
+    /// Covariant derivative of a field under a gauge group: D_mu field, where
+    /// fieldIndices are the indices of the field.
+    csl::Expr covariantDerivative(std::string const             &group,
+                                  Particle const                &field,
+                                  csl::Index const              &mu,
+                                  std::vector<csl::Index> const &fieldIndices)
+        const;
+
     /// Replaces an expression everywhere in the model.
     void replace(csl::Expr const &oldExpression,
                  csl::Expr const &newExpression);
