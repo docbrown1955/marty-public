@@ -310,6 +310,9 @@ class Model {
 /// Fresh Dirac index, named if name is not empty.
 csl::Index diracIndex(std::string const &name = "");
 
+/// Fresh Lorentz index of the Minkowski space, with the given name.
+csl::Index minkowskiIndex(std::string const &name = "mu");
+
 /// Expression with its dummy indices renamed, see csl::RenamedIndices.
 csl::Expr renamedIndices(csl::Expr const &expr);
 

@@ -204,16 +204,27 @@ def _replace_w_bosons(model: Model) -> None:
     model.replace(W2.field_strength()(mu, nu), F_W2)
 
 
-def build() -> Model:
-    """Return the partially ported generic two Higgs doublet model."""
-    model = Model(
-        gauge=[
-            GaugeGroup(SU(3), name="C", boson_name="G", coupling="g_s"),
-            GaugeGroup(SU(2), name="L", boson_name="W", coupling="g_L"),
-            GaugeGroup(U(1), name="Y", boson_name="B", coupling="g_Y"),
-        ],
-        flavor=[FlavorGroup(FLAVOR_GROUP, 3)],
-    )
+class GTHDM(Model):
+    """Ported part of the generic two Higgs doublet model (src/marty/models/gthdm.cpp).
+
+    With ``finalize=False`` the model is left open for further additions.
+    """
+
+    def __init__(self, *, finalize: bool = True) -> None:
+        super().__init__(
+            gauge=[
+                GaugeGroup(SU(3), name="C", boson_name="G", coupling="g_s"),
+                GaugeGroup(SU(2), name="L", boson_name="W", coupling="g_L"),
+                GaugeGroup(U(1), name="Y", boson_name="B", coupling="g_Y"),
+            ],
+            flavor=[FlavorGroup(FLAVOR_GROUP, 3)],
+        )
+        _add_content(self)
+        if finalize:
+            self.finalize()
+
+
+def _add_content(model: Model) -> None:
     _add_fermions(model)
     _add_scalars(model)
     _add_higgs_potential(model)
@@ -221,5 +232,3 @@ def build() -> Model:
     _replace_w_bosons(model)
     _diagonalize_2x2(model)
     model.promote_to_goldstone("Gp", "W")
-    model.finalize()
-    return model

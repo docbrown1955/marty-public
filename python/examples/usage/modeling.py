@@ -16,7 +16,7 @@ from fractions import Fraction
 
 from pymarty.errors import MartyLookupError
 from pymarty.group_theory import SU, U
-from pymarty.modeling import GaugeGroup, Model, spacetime
+from pymarty.modeling import GaugeGroup, Model
 
 # A toy model: SU(2)_L x U(1)_Y, as in gettingStarted.cpp. The constructor
 # declares the groups, initializes the model and names the gauge bosons.
@@ -47,8 +47,8 @@ W_1 = toy.particle("W_1")
 assert "W_1" in toy
 assert W_1.name == "W_1"
 
-# Spacetime objects are needed to write Lagrangian terms
-mu = spacetime.minkowski_index()
+# Lorentz indices are needed to write Lagrangian terms
+mu = toy.generate_minkowski_index()
 print("index:", mu)
 
 # Unknown names raise a typed error, they are not printed and ignored

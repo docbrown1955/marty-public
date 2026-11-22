@@ -1,7 +1,8 @@
 from fractions import Fraction
 
 import pytest
-from cpp_models.pmssm import build
+
+from pymarty.modeling.models.pmssm import PMSSM
 
 # Particles of PMSSM_Model after initContent(), from a scratch C++ probe of
 # src/marty/models/pmssm.h (subclass calling the protected initContent())
@@ -37,13 +38,13 @@ CPP_FULL_PARTICLE_COUNT = 87
 
 @pytest.mark.unit
 def test_pmssm_content_particles_match_cpp() -> None:
-    names = {p.name for p in build().particles}
+    names = {p.name for p in PMSSM().particles}
     assert names == CPP_CONTENT_PARTICLES
 
 
 @pytest.mark.unit
 def test_pmssm_representations_match_cpp() -> None:
-    model = build()
+    model = PMSSM()
     assert model.particle("sG").irrep("C").dim == 8
     assert model.particle("sW").irrep("L").dim == 3
     assert model.particle("Q_L").irrep("C").dim == 3
@@ -58,4 +59,4 @@ def test_pmssm_representations_match_cpp() -> None:
     "portable with the declarative API",
 )
 def test_pmssm_full_particle_count_matches_cpp() -> None:
-    assert len(build().particles) == CPP_FULL_PARTICLE_COUNT
+    assert len(PMSSM().particles) == CPP_FULL_PARTICLE_COUNT

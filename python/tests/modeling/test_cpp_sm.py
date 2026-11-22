@@ -1,7 +1,8 @@
 """Checks of the partial pymarty Standard Model port against the C++ SM model."""
 
 import pytest
-from cpp_models.sm import build
+
+from pymarty.modeling.models.sm import SM
 
 # Particle names of the C++ SM model (src/marty/models/sm.cpp), as printed by the core.
 CPP_SM_PARTICLES = {
@@ -14,4 +15,4 @@ CPP_SM_PARTICLES = {
 
 @pytest.mark.unit
 def test_particle_names_match_cpp_sm() -> None:
-    assert {p.name for p in build().particles} == CPP_SM_PARTICLES
+    assert {p.name for p in SM().particles} == CPP_SM_PARTICLES

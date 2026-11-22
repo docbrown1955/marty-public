@@ -21,21 +21,31 @@ from pymarty.group_theory import SU, U
 from pymarty.modeling import FlavorGroup, GaugeGroup, Model
 
 
-def build() -> Model:
-    """Build the pre-breaking MSSM field content used by NMFV."""
-    model = Model(
-        gauge=[
-            GaugeGroup(SU(3), name="C", boson_name="G", coupling="g_s"),
-            GaugeGroup(SU(2), name="L", boson_name="W", coupling="g"),
-            GaugeGroup(U(1), name="Y", boson_name="B", coupling="g'"),
-        ],
-        flavor=[FlavorGroup("SM_flavor", 3)],
-    )
+class NMFV(Model):
+    """Field content of the pre-breaking MSSM used by NMFV (src/marty/models/nmfv.cpp).
+
+    With ``finalize=False`` the model is left open for further additions.
+    """
+
+    def __init__(self, *, finalize: bool = True) -> None:
+        super().__init__(
+            gauge=[
+                GaugeGroup(SU(3), name="C", boson_name="G", coupling="g_s"),
+                GaugeGroup(SU(2), name="L", boson_name="W", coupling="g"),
+                GaugeGroup(U(1), name="Y", boson_name="B", coupling="g'"),
+            ],
+            flavor=[FlavorGroup("SM_flavor", 3)],
+        )
+        _add_content(self)
+        if finalize:
+            self.finalize()
+
+
+def _add_content(model: Model) -> None:
     _add_gauginos(model)
     _add_leptons(model)
     _add_quarks(model)
     _add_higgs(model)
-    return model
 
 
 def _add_gauginos(model: Model) -> None:

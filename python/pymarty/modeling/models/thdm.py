@@ -33,16 +33,27 @@ from pymarty.modeling import FlavorGroup, GaugeGroup, Model
 from pymarty.symbolic import Expr, I, Minkowski, constant, cos, sin, sqrt, tan
 
 
-def build() -> Model:
-    """Return the ported part of the two Higgs doublet model (type II)."""
-    model = Model(
-        gauge=[
-            GaugeGroup(SU(3), name="C", boson_name="G", coupling="g_s"),
-            GaugeGroup(SU(2), name="L", boson_name="W", coupling="g_L"),
-            GaugeGroup(U(1), name="Y", boson_name="B", coupling="g_Y"),
-        ],
-        flavor=[FlavorGroup("SM_flavor", 3)],
-    )
+class THDM(Model):
+    """Ported part of the two Higgs doublet model, type II (src/marty/models/thdm.cpp).
+
+    With ``finalize=False`` the model is left open for further additions.
+    """
+
+    def __init__(self, *, finalize: bool = True) -> None:
+        super().__init__(
+            gauge=[
+                GaugeGroup(SU(3), name="C", boson_name="G", coupling="g_s"),
+                GaugeGroup(SU(2), name="L", boson_name="W", coupling="g_L"),
+                GaugeGroup(U(1), name="Y", boson_name="B", coupling="g_Y"),
+            ],
+            flavor=[FlavorGroup("SM_flavor", 3)],
+        )
+        _add_content(self)
+        if finalize:
+            self.finalize()
+
+
+def _add_content(model: Model) -> None:
     _add_fermions(model)
     _add_higgs_doublets(model)
     _add_higgs_potential(model)
@@ -56,8 +67,6 @@ def build() -> Model:
     _diagonalize_2by2(model)
     _replace_w_bosons(model)
     _adjust(model)
-    model.finalize()
-    return model
 
 
 def _add_fermions(model: Model) -> None:

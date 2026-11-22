@@ -703,6 +703,11 @@ csl::Index diracIndex(std::string const &name)
     return guarded([&] { return mty::DiracIndex(name); });
 }
 
+csl::Index minkowskiIndex(std::string const &name)
+{
+    return guarded([&] { return csl::Minkowski.generateIndex(name); });
+}
+
 csl::Expr renamedIndices(csl::Expr const &expr)
 {
     return guarded([&] { return csl::RenamedIndices(expr); });

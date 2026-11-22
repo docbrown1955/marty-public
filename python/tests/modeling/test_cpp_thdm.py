@@ -1,7 +1,8 @@
 """Checks of the partial pymarty two Higgs doublet model port against C++ THDM."""
 
 import pytest
-from cpp_models.thdm import build
+
+from pymarty.modeling.models.thdm import THDM
 
 CPP_THDM_PARTICLES = {
     "G",
@@ -54,7 +55,7 @@ CPP_THDM_PARTICLES = {
 
 @pytest.mark.unit
 def test_ported_bosons_match_cpp_names() -> None:
-    py_names = {p.name for p in build().particles}
+    py_names = {p.name for p in THDM().particles}
     assert {"G", "c_G", "W", "A0", "Hp", "h", "H0", "A", "Z", "Gp", "G0"} <= py_names
 
 
@@ -65,5 +66,5 @@ def test_ported_bosons_match_cpp_names() -> None:
     "ghost replacements c_A/c_Z/c_Wm/c_Wp and replaceYukawas are not ported",
 )
 def test_particle_names_match_cpp_thdm() -> None:
-    py_names = {p.name for p in build().particles}
+    py_names = {p.name for p in THDM().particles}
     assert py_names == CPP_THDM_PARTICLES

@@ -1,5 +1,6 @@
 import pytest
-from cpp_models.nmfv import build
+
+from pymarty.modeling.models.nmfv import NMFV
 
 # Particle names of MSSM_Model::initContent as printed by the C++ NMFV model
 # (src/marty/models/nmfv.cpp, scratch probe of the pre-breaking field content).
@@ -34,13 +35,13 @@ CPP_PARTICLE_NAMES = sorted(
 
 @pytest.mark.unit
 def test_nmfv_particle_names_match_cpp() -> None:
-    model = build()
+    model = NMFV()
     assert sorted(p.name for p in model.particles) == CPP_PARTICLE_NAMES
 
 
 @pytest.mark.unit
 def test_nmfv_gaugino_and_higgs_content() -> None:
-    model = build()
+    model = NMFV()
     names = {p.name for p in model.particles}
     assert {"sW", "sB", "sG", "sHu", "sHd", "Hu", "Hd"} <= names
     assert len(model.particles) == len(CPP_PARTICLE_NAMES)

@@ -28,16 +28,27 @@ from pymarty.modeling import FlavorGroup, GaugeGroup, Model
 from pymarty.symbolic import constant, epsilon
 
 
-def build() -> Model:
-    """Return the ported part of the MSSM high-energy model."""
-    model = Model(
-        gauge=[
-            GaugeGroup(SU(3), name="C", boson_name="G", coupling="g_s"),
-            GaugeGroup(SU(2), name="L", boson_name="W", coupling="g"),
-            GaugeGroup(U(1), name="Y", boson_name="B", coupling="g'"),
-        ],
-        flavor=[FlavorGroup("SM_flavor", 3)],
-    )
+class MSSM(Model):
+    """Ported part of the MSSM high-energy model (src/marty/models/mssm.cpp).
+
+    With ``finalize=False`` the model is left open for further additions.
+    """
+
+    def __init__(self, *, finalize: bool = True) -> None:
+        super().__init__(
+            gauge=[
+                GaugeGroup(SU(3), name="C", boson_name="G", coupling="g_s"),
+                GaugeGroup(SU(2), name="L", boson_name="W", coupling="g"),
+                GaugeGroup(U(1), name="Y", boson_name="B", coupling="g'"),
+            ],
+            flavor=[FlavorGroup("SM_flavor", 3)],
+        )
+        _add_content(self)
+        if finalize:
+            self.finalize()
+
+
+def _add_content(model: Model) -> None:
 
     model.add_majorana_fermion("sB ; \\tilde{B}")
     model.add_majorana_fermion("sW ; \\tilde{W}", gauge_rep={"L": 2})
@@ -99,7 +110,6 @@ def build() -> Model:
         model.add_weyl_fermion(name, chirality="L", gauge_rep={"L": 1})
 
     _add_higgsino_mass(model)
-    return model
 
 
 def _add_higgsino_mass(model: Model) -> None:

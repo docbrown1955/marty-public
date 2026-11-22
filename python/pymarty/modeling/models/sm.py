@@ -13,7 +13,7 @@ and the gauge-fixing terms.
 from fractions import Fraction
 
 from pymarty.group_theory import SU, U
-from pymarty.modeling import FlavorGroup, GaugeGroup, Model, spacetime
+from pymarty.modeling import FlavorGroup, GaugeGroup, Model
 from pymarty.symbolic import (
     ComplexProperty,
     Expr,
@@ -41,16 +41,27 @@ def _ckm_matrix() -> list[list[Expr]]:
     return [[constant(name) for name in row] for row in names]
 
 
-def build() -> Model:
-    """Return the partially ported Standard Model."""
-    model = Model(
-        gauge=[
-            GaugeGroup(SU(3), name="C", boson_name="G", coupling="g_s"),
-            GaugeGroup(SU(2), name="L", boson_name="W", coupling="g_L"),
-            GaugeGroup(U(1), name="Y", boson_name="B", coupling="g_Y"),
-        ],
-        flavor=[FlavorGroup(FLAVOR, 3)],
-    )
+class SM(Model):
+    """Partially ported Standard Model (src/marty/models/sm.cpp).
+
+    With ``finalize=False`` the model is left open for further additions.
+    """
+
+    def __init__(self, *, finalize: bool = True) -> None:
+        super().__init__(
+            gauge=[
+                GaugeGroup(SU(3), name="C", boson_name="G", coupling="g_s"),
+                GaugeGroup(SU(2), name="L", boson_name="W", coupling="g_L"),
+                GaugeGroup(U(1), name="Y", boson_name="B", coupling="g_Y"),
+            ],
+            flavor=[FlavorGroup(FLAVOR, 3)],
+        )
+        _add_content(self)
+        if finalize:
+            self.finalize()
+
+
+def _add_content(model: Model) -> None:
 
     model.add_weyl_fermion(
         "Q",
@@ -142,8 +153,8 @@ def build() -> Model:
     cWp = model.add_ghost_boson("c_Wp ; c_{+}", W_SM)
     cWm = model.add_ghost_boson("c_Wm; c_{-}", W_SM, conjugated=True)
     W_SM.set_conjugated_ghost_boson(cWm)
-    mu = spacetime.minkowski_index("mu")
-    nu = spacetime.minkowski_index("nu")
+    mu = model.generate_minkowski_index("mu")
+    nu = model.generate_minkowski_index("nu")
     W_p = W_SM(mu)
     W_m = W_SM(mu).conjugate()
     F_W_p = W_SM.field_strength()(mu, nu)
@@ -220,5 +231,3 @@ def build() -> Model:
 
     model.promote_to_goldstone("Gp", "W")
     model.promote_to_goldstone("G0", "Z")
-    model.finalize()
-    return model

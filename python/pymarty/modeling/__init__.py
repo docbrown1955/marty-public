@@ -13,7 +13,6 @@ See ``examples/usage/modeling.py`` for a complete model.
 """
 
 from pymarty._pymarty import modeling as _core
-from pymarty.symbolic import Index, Minkowski
 
 GaugeGroup = _core.GaugeGroup
 FlavorGroup = _core.FlavorGroup
@@ -21,20 +20,9 @@ Model = _core.Model
 Particle = _core.Particle
 
 
-class _Spacetime:
-    """Spacetime objects needed to write Lagrangian terms."""
-
-    def minkowski_index(self, name: str = "mu") -> Index:
-        """Return a Lorentz index of the Minkowski space, named ``name``."""
-        return Minkowski.index(name)
-
-
-spacetime = _Spacetime()
-
 __all__ = [
     "FlavorGroup",
     "GaugeGroup",
     "Model",
     "Particle",
-    "spacetime",
 ]

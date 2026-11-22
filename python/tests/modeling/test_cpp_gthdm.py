@@ -1,7 +1,8 @@
 """Checks of the partial pymarty generic 2HDM port against the C++ GTHDM model."""
 
 import pytest
-from cpp_models.gthdm import build
+
+from pymarty.modeling.models.gthdm import GTHDM
 
 CPP_GTHDM_PARTICLES = {
     "G",
@@ -54,7 +55,7 @@ CPP_GTHDM_PARTICLES = {
 
 @pytest.mark.unit
 def test_ported_particles_exist() -> None:
-    py_names = {p.name for p in build().particles}
+    py_names = {p.name for p in GTHDM().particles}
     assert {"G", "W", "B", "Nu_L", "E_L", "U_L", "D_L", "U_R", "D_R", "E_R"} <= py_names
     assert {"G0", "Gp", "h", "H0", "A0", "Hp"} <= py_names
 
@@ -66,5 +67,5 @@ def test_ported_particles_exist() -> None:
     "are not bound",
 )
 def test_particle_names_match_cpp_gthdm() -> None:
-    py_names = {p.name for p in build().particles}
+    py_names = {p.name for p in GTHDM().particles}
     assert py_names == CPP_GTHDM_PARTICLES

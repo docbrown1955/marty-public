@@ -26,13 +26,13 @@ set_target_properties(_pymarty PROPERTIES
 
 # Copy the pure Python part next to the extension so that the build directory
 # is importable (PYTHONPATH=<build>/python).
-file(GLOB PYMARTY_PACKAGE_FILES CONFIGURE_DEPENDS
+file(GLOB_RECURSE PYMARTY_PACKAGE_FILES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/pymarty/*.py"
     "${CMAKE_CURRENT_SOURCE_DIR}/pymarty/*.pyi"
     "${CMAKE_CURRENT_SOURCE_DIR}/pymarty/py.typed")
 foreach(file ${PYMARTY_PACKAGE_FILES})
-    get_filename_component(name ${file} NAME)
-    configure_file(${file} "${CMAKE_CURRENT_BINARY_DIR}/pymarty/${name}" COPYONLY)
+    file(RELATIVE_PATH relative_path "${CMAKE_CURRENT_SOURCE_DIR}/pymarty" ${file})
+    configure_file(${file} "${CMAKE_CURRENT_BINARY_DIR}/pymarty/${relative_path}" COPYONLY)
 endforeach()
 
 # Python tests (L2) and parity check (L3). Needs pytest in the interpreter
@@ -66,6 +66,7 @@ set_tests_properties(pymarty.pytest pymarty.parity PROPERTIES
 # (wheel.install-dir in pyproject.toml).
 if(SKBUILD)
     install(TARGETS _pymarty DESTINATION "${SKBUILD_PLATLIB_DIR}/pymarty")
-    install(FILES ${PYMARTY_PACKAGE_FILES}
-        DESTINATION "${SKBUILD_PLATLIB_DIR}/pymarty")
+    install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/pymarty/"
+        DESTINATION "${SKBUILD_PLATLIB_DIR}/pymarty"
+        FILES_MATCHING PATTERN "*.py" PATTERN "*.pyi" PATTERN "py.typed")
 endif()

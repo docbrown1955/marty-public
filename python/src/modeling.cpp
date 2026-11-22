@@ -552,6 +552,13 @@ void bindModeling(py::module_ &m)
             },
             py::arg("name") = "",
             "Fresh Dirac index, named if name is not empty.")
+        .def_static(
+            "generate_minkowski_index",
+            [](std::string const &name) {
+                return pyIndex(modeling::minkowskiIndex(name));
+            },
+            py::arg("name") = "mu",
+            "Fresh Lorentz index of the Minkowski space, with the given name.")
         .def("promote_to_goldstone",
              &modeling::Model::promoteToGoldstone,
              py::arg("goldstone"),

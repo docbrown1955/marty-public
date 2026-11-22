@@ -9,10 +9,9 @@ and compute amplitudes; those steps are not ported.
 
 from fractions import Fraction
 
-from cpp_models.sm import build as build_sm
-
 from pymarty.group_theory import SU, U
 from pymarty.modeling import FlavorGroup, GaugeGroup, Model
+from pymarty.modeling.models.sm import SM
 from pymarty.symbolic import Expr, I, Minkowski, constant, cos, sin, sqrt
 
 # Particle names printed by examples/gettingStarted.cpp (first half)
@@ -136,7 +135,7 @@ def test_irreps_of_broken_groups_are_trivial() -> None:
 
 
 def test_built_in_models_expose_group_irreps() -> None:
-    e_L = build_sm().particle("e_L")
+    e_L = SM().particle("e_L")
     assert e_L.irrep("L").dim == 1
     assert e_L.irrep("Y").charge == Fraction(-1, 2)
 

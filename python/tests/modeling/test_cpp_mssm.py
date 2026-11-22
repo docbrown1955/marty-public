@@ -4,11 +4,12 @@ The C++ reference was obtained by building ``MSSM_HEM`` from
 src/marty/models/mssm.cpp in the build directory and printing its particles
 and Feynman rules. It has 29 particles and 148 Feynman rules. The Python port
 has the same 29 particles, but fewer Feynman rules because the soft masses,
-gaugino Yukawas and D-terms are blocked (see cpp_models/mssm.py).
+gaugino Yukawas and D-terms are blocked (see pymarty/modeling/models/mssm.py).
 """
 
 import pytest
-from cpp_models.mssm import build
+
+from pymarty.modeling.models.mssm import MSSM
 
 # Particle names printed by the C++ MSSM_HEM model
 CPP_MSSM_HEM_PARTICLES = {
@@ -46,7 +47,7 @@ CPP_MSSM_HEM_PARTICLES = {
 
 @pytest.mark.unit
 def test_mssm_particles_match_cpp() -> None:
-    model = build()
+    model = MSSM()
     names = [particle.name for particle in model.particles]
     assert len(names) == len(set(names))
     assert set(names) == CPP_MSSM_HEM_PARTICLES

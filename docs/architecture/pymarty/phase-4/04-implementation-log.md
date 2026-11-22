@@ -112,3 +112,12 @@ Checks: `pytest -m "not slow"` on `tests/modeling` and `test_usage_examples.py` 
 - Added `pymarty.symbolic.unitary_tensor(name, space, rows)`, backed by `csl::Unitary` through `unitaryTensor` in `src/csl/api/tensor.cpp`. The SM CKM matrix uses it.
 - Known deviation: the Python SM CKM (`cpp_models/sm.py`, `_ckm_matrix()`) uses symbolic constants `V_ud`, `V_us`, ... instead of the numerical values `sm_input::V_*` used by the core `buildCKM`.
 - `python/tools/check_modeling_bindings.py` maps facade names per class (`ALIASES`). Facade-only methods (`refresh`, `standardModel`, `qed`, `feynmanRules`, `computeAmplitude`, `computeSquaredAmplitude`, `Particle::raw`) are marked internal.
+
+### Model builders as a package, static Minkowski index
+
+- Model builders moved from `tests/modeling/cpp_models/` to `python/pymarty/modeling/models/` (`qed`, `qcd`, `sm`, `mssm`, `pmssm`, `nmfv`, `thdm`, `gthdm`). Each module exposes one class `X(Model)` with `__init__(self, *, finalize: bool = True)`. The body is a module-level `_add_content(model)`, so subclasses can reuse it with `finalize=False`. The tests import `from pymarty.modeling.models.X import X`.
+- Decision: the C++ model wrappers are not reused by Python. The Python builders are duplicates of the C++ models, and the comparison with the C++ output is deferred to Phase 6 or later.
+- Decision: `python/CMakeLists.txt` copies and installs the `pymarty` package recursively, so the `models/` subpackage is included.
+- Decision: the particle accessors are `field_strength()` and `ghost_boson()`, without a `generate_` prefix, since they return existing objects. `generate_similar_particle` keeps its prefix, because it creates an unattached particle.
+- Decision: `spacetime.minkowski_index()` is replaced by the static method `Model.generate_minkowski_index(name="mu")`, next to `generate_dirac_index`. It is backed by the new facade function `minkowskiIndex` in `src/marty/api/modeling/modeling.cpp`, which calls `csl::Minkowski.generateIndex`. The `spacetime` object is removed.
+
