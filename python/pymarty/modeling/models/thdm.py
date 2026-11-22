@@ -11,7 +11,7 @@ and the adjust substitutions.
 
 Not ported (the declarative API has no binding for these C++ calls):
   - ``getMass``/``setMass`` (replaced by ``add_bosonic_mass``);
-  - ``mergeTerms`` is exposed as ``Model.collect_terms`` but not called here;
+  - ``mergeTerms`` is called at the end of ``_adjust`` through ``Model.collect_terms``;
   - the numerical ``sm_input`` values: masses and couplings stay symbolic.
 """
 
@@ -173,12 +173,16 @@ def _replace_higgs(model: Model) -> None:
     lambda4 = constant("lambda_4;\\lambda_{4}")
     lambda5 = constant("lambda_5;\\lambda_{5}")
 
-    phi1_charged = model.add_scalar_boson("phi_1", self_conjugate=False)
-    phi2_charged = model.add_scalar_boson("phi_2", self_conjugate=False)
-    rho_1 = model.add_scalar_boson("rho_1", self_conjugate=True)
-    rho_2 = model.add_scalar_boson("rho_2", self_conjugate=True)
-    eta_1 = model.add_scalar_boson("eta_1", self_conjugate=True)
-    eta_2 = model.add_scalar_boson("eta_2", self_conjugate=True)
+    phi1_charged = model.add_scalar_boson(
+        "phi_1", self_conjugate=False, initialize_terms=False
+    )
+    phi2_charged = model.add_scalar_boson(
+        "phi_2", self_conjugate=False, initialize_terms=False
+    )
+    rho_1 = model.add_scalar_boson("rho_1", self_conjugate=True, initialize_terms=False)
+    rho_2 = model.add_scalar_boson("rho_2", self_conjugate=True, initialize_terms=False)
+    eta_1 = model.add_scalar_boson("eta_1", self_conjugate=True, initialize_terms=False)
+    eta_2 = model.add_scalar_boson("eta_2", self_conjugate=True, initialize_terms=False)
 
     model.replace(model.particle("Phi1_1"), phi1_charged())
     model.replace(model.particle("Phi1_2"), (rho_1() + I * eta_1() + v1) / sqrt(2))
@@ -211,8 +215,12 @@ def _diagonalize_2by2(model: Model) -> None:
 
     eta_1 = model.particle("eta_1")
     eta_2 = model.particle("eta_2")
-    goldstone_0 = model.add_scalar_boson("G0; G^0", self_conjugate=True)
-    pseudoscalar = model.add_scalar_boson("A0; A^0", self_conjugate=True)
+    goldstone_0 = model.add_scalar_boson(
+        "G0; G^0", self_conjugate=True, initialize_terms=False
+    )
+    pseudoscalar = model.add_scalar_boson(
+        "A0; A^0", self_conjugate=True, initialize_terms=False
+    )
     model.rotate_fields(
         [eta_1, eta_2],
         [goldstone_0, pseudoscalar],
@@ -223,8 +231,12 @@ def _diagonalize_2by2(model: Model) -> None:
 
     phi_1 = model.particle("phi_1")
     phi_2 = model.particle("phi_2")
-    goldstone_p = model.add_scalar_boson("Gp; G^+", self_conjugate=False)
-    charged_higgs = model.add_scalar_boson("Hp; H^+", self_conjugate=False)
+    goldstone_p = model.add_scalar_boson(
+        "Gp; G^+", self_conjugate=False, initialize_terms=False
+    )
+    charged_higgs = model.add_scalar_boson(
+        "Hp; H^+", self_conjugate=False, initialize_terms=False
+    )
     model.rotate_fields(
         [phi_1, phi_2],
         [goldstone_p, charged_higgs],
@@ -235,8 +247,10 @@ def _diagonalize_2by2(model: Model) -> None:
 
     rho_1 = model.particle("rho_1")
     rho_2 = model.particle("rho_2")
-    h = model.add_scalar_boson("h; h^0", self_conjugate=True)
-    heavy_h = model.add_scalar_boson("H0; H^0", self_conjugate=True)
+    h = model.add_scalar_boson("h; h^0", self_conjugate=True, initialize_terms=False)
+    heavy_h = model.add_scalar_boson(
+        "H0; H^0", self_conjugate=True, initialize_terms=False
+    )
     model.rotate_fields(
         [rho_1, rho_2],
         [h, heavy_h],
@@ -253,7 +267,9 @@ def _replace_w_bosons(model: Model) -> None:
     """
     w_1 = model.particle("W_1")
     w_2 = model.particle("W_2")
-    w = model.add_similar_particle("W", reference="W_1", self_conjugate=False)
+    w = model.add_similar_particle(
+        "W", reference="W_1", self_conjugate=False, initialize_terms=False
+    )
     c_wp = model.add_ghost_boson("c_Wp ; c_{+}", w)
     c_wm = model.add_ghost_boson("c_Wm; c_{-}", w, conjugated=True)
     w.set_conjugated_ghost_boson(c_wm)
@@ -313,3 +329,4 @@ def _adjust(model: Model) -> None:
     model.replace(1 + tan_beta**-2, 1 / sin(beta) ** 2)
     model.replace(1 + tan_beta**2, 1 / cos(beta) ** 2)
     model.replace(tan(beta), sin(beta) / cos(beta))
+    model.collect_terms()

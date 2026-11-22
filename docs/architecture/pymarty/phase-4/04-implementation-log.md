@@ -184,3 +184,12 @@ differs from C++, because the gaugino Yukawas and D-terms remain blocked.
 - Cause: `h`, `Gp`, `G0` and `W_SM` were registered with `initializeTerms=true`, so each added a second kinetic term. C++ `HiggsVEVExpansion` and `W_SM` (`src/marty/models/sm.cpp`) create these fields without registering them, so only the original fields contribute kinetic terms.
 - Decision: `Model.add_particle`, `add_scalar_boson` and `add_similar_particle` take `initialize_terms` (default `True`), forwarded to `Model::addParticle(Particle, bool initializeTerms)` in the facade. Substitute fields in `sm.py` pass `initialize_terms=False`, matching C++.
 - Validation: SM canonical diff against C++ is empty for kinetic (29), mass (17) and interaction (207) terms.
+
+### THDM and GTHDM match C++
+
+- Kinetic doubling had two sources, both fixed with `initialize_terms=False` (`python/pymarty/modeling/models/thdm.py`):
+  - the doublet components `phi_i`, `rho_i`, `eta_i` replace `Phi1`/`Phi2` components whose kinetic terms are already in the Lagrangian (C++ creates them with `scalarboson_s(..., *this)`, `src/marty/models/thdm.h` ~260–264);
+  - the mass-basis fields `G0`, `A0`, `Gp`, `Hp`, `h`, `H0` and the substitute `W` (rotations and `_replace_w_bosons`).
+- `THDM_Model::adjust` ends with `L.mergeTerms()`. The port now calls `Model.collect_terms()` at the end of `_adjust`, as in C++.
+- Validation: mass (18) and interaction (379 / 443 for GTHDM) canonical terms match C++. Kinetic terms match except one deferred item below. Particles 45/45.
+- Deferred: the `Z G0` and `Z A0` coefficients are mathematically equal to C++ (`M_W cos(beta)(cos(theta_W) + sin(theta_W)^2/cos(theta_W))` versus `M_W cos(beta)/cos(theta_W)`), but CSL does not combine them and `collect_terms` does not either. The source is an unsimplified trigonometric sum in the W/Z substitution. Fixing it needs a targeted simplification step, to be designed with the `sin^2 + cos^2` identity. Recorded as a known difference.
