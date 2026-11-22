@@ -56,9 +56,7 @@ Checks: `pytest -m "not slow"` on `tests/modeling` and `test_usage_examples.py` 
 - Bindings still missing for full ports:
   - Model flavour space (`getVectorSpace`) and tensor couplings, so Yukawa and soft-mass tensors cannot be written from Python.
   - Hermitian tensor properties (`addHermitianProperty`).
-  - Gauge fixing (`xi`).
-  - Mass diagonalisation (`DiagonalizeMassMatrices`, `gatherMass`) and Majorana promotion.
-  - `Particle.setMass` and `getEpsilon()`.
+- Closed in round 3, see below: gauge fixing, Majorana promotion, `Particle.mass`, Dirac tensors, `getEpsilon` (covered by the generic `epsilon` of `pymarty.symbolic`). `gatherMass` runs inside `refresh()`, so `Model.finalize()` covers it, with no separate binding.
 
 Exposed: `Model.covariant_derivative(group, field, mu, indices)` and
 `Model.collect_terms()` (C++ `mergeTerms`, renamed only in Python). Calling
@@ -155,3 +153,9 @@ differs from C++, because the gaugino Yukawas and D-terms remain blocked.
   - Workaround (temporary): `python/CMakeLists.txt` excludes `test_parity.py` from `pymarty.pytest` and runs it as `pymarty.pytest.symbolic_parity`.
   - Next steps: print the faulting `space->name` under gdb; run valgrind or an ASan build of `_pymarty` on the full suite (detached, long timeout); if confirmed, keep the owning space alive in core and add a regression test; remove the workaround; check `ulimit -c` with a writable `core_pattern`; decide whether the `finalize=True` default for QED, QCD and PMSSM stays.
 
+
+### Gap closure, round 3
+
+- `Particle.mass` (getter and setter, C++ `setMass`) and `Particle.set_gauge_choice(GaugeChoice)` (`mty::gauge::Type`). Both are guarded by the open-model check.
+- `Model.promote_to_majorana(weyl_fermion, new_name="")` returns the new particle, because promotion removes the Weyl one.
+- Dirac tensors are exported as `pymarty.modeling.dirac_gamma`, `dirac_gamma5`, `dirac_sigma`, `dirac_P_L`, `dirac_P_R` and `dirac_C`, taking Lorentz then Dirac indices. They are named apart from the `pymarty.diracology` chain builders (`gamma`, `P_L`, `C`), which have a different meaning.

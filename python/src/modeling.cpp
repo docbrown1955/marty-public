@@ -18,6 +18,7 @@
 #include "csl/api/tensor.h"
 #include "marty/api/common/error.h"
 #include "marty/api/group_theory/group_theory.h"
+#include "marty/core/gaugedGroup.h"
 #include "symbolic_bridge.h"
 
 #include <pybind11/pybind11.h>
@@ -252,6 +253,15 @@ void bindModeling(py::module_ &m)
         .def_readonly(
             "dim", &modeling::FlavorGroup::dim, "Dimension of the group.");
 
+    py::enum_<mty::gauge::Type>(
+        mod, "GaugeChoice", "Gauge fixing choice (xi) of a vector boson.")
+        .value("NOT_DEFINED",
+               mty::gauge::NotDefined,
+               "xi is not fixed (R_xi gauge).")
+        .value("LORENZ", mty::gauge::Lorenz, "xi = 0.")
+        .value("FEYNMAN", mty::gauge::Feynman, "xi = 1.")
+        .value("UNITARY", mty::gauge::Unitary, "xi = infinity.");
+
     py::class_<modeling::Particle>(
         mod, "Particle", "Particle of a model, with its representations.")
         .def_property_readonly(
@@ -318,6 +328,21 @@ void bindModeling(py::module_ &m)
              py::arg("flavor_group"),
              "Sets the particle in the fundamental representation of a flavor "
              "group.")
+        .def_property(
+            "mass",
+            [](modeling::Particle const &self) {
+                return ExprHandle(self.mass());
+            },
+            [](modeling::Particle &self, ExprHandle const &mass) {
+                self.setMass(mass.raw());
+            },
+            "Mass symbol or value of the particle. Setting it does not add a "
+            "Lagrangian term: see Model.add_bosonic_mass and "
+            "Model.add_fermionic_mass.")
+        .def("set_gauge_choice",
+             &modeling::Particle::setGaugeChoice,
+             py::arg("choice"),
+             "Sets the gauge fixing choice (xi) of a vector boson.")
         .def("__repr__", [](modeling::Particle const &self) {
             return "Particle(" + self.name() + ")";
         });
@@ -570,6 +595,14 @@ void bindModeling(py::module_ &m)
              py::arg("goldstone"),
              py::arg("gauge_boson"),
              "Promotes a scalar to the Goldstone boson of a gauge boson.")
+        .def("promote_to_majorana",
+             &modeling::Model::promoteToMajorana,
+             py::arg("weyl_fermion"),
+             py::arg("new_name") = "",
+             "Turns a self-conjugate Weyl fermion into a Majorana fermion, "
+             "named new_name or else as the Weyl fermion. Returns the "
+             "Majorana "
+             "particle, which replaces the Weyl one.")
         .def("collect_terms",
              &modeling::Model::collectTerms,
              "Collects the Lagrangian terms with the same fields, summing "
@@ -706,4 +739,61 @@ void bindModeling(py::module_ &m)
             return "Model(" + std::to_string(self.particles().size())
                    + " particles)";
         });
+
+    mod.def(
+        "dirac_gamma",
+        [](py::handle mu, py::handle a, py::handle b) {
+            return ExprHandle(modeling::diracGamma(
+                coreIndex(mu), coreIndex(a), coreIndex(b)));
+        },
+        py::arg("mu"),
+        py::arg("a"),
+        py::arg("b"),
+        "Dirac gamma matrix gamma^mu, with Lorentz index mu and Dirac indices "
+        "a, b.");
+    mod.def(
+        "dirac_gamma5",
+        [](py::handle a, py::handle b) {
+            return ExprHandle(
+                modeling::diracGamma5(coreIndex(a), coreIndex(b)));
+        },
+        py::arg("a"),
+        py::arg("b"),
+        "Chirality matrix gamma^5, with Dirac indices a, b.");
+    mod.def(
+        "dirac_sigma",
+        [](py::handle mu, py::handle nu, py::handle a, py::handle b) {
+            return ExprHandle(modeling::diracSigma(
+                coreIndex(mu), coreIndex(nu), coreIndex(a), coreIndex(b)));
+        },
+        py::arg("mu"),
+        py::arg("nu"),
+        py::arg("a"),
+        py::arg("b"),
+        "Dirac tensor sigma^{mu nu}, with Lorentz indices mu, nu and Dirac "
+        "indices a, b.");
+    mod.def(
+        "dirac_P_L",
+        [](py::handle a, py::handle b) {
+            return ExprHandle(modeling::diracPL(coreIndex(a), coreIndex(b)));
+        },
+        py::arg("a"),
+        py::arg("b"),
+        "Left projector P_L, with Dirac indices a, b.");
+    mod.def(
+        "dirac_P_R",
+        [](py::handle a, py::handle b) {
+            return ExprHandle(modeling::diracPR(coreIndex(a), coreIndex(b)));
+        },
+        py::arg("a"),
+        py::arg("b"),
+        "Right projector P_R, with Dirac indices a, b.");
+    mod.def(
+        "dirac_C",
+        [](py::handle a, py::handle b) {
+            return ExprHandle(modeling::diracC(coreIndex(a), coreIndex(b)));
+        },
+        py::arg("a"),
+        py::arg("b"),
+        "Charge conjugation matrix C, with Dirac indices a, b.");
 }

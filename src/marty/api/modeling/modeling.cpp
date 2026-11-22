@@ -229,6 +229,29 @@ void Particle::setFundamentalFlavorRep(std::string const &flavorGroup)
     });
 }
 
+csl::Expr Particle::mass() const
+{
+    return guarded([&] { return m_particle->getMass(); });
+}
+
+void Particle::setMass(csl::Expr const &mass)
+{
+    checkOpen(*m_state, "set the mass");
+    guarded([&] {
+        Session session(m_state->core.get());
+        m_particle->setMass(mass);
+    });
+}
+
+void Particle::setGaugeChoice(mty::gauge::Type choice)
+{
+    checkOpen(*m_state, "set the gauge choice");
+    guarded([&] {
+        Session session(m_state->core.get());
+        m_particle->setGaugeChoice(choice);
+    });
+}
+
 Amplitude::Amplitude(mty::Amplitude amplitude)
     : m_amplitude(std::make_shared<mty::Amplitude const>(std::move(amplitude)))
 {
@@ -554,6 +577,18 @@ void Model::addFermionicMass(Particle const  &diracFermion,
     });
 }
 
+Particle Model::promoteToMajorana(Particle const    &weylFermion,
+                                  std::string const &newName)
+{
+    checkOpen(*m_state, "promote a fermion");
+    guarded([&] {
+        Session       session(m_state->core.get());
+        mty::Particle field = weylFermion.raw();
+        m_state->core->promoteToMajorana(field, newName);
+    });
+    return particle(newName.empty() ? weylFermion.name() : newName);
+}
+
 csl::Expr Model::coupling(std::string const &name) const
 {
     return guarded([&] {
@@ -743,6 +778,40 @@ csl::Index minkowskiIndex(std::string const &name)
 csl::Expr renamedIndices(csl::Expr const &expr)
 {
     return guarded([&] { return csl::RenamedIndices(expr); });
+}
+
+csl::Expr
+diracGamma(csl::Index const &mu, csl::Index const &a, csl::Index const &b)
+{
+    return guarded([&] { return DiracGamma()({mu, a, b}); });
+}
+
+csl::Expr diracGamma5(csl::Index const &a, csl::Index const &b)
+{
+    return guarded([&] { return DiracGamma5()({a, b}); });
+}
+
+csl::Expr diracSigma(csl::Index const &mu,
+                     csl::Index const &nu,
+                     csl::Index const &a,
+                     csl::Index const &b)
+{
+    return guarded([&] { return DiracSigma()({mu, nu, a, b}); });
+}
+
+csl::Expr diracPL(csl::Index const &a, csl::Index const &b)
+{
+    return guarded([&] { return DiracPL()({a, b}); });
+}
+
+csl::Expr diracPR(csl::Index const &a, csl::Index const &b)
+{
+    return guarded([&] { return DiracPR()({a, b}); });
+}
+
+csl::Expr diracC(csl::Index const &a, csl::Index const &b)
+{
+    return guarded([&] { return DiracCMatrix()({a, b}); });
 }
 
 } // namespace mty::api::modeling

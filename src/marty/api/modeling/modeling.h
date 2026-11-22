@@ -109,6 +109,15 @@ class Particle {
     /// Sets the representation of the particle in a flavor group.
     void setFundamentalFlavorRep(std::string const &flavorGroup);
 
+    /// Mass symbol or value of the particle, as an expression.
+    csl::Expr mass() const;
+
+    /// Sets the mass symbol or value of the particle.
+    void setMass(csl::Expr const &mass);
+
+    /// Sets the gauge fixing choice (xi) of a vector boson.
+    void setGaugeChoice(mty::gauge::Type choice);
+
     /// Spin of the particle: (dim - 1) / 2 for its Lorentz representation.
     group_theory::Rational spin() const;
 
@@ -255,6 +264,12 @@ class Model {
     /// Adds a Dirac fermion mass term.
     void addFermionicMass(Particle const &diracFermion, csl::Expr const &mass);
 
+    /// Turns a self-conjugate Weyl fermion into a Majorana fermion, named
+    /// newName or else as the Weyl fermion. Returns the Majorana particle,
+    /// which replaces the Weyl one.
+    Particle promoteToMajorana(Particle const    &weylFermion,
+                               std::string const &newName = "");
+
     /// Scalar coupling of the model (LookupError if absent).
     csl::Expr coupling(std::string const &name) const;
 
@@ -330,6 +345,19 @@ csl::Index minkowskiIndex(std::string const &name = "mu");
 
 /// Expression with its dummy indices renamed, see csl::RenamedIndices.
 csl::Expr renamedIndices(csl::Expr const &expr);
+
+/// Dirac tensors of the standard 4-dim Dirac space. Lorentz indices (mu, nu)
+/// come first, followed by the explicit Dirac indices (a, b).
+csl::Expr
+diracGamma(csl::Index const &mu, csl::Index const &a, csl::Index const &b);
+csl::Expr diracGamma5(csl::Index const &a, csl::Index const &b);
+csl::Expr diracSigma(csl::Index const &mu,
+                     csl::Index const &nu,
+                     csl::Index const &a,
+                     csl::Index const &b);
+csl::Expr diracPL(csl::Index const &a, csl::Index const &b);
+csl::Expr diracPR(csl::Index const &a, csl::Index const &b);
+csl::Expr diracC(csl::Index const &a, csl::Index const &b);
 
 } // namespace mty::api::modeling
 

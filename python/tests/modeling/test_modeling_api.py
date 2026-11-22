@@ -12,7 +12,18 @@ from pymarty.errors import (
     MartyValueError,
 )
 from pymarty.group_theory import SU, U
-from pymarty.modeling import FlavorGroup, GaugeGroup, Model
+from pymarty.modeling import (
+    FlavorGroup,
+    GaugeChoice,
+    GaugeGroup,
+    Model,
+    dirac_C,
+    dirac_gamma,
+    dirac_gamma5,
+    dirac_P_L,
+    dirac_P_R,
+    dirac_sigma,
+)
 from pymarty.symbolic import ComplexProperty, constant, tensor
 
 
@@ -280,3 +291,45 @@ def test_collect_terms_on_finalized_model_is_state_error() -> None:
     toy.finalize()
     with pytest.raises(MartyStateError):
         toy.collect_terms()
+
+
+@pytest.mark.unit
+def test_dirac_tensors_keep_lorentz_and_dirac_indices_free() -> None:
+    toy = make_toy()
+    mu = toy.generate_minkowski_index()
+    nu = toy.generate_minkowski_index("nu")
+    a = toy.generate_dirac_index("a")
+    b = toy.generate_dirac_index("b")
+    assert len(dirac_gamma(mu, a, b).free_indices) == 3
+    assert len(dirac_sigma(mu, nu, a, b).free_indices) == 4
+    assert len(dirac_gamma5(a, b).free_indices) == 2
+    assert len(dirac_P_L(a, b).free_indices) == 2
+    assert len(dirac_P_R(a, b).free_indices) == 2
+    assert len(dirac_C(a, b).free_indices) == 2
+
+
+@pytest.mark.unit
+def test_promote_to_majorana_replaces_weyl_fermion_under_new_name() -> None:
+    toy = make_toy()
+    weyl = toy.add_weyl_fermion("N", self_conjugate=True, gauge_rep={"L": 1})
+    majorana = toy.promote_to_majorana(weyl, "N_maj")
+    assert majorana.name == "N_maj"
+    assert majorana.is_self_conjugate()
+    assert "N_maj" in toy
+    assert "N" not in toy
+
+
+@pytest.mark.unit
+def test_particle_mass_round_trips() -> None:
+    toy = make_toy()
+    psi = toy.add_dirac_fermion("psi", gauge_rep={"L": 1})
+    psi.mass = constant("m_psi")
+    assert str(psi.mass) == "m_psi"
+
+
+@pytest.mark.unit
+def test_set_gauge_choice_on_finalized_model_is_state_error() -> None:
+    toy = make_toy()
+    toy.finalize()
+    with pytest.raises(MartyStateError):
+        toy.particle("W").set_gauge_choice(GaugeChoice.FEYNMAN)
