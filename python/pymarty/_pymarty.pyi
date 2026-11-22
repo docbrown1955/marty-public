@@ -519,7 +519,9 @@ class modeling:
             flavor_rep: str | None = None,
             mass: Expr | None = None,
         ) -> modeling.Particle: ...
-        def add_particle(self, particle: modeling.Particle) -> None: ...
+        def add_particle(
+            self, particle: modeling.Particle, *, initialize_terms: bool = True
+        ) -> None: ...
         def add_scalar_boson(
             self,
             name: str,
@@ -528,6 +530,7 @@ class modeling:
             flavor_rep: str | None = None,
             mass: Expr | None = None,
             self_conjugate: bool = True,
+            initialize_terms: bool = True,
         ) -> modeling.Particle: ...
         def add_similar_particle(
             self,
@@ -536,6 +539,7 @@ class modeling:
             *,
             self_conjugate: bool | None = None,
             mass: Expr | None = None,
+            initialize_terms: bool = True,
         ) -> modeling.Particle: ...
         def add_weyl_fermion(
             self,

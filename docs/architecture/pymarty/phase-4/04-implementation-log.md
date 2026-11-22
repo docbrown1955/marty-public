@@ -177,3 +177,10 @@ differs from C++, because the gaugino Yukawas and D-terms remain blocked.
 - The Higgs potential uses a second dummy index (`H2_j`) for the second `H2` factor, as in `initHiggsPotential` (`src/marty/models/sm.cpp`). Reusing one index does not give an independent sum.
 - Z and W masses: `Model.gather_mass(name)` (new facade binding of `ModelBuilder::gatherMass`) is called before the boson replacement, as `diagonalizeSMMassMatrices` does in C++. Without it, the Z mass came out as `m_Z` instead of `M_Z`.
 - Gauge-fixing terms are added by `_add_gauge_fixing_terms` after `adjust`, mirroring `addGaugeFixingTerms`.
+
+### Kinetic terms of substitute fields
+
+- Symptom: SM scalar and W kinetic coefficients were doubled (`d_+h*d_h` instead of `1/2*d_+h*d_h`, `-F_W*F_W` instead of `-1/2*F_W*F_W`).
+- Cause: `h`, `Gp`, `G0` and `W_SM` were registered with `initializeTerms=true`, so each added a second kinetic term. C++ `HiggsVEVExpansion` and `W_SM` (`src/marty/models/sm.cpp`) create these fields without registering them, so only the original fields contribute kinetic terms.
+- Decision: `Model.add_particle`, `add_scalar_boson` and `add_similar_particle` take `initialize_terms` (default `True`), forwarded to `Model::addParticle(Particle, bool initializeTerms)` in the facade. Substitute fields in `sm.py` pass `initialize_terms=False`, matching C++.
+- Validation: SM canonical diff against C++ is empty for kinetic (29), mass (17) and interaction (207) terms.

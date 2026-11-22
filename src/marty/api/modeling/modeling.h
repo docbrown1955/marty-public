@@ -282,8 +282,10 @@ class Model {
     /// Creates a scalar coupling of the model and returns it.
     csl::Expr newCoupling(std::string const &name);
 
-    /// Adds a particle to the model.
-    void addParticle(Particle const &particle);
+    /// Adds a particle to the model. Its kinetic and mass terms are added to
+    /// the Lagrangian unless \p initializeTerms is false (e.g. for a component
+    /// of an existing field, whose terms are already in the Lagrangian).
+    void addParticle(Particle const &particle, bool initializeTerms = true);
 
     /// Ghost boson of a vector boson, with a given name, as a new particle.
     Particle ghostBoson(Particle const &vectorBoson,

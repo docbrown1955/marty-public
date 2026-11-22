@@ -135,7 +135,8 @@ modeling::Particle addField(modeling::Model   &self,
                             py::dict const    &gaugeRep,
                             py::object const  &flavorRep,
                             py::object const  &selfConjugate,
-                            py::object const  &mass)
+                            py::object const  &mass,
+                            bool               initializeTerms = true)
 {
     if (!selfConjugate.is_none())
         particle.setSelfConjugate(selfConjugate.cast<bool>());
@@ -145,7 +146,7 @@ modeling::Particle addField(modeling::Model   &self,
                py::reinterpret_borrow<py::object>(item.second));
     if (!flavorRep.is_none())
         particle.setFundamentalFlavorRep(flavorRep.cast<std::string>());
-    self.addParticle(particle);
+    self.addParticle(particle, initializeTerms);
     if (!mass.is_none())
         addMassOf(self, particle, mass.cast<ExprHandle const &>());
     return particle;
@@ -442,49 +443,65 @@ void bindModeling(py::module_ &m)
                py::dict const    &gaugeRep,
                py::object const  &flavorRep,
                py::object const  &mass,
-               py::object const  &selfConjugate) {
+               py::object const  &selfConjugate,
+               bool               initializeTerms) {
                 return addField(self,
                                 self.scalarBoson(name),
                                 gaugeRep,
                                 flavorRep,
                                 selfConjugate,
-                                mass);
+                                mass,
+                                initializeTerms);
             },
             py::arg("name"),
             py::kw_only(),
-            py::arg("gauge_rep")      = py::dict(),
-            py::arg("flavor_rep")     = py::none(),
-            py::arg("mass")           = py::none(),
-            py::arg("self_conjugate") = true,
+            py::arg("gauge_rep")       = py::dict(),
+            py::arg("flavor_rep")      = py::none(),
+            py::arg("mass")            = py::none(),
+            py::arg("self_conjugate")  = true,
+            py::arg("initialize_terms") = true,
             "Adds a scalar boson, self-conjugate (real) by default, with its "
-            "gauge and flavor representations and optional mass.")
+            "gauge and flavor representations and optional mass. Set "
+            "initialize_terms to False for a component of an existing field, "
+            "whose terms are already in the Lagrangian.")
         .def(
             "add_similar_particle",
             [](modeling::Model   &self,
                std::string const &name,
                std::string const &reference,
                py::object const  &selfConjugate,
-               py::object const  &mass) {
+               py::object const  &mass,
+               bool               initializeTerms) {
                 return addField(
                     self,
                     self.particle(reference).createSimilarParticle(name),
                     py::dict(),
                     py::none(),
                     selfConjugate,
-                    mass);
+                    mass,
+                    initializeTerms);
             },
             py::arg("name"),
             py::arg("reference"),
             py::kw_only(),
-            py::arg("self_conjugate") = py::none(),
-            py::arg("mass")           = py::none(),
+            py::arg("self_conjugate")   = py::none(),
+            py::arg("mass")             = py::none(),
+            py::arg("initialize_terms") = true,
             "Adds a particle of the same kind as reference, with another "
             "name. "
             "Its representations are those of the reference.")
-        .def("add_particle",
-             &modeling::Model::addParticle,
-             py::arg("particle"),
-             "Adds a particle to the model.")
+        .def(
+            "add_particle",
+            [](modeling::Model          &self,
+               modeling::Particle const &particle,
+               bool                      initializeTerms) {
+                self.addParticle(particle, initializeTerms);
+            },
+            py::arg("particle"),
+            py::kw_only(),
+            py::arg("initialize_terms") = true,
+            "Adds a particle to the model. Set initialize_terms to False to "
+            "add it without its kinetic and mass terms.")
         .def(
             "add_ghost_boson",
             [](modeling::Model          &self,

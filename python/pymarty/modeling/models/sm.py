@@ -184,7 +184,9 @@ def _add_content(model: Model) -> None:
 
     W1 = model.particle("W_1")
     W2 = model.particle("W_2")
-    W_SM = model.add_similar_particle("W", reference="W_1", self_conjugate=False)
+    W_SM = model.add_similar_particle(
+        "W", reference="W_1", self_conjugate=False, initialize_terms=False
+    )
     cWp = model.add_ghost_boson("c_Wp ; c_{+}", W_SM)
     cWm = model.add_ghost_boson("c_Wm; c_{-}", W_SM, conjugated=True)
     W_SM.set_conjugated_ghost_boson(cWm)
@@ -208,9 +210,11 @@ def _add_content(model: Model) -> None:
     model.replace(model.particle("c_W_1"), w1(cWp(), cWm()))
     model.replace(model.particle("c_W_2"), w2(cWp(), cWm()))
 
-    h0 = model.add_scalar_boson("h", self_conjugate=True)
-    Gp = model.add_scalar_boson("Gp ; G^+", self_conjugate=False)
-    G0 = model.add_scalar_boson("G0 ; G^0", self_conjugate=True)
+    h0 = model.add_scalar_boson("h", self_conjugate=True, initialize_terms=False)
+    Gp = model.add_scalar_boson(
+        "Gp ; G^+", self_conjugate=False, initialize_terms=False
+    )
+    G0 = model.add_scalar_boson("G0 ; G^0", self_conjugate=True, initialize_terms=False)
     model.replace(model.particle("H_1"), Gp())
     model.replace(model.particle("H_2"), (h0() + I * G0() + v) / sqrt(2))
 

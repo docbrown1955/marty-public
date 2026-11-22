@@ -628,12 +628,12 @@ csl::Expr Model::newCoupling(std::string const &name)
     });
 }
 
-void Model::addParticle(Particle const &particle)
+void Model::addParticle(Particle const &particle, bool initializeTerms)
 {
     checkOpen(*m_state, "add a particle");
     guarded([&] {
         Session session(m_state->core.get());
-        m_state->core->addParticle(particle.raw());
+        m_state->core->addParticle(particle.raw(), initializeTerms);
     });
 }
 
