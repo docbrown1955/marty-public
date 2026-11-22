@@ -169,3 +169,11 @@ differs from C++, because the gaugino Yukawas and D-terms remain blocked.
 - `Particle.mass` (getter and setter, C++ `setMass`) and `Particle.set_gauge_choice(GaugeChoice)` (`mty::gauge::Type`). Both are guarded by the open-model check.
 - `Model.promote_to_majorana(weyl_fermion, new_name="")` returns the new particle, because promotion removes the Weyl one.
 - Dirac tensors are exported as `pymarty.modeling.dirac_gamma`, `dirac_gamma5`, `dirac_sigma`, `dirac_P_L`, `dirac_P_R` and `dirac_C`, taking Lorentz then Dirac indices. They are named apart from the `pymarty.diracology` chain builders (`gamma`, `P_L`, `C`), which have a different meaning.
+
+### SM port matches C++
+
+- Interaction terms (207) and mass terms (17) match `cpp_sm` after normalising dummy index names and numbers.
+- CKM conjugation follows C++ `sm.h`: `V_ub, V_cd, V_cs, V_td, V_ts` are declared complex, and `V_ud, V_us, V_cb, V_tb` are real. C++ only prints `^(*)` on the complex entries, so the same declaration reproduces its output.
+- The Higgs potential uses a second dummy index (`H2_j`) for the second `H2` factor, as in `initHiggsPotential` (`src/marty/models/sm.cpp`). Reusing one index does not give an independent sum.
+- Z and W masses: `Model.gather_mass(name)` (new facade binding of `ModelBuilder::gatherMass`) is called before the boson replacement, as `diagonalizeSMMassMatrices` does in C++. Without it, the Z mass came out as `m_Z` instead of `M_Z`.
+- Gauge-fixing terms are added by `_add_gauge_fixing_terms` after `adjust`, mirroring `addGaugeFixingTerms`.

@@ -118,6 +118,9 @@ class Particle {
     /// Sets the gauge fixing choice (xi) of a vector boson.
     void setGaugeChoice(mty::gauge::Type choice);
 
+    /// Gauge fixing parameter (xi) symbol of a vector boson.
+    csl::Expr gaugeParameter() const;
+
     /// Spin of the particle: (dim - 1) / 2 for its Lorentz representation.
     group_theory::Rational spin() const;
 
@@ -210,6 +213,9 @@ class Model {
 
     /// Diagonalizes the bosonic and fermionic mass matrices where possible.
     void diagonalizeMassMatrices();
+
+    /// Turns the mass coefficient of a particle into a named symbol (m_<name>).
+    void gatherMass(std::string const &particle);
 
     /// Adds a term to the Lagrangian; addHermitic also adds its conjugate.
     void addTerm(csl::Expr const &term, bool addHermitic = false);

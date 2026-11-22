@@ -6,19 +6,19 @@ Higgs VEV expansion, mass matrix diagonalization, the Yukawa replacements
 with the CKM matrix, the flavour symmetry breaking and the Goldstone
 promotion.
 
-Not yet ported: the W and Z mass settings (need a mass accessor on Particle)
-and the gauge-fixing terms.
+The W and Z masses are set as in ``SM_Model::adjust``, which also adds the
+gauge-fixing terms.
 """
 
 from fractions import Fraction
 
 from pymarty.group_theory import SU, U
 from pymarty.modeling import FlavorGroup, GaugeGroup, Model
+from pymarty.modeling.models._symbols import constant
 from pymarty.symbolic import (
     ComplexProperty,
     Expr,
     I,
-    constant,
     cos,
     diagonal_tensor,
     epsilon,
@@ -33,12 +33,26 @@ FLAVOR = "SM_flavor"
 
 def ckm_matrix() -> list[list[Expr]]:
     """Return the CKM entries as symbolic constants named as in the C++ ``sm_input``."""
+    complex_entries = {"V_ub", "V_cd", "V_cs", "V_td", "V_ts"}
     names = [
-        ["V_ud;V_{ud}", "V_us;V_{us}", "V_ub;V_{ub}"],
-        ["V_cd;V_{cd}", "V_cs;V_{cs}", "V_cb;V_{cb}"],
-        ["V_td;V_{td}", "V_ts;V_{ts}", "V_tb;V_{tb}"],
+        ["V_ud", "V_us", "V_ub"],
+        ["V_cd", "V_cs", "V_cb"],
+        ["V_td", "V_ts", "V_tb"],
     ]
-    return [[constant(name) for name in row] for row in names]
+    return [
+        [
+            constant(
+                f"{name};{name[0]}_{{{name[2:]}}}",
+                complex_property=(
+                    ComplexProperty.Complex
+                    if name in complex_entries
+                    else ComplexProperty.Real
+                ),
+            )
+            for name in row
+        ]
+        for row in names
+    ]
 
 
 def break_sm_flavor(model: Model) -> None:
@@ -118,11 +132,13 @@ def _add_content(model: Model) -> None:
     )
     H = model.particle("H")
     i = model.generate_index("L", "H")
+    j = model.generate_index("L", "H")
     H2 = H(i).conjugate() * H(i)
+    H2_j = H(j).conjugate() * H(j)
     m_h = constant("m_h;m_{h}")
     v = constant("v")
     model.add_term(m_h * m_h / 2 * H2)
-    model.add_term(-(m_h * m_h) / (2 * v * v) * H2 * H2)
+    model.add_term(-(m_h * m_h) / (2 * v * v) * H2 * H2_j)
 
     flavor = model.vector_space(FLAVOR)
     Yu = tensor("Yu", [flavor, flavor], complex_property=ComplexProperty.Complex)
@@ -237,5 +253,67 @@ def _add_content(model: Model) -> None:
 
     break_sm_flavor(model)
 
+    model.gather_mass("W")
+    model.gather_mass("Z")
+    _adjust(model)
+
+
+def _adjust(model: Model) -> None:
+    """Apply the substitutions of ``SM_Model::adjust``."""
+    m_w = constant("M_W;M_{W}")
+    m_z = constant("M_Z;M_{Z}")
+    theta_w = constant("theta_W")
+    e = constant("e_em")
+    v = constant("v")
+    model.replace(v, (2 * m_w * sin(theta_w)) / e)
+    w = model.particle("W")
+    z = model.particle("Z")
+    model.replace(w.mass, m_w)
+    w.mass = m_w
+    model.replace(z.mass, m_z)
+    z.mass = m_z
     model.promote_to_goldstone("Gp", "W")
     model.promote_to_goldstone("G0", "Z")
+    _add_gauge_fixing_terms(model)
+
+
+def _add_gauge_fixing_terms(model: Model) -> None:
+    """Add the gauge-fixing terms of ``SM_Model::addGaugeFixingTerms``."""
+    theta_w = constant("theta_W")
+    e = constant("e_em")
+    v = constant("v")
+    m_w = constant("M_W;M_{W}")
+    m_z = constant("M_Z;M_{Z}")
+    cos_w = cos(theta_w)
+    g = e / sin(theta_w)
+    h0 = model.particle("h")()
+    G0 = model.particle("G0")()
+    Gp = model.particle("Gp")()
+    ap = constant("ap;a_{p}")
+    am = constant("am;a_{m}")
+    az = constant("az;a_{z}")
+    aa = constant("aa;a_{a}")
+    delta_G0 = -g / 2 * (am * Gp + ap * Gp.conjugate()) + g / (2 * cos_w) * az * (
+        v + h0
+    )
+    delta_Gp = (
+        -I * g / 2 * (v + h0 + I * G0) * ap
+        - I * g * cos(2 * theta_w) / (2 * cos_w) * Gp * az
+        + I * e * Gp * aa
+    )
+    delta_Gm = delta_Gp.replace({ap: am}).conjugate()
+    xi_w = model.particle("W").gauge_parameter
+    xi_z = model.particle("Z").gauge_parameter
+    dF_Wp = -I * m_w * xi_w * delta_Gp
+    dF_Wm = I * m_w * xi_w * delta_Gm
+    dF_Z = -m_z * xi_z * delta_G0
+
+    c_A = model.particle("c_A")()
+    c_Z = model.particle("c_Z")()
+    c_Wp = model.particle("c_Wp")()
+    c_Wm = model.particle("c_Wm")()
+    for c1, delta in [(c_Z, dF_Z), (c_Wp, dF_Wp), (c_Wm, dF_Wm)]:
+        for a, c2 in [(aa, c_A), (az, c_Z), (ap, c_Wp), (am, c_Wm)]:
+            term = delta.diff(a)
+            if term != 0:
+                model.add_term(c1.conjugate() * term * c2)

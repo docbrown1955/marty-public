@@ -252,6 +252,15 @@ void Particle::setGaugeChoice(mty::gauge::Type choice)
     });
 }
 
+csl::Expr Particle::gaugeParameter() const
+{
+    checkOpen(*m_state, "get the gauge parameter");
+    return guarded([&] {
+        Session session(m_state->core.get());
+        return m_particle->getXiGauge();
+    });
+}
+
 Amplitude::Amplitude(mty::Amplitude amplitude)
     : m_amplitude(std::make_shared<mty::Amplitude const>(std::move(amplitude)))
 {
@@ -439,6 +448,15 @@ void Model::diagonalizeMassMatrices()
     guarded([&] {
         Session session(m_state->core.get());
         m_state->core->diagonalizeMassMatrices();
+    });
+}
+
+void Model::gatherMass(std::string const &particle)
+{
+    checkOpen(*m_state, "gather a particle mass");
+    guarded([&] {
+        Session session(m_state->core.get());
+        m_state->core->gatherMass(particle);
     });
 }
 

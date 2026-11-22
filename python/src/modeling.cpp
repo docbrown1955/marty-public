@@ -343,6 +343,12 @@ void bindModeling(py::module_ &m)
              &modeling::Particle::setGaugeChoice,
              py::arg("choice"),
              "Sets the gauge fixing choice (xi) of a vector boson.")
+        .def_property_readonly(
+            "gauge_parameter",
+            [](modeling::Particle const &self) {
+                return ExprHandle(self.gaugeParameter());
+            },
+            "Gauge fixing parameter symbol (xi) of a vector boson.")
         .def("__repr__", [](modeling::Particle const &self) {
             return "Particle(" + self.name() + ")";
         });
@@ -532,6 +538,10 @@ void bindModeling(py::module_ &m)
         .def("diagonalize_mass_matrices",
              &modeling::Model::diagonalizeMassMatrices,
              "Diagonalizes the mass matrices of the model where possible.")
+        .def("gather_mass",
+             &modeling::Model::gatherMass,
+             py::arg("particle"),
+             "Names the mass coefficient of a particle as m_<particle>.")
         .def(
             "add_term",
             [](modeling::Model  &self,
