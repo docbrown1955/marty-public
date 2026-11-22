@@ -207,3 +207,14 @@ differs from C++, because the gaugino Yukawas and D-terms remain blocked.
   - NMFV: field content only (`nmfv.py` docstring). The C++ mixings are not ported.
 - Deferred work: port the MSSM interactions, the gaugino and Yukawa terms, the D-terms and soft breaking, the `approximateYukawa`/`approximateInputMatrices` and `getToLowEnergyLagrangian` steps for PMSSM, and the NMFV mixings.
 - Substitute-field double counting (`initialize_terms`) must be checked when the MSSM breaking is ported.
+
+### MSSM, PMSSM and NMFV dropped from phase 4
+
+- Decision: remove the partial ports of `MSSM`, `PMSSM` and `NMFV` from `pymarty.modeling.models`, with their tests. They are too large to validate against C++ in this phase. The last versions are in git history before this commit (`ee627ff`, files under `python/pymarty/modeling/models/`).
+- Known gap for a later phase: full MSSM/PMSSM/NMFV content, interactions, soft breaking, PMSSM approximations and low-energy chain, NMFV mixings. The C++ MSSM dump takes more than 25 minutes.
+- Phase 4 closes with `SM`, `THDM`, `GTHDM`, `QED` and `QCD` matching their C++ counterparts, with the deferred Z/A simplification item above.
+
+### Phase 4 accepted
+
+- Validation: `ruff check`, `ruff format --check`, `mypy --strict` pass. `pytest tests/modeling -m "not slow"` gives 49 passed. `ctest -L "^(api|python)$" -j12` gives 166/166.
+- Open items carried forward: SIGSEGV in `csl::Index::getName()` (with `test_parity.py` excluded from `pymarty.pytest`), the Z/A kinetic simplification, and the MSSM-family gap above.

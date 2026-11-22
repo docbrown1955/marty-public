@@ -123,8 +123,8 @@ These take C++ function callbacks, so they cannot be ported by binding. Plan: Py
 | Library generator | `src/csl/` library generation | unported | 6 | Phase 6 is `pymarty.simulation`. |
 | Model and calculation layers | `src/marty/` | unported | 4 to 7 | Phases 2 to 7. |
 | Built-in `THDM_Model<type>` (template; one variant to choose) | `src/marty/models/thdm.h` | unported | later (after 4) | Deferred by Q1=C (phase 4). Variant choice open (Q2, "see later"). |
-| Built-in `MSSM_Model`, `PMSSM_Model` | `src/marty/models/mssm.h`, `pmssm.h` | unported | later (after 4) | Deferred by Q1=C (phase 4). `samplePMSSM` moves with PMSSM. |
-| Built-in `QCD`, `GTHDM`, `NMFV` models | `src/marty/models/` | unported | later | Not in phase 4 scope. Only if public and tested. |
+| Built-in `MSSM_Model`, `PMSSM_Model` | `src/marty/models/mssm.h`, `pmssm.h` | known gap at end of phase 4 (see phase-4 implementation log) | later | Deferred by Q1=C (phase 4). `samplePMSSM` moves with PMSSM. |
+| Built-in `NMFV` model | `src/marty/models/nmfv.h` | known gap at end of phase 4 (see phase-4 implementation log) | later | Field content only was ported, then dropped as too complex to validate. |
 
 ## 7. Maintenance
 
