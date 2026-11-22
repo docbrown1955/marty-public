@@ -182,6 +182,24 @@ class TensorHandle {
     /*! \brief True if all index positions are antisymmetric. */
     [[nodiscard]] bool fullyAntiSymmetric() const;
 
+    /*! \brief Complex property: the conjugate of element \p init is replaced
+     * by \p result. */
+    void addComplexProperty(ExprHandle const &init, ExprHandle const &result);
+
+    /*! \brief Hermitian property in \p space: the hermitian conjugate of
+     * element \p init is replaced by \p result. The tensor must have exactly
+     * two index positions in \p space. */
+    void addHermitianProperty(SpaceHandle const &space,
+                              ExprHandle const  &init,
+                              ExprHandle const  &result);
+
+    /*! \brief Transposed property in \p space: the transpose of element \p
+     * init is replaced by \p result. The tensor must have exactly two index
+     * positions in \p space. */
+    void addTransposedProperty(SpaceHandle const &space,
+                               ExprHandle const  &init,
+                               ExprHandle const  &result);
+
     /*! \brief Element of the tensor. The indices must match the spaces of the
      * tensor, position by position. */
     [[nodiscard]] ExprHandle

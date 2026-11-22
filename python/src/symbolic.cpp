@@ -1079,6 +1079,44 @@ True
                                &TensorHandle::fullyAntiSymmetric,
                                "True if all index positions are "
                                "antisymmetric.")
+        .def("add_complex_property",
+             &TensorHandle::addComplexProperty,
+             py::arg("init"),
+             py::arg("result"),
+             R"doc(Sets the complex conjugate of element init to result.
+
+When the conjugate of init is needed, result is used instead.
+)doc")
+        .def(
+            "add_hermitian_property",
+            &TensorHandle::addHermitianProperty,
+            py::arg("space"),
+            py::arg("init"),
+            py::arg("result"),
+            R"doc(Sets the hermitian conjugate of element init to result, in space.
+
+The tensor must have two index positions in space. Both positions are
+swapped in result, for example T(i, j) is conjugated to T(j, i).
+
+>>> sp = Space("S", 4)
+>>> T = tensor("T", [sp, sp], complex_property=ComplexProperty.Complex)
+>>> i, j = sp.index("i"), sp.index("j")
+>>> T.add_hermitian_property(sp, T(i, j), T(j, i))
+)doc")
+        .def("add_transposed_property",
+             &TensorHandle::addTransposedProperty,
+             py::arg("space"),
+             py::arg("init"),
+             py::arg("result"),
+             R"doc(Sets the transpose of element init to result, in space.
+
+The tensor must have two index positions in space.
+
+>>> sp = Space("S", 4)
+>>> T = tensor("T", [sp, sp])
+>>> i, j = sp.index("i"), sp.index("j")
+>>> T.add_transposed_property(sp, T(i, j), T(j, i))
+)doc")
         .def(
             "__call__",
             [](TensorHandle const &self, py::args args) {

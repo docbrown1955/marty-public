@@ -484,6 +484,34 @@ bool TensorHandle::fullyAntiSymmetric() const
     return m_tensor->getFullyAntiSymmetric();
 }
 
+void TensorHandle::addComplexProperty(ExprHandle const &init,
+                                      ExprHandle const &result)
+{
+    detail::guarded("complex property", [&] {
+        csl::AddComplexProperty(m_tensor, init.raw(), result.raw());
+    });
+}
+
+void TensorHandle::addHermitianProperty(SpaceHandle const &space,
+                                        ExprHandle const  &init,
+                                        ExprHandle const  &result)
+{
+    detail::guarded("hermitian property", [&] {
+        csl::AddHermitianProperty(
+            m_tensor, &space.raw(), init.raw(), result.raw());
+    });
+}
+
+void TensorHandle::addTransposedProperty(SpaceHandle const &space,
+                                         ExprHandle const  &init,
+                                         ExprHandle const  &result)
+{
+    detail::guarded("transposed property", [&] {
+        csl::AddTransposedProperty(
+            m_tensor, &space.raw(), init.raw(), result.raw());
+    });
+}
+
 csl::Tensor const &TensorHandle::raw() const
 {
     return m_tensor;

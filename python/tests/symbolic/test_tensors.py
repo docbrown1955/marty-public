@@ -70,6 +70,27 @@ def test_fully_symmetric_tensor() -> None:
 
 
 @pytest.mark.unit
+def test_hermitian_and_transposed_properties_on_matrix() -> None:
+    euclid = symbolic.Euclid_R3
+    a = euclid.index("a")
+    b = euclid.index("b")
+    mat = symbolic.tensor(
+        "M", [euclid, euclid], complex_property=symbolic.ComplexProperty.Complex
+    )
+    mat.add_hermitian_property(euclid, mat(a, b), mat(b, a))
+    mat.add_transposed_property(euclid, mat(a, b), mat(b, a))
+
+
+@pytest.mark.unit
+def test_involution_property_rejects_wrong_rank() -> None:
+    euclid = symbolic.Euclid_R3
+    a = euclid.index("a")
+    vec = symbolic.tensor("v", [euclid])
+    with pytest.raises(MartyValueError):
+        vec.add_hermitian_property(euclid, vec(a), vec(a))
+
+
+@pytest.mark.unit
 def test_symmetry_conflicts_raise() -> None:
     euclid = symbolic.Euclid_R3
     with pytest.raises(MartyValueError):
