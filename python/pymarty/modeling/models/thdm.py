@@ -10,11 +10,7 @@ expansion; the 2x2 rotations; the W_1/W_2 replacements; the gauge-boson masses
 and the adjust substitutions.
 
 Not ported (the declarative API has no binding for these C++ calls):
-  - the Yukawa terms of ``THDM_Model::initYukawas``: the flavour tensors Y1u,
-    ... must be indexed with the model's own ``SM_flavor`` space
-    (``getVectorSpace("SM_flavor")``), which ``Model.generate_index`` does not
-    expose (its ``Index.space`` is ``None``), and ``addTensorCoupling`` is absent;
-  - flavour symmetry breaking (``SM_Model::flavorSymmetryBreaking``), so the
+    - flavour symmetry breaking (``SM_Model::flavorSymmetryBreaking``), so the
     fermions keep the ``SM_flavor`` index instead of being split by generation;
   - ``replaceYukawas`` (Z2 charge coefficients, Yukawa mass matrices and the CKM
     matrix from ``buildCKM``);
@@ -30,7 +26,21 @@ from fractions import Fraction
 
 from pymarty.group_theory import SU, U
 from pymarty.modeling import FlavorGroup, GaugeGroup, Model
-from pymarty.symbolic import Expr, I, Minkowski, constant, cos, sin, sqrt, tan
+from pymarty.symbolic import (
+    ComplexProperty,
+    Expr,
+    I,
+    Minkowski,
+    constant,
+    cos,
+    epsilon,
+    sin,
+    sqrt,
+    tan,
+    tensor,
+)
+
+FLAVOR = "SM_flavor"
 
 
 class THDM(Model):
@@ -57,6 +67,7 @@ def _add_content(model: Model) -> None:
     _add_fermions(model)
     _add_higgs_doublets(model)
     _add_higgs_potential(model)
+    add_yukawas(model)
 
     model.break_gauge_symmetry("Y")
     model.break_gauge_symmetry(
@@ -141,6 +152,53 @@ def _add_higgs_potential(model: Model) -> None:
     model.add_term(-lambda3 * s11 * s22)
     model.add_term(-lambda4 * s12 * s21)
     model.add_term(-lambda5 / 2 * (s12**2 + s21**2))
+
+
+def add_yukawas(model: Model) -> None:
+    """Add the Yukawa terms of ``THDM_Model::initYukawas``, one set per doublet.
+
+    Shared with the GTHDM port, which inherits this part of the C++ content.
+    """
+    flavor = model.vector_space(FLAVOR)
+    tensors = {
+        name: tensor(name, [flavor, flavor], complex_property=ComplexProperty.Complex)
+        for name in ("Y1u", "Y1d", "Y1e", "Y2u", "Y2d", "Y2e")
+    }
+    fI = flavor.index("I")
+    fJ = flavor.index("J")
+    a = model.generate_index("C", "Q")
+    il = model.generate_index("L", "Q")
+    jl = model.generate_index("L", "Q")
+    al = model.generate_dirac_index()
+    Q = model.particle("Q")
+    U_R = model.particle("U_R")
+    D_R = model.particle("D_R")
+    L = model.particle("L")
+    E_R = model.particle("E_R")
+
+    for doublet, Yu, Yd, Ye in (
+        ("Phi1", tensors["Y1u"], tensors["Y1d"], tensors["Y1e"]),
+        ("Phi2", tensors["Y2u"], tensors["Y2d"], tensors["Y2e"]),
+    ):
+        phi = model.particle(doublet)
+        model.add_term(
+            Yu(fI, fJ)
+            * phi(il).conjugate()
+            * epsilon(il, jl)
+            * Q(fI, a, jl, al).conjugate()
+            * U_R(fJ, a, al),
+            add_hermitic=True,
+        )
+        model.add_term(
+            -Yd(fI, fJ) * phi(il) * Q(fI, a, il, al).conjugate() * D_R(fJ, a, al),
+            add_hermitic=True,
+        )
+        model.add_term(
+            -Ye(fI, fJ) * phi(il) * L(fI, il, al).conjugate() * E_R(fJ, al),
+            add_hermitic=True,
+        )
+    for name in ("Y1e", "Y1u", "Y1d", "Y2e", "Y2u", "Y2d"):
+        model.add_tensor_coupling(tensors[name])
 
 
 def _replace_higgs(model: Model) -> None:

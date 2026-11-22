@@ -9,11 +9,6 @@ Not ported, because the declarative API has no binding for them:
 
 * flavor symmetry breaking (SM_Model::flavorSymmetryBreaking), so the
   fermions keep their SM_flavor index instead of being split into generations;
-* the Yukawa Lagrangian of initYukawas: its flavor tensors Y1u, ..., Y2e must
-  be built on the model's own flavor space, and Python can only create a new
-  Space("SM_flavor", 3), whose indices the model fields reject. Missing
-  binding: a way to obtain the Space of a model flavor group (or a
-  Model-level Yukawa/tensor-coupling builder, i.e. addTensorCoupling);
 * the Yukawa replacements of replaceYukawas (Z2 coefficients, mass matrices,
   CKM matrix);
 * ghost bosons (c_W_1, c_W_2, c_Wp, c_Wm, and the Goldstone ghosts);
@@ -27,6 +22,7 @@ from fractions import Fraction
 
 from pymarty.group_theory import SU, U
 from pymarty.modeling import FlavorGroup, GaugeGroup, Model
+from pymarty.modeling.models.thdm import add_yukawas
 from pymarty.symbolic import Expr, I, Minkowski, constant, cos, sin, sqrt, tan
 
 FLAVOR_GROUP = "SM_flavor"
@@ -228,6 +224,7 @@ def _add_content(model: Model) -> None:
     _add_fermions(model)
     _add_scalars(model)
     _add_higgs_potential(model)
+    add_yukawas(model)
     _break_gauge_and_expand_higgs(model)
     _replace_w_bosons(model)
     _diagonalize_2x2(model)

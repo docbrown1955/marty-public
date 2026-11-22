@@ -121,6 +121,12 @@ Checks: `pytest -m "not slow"` on `tests/modeling` and `test_usage_examples.py` 
 - Decision: the particle accessors are `field_strength()` and `ghost_boson()`, without a `generate_` prefix, since they return existing objects. `generate_similar_particle` keeps its prefix, because it creates an unattached particle.
 - Decision: `spacetime.minkowski_index()` is replaced by the static method `Model.generate_minkowski_index(name="mu")`, next to `generate_dirac_index`. It is backed by the new facade function `minkowskiIndex` in `src/marty/api/modeling/modeling.cpp`, which calls `csl::Minkowski.generateIndex`. The `spacetime` object is removed.
 
+### Yukawa terms for THDM and GTHDM
+
+- Decision: the THDM Yukawa terms are ported in `add_yukawas(model)` (`python/pymarty/modeling/models/thdm.py`). The six complex tensors `Y1u, Y1d, Y1e, Y2u, Y2d, Y2e` are indexed on `model.vector_space("SM_flavor")`, and are added with `add_tensor_coupling` in the C++ order. GTHDM reuses the helper, since the C++ `GTHDM_Model` inherits `THDM_Model<GTHDM_type>`.
+- Correction: the earlier "no SM_flavor space" gap was stale. `vector_space` and `add_tensor_coupling` were already bound.
+- Still open for THDM and GTHDM: flavour splitting (`BreakFlavorSymmetry`), ghost replacements, `replaceYukawas`, and Z/A mixing. The strict xfails in `test_cpp_thdm.py` and `test_cpp_gthdm.py` remain.
+
 ### Known issues
 
 - **Segfault in the full pymarty pytest run (open).** Under ctest, `pymarty.pytest` crashes with SIGSEGV in `csl::Index::getName()` (`src/csl/index.cpp`, around line 55), reached from `printLaTeX` in the golden test `test_golden_expressions_printing_matches_cpp` (`python/tests/symbolic/test_parity.py`, around line 245). It needs `tests/modeling/test_cpp_pmssm.py` to run earlier in the same process. Subset runs and standalone scripts do not reproduce it.

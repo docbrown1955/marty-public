@@ -62,8 +62,8 @@ def test_ported_bosons_match_cpp_names() -> None:
 @pytest.mark.unit
 @pytest.mark.xfail(
     strict=True,
-    reason="Yukawa terms (no SM_flavor space from generate_index), flavour splitting, "
-    "ghost replacements c_A/c_Z/c_Wm/c_Wp and replaceYukawas are not ported",
+    reason="flavour splitting, ghost replacements c_A/c_Z/c_Wm/c_Wp and "
+    "replaceYukawas are not ported",
 )
 def test_particle_names_match_cpp_thdm() -> None:
     py_names = {p.name for p in THDM().particles}

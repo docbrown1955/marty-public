@@ -63,8 +63,7 @@ def test_ported_particles_exist() -> None:
 @pytest.mark.unit
 @pytest.mark.xfail(
     strict=True,
-    reason="BreakFlavorSymmetry, ghost bosons, Yukawa tensors and Z/A mixing "
-    "are not bound",
+    reason="BreakFlavorSymmetry, ghost bosons and Z/A mixing are not bound",
 )
 def test_particle_names_match_cpp_gthdm() -> None:
     py_names = {p.name for p in GTHDM().particles}
