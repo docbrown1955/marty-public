@@ -22,7 +22,7 @@ from fractions import Fraction
 
 from pymarty.group_theory import SU, U
 from pymarty.modeling import FlavorGroup, GaugeGroup, Model
-from pymarty.modeling.models.thdm import add_yukawas
+from pymarty.modeling.models.yukawas import add_yukawas
 from pymarty.symbolic import Expr, I, Minkowski, constant, cos, sin, sqrt, tan
 
 FLAVOR_GROUP = "SM_flavor"
