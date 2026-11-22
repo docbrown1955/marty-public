@@ -10,14 +10,6 @@ expansion; the 2x2 rotations; the W_1/W_2 replacements; the gauge-boson masses
 and the adjust substitutions.
 
 Not ported (the declarative API has no binding for these C++ calls):
-    - flavour symmetry breaking (``SM_Model::flavorSymmetryBreaking``), so the
-    fermions keep the ``SM_flavor`` index instead of being split by generation;
-  - ``replaceYukawas`` (Z2 charge coefficients, Yukawa mass matrices and the CKM
-    matrix from ``buildCKM``);
-  - ``DiagonalizeMassMatrices`` for W_3 and B: the rotation to Z and A is written
-    out explicitly, as in the gettingStarted port;
-  - ghost-boson replacements (``c_W_1``, ``c_W_2``) of
-    ``SM_Model::gaugeSymmetryBreaking``;
   - ``getMass``/``setMass`` (replaced by ``add_bosonic_mass``) and ``mergeTerms``;
   - the numerical ``sm_input`` values: masses and couplings stay symbolic.
 """
@@ -26,18 +18,22 @@ from fractions import Fraction
 
 from pymarty.group_theory import SU, U
 from pymarty.modeling import FlavorGroup, GaugeGroup, Model
+from pymarty.modeling.models.sm import break_sm_flavor, ckm_matrix
 from pymarty.symbolic import (
     ComplexProperty,
     Expr,
     I,
     Minkowski,
+    Tensor,
     constant,
     cos,
+    diagonal_tensor,
     epsilon,
     sin,
     sqrt,
     tan,
     tensor,
+    unitary_tensor,
 )
 
 FLAVOR = "SM_flavor"
@@ -67,7 +63,7 @@ def _add_content(model: Model) -> None:
     _add_fermions(model)
     _add_higgs_doublets(model)
     _add_higgs_potential(model)
-    add_yukawas(model)
+    yukawas = add_yukawas(model)
 
     model.break_gauge_symmetry("Y")
     model.break_gauge_symmetry(
@@ -77,6 +73,8 @@ def _add_content(model: Model) -> None:
     _replace_higgs(model)
     _diagonalize_2by2(model)
     _replace_w_bosons(model)
+    _replace_yukawas(model, yukawas)
+    break_sm_flavor(model)
     _adjust(model)
 
 
@@ -154,10 +152,11 @@ def _add_higgs_potential(model: Model) -> None:
     model.add_term(-lambda5 / 2 * (s12**2 + s21**2))
 
 
-def add_yukawas(model: Model) -> None:
+def add_yukawas(model: Model) -> dict[str, Tensor]:
     """Add the Yukawa terms of ``THDM_Model::initYukawas``, one set per doublet.
 
     Shared with the GTHDM port, which inherits this part of the C++ content.
+    Returns the Yukawa tensors by name, for ``_replace_yukawas``.
     """
     flavor = model.vector_space(FLAVOR)
     tensors = {
@@ -199,6 +198,7 @@ def add_yukawas(model: Model) -> None:
         )
     for name in ("Y1e", "Y1u", "Y1d", "Y2e", "Y2u", "Y2d"):
         model.add_tensor_coupling(tensors[name])
+    return tensors
 
 
 def _replace_higgs(model: Model) -> None:
@@ -292,11 +292,14 @@ def _replace_w_bosons(model: Model) -> None:
     """Express W_1, W_2 by W and the neutral gauge bosons by Z and A.
 
     This is the explicit form of the gauge breaking used by the gettingStarted
-    port; the C++ code additionally handles the ghosts, which are not ported.
+    port, with the W ghosts of ``SM_Model::gaugeSymmetryBreaking``.
     """
     w_1 = model.particle("W_1")
     w_2 = model.particle("W_2")
     w = model.add_similar_particle("W", reference="W_1", self_conjugate=False)
+    c_wp = model.add_ghost_boson("c_Wp ; c_{+}", w)
+    c_wm = model.add_ghost_boson("c_Wm; c_{-}", w, conjugated=True)
+    w.set_conjugated_ghost_boson(c_wm)
     mu = Minkowski.index()
     nu = Minkowski.index()
     model.replace(w_1(mu), (w(mu) + w(mu).conjugate()) / sqrt(2))
@@ -309,18 +312,87 @@ def _replace_w_bosons(model: Model) -> None:
         w_2.field_strength()(mu, nu),
         I * (w(mu, nu) - w(mu, nu).conjugate()) / sqrt(2),
     )
+    model.replace(model.particle("c_W_1"), (c_wp() + c_wm()) / sqrt(2))
+    model.replace(model.particle("c_W_2"), I * (c_wp() - c_wm()) / sqrt(2))
+
+    model.diagonalize_mass_matrices()
+    model.rename_particle("B", "A")
+    model.rename_particle("W_3", "Z")
 
     theta_w = constant("theta_W;\\theta_{W}")
     c_w = cos(theta_w)
     s_w = sin(theta_w)
-    model.rotate_fields(["W_3", "B"], ["Z", "A"], [[c_w, s_w], [-s_w, c_w]])
-
     g_l = model.coupling("g_L")
     g_y = model.coupling("g_Y")
     e = constant("e_em")
     model.replace(g_l**2 + g_y**2, (g_l / c_w) ** 2)
     model.replace(g_y, e / c_w)
     model.replace(g_l, e / s_w)
+
+
+def _replace_yukawas(model: Model, yukawas: dict[str, Tensor]) -> None:
+    """Apply the Z2 coefficients, the Yukawa mass matrices and the CKM rotation.
+
+    Port of ``THDM_Model::replaceYukawas`` for type II. The substitutions are
+    applied in the C++ order, because a later one acts on the terms created by an
+    earlier one (e.g. ``Y2u`` is first set to ``Y1u``, then ``Y1u`` is replaced).
+    """
+    flavor = model.vector_space(FLAVOR)
+    fi = flavor.index("fi")
+    fj = flavor.index("fj")
+    fk = flavor.index("fk")
+    fl = flavor.index("fl")
+    v1 = constant("v1")
+    tan_beta = tan(constant("beta;\\beta"))
+    v2 = v1 * tan_beta
+    v = constant("v")
+
+    def z2_coefs(charge: int) -> tuple[Expr, Expr]:
+        # Z2_coef in src/marty/models/thdm.cpp
+        return (Expr(0), Expr(1)) if charge == 1 else (Expr(1), Expr(0))
+
+    def z2_mass_coef(charge: int) -> Expr:
+        # Z2_mass_coef in src/marty/models/thdm.cpp
+        return sqrt(2) / (v2 if charge == 1 else v1)
+
+    # Type II charges (Z2_charges<2>): u = 1, d = -1, e = -1
+    charges = {"e": -1, "u": 1, "d": -1}
+    for suffix in ("e", "u", "d"):
+        first, second = z2_coefs(charges[suffix])
+        y1 = yukawas[f"Y1{suffix}"]
+        y2 = yukawas[f"Y2{suffix}"]
+        # Bare tensors on the left, as in the C++ Replaced calls: an indexed
+        # left-hand side cannot be replaced by zero.
+        model.replace(y1, first * y1(fi, fj))
+        model.replace(y2, second * y1(fi, fj))
+
+    m_e = [
+        constant("m_e;m_{e}"),
+        constant("m_mu;m_{\\mu}"),
+        constant("m_tau;m_{\\tau}"),
+    ]
+    m_u = [constant("m_u;m_{u}"), constant("m_c;m_{c}"), constant("m_t;m_{t}")]
+    m_d = [constant("m_d;m_{d}"), constant("m_s;m_{s}"), constant("m_b;m_{b}")]
+    M_e = diagonal_tensor("M_e", flavor, m_e)
+    M_u = diagonal_tensor("M_u", flavor, m_u)
+    M_d = diagonal_tensor("M_d", flavor, m_d)
+    V = unitary_tensor("V_CKM", flavor, ckm_matrix())
+
+    model.replace(yukawas["Y1e"](fi, fj), z2_mass_coef(charges["e"]) * M_e(fi, fj))
+    model.replace(yukawas["Y1u"](fi, fj), z2_mass_coef(charges["u"]) * M_u(fi, fj))
+    # Y_d = V M_d V^dagger, as in the C++ Hermitian conjugate of V_CKM.
+    model.replace(
+        yukawas["Y1d"](fi, fj),
+        z2_mass_coef(charges["d"]) * V(fi, fk) * M_d(fk, fl) * V(fj, fl).conjugate(),
+    )
+
+    D_L = model.particle("D_L")
+    D_R = model.particle("D_R")
+    dirac = model.generate_dirac_index()
+    colour = model.generate_index("C", "D_L")
+    model.replace(D_L(fj, colour, dirac), V(fj, fk) * D_L(fk, colour, dirac))
+    model.replace(D_R(fi, colour, dirac), V(fi, fj) * D_R(fj, colour, dirac))
+    model.replace(1 + tan_beta**-2, v * v / (v2 * v2))
 
 
 def _adjust(model: Model) -> None:

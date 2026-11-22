@@ -125,7 +125,9 @@ Checks: `pytest -m "not slow"` on `tests/modeling` and `test_usage_examples.py` 
 
 - Decision: the THDM Yukawa terms are ported in `add_yukawas(model)` (`python/pymarty/modeling/models/thdm.py`). The six complex tensors `Y1u, Y1d, Y1e, Y2u, Y2d, Y2e` are indexed on `model.vector_space("SM_flavor")`, and are added with `add_tensor_coupling` in the C++ order. GTHDM reuses the helper, since the C++ `GTHDM_Model` inherits `THDM_Model<GTHDM_type>`.
 - Correction: the earlier "no SM_flavor space" gap was stale. `vector_space` and `add_tensor_coupling` were already bound.
-- Still open for THDM and GTHDM: flavour splitting (`BreakFlavorSymmetry`), ghost replacements, `replaceYukawas`, and Z/A mixing. The strict xfails in `test_cpp_thdm.py` and `test_cpp_gthdm.py` remain.
+- Done for THDM: `replaceYukawas` (Z2 coefficients, mass matrices, CKM rotation), the W ghosts `c_Wp`/`c_Wm` with the `c_W_1`/`c_W_2` replacements, the W_3/B diagonalisation with the A/Z renames (as in `SM_Model::diagonalizeSMMassMatrices`), and the SM flavour splitting (`break_sm_flavor`). The particle-name set now equals the C++ THDM set, and its strict xfail is lifted.
+- Core change: `Model::replace(csl::Tensor, csl::Expr)` (`src/marty/api/modeling/modeling.cpp`) replaces a bare tensor, as C++ `Replaced(*this, Ye2, ...)` does. Replacing the indexed `Y(fi,fj)` by an expression without free indices (such as `0`) raises a `ValueError`, so the bare-tensor overload is needed.
+- Still open for GTHDM: `replaceYukawas` with the xi parametrisation, `flavorSymmetryBreaking`, and the ghosts and Z/A mixing. Its strict xfail in `test_cpp_gthdm.py` remains.
 
 ### Tensor involution properties and MSSM soft masses
 

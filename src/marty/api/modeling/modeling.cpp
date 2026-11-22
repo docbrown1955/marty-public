@@ -449,6 +449,17 @@ void Model::replace(csl::Expr const &oldExpression,
     });
 }
 
+void Model::replace(csl::Tensor const &oldTensor,
+                    csl::Expr const   &newExpression)
+{
+    checkOpen(*m_state, "replace a tensor");
+    guarded([&] {
+        Session session(m_state->core.get());
+        csl::Tensor tensor = oldTensor;
+        m_state->core->replace(tensor, newExpression);
+    });
+}
+
 void Model::rotateFields(std::vector<Particle> const               &fields,
                          std::vector<Particle> const               &newFields,
                          std::vector<std::vector<csl::Expr>> const &rotation,

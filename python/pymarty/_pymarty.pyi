@@ -546,7 +546,7 @@ class modeling:
         def coupling(self, name: str) -> Expr: ...
         def replace(
             self,
-            old: Expr | modeling.Particle,
+            old: Expr | Tensor | modeling.Particle,
             new: Expr | modeling.Particle,
         ) -> None: ...
 

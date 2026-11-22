@@ -521,11 +521,17 @@ void bindModeling(py::module_ &m)
             [](modeling::Model &self,
                py::handle       oldValue,
                py::handle       newValue) {
+                if (py::isinstance<TensorHandle>(oldValue)) {
+                    self.replace(py::cast<TensorHandle const &>(oldValue).raw(),
+                                 exprOf(newValue));
+                    return;
+                }
                 self.replace(exprOf(oldValue), exprOf(newValue));
             },
             py::arg("old"),
             py::arg("new"),
-            "Replaces an expression (or a particle) everywhere in the model.")
+            "Replaces an expression, a tensor or a particle everywhere in the "
+            "model.")
         .def(
             "generate_index",
             [](modeling::Model const &self, std::string const &group) {

@@ -209,6 +209,10 @@ class Model {
     void replace(csl::Expr const &oldExpression,
                  csl::Expr const &newExpression);
 
+    /// Replaces a tensor everywhere in the model, by an expression. The
+    /// tensor is replaced as a whole, so the expression may be zero.
+    void replace(csl::Tensor const &oldTensor, csl::Expr const &newExpression);
+
     /// Rotates the fields into newFields with the unitary matrix rotation.
     void rotateFields(std::vector<Particle> const               &fields,
                       std::vector<Particle> const               &newFields,

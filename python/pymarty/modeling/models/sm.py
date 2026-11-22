@@ -31,7 +31,7 @@ from pymarty.symbolic import (
 FLAVOR = "SM_flavor"
 
 
-def _ckm_matrix() -> list[list[Expr]]:
+def ckm_matrix() -> list[list[Expr]]:
     """Return the CKM entries as symbolic constants named as in the C++ ``sm_input``."""
     names = [
         ["V_ud;V_{ud}", "V_us;V_{us}", "V_ub;V_{ub}"],
@@ -39,6 +39,25 @@ def _ckm_matrix() -> list[list[Expr]]:
         ["V_td;V_{td}", "V_ts;V_{ts}", "V_tb;V_{tb}"],
     ]
     return [[constant(name) for name in row] for row in names]
+
+
+def break_sm_flavor(model: Model) -> None:
+    """Split the ``SM_flavor`` fermions into generations.
+
+    Port of ``SM_Model::flavorSymmetryBreaking``.
+    """
+    model.break_flavor_symmetry(
+        FLAVOR,
+        renaming={
+            "U_L": ["u_L", "c_L", "t_L"],
+            "D_L": ["d_L", "s_L", "b_L"],
+            "E_L": ["e_L", "mu_L;\\mu_L", "tau_L;\\tau_L"],
+            "Nu_L": ["nu_e;\\nu_e", "nu_mu;\\nu_\\mu", "nu_tau;\\nu_\\tau"],
+            "U_R": ["u_R", "c_R", "t_R"],
+            "D_R": ["d_R", "s_R", "b_R"],
+            "E_R": ["e_R", "mu_R;\\mu_R", "tau_R;\\tau_R"],
+        },
+    )
 
 
 class SM(Model):
@@ -209,25 +228,14 @@ def _add_content(model: Model) -> None:
 
     m_d = [constant("m_d;m_{d}"), constant("m_s;m_{s}"), constant("m_b;m_{b}")]
     M_d = diagonal_tensor("M_d", flavor, m_d)
-    V = unitary_tensor("V_CKM", flavor, _ckm_matrix())
+    V = unitary_tensor("V_CKM", flavor, ckm_matrix())
     model.replace(Yd(fi, fj), factor * V(fi, fk) * M_d(fk, fj))
     D_L = model.particle("D_L")
     dirac = model.generate_dirac_index()
     colour = model.generate_index("C", "D_L")
     model.replace(D_L(fj, colour, dirac), V(fj, fk) * D_L(fk, colour, dirac))
 
-    model.break_flavor_symmetry(
-        FLAVOR,
-        renaming={
-            "U_L": ["u_L", "c_L", "t_L"],
-            "D_L": ["d_L", "s_L", "b_L"],
-            "E_L": ["e_L", "mu_L;\\mu_L", "tau_L;\\tau_L"],
-            "Nu_L": ["nu_e;\\nu_e", "nu_mu;\\nu_\\mu", "nu_tau;\\nu_\\tau"],
-            "U_R": ["u_R", "c_R", "t_R"],
-            "D_R": ["d_R", "s_R", "b_R"],
-            "E_R": ["e_R", "mu_R;\\mu_R", "tau_R;\\tau_R"],
-        },
-    )
+    break_sm_flavor(model)
 
     model.promote_to_goldstone("Gp", "W")
     model.promote_to_goldstone("G0", "Z")
