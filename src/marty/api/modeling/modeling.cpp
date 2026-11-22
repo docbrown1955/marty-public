@@ -392,6 +392,7 @@ void Model::renameParticle(std::string const &name, std::string const &newName)
 
 void Model::refresh()
 {
+    checkOpen(*m_state, "refresh");
     guarded([&] {
         Session session(m_state->core.get());
         m_state->core->refresh();

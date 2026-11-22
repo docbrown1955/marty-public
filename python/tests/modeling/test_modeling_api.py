@@ -294,6 +294,14 @@ def test_collect_terms_on_finalized_model_is_state_error() -> None:
 
 
 @pytest.mark.unit
+def test_refresh_on_finalized_model_is_state_error() -> None:
+    toy = make_toy()
+    toy.finalize()
+    with pytest.raises(MartyStateError):
+        toy.refresh()
+
+
+@pytest.mark.unit
 def test_dirac_tensors_keep_lorentz_and_dirac_indices_free() -> None:
     toy = make_toy()
     mu = toy.generate_minkowski_index()

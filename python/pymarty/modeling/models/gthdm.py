@@ -7,8 +7,8 @@ replacement differs: it is ``replace_gthdm_yukawas``, with the xi
 parametrisation of the second doublet couplings and the generic CKM matrix.
 
 Not ported, as for THDM: ``getMass``/``setMass``. ``mergeTerms`` is exposed as
-``Model.collect_terms`` but not called: calling it after the adjust steps did not
-split generations 2 and 3.
+``Model.collect_terms`` but not called: calling it, even after ``Model.refresh``,
+did not split generations 2 and 3.
 """
 
 from pymarty.group_theory import SU, U

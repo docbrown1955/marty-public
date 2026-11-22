@@ -129,7 +129,12 @@ Exposed: `Model.covariant_derivative(group, field, mu, indices)` and
 - Done for THDM: `replaceYukawas` (Z2 coefficients, mass matrices, CKM rotation), the W ghosts `c_Wp`/`c_Wm` with the `c_W_1`/`c_W_2` replacements, the W_3/B diagonalisation with the A/Z renames (as in `SM_Model::diagonalizeSMMassMatrices`), and the SM flavour splitting (`break_sm_flavor`). The particle-name set now equals the C++ THDM set, and its strict xfail is lifted.
 - Core change: `Model::replace(csl::Tensor, csl::Expr)` (`src/marty/api/modeling/modeling.cpp`) replaces a bare tensor, as C++ `Replaced(*this, Ye2, ...)` does. Replacing the indexed `Y(fi,fj)` by an expression without free indices (such as `0`) raises a `ValueError`, so the bare-tensor overload is needed.
 - GTHDM (partial): `replaceYukawas` with the xi parametrisation is ported in `gthdm.py` (`replace_gthdm_yukawas`), in the C++ order, and reuses the shared THDM content (`add_thdm_content`). It needs the `matrix_tensor` facade (`matrixTensor` in `src/csl/api/tensor.cpp`) for the zero-first-row xi matrices.
-- Open for GTHDM: the mass eigenstates of generations 2 and 3 (`c`, `t`, `s`, `b`, `mu`, `tau`) are not created. Generation 1 (`u`, `e`) splits in `finalize()`, so the Dirac mass term is diagonal there only. The xi cross terms apparently do not cancel in the generation 2 and 3 mass term. Cause not yet identified. `test_particle_names_match_cpp_gthdm` stays a strict xfail with this reason.
+- Open for GTHDM: the mass eigenstates of generations 2 and 3 (`c`, `t`, `s`, `b`, `mu`, `tau`) are not created. Findings:
+  - With all xi matrices set to zero, every generation splits (45 particle names).
+  - Zeroing one xi sector splits only that sector (`xil`: leptons, `xiu`: up quarks, `xid`: down quarks). The xi terms therefore fail to cancel in the mass term of each sector, which is `v1*Y1 + v2*Y2` with `v2 = v1*tan_beta`.
+  - Ruled out: the Python Yukawa replacement order (matches `GTHDM_Model::replaceYukawas`), `diagonal_tensor`/`matrix_tensor` semantics, and `collect_terms` before finalize. Also ruled out: `refresh()` followed by `collect_terms()` (the C++ `adjust` order), which still gives the mixing warnings.
+  - Next suspect: whether CSL merges `-v1*tan_beta*Y2` and `+v2*Y2` into zero when the coefficients are sums that are not expanded. Not verified.
+  - `Model.refresh()` is now bound (facade `Model::refresh` with the open-state check). `test_particle_names_match_cpp_gthdm` stays a strict xfail with this reason.
 
 ### Tensor involution properties and MSSM soft masses
 

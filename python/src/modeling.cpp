@@ -603,6 +603,10 @@ void bindModeling(py::module_ &m)
              "named new_name or else as the Weyl fermion. Returns the "
              "Majorana "
              "particle, which replaces the Weyl one.")
+        .def("refresh",
+             &modeling::Model::refresh,
+             "Recomputes the derived quantities of the model (the Lagrangian "
+             "substitutions are applied). Call it before collect_terms.")
         .def("collect_terms",
              &modeling::Model::collectTerms,
              "Collects the Lagrangian terms with the same fields, summing "
