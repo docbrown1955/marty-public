@@ -22,6 +22,9 @@ target_link_libraries(_pymarty PRIVATE marty-static)
 target_compile_definitions(_pymarty PRIVATE PYMARTY_VERSION="${PYMARTY_VERSION}")
 set_target_properties(_pymarty PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/pymarty"
+    # Installed wheel: libooptools.so is shipped in pymarty/_data/lib (see
+    # wheel.install-dir in pyproject.toml). The build tree keeps its own RPATH.
+    INSTALL_RPATH "$ORIGIN/_data/lib"
 )
 
 # Copy the pure Python part next to the extension so that the build directory
