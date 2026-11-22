@@ -193,3 +193,17 @@ differs from C++, because the gaugino Yukawas and D-terms remain blocked.
 - `THDM_Model::adjust` ends with `L.mergeTerms()`. The port now calls `Model.collect_terms()` at the end of `_adjust`, as in C++.
 - Validation: mass (18) and interaction (379 / 443 for GTHDM) canonical terms match C++. Kinetic terms match except one deferred item below. Particles 45/45.
 - Deferred: the `Z G0` and `Z A0` coefficients are mathematically equal to C++ (`M_W cos(beta)(cos(theta_W) + sin(theta_W)^2/cos(theta_W))` versus `M_W cos(beta)/cos(theta_W)`), but CSL does not combine them and `collect_terms` does not either. The source is an unsimplified trigonometric sum in the W/Z substitution. Fixing it needs a targeted simplification step, to be designed with the `sin^2 + cos^2` identity. Recorded as a known difference.
+
+### QED and QCD match C++
+
+- Particle counts match (QED 5, QCD 8). Term counts match (QED kinetic 3, mass 1, interaction 1; QCD kinetic 4, mass 2, interaction 5).
+- The canonical term diff is empty once the C++ vertex argument `(V)` is read as `(X)`. This is a dump naming difference only, so no code change was needed.
+
+### MSSM, PMSSM and NMFV: deferred
+
+- Status against C++ is far from complete and the fix is too large for this step.
+  - PMSSM: 23 of 65 kinetic terms, 0 of 51 mass terms, 72 of 4305 interaction terms. Field content is 23 of 87 particles, and the xfail in `python/tests/modeling/test_cpp_pmssm.py` is kept.
+  - MSSM: the Python port is partial. Gaugino, Yukawa, trilinear, quartic and Higgs-potential terms are missing (see the `mssm.py` docstring). A full C++ reference dump takes more than 25 minutes, so a canonical comparison was not completed.
+  - NMFV: field content only (`nmfv.py` docstring). The C++ mixings are not ported.
+- Deferred work: port the MSSM interactions, the gaugino and Yukawa terms, the D-terms and soft breaking, the `approximateYukawa`/`approximateInputMatrices` and `getToLowEnergyLagrangian` steps for PMSSM, and the NMFV mixings.
+- Substitute-field double counting (`initialize_terms`) must be checked when the MSSM breaking is ported.
