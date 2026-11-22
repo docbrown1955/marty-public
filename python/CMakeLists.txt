@@ -46,17 +46,28 @@ if(NOT PYMARTY_HAS_PYTEST EQUAL 0)
         "'python' tests will fail. Configure with -DPython_EXECUTABLE=<venv python>.")
 endif()
 
+# Workaround: the full run segfaults in symbolic/test_parity.py when it shares
+# a process with the earlier tests (see docs/architecture/pymarty/phase-4/
+# 04-implementation-log.md, "Known issues"). That file is run on its own below.
 add_test(NAME pymarty.pytest
     COMMAND "${Python_EXECUTABLE}" -m pytest -p no:cacheprovider
         -c "${CMAKE_CURRENT_SOURCE_DIR}/pyproject.toml"
         --rootdir "${CMAKE_CURRENT_SOURCE_DIR}"
-        "${CMAKE_CURRENT_SOURCE_DIR}/tests" -m "not slow"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests"
+        "--ignore=${CMAKE_CURRENT_SOURCE_DIR}/tests/symbolic/test_parity.py"
+        -m "not slow"
     # The build directory holds the importable package; the source directory
     # holds a pymarty/ without the compiled module and must not be on sys.path.
     WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
+add_test(NAME pymarty.pytest.symbolic_parity
+    COMMAND "${Python_EXECUTABLE}" -m pytest -p no:cacheprovider
+        -c "${CMAKE_CURRENT_SOURCE_DIR}/pyproject.toml"
+        --rootdir "${CMAKE_CURRENT_SOURCE_DIR}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/symbolic/test_parity.py" -m "not slow"
+    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 add_test(NAME pymarty.parity
     COMMAND "${Python_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tools/check_parity.py")
-set_tests_properties(pymarty.pytest pymarty.parity PROPERTIES
+set_tests_properties(pymarty.pytest pymarty.pytest.symbolic_parity pymarty.parity PROPERTIES
     LABELS python
     ENVIRONMENT "PYTHONPATH=${CMAKE_CURRENT_BINARY_DIR}")
 
