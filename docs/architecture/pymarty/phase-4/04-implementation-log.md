@@ -127,6 +127,20 @@ Checks: `pytest -m "not slow"` on `tests/modeling` and `test_usage_examples.py` 
 - Correction: the earlier "no SM_flavor space" gap was stale. `vector_space` and `add_tensor_coupling` were already bound.
 - Still open for THDM and GTHDM: flavour splitting (`BreakFlavorSymmetry`), ghost replacements, `replaceYukawas`, and Z/A mixing. The strict xfails in `test_cpp_thdm.py` and `test_cpp_gthdm.py` remain.
 
+### Tensor involution properties and MSSM soft masses
+
+The tensor facade now exposes the three CSL involution properties:
+`add_complex_property`, `add_hermitian_property(space, init, result)` and
+`add_transposed_property(space, init, result)`. The hermitian and transposed
+setters need a space with exactly two indices; the core raises otherwise.
+
+The MSSM soft masses (`M2_s_L`, `M2_s_E`, `M2_s_Q`, `M2_s_U`, `M2_s_D`) are
+ported in `mssm.py`. Each is a complex hermitian flavour matrix on
+`model.vector_space("SM_flavor")`, added as a tensor coupling, then used in
+the Lagrangian term for its scalar. This mirrors `initSLeptons` and
+`initSQuarks` in `src/marty/models/mssm.cpp`. The Feynman-rule count still
+differs from C++, because the gaugino Yukawas and D-terms remain blocked.
+
 ### Known issues
 
 - **Segfault in the full pymarty pytest run (open).** Under ctest, `pymarty.pytest` crashes with SIGSEGV in `csl::Index::getName()` (`src/csl/index.cpp`, around line 55), reached from `printLaTeX` in the golden test `test_golden_expressions_printing_matches_cpp` (`python/tests/symbolic/test_parity.py`, around line 245). It needs `tests/modeling/test_cpp_pmssm.py` to run earlier in the same process. Subset runs and standalone scripts do not reproduce it.

@@ -2,16 +2,11 @@
 
 Ported: the three gauge groups (SU(3) C, SU(2) L, U(1) Y) and the flavour
 group, the SM-like fermions and their superpartners, the Higgs doublets, the
-higgsinos (with their Higgsino mass term) and the gauginos (Majorana, so
-sB, sW and sG are split into sB_L/sB_R, sW_L/sW_R and sG_L/sG_R).
+higgsinos (with their Higgsino mass term), the gauginos (Majorana, so
+sB, sW and sG are split into sB_L/sB_R, sW_L/sW_R and sG_L/sG_R) and the
+soft slepton and squark masses (M2_s_L, M2_s_E, M2_s_Q, M2_s_U, M2_s_D).
 
-Not ported, because the declarative API has no binding for them:
-  - Soft slepton and squark masses (M2_s_L, M2_s_E, M2_s_Q, M2_s_U, M2_s_D,
-    addTensorCoupling and addLagrangianTerm in initSLeptons / initSQuarks).
-    They need a flavour tensor built on the model's own flavour VectorSpace
-    (C++ getVectorSpace("SM_flavor")); the Python Model does not expose that
-    space, and a fresh Space with the same name is rejected by the tensor
-    indices. Also needs Tensor::addHermitianProperty.
+Not ported:
   - Gaugino-gauge and gaugino-fermion-scalar Yukawa terms in
     initGauginoInteractions / initYukawas / initLeptons. They need the
     charge-conjugation matrix (dirac4.C_matrix) and the gauge generators
@@ -25,7 +20,7 @@ from fractions import Fraction
 
 from pymarty.group_theory import SU, U
 from pymarty.modeling import FlavorGroup, GaugeGroup, Model
-from pymarty.symbolic import constant, epsilon
+from pymarty.symbolic import ComplexProperty, Tensor, constant, epsilon, tensor
 
 
 class MSSM(Model):
@@ -110,6 +105,7 @@ def _add_content(model: Model) -> None:
         model.add_weyl_fermion(name, chirality="L", gauge_rep={"L": 1})
 
     _add_higgsino_mass(model)
+    _add_soft_masses(model)
 
 
 def _add_higgsino_mass(model: Model) -> None:
@@ -121,3 +117,50 @@ def _add_higgsino_mass(model: Model) -> None:
     j = model.generate_index("L", "sHu")
     a = model.generate_dirac_index()
     model.add_term(-mu * s_hu(i, a) * epsilon(i, j) * s_hd(j, a), add_hermitic=True)
+
+
+def _soft_mass(model: Model, name: str, latex: str) -> Tensor:
+    """Hermitian, complex flavour matrix of a soft mass, added as a tensor coupling."""
+    flavor = model.vector_space("SM_flavor")
+    m2 = tensor(
+        f"{name};{latex}",
+        [flavor, flavor],
+        complex_property=ComplexProperty.Complex,
+    )
+    fI = flavor.index("I")
+    fJ = flavor.index("J")
+    m2.add_hermitian_property(flavor, m2(fI, fJ), m2(fI, fJ))
+    model.add_tensor_coupling(m2)
+    return m2
+
+
+def _add_soft_masses(model: Model) -> None:
+    """Add the soft slepton and squark masses (initSLeptons, initSQuarks in C++)."""
+    flavor = model.vector_space("SM_flavor")
+    fI = flavor.index("I")
+    fJ = flavor.index("J")
+
+    m2_L = _soft_mass(model, "M2_s_L", "M^{2}_{\\tilde{L}}")
+    sL = model.particle("sL_L")
+    il = model.generate_index("L", "sL_L")
+    model.add_term(-m2_L(fI, fJ) * sL(fI, il).conjugate() * sL(fJ, il))
+
+    m2_E = _soft_mass(model, "M2_s_E", "M^{2}_{\\tilde{E}}")
+    sE = model.particle("sE_R")
+    model.add_term(-m2_E(fI, fJ) * sE(fI).conjugate() * sE(fJ))
+
+    m2_Q = _soft_mass(model, "M2_s_Q", "M^{2}_{\\tilde{Q}}")
+    sQ = model.particle("sQ_L")
+    a = model.generate_index("C", "sQ_L")
+    il = model.generate_index("L", "sQ_L")
+    model.add_term(-m2_Q(fI, fJ) * sQ(fI, a, il).conjugate() * sQ(fJ, a, il))
+
+    m2_U = _soft_mass(model, "M2_s_U", "M^{2}_{\\tilde{U}}")
+    sU = model.particle("sU_R")
+    a = model.generate_index("C", "sU_R")
+    model.add_term(-m2_U(fI, fJ) * sU(fI, a).conjugate() * sU(fJ, a))
+
+    m2_D = _soft_mass(model, "M2_s_D", "M^{2}_{\\tilde{D}}")
+    sD = model.particle("sD_R")
+    a = model.generate_index("C", "sD_R")
+    model.add_term(-m2_D(fI, fJ) * sD(fI, a).conjugate() * sD(fJ, a))

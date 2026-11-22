@@ -3,8 +3,8 @@
 The C++ reference was obtained by building ``MSSM_HEM`` from
 src/marty/models/mssm.cpp in the build directory and printing its particles
 and Feynman rules. It has 29 particles and 148 Feynman rules. The Python port
-has the same 29 particles, but fewer Feynman rules because the soft masses,
-gaugino Yukawas and D-terms are blocked (see pymarty/modeling/models/mssm.py).
+has the same 29 particles, but fewer Feynman rules because the gaugino Yukawas
+and D-terms are blocked (see pymarty/modeling/models/mssm.py).
 """
 
 import pytest
