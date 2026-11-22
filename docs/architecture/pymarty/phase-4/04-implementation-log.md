@@ -127,7 +127,8 @@ Checks: `pytest -m "not slow"` on `tests/modeling` and `test_usage_examples.py` 
 - Correction: the earlier "no SM_flavor space" gap was stale. `vector_space` and `add_tensor_coupling` were already bound.
 - Done for THDM: `replaceYukawas` (Z2 coefficients, mass matrices, CKM rotation), the W ghosts `c_Wp`/`c_Wm` with the `c_W_1`/`c_W_2` replacements, the W_3/B diagonalisation with the A/Z renames (as in `SM_Model::diagonalizeSMMassMatrices`), and the SM flavour splitting (`break_sm_flavor`). The particle-name set now equals the C++ THDM set, and its strict xfail is lifted.
 - Core change: `Model::replace(csl::Tensor, csl::Expr)` (`src/marty/api/modeling/modeling.cpp`) replaces a bare tensor, as C++ `Replaced(*this, Ye2, ...)` does. Replacing the indexed `Y(fi,fj)` by an expression without free indices (such as `0`) raises a `ValueError`, so the bare-tensor overload is needed.
-- Still open for GTHDM: `replaceYukawas` with the xi parametrisation, `flavorSymmetryBreaking`, and the ghosts and Z/A mixing. Its strict xfail in `test_cpp_gthdm.py` remains.
+- GTHDM (partial): `replaceYukawas` with the xi parametrisation is ported in `gthdm.py` (`replace_gthdm_yukawas`), in the C++ order, and reuses the shared THDM content (`add_thdm_content`). It needs the `matrix_tensor` facade (`matrixTensor` in `src/csl/api/tensor.cpp`) for the zero-first-row xi matrices.
+- Open for GTHDM: the mass eigenstates of generations 2 and 3 (`c`, `t`, `s`, `b`, `mu`, `tau`) are not created. Generation 1 (`u`, `e`) splits in `finalize()`, so the Dirac mass term is diagonal there only. The xi cross terms apparently do not cancel in the generation 2 and 3 mass term. Cause not yet identified. `test_particle_names_match_cpp_gthdm` stays a strict xfail with this reason.
 
 ### Tensor involution properties and MSSM soft masses
 

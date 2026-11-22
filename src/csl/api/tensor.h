@@ -226,6 +226,13 @@ TensorHandle unitaryTensor(std::string const                          &name,
                            SpaceHandle const                          &space,
                            std::vector<std::vector<ExprHandle>> const &rows);
 
+/*! \brief Square tensor on the space \p space, whose numerical value is the
+ * matrix \p rows (one vector per row). ValueError if \p rows is not square of
+ * the dimension of \p space. */
+TensorHandle matrixTensor(std::string const                          &name,
+                          SpaceHandle const                          &space,
+                          std::vector<std::vector<ExprHandle>> const &rows);
+
 /*! \brief Tensor field: a tensor that depends on a point of a space.
  *
  * The field has one index space per index position, given by \p spaces (none

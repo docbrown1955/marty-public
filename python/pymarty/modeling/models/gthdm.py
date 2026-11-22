@@ -1,207 +1,37 @@
-"""Partial pure-pymarty port of the C++ generic two Higgs doublet model.
+"""Partial pure-pymarty port of the generic two Higgs doublet model.
 
-Ported from src/marty/models/gthdm.cpp and the THDM_Model<2> base in thdm.h,
-following the order of THDM_Model::init: content (gauge, fermions, Higgs
-potential, Yukawa Lagrangian), gauge symmetry breaking, the Higgs VEV
-expansion, the 2x2 rotations, and the W+- replacements.
+Ported from src/marty/models/gthdm.cpp. The content, gauge symmetry breaking,
+Higgs expansion, rotations, W and ghost bosons, flavour symmetry breaking and
+adjust steps are shared with THDM (``add_thdm_content``). Only the Yukawa
+replacement differs: it is ``replace_gthdm_yukawas``, with the xi
+parametrisation of the second doublet couplings and the generic CKM matrix.
 
-Not ported, because the declarative API has no binding for them:
-
-* flavor symmetry breaking (SM_Model::flavorSymmetryBreaking), so the
-  fermions keep their SM_flavor index instead of being split into generations;
-* the Yukawa replacements of replaceYukawas (Z2 coefficients, mass matrices,
-  CKM matrix);
-* ghost bosons (c_W_1, c_W_2, c_Wp, c_Wm, and the Goldstone ghosts);
-* DiagonalizeMassMatrices, the W_3/B mixing and the g_L/g_Y replacements
-  by e/sin(theta_W) and e/cos(theta_W);
-* getMass/setMass and the trigonometric replacements of adjust();
-* mergeTerms.
+Not ported, as for THDM: ``getMass``/``setMass`` and ``mergeTerms``.
 """
-
-from fractions import Fraction
 
 from pymarty.group_theory import SU, U
 from pymarty.modeling import FlavorGroup, GaugeGroup, Model
-from pymarty.modeling.models.yukawas import add_yukawas
-from pymarty.symbolic import Expr, I, Minkowski, constant, cos, sin, sqrt, tan
+from pymarty.modeling.models.sm import ckm_matrix
+from pymarty.modeling.models.thdm import add_thdm_content
+from pymarty.symbolic import (
+    Expr,
+    Space,
+    Tensor,
+    constant,
+    cos,
+    diagonal_tensor,
+    matrix_tensor,
+    sin,
+    sqrt,
+    tan,
+    unitary_tensor,
+)
 
 FLAVOR_GROUP = "SM_flavor"
 
 
-def _add_fermions(model: Model) -> None:
-    fermions: list[tuple[str, str, dict[str, object]]] = [
-        ("Q", "L", {"C": (1, 0), "L": 1, "Y": Fraction(1, 6)}),
-        ("U_R", "R", {"C": (1, 0), "Y": Fraction(2, 3)}),
-        ("D_R", "R", {"C": (1, 0), "Y": Fraction(-1, 3)}),
-        ("L", "L", {"L": 1, "Y": Fraction(-1, 2)}),
-        ("E_R", "R", {"Y": Fraction(-1)}),
-    ]
-    for name, chirality, reps in fermions:
-        model.add_weyl_fermion(
-            name,
-            chirality=chirality,
-            gauge_rep=reps,
-            flavor_rep=FLAVOR_GROUP,
-        )
-
-
-def _add_scalars(model: Model) -> None:
-    for name in ("Phi1 ; \\Phi_{1}", "Phi2 ; \\Phi_{2}"):
-        model.add_scalar_boson(
-            name,
-            gauge_rep={"L": 1, "Y": Fraction(1, 2)},
-            self_conjugate=False,
-        )
-
-
-def _add_higgs_potential(model: Model) -> None:
-    m11 = constant("m_11")
-    m12 = constant("m_12")
-    m22 = constant("m_22")
-    lambda1 = constant("lambda_1;\\lambda_{1}")
-    lambda2 = constant("lambda_2;\\lambda_{2}")
-    lambda3 = constant("lambda_3;\\lambda_{3}")
-    lambda4 = constant("lambda_4;\\lambda_{4}")
-    lambda5 = constant("lambda_5;\\lambda_{5}")
-
-    phi1 = model.particle("Phi1")
-    phi2 = model.particle("Phi2")
-    i = model.generate_index("L", "Phi1")
-    j = model.generate_index("L", "Phi1")
-    s11 = phi1(i).conjugate() * phi1(i)
-    s12 = phi1(i).conjugate() * phi2(i)
-    s21 = phi2(j).conjugate() * phi1(j)
-    s22 = phi2(j).conjugate() * phi2(j)
-
-    model.add_term(-m11 * m11 * s11)
-    model.add_term(m12 * m12 * (s12 + s21))
-    model.add_term(-m22 * m22 * s22)
-    model.add_term(-lambda1 / 2 * s11**2)
-    model.add_term(-lambda2 / 2 * s22**2)
-    model.add_term(-lambda3 * s11 * s22)
-    model.add_term(-lambda4 * s12 * s21)
-    model.add_term(-lambda5 / 2 * (s12**2 + s21**2))
-
-
-def _break_gauge_and_expand_higgs(model: Model) -> None:
-    model.break_gauge_symmetry("Y")
-    model.break_gauge_symmetry(
-        "L",
-        renaming={
-            "Q": ["U_L", "D_L"],
-            "L": ["Nu_L;\\nu_{L}", "E_L"],
-        },
-    )
-
-    v1 = constant("v1")
-    beta = constant("beta;\\beta")
-    tan_beta = tan(beta)
-    v2 = v1 * tan_beta
-
-    phi1_c = model.add_scalar_boson("phi_1", self_conjugate=False)
-    phi2_c = model.add_scalar_boson("phi_2", self_conjugate=False)
-    rho_1 = model.add_scalar_boson("rho_1", self_conjugate=True)
-    rho_2 = model.add_scalar_boson("rho_2", self_conjugate=True)
-    eta_1 = model.add_scalar_boson("eta_1", self_conjugate=True)
-    eta_2 = model.add_scalar_boson("eta_2", self_conjugate=True)
-
-    model.replace(model.particle("Phi1_1"), phi1_c.expr())
-    model.replace(
-        model.particle("Phi1_2"),
-        (rho_1.expr() + I * eta_1.expr() + v1) / sqrt(2),
-    )
-    model.replace(model.particle("Phi2_1"), phi2_c.expr())
-    model.replace(
-        model.particle("Phi2_2"),
-        (rho_2.expr() + I * eta_2.expr() + v2) / sqrt(2),
-    )
-
-    m11 = constant("m_11")
-    m12 = constant("m_12")
-    m22 = constant("m_22")
-    lambda1 = constant("lambda_1;\\lambda_{1}")
-    lambda2 = constant("lambda_2;\\lambda_{2}")
-    lambda3 = constant("lambda_3;\\lambda_{3}")
-    lambda4 = constant("lambda_4;\\lambda_{4}")
-    lambda5 = constant("lambda_5;\\lambda_{5}")
-    model.replace(
-        m11**2,
-        -lambda1 / 2 * v1 * v1
-        + v2 / v1 * m12 * m12
-        - v2 * v2 / 2 * lambda3
-        - v2 * v2 / 2 * lambda4
-        - v2 * v2 / 2 * lambda5,
-    )
-    model.replace(
-        m22**2,
-        -lambda2 / 2 * v2 * v2
-        + v1 / v2 * m12 * m12
-        - v1 * v1 / 2 * lambda3
-        - v1 * v1 / 2 * lambda4
-        - v1 * v1 / 2 * lambda5,
-    )
-
-
-def _rotation(theta: Expr) -> list[list[Expr]]:
-    return [[cos(theta), -sin(theta)], [sin(theta), cos(theta)]]
-
-
-def _diagonalize_2x2(model: Model) -> None:
-    beta = constant("beta;\\beta")
-    alpha = constant("alpha;\\alpha")
-
-    G0 = model.add_scalar_boson("G0; G^0", self_conjugate=True)
-    A0 = model.add_scalar_boson("A0; A^0", self_conjugate=True)
-    model.rotate_fields(
-        [model.particle("eta_1"), model.particle("eta_2")],
-        [G0, A0],
-        _rotation(beta),
-        diagonalize_masses=True,
-        n_mass_less_fields=1,
-    )
-
-    Gp = model.add_scalar_boson("Gp; G^+", self_conjugate=False)
-    Hp = model.add_scalar_boson("Hp; H^+", self_conjugate=False)
-    model.rotate_fields(
-        [model.particle("phi_1"), model.particle("phi_2")],
-        [Gp, Hp],
-        _rotation(beta),
-        diagonalize_masses=True,
-        n_mass_less_fields=1,
-    )
-
-    h = model.add_scalar_boson("h; h^0", self_conjugate=True)
-    H = model.add_scalar_boson("H0; H^0", self_conjugate=True)
-    model.rotate_fields(
-        [model.particle("rho_1"), model.particle("rho_2")],
-        [h, H],
-        [
-            [-sin(alpha), cos(alpha)],
-            [cos(alpha), sin(alpha)],
-        ],
-        diagonalize_masses=True,
-    )
-
-
-def _replace_w_bosons(model: Model) -> None:
-    W1 = model.particle("W_1")
-    W2 = model.particle("W_2")
-    W = model.add_similar_particle("W", reference="W_1", self_conjugate=False)
-
-    mu = Minkowski.index()
-    nu = Minkowski.index()
-    W1_expr = (W(mu) + W(mu).conjugate()) / sqrt(2)
-    W2_expr = I * (W(mu) - W(mu).conjugate()) / sqrt(2)
-    F_W1 = (W(mu, nu) + W(mu, nu).conjugate()) / sqrt(2)
-    F_W2 = I * (W(mu, nu) - W(mu, nu).conjugate()) / sqrt(2)
-    model.replace(W1(mu), W1_expr)
-    model.replace(W2(mu), W2_expr)
-    model.replace(W1.field_strength()(mu, nu), F_W1)
-    model.replace(W2.field_strength()(mu, nu), F_W2)
-
-
 class GTHDM(Model):
-    """Ported part of the generic two Higgs doublet model (src/marty/models/gthdm.cpp).
+    """Ported generic two Higgs doublet model (src/marty/models/gthdm.cpp).
 
     With ``finalize=False`` the model is left open for further additions.
     """
@@ -215,17 +45,101 @@ class GTHDM(Model):
             ],
             flavor=[FlavorGroup(FLAVOR_GROUP, 3)],
         )
-        _add_content(self)
+        add_thdm_content(self, replace_gthdm_yukawas)
         if finalize:
             self.finalize()
 
 
-def _add_content(model: Model) -> None:
-    _add_fermions(model)
-    _add_scalars(model)
-    _add_higgs_potential(model)
-    add_yukawas(model)
-    _break_gauge_and_expand_higgs(model)
-    _replace_w_bosons(model)
-    _diagonalize_2x2(model)
-    model.promote_to_goldstone("Gp", "W")
+def _xi_matrix(name: str, flavor: Space, a: Expr, b: Expr, c: Expr) -> Tensor:
+    """Symmetric xi matrix with a zero first row and column, as in the C++ model."""
+    zero = Expr(0)
+    return matrix_tensor(name, flavor, [[zero, zero, zero], [zero, a, b], [zero, b, c]])
+
+
+def replace_gthdm_yukawas(model: Model, yukawas: dict[str, Tensor]) -> None:
+    """Port of ``GTHDM_Model::replaceYukawas``.
+
+    The first doublet couplings are expressed by the second ones, which are then
+    expressed by the xi parameters and the mass matrices. The C++ order is kept.
+    """
+    flavor = model.vector_space(FLAVOR_GROUP)
+    fi = flavor.index("fi")
+    fj = flavor.index("fj")
+    fk = flavor.index("fk")
+    fl = flavor.index("fl")
+    v = constant("v")
+    beta = constant("beta;\\beta")
+    cos_beta = cos(beta)
+    sin_beta = sin(beta)
+    tan_beta = tan(beta)
+    sqrt2 = sqrt(2)
+
+    m_e = [
+        constant("m_e;m_{e}"),
+        constant("m_mu;m_{\\mu}"),
+        constant("m_tau;m_{\\tau}"),
+    ]
+    m_u = [constant("m_u;m_{u}"), constant("m_c;m_{c}"), constant("m_t;m_{t}")]
+    m_d = [constant("m_d;m_{d}"), constant("m_s;m_{s}"), constant("m_b;m_{b}")]
+    M_e = diagonal_tensor("M_e", flavor, m_e)
+    M_u = diagonal_tensor("M_u", flavor, m_u)
+    M_d = diagonal_tensor("M_d", flavor, m_d)
+    V = unitary_tensor("V_CKM", flavor, ckm_matrix())
+
+    D_L = model.particle("D_L")
+    D_R = model.particle("D_R")
+    dirac = model.generate_dirac_index()
+    colour = model.generate_index("C", "D_L")
+    model.replace(D_L(fj, colour, dirac), V(fj, fk) * D_L(fk, colour, dirac))
+    model.replace(D_R(fi, colour, dirac), V(fi, fj) * D_R(fj, colour, dirac))
+
+    Ye1, Yu1, Yd1 = yukawas["Y1e"], yukawas["Y1u"], yukawas["Y1d"]
+    Ye2, Yu2, Yd2 = yukawas["Y2e"], yukawas["Y2u"], yukawas["Y2d"]
+    model.replace(
+        Ye1(fi, fj),
+        sqrt2 / (v * cos_beta) * M_e(fi, fj) - tan_beta * Ye2(fi, fj),
+    )
+    model.replace(
+        Yd1(fi, fj),
+        V(fi, fk) * (sqrt2 / (v * cos_beta) * M_d(fk, fl)) * V(fj, fl).conjugate()
+        - tan_beta * Yd2(fi, fj),
+    )
+    model.replace(
+        Yu1(fi, fj),
+        sqrt2 / (v * cos_beta) * M_u(fi, fj) - tan_beta * Yu2(fi, fj),
+    )
+
+    xil = _xi_matrix(
+        "xil",
+        flavor,
+        constant("xil_mm;\\xi^{l}_{mm}"),
+        constant("xil_mt;\\xi^{l}_{mt}"),
+        constant("xil_tt;\\xi^{l}_{tt}"),
+    )
+    xiu = _xi_matrix(
+        "xiu",
+        flavor,
+        constant("xiu_cc;\\xi^{u}_{cc}"),
+        constant("xiu_ct;\\xi^{u}_{ct}"),
+        constant("xiu_tt;\\xi^{u}_{tt}"),
+    )
+    xid = _xi_matrix(
+        "xid",
+        flavor,
+        constant("xid_ss;\\xi^{d}_{ss}"),
+        constant("xid_sb;\\xi^{d}_{sb}"),
+        constant("xid_bb;\\xi^{d}_{bb}"),
+    )
+    model.replace(
+        Ye2(fi, fj),
+        cos_beta * xil(fi, fj) + sqrt2 / v * sin_beta * M_e(fi, fj),
+    )
+    model.replace(
+        Yu2(fi, fj),
+        cos_beta * xiu(fi, fj) + sqrt2 / v * sin_beta * M_u(fi, fj),
+    )
+    model.replace(
+        Yd2(fi, fj),
+        cos_beta * xid(fi, fj)
+        + V(fi, fk) * (sqrt2 / v * sin_beta * M_d(fk, fl)) * V(fj, fl).conjugate(),
+    )

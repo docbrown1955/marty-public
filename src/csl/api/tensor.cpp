@@ -459,6 +459,36 @@ TensorHandle unitaryTensor(std::string const                          &name,
     });
 }
 
+TensorHandle matrixTensor(std::string const                          &name,
+                          SpaceHandle const                          &space,
+                          std::vector<std::vector<ExprHandle>> const &rows)
+{
+    auto const dimension = static_cast<std::size_t>(space.dimension());
+    if (rows.size() != dimension)
+        throw ValueError("matrix tensor " + name + ": expected "
+                         + std::to_string(dimension) + " rows, got "
+                         + std::to_string(rows.size()));
+
+    csl::vector_expr matrixRows;
+    for (auto const &row : rows) {
+        if (row.size() != dimension)
+            throw ValueError("matrix tensor " + name + ": expected "
+                             + std::to_string(dimension)
+                             + " entries per row, got "
+                             + std::to_string(row.size()));
+        csl::vector_expr entries;
+        for (auto const &value : row)
+            entries.push_back(value.raw());
+        matrixRows.push_back(csl::vector_s(entries));
+    }
+
+    return detail::guarded("matrix tensor creation", [&] {
+        csl::Tensor tensor = csl::tensor_s(
+            name, {&space.raw(), &space.raw()}, csl::matrix_s(matrixRows));
+        return TensorHandle(tensor, {space, space});
+    });
+}
+
 std::size_t TensorHandle::rank() const
 {
     return m_spaces.size();

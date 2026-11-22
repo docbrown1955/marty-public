@@ -34,6 +34,7 @@ from pymarty._pymarty import exp as exp
 from pymarty._pymarty import infinity as infinity
 from pymarty._pymarty import log as log
 from pymarty._pymarty import make_abbreviation as make_abbreviation
+from pymarty._pymarty import matrix_tensor as matrix_tensor
 from pymarty._pymarty import metric as metric
 from pymarty._pymarty import modulus as modulus
 from pymarty._pymarty import pi as pi
@@ -89,6 +90,7 @@ __all__ = [
     "cosh",
     "delta",
     "diagonal_tensor",
+    "matrix_tensor",
     "unitary_tensor",
     "e",
     "epsilon",

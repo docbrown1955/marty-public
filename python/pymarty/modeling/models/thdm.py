@@ -14,6 +14,7 @@ Not ported (the declarative API has no binding for these C++ calls):
   - the numerical ``sm_input`` values: masses and couplings stay symbolic.
 """
 
+from collections.abc import Callable
 from fractions import Fraction
 
 from pymarty.group_theory import SU, U
@@ -24,6 +25,7 @@ from pymarty.symbolic import (
     Expr,
     I,
     Minkowski,
+    Tensor,
     constant,
     cos,
     sin,
@@ -49,12 +51,20 @@ class THDM(Model):
             ],
             flavor=[FlavorGroup("SM_flavor", 3)],
         )
-        _add_content(self)
+        add_thdm_content(self, replace_yukawas)
         if finalize:
             self.finalize()
 
 
-def _add_content(model: Model) -> None:
+YukawaReplacement = Callable[[Model, dict[str, Tensor]], None]
+
+
+def add_thdm_content(model: Model, replace_yukawa_couplings: YukawaReplacement) -> None:
+    """Build the 2HDM content, in the order of ``THDM_Model::init``.
+
+    ``replace_yukawa_couplings`` is the only step that differs between THDM and
+    GTHDM, so GTHDM passes its own replacement.
+    """
     _add_fermions(model)
     _add_higgs_doublets(model)
     _add_higgs_potential(model)
@@ -68,7 +78,7 @@ def _add_content(model: Model) -> None:
     _replace_higgs(model)
     _diagonalize_2by2(model)
     _replace_w_bosons(model)
-    replace_yukawas(model, yukawas)
+    replace_yukawa_couplings(model, yukawas)
     break_sm_flavor(model)
     _adjust(model)
 

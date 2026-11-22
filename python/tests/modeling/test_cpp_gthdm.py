@@ -56,14 +56,17 @@ CPP_GTHDM_PARTICLES = {
 @pytest.mark.unit
 def test_ported_particles_exist() -> None:
     py_names = {p.name for p in GTHDM().particles}
-    assert {"G", "W", "B", "Nu_L", "E_L", "U_L", "D_L", "U_R", "D_R", "E_R"} <= py_names
-    assert {"G0", "Gp", "h", "H0", "A0", "Hp"} <= py_names
+    assert {"G", "W", "A", "Z", "G0", "Gp", "h", "H0", "A0", "Hp"} <= py_names
 
 
 @pytest.mark.unit
 @pytest.mark.xfail(
     strict=True,
-    reason="BreakFlavorSymmetry, ghost bosons and Z/A mixing are not bound",
+    reason=(
+        "Mass eigenstates of generations 2 and 3 (c, t, s, b, mu, tau) are not "
+        "created: the xi cross terms do not cancel in the Dirac mass term. "
+        "Cause not yet identified."
+    ),
 )
 def test_particle_names_match_cpp_gthdm() -> None:
     py_names = {p.name for p in GTHDM().particles}

@@ -1196,6 +1196,23 @@ one list per row. Call it with two indices of the space to get an element.
 Built on the core unitary tensor, as for the CKM matrix of the Standard Model.
 )doc");
 
+    m.def(
+        "matrix_tensor",
+        [](std::string const                          &name,
+           SpaceHandle const                          &space,
+           std::vector<std::vector<ExprHandle>> const &rows) {
+            return matrixTensor(name, space, rows);
+        },
+        py::arg("name"),
+        py::arg("space"),
+        py::arg("rows"),
+        R"doc(Square tensor on a space, whose numerical value is the given matrix, one
+list per row. Call it with two indices of the space to get an element.
+
+Unlike diagonal_tensor, the zero entries are kept in the matrix, as the C++
+models do for Yukawa parametrisations.
+)doc");
+
     py::class_<TensorFieldHandle>(
         m,
         "TensorField",
