@@ -612,6 +612,17 @@ void bindModeling(py::module_ &m)
              "Collects the Lagrangian terms with the same fields, summing "
              "their expressions.")
         .def(
+            "lagrangian_terms",
+            [](modeling::Model const &self, std::string const &kind) {
+                std::vector<ExprHandle> result;
+                for (auto const &term : self.lagrangianTerms(kind))
+                    result.emplace_back(term);
+                return result;
+            },
+            py::arg("kind"),
+            "Terms of the Lagrangian of one kind: 'kinetic', 'mass' or "
+            "'interaction' (ValueError otherwise). Each term is an Expr.")
+        .def(
             "covariant_derivative",
             [](modeling::Model const    &self,
                std::string const        &group,

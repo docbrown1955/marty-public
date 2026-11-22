@@ -294,6 +294,13 @@ def test_collect_terms_on_finalized_model_is_state_error() -> None:
 
 
 @pytest.mark.unit
+def test_lagrangian_terms_rejects_unknown_kind() -> None:
+    toy = make_toy()
+    with pytest.raises(MartyValueError):
+        toy.lagrangian_terms("gauge")
+
+
+@pytest.mark.unit
 def test_refresh_on_finalized_model_is_state_error() -> None:
     toy = make_toy()
     toy.finalize()

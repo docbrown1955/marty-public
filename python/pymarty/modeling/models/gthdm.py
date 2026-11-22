@@ -1,4 +1,4 @@
-"""Partial pure-pymarty port of the generic two Higgs doublet model.
+"""Pure-pymarty port of the generic two Higgs doublet model.
 
 Ported from src/marty/models/gthdm.cpp. The content, gauge symmetry breaking,
 Higgs expansion, rotations, W and ghost bosons, flavour symmetry breaking and
@@ -6,20 +6,20 @@ adjust steps are shared with THDM (``add_thdm_content``). Only the Yukawa
 replacement differs: it is ``replace_gthdm_yukawas``, with the xi
 parametrisation of the second doublet couplings and the generic CKM matrix.
 
-Not ported, as for THDM: ``getMass``/``setMass``. ``mergeTerms`` is exposed as
-``Model.collect_terms`` but not called: calling it, even after ``Model.refresh``,
-did not split generations 2 and 3.
+Model parameters are shared through ``_symbols.constant``, so every builder
+function uses the same symbol for a given name, as the C++ class members do.
+Not ported, as for THDM: ``getMass``/``setMass``.
 """
 
 from pymarty.group_theory import SU, U
 from pymarty.modeling import FlavorGroup, GaugeGroup, Model
+from pymarty.modeling.models._symbols import constant
 from pymarty.modeling.models.sm import ckm_matrix
 from pymarty.modeling.models.thdm import add_thdm_content
 from pymarty.symbolic import (
     Expr,
     Space,
     Tensor,
-    constant,
     cos,
     diagonal_tensor,
     matrix_tensor,

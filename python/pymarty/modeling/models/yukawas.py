@@ -6,12 +6,12 @@ and overrides the replacement, as ``GTHDM_Model::replaceYukawas`` does in C++.
 """
 
 from pymarty.modeling import Model
+from pymarty.modeling.models._symbols import constant
 from pymarty.modeling.models.sm import ckm_matrix
 from pymarty.symbolic import (
     ComplexProperty,
     Expr,
     Tensor,
-    constant,
     diagonal_tensor,
     epsilon,
     sqrt,

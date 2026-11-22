@@ -133,7 +133,12 @@ Exposed: `Model.covariant_derivative(group, field, mu, indices)` and
   - With all xi matrices set to zero, every generation splits (45 particle names).
   - Zeroing one xi sector splits only that sector (`xil`: leptons, `xiu`: up quarks, `xid`: down quarks). The xi terms therefore fail to cancel in the mass term of each sector, which is `v1*Y1 + v2*Y2` with `v2 = v1*tan_beta`.
   - Ruled out: the Python Yukawa replacement order (matches `GTHDM_Model::replaceYukawas`), `diagonal_tensor`/`matrix_tensor` semantics, and `collect_terms` before finalize. Also ruled out: `refresh()` followed by `collect_terms()` (the C++ `adjust` order), which still gives the mixing warnings.
-  - Next suspect: whether CSL merges `-v1*tan_beta*Y2` and `+v2*Y2` into zero when the coefficients are sums that are not expanded. Not verified.
+  - The C++ GTHDM binary (`wilsons_GTHDM.x`) does split all nine fermions with no mixing warnings. The issue is therefore in the Python port, not in the physics.
+  - Ruled out: the CKM. C++ `buildCKM` and Python `ckm_matrix()` use the same `sm_input` entries.
+  - Root cause: `pymarty.symbolic.constant` creates a new symbol on each call, so the same named parameter
+    (for example `beta`) used in several builder functions was a different symbol each time. `a + (-a)` did
+    not cancel. Fixed by `pymarty.modeling.models._symbols.constant`, which returns one symbol per name.
+    GTHDM now has 45 particles, and textually cancelling Lagrangian pairs dropped from 96 to 0.
   - `Model.refresh()` is now bound (facade `Model::refresh` with the open-state check). `test_particle_names_match_cpp_gthdm` stays a strict xfail with this reason.
 
 ### Tensor involution properties and MSSM soft masses

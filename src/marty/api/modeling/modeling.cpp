@@ -657,6 +657,25 @@ std::vector<Particle> Model::particles() const
     return result;
 }
 
+std::vector<csl::Expr> Model::lagrangianTerms(std::string const &kind) const
+{
+    auto const &L = m_state->core->getLagrangian();
+    std::vector<std::shared_ptr<InteractionTerm>> const *terms = nullptr;
+    if (kind == "kinetic")
+        terms = &L.kinetic;
+    else if (kind == "mass")
+        terms = &L.mass;
+    else if (kind == "interaction")
+        terms = &L.interaction;
+    else
+        throw ValueError("unknown Lagrangian kind \"" + kind +
+                         "\" (expected kinetic, mass or interaction)");
+    std::vector<csl::Expr> result;
+    for (auto const &term : *terms)
+        result.push_back(term->getTerm());
+    return result;
+}
+
 FeynmanRules Model::feynmanRules() const
 {
     return FeynmanRules(m_state);

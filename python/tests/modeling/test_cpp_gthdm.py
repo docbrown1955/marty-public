@@ -60,14 +60,6 @@ def test_ported_particles_exist() -> None:
 
 
 @pytest.mark.unit
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "Mass eigenstates of generations 2 and 3 (c, t, s, b, mu, tau) are not "
-        "created: the xi cross terms do not cancel in the Dirac mass term. "
-        "Cause not yet identified."
-    ),
-)
 def test_particle_names_match_cpp_gthdm() -> None:
     py_names = {p.name for p in GTHDM().particles}
     assert py_names == CPP_GTHDM_PARTICLES

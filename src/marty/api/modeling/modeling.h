@@ -291,6 +291,10 @@ class Model {
 
     std::vector<Particle> particles() const;
 
+    /// Terms of the Lagrangian of one kind: "kinetic", "mass" or
+    /// "interaction" (ValueError otherwise).
+    std::vector<csl::Expr> lagrangianTerms(std::string const &kind) const;
+
     /// Lazy view on the Feynman rules; the core computes them on first use.
     FeynmanRules feynmanRules() const;
 

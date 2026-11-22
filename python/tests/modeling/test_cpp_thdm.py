@@ -2,6 +2,7 @@
 
 import pytest
 
+from pymarty.modeling.models._symbols import constant as shared_constant
 from pymarty.modeling.models.thdm import THDM
 
 CPP_THDM_PARTICLES = {
@@ -63,3 +64,10 @@ def test_ported_bosons_match_cpp_names() -> None:
 def test_particle_names_match_cpp_thdm() -> None:
     py_names = {p.name for p in THDM().particles}
     assert py_names == CPP_THDM_PARTICLES
+
+
+@pytest.mark.unit
+def test_shared_constant_is_one_symbol_per_name() -> None:
+    first = shared_constant("beta;\\beta")
+    second = shared_constant("beta;\\beta")
+    assert (first - second).expand() == 0

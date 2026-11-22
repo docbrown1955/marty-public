@@ -20,6 +20,7 @@ from fractions import Fraction
 
 from pymarty.group_theory import SU, U
 from pymarty.modeling import FlavorGroup, GaugeGroup, Model
+from pymarty.modeling.models._symbols import constant
 from pymarty.modeling.models.sm import break_sm_flavor
 from pymarty.modeling.models.yukawas import add_yukawas, replace_yukawas
 from pymarty.symbolic import (
@@ -27,7 +28,6 @@ from pymarty.symbolic import (
     I,
     Minkowski,
     Tensor,
-    constant,
     cos,
     sin,
     sqrt,
