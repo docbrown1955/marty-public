@@ -13,14 +13,21 @@ deliverable. It may be drafted earlier, in parallel with Phase 4.
 ## 1. Scope
 
 In scope, calculation:
-- Insertions: `incoming`, `outgoing`, `anti`, chirality helpers (`Left`/`Right` as in `Incoming(Left("e"))`).
+- Insertions: `incoming`, `outgoing`, `anti`, chirality helpers `left`/`right` (as in `Incoming(Left("e"))`).
 - `Order` (`TreeLevel` now, `OneLoop` accepted by the API but its use is validated in Phase 7), `FeynOptions` as
   a plain data object (topology, filters, fermion order and the other fields of `feynOptions.h` that
-  tree-level examples use), the global `mty::option::*` flags exposed as a validated `options(...)`
+  tree-level examples use), the global `mty::option::*` flags exposed as a validated `set_options(...)`
   context manager.
-- `Model.amplitude(order, insertions, kinematics=None, options=None)`.
-- `Amplitude` (diagrams, expression, options used), `Diagram` (read access), `Model.squared(amp)`,
-  `Model.squared(amp_left, amp_right)`.
+- Functions in `pymarty.calculation` taking the finalized model explicitly (all verbs, see the naming rule in
+  [03-spec.md](phase-5/03-spec.md)): `compute_amplitude(model, order, insertions, kinematics=None, options=None)`,
+  `compute_squared_amplitude(model, amp)` / `compute_squared_amplitude(model, amp_left, amp_right)`. `modeling.Model` gets no new methods;
+  `Model.finalize()` is unchanged.
+- `Amplitude` (diagrams, expression, options used), `Diagram` (read access).
+- `compute_feynman_rules(model)`: read-only view (size, str, LaTeX), with vertices and propagators as plain data.
+- Filters: data filters (`force_particle`, `forbid_particles`, `disable_particles`, topology,
+  fermion order) converted to C++ filters. Python diagram-level predicates (`select_diagrams`) are
+  applied to the diagrams returned; they do not change the expression. Lagrangian-level callbacks are
+  not supported.
 - Kinematic variables: symbolic invariants `s_ij`, momenta symbols.
 - Display: `amplitude.display()` returning text (`Display(...)` writes to streams today), abbreviations listing.
 - Ghosts and Goldstones as particles in insertions (needed by `gg_to_tt`).
@@ -29,8 +36,8 @@ In scope, visualization (module `pymarty.visualization`):
 - C++ JSON export of diagrams and Feynman rules without GUI and without process launch.
 - Safe GRAFED launcher and locator.
 
-Out of scope: Wilson coefficients and widths (Phase 7), loops (Phase 7), libraries (Phase 6),
-notebook inline rendering (Phase 8).
+Out of scope: Wilson coefficients and widths (Phase 7), loops (Phase 7), library generation and
+usage (Phase 6), notebook inline rendering (Phase 8).
 
 ## 2. Work packages
 
@@ -42,10 +49,14 @@ notebook inline rendering (Phase 8).
   hidden behind one vector-based function. The `Session` applies options and restores state, also when the
   computation throws.
 - WP5.2 Global flags: list every `mty::option::*` flag (from the X-macro of Phase 0), give each a Python
-  keyword name (snake case), expose `options(**flags)`; unknown name raises `ValueError` listing valid
+  keyword name (snake case), expose `set_options(**flags)`; unknown name raises `ValueError` listing valid
   names; value types checked.
 - WP5.3 Filters: `forbid_particles`, `force_particle`, `disable_particles`, topology, `fermion_order`
-  as data objects converted to `filter::...` in C++.
+  as data objects converted to `filter::...` in C++. Python diagram predicates (`select_diagrams`) are
+  re-implemented in the Python layer and applied to the returned diagrams (C++ `std::function` filters
+  are not bound).
+- WP5.3b `compute_feynman_rules(model)` read-only view and vertex/propagator data objects, built on the
+  existing `src/marty/api/modeling/feynmanRules.h`.
 - WP5.4 Kinematics symbols and squared amplitude facade.
 - WP5.5 Examples port and tests.
 
@@ -62,7 +73,7 @@ notebook inline rendering (Phase 8).
   - The existing `Show()` keeps its signature but is reimplemented on these functions: no fixed
     `/tmp/graphs.json`, no `system()`. This removes the predictable-temp-file and shell-command risk
     for C++ users as well.
-- WP5.8 Python `pymarty.visualization`: `export_json(obj)`, `save(obj, path)`, `grafed.available()`,
+- WP5.8 Python `pymarty.visualization`: `export_json(obj)`, `save(obj, path)`, `grafed.is_available()`,
   `grafed.show(obj, wait=False)` (temporary file in a private directory, deleted when the viewer
   exits or on request), and a convenience `visualization.show(obj)` that uses the GUI backend if
   available and raises `BuildError`-style `MartyEnvironmentError` with install instructions otherwise.
@@ -74,11 +85,12 @@ notebook inline rendering (Phase 8).
 | `Incoming("e")`, `Outgoing(AntiPart("u"))` | `incoming("e")`, `outgoing(anti("u"))` |
 | `Incoming(Left("e"))` | `incoming(left("e"))` |
 | `Order::TreeLevel` | `Order.TREE` |
-| `model.computeAmplitude(Order::TreeLevel, {Incoming("u"), ...})` | `model.amplitude(Order.TREE, [incoming("u"), incoming(anti("u")), outgoing("d"), outgoing(anti("d"))])` |
+| `model.computeAmplitude(Order::TreeLevel, {Incoming("u"), ...})` | `compute_amplitude(model, Order.TREE, [incoming("u"), incoming(anti("u")), outgoing("d"), outgoing(anti("d"))])` |
 | `FeynOptions opts; opts.setTopology(Topology::Box); opts.addFilter(filter::forceParticle("t"))` | `FeynOptions(topology="box", filters=[force_particle("t")])` |
-| `model.computeSquaredAmplitude(res)` | `model.squared(res)` |
+| `model.computeSquaredAmplitude(res)` | `compute_squared_amplitude(model, res)` |
+| `Model::getFeynmanRules()` | `compute_feynman_rules(model)` (read-only view) |
 | `Display(res)` | `res.display()` returns `str` |
-| `mty::option::simplifyAmplitudes = false;` | `with options(simplify_amplitudes=False): ...` |
+| `mty::option::simplifyAmplitudes = false;` | `with set_options(simplify_amplitudes=False): ...` |
 | `Show(res)` | `visualization.show(res)` (needs GRAFED); `visualization.export_json(res)` (no GUI) |
 | `SaveDiagrams(file, res)` | `visualization.save(res, path)` |
 
@@ -113,7 +125,7 @@ L1 (`tests/api/calculation/`, `tests/api/visualization/`):
 
 L2 (`python/tests/calculation/`, `python/tests/visualization/`): parity tests for all L1 cases plus
 - duck typing: names versus particle objects versus insertion objects, mapping options, iterables
-- `with options(...)` restores flags (also on exception); `clean_state` fixture
+- `with set_options(...)` restores flags (also on exception); `clean_state` fixture
 - amplitude and diagram iteration, `len`, `repr` stays short
 - `display()` returns text; legacy C++ output goes to `sys.stdout`
 - visualization with `fake_grafed` fixture: file written, launcher called once, exceptions when missing
@@ -131,7 +143,7 @@ print (recorded once in golden files by the C++ side).
 1. For each scenario listed under "Amplitudes" the API result is string-identical to the same
    computation performed through the core directly (both executed in the same C++ test).
 2. The textbook massless e+e- to mu+mu- check passes (formula as literal in the test).
-3. All `mty::option::*` flags are reachable by keyword through `options(...)`, with a test that fails if
+3. All `mty::option::*` flags are reachable by keyword through `set_options(...)`, with a test that fails if
    the flag list changes without a matching Python name (built from the Phase 0 list).
 4. Flags and `Model::current` are unchanged after any API call, including failing ones (state tests,
    sanitizer job).
@@ -167,3 +179,26 @@ GRAFED export, spike record for `LatexLinker`.
 - The GRAFED JSON may embed LaTeX labels compiled by the viewer: if export needs `latex`, the wheel and
   docs must say so (spike 5.6).
 - Without GRAFED installed, users only get export; this is by design (decision D7).
+
+## 8. Status and deviations from the approved spec
+
+Tree-level calculation, visualization and the example ports are implemented; one-loop is deferred to phase 7.
+Deviations and open points, decided during implementation:
+
+- JSON export and `save` exist for `Amplitude` only. `FeynmanRules` supports LaTeX and PNG export.
+- `show` raises `MartyStateError` when GRAFED is missing; there is no PNG fallback.
+- LaTeX and PNG rendering run `latex` and `dvipng` in a private temporary directory. The core
+  `exportPDF`/`exportPNG` still use `system()` with fixed `/tmp` paths and are not changed here.
+  The tikz-feynman render path is not verified in the current environment (`tikz-feynman.sty` absent).
+- `compute_squared_amplitude(model, amplitude, other=None)` replaces the C++ overloads.
+- `kinematics=` customizes momentum indices only (core `Kinematics` already builds the tensors).
+  Explicit momentum tensors and propagators are deferred. There is no thin per-rule propagator
+  accessor in the core, so propagators are not exposed.
+- Fermion order is 0-based in both C++ (`AmplitudeOptions::fermionOrder`) and Python (`fermion_order`).
+- `FeynmanRules` exposes vertex accessors (`vertex_particles`, `vertex_expression`), read-only.
+- Example ports: `sampleSQED`, `sampleQCDSextet`, `gg_to_tt` (with the ghost channel) and an N_f=2
+  flavour QCD quark (`FlavorGroup`) are ported as tests. The N_f interpretation is an assumption.
+- `Zmumu` (non-gauge massive vector boson `Z`) is not ported: the Python modeling API has no
+  constructor for a plain vector boson, and adding one would extend `modeling.Model`.
+- C++ visualization facade checks are exempted from parity (`VisualizationApi.*`) and covered from
+  Python in `test_visualization.py`.
