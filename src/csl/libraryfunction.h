@@ -106,6 +106,7 @@ namespace csl {
                    bool          header,
                    std::string const &initInstruction = ""
                    ) const;
+        void printExplicitC(std::ostream& out, bool header) const;
         void print(std::ostream& out,
                    bool          header,
                    std::string const &initInstruction = ""

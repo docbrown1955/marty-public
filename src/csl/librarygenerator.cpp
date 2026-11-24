@@ -25,6 +25,7 @@
 #include "utils.h"
 
 #include "libcallable_data.h"
+#include "cdiagonalization_data.h"
 #include "libcomplexop_hdata.h"
 #include "libdiagonalization_cppdata.h"
 #include "libdiagonalization_hdata.h"
@@ -784,6 +785,12 @@ void LibraryGenerator::printPythonDir() const
     file.open(path + "/" + srcDir + "/libdiagonalization.cpp");
     print_libdiagonalization_cppdata(file);
     file.close();
+    file.open(path + "/" + clibDir + "/cdiagonalization.h");
+    print_cdiagonalization_hdata(file);
+    file.close();
+    file.open(path + "/" + clibDir + "/cdiagonalization.c");
+    print_cdiagonalization_cdata(file);
+    file.close();
 
     file.open(path + "/" + incDir + "/libcomplexop.h");
     print_libcomplexop_hdata(file);
@@ -982,6 +989,7 @@ void LibraryGenerator::printCFunction(LibFunction const &f) const
     header << "#ifdef __cplusplus\n";
     header << "extern \"C\" {\n";
     header << "#endif\n\n";
+    f.printExplicitC(header, true);
     f.printExternC(header, true);
     header << "#ifdef __cplusplus\n";
     header << "} // extern \"C\" block\n";
@@ -997,6 +1005,7 @@ void LibraryGenerator::printCFunction(LibFunction const &f) const
     source << "#include \"ccommon.h\"\n\n";
     if (uniqueParamStruct)
         source << "#include \"cparams.h\"\n\n";
+    f.printExplicitC(source, false);
     f.printExternC(source, false, initInstruction);
     source << "\n";
 }

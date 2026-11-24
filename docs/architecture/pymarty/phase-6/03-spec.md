@@ -72,13 +72,15 @@ set one. The generator is changed as follows (agreed in review):
 
 ### 3c. Spectrum libraries (review decision, scope B)
 
-- The C++ spectrum utilities are not rewritten. The generator emits a C wrapper around them, the same way it wraps every
-  other C++ function of the library.
+- The diagonalization core (GSL hermitian eigendecomposition, symmetrization, mass sorting, bidiagonalization and sign
+  fix) is ported to C in `clib/cdiagonalization.{h,c}`. The C++ `Diagonalizer` runtime (`libdiagonalization.cpp`) keeps
+  its public API and calls these C functions, so C++ spectrum utilities wrap the C code like every other library function.
+- Mass-matrix expressions are still built in C++ (they are C++ strings from upstream). Only the numerical core moved.
 - A spectrum model exposes its masses through a C function that takes the explicit spectrum inputs (the parameters
   `updateSpectrum` reads) and returns the computed masses. Its `_explicit` form and binding follow section 3b, so
   Python calls it with keyword arguments and gets the masses back.
 - The struct form `c_<name>(const cparam_t*)` keeps its current behaviour.
-- Exact C signatures are set when the generator change is written, and checked against simpleSpectrum at 1e-10.
+- Checked: simpleSpectrum (`simple-spectrum-generation`) passes at 1e-10 with the C diagonalizer.
 
 
 ## 4. Process rules (repository)

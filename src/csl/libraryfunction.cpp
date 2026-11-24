@@ -199,18 +199,41 @@ void LibFunction::printExternC(std::ostream      &out,
         out << ";\n";
     else {
         out << "\n{\n";
-        for (const auto &inst : initInstructions) {
-            out << LibraryGenerator::indent(1) << inst << '\n';
+        out << LibraryGenerator::indent(1) << "return c_" << name
+            << "_explicit(";
+        for (size_t i = 0; i != parameters.size(); ++i) {
+            if (i != 0)
+                out << ", ";
+            out << "param->" << parameters[i].name;
         }
-        for (const auto &param : parameters) {
-            out << LibraryGenerator::indent(1) << "const " << param.ctype
-                << ' ' << param.name << " = param->" << param.name << ";\n";
-        }
-        // group->printParameterInitialization(out, 1);
-        printBody(out, initInstruction, true);
-        out << "}";
+        out << ");\n}";
     }
     out << '\n';
+}
+
+void LibFunction::printExplicitC(std::ostream &out, bool header) const
+{
+    out << (group->hasComplexReturn() ? std::string("ccomplex_return_t")
+                                      : LibraryGenerator::crealUsing)
+        << " c_" << name << "_explicit(";
+    if (parameters.empty())
+        out << "void";
+    for (size_t i = 0; i != parameters.size(); ++i) {
+        if (i != 0)
+            out << ", ";
+        out << parameters[i].ctype << ' ' << parameters[i].name;
+    }
+    out << ")";
+    if (header) {
+        out << ";\n\n";
+        return;
+    }
+    out << "\n{\n";
+    for (const auto &inst : initInstructions) {
+        out << LibraryGenerator::indent(1) << inst << '\n';
+    }
+    printBody(out, "", true);
+    out << "}\n";
 }
 
 void LibFunction::print(std::ostream      &out,
