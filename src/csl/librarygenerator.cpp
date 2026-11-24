@@ -60,11 +60,13 @@ void LibraryGenerator::setQuadruplePrecision(bool t_quadruple)
                           "been disabled during the compilation of MARTY.");
 #endif
         realType     = "__float128";
+        crealType    = "__float128";
         complexType  = "__complex128";
         ccomplexType = "__complex128";
     }
     else {
         realType     = "double";
+        crealType    = "double";
         complexType  = "std::complex<double>";
         ccomplexType = "double _Complex";
     }

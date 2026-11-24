@@ -22,6 +22,8 @@
 #include "operations.h"
 #include "utils.h"
 
+#include <charconv>
+
 using namespace std;
 
 // Expr CSL_0 = csl::make_shared<csl::Integer>(0);
@@ -101,9 +103,24 @@ void Float::setValue(long double t_value)
     value = t_value;
 }
 
-void Float::print(int mode, std::ostream &out, LibraryMode) const
+void Float::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (mode == 0)
+    if (libMode == LibraryMode::CLib and LibraryGenerator::isQuadruplePrecision()) {
+        // Shortest round-trip text, so decimal inputs such as 0.1 keep their value
+        char buf[64];
+        auto res = std::to_chars(buf, buf + sizeof(buf), value);
+        std::string text(buf, res.ptr);
+        if (text.find_first_of(".eEnN") == std::string::npos)
+            text += ".0";
+        text += "Q";
+        if (mode == 0)
+            out << text << endl;
+        else if (mode > 0 and value < 0)
+            out << "(" << text << ")";
+        else
+            out << text;
+    }
+    else if (mode == 0)
         out << value << endl;
     else if (mode > 0 and value < 0)
         out << "(" << value << ")";
@@ -494,20 +511,26 @@ long long int IntFraction::getDenom() const
 
 void IntFraction::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
+    // In quad C, the numerator must be a quad literal to avoid double rounding
+    bool        quadC = libMode == LibraryMode::CLib
+                  and LibraryGenerator::isQuadruplePrecision();
+    std::string sep = quadC                   ? ".0Q/"
+                      : libMode != LibraryMode::NoLib ? "./"
+                                                      : "/";
     if (mode == 0) {
         if (libMode != LibraryMode::NoLib)
-            out << num << "./" << denom << endl;
+            out << num << sep << denom << endl;
         else
             out << "Fraction: " << num << "/" << denom << endl;
     }
     else if (mode > 3) {
         if (libMode != LibraryMode::NoLib)
-            out << "(" << num << "./" << denom << ")";
+            out << "(" << num << sep << denom << ")";
         else
             out << "(" << num << "/" << denom << ")";
     }
     else if (libMode != LibraryMode::NoLib)
-        out << num << "./" << denom;
+        out << num << sep << denom;
     else
         out << num << "/" << denom;
 

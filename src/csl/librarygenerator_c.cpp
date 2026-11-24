@@ -46,6 +46,9 @@ void LibraryGenerator::printCSpectrum() const
 
     if (!diagData.empty()) {
         auto dependencies = getDiagonalizationDependencies();
+        // The mass entries are quad under quadruple precision, the diagonalizer is double
+        const std::string realPart = isQuadruplePrecision() ? "crealq" : "creal";
+        const std::string imagPart = isQuadruplePrecision() ? "cimagq" : "cimag";
         source << "void c_updateDiagonalization(cparam_t *params)\n{\n";
         for (const auto &dep : dependencies)
             source << indent(1) << "const ccomplex_t " << regularName(dep)
@@ -64,9 +67,9 @@ void LibraryGenerator::printCSpectrum() const
                 source << indent(3) << "const ccomplex_t entry = "
                        << diag.cExpressions[i] << ";\n";
                 source << indent(3) << "massMatrix[" << 2 * i
-                       << "] = creal(entry);\n";
+                       << "] = " << realPart << "(entry);\n";
                 source << indent(3) << "massMatrix[" << 2 * i + 1
-                       << "] = cimag(entry);\n";
+                       << "] = " << imagPart << "(entry);\n";
                 source << indent(2) << "}\n";
             }
             source << indent(2) << "double transfer[" << entries << "];\n";
