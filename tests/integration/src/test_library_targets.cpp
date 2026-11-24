@@ -374,14 +374,6 @@ int main(void)
 
 TEST(library_targets, spectrum_cpp)
 {
-    // Mass names depend on the generator state of the process (LibEval::make_expr),
-    // so the case runs again in a fresh process when the whole binary is executed.
-    if (std::getenv("MTY_ISOLATED_SPECTRUM_CPP") == nullptr) {
-        std::string const self = fs::read_symlink("/proc/self/exe").string();
-        runCommand("MTY_ISOLATED_SPECTRUM_CPP=1 \"" + self
-                   + "\" --gtest_filter=library_targets.spectrum_cpp");
-        return;
-    }
     fs::path dir = generateSpectrumLibrary("itgspecpp", {true, false});
     std::string const source = R"CPP(
 #include <stdio.h>

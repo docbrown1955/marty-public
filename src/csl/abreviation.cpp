@@ -248,7 +248,12 @@ void Abbrev::compressAbbreviations_impl(
 std::string Abbrev::getFinalName(std::string_view initialName)
 {
     auto [init, latex] = getRegularAndLatexNames(std::string(initialName));
-    if (id_name.find(init) == id_name.end()) {
+    // The counter only needs to avoid names still in use: once every
+    // abbreviation of this name is gone, numbering restarts from the plain name.
+    auto registered = abbreviationData.find(std::string(initialName));
+    bool inUse      = registered != abbreviationData.end()
+                 and not registered->second.empty();
+    if (not inUse or id_name.find(init) == id_name.end()) {
         id_name[init] = 0;
         return std::string(initialName);
     }
