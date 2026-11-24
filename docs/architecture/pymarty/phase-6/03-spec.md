@@ -70,6 +70,16 @@ set one. The generator is changed as follows (agreed in review):
 - No runtime flag in C is needed: the check is the call signature itself, so it cannot be bypassed from Python.
 - The C++ `InitSanitizer` check still happens when the C++ wrapper copies a used parameter, so C++ behaviour is kept.
 
+### 3c. Spectrum libraries (review decision, scope B)
+
+- The C++ spectrum utilities are not rewritten. The generator emits a C wrapper around them, the same way it wraps every
+  other C++ function of the library.
+- A spectrum model exposes its masses through a C function that takes the explicit spectrum inputs (the parameters
+  `updateSpectrum` reads) and returns the computed masses. Its `_explicit` form and binding follow section 3b, so
+  Python calls it with keyword arguments and gets the masses back.
+- The struct form `c_<name>(const cparam_t*)` keeps its current behaviour.
+- Exact C signatures are set when the generator change is written, and checked against simpleSpectrum at 1e-10.
+
 
 ## 4. Process rules (repository)
 
@@ -108,9 +118,8 @@ Quad precision (EWGauge), MARTY plugins, GRAFED, Fortran/LoopTools tuning, packa
   generated `toy.pyi`. Confirm this is acceptable.
 - Undefined parameters: decided in review, see section 3b (explicit-parameter C functions). Remaining point: the names
   of the explicit functions (`c_<name>_explicit` proposed, keeping the `c_` prefix of the existing layer).
-- Spectrum libraries: `updateSpectrum` takes the struct and sets parameters. It does not fit the explicit form. Its
-  binding (setting parameters from Python) needs its own design. Out of scope for the first milestone unless required by
-  simpleSpectrum; to decide.
+- Spectrum libraries: decided in review (scope B). The spectrum utilities (`updateSpectrum`, `updateDiagonalization`)
+  stay C++ and are wrapped by the C layer, like every other library function. See section 3c.
 
 ## Gate G1
 
