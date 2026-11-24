@@ -78,6 +78,7 @@ set(ALL_SOURCES
     libraryfunction.h
     librarygenerator.cpp
     librarygenerator_c.cpp
+    librarygenerator_python.cpp
     librarygenerator.h
     librarygroup.cpp
     librarygroup.h

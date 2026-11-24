@@ -69,6 +69,7 @@ class LibraryGenerator {
     inline static std::string binDir       = "bin";
     inline static std::string libDir       = "lib";
     inline static std::string clibDir      = "clib";
+    inline static std::string pyDir        = "py";
     inline static std::string scriptDir    = "script";
     inline static std::string scriptObjDir = "script/obj";
 
@@ -202,6 +203,7 @@ class LibraryGenerator {
     void printCDiagonalization() const;
     void printCppDiagonalization() const;
     void printCSpectrum() const;
+    void printPython() const;
     // void printCMakeLists() const;
     // void printGenerator() const;
     // void printPythonTest() const;

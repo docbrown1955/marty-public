@@ -301,6 +301,8 @@ void LibraryGenerator::print() const
     printCHeader();
     printCDiagonalization();
     printCSpectrum();
+    if (pythonLibrary)
+        printPython();
     printMakefile();
     if (cppLibrary) {
         printGlobal();
@@ -369,6 +371,8 @@ void LibraryGenerator::setupDirectory() const
     res = system(("mkdir -p " + path + "/" + scriptObjDir).c_str());
     res = system(("mkdir -p " + path + "/" + libDir).c_str());
     res = system(("mkdir -p " + path + "/" + clibDir).c_str());
+    if (pythonLibrary)
+        res = system(("mkdir -p " + path + "/" + pyDir).c_str());
 }
 
 void LibraryGenerator::printGlobal() const
