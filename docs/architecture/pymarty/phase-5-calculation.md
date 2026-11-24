@@ -198,7 +198,12 @@ Deviations and open points, decided during implementation:
 - `FeynmanRules` exposes vertex accessors (`vertex_particles`, `vertex_expression`), read-only.
 - Example ports: `sampleSQED`, `sampleQCDSextet`, `gg_to_tt` (with the ghost channel) and an N_f=2
   flavour QCD quark (`FlavorGroup`) are ported as tests. The N_f interpretation is an assumption.
-- `Zmumu` (non-gauge massive vector boson `Z`) is not ported: the Python modeling API has no
-  constructor for a plain vector boson, and adding one would extend `modeling.Model`.
+- `Zmumu` is ported (test `test_zmumu_scattering_exchanges_the_z_and_the_gauge_boson`). It needs a
+  plain vector-boson constructor, `Model.add_vector_boson(name, mass=, width=, ...)`, which wraps the
+  C++ `Model::vectorBoson` and `Particle::setWidth`. This extends `modeling.Model` by one method, as
+  the user approved (option `modeling_ctor`). The upper Lorentz index is written `z(~m)`, as `Z(+m)` in C++.
+- Width: `Particle.width` is a read/write property (C++ `Particle::width` and `Particle::setWidth`, which call
+  the core `getWidth`/`setWidth`). The `width=` argument is accepted by the dirac, majorana, scalar, vector and
+  similar-particle builders. `add_weyl_fermion` takes no mass, so it takes no width.
 - C++ visualization facade checks are exempted from parity (`VisualizationApi.*`) and covered from
   Python in `test_visualization.py`.

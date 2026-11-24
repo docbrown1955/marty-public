@@ -17,6 +17,8 @@ RUN apt-get update && \
         libgslcblas0 \
         texlive \
         texlive-luatex \
+        texlive-science \
+        texlive-latex-extra \
         dvipng \
         coreutils \
         imagemagick \

@@ -16,9 +16,12 @@
 #ifndef MARTY_API_MODELING_FEYNMANRULES_H
 #define MARTY_API_MODELING_FEYNMANRULES_H
 
+#include "../../../csl/api/expr.h"
+
 #include <cstddef>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace mty::api::modeling {
 
@@ -42,6 +45,10 @@ class FeynmanRules {
     std::string latex(std::size_t index) const;
     /// LaTeX document with one block per rule.
     std::string latexDocument() const;
+    /// Names of the fields of the vertex at index, in product order.
+    std::vector<std::string> vertexParticles(std::size_t index) const;
+    /// Expression of the vertex at index (LookupError if out of range).
+    csl::Expr vertexExpression(std::size_t index) const;
 
   private:
     friend class Model;

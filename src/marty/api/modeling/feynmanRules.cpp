@@ -17,6 +17,7 @@
 
 #include "../common/error.h"
 #include "../common/session.h"
+#include "marty/core/feynmanRule.h"
 #include "marty/core/mrtInterface.h"
 #include "modeling.h"
 
@@ -68,6 +69,33 @@ std::string FeynmanRules::latexDocument() const
     return guarded([&] {
         Session session(m_state->core.get());
         return LatexFeynmanRules(m_state->core->getFeynmanRules());
+    });
+}
+
+std::vector<std::string> FeynmanRules::vertexParticles(std::size_t index) const
+{
+    return guarded([&] {
+        Session     session(m_state->core.get());
+        auto const &rules = m_state->core->getFeynmanRules();
+        if (index >= rules.size())
+            throw LookupError("no Feynman rule at index "
+                              + std::to_string(index));
+        std::vector<std::string> names;
+        for (auto const &field : rules[index].getFieldProduct())
+            names.push_back(std::string(field.getParticle()->getName()));
+        return names;
+    });
+}
+
+csl::Expr FeynmanRules::vertexExpression(std::size_t index) const
+{
+    return guarded([&] {
+        Session     session(m_state->core.get());
+        auto const &rules = m_state->core->getFeynmanRules();
+        if (index >= rules.size())
+            throw LookupError("no Feynman rule at index "
+                              + std::to_string(index));
+        return rules[index].getExpr();
     });
 }
 

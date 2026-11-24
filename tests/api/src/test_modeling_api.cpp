@@ -224,4 +224,20 @@ TEST(ModelingApi, FeynmanRuleIndexOutOfRangeIsLookupError)
     auto rules = mod::Model::qed().feynmanRules();
     EXPECT_THROW(rules.str(rules.size()), mty::api::LookupError);
     EXPECT_THROW(rules.latex(rules.size()), mty::api::LookupError);
+    EXPECT_THROW(rules.vertexParticles(rules.size()), mty::api::LookupError);
+    EXPECT_THROW(rules.vertexExpression(rules.size()), mty::api::LookupError);
+}
+
+TEST(ModelingApi, FeynmanRuleVertexGivesFieldNamesAndExpression)
+{
+    auto model = mod::Model::qed();
+    auto rules = model.feynmanRules();
+    ASSERT_GT(rules.size(), 0u);
+    auto names = rules.vertexParticles(0);
+    EXPECT_FALSE(names.empty());
+    for (auto const &name : names)
+        EXPECT_NO_THROW(model.particle(name));
+    std::ostringstream printed;
+    printed << rules.vertexExpression(0);
+    EXPECT_FALSE(printed.str().empty());
 }

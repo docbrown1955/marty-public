@@ -136,10 +136,13 @@ modeling::Particle addField(modeling::Model   &self,
                             py::object const  &flavorRep,
                             py::object const  &selfConjugate,
                             py::object const  &mass,
-                            bool               initializeTerms = true)
+                            bool               initializeTerms = true,
+                            py::object const  &width           = py::none())
 {
     if (!selfConjugate.is_none())
         particle.setSelfConjugate(selfConjugate.cast<bool>());
+    if (!width.is_none())
+        particle.setWidth(width.cast<ExprHandle const &>().raw());
     for (auto item : gaugeRep)
         setRep(particle,
                item.first.cast<std::string>(),
@@ -340,6 +343,15 @@ void bindModeling(py::module_ &m)
             "Mass symbol or value of the particle. Setting it does not add a "
             "Lagrangian term: see Model.add_bosonic_mass and "
             "Model.add_fermionic_mass.")
+        .def_property(
+            "width",
+            [](modeling::Particle const &self) {
+                return ExprHandle(self.width());
+            },
+            [](modeling::Particle &self, ExprHandle const &width) {
+                self.setWidth(width.raw());
+            },
+            "Width symbol or value of the particle, used by its propagator.")
         .def("set_gauge_choice",
              &modeling::Particle::setGaugeChoice,
              py::arg("choice"),
@@ -399,13 +411,16 @@ void bindModeling(py::module_ &m)
                py::dict const    &gaugeRep,
                py::object const  &flavorRep,
                py::object const  &mass,
-               py::object const  &selfConjugate) {
+               py::object const  &selfConjugate,
+               py::object const  &width) {
                 return addField(self,
                                 self.diracFermion(name),
                                 gaugeRep,
                                 flavorRep,
                                 selfConjugate,
-                                mass);
+                                mass,
+                                true,
+                                width);
             },
             py::arg("name"),
             py::kw_only(),
@@ -413,29 +428,34 @@ void bindModeling(py::module_ &m)
             py::arg("flavor_rep")     = py::none(),
             py::arg("mass")           = py::none(),
             py::arg("self_conjugate") = false,
-            "Adds a Dirac fermion, with its gauge and flavor representations "
-            "and optional Dirac mass.")
+            py::arg("width")          = py::none(),
+            "Adds a Dirac fermion, with its gauge and flavor representations, "
+            "and optional Dirac mass and width.")
         .def(
             "add_majorana_fermion",
             [](modeling::Model   &self,
                std::string const &name,
                py::dict const    &gaugeRep,
                py::object const  &flavorRep,
-               py::object const  &mass) {
+               py::object const  &mass,
+               py::object const  &width) {
                 return addField(self,
                                 self.majoranaFermion(name),
                                 gaugeRep,
                                 flavorRep,
                                 py::none(),
-                                mass);
+                                mass,
+                                true,
+                                width);
             },
             py::arg("name"),
             py::kw_only(),
             py::arg("gauge_rep")  = py::dict(),
             py::arg("flavor_rep") = py::none(),
             py::arg("mass")       = py::none(),
+            py::arg("width")      = py::none(),
             "Adds a Majorana fermion (self-conjugate Dirac fermion), with its "
-            "gauge and flavor representations and optional mass.")
+            "gauge and flavor representations and optional mass and width.")
         .def(
             "add_scalar_boson",
             [](modeling::Model   &self,
@@ -444,24 +464,60 @@ void bindModeling(py::module_ &m)
                py::object const  &flavorRep,
                py::object const  &mass,
                py::object const  &selfConjugate,
-               bool               initializeTerms) {
+               bool               initializeTerms,
+               py::object const  &width) {
                 return addField(self,
                                 self.scalarBoson(name),
                                 gaugeRep,
                                 flavorRep,
                                 selfConjugate,
                                 mass,
-                                initializeTerms);
+                                initializeTerms,
+                                width);
             },
             py::arg("name"),
             py::kw_only(),
-            py::arg("gauge_rep")       = py::dict(),
-            py::arg("flavor_rep")      = py::none(),
-            py::arg("mass")            = py::none(),
-            py::arg("self_conjugate")  = true,
+            py::arg("gauge_rep")        = py::dict(),
+            py::arg("flavor_rep")       = py::none(),
+            py::arg("mass")             = py::none(),
+            py::arg("self_conjugate")   = true,
             py::arg("initialize_terms") = true,
+            py::arg("width")            = py::none(),
             "Adds a scalar boson, self-conjugate (real) by default, with its "
-            "gauge and flavor representations and optional mass. Set "
+            "gauge and flavor representations and optional mass and width. "
+            "Set initialize_terms to False for a component of an existing "
+            "field, "
+            "whose terms are already in the Lagrangian.")
+        .def(
+            "add_vector_boson",
+            [](modeling::Model   &self,
+               std::string const &name,
+               py::dict const    &gaugeRep,
+               py::object const  &flavorRep,
+               py::object const  &mass,
+               py::object const  &width,
+               py::object const  &selfConjugate,
+               bool               initializeTerms) {
+                return addField(self,
+                                self.vectorBoson(name),
+                                gaugeRep,
+                                flavorRep,
+                                selfConjugate,
+                                mass,
+                                initializeTerms,
+                                width);
+            },
+            py::arg("name"),
+            py::kw_only(),
+            py::arg("gauge_rep")        = py::dict(),
+            py::arg("flavor_rep")       = py::none(),
+            py::arg("mass")             = py::none(),
+            py::arg("width")            = py::none(),
+            py::arg("self_conjugate")   = true,
+            py::arg("initialize_terms") = true,
+            "Adds a vector boson that is not a gauge boson. Optional gauge "
+            "and flavor representations, mass and width (the width enters "
+            "its propagator). Self-conjugate (real) by default. Set "
             "initialize_terms to False for a component of an existing field, "
             "whose terms are already in the Lagrangian.")
         .def(
@@ -471,7 +527,8 @@ void bindModeling(py::module_ &m)
                std::string const &reference,
                py::object const  &selfConjugate,
                py::object const  &mass,
-               bool               initializeTerms) {
+               bool               initializeTerms,
+               py::object const  &width) {
                 return addField(
                     self,
                     self.particle(reference).createSimilarParticle(name),
@@ -479,7 +536,8 @@ void bindModeling(py::module_ &m)
                     py::none(),
                     selfConjugate,
                     mass,
-                    initializeTerms);
+                    initializeTerms,
+                    width);
             },
             py::arg("name"),
             py::arg("reference"),
@@ -487,6 +545,7 @@ void bindModeling(py::module_ &m)
             py::arg("self_conjugate")   = py::none(),
             py::arg("mass")             = py::none(),
             py::arg("initialize_terms") = true,
+            py::arg("width")            = py::none(),
             "Adds a particle of the same kind as reference, with another "
             "name. "
             "Its representations are those of the reference.")

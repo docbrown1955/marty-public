@@ -18,6 +18,8 @@ target_link_libraries(marty PUBLIC
     marty-gamma-api
     marty-group-api
     marty-modeling-api
+    marty-calculation-api
+    marty-visualization-api
     GSL::gsl
     GSL::gslcblas
     ${PROJECT_BINARY_DIR}/libooptools.so
@@ -36,6 +38,8 @@ target_link_libraries(marty-static PUBLIC
     marty-gamma-api
     marty-group-api
     marty-modeling-api
+    marty-calculation-api
+    marty-visualization-api
     GSL::gsl
     GSL::gslcblas
     ${PROJECT_BINARY_DIR}/libooptools.so

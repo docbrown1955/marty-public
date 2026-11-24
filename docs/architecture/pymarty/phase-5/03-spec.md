@@ -148,5 +148,5 @@ filter callbacks and FeynmanRules data added.
 
 The deviations from this spec (JSON export and `save` for `Amplitude` only, index-only `kinematics=`,
 the 0-based fermion order, `compute_squared_amplitude(..., other=None)`, the N_f=2 flavour example
-interpretation, and `Zmumu` not ported) are recorded in
+interpretation, and the `add_vector_boson` extension of `modeling.Model` for `Zmumu`) are recorded in
 [phase-5-calculation.md](../../phase-5-calculation.md), section 8.

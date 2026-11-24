@@ -25,8 +25,8 @@
 #ifndef MTY_API_MODELING_MODELING_H_INCLUDED
 #define MTY_API_MODELING_MODELING_H_INCLUDED
 
-#include "../../core/model.h"
 #include "../../../csl/api/tensor.h"
+#include "../../core/model.h"
 #include "../../core/quantumField.h"
 #include "../group_theory/group_theory.h"
 #include "feynmanRules.h"
@@ -56,7 +56,8 @@ struct ModelState {
     /// One API handle per core gauge group, so irreps of a model compare.
     std::map<mty::AbstractGroup *, std::shared_ptr<const group_theory::Group>>
         groupHandles;
-    /// Set by Model::finalize(): the builders and mutators then refuse changes.
+    /// Set by Model::finalize(): the builders and mutators then refuse
+    /// changes.
     bool finalized = false;
 };
 
@@ -115,6 +116,12 @@ class Particle {
     /// Sets the mass symbol or value of the particle.
     void setMass(csl::Expr const &mass);
 
+    /// Width symbol or value of the particle, used by its propagator.
+    csl::Expr width() const;
+
+    /// Sets the width symbol or value of the particle, used by its propagator.
+    void setWidth(csl::Expr const &width);
+
     /// Sets the gauge fixing choice (xi) of a vector boson.
     void setGaugeChoice(mty::gauge::Type choice);
 
@@ -140,12 +147,34 @@ class Particle {
 /// Order of a perturbative calculation.
 enum class Order { TreeLevel, OneLoop };
 
+/// Chirality of a fermionic external leg: the Dirac field, or one Weyl
+/// component.
+enum class Chirality { Dirac, Left, Right };
+
 /// An external leg of an amplitude: incoming or outgoing, particle or
-/// antiparticle.
+/// antiparticle, with an optional chirality.
 struct Leg {
-    Particle field;
-    bool     incoming;
-    bool     antiparticle = false;
+    Particle  field;
+    bool      incoming;
+    bool      antiparticle = false;
+    Chirality chirality    = Chirality::Dirac;
+};
+
+/// Options of a tree-level calculation, applied to the diagrams of an
+/// amplitude.
+struct AmplitudeOptions {
+    /// Topology name ("Tadpole", "Mass", "Triangle", "Box", "Pentagon", or
+    /// several of them separated by "|"). Empty means any topology.
+    std::string topology;
+    /// Diagrams without all these particles are removed.
+    std::vector<Particle> forceParticles;
+    /// Diagrams containing any of these particles are removed.
+    std::vector<Particle> forbidParticles;
+    /// Particles removed from the interaction terms before building diagrams.
+    std::vector<Particle> disableParticles;
+    /// Permutation of the 0-based leg positions giving the fermion order.
+    /// Empty keeps the default order.
+    std::vector<int> fermionOrder;
 };
 
 /// Amplitude computed by a Model.
@@ -191,6 +220,9 @@ class Model {
     /// Creates a real scalar boson attached to this model.
     Particle scalarBoson(std::string const &name);
 
+    /// Creates a vector boson (not a gauge boson) attached to this model.
+    Particle vectorBoson(std::string const &name);
+
     /// Renames a particle of the model (LookupError if absent, ValueError if
     /// the new name is already used).
     void renameParticle(std::string const &name, std::string const &newName);
@@ -214,7 +246,8 @@ class Model {
     /// Diagonalizes the bosonic and fermionic mass matrices where possible.
     void diagonalizeMassMatrices();
 
-    /// Turns the mass coefficient of a particle into a named symbol (m_<name>).
+    /// Turns the mass coefficient of a particle into a named symbol
+    /// (m_<name>).
     void gatherMass(std::string const &particle);
 
     /// Adds a term to the Lagrangian; addHermitic also adds its conjugate.
@@ -225,11 +258,11 @@ class Model {
 
     /// Covariant derivative of a field under a gauge group: D_mu field, where
     /// fieldIndices are the indices of the field.
-    csl::Expr covariantDerivative(std::string const             &group,
-                                  Particle const                &field,
-                                  csl::Index const              &mu,
-                                  std::vector<csl::Index> const &fieldIndices)
-        const;
+    csl::Expr
+    covariantDerivative(std::string const             &group,
+                        Particle const                &field,
+                        csl::Index const              &mu,
+                        std::vector<csl::Index> const &fieldIndices) const;
 
     /// Replaces an expression everywhere in the model.
     void replace(csl::Expr const &oldExpression,
@@ -288,7 +321,7 @@ class Model {
     void addParticle(Particle const &particle, bool initializeTerms = true);
 
     /// Ghost boson of a vector boson, with a given name, as a new particle.
-    Particle ghostBoson(Particle const &vectorBoson,
+    Particle ghostBoson(Particle const    &vectorBoson,
                         std::string const &name,
                         bool               conjugated = false);
 
@@ -337,8 +370,21 @@ class Model {
     /// Amplitude of the given external legs at the given order.
     Amplitude computeAmplitude(Order order, std::vector<Leg> const &legs);
 
+    /// Amplitude with the diagram selection and interaction filters of
+    /// options. Empty momentumIndices keep the default momentum names
+    /// (1, ..., N); otherwise there is one distinct positive index per leg.
+    Amplitude computeAmplitude(Order                           order,
+                               std::vector<Leg> const         &legs,
+                               std::vector<std::size_t> const &momentumIndices,
+                               AmplitudeOptions const         &options);
+
     /// Squared amplitude, summed over the spins and polarizations.
     csl::Expr computeSquaredAmplitude(Amplitude const &amplitude);
+
+    /// Interference term of two amplitudes, summed over the spins and
+    /// polarizations.
+    csl::Expr computeSquaredAmplitude(Amplitude const &amplitudeLeft,
+                                      Amplitude const &amplitudeRight);
 
     /// Space-separated particle names, for printing.
     std::string describe() const;

@@ -16,6 +16,14 @@
 #include "drawer.h"
 #include "graph.h"
 
+#include <fcntl.h>
+#include <spawn.h>
+#include <unistd.h>
+
+#include <cstdlib>
+#include <string>
+#include <vector>
+
 namespace mty {
 
 drawer::LatexLinker Drawer::buildDiagram(
@@ -159,9 +167,28 @@ static constexpr bool enableApp = true;
 void Drawer::launchViewer(std::vector<drawer::LatexLinker> const &links)
 {
     if constexpr (enableApp) {
-        drawer::LatexLinker::saveMultiple("/tmp/graphs.json", links);
-        [[maybe_unused]] int res = system("grafed-gui /tmp/graphs.json "
-                                          ">/dev/null 2>&1 & sleep 0.5");
+        std::string dir = "/tmp/marty-grafed-XXXXXX";
+        if (mkdtemp(dir.data()) == nullptr) {
+            return;
+        }
+        std::string const file = dir + "/graphs.json";
+        drawer::LatexLinker::saveMultiple(file, links);
+
+        posix_spawn_file_actions_t actions;
+        posix_spawn_file_actions_init(&actions);
+        posix_spawn_file_actions_addopen(
+            &actions, STDOUT_FILENO, "/dev/null", O_WRONLY, 0);
+        posix_spawn_file_actions_addopen(
+            &actions, STDERR_FILENO, "/dev/null", O_WRONLY, 0);
+
+        std::vector<char *> argv{const_cast<char *>("grafed-gui"),
+                                 const_cast<char *>(file.c_str()),
+                                 nullptr};
+
+        pid_t pid = 0;
+        posix_spawnp(
+            &pid, "grafed-gui", &actions, nullptr, argv.data(), environ);
+        posix_spawn_file_actions_destroy(&actions);
     }
 }
 

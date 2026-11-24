@@ -9,4 +9,4 @@ SymbolicApi.SubsCompoundKeyBehaviourPinned | Python dict keys must be hashable; 
 ModelingApi.QedMatchesCoreParticlesAndRules | checks the C++ facade's built-in QED model; the Python API has no built-in QED (consumers build it via pymarty.modeling.models.qed)
 ModelingApi.StandardModelMatchesCoreParticlesAndRules | checks the C++ facade's built-in SM model; the Python API has no built-in SM (consumers build it via pymarty.modeling.models.sm)
 ModelingApi.LatexMatchesExistingTests | LaTeX of the built-in QED Feynman rules is a C++ facade check; Feynman rules are out of Phase 4 scope
-ModelingApi.FeynmanRuleIndexOutOfRangeIsLookupError | Feynman rules are out of Phase 4 scope and not exposed to Python
+VisualizationApi.* | C++ visualization facade checks (GRAFED path validation, owner-only saved JSON, LaTeX document shape); the Python layer tests the same behaviour through pymarty.visualization in test_visualization.py

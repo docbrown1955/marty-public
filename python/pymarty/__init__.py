@@ -7,6 +7,8 @@ Submodules:
 - ``config``: run-time discovery of MARTY paths and programs.
 - ``group_theory``: simple groups, irreps, tensor products and Casimirs.
 - ``modeling``: gauge groups, particles and symmetry breaking.
+- ``calculation``: Feynman rules, amplitudes and squared amplitudes.
+- ``visualization``: JSON export of diagrams and GRAFED availability.
 - ``errors``: the exception hierarchy, rooted at ``MartyError``.
 
 The package is built from source; see the README for the build steps.
@@ -18,15 +20,17 @@ from types import ModuleType
 from pymarty import config, diracology, errors, group_theory
 from pymarty._pymarty import __version__
 
-_LAZY_SUBMODULES = ("modeling",)
+_LAZY_SUBMODULES = ("modeling", "calculation", "visualization")
 
 __all__ = [
     "__version__",
+    "calculation",
     "config",
     "diracology",
     "errors",
     "group_theory",
     "modeling",
+    "visualization",
 ]
 
 

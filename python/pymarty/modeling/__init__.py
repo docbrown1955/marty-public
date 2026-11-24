@@ -2,7 +2,8 @@
 
 ``Model`` is built from its gauge groups and flavor groups in one call. Fermions
 and bosons are added with ``Model.add_weyl_fermion``, ``add_dirac_fermion``,
-``add_majorana_fermion`` and ``add_scalar_boson``, which take their gauge and
+``add_majorana_fermion``, ``add_scalar_boson`` and ``add_vector_boson`` (a vector
+boson that is not a gauge boson, with an optional width), which take their gauge and
 flavor representations, self-conjugacy and mass as keyword arguments.
 ``Model.add_similar_particle`` adds a particle of the kind of another one.
 ``Particle.set_rep`` and ``set_self_conjugate`` remain for particles created

@@ -20,15 +20,22 @@
 #include "csl/replace.h"
 #include "marty/core/amplitude.h"
 #include "marty/core/fermionicField.h"
+#include "marty/core/feynOptions.h"
+#include "marty/core/filters.h"
 #include "marty/core/ghostField.h"
+#include "marty/core/kinematics.h"
 #include "marty/core/mrtInterface.h"
 #include "marty/core/scalarField.h"
+#include "marty/core/topology.h"
 #include "marty/models/qed.h"
 #include "marty/models/sm.h"
 
+#include <algorithm>
+#include <cctype>
 #include <numeric>
 #include <set>
 #include <sstream>
+#include <string_view>
 
 namespace mty::api::modeling {
 namespace {
@@ -234,12 +241,26 @@ csl::Expr Particle::mass() const
     return guarded([&] { return m_particle->getMass(); });
 }
 
+csl::Expr Particle::width() const
+{
+    return guarded([&] { return m_particle->getWidth(); });
+}
+
 void Particle::setMass(csl::Expr const &mass)
 {
     checkOpen(*m_state, "set the mass");
     guarded([&] {
         Session session(m_state->core.get());
         m_particle->setMass(mass);
+    });
+}
+
+void Particle::setWidth(csl::Expr const &width)
+{
+    checkOpen(*m_state, "set the width");
+    guarded([&] {
+        Session session(m_state->core.get());
+        m_particle->setWidth(width);
     });
 }
 
@@ -315,8 +336,8 @@ Model::Model(std::shared_ptr<detail::ModelState> state)
 
 Model Model::standardModel()
 {
-    auto state  = std::make_shared<detail::ModelState>();
-    state->core = guarded([] {
+    auto state       = std::make_shared<detail::ModelState>();
+    state->core      = guarded([] {
         Session session(nullptr);
         return std::make_shared<SM_Model>();
     });
@@ -326,8 +347,8 @@ Model Model::standardModel()
 
 Model Model::qed()
 {
-    auto state  = std::make_shared<detail::ModelState>();
-    state->core = guarded([] {
+    auto state       = std::make_shared<detail::ModelState>();
+    state->core      = guarded([] {
         Session session(nullptr);
         return std::make_shared<QED_Model>();
     });
@@ -382,6 +403,16 @@ Particle Model::scalarBoson(std::string const &name)
     auto field = guarded([&] {
         Session session(nullptr);
         return std::make_shared<mty::ScalarBoson>(name, *m_state->core);
+    });
+    return Particle(m_state, mty::Particle(field));
+}
+
+Particle Model::vectorBoson(std::string const &name)
+{
+    checkOpen(*m_state, "add a particle");
+    auto field = guarded([&] {
+        Session session(nullptr);
+        return std::make_shared<mty::VectorBoson>(name, *m_state->core);
     });
     return Particle(m_state, mty::Particle(field));
 }
@@ -494,7 +525,7 @@ Model::covariantDerivative(std::string const             &group,
                            std::vector<csl::Index> const &fieldIndices) const
 {
     return guarded([&] {
-        Session session(m_state->core.get());
+        Session           session(m_state->core.get());
         mty::GaugedGroup *gaugedGroup = m_state->core->getGaugedGroup(group);
         csl::Tensor       point       = mty::defaultSpaceTimePoint;
         return gaugedGroup->covariantDerivative(
@@ -517,7 +548,7 @@ void Model::replace(csl::Tensor const &oldTensor,
 {
     checkOpen(*m_state, "replace a tensor");
     guarded([&] {
-        Session session(m_state->core.get());
+        Session     session(m_state->core.get());
         csl::Tensor tensor = oldTensor;
         m_state->core->replace(tensor, newExpression);
     });
@@ -646,7 +677,7 @@ Particle Model::particle(std::string const &name) const
     throw LookupError("no particle named \"" + name + "\"");
 }
 
-Particle Model::ghostBoson(Particle const &vectorBoson,
+Particle Model::ghostBoson(Particle const    &vectorBoson,
                            std::string const &name,
                            bool               conjugated)
 {
@@ -686,8 +717,8 @@ std::vector<csl::Expr> Model::lagrangianTerms(std::string const &kind) const
     else if (kind == "interaction")
         terms = &L.interaction;
     else
-        throw ValueError("unknown Lagrangian kind \"" + kind +
-                         "\" (expected kinetic, mass or interaction)");
+        throw ValueError("unknown Lagrangian kind \"" + kind
+                         + "\" (expected kinetic, mass or interaction)");
     std::vector<csl::Expr> result;
     for (auto const &term : *terms)
         result.push_back(term->getTerm());
@@ -768,21 +799,150 @@ void Model::promoteToGoldstone(std::string const &goldstone,
     });
 }
 
-Amplitude Model::computeAmplitude(Order order, std::vector<Leg> const &legs)
+namespace {
+
+std::vector<mty::Insertion> toInsertions(std::vector<Leg> const &legs)
 {
     std::vector<mty::Insertion> insertions;
     for (auto const &leg : legs) {
         mty::Insertion insertion(leg.field.raw());
         insertion.setIncoming(leg.incoming);
         insertion.setParticle(!leg.antiparticle);
+        if (leg.chirality == Chirality::Left)
+            insertion = mty::Left(insertion);
+        else if (leg.chirality == Chirality::Right)
+            insertion = mty::Right(insertion);
         insertions.push_back(insertion);
     }
+    return insertions;
+}
+
+int toTopology(std::string const &name)
+{
+    if (name.empty())
+        return mty::Topology::Any;
+    static constexpr std::pair<std::string_view, int> table[] = {
+        {"tadpole", mty::Topology::Tadpole},
+        {"mass", mty::Topology::Mass},
+        {"triangle", mty::Topology::Triangle},
+        {"box", mty::Topology::Box},
+        {"pentagon", mty::Topology::Pentagon},
+    };
+    int         result = 0;
+    std::size_t start  = 0;
+    while (true) {
+        auto const end  = name.find('|', start);
+        auto       part = name.substr(start, end - start);
+        std::transform(
+            part.begin(), part.end(), part.begin(), [](unsigned char c) {
+                return static_cast<char>(std::tolower(c));
+            });
+        auto const found = std::find_if(
+            std::begin(table), std::end(table), [&](auto const &entry) {
+                return entry.first == part;
+            });
+        if (found == std::end(table))
+            throw ValueError("Unknown topology '"
+                             + name.substr(start, end - start) + "'.");
+        result |= found->second;
+        if (end == std::string::npos)
+            break;
+        start = end + 1;
+    }
+    return result;
+}
+
+mty::FeynOptions toFeynOptions(AmplitudeOptions const &options)
+{
+    mty::FeynOptions feynOptions;
+    feynOptions.setTopology(toTopology(options.topology));
+
+    std::vector<mty::Particle> force, forbid, disable;
+    for (auto const &p : options.forceParticles)
+        force.push_back(p.raw());
+    for (auto const &p : options.forbidParticles)
+        forbid.push_back(p.raw());
+    for (auto const &p : options.disableParticles)
+        disable.push_back(p.raw());
+
+    if (!options.fermionOrder.empty()) {
+        std::vector<int> sorted = options.fermionOrder;
+        std::sort(sorted.begin(), sorted.end());
+        for (std::size_t i = 0; i != sorted.size(); ++i)
+            if (sorted[i] != static_cast<int>(i))
+                throw ValueError("fermion order must be a permutation of "
+                                 "0, ..., N-1.");
+        feynOptions.setFermionOrder(options.fermionOrder);
+    }
+
+    if (!force.empty())
+        feynOptions.addFilter(mty::filter::forceParticleCombination(force));
+    if (!forbid.empty())
+        feynOptions.addFilter([forbid](mty::FeynmanDiagram const &diagram) {
+            return std::none_of(
+                begin(forbid), end(forbid), [&](mty::Particle const &p) {
+                    return diagram.contains(p);
+                });
+        });
+    if (!disable.empty())
+        feynOptions.addFilter(mty::filter::disableParticles(disable));
+    return feynOptions;
+}
+
+} // namespace
+
+Amplitude Model::computeAmplitude(Order order, std::vector<Leg> const &legs)
+{
+    auto      insertions = toInsertions(legs);
     int const coreOrder
         = order == Order::TreeLevel ? mty::TreeLevel : mty::OneLoop;
     return Amplitude(guarded([&] {
         Session session(m_state->core.get());
         return m_state->core->computeAmplitude(coreOrder, insertions);
     }));
+}
+
+Amplitude
+Model::computeAmplitude(Order                           order,
+                        std::vector<Leg> const         &legs,
+                        std::vector<std::size_t> const &momentumIndices,
+                        AmplitudeOptions const         &options)
+{
+    auto      insertions = toInsertions(legs);
+    int const coreOrder
+        = order == Order::TreeLevel ? mty::TreeLevel : mty::OneLoop;
+    if (!momentumIndices.empty()) {
+        if (momentumIndices.size() != legs.size())
+            throw ValueError("expected " + std::to_string(legs.size())
+                             + " momentum indices, got "
+                             + std::to_string(momentumIndices.size()) + ".");
+        std::set<std::size_t> distinct(momentumIndices.begin(),
+                                       momentumIndices.end());
+        if (distinct.size() != momentumIndices.size()
+            || distinct.count(0) != 0)
+            throw ValueError("momentum indices must be distinct and "
+                             "positive.");
+    }
+    return Amplitude(guarded([&] {
+        Session session(m_state->core.get());
+        auto    feynOptions = toFeynOptions(options);
+        if (momentumIndices.empty())
+            return m_state->core->computeAmplitude(
+                coreOrder, insertions, feynOptions);
+        mty::Kinematics kinematics(insertions, momentumIndices);
+        return m_state->core->computeAmplitude(
+            coreOrder, insertions, kinematics, feynOptions);
+    }));
+}
+
+csl::Expr Model::computeSquaredAmplitude(Amplitude const &amplitudeLeft,
+                                         Amplitude const &amplitudeRight)
+{
+    return guarded([&] {
+        Session session(m_state->core.get());
+        return m_state->core->computeSquaredAmplitude(amplitudeLeft.raw(),
+                                                      amplitudeRight.raw());
+    });
 }
 
 csl::Expr Model::computeSquaredAmplitude(Amplitude const &amplitude)

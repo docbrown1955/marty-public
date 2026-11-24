@@ -149,6 +149,24 @@ def test_mass_and_rotation_reject_inconsistent_input() -> None:
         toy.rotate_fields([phi], [phi, qL], [[]])
 
 
+def test_vector_boson_keeps_its_mass_and_width_and_is_self_conjugate() -> None:
+    toy = make_toy()
+    z = toy.add_vector_boson(
+        "Z", mass=toy.add_coupling("M_Z"), width=toy.add_coupling("G_Z")
+    )
+    assert str(z.mass) == "M_Z"
+    assert str(z.width) == "G_Z"
+    assert z.is_self_conjugate()
+
+
+def test_width_can_be_set_on_a_particle_and_passed_to_a_fermion_builder() -> None:
+    toy = make_toy()
+    top = toy.add_dirac_fermion("t", width=toy.add_coupling("G_t"))
+    assert str(top.width) == "G_t"
+    top.width = toy.add_coupling("Gamma_t")
+    assert str(top.width) == "Gamma_t"
+
+
 def make_flavored_model() -> Model:
     model = Model(
         gauge=[GaugeGroup(SU(2), name="L", boson_name="W")],

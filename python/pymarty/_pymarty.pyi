@@ -1,3 +1,4 @@
+import builtins
 import enum
 from collections.abc import (
     ItemsView,
@@ -478,6 +479,10 @@ class modeling:
         def mass(self) -> Expr: ...
         @mass.setter
         def mass(self, mass: Expr) -> None: ...
+        @property
+        def width(self) -> Expr: ...
+        @width.setter
+        def width(self, width: Expr) -> None: ...
         def set_gauge_choice(self, choice: modeling.GaugeChoice) -> None: ...
         @property
         def gauge_parameter(self) -> Expr: ...
@@ -503,6 +508,7 @@ class modeling:
             flavor_rep: str | None = None,
             mass: Expr | None = None,
             self_conjugate: bool = False,
+            width: Expr | None = None,
         ) -> modeling.Particle: ...
         def add_ghost_boson(
             self,
@@ -518,6 +524,7 @@ class modeling:
             gauge_rep: dict[str, object] = ...,
             flavor_rep: str | None = None,
             mass: Expr | None = None,
+            width: Expr | None = None,
         ) -> modeling.Particle: ...
         def add_particle(
             self, particle: modeling.Particle, *, initialize_terms: bool = True
@@ -531,6 +538,18 @@ class modeling:
             mass: Expr | None = None,
             self_conjugate: bool = True,
             initialize_terms: bool = True,
+            width: Expr | None = None,
+        ) -> modeling.Particle: ...
+        def add_vector_boson(
+            self,
+            name: str,
+            *,
+            gauge_rep: dict[str, object] = ...,
+            flavor_rep: str | None = None,
+            mass: Expr | None = None,
+            width: Expr | None = None,
+            self_conjugate: bool = True,
+            initialize_terms: bool = True,
         ) -> modeling.Particle: ...
         def add_similar_particle(
             self,
@@ -540,6 +559,7 @@ class modeling:
             self_conjugate: bool | None = None,
             mass: Expr | None = None,
             initialize_terms: bool = True,
+            width: Expr | None = None,
         ) -> modeling.Particle: ...
         def add_weyl_fermion(
             self,
@@ -660,6 +680,74 @@ class modeling:
     def dirac_P_R(a: Index, b: Index) -> Expr: ...
     @staticmethod
     def dirac_C(a: Index, b: Index) -> Expr: ...
+
+class calculation:
+    class Order(enum.Enum):
+        TREE = ...
+        ONE_LOOP = ...
+
+    class FeynmanRules:
+        def __len__(self) -> int: ...
+        def str(self, index: int) -> builtins.str: ...
+        def latex(self, index: int) -> builtins.str: ...
+        def latex_document(self) -> builtins.str: ...
+        def vertex_particles(self, index: int) -> list[builtins.str]: ...
+        def vertex_expression(self, index: int) -> Expr: ...
+
+    class Amplitude:
+        def diagram_count(self) -> int: ...
+        def display(self) -> builtins.str: ...
+        def diagram_particles(self, index: int) -> list[builtins.str]: ...
+        def diagram_expression(self, index: int) -> Expr: ...
+
+    @staticmethod
+    def compute_feynman_rules(model: object) -> FeynmanRules: ...
+    @staticmethod
+    def compute_amplitude(
+        model: object,
+        order: Order,
+        legs: Sequence[tuple[object, bool, bool, builtins.str]],
+        kinematics: Sequence[builtins.int] = ...,
+        topology: builtins.str = "",
+        force: Sequence[object] = ...,
+        forbid: Sequence[object] = ...,
+        disable: Sequence[object] = ...,
+        fermion_order: Sequence[builtins.int] = ...,
+    ) -> Amplitude: ...
+    @staticmethod
+    @overload
+    def compute_squared_amplitude(model: object, amplitude: Amplitude) -> Expr: ...
+    @staticmethod
+    @overload
+    def compute_squared_amplitude(
+        model: object, left: Amplitude, right: Amplitude
+    ) -> Expr: ...
+    @staticmethod
+    def option_names() -> list[builtins.str]: ...
+    @staticmethod
+    def get_option(name: builtins.str) -> bool: ...
+    @staticmethod
+    def set_option(name: builtins.str, value: bool) -> None: ...
+
+    class visualization:
+        @staticmethod
+        def diagrams_json(amplitude: calculation.Amplitude) -> builtins.str: ...
+        @staticmethod
+        def save_diagrams(
+            amplitude: calculation.Amplitude, path: builtins.str
+        ) -> None: ...
+        @staticmethod
+        def diagrams_latex(amplitude: calculation.Amplitude) -> builtins.str: ...
+        @staticmethod
+        def rules_latex(rules: calculation.FeynmanRules) -> builtins.str: ...
+        @staticmethod
+        def render_png(latex_document: builtins.str) -> bytes: ...
+        @staticmethod
+        def find_grafed(explicit_path: builtins.str = "") -> builtins.str: ...
+        @staticmethod
+        def launch_grafed(executable: builtins.str, json_path: builtins.str) -> int: ...
+        @staticmethod
+        def wait_process(pid: int) -> int: ...
 
 class diracology:
     class FierzBasis(enum.Enum):
