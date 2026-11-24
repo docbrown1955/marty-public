@@ -264,11 +264,16 @@ void LibraryGenerator::addDiagonalization(
     std::vector<std::string> const &mixings,
     std::vector<std::string> const &masses,
     std::vector<std::string> const &expressions,
+    std::vector<std::string> const &cExpressions,
     std::vector<std::string> const &dependencies,
     bool                            squaredMass)
 {
-    diagData.push_back(
-        {mixings, masses, expressions, dependencies, squaredMass});
+    diagData.push_back({mixings,
+                        masses,
+                        expressions,
+                        cExpressions,
+                        dependencies,
+                        squaredMass});
 }
 
 void LibraryGenerator::cleanExistingSources() const
@@ -335,6 +340,7 @@ void LibraryGenerator::print() const
     printTest();
     printMakefile();
     printPythonDir();
+    printCSpectrum();
 }
 
 void LibraryGenerator::setupDirectory() const

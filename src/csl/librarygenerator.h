@@ -94,6 +94,7 @@ class LibraryGenerator {
         std::vector<std::string> mixings;
         std::vector<std::string> masses;
         std::vector<std::string> expressions;
+        std::vector<std::string> cExpressions;
         std::vector<std::string> dependencies;
         bool                     squaredMass;
     };
@@ -161,6 +162,7 @@ class LibraryGenerator {
     void         addDiagonalization(std::vector<std::string> const &mixing,
                                     std::vector<std::string> const &masses,
                                     std::vector<std::string> const &expressions,
+                                    std::vector<std::string> const &cExpressions,
                                     std::vector<std::string> const &dependencies,
                                     bool                            squaredMass);
 
@@ -180,6 +182,7 @@ class LibraryGenerator {
 
     void printMakefile() const;
     void printPythonDir() const;
+    void printCSpectrum() const;
     // void printCMakeLists() const;
     // void printGenerator() const;
     // void printPythonTest() const;
