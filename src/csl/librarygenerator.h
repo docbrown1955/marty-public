@@ -173,8 +173,7 @@ class LibraryGenerator {
     void addGroup(std::string const &groupName, bool complexReturn = true);
     void addDefaultParameter(std::string const &name, bool isComplex);
     LibFunction &addFunction(std::string const &nameFunction,
-                             Expr               expression,
-                             bool               force_cpp_function = false);
+                             Expr               expression);
     void         addMassExpression(std::string const &mass);
     void         addDiagonalization(std::vector<std::string> const &mixing,
                                     std::vector<std::string> const &masses,

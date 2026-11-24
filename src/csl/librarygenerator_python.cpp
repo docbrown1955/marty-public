@@ -55,7 +55,7 @@ void LibraryGenerator::printPython() const
         if (g->empty())
             continue;
         for (const auto &f : g->getFunctions()) {
-            if (f.isTrivial() || f.isCppFunc() || !hasOnlyRealParameters(f))
+            if (!hasOnlyRealParameters(f))
                 continue;
             bindings.push_back({&f, g->hasComplexReturn()});
             for (const auto &p : f.getParameters())

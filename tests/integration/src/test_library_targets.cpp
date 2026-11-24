@@ -147,6 +147,11 @@ void addQuadFunctions(csl::LibraryGenerator &lib)
     lib.addFunction("h", 1 + csl::constant_s("x"));
 }
 
+void addTrivialFunctions(csl::LibraryGenerator &lib)
+{
+    lib.addFunction("k", 3 * CSL_I);
+}
+
 // Evaluates f(2, 3) = 10 and g(2, 3) = 6i, printing real and imaginary parts.
 void checkBareValues(fs::path const &dir, std::string const &name, Targets t)
 {
@@ -256,6 +261,37 @@ TEST(library_targets, bare_python)
 TEST(library_targets, bare_cpp_python)
 {
     checkBareLibrary("itgcpypy", {true, true});
+}
+
+// A function without parameters that is a plain number is still exposed in C and Python.
+TEST(library_targets, trivial_function)
+{
+    fs::path dir = generate("itgtriv", {false, true}, false, addTrivialFunctions);
+    std::string const source = R"C(
+#include <stdio.h>
+#include "c_k.h"
+int main(void)
+{
+    ccomplex_return_t k = c_k_explicit();
+    printf("%g %g\n", (double)k.real, (double)k.imag);
+    return 0;
+}
+)C";
+    std::string const pythonSource = "import sys\n"
+                                     "sys.path.insert(0, '" +
+                                     (dir / "py").string() +
+                                     "')\n"
+                                     "import itgtriv as m\n"
+                                     "k = m.k()\n"
+                                     "print(k.real, k.imag)\n";
+    for (std::string const &output :
+         {runCDriver(dir, "itgtriv", source),
+          runPythonDriver(dir, pythonSource)}) {
+        std::vector<long double> values = parseValues(output);
+        ASSERT_EQ(values.size(), 2u) << output;
+        EXPECT_NEAR(values[0], 0.0L, 1e-12L);
+        EXPECT_NEAR(values[1], 3.0L, 1e-12L);
+    }
 }
 
 // With quadruple precision, 1 + 1e-20 keeps the small term, double does not.

@@ -70,7 +70,7 @@ import (Phase 7), vector/tensor-valued library outputs beyond what the listed ex
 | C++ | Python |
 |-----|--------|
 | `mty::Library lib("toy", path);` | `lib = Library("toy", path)` |
-| `lib.addFunction("squared_ampl", expr)` (third argument of the core overload is `bool forceCppFunc`; `gettingStarted` passes a string literal that converts implicitly: verify and keep out of the API) | `lib.add_function("squared_ampl", expr)` (returns the library, chainable) |
+| `lib.addFunction("squared_ampl", expr)` (the core overload no longer takes a `forceCppFunc` argument; every function is exposed in C) | `lib.add_function("squared_ampl", expr)` (returns the library, chainable) |
 | `lib.generateSpectrum(model)` | `lib.add_spectrum(model)` |
 | `defineLibPath(lib)` (test helper) | `config` (automatic, overridable by arguments and environment) |
 | `lib.build()` / `lib.print()` | `lib.generate()` (write only), `lib.build(jobs=8)` returns `BuildResult` |

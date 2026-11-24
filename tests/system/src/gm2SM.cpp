@@ -51,7 +51,7 @@ int main()
     auto wil = sm.computeWilsonCoefficients(
         OneLoop, {Incoming("e"), Outgoing("e"), Outgoing("A")}, options);
     csl::Expr C = gm2(sm, wil);
-    lib.addFunction("gm2_e", C, true);
+    lib.addFunction("gm2_e", C);
 
     options.resetFilters();
     options.addFilter(
@@ -60,7 +60,7 @@ int main()
         OneLoop, {Incoming("e"), Outgoing("e"), Outgoing("A")}, options);
     Display(wil);
     C = gm2(sm, wil);
-    lib.addFunction("gm2_eW", C, true);
+    lib.addFunction("gm2_eW", C);
 
     [[maybe_unused]] int sysres = system("rm -rf libs/gm2SM");
     defineLibPath(lib);

@@ -179,7 +179,7 @@ own objects and is connected to CSL by conversion functions.
 
 ```cpp
 mty::Library lib("toy", path);
-lib.addFunction("squared_ampl", squared_ampl, "G");
+lib.addFunction("squared_ampl", squared_ampl);
 lib.build();
 ```
 

@@ -31,9 +31,8 @@ namespace csl {
 
 LibFunction::LibFunction(std::string_view                     t_name,
                          Expr const                          &t_expression,
-                         std::shared_ptr<LibraryGroup> const &t_group,
-                         bool                                 forceCppFunc)
-    : name(t_name), cppFunc(forceCppFunc), group(t_group)
+                         std::shared_ptr<LibraryGroup> const &t_group)
+    : name(t_name), group(t_group)
 {
     setExpression(t_expression);
 }

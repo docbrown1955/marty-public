@@ -239,8 +239,7 @@ void LibraryGenerator::addDefaultParameter(std::string const &name,
 }
 
 LibFunction &LibraryGenerator::addFunction(std::string const &nameFunction,
-                                           Expr               expression,
-                                           bool               forceCppFunction)
+                                           Expr               expression)
 {
     // lib_log << "Adding function \"" << nameFunction << "\".\n";
     // lib_log << "Expr = " << expression << std::endl;
@@ -250,7 +249,7 @@ LibFunction &LibraryGenerator::addFunction(std::string const &nameFunction,
     Expr expr = csl::DeepCopy(expression);
     csl::Evaluate(expr, // csl::eval::abbreviation |
                   csl::eval::literal | csl::eval::numerical);
-    auto f = LibFunction{nameFunction, expr, group, forceCppFunction};
+    auto f = LibFunction{nameFunction, expr, group};
     return group->addFunction(std::move(f));
 }
 
@@ -1018,9 +1017,7 @@ void LibraryGenerator::printGroup(LibraryGroup const &g) const
     if (cppLibrary)
         printCppGroup(g);
     for (const auto &f : g.getFunctions()) {
-        if (!f.isTrivial() && !f.isCppFunc()) {
-            printCFunction(f);
-        }
+        printCFunction(f);
     }
     if (cppLibrary)
         printCppFunctions(g);
@@ -1031,9 +1028,7 @@ void LibraryGenerator::printGroup(LibraryGroup const &g) const
     globalCHeader << "#define CSL_LIB_CLIB_" + toUpper(regLibName())
                   << "_H_INCLUDED\n\n";
     for (const auto &f : g.getFunctions()) {
-        if (!f.isTrivial() && !f.isCppFunc()) {
-            globalCHeader << "#include \"c_" << f.getName() << ".h\"\n";
-        }
+        globalCHeader << "#include \"c_" << f.getName() << ".h\"\n";
     }
     globalCHeader << "\n#endif\n";
 }
@@ -1105,10 +1100,7 @@ void LibraryGenerator::printCppFunctions(LibraryGroup const &g) const
     source << "#include <complex.h>\n\n";
     source << "namespace " << regLibName() << " {\n\n";
     for (const auto &f : g.getFunctions()) {
-        if (f.isCppFunc())
-            f.print(source, false, "");
-        else
-            f.printCppWrapper(source);
+        f.printCppWrapper(source);
         source << '\n';
     }
     source << "} // End of namespace " << regLibName() << "\n";

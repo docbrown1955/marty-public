@@ -88,12 +88,10 @@ class Library : public csl::LibraryGenerator {
         addLibrary("-lmarty-lha");
     }
 
-    void addFunction(std::string const &name,
-                     csl::Expr          expr,
-                     bool               forceCppFunc = false)
+    void addFunction(std::string const &name, csl::Expr expr)
     {
         csl::ScopedProperty p(&csl::option::checkCommutations, false);
-        auto &f = csl::LibraryGenerator::addFunction(name, expr, forceCppFunc);
+        auto &f = csl::LibraryGenerator::addFunction(name, expr);
         f.addInitInstruction("clearcache();");
     }
 

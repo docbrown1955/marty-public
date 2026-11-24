@@ -53,16 +53,11 @@ namespace csl {
 
         LibFunction(std::string_view t_name,
                     Expr      const& t_expression,
-                    std::shared_ptr<LibraryGroup> const &t_group,
-                    bool forceCppFunc = false);
+                    std::shared_ptr<LibraryGroup> const &t_group);
 
         ~LibFunction() {}
 
         bool isTrivial() const;
-
-        bool isCppFunc() const {
-            return cppFunc;
-        }
 
         std::string const& getName() const;
         std::string getTensorName(csl::Parent const &tensor) const;
@@ -136,8 +131,6 @@ namespace csl {
         std::string name;
 
         std::string varType;
-
-        bool cppFunc;
 
         Expr        expression;
 
