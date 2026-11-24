@@ -774,7 +774,8 @@ void LibraryGenerator::printMakefile() const
                            quadruple,
                            STRINGIFY(MARTY_CXX),
                            STRINGIFY(MARTY_CC),
-                           optimize);
+                           optimize,
+                           cppLibrary);
     makefile.close();
 }
 
