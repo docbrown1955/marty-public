@@ -134,6 +134,22 @@ class LibraryGenerator {
     {
         uniqueParamStruct = t_par;
     }
+    bool hasCppLibrary() const
+    {
+        return cppLibrary;
+    }
+    void setCppLibrary(bool enable)
+    {
+        cppLibrary = enable;
+    }
+    bool hasPythonLibrary() const
+    {
+        return pythonLibrary;
+    }
+    void setPythonLibrary(bool enable)
+    {
+        pythonLibrary = enable;
+    }
     void setOptimization(bool optimize)
     {
         this->optimize = optimize;
@@ -168,7 +184,9 @@ class LibraryGenerator {
 
     void print() const;
     void setupDirectory() const;
-    void printHeader() const;
+    void printCppHeader() const;
+    void printCHeader() const;
+    void printParamStruct() const;
     void printGlobal() const;
     void printSource() const;
     void printCallable() const;
@@ -181,7 +199,8 @@ class LibraryGenerator {
                                       std::ostream &source) const;
 
     void printMakefile() const;
-    void printPythonDir() const;
+    void printCDiagonalization() const;
+    void printCppDiagonalization() const;
     void printCSpectrum() const;
     // void printCMakeLists() const;
     // void printGenerator() const;
@@ -201,6 +220,7 @@ class LibraryGenerator {
     void printCFunction(LibFunction const &f) const;
     void printFunction(LibFunction const &f) const;
     void printGroup(LibraryGroup const &g) const;
+    void printCppGroup(LibraryGroup const &g) const;
 
     void printTensors(std::ostream &out) const;
 
@@ -248,6 +268,10 @@ class LibraryGenerator {
     mutable std::vector<std::string> massExpressions;
 
     bool uniqueParamStruct;
+
+    bool cppLibrary = true;
+
+    bool pythonLibrary = false;
 };
 
 } // End of namespace csl

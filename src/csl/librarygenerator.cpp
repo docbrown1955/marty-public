@@ -290,16 +290,42 @@ void LibraryGenerator::print() const
 {
     updateDiagonalization();
     setupDirectory();
-    printSource();
-    printGlobal();
-    if (uniqueParamStruct) {
-        std::shared_ptr<LibraryGroup> dummy
-            = std::make_shared<LibraryGroup>("", false);
-        dummy->addFunction(LibFunction("dummy", CSL_0, dummy));
-        dummy->getFunctions()[0].setParameters(inputParams(diagData));
-        groups.push_back(dummy);
-        LibraryGroup::gatherParameters(groups, "param_t");
-        groups.erase(groups.end() - 1);
+    printParamStruct();
+    for (auto &g : groups) {
+        if (!g->empty()) {
+            if (!uniqueParamStruct)
+                g->gatherParameters();
+            printGroup(*g);
+        }
+    }
+    printCHeader();
+    printCDiagonalization();
+    printCSpectrum();
+    printMakefile();
+    if (cppLibrary) {
+        printGlobal();
+        printCppHeader();
+        printSource();
+        printCallable();
+        printTest();
+        printCppDiagonalization();
+    }
+}
+
+void LibraryGenerator::printParamStruct() const
+{
+    if (!uniqueParamStruct)
+        return;
+    std::shared_ptr<LibraryGroup> dummy
+        = std::make_shared<LibraryGroup>("", false);
+    dummy->addFunction(LibFunction("dummy", CSL_0, dummy));
+    dummy->getFunctions()[0].setParameters(inputParams(diagData));
+    groups.push_back(dummy);
+    LibraryGroup::gatherParameters(groups, "param_t");
+    groups.erase(groups.end() - 1);
+    dummy->setForcedParameters(outputParams(diagData, massExpressions));
+
+    if (cppLibrary) {
         file paramFile(path + "/" + incDir + "/params.h");
         paramFile << "#ifndef CSL_LIB_PARAM_H_INCLUDED\n";
         paramFile << "#define CSL_LIB_PARAM_H_INCLUDED\n\n";
@@ -310,40 +336,27 @@ void LibraryGenerator::print() const
         paramFile << "#include \"csl/initSanitizer.h\"\n";
         paramFile << '\n';
         paramFile << "namespace " << regLibName() << " {\n\n";
-        dummy->setForcedParameters(outputParams(diagData, massExpressions));
         dummy->print(paramFile, true);
         paramFile << "\n\n";
         paramFile << "}\n\n";
         paramFile << "#endif\n";
+    }
 
-        file cParamFile(path + "/" + clibDir + "/cparams.h");
-        cParamFile << "#ifndef CSL_LIB_CPARAM_H_INCLUDED\n",
-            cParamFile << "#define CSL_LIB_CPARAM_H_INCLUDED\n\n";
-        cParamFile << "#include \"ccommon.h\"\n";
-        cParamFile << '\n';
-        cParamFile << "#ifdef __cplusplus\n";
-        cParamFile << "extern \"C\" {\n";
-        cParamFile << "#endif\n\n";
-        dummy->printExternC(cParamFile, true);
-        cParamFile << "#ifdef __cplusplus\n";
-        cParamFile << "} // extern \"C\" block\n";
-        cParamFile << "#endif\n\n";
-        cParamFile << "\n#endif\n";
-    }
-    for (auto &g : groups) {
-        if (!g->empty()) {
-            if (!uniqueParamStruct)
-                g->gatherParameters();
-            printGroup(*g);
-        }
-    }
-    printHeader();
-    printCallable();
-    printTest();
-    printMakefile();
-    printPythonDir();
-    printCSpectrum();
+    file cParamFile(path + "/" + clibDir + "/cparams.h");
+    cParamFile << "#ifndef CSL_LIB_CPARAM_H_INCLUDED\n",
+        cParamFile << "#define CSL_LIB_CPARAM_H_INCLUDED\n\n";
+    cParamFile << "#include \"ccommon.h\"\n";
+    cParamFile << '\n';
+    cParamFile << "#ifdef __cplusplus\n";
+    cParamFile << "extern \"C\" {\n";
+    cParamFile << "#endif\n\n";
+    dummy->printExternC(cParamFile, true);
+    cParamFile << "#ifdef __cplusplus\n";
+    cParamFile << "} // extern \"C\" block\n";
+    cParamFile << "#endif\n\n";
+    cParamFile << "\n#endif\n";
 }
+
 
 void LibraryGenerator::setupDirectory() const
 {
@@ -584,7 +597,7 @@ void LibraryGenerator::printMassExpressionsFacility(std::ostream &header,
     source << "}\n\n";
 }
 
-void LibraryGenerator::printHeader() const
+void LibraryGenerator::printCppHeader() const
 {
     LibraryGenerator::file globalHeader(path + "/" + incDir + "/"
                                         + regLibName() + ".h");
@@ -635,9 +648,12 @@ void LibraryGenerator::printHeader() const
     printTensors(header);
     header << "} // End of namespace " << regLibName() << "\n\n";
     header << "#endif\n";
+}
 
+void LibraryGenerator::printCHeader() const
+{
     LibraryGenerator::file cheader(path + "/" + clibDir + "/ccommon.h");
-    CSL_ASSERT_SPEC(header,
+    CSL_ASSERT_SPEC(cheader,
                     CSLError::IOError,
                     "File \"" + path + "/" + clibDir
                         + "/ccommon.h\" not found.");
@@ -662,13 +678,21 @@ void LibraryGenerator::printHeader() const
     cheader << "} ccomplex_return_t;\n\n";
     cheader << "ccomplex_return_t create_ccomplex_return(\n";
     cheader << LibraryGenerator::indent(1) << "ccomplex_t value);\n\n";
+    if (dependencies.containsInclude("clooptools.h")) {
+        cheader << "void c_setMu(const double mu);\n";
+        cheader << "void c_setLambda2(const double lambda2);\n";
+        cheader << "void c_setUVDiv(const double x);\n\n";
+    }
     cheader << "#ifdef __cplusplus\n";
     cheader << "} // extern \"C\" block\n";
     cheader << "#endif\n\n";
     cheader << "#endif\n";
 
     LibraryGenerator::file csource(path + "/" + clibDir + "/ccommon.c");
-    csource << "#include \"ccommon.h\"\n\n";
+    csource << "#include \"ccommon.h\"\n";
+    if (dependencies.containsInclude("clooptools.h"))
+        dependencies.printInclude(csource, true);
+    csource << "\n";
     csource << "const " << ccomplexUsing << " _mty_I = _Complex_I;\n\n";
     csource << "ccomplex_return_t create_ccomplex_return(\n";
     csource << LibraryGenerator::indent(1) << "ccomplex_t value)\n";
@@ -681,7 +705,22 @@ void LibraryGenerator::printHeader() const
                 << "ccomplex_return_t res = {creal(value), cimag(value)};\n";
     csource << LibraryGenerator::indent(1) << "return res;\n";
     csource << "}\n";
+    if (dependencies.containsInclude("clooptools.h")) {
+        csource << "\nvoid c_setMu(const double mu)\n"
+                << "{\n"
+                << indent() << "setmudim(mu * mu);\n"
+                << "}\n\n";
+        csource << "void c_setLambda2(const double lambda2)\n"
+                << "{\n"
+                << indent() << "setlambda(lambda2);\n"
+                << "}\n\n";
+        csource << "void c_setUVDiv(const double x)\n"
+                << "{\n"
+                << indent() << "setuvdiv(x);\n"
+                << "}\n";
+    }
 }
+
 
 void LibraryGenerator::printSource() const
 {
@@ -691,20 +730,22 @@ void LibraryGenerator::printSource() const
                     "File \"" + path + "/" + srcDir + "/common.cpp\""
                         + " not found.");
     dependencies.printInclude(source, false);
-    source << "#include \"common.h\"\n\n";
-    source << "namespace " << regLibName() << " {\n\n";
+    source << "#include \"common.h\"\n";
+    if (dependencies.containsInclude("clooptools.h"))
+        source << "#include \"ccommon.h\"\n";
+    source << "\nnamespace " << regLibName() << " {\n\n";
     if (dependencies.containsInclude("clooptools.h")) {
         source << "void setMu(const double mu)\n"
                << "{\n"
-               << indent() << "setmudim(mu * mu);\n"
+               << indent() << "c_setMu(mu);\n"
                << "}\n\n";
         source << "void setLambda2(const double lambda2)\n"
                << "{\n"
-               << indent() << "setlambda(lambda2);\n"
+               << indent() << "c_setLambda2(lambda2);\n"
                << "}\n\n";
         source << "void setUVDiv(const double x)\n"
                << "{\n"
-               << indent() << "setuvdiv(x);\n"
+               << indent() << "c_setUVDiv(x);\n"
                << "}\n\n";
     }
     source << "} // End of namespace " << regLibName() << "\n\n";
@@ -782,22 +823,25 @@ void LibraryGenerator::printMakefile() const
     makefile.close();
 }
 
-void LibraryGenerator::printPythonDir() const
+void LibraryGenerator::printCDiagonalization() const
 {
-    // std::string pythonPath = path + "/python";
     std::ofstream file;
-
-    file.open(path + "/" + incDir + "/libdiagonalization.h");
-    print_libdiagonalization_hdata(file);
-    file.close();
-    file.open(path + "/" + srcDir + "/libdiagonalization.cpp");
-    print_libdiagonalization_cppdata(file);
-    file.close();
     file.open(path + "/" + clibDir + "/cdiagonalization.h");
     print_cdiagonalization_hdata(file);
     file.close();
     file.open(path + "/" + clibDir + "/cdiagonalization.c");
     print_cdiagonalization_cdata(file);
+    file.close();
+}
+
+void LibraryGenerator::printCppDiagonalization() const
+{
+    std::ofstream file;
+    file.open(path + "/" + incDir + "/libdiagonalization.h");
+    print_libdiagonalization_hdata(file);
+    file.close();
+    file.open(path + "/" + srcDir + "/libdiagonalization.cpp");
+    print_libdiagonalization_cppdata(file);
     file.close();
 
     file.open(path + "/" + incDir + "/libcomplexop.h");
@@ -806,11 +850,8 @@ void LibraryGenerator::printPythonDir() const
     file.open(path + "/" + incDir + "/librarytensor.h");
     print_librarytensor_hdata(file);
     file.close();
-    // system(("mkdir -p " + pythonPath).c_str());
-    // printCMakeLists();
-    // printGenerator();
-    // printPythonTest();
 }
+
 
 // void LibraryGenerator::printCMakeLists() const
 // {
@@ -911,7 +952,7 @@ bool LibraryGenerator::needLibraryTensor() const
     // return false;
 }
 
-void LibraryGenerator::printGroup(LibraryGroup const &g) const
+void LibraryGenerator::printCppGroup(LibraryGroup const &g) const
 {
     constexpr const bool are_group_functions_inline=false;
     std::string nameHeader = "group_";
@@ -960,13 +1001,19 @@ void LibraryGenerator::printGroup(LibraryGroup const &g) const
         g.printFunctionStackOnSource(source, 0);
     }
     source << "\n} // End of namespace " << regLibName() << "\n";
+}
 
+void LibraryGenerator::printGroup(LibraryGroup const &g) const
+{
+    if (cppLibrary)
+        printCppGroup(g);
     for (const auto &f : g.getFunctions()) {
         if (!f.isTrivial() && !f.isCppFunc()) {
             printCFunction(f);
         }
     }
-    printCppFunctions(g);
+    if (cppLibrary)
+        printCppFunctions(g);
 
     file globalCHeader(path + "/" + clibDir + "/clib_" + regLibName() + ".h");
     globalCHeader << "#ifndef CSL_LIB_CLIB_" + toUpper(regLibName())
