@@ -33,14 +33,6 @@ void print_libdiagonalization_cppdata(std::ostream &out)
     out << "#include \"cdiagonalization.h\"\n";
     out << "#include <iostream>\n";
     out << "\n";
-    out << "#ifdef QUAD\n";
-    out << "    #include <quadmath.h>\n";
-    out << "    #define REAL(arg) crealq(arg)\n";
-    out << "    #define IMAG(arg) cimagq(arg)\n";
-    out << "#else\n";
-    out << "    #define REAL(arg) (arg).real()\n";
-    out << "    #define IMAG(arg) (arg).imag()\n";
-    out << "#endif\n";
     out << "\n";
     out << "namespace {\n";
     out << "\n";
@@ -51,8 +43,8 @@ void print_libdiagonalization_cppdata(std::ostream &out)
     out << "    std::vector<double> res;\n";
     out << "    res.reserve(2 * v.size());\n";
     out << "    for (const auto &z : v) {\n";
-    out << "        res.push_back(REAL(z));\n";
-    out << "        res.push_back(IMAG(z));\n";
+    out << "        res.push_back(z.real());\n";
+    out << "        res.push_back(z.imag());\n";
     out << "    }\n";
     out << "    return res;\n";
     out << "}\n";

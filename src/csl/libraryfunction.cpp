@@ -279,8 +279,7 @@ void LibFunction::printCppWrapper(std::ostream &out) const
     else {
         out << LibraryGenerator::indent(1) << "cparam_t cparam;\n";
         for (const auto &param : parameters) {
-            if (param.type == LibraryGenerator::complexUsing
-                && !LibraryGenerator::isQuadruplePrecision()) {
+            if (param.type == LibraryGenerator::complexUsing) {
                 out << LibraryGenerator::indent(1) << "cparam." << param.name
                     << " = param." << param.name << ".get().real() + _mty_I*"
                     << "param." << param.name << ".get().imag();\n";

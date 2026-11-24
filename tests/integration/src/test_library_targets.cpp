@@ -18,14 +18,28 @@ namespace {
 #define LT_STRINGIFY2(X) #X
 #define LT_STRINGIFY(X) LT_STRINGIFY2(X)
 
+// Combinations of optional layers on top of the C library.
 struct Targets {
-    bool cpp;
-    bool python;
+    std::string label;
+    bool        cpp;
+    bool        python;
 };
+
+std::vector<Targets> const allTargets = {
+    {"c", false, false},
+    {"cpp", true, false},
+    {"python", false, true},
+    {"cpp_python", true, true},
+};
+
+std::string targetName(::testing::TestParamInfo<Targets> const &info)
+{
+    return info.param.label;
+}
 
 using FunctionBuilder = std::function<void(csl::LibraryGenerator &)>;
 
-// Scoped switch of the global quadruple precision flag of the generator.
+// Scoped switch of the quadruple precision option of the C implementation.
 class QuadScope {
   public:
     explicit QuadScope(bool quad)
@@ -76,7 +90,7 @@ fs::path generate(std::string const &name,
 
 // Driver programs are compiled with the same compilers as the generator.
 // Extra flags are appended to the link line (used for LoopTools).
-std::string runCDriver(fs::path const &dir,
+std::string runCDriver(fs::path const    &dir,
                        std::string const &name,
                        std::string const &source,
                        std::string const &extraFlags = "")
@@ -87,8 +101,7 @@ std::string runCDriver(fs::path const &dir,
     runCommand(std::string(LT_STRINGIFY(MARTY_CC)) + " -std=c11 -I" +
                (dir / "clib").string() + " " + src.string() + " -o " +
                bin.string() + " -L" + (dir / "lib").string() + " -l" + name +
-               " -Wl,-rpath," + (dir / "lib").string() + " -lquadmath " +
-               extraFlags);
+               " -Wl,-rpath," + (dir / "lib").string() + " " + extraFlags);
     return runCommand(bin.string());
 }
 
@@ -99,10 +112,9 @@ std::string loopToolsFlags()
     return "-L" + root + " -looptools -lgfortran -Wl,-rpath," + root;
 }
 
-std::string runCppDriver(fs::path const &dir,
+std::string runCppDriver(fs::path const    &dir,
                          std::string const &name,
                          std::string const &source,
-                         std::string const &defines = "",
                          std::string const &extraFlags = "")
 {
     fs::path src = dir / "driver.cpp";
@@ -110,10 +122,10 @@ std::string runCppDriver(fs::path const &dir,
     std::ofstream(src) << source;
     runCommand(std::string(LT_STRINGIFY(MARTY_CXX)) + " -std=c++17 -I" +
                (dir / "include").string() + " -I" +
-               LT_STRINGIFY(MARTY_INCLUDE_PATH) + " " + defines + " " +
-               src.string() + " -o " + bin.string() + " -L" +
-               (dir / "lib").string() + " -l" + name + " -Wl,-rpath," +
-               (dir / "lib").string() + " -lquadmath " + extraFlags);
+               LT_STRINGIFY(MARTY_INCLUDE_PATH) + " " + src.string() +
+               " -o " + bin.string() + " -L" + (dir / "lib").string() + " -l" +
+               name + " -Wl,-rpath," + (dir / "lib").string() + " " +
+               extraFlags);
     return runCommand(bin.string());
 }
 
@@ -124,14 +136,46 @@ std::string runPythonDriver(fs::path const &dir, std::string const &source)
     return runCommand("python3 " + src.string());
 }
 
+// Python driver preamble: the generated package is loaded from its directory.
+std::string pythonImport(fs::path const &dir, std::string const &name)
+{
+    return "import sys\n"
+           "sys.path.insert(0, '" +
+           (dir / "py").string() +
+           "')\n"
+           "import " +
+           name + " as m\n";
+}
+
 std::vector<long double> parseValues(std::string const &output)
 {
-    std::istringstream        in(output);
+    std::istringstream       in(output);
     std::vector<long double> values;
-    long double               value;
+    long double              value;
     while (in >> value)
         values.push_back(value);
     return values;
+}
+
+// Public headers are C or C++ interfaces in double precision: no quadruple type or macro.
+void checkPublicHeadersHaveNoQuad(fs::path const &dir)
+{
+    for (char const *sub : {"clib", "include"}) {
+        fs::path root = dir / sub;
+        if (!fs::exists(root))
+            continue;
+        for (auto const &entry : fs::recursive_directory_iterator(root)) {
+            if (entry.path().extension() != ".h")
+                continue;
+            std::ifstream in(entry.path());
+            std::stringstream text;
+            text << in.rdbuf();
+            for (std::string const &word :
+                 {"quadmath", "QUAD", "float128", "complex128", "MTY_"})
+                EXPECT_EQ(text.str().find(word), std::string::npos)
+                    << entry.path() << " contains " << word;
+        }
+    }
 }
 
 void addBareFunctions(csl::LibraryGenerator &lib)
@@ -142,9 +186,11 @@ void addBareFunctions(csl::LibraryGenerator &lib)
     lib.addFunction("g", CSL_I * x * y);
 }
 
+// exp(x) - 1 is not simplified by CSL. For x = 1e-20 it is 1e-20 with quadruple
+// precision internally, and 0 in double precision.
 void addQuadFunctions(csl::LibraryGenerator &lib)
 {
-    lib.addFunction("h", 1 + csl::constant_s("x"));
+    lib.addFunction("h", csl::exp_s(csl::constant_s("x")) - 1);
 }
 
 void addTrivialFunctions(csl::LibraryGenerator &lib)
@@ -157,40 +203,21 @@ void checkBareValues(fs::path const &dir, std::string const &name, Targets t)
 {
     std::string const cSource = R"C(
 #include <stdio.h>
-#include <stdlib.h>
-#include <quadmath.h>
 #include "c_f.h"
 #include "c_g.h"
-static void show(__float128 v)
-{
-    char buf[128];
-    quadmath_snprintf(buf, sizeof buf, "%.30Qg", v);
-    printf("%s ", buf);
-}
 int main(void)
 {
     creal_t x = 2.0, y = 3.0;
     ccomplex_return_t f = c_f_explicit(x, y);
     ccomplex_return_t g = c_g_explicit(x, y);
-    show(f.real);
-    show(f.imag);
-    show(g.real);
-    show(g.imag);
-    printf("\n");
+    printf("%.17g %.17g %.17g %.17g\n", f.real, f.imag, g.real, g.imag);
     return 0;
 }
 )C";
 
     std::string const cppSource = R"CPP(
 #include <stdio.h>
-#include <quadmath.h>
 #include ")CPP" + name + R"CPP(.h"
-static void show(__float128 v)
-{
-    char buf[128];
-    quadmath_snprintf(buf, sizeof buf, "%.30Qg", v);
-    printf("%s ", buf);
-}
 int main()
 {
     )CPP" + name + R"CPP(::param_t p;
@@ -198,22 +225,12 @@ int main()
     p.y = 3.0;
     auto f = )CPP" + name + R"CPP(::f(p);
     auto g = )CPP" + name + R"CPP(::g(p);
-    show(f.real());
-    show(f.imag());
-    show(g.real());
-    show(g.imag());
-    printf("\n");
+    printf("%.17g %.17g %.17g %.17g\n", f.real(), f.imag(), g.real(), g.imag());
     return 0;
 }
 )CPP";
 
-    std::string const pythonSource = "import sys\n"
-                                     "sys.path.insert(0, '" +
-                                     (dir / "py").string() +
-                                     "')\n"
-                                     "import " +
-                                     name +
-                                     " as m\n"
+    std::string const pythonSource = pythonImport(dir, name) +
                                      "g = m.g(x=2.0, y=3.0)\n"
                                      "f = m.f(x=2.0, y=3.0)\n"
                                      "print(f.real, f.imag, g.real, g.imag)\n";
@@ -235,58 +252,41 @@ int main()
     }
 }
 
-void checkBareLibrary(std::string const &name, Targets targets)
+class BareLibrary : public ::testing::TestWithParam<Targets> {};
+
+TEST_P(BareLibrary, evaluates_expressions)
 {
-    fs::path dir = generate(name, targets, false, addBareFunctions);
-    checkBareValues(dir, name, targets);
+    Targets     t   = GetParam();
+    std::string name = "bare_" + t.label;
+    fs::path    dir = generate(name, t, false, addBareFunctions);
+    checkBareValues(dir, name, t);
 }
 
-} // namespace
-
-TEST(library_targets, bare_c_only)
-{
-    checkBareLibrary("itgc", {false, false});
-}
-
-TEST(library_targets, bare_cpp)
-{
-    checkBareLibrary("itgcpp", {true, false});
-}
-
-TEST(library_targets, bare_python)
-{
-    checkBareLibrary("itgpy", {false, true});
-}
-
-TEST(library_targets, bare_cpp_python)
-{
-    checkBareLibrary("itgcpypy", {true, true});
-}
+INSTANTIATE_TEST_SUITE_P(library_targets,
+                         BareLibrary,
+                         ::testing::ValuesIn(allTargets),
+                         targetName);
 
 // A function without parameters that is a plain number is still exposed in C and Python.
 TEST(library_targets, trivial_function)
 {
-    fs::path dir = generate("itgtriv", {false, true}, false, addTrivialFunctions);
+    fs::path dir = generate("trivial", {"c_python", false, true}, false,
+                            addTrivialFunctions);
     std::string const source = R"C(
 #include <stdio.h>
 #include "c_k.h"
 int main(void)
 {
     ccomplex_return_t k = c_k_explicit();
-    printf("%g %g\n", (double)k.real, (double)k.imag);
+    printf("%g %g\n", k.real, k.imag);
     return 0;
 }
 )C";
-    std::string const pythonSource = "import sys\n"
-                                     "sys.path.insert(0, '" +
-                                     (dir / "py").string() +
-                                     "')\n"
-                                     "import itgtriv as m\n"
+    std::string const pythonSource = pythonImport(dir, "trivial") +
                                      "k = m.k()\n"
                                      "print(k.real, k.imag)\n";
-    for (std::string const &output :
-         {runCDriver(dir, "itgtriv", source),
-          runPythonDriver(dir, pythonSource)}) {
+    for (std::string const &output : {runCDriver(dir, "trivial", source),
+                                      runPythonDriver(dir, pythonSource)}) {
         std::vector<long double> values = parseValues(output);
         ASSERT_EQ(values.size(), 2u) << output;
         EXPECT_NEAR(values[0], 0.0L, 1e-12L);
@@ -294,65 +294,81 @@ int main(void)
     }
 }
 
-// With quadruple precision, 1 + 1e-20 keeps the small term, double does not.
-TEST(library_targets, quadruple_c_only)
+// The quadruple option is internal to the C calculations: every public interface
+// stays double and returns the quadruple result rounded to double.
+class QuadLibrary : public ::testing::TestWithParam<Targets> {};
+
+TEST_P(QuadLibrary, computes_internally_in_quadruple)
 {
-    fs::path dir = generate("itgqc", {false, false}, true, addQuadFunctions);
-    std::string const source = R"C(
+    Targets     t    = GetParam();
+    std::string name = "prec_" + t.label;
+    fs::path    dir  = generate(name, t, true, addQuadFunctions);
+    checkPublicHeadersHaveNoQuad(dir);
+
+    std::string const cSource = R"C(
 #include <stdio.h>
-#include <stdlib.h>
-#include <quadmath.h>
 #include "c_h.h"
 int main(void)
 {
-    creal_t x = strtoflt128("1e-20", NULL);
-    char buf[128];
+    creal_t x = 1e-20;
     ccomplex_return_t h = c_h_explicit(x);
-    quadmath_snprintf(buf, sizeof buf, "%.30Qg", (__float128)(h.real - 1));
-    printf("%s\n", buf);
+    printf("%.17g\n", h.real);
+    return 0;
+}
+)C";
+    std::string const cppSource = R"CPP(
+#include <stdio.h>
+#include ")CPP" + name + R"CPP(.h"
+int main()
+{
+    )CPP" + name + R"CPP(::param_t p;
+    p.x = 1e-20;
+    printf("%.17g\n", )CPP" + name + R"CPP(::h(p).real());
+    return 0;
+}
+)CPP";
+    std::string const pythonSource = pythonImport(dir, name) +
+                                     "print(m.h(x=1e-20).real)\n";
+
+    std::vector<std::string> outputs;
+    outputs.push_back(runCDriver(dir, name, cSource));
+    if (t.cpp)
+        outputs.push_back(runCppDriver(dir, name, cppSource));
+    if (t.python)
+        outputs.push_back(runPythonDriver(dir, pythonSource));
+
+    for (std::string const &output : outputs) {
+        std::vector<long double> values = parseValues(output);
+        ASSERT_EQ(values.size(), 1u) << output;
+        EXPECT_NEAR(values[0], 1e-20L, 1e-30L);
+    }
+}
+
+INSTANTIATE_TEST_SUITE_P(library_targets,
+                         QuadLibrary,
+                         ::testing::ValuesIn(allTargets),
+                         targetName);
+
+// Shows that the check above discriminates: the same expression in double gives 0.
+TEST(library_targets, double_loses_the_small_term)
+{
+    fs::path dir = generate("double_c", {"c", false, false}, false,
+                            addQuadFunctions);
+    std::string const source = R"C(
+#include <stdio.h>
+#include "c_h.h"
+int main(void)
+{
+    creal_t x = 1e-20;
+    ccomplex_return_t h = c_h_explicit(x);
+    printf("%.17g\n", h.real);
     return 0;
 }
 )C";
     std::vector<long double> values =
-        parseValues(runCDriver(dir, "itgqc", source));
+        parseValues(runCDriver(dir, "double_c", source));
     ASSERT_EQ(values.size(), 1u);
-    EXPECT_NEAR(values[0], 1e-20L, 1e-30L);
-}
-
-TEST(library_targets, quadruple_cpp)
-{
-    fs::path dir = generate("itgqcpp", {true, false}, true, addQuadFunctions);
-    std::string const source = R"CPP(
-#include <stdio.h>
-#include <stdlib.h>
-#include <quadmath.h>
-#include "itgqcpp.h"
-int main()
-{
-    itgqcpp::param_t p;
-    p.x = strtoflt128("1e-20", NULL);
-    auto h = itgqcpp::h(p);
-    char buf[128];
-    quadmath_snprintf(buf, sizeof buf, "%.30Qg", (__float128)(crealq(h) - 1));
-    printf("%s\n", buf);
-    return 0;
-}
-)CPP";
-    std::vector<long double> values =
-        parseValues(runCppDriver(dir, "itgqcpp", source, "-DQUAD=1 -DQUADSIZE=16"));
-    ASSERT_EQ(values.size(), 1u);
-    EXPECT_NEAR(values[0], 1e-20L, 1e-30L);
-}
-
-TEST(library_targets, python_rejects_quadruple_precision)
-{
-    QuadScope scope(true);
-    fs::path  root = fs::absolute(fs::path("libs") / "integration");
-    csl::LibraryGenerator lib("itgqpy", root.string());
-    lib.setCppLibrary(false);
-    lib.setPythonLibrary(true);
-    addQuadFunctions(lib);
-    EXPECT_ANY_THROW(lib.print());
+    EXPECT_EQ(values[0], 0.0L);
 }
 
 // Generates a library with a single complex scalar of mass m under U(1).
@@ -387,10 +403,15 @@ fs::path generateSpectrumLibrary(std::string const &name, Targets targets)
 }
 
 // The mass term m2 |h|^2 gives m_h = sqrt(m2), so m2 = 4 must give m_h = 2.
-TEST(library_targets, spectrum_c_only)
+// The spectrum update is exposed by the C and C++ layers only.
+class SpectrumLibrary : public ::testing::TestWithParam<Targets> {};
+
+TEST_P(SpectrumLibrary, updates_masses)
 {
-    fs::path dir = generateSpectrumLibrary("itgspec", {false, false});
-    std::string const source = R"C(
+    Targets     t    = GetParam();
+    std::string name = "spectrum_" + t.label;
+    fs::path    dir  = generateSpectrumLibrary(name, t);
+    std::string const cSource = R"C(
 #include <stdio.h>
 #include "cspectrum.h"
 int main(void)
@@ -398,36 +419,48 @@ int main(void)
     cparam_t p;
     p.m2 = 4.0;
     c_updateSpectrum(&p);
-    printf("%.17g\n", (double)p.m_h);
+    printf("VALUE %.17g\n", p.m_h);
     return 0;
 }
 )C";
-    std::vector<long double> values =
-        parseValues(runCDriver(dir, "itgspec", source, loopToolsFlags()));
-    ASSERT_EQ(values.size(), 1u);
-    EXPECT_NEAR(values[0], 2.0L, 1e-12L);
-}
-
-TEST(library_targets, spectrum_cpp)
-{
-    fs::path dir = generateSpectrumLibrary("itgspecpp", {true, false});
-    std::string const source = R"CPP(
+    std::string const cppSource = R"CPP(
 #include <stdio.h>
-#include "itgspecpp.h"
+#include ")CPP" + name + R"CPP(.h"
 int main()
 {
-    itgspecpp::param_t p;
+    )CPP" + name + R"CPP(::param_t p;
     p.m2 = 4.0;
-    itgspecpp::updateSpectrum(p);
-    printf("VALUE %.17g\n", (double)p.m_h);
+    )CPP" + name + R"CPP(::updateSpectrum(p);
+    printf("VALUE %.17g\n", static_cast<double>(p.m_h));
     return 0;
 }
 )CPP";
-    std::string const output = runCppDriver(dir, "itgspecpp", source, "", loopToolsFlags());
-    // LoopTools writes a banner to stdout, so only the tagged driver line is parsed.
-    std::size_t const pos = output.find("VALUE ");
-    ASSERT_NE(pos, std::string::npos) << output;
-    std::vector<long double> values = parseValues(output.substr(pos + 6));
-    ASSERT_EQ(values.size(), 1u) << output;
-    EXPECT_NEAR(values[0], 2.0L, 1e-12L);
+
+    std::vector<std::pair<std::string, std::string>> outputs;
+    outputs.emplace_back("C", runCDriver(dir, name, cSource, loopToolsFlags()));
+    if (t.cpp)
+        outputs.emplace_back("C++",
+                             runCppDriver(dir, name, cppSource, loopToolsFlags()));
+
+    for (auto const &[layer, output] : outputs) {
+        // LoopTools writes a banner to stdout, so only the tagged line is parsed.
+        std::string const tag = "VALUE ";
+        std::size_t const pos = output.find(tag);
+        ASSERT_NE(pos, std::string::npos) << layer << output;
+        std::vector<long double> values =
+            parseValues(output.substr(pos + tag.size()));
+        ASSERT_EQ(values.size(), 1u) << layer << output;
+        EXPECT_NEAR(values[0], 2.0L, 1e-12L) << layer;
+    }
+
+    // The Python module must load on top of the same compiled library.
+    if (t.python)
+        runPythonDriver(dir, pythonImport(dir, name) + "print(0)\n");
 }
+
+INSTANTIATE_TEST_SUITE_P(library_targets,
+                         SpectrumLibrary,
+                         ::testing::ValuesIn(allTargets),
+                         targetName);
+
+} // namespace

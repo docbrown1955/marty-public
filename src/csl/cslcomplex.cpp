@@ -62,16 +62,9 @@ void RealPart::setOperand(const Expr &arg)
 void RealPart::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
     if (libMode == LibraryMode::CppLib) {
-        if (LibraryGenerator::isQuadruplePrecision()) {
-            out << "crealq(";
-            argument->print(1, out, libMode);
-            out << ")";
-        }
-        else {
-            out << "std::complex<long double>(";
-            argument->print(1, out, libMode);
-            out << ").real()";
-        }
+        out << "std::complex<long double>(";
+        argument->print(1, out, libMode);
+        out << ").real()";
         if (mode == 0)
             out << endl;
         return;
@@ -234,16 +227,9 @@ void ImaginaryPart::print(int           mode,
                           LibraryMode   libMode) const
 {
     if (libMode == LibraryMode::CppLib) {
-        if (LibraryGenerator::isQuadruplePrecision()) {
-            out << "cimagq(";
-            argument->print(1, out, libMode);
-            out << ")";
-        }
-        else {
-            out << "std::complex<long double>(";
-            argument->print(1, out, libMode);
-            out << ").imag()";
-        }
+        out << "std::complex<long double>(";
+        argument->print(1, out, libMode);
+        out << ").imag()";
         if (mode == 0)
             out << endl;
         return;

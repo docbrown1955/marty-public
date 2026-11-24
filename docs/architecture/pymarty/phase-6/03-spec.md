@@ -123,6 +123,25 @@ Quad precision (EWGauge), MARTY plugins, GRAFED, Fortran/LoopTools tuning, packa
 - Spectrum libraries: decided in review (scope B). The spectrum utilities (`updateSpectrum`, `updateDiagonalization`)
   stay C++ and are wrapped by the C layer, like every other library function. See section 3c.
 
+## 9. Breaking change: quadruple precision only in the C implementation
+
+Quadruple precision is removed from every public interface: the C, C++ and Python APIs and the parameter structs
+are double-only. It stays as an option of the C implementation of generated libraries
+(`LibraryGenerator::setQuadruplePrecision`, which sets a static flag): the C calculation files use `__float128` and
+`__complex128` internally and return double values.
+
+For MARTY consumers, this is a breaking change for C++ code that used quadruple types or
+`setQuadruplePrecision` on the C++ path. Its effect is:
+- Generated C++ headers and bodies are double, and the C++ layer no longer carries quad types.
+- The internal headers `libcomplexop.h` and `libdiagonalization.h` (dead copies with quad types) are removed. The
+  generator writes headers from the `*_hdata.h` sources.
+- `setQuadruplePrecision(true)` still needs a build with `MARTY_QUADRUPLE_ENABLED`.
+
+This entry is for the next release CHANGELOG. There is no CHANGELOG file in the repository yet.
+
+Test coverage: `tests/integration/src/test_library_targets.cpp` (C, C++, Python and C++&Python targets) checks the
+quad result in double output, and checks that public headers contain no quad types.
+
 ## Gate G1
 
 Waiting for the user's approval of this spec before any implementation.

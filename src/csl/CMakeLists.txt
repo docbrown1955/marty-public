@@ -65,9 +65,7 @@ set(ALL_SOURCES
     latexChain.h
     libcallable_data.h
     cdiagonalization_data.h
-    libcomplexop.h
     libcomplexop_hdata.h
-    libdiagonalization.h
     libdiagonalization_cppdata.h
     libdiagonalization_hdata.h
     libmakefile_data.h

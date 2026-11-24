@@ -2731,7 +2731,7 @@ std::optional<Expr> Pow::suppressExponent(Expr const &factor,
 
 void Pow::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (libMode != LibraryMode::NoLib
+    if (libMode == LibraryMode::CLib
         and LibraryGenerator::isQuadruplePrecision()) {
         if (isReal())
             out << "powq(";

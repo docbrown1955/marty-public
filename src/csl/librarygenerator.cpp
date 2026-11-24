@@ -59,16 +59,12 @@ void LibraryGenerator::setQuadruplePrecision(bool t_quadruple)
                           "has "
                           "been disabled during the compilation of MARTY.");
 #endif
-        realType     = "__float128";
-        crealType    = "__float128";
-        complexType  = "__complex128";
-        ccomplexType = "__complex128";
+        calcCrealType    = "__float128";
+        calcCcomplexType = "__complex128";
     }
     else {
-        realType     = "double";
-        crealType    = "double";
-        complexType  = "std::complex<double>";
-        ccomplexType = "double _Complex";
+        calcCrealType    = "double";
+        calcCcomplexType = "double _Complex";
     }
 }
 
@@ -79,10 +75,8 @@ LibraryGenerator::LibraryGenerator(std::string const &t_name,
       IPath({incDir}),
       uniqueParamStruct(true)
 {
-    if (quadruple) {
+    if (quadruple)
         dependencies.addLib("-lquadmath");
-        dependencies.addInclude("quadmath.h", "quadmath.h", true);
-    }
     groups.push_back(std::make_shared<LibraryGroup>("G", true));
     // General, default group
 }
@@ -287,11 +281,6 @@ void LibraryGenerator::cleanExistingSources() const
 
 void LibraryGenerator::print() const
 {
-    if (pythonLibrary and quadruple) {
-        CALL_SMERROR_SPEC(CSLError::NotImplementedError,
-                          "The Python binding does not support quadruple "
-                          "precision.");
-    }
     updateDiagonalization();
     setupDirectory();
     printParamStruct();
@@ -576,7 +565,7 @@ void LibraryGenerator::printDiagonalizationFacility(std::ostream &header,
                 source << '\"' << mass << '\"' << " << \".\\n\";\n";
                 source << indent(1) << "}\n";
                 source << indent(1) << "outputs." << mass << " = ";
-                source << ((quadruple) ? "sqrtq(" : "std::sqrt(");
+                source << "std::sqrt(";
                 source << "outputs." << mass << ");\n";
             }
         }
@@ -593,14 +582,8 @@ void LibraryGenerator::printMassExpressionsFacility(std::ostream &header,
     source << "void updateMassExpressions(param_t &params)\n";
     source << "{\n";
     for (const auto &mass : massExpressions) {
-        if (quadruple) {
-            source << indent(1) << "params." << mass << " = crealq(" << mass
-                   << "(params));\n";
-        }
-        else {
-            source << indent(1) << "params." << mass << " = " << mass
-                   << "(params).real();\n";
-        }
+        source << indent(1) << "params." << mass << " = " << mass
+               << "(params).real();\n";
     }
     source << "}\n\n";
 }
@@ -637,16 +620,14 @@ void LibraryGenerator::printCppHeader() const
     header << "#ifndef CSL_LIB_" << name << "_COMMON_H_INCLUDED\n";
     header << "#define CSL_LIB_" << name << "_COMMON_H_INCLUDED\n";
     header << "#include <complex>\n";
-    if (quadruple)
-        header << "#include <quadmath.h>\n";
     if (needLibraryTensor()) {
         header << "#define CSL_LT_DISABLE_ITERATOR\n";
         header << "#include \"librarytensor.h\"\n";
     }
     header << '\n';
     header << "namespace " << regLibName() << " {\n\n";
-    header << "using " << realUsing << " = " << realType << ";\n";
-    header << "using " << complexUsing << " = " << complexType << ";\n";
+    header << "using " << realUsing << " = double;\n";
+    header << "using " << complexUsing << " = std::complex<double>;\n";
     header << "static constexpr " << complexUsing << " _i_{0, 1};\n\n";
     if (dependencies.containsInclude("clooptools.h")) {
         header << "void setMu(const double mu);\n";
@@ -674,11 +655,9 @@ void LibraryGenerator::printCHeader() const
     cheader << "#include <math.h>\n";
     cheader << "#include <complex.h>\n";
     cheader << "#include <stdbool.h>\n";
-    if (quadruple)
-        cheader << "#include <quadmath.h>\n";
     cheader << '\n';
-    cheader << "typedef " << crealType << " " << crealUsing << ";\n";
-    cheader << "typedef " << ccomplexType << " " << ccomplexUsing << ";\n\n";
+    cheader << "typedef double " << crealUsing << ";\n";
+    cheader << "typedef double _Complex " << ccomplexUsing << ";\n\n";
     cheader << "extern const " << ccomplexUsing << " _mty_I;\n\n";
     cheader << "typedef struct ccomplex_return_s {\n";
     cheader << LibraryGenerator::indent(1) << "creal_t real;\n";
@@ -705,12 +684,8 @@ void LibraryGenerator::printCHeader() const
     csource << "ccomplex_return_t create_ccomplex_return(\n";
     csource << LibraryGenerator::indent(1) << "ccomplex_t value)\n";
     csource << "{\n";
-    if (quadruple)
-        csource << LibraryGenerator::indent(1)
-                << "ccomplex_return_t res = {crealq(value), cimagq(value)};\n";
-    else
-        csource << LibraryGenerator::indent(1)
-                << "ccomplex_return_t res = {creal(value), cimag(value)};\n";
+    csource << LibraryGenerator::indent(1)
+            << "ccomplex_return_t res = {creal(value), cimag(value)};\n";
     csource << LibraryGenerator::indent(1) << "return res;\n";
     csource << "}\n";
     if (dependencies.containsInclude("clooptools.h")) {
@@ -824,7 +799,6 @@ void LibraryGenerator::printMakefile() const
     makefile << " -lgsl -lgslcblas";
     makefile << "\n\n";
     print_libmakefile_data(makefile,
-                           quadruple,
                            STRINGIFY(MARTY_CXX),
                            STRINGIFY(MARTY_CC),
                            optimize,
@@ -1062,7 +1036,12 @@ void LibraryGenerator::printCFunction(LibFunction const &f) const
 
     dependencies.printInclude(source, true);
     source << "#include \"" << nameHeader << "\"\n";
-    source << "#include \"ccommon.h\"\n\n";
+    source << "#include \"ccommon.h\"\n";
+    if (quadruple)
+        source << "#include <quadmath.h>\n";
+    source << "typedef " << calcCrealType << " " << calcCrealUsing << ";\n";
+    source << "typedef " << calcCcomplexType << " " << calcCcomplexUsing
+           << ";\n\n";
     if (uniqueParamStruct)
         source << "#include \"cparams.h\"\n\n";
     f.printExplicitC(source, false);

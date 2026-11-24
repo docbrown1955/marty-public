@@ -49,14 +49,15 @@ class LibraryGenerator {
     };
 
     inline static int nDigits = std::numeric_limits<double>::max_digits10 - 2;
-    inline static std::string realType      = "double";
-    inline static std::string crealType     = "double";
-    inline static std::string complexType   = "std::complex<double>";
-    inline static std::string ccomplexType  = "double _Complex";
     inline static std::string realUsing     = "real_t";
     inline static std::string complexUsing  = "complex_t";
     inline static std::string crealUsing    = "creal_t";
     inline static std::string ccomplexUsing = "ccomplex_t";
+    // Types of the C implementation's local variables, see setQuadruplePrecision
+    inline static std::string calcCrealUsing    = "calc_creal_t";
+    inline static std::string calcCcomplexUsing = "calc_ccomplex_t";
+    inline static std::string calcCrealType     = "double";
+    inline static std::string calcCcomplexType  = "double _Complex";
     inline static std::string tensorUsing   = "csl::LibraryTensor";
     inline static std::string indexType     = "int";
     inline static short       nSpaceIndent  = 4;
@@ -89,6 +90,8 @@ class LibraryGenerator {
     {
         return quadruple;
     }
+    // Quadruple precision only applies to the C implementation's calculations.
+    // Public types and parameters stay double.
     static void setQuadruplePrecision(bool quadruple);
 
     struct DiagonalizationData {
