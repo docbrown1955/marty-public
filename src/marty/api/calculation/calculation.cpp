@@ -132,6 +132,21 @@ std::vector<std::string> diagramParticles(modeling::Amplitude const &amplitude,
     return names;
 }
 
+std::vector<std::string> diagramMediators(modeling::Amplitude const &amplitude,
+                                          std::size_t                index)
+{
+    checkIndex(amplitude, index);
+    auto const &diagram = amplitude.raw().getDiagrams()[index];
+    std::vector<std::string> names;
+    for (auto const &particle : diagram.getParticles()) {
+        auto name = std::string(particle->getName());
+        if (diagram.isMediator(particle)
+            && std::find(names.begin(), names.end(), name) == names.end())
+            names.push_back(name);
+    }
+    return names;
+}
+
 csl::Expr diagramExpression(modeling::Amplitude const &amplitude,
                             std::size_t                index)
 {

@@ -216,6 +216,11 @@ class Diagram:
         return tuple(self._native.diagram_particles(self._index))
 
     @property
+    def mediators(self) -> tuple[str, ...]:
+        """Names of the mediator particles of the diagram, each listed once."""
+        return tuple(self._native.diagram_mediators(self._index))
+
+    @property
     def expression(self) -> Expr:
         """Symbolic value of the diagram."""
         return self._native.diagram_expression(self._index)
@@ -237,6 +242,15 @@ class Amplitude:
             Diagram(self._native, index)
             for index in range(self._native.diagram_count())
         )
+
+    def filter(self, predicate: Callable[[Diagram], bool]) -> Amplitude:
+        """Copy of the amplitude keeping only the diagrams where the predicate holds.
+
+        The amplitude itself is not changed. Use it to build subsets, then
+        pass them to ``compute_squared_amplitude``.
+        """
+        keep = [diagram.index for diagram in self.diagrams if predicate(diagram)]
+        return Amplitude(self._native.select(keep))
 
     def display(self) -> str:
         """Printed form of every diagram expression, one per line."""

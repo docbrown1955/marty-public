@@ -185,6 +185,10 @@ class Amplitude {
     /// Number of Feynman diagrams of the amplitude.
     std::size_t diagramCount() const;
 
+    /// Copy of the amplitude keeping only the diagrams at \b indices
+    /// (LookupError if one is out of range).
+    Amplitude select(std::vector<std::size_t> const &indices) const;
+
     mty::Amplitude const &raw() const
     {
         return *m_amplitude;
@@ -250,6 +254,14 @@ class Model {
 
     /// Diagonalizes the bosonic and fermionic mass matrices where possible.
     void diagonalizeMassMatrices();
+
+    /// Replaces a Yukawa coupling by its diagonal form, with the given
+    /// diagonal entries (global factors included). If mixing is set, the
+    /// mixed particles are rotated with it.
+    void diagonalizeYukawa(std::string const            &yukawa,
+                           std::vector<csl::Expr> const &diagonal,
+                           csl::Tensor const            &mixing,
+                           std::vector<Particle> const  &mixed);
 
     /// Turns the mass coefficient of a particle into a named symbol
     /// (m_<name>).

@@ -219,10 +219,14 @@ Deviations and open points, decided during implementation:
   one-loop amplitudes as in the C++) and `NLepto` (toy model `pymarty.modeling.models.nlepto`, tree-level
   processes; the full process loop is marked `slow`). The physical heavy neutrinos are the `N1..N6` states:
   the Weyl halves `N_k_L`/`N_k_R` are excluded by name.
-  Not ported, with reasons: `SM_2IDM` needs a Python binding for `Model::diagonalizeYukawa` (CKM-rotated Yukawa
-  diagonalisation with the particle list), a Dirac charge-conjugation matrix helper (`DiracCMatrix`), and a
-  one-loop LFV amplitude check; it also uses `Library`, which is phase 6. `EWGauge` is quad-precision and
-  needs subset squared amplitudes. The MSSM, PMSSM and NMFV variants are out of scope.
+  Also ported: `SM_2IDM` (toy model `pymarty.modeling.models.sm_2idm`, one-loop `mu -> e Z`; the
+  `Library` tail is phase 6) and `EWGauge` (tree-level `W Z -> W Z` on the SM, with the total, no-Higgs,
+  triple-gauge and quartic subsets squared; the quad-precision library and numerical checks are phase 6).
+  The MSSM, PMSSM and NMFV variants are out of scope.
 - New bindings added for these ports: `Model.get_generator(group, field)` (C++ `Model::getGenerator`),
-  `renamed_indices(expr)` (C++ `renamedIndices`), and the `rotate_fields(particles, *, diagonalize_masses,
-  n_mass_less_fields)` overload taking particles (facade `Model::rotateFields(std::vector<Particle>, bool, int)`).
+  `renamed_indices(expr)` (C++ `renamedIndices`), the `rotate_fields(particles, *, diagonalize_masses,
+  n_mass_less_fields)` overload taking particles (facade `Model::rotateFields(std::vector<Particle>, bool, int)`),
+  `Model.diagonalize_yukawa(yukawa, diagonal, mixing, mixed)` (facade `Model::diagonalizeYukawa`),
+  `Amplitude.select(indices)` (facade `Amplitude::select`, a copy keeping the given diagrams with the same
+  options), `Diagram.mediators` (C++ `diagramMediators`) and `Amplitude.filter(predicate)`, which is built on
+  `select`. `compute_squared_amplitude` accepts any of these subsets.

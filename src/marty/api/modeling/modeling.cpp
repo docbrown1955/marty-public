@@ -292,6 +292,23 @@ std::size_t Amplitude::diagramCount() const
     return m_amplitude->getDiagrams().size();
 }
 
+Amplitude Amplitude::select(std::vector<std::size_t> const &indices) const
+{
+    auto const &diagrams = m_amplitude->getDiagrams();
+    std::vector<bool> keep(diagrams.size(), false);
+    for (auto index : indices) {
+        if (index >= diagrams.size())
+            throw LookupError("Diagram index " + std::to_string(index)
+                              + " is out of range.");
+        keep[index] = true;
+    }
+    auto const *first = diagrams.data();
+    return Amplitude(m_amplitude->filterOut(
+        [&](mty::FeynmanDiagram const &diagram) {
+            return keep[&diagram - first];
+        }));
+}
+
 Model::Model(std::vector<GaugeGroup> const  &gauge,
              std::vector<FlavorGroup> const &flavor)
     : m_state(std::make_shared<detail::ModelState>())
@@ -565,6 +582,19 @@ void Model::replace(csl::Tensor const &oldTensor,
         Session     session(m_state->core.get());
         csl::Tensor tensor = oldTensor;
         m_state->core->replace(tensor, newExpression);
+    });
+}
+
+void Model::diagonalizeYukawa(std::string const            &yukawa,
+                              std::vector<csl::Expr> const &diagonal,
+                              csl::Tensor const            &mixing,
+                              std::vector<Particle> const  &mixed)
+{
+    checkOpen(*m_state, "diagonalize a Yukawa coupling");
+    guarded([&] {
+        Session session(m_state->core.get());
+        m_state->core->diagonalizeYukawa(
+            yukawa, diagonal, mixing, rawParticles(mixed));
     });
 }
 

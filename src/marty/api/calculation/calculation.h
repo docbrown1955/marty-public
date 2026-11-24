@@ -42,6 +42,11 @@ std::string displayAmplitude(modeling::Amplitude const &amplitude);
 std::vector<std::string> diagramParticles(modeling::Amplitude const &amplitude,
                                           std::size_t                index);
 
+/// Names of the mediator particles of diagram \b index (LookupError if out of
+/// range).
+std::vector<std::string> diagramMediators(modeling::Amplitude const &amplitude,
+                                          std::size_t                index);
+
 /// Expression of diagram \b index (LookupError if out of range).
 csl::Expr diagramExpression(modeling::Amplitude const &amplitude,
                             std::size_t                index);

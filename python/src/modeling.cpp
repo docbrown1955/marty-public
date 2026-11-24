@@ -621,6 +621,30 @@ void bindModeling(py::module_ &m)
         .def("diagonalize_mass_matrices",
              &modeling::Model::diagonalizeMassMatrices,
              "Diagonalizes the mass matrices of the model where possible.")
+        .def(
+            "diagonalize_yukawa",
+            [](modeling::Model                          &self,
+               std::string const                        &yukawa,
+               std::vector<ExprHandle> const            &diagonal,
+               std::optional<TensorHandle> const        &mixing,
+               std::vector<modeling::Particle> const    &mixed) {
+                std::vector<csl::Expr> entries;
+                entries.reserve(diagonal.size());
+                for (auto const &entry : diagonal)
+                    entries.push_back(entry.raw());
+                self.diagonalizeYukawa(
+                    yukawa,
+                    entries,
+                    mixing ? mixing->raw() : csl::Tensor(),
+                    mixed);
+            },
+            py::arg("yukawa"),
+            py::arg("diagonal"),
+            py::arg("mixing") = py::none(),
+            py::arg("mixed") = std::vector<modeling::Particle>{},
+            "Replaces the Yukawa coupling by its diagonal form, with the "
+            "diagonal entries (global factors included). If mixing is given, "
+            "the mixed particles are rotated with it.")
         .def("gather_mass",
              &modeling::Model::gatherMass,
              py::arg("particle"),

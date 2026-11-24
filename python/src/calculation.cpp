@@ -142,6 +142,14 @@ void bindCalculation(py::module_ &m)
              &mty::api::calculation::diagramParticles,
              py::arg("index"),
              "Names of the particles of the diagram at index.")
+        .def("diagram_mediators",
+             &mty::api::calculation::diagramMediators,
+             py::arg("index"),
+             "Names of the mediator particles of the diagram at index.")
+        .def("select",
+             &Amplitude::select,
+             py::arg("indices"),
+             "Copy of the amplitude keeping only the diagrams at indices.")
         .def(
             "diagram_expression",
             [](Amplitude const &self, std::size_t index) {
