@@ -48,6 +48,14 @@ class Library : public csl::LibraryGenerator {
         }
     }
 
+    void setQuadruplePrecision(bool t_quadruple)
+    {
+        csl::LibraryGenerator::setQuadruplePrecision(t_quadruple);
+        dependencies.removeLib("-looptools");
+        dependencies.removeLib("-looptools-quad");
+        addLibrary(t_quadruple ? "-looptools-quad" : "-looptools");
+    }
+
     void applyDiagonalizationData(Model &model)
     {
         model.applyDiagonalizationData(*this);

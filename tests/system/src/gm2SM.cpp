@@ -40,8 +40,8 @@ int main()
 
     auto rules = sm.getFeynmanRules();
 
-    mty::Library::setQuadruplePrecision(true);
     mty::Library lib("gm2SM", "libs");
+    lib.setQuadruplePrecision(true);
     lib.cleanExistingSources();
 
     FeynOptions options;

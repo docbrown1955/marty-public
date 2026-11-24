@@ -127,8 +127,9 @@ Quad precision (EWGauge), MARTY plugins, GRAFED, Fortran/LoopTools tuning, packa
 
 Quadruple precision is removed from every public interface: the C, C++ and Python APIs and the parameter structs
 are double-only. It stays as an option of the C implementation of generated libraries
-(`LibraryGenerator::setQuadruplePrecision`, which sets a static flag): the C calculation files use `__float128` and
-`__complex128` internally and return double values.
+(instance method `setQuadruplePrecision(bool)` of `LibraryGenerator`, and of `mty::Library` which also switches the
+LoopTools link flags): the C calculation files use `__float128` and `__complex128` internally and return double
+values. Integer and real literals in the quad C code carry the `Q` suffix. Real `abs` prints `fabs`/`fabsq`.
 
 For MARTY consumers, this is a breaking change for C++ code that used quadruple types or
 `setQuadruplePrecision` on the C++ path. Its effect is:
@@ -136,6 +137,8 @@ For MARTY consumers, this is a breaking change for C++ code that used quadruple 
 - The internal headers `libcomplexop.h` and `libdiagonalization.h` (dead copies with quad types) are removed. The
   generator writes headers from the `*_hdata.h` sources.
 - `setQuadruplePrecision(true)` still needs a build with `MARTY_QUADRUPLE_ENABLED`.
+- The global `setQuadruplePrecision` call is replaced by the library instance method
+  (`lib.setQuadruplePrecision(true)`), called after the library is constructed. Examples and tests are migrated.
 
 This entry is for the next release CHANGELOG. There is no CHANGELOG file in the repository yet.
 

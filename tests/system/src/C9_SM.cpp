@@ -214,8 +214,8 @@ int main()
     SM.getParticle("u")->setEnabledInDiagrams(false);
     SM.getParticle("c")->setEnabledInDiagrams(false);
 
-    Library::setQuadruplePrecision(true);
     Library lib("C9_SM", "libs");
+    lib.setQuadruplePrecision(true);
     getC9BZ(SM, lib);
     getC9A(SM, lib);
     getC9Tot(SM, lib);

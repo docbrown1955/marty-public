@@ -72,8 +72,8 @@ int main() {
     Expr CC7   = OperatorParser::getMagneticCoefficient(wilsonC7, Chirality::Right);
     Expr CC7p  = OperatorParser::getMagneticCoefficient(wilsonC7, Chirality::Left);
 
-    csl::Library::setQuadruplePrecision(false);
     mty::Library wilsonLib("C7_SM", ".", false);
+    wilsonLib.setQuadruplePrecision(false);
     wilsonLib.addFunction("C7", CC7);
     wilsonLib.addFunction("C7_p", CC7p);
     wilsonLib.build();

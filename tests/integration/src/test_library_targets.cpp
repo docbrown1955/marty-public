@@ -39,19 +39,6 @@ std::string targetName(::testing::TestParamInfo<Targets> const &info)
 
 using FunctionBuilder = std::function<void(csl::LibraryGenerator &)>;
 
-// Scoped switch of the quadruple precision option of the C implementation.
-class QuadScope {
-  public:
-    explicit QuadScope(bool quad)
-    {
-        csl::LibraryGenerator::setQuadruplePrecision(quad);
-    }
-    ~QuadScope()
-    {
-        csl::LibraryGenerator::setQuadruplePrecision(false);
-    }
-};
-
 std::string runCommand(std::string const &cmd)
 {
     std::string output;
@@ -73,12 +60,12 @@ fs::path generate(std::string const &name,
                   bool               quad,
                   FunctionBuilder    addFunctions)
 {
-    QuadScope scope(quad);
-    fs::path  root = fs::absolute(fs::path("libs") / "integration");
+    fs::path root = fs::absolute(fs::path("libs") / "integration");
     fs::path  dir  = root / name;
     fs::remove_all(dir);
 
     csl::LibraryGenerator lib(name, root.string());
+    lib.setQuadruplePrecision(quad);
     lib.setCppLibrary(targets.cpp);
     lib.setPythonLibrary(targets.python);
     lib.addIPath(LT_STRINGIFY(MARTY_INCLUDE_PATH));

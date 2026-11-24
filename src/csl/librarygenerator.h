@@ -92,7 +92,7 @@ class LibraryGenerator {
     }
     // Quadruple precision only applies to the C implementation's calculations.
     // Public types and parameters stay double.
-    static void setQuadruplePrecision(bool quadruple);
+    void setQuadruplePrecision(bool quadruple);
 
     struct DiagonalizationData {
         std::vector<std::string> mixings;

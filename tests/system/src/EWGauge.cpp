@@ -33,8 +33,8 @@ int main()
     auto M2V4  = sm.computeSquaredAmplitude(V4);
     auto M2W   = sm.computeSquaredAmplitude(noHiggs);
 
-    Library::setQuadruplePrecision(true);
     Library lib("EWGauge", "libs");
+    lib.setQuadruplePrecision(true);
     lib.cleanExistingSources();
     lib.setOptimization(false);
     lib.addFunction("M2_tot", M2tot);

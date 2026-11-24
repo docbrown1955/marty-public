@@ -57,8 +57,8 @@ int main()
         chromoMagneticOperator(pmssm_model, wilsonC7, DiracCoupling::L));
 
     [[maybe_unused]] int sysres = system("rm -r libs/C7_PMSSM");
-    mty::Library::setQuadruplePrecision(true);
     mty::Library wilsonLib("C7_PMSSM", "libs");
+    wilsonLib.setQuadruplePrecision(true);
     wilsonLib.addFunction("C7", CC7);
     wilsonLib.addFunction("C7_p", CC7p);
     wilsonLib.generateSpectrum(pmssm_model);

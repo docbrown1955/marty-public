@@ -97,15 +97,14 @@ IMPLEMENT_PRINT_CODE(Factorial, factorial_s)
 
 void Abs::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (libMode == LibraryMode::CLib
-        and LibraryGenerator::isQuadruplePrecision())
-        out << "cabsq(";
-    else if (libMode == LibraryMode::CppLib)
+    bool quad = libMode == LibraryMode::CLib
+                and LibraryGenerator::isQuadruplePrecision();
+    if (libMode == LibraryMode::CppLib)
         out << "std::abs(";
     else if (libMode == LibraryMode::CLib && argument->isReal())
-        out << "abs(";
+        out << (quad ? "fabsq(" : "fabs(");
     else if (libMode == LibraryMode::CLib)
-        out << "cabs(";
+        out << (quad ? "cabsq(" : "cabs(");
     else
         out << "abs(";
     argument->print(1, out, libMode);

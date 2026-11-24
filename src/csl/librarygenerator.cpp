@@ -51,14 +51,15 @@ namespace csl {
 
 void LibraryGenerator::setQuadruplePrecision(bool t_quadruple)
 {
-    quadruple = t_quadruple;
-    if (quadruple) {
 #if !(defined MARTY_QUADRUPLE_ENABLED) || !(MARTY_QUADRUPLE_ENABLED)
+    if (t_quadruple)
         CALL_SMERROR_SPEC(CSLError::NotImplementedError,
                           "The quadruple precision cannot be used because it "
                           "has "
                           "been disabled during the compilation of MARTY.");
 #endif
+    quadruple = t_quadruple;
+    if (quadruple) {
         calcCrealType    = "__float128";
         calcCcomplexType = "__complex128";
     }
@@ -66,6 +67,9 @@ void LibraryGenerator::setQuadruplePrecision(bool t_quadruple)
         calcCrealType    = "double";
         calcCcomplexType = "double _Complex";
     }
+    dependencies.removeLib("-lquadmath");
+    if (quadruple)
+        dependencies.addLib("-lquadmath");
 }
 
 LibraryGenerator::LibraryGenerator(std::string const &t_name,
@@ -75,8 +79,9 @@ LibraryGenerator::LibraryGenerator(std::string const &t_name,
       IPath({incDir}),
       uniqueParamStruct(true)
 {
-    if (quadruple)
-        dependencies.addLib("-lquadmath");
+    // The quadruple flag is process-wide for the print functions, so each
+    // new library starts in double precision until its setter is called.
+    setQuadruplePrecision(false);
     groups.push_back(std::make_shared<LibraryGroup>("G", true));
     // General, default group
 }

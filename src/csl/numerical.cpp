@@ -310,14 +310,18 @@ void Integer::setValue(long double t_value)
     value = round(t_value);
 }
 
-void Integer::print(int mode, std::ostream &out, LibraryMode) const
+void Integer::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
+    // Integers are also quad literals in the quad C implementation
+    std::string text = std::to_string(value);
+    if (libMode == LibraryMode::CLib and LibraryGenerator::isQuadruplePrecision())
+        text += ".0Q";
     if (mode == 0)
-        out << value << endl;
+        out << text << endl;
     else if (mode > 1 and value < 0)
-        out << "(" << value << ")";
+        out << "(" << text << ")";
     else
-        out << value;
+        out << text;
     printProp(out);
 }
 
