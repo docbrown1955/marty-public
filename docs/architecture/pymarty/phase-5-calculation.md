@@ -230,3 +230,32 @@ Deviations and open points, decided during implementation:
   `Amplitude.select(indices)` (facade `Amplitude::select`, a copy keeping the given diagrams with the same
   options), `Diagram.mediators` (C++ `diagramMediators`) and `Amplitude.filter(predicate)`, which is built on
   `select`. `compute_squared_amplitude` accepts any of these subsets.
+
+### Findings and remaining work (end of phase 5)
+
+Every in-scope C++ system test is ported, except the ones listed below. The MSSM, PMSSM and NMFV tests
+(`C7_PMSSM`, `C8_PMSSM`, `C9_MSSM`, `gm2PMSSM`, `test_fullMSSM`) are out of scope.
+
+Blocked on missing Python APIs (not ported):
+
+- `simpleSpectrum`: the model builds with bound calls (`break_gauge_symmetry`, `rename_particle`,
+  `promote_to_goldstone`, `replace`, `refresh`, `set_self_conjugate`). It needs `Library.generateSpectrum`
+  and a scalar-coupling getter (`getScalarCoupling`), neither of which is bound. Its check compares numbers
+  against `data/output/simplespectrum.txt`, so the comparison part is phase 6.
+- `testModelWidth`: needs a model width API.
+- `FItests`: needs a Python API for vector integrals and Feynman integral reduction.
+- `BsMixingSM`, `BsMixingVLQ_*`, `C9_SM`, `wilsons_GTHDM`: need the dimension-6 operator API.
+- `gm2SM`: needs the `isInLoop` predicate filter.
+
+Scheduled for later phases: `Bgenesis`, `freeQuarkAmplitudes`, `vectorlike` and `test_lha_reader` (phase 7),
+`comparedata` (phase 6).
+
+Open points:
+
+- `C7_SM` and `C8_SM`: the Wilson coefficients evaluate to `0` in Python. The cause is not established, and
+  the tests only assert that the result is an `Expr`.
+- `SM_2IDM` and `EWGauge`: the `_square` helper in `sm_2idm.py` is `expr * renamed_indices(expr)`. It matches
+  the C++ intent (`pow_s(X, 2)` on an index-summed expression), but its symbolic output has not been compared
+  with the C++ result. The tests check the form only.
+- `SM_2IDM`: the test checks that diagrams exist, not their content.
+- `add_amplitude` in Python asserts that the amplitude is non-empty. C++ skips empty amplitudes.
