@@ -26,6 +26,7 @@
 #define MTY_API_CALCULATION_CALCULATION_H_INCLUDED
 
 #include "../../../csl/api/expr.h"
+#include "../../core/wilson.h"
 #include "../modeling/modeling.h"
 
 #include <cstddef>
@@ -53,6 +54,35 @@ bool getOption(std::string const &name);
 
 /// Sets a global option (ValueError for an unknown name).
 void setOption(std::string const &name, bool value);
+
+/// Wilson coefficients of an amplitude, read by operator.
+class WilsonSet {
+  public:
+    explicit WilsonSet(mty::WilsonSet wilsons);
+
+    /// Coefficient of the sum of the operators, given as expressions.
+    csl::Expr coefficient(std::vector<csl::Expr> const &operators) const;
+
+    mty::WilsonSet const &raw() const
+    {
+        return m_wilsons;
+    }
+
+  private:
+    mty::WilsonSet m_wilsons;
+};
+
+/// Wilson coefficients of \b amplitude, with \b operatorCoefficient as the
+/// overall factor of every operator.
+WilsonSet wilsonCoefficients(modeling::Model const     &model,
+                             modeling::Amplitude const &amplitude,
+                             csl::Expr const           &operatorCoefficient);
+
+/// Expressions of the chromomagnetic operator with the given Dirac coupling
+/// (S, P, L, R, V, A, VL, VR, T, TA, TL or TR, ValueError otherwise).
+std::vector<csl::Expr> chromoMagneticOperator(modeling::Model const &model,
+                                              WilsonSet const       &wilsons,
+                                              std::string const     &coupling);
 
 } // namespace mty::api::calculation
 

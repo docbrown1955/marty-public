@@ -599,6 +599,7 @@ class modeling:
         @staticmethod
         def generate_minkowski_index(name: str = "mu") -> Index: ...
         def vector_space(self, flavor: str) -> Space: ...
+        def get_generator(self, group: str, field: str) -> Tensor: ...
 
         # Masses
         def add_bosonic_mass(self, field: modeling.Particle, mass: Expr) -> None: ...
@@ -644,6 +645,14 @@ class modeling:
         def rotate_fields(
             self,
             fields: list[modeling.Particle],
+            *,
+            diagonalize_masses: bool = False,
+            n_mass_less_fields: int = 0,
+        ) -> None: ...
+        @overload
+        def rotate_fields(
+            self,
+            fields: list[modeling.Particle],
             new_fields: list[modeling.Particle],
             rotation: list[list[Expr]],
             diagonalize_masses: bool = False,
@@ -680,6 +689,8 @@ class modeling:
     def dirac_P_R(a: Index, b: Index) -> Expr: ...
     @staticmethod
     def dirac_C(a: Index, b: Index) -> Expr: ...
+    @staticmethod
+    def renamed_indices(expr: Expr) -> Expr: ...
 
 class calculation:
     class Order(enum.Enum):
@@ -722,6 +733,17 @@ class calculation:
     def compute_squared_amplitude(
         model: object, left: Amplitude, right: Amplitude
     ) -> Expr: ...
+    class WilsonSet:
+        def coefficient(self, operators: Sequence[Expr]) -> Expr: ...
+
+    @staticmethod
+    def wilson_coefficients(
+        model: object, amplitude: Amplitude, operator_coefficient: Expr
+    ) -> WilsonSet: ...
+    @staticmethod
+    def chromo_magnetic_operator(
+        model: object, wilsons: WilsonSet, coupling: builtins.str
+    ) -> list[Expr]: ...
     @staticmethod
     def option_names() -> list[builtins.str]: ...
     @staticmethod

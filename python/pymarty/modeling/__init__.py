@@ -32,6 +32,7 @@ dirac_sigma = _core.dirac_sigma
 dirac_P_L = _core.dirac_P_L
 dirac_P_R = _core.dirac_P_R
 dirac_C = _core.dirac_C
+renamed_indices = _core.renamed_indices
 
 
 __all__ = [
@@ -46,4 +47,5 @@ __all__ = [
     "dirac_gamma",
     "dirac_gamma5",
     "dirac_sigma",
+    "renamed_indices",
 ]

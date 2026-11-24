@@ -611,6 +611,13 @@ void bindModeling(py::module_ &m)
              py::arg("flavor"),
              "Index space of a flavor group, to build tensors on, for example "
              "Yukawa couplings.")
+        .def("get_generator",
+             &modeling::Model::getGenerator,
+             py::arg("group"),
+             py::arg("field"),
+             "Generator of a gauge group in the representation of a field, "
+             "as a tensor with the adjoint index first (for example the Pauli "
+             "matrices for an SU(2) doublet).")
         .def("diagonalize_mass_matrices",
              &modeling::Model::diagonalizeMassMatrices,
              "Diagonalizes the mass matrices of the model where possible.")
@@ -769,6 +776,19 @@ void bindModeling(py::module_ &m)
             py::arg("n_mass_less_fields") = 0,
             "Rotates the fields named in fields into new particles named in "
             "new_fields, with a unitary matrix given as rows of expressions.")
+        .def(
+            "rotate_fields",
+            [](modeling::Model                       &self,
+               std::vector<modeling::Particle> const &fields,
+               bool                                   diagonalize,
+               int                                    nMassLess) {
+                self.rotateFields(fields, diagonalize, nMassLess);
+            },
+            py::arg("fields"),
+            py::arg("diagonalize_masses") = false,
+            py::arg("n_mass_less_fields") = 0,
+            "Diagonalizes the mass matrix of fields among themselves, without "
+            "an explicit rotation matrix.")
         .def("birotate_fields",
              &modeling::Model::birotateFields,
              py::arg("fields1"),
@@ -861,6 +881,14 @@ void bindModeling(py::module_ &m)
         py::arg("a"),
         py::arg("b"),
         "Chirality matrix gamma^5, with Dirac indices a, b.");
+    mod.def(
+        "renamed_indices",
+        [](ExprHandle const &expr) {
+            return ExprHandle(modeling::renamedIndices(expr.raw()));
+        },
+        py::arg("expr"),
+        "Copy of expr whose dummy indices are renamed to fresh ones, so that "
+        "it can be multiplied by itself without clashing dummy indices.");
     mod.def(
         "dirac_sigma",
         [](py::handle mu, py::handle nu, py::handle a, py::handle b) {

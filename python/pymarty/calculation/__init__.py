@@ -21,7 +21,6 @@ from pymarty._pymarty import calculation as _core
 from pymarty._pymarty import modeling as _modeling
 from pymarty.errors import (
     MartyLookupError,
-    MartyNotImplementedError,
     MartyStateError,
     MartyTypeError,
 )
@@ -261,7 +260,7 @@ def compute_amplitude(
     kinematics: Sequence[int] | None = None,
     options: FeynOptions | None = None,
 ) -> Amplitude:
-    """Tree-level amplitude of the external legs of a finalized model.
+    """Tree-level or one-loop amplitude of the external legs of a finalized model.
 
     ``kinematics`` gives one distinct positive momentum index per insertion,
     in the order of ``insertions``; ``None`` keeps the default indices
@@ -272,8 +271,6 @@ def compute_amplitude(
     'compute_amplitude'
     """
     _check_finalized(model)
-    if order == Order.ONE_LOOP:
-        raise MartyNotImplementedError("one-loop amplitudes are not available yet")
     options = options or FeynOptions()
     _check_particle_names(
         model,
@@ -319,6 +316,38 @@ def compute_squared_amplitude(
     if other is None:
         return _core.compute_squared_amplitude(model, amplitude._native)
     return _core.compute_squared_amplitude(model, amplitude._native, other._native)
+
+
+WilsonSet = _core.WilsonSet
+
+
+def wilson_coefficients(
+    model: Any, amplitude: Amplitude, operator_coefficient: Expr | None = None
+) -> WilsonSet:
+    """Wilson coefficients of a one-loop amplitude, by operator.
+
+    ``operator_coefficient`` multiplies every operator (default 1). Read a
+    coefficient with ``WilsonSet.coefficient``; the chromomagnetic operators
+    come from ``chromo_magnetic_operator``.
+
+    >>> from pymarty.calculation import wilson_coefficients
+    >>> wilson_coefficients.__name__
+    'wilson_coefficients'
+    """
+    _check_finalized(model)
+    factor = operator_coefficient if operator_coefficient is not None else Expr(1)
+    return _core.wilson_coefficients(model, amplitude._native, factor)
+
+
+def chromo_magnetic_operator(
+    model: Any, wilsons: WilsonSet, coupling: str
+) -> list[Expr]:
+    """Operators of the chromomagnetic dipole with the given Dirac coupling.
+
+    ``coupling`` is one of S, P, L, R, V, A, VL, VR, T, TA, TL or TR.
+    """
+    _check_finalized(model)
+    return _core.chromo_magnetic_operator(model, wilsons, coupling)
 
 
 def select_diagrams(

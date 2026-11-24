@@ -473,6 +473,20 @@ csl::api::SpaceHandle Model::vectorSpace(std::string const &flavor) const
         std::shared_ptr<csl::Space const>(m_state, space));
 }
 
+csl::api::TensorHandle Model::getGenerator(std::string const &group,
+                                           std::string const &field) const
+{
+    auto generator = guarded([&] {
+        Session session(m_state->core.get());
+        return m_state->core->getGenerator(group, field);
+    });
+    csl::Tensor tensor(generator);
+    std::vector<csl::api::SpaceHandle> spaces;
+    for (auto const *space : tensor->getSpace())
+        spaces.emplace_back(std::shared_ptr<csl::Space const>(m_state, space));
+    return csl::api::TensorHandle(tensor, std::move(spaces));
+}
+
 void Model::diagonalizeMassMatrices()
 {
     checkOpen(*m_state, "diagonalize the mass matrices");
@@ -568,6 +582,18 @@ void Model::rotateFields(std::vector<Particle> const               &fields,
                                     rotation,
                                     diagonalizeMasses,
                                     nMassLessFields);
+    });
+}
+
+void Model::rotateFields(std::vector<Particle> const &fields,
+                         bool                         diagonalizeMasses,
+                         int                          nMassLessFields)
+{
+    checkOpen(*m_state, "rotate fields");
+    guarded([&] {
+        Session session(m_state->core.get());
+        m_state->core->rotateFields(
+            rawParticles(fields), diagonalizeMasses, nMassLessFields);
     });
 }
 
@@ -1010,6 +1036,11 @@ csl::Expr diracPR(csl::Index const &a, csl::Index const &b)
 csl::Expr diracC(csl::Index const &a, csl::Index const &b)
 {
     return guarded([&] { return DiracCMatrix()({a, b}); });
+}
+
+mty::Model &coreModel(Model const &model)
+{
+    return *model.m_state->core;
 }
 
 } // namespace mty::api::modeling

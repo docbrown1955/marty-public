@@ -7,23 +7,26 @@ from pymarty.calculation import (
     FeynOptions,
     Insertion,
     Order,
+    WilsonSet,
     anti,
+    chromo_magnetic_operator,
     compute_amplitude,
     compute_feynman_rules,
     compute_squared_amplitude,
     incoming,
     outgoing,
     set_options,
+    wilson_coefficients,
 )
 from pymarty.errors import (
     MartyLookupError,
-    MartyNotImplementedError,
     MartyStateError,
     MartyTypeError,
     MartyValueError,
 )
 from pymarty.group_theory import U
 from pymarty.modeling import GaugeGroup, Model
+from pymarty.modeling.models.qcd import QCD
 from pymarty.modeling.models.qed import QED
 from pymarty.symbolic import constant
 
@@ -33,6 +36,11 @@ PSI = "\\psi"
 @pytest.fixture(scope="module")
 def qed() -> QED:
     return QED()
+
+
+@pytest.fixture(scope="module")
+def qcd() -> QCD:
+    return QCD()
 
 
 def _compton() -> list[Insertion]:
@@ -47,9 +55,11 @@ def test_unfinalized_model_is_refused() -> None:
         compute_amplitude(open_model, Order.TREE, _compton())
 
 
-def test_one_loop_is_not_implemented_yet(qed: QED) -> None:
-    with pytest.raises(MartyNotImplementedError):
-        compute_amplitude(qed, Order.ONE_LOOP, _compton())
+def test_one_loop_adds_diagrams_to_tree_level(qed: QED) -> None:
+    tree = compute_amplitude(qed, Order.TREE, _compton())
+    loop = compute_amplitude(qed, Order.ONE_LOOP, _compton())
+    assert len(tree.diagrams) > 0
+    assert len(loop.diagrams) > len(tree.diagrams)
 
 
 def test_topology_name_is_case_insensitive(qed: QED) -> None:
@@ -158,3 +168,29 @@ def test_scalar_qed_phi_phi_to_two_photons_has_three_tree_diagrams() -> None:
     )
     assert len(amplitude.diagrams) == 3
     assert all(d.particles.count("A") == 1 for d in amplitude.diagrams)
+
+
+@pytest.mark.slow
+def test_wilson_coefficients_of_one_loop_amplitude_return_a_set(qcd: QCD) -> None:
+    amplitude = compute_amplitude(
+        qcd,
+        Order.ONE_LOOP,
+        [incoming("u"), incoming("G"), outgoing("u"), outgoing("G")],
+    )
+    wilsons = wilson_coefficients(qcd, amplitude)
+    assert isinstance(wilsons, WilsonSet)
+    assert isinstance(chromo_magnetic_operator(qcd, wilsons, "T"), list)
+
+
+@pytest.mark.slow
+def test_unknown_dirac_coupling_is_value_error(qcd: QCD) -> None:
+    wilsons = wilson_coefficients(
+        qcd,
+        compute_amplitude(
+            qcd,
+            Order.ONE_LOOP,
+            [incoming("u"), incoming("G"), outgoing("u"), outgoing("G")],
+        ),
+    )
+    with pytest.raises(MartyValueError):
+        chromo_magnetic_operator(qcd, wilsons, "XX")

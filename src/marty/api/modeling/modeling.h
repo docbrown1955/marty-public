@@ -243,6 +243,11 @@ class Model {
     /// Index space of a flavor group, to build tensors on (e.g. Yukawas).
     csl::api::SpaceHandle vectorSpace(std::string const &flavor) const;
 
+    /// Generator of a gauge group in the representation of a field: a tensor
+    /// with the adjoint space and the field representation space(s).
+    csl::api::TensorHandle getGenerator(std::string const &group,
+                                        std::string const &field) const;
+
     /// Diagonalizes the bosonic and fermionic mass matrices where possible.
     void diagonalizeMassMatrices();
 
@@ -278,6 +283,12 @@ class Model {
                       std::vector<std::vector<csl::Expr>> const &rotation,
                       bool diagonalizeMasses = false,
                       int  nMassLessFields   = 0);
+
+    /// Diagonalizes the mass matrix of the fields among themselves, without
+    /// an explicit rotation matrix.
+    void rotateFields(std::vector<Particle> const &fields,
+                      bool                         diagonalizeMasses,
+                      int                          nMassLessFields = 0);
 
     /// Rotates fields given by name; the new fields are created like the
     /// first field, under the names newFields.
@@ -389,11 +400,16 @@ class Model {
     /// Space-separated particle names, for printing.
     std::string describe() const;
 
+    friend mty::Model &coreModel(Model const &model);
+
   private:
     explicit Model(std::shared_ptr<detail::ModelState> state);
 
     std::shared_ptr<detail::ModelState> m_state;
 };
+
+/// Core model behind a Model, for the calculation facade only.
+mty::Model &coreModel(Model const &model);
 
 /// Fresh Dirac index, named if name is not empty.
 csl::Index diracIndex(std::string const &name = "");

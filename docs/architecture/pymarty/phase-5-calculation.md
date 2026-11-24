@@ -14,7 +14,7 @@ deliverable. It may be drafted earlier, in parallel with Phase 4.
 
 In scope, calculation:
 - Insertions: `incoming`, `outgoing`, `anti`, chirality helpers `left`/`right` (as in `Incoming(Left("e"))`).
-- `Order` (`TreeLevel` now, `OneLoop` accepted by the API but its use is validated in Phase 7), `FeynOptions` as
+- `Order` (`TREE` and `ONE_LOOP`, both passed to the core), `FeynOptions` as
   a plain data object (topology, filters, fermion order and the other fields of `feynOptions.h` that
   tree-level examples use), the global `mty::option::*` flags exposed as a validated `set_options(...)`
   context manager.
@@ -36,8 +36,8 @@ In scope, visualization (module `pymarty.visualization`):
 - C++ JSON export of diagrams and Feynman rules without GUI and without process launch.
 - Safe GRAFED launcher and locator.
 
-Out of scope: Wilson coefficients and widths (Phase 7), loops (Phase 7), library generation and
-usage (Phase 6), notebook inline rendering (Phase 8).
+Out of scope: library generation and usage (Phase 6), quad precision and LHA input (Phase 7),
+notebook inline rendering (Phase 8).
 
 ## 2. Work packages
 
@@ -182,7 +182,7 @@ GRAFED export, spike record for `LatexLinker`.
 
 ## 8. Status and deviations from the approved spec
 
-Tree-level calculation, visualization and the example ports are implemented; one-loop is deferred to phase 7.
+Tree-level and one-loop amplitude calculation, Wilson coefficient extraction (`wilson_coefficients`, `WilsonSet.coefficient`, `chromo_magnetic_operator`), visualization and the example ports are implemented. The Python system-test ports are still pending.
 Deviations and open points, decided during implementation:
 
 - JSON export and `save` exist for `Amplitude` only. `FeynmanRules` supports LaTeX and PNG export.
@@ -207,3 +207,22 @@ Deviations and open points, decided during implementation:
   similar-particle builders. `add_weyl_fermion` takes no mass, so it takes no width.
 - C++ visualization facade checks are exempted from parity (`VisualizationApi.*`) and covered from
   Python in `test_visualization.py`.
+- System tests (`python/tests/system/`, smoke level: symbolic calculation only, no numerical comparison,
+  which is phase 6). Ported: `widthsSM` (tree-level cases, plus a `slow` one-loop case), `C7_SM`, `C8_SM`
+  (their Wilson coefficients are asserted to be `Expr` only; they evaluate to `0` in Python and the cause
+  is not yet established), `majoranaLoop` (toy model `pymarty.modeling.models.majorana_loop`) and
+  `testConjugation` (toy model `pymarty.modeling.models.conjugation`).
+  Not ported, with reasons: `FItests` (no Python API for vector integrals or Feynman integral reduction);
+  `simpleSpectrum`, `testModelWidth` (no spectrum generation or model width API); `BsMixingSM`,
+  `BsMixingVLQ_*`, `C9_SM`, `wilsons_GTHDM` (need the dimension-6 operator API); `gm2SM` (needs the
+  `isInLoop` predicate filter). Also ported: `SM_triplet` (toy model `pymarty.modeling.models.sm_triplet`,
+  one-loop amplitudes as in the C++) and `NLepto` (toy model `pymarty.modeling.models.nlepto`, tree-level
+  processes; the full process loop is marked `slow`). The physical heavy neutrinos are the `N1..N6` states:
+  the Weyl halves `N_k_L`/`N_k_R` are excluded by name.
+  Not ported, with reasons: `SM_2IDM` needs a Python binding for `Model::diagonalizeYukawa` (CKM-rotated Yukawa
+  diagonalisation with the particle list), a Dirac charge-conjugation matrix helper (`DiracCMatrix`), and a
+  one-loop LFV amplitude check; it also uses `Library`, which is phase 6. `EWGauge` is quad-precision and
+  needs subset squared amplitudes. The MSSM, PMSSM and NMFV variants are out of scope.
+- New bindings added for these ports: `Model.get_generator(group, field)` (C++ `Model::getGenerator`),
+  `renamed_indices(expr)` (C++ `renamedIndices`), and the `rotate_fields(particles, *, diagonalize_masses,
+  n_mass_less_fields)` overload taking particles (facade `Model::rotateFields(std::vector<Particle>, bool, int)`).

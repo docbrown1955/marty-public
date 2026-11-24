@@ -189,6 +189,51 @@ void bindCalculation(py::module_ &m)
         "Interference term of two amplitudes, summed over spins and "
         "polarizations.");
 
+    py::class_<mty::api::calculation::WilsonSet>(
+        mod, "WilsonSet", "Wilson coefficients of an amplitude.")
+        .def(
+            "coefficient",
+            [](mty::api::calculation::WilsonSet const &self,
+               std::vector<ExprHandle> const          &operators) {
+                std::vector<csl::Expr> raw;
+                for (auto const &op : operators)
+                    raw.push_back(op.raw());
+                return ExprHandle(self.coefficient(raw));
+            },
+            py::arg("operators"),
+            "Coefficient of the sum of the given operator expressions.");
+
+    mod.def(
+        "wilson_coefficients",
+        [](Model const      &model,
+           Amplitude const  &amplitude,
+           ExprHandle const &operatorCoefficient) {
+            return mty::api::calculation::wilsonCoefficients(
+                model, amplitude, operatorCoefficient.raw());
+        },
+        py::arg("model"),
+        py::arg("amplitude"),
+        py::arg("operator_coefficient"),
+        "Wilson coefficients of an amplitude, with the given overall factor "
+        "of every operator.");
+    mod.def(
+        "chromo_magnetic_operator",
+        [](Model const                            &model,
+           mty::api::calculation::WilsonSet const &wilsons,
+           std::string const                      &coupling) {
+            std::vector<ExprHandle> out;
+            for (auto const &op :
+                 mty::api::calculation::chromoMagneticOperator(
+                     model, wilsons, coupling))
+                out.emplace_back(op);
+            return out;
+        },
+        py::arg("model"),
+        py::arg("wilsons"),
+        py::arg("coupling"),
+        "Operators of the chromomagnetic dipole with the given Dirac coupling "
+        "(S, P, L, R, V, A, VL, VR, T, TA, TL or TR).");
+
     mod.def("option_names",
             &mty::api::calculation::optionNames,
             "Names of the boolean global options, in snake_case.");

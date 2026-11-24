@@ -19,8 +19,10 @@
 #include "../common/session.h"
 #include "csl/options.h"
 #include "marty/core/amplitude.h"
+#include "marty/core/builtinOperators.h"
 #include "marty/core/drawer.h"
 #include "marty/core/mrtOptions.h"
+#include "marty/core/wilsonOperator.h"
 
 #include <algorithm>
 #include <cctype>
@@ -28,8 +30,10 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <map>
 #include <sstream>
 #include <unistd.h>
+#include <utility>
 
 namespace mty::api::calculation {
 namespace {
@@ -151,6 +155,60 @@ bool getOption(std::string const &name)
 void setOption(std::string const &name, bool value)
 {
     *findFlag(name).flag = value;
+}
+
+WilsonSet::WilsonSet(mty::WilsonSet wilsons) : m_wilsons(std::move(wilsons))
+{
+}
+
+csl::Expr WilsonSet::coefficient(std::vector<csl::Expr> const &operators) const
+{
+    return guarded(
+        [&] { return mty::getWilsonCoefficient(m_wilsons, operators); });
+}
+
+WilsonSet wilsonCoefficients(modeling::Model const     &model,
+                             modeling::Amplitude const &amplitude,
+                             csl::Expr const           &operatorCoefficient)
+{
+    return guarded([&] {
+        auto            &core = modeling::coreModel(model);
+        Session          session(&core);
+        mty::FeynOptions options;
+        options.setWilsonOperatorCoefficient(operatorCoefficient);
+        return WilsonSet(core.getWilsonCoefficients(amplitude.raw(), options));
+    });
+}
+
+std::vector<csl::Expr> chromoMagneticOperator(modeling::Model const &model,
+                                              WilsonSet const       &wilsons,
+                                              std::string const     &coupling)
+{
+    static std::map<std::string, mty::DiracCoupling> const couplings{
+        {"S", mty::DiracCoupling::S},
+        {"P", mty::DiracCoupling::P},
+        {"L", mty::DiracCoupling::L},
+        {"R", mty::DiracCoupling::R},
+        {"V", mty::DiracCoupling::V},
+        {"A", mty::DiracCoupling::A},
+        {"VL", mty::DiracCoupling::VL},
+        {"VR", mty::DiracCoupling::VR},
+        {"T", mty::DiracCoupling::T},
+        {"TA", mty::DiracCoupling::TA},
+        {"TL", mty::DiracCoupling::TL},
+        {"TR", mty::DiracCoupling::TR}};
+    auto const found = couplings.find(coupling);
+    if (found == couplings.end())
+        throw ValueError("Unknown Dirac coupling '" + coupling + "'");
+    return guarded([&] {
+        auto                  &core = modeling::coreModel(model);
+        Session                session(&core);
+        std::vector<csl::Expr> operators;
+        for (auto const &wilson :
+             mty::chromoMagneticOperator(core, wilsons.raw(), found->second))
+            operators.push_back(wilson.getExpression());
+        return operators;
+    });
 }
 
 } // namespace mty::api::calculation
