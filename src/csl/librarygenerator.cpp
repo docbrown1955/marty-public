@@ -280,6 +280,11 @@ void LibraryGenerator::cleanExistingSources() const
 
 void LibraryGenerator::print() const
 {
+    if (pythonLibrary and quadruple) {
+        CALL_SMERROR_SPEC(CSLError::NotImplementedError,
+                          "The Python binding does not support quadruple "
+                          "precision.");
+    }
     updateDiagonalization();
     setupDirectory();
     printSource();
