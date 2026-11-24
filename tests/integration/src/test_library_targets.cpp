@@ -75,9 +75,11 @@ fs::path generate(std::string const &name,
 }
 
 // Driver programs are compiled with the same compilers as the generator.
+// Extra flags are appended to the link line (used for LoopTools).
 std::string runCDriver(fs::path const &dir,
                        std::string const &name,
-                       std::string const &source)
+                       std::string const &source,
+                       std::string const &extraFlags = "")
 {
     fs::path src = dir / "driver.c";
     fs::path bin = dir / "driver_c";
@@ -85,14 +87,23 @@ std::string runCDriver(fs::path const &dir,
     runCommand(std::string(LT_STRINGIFY(MARTY_CC)) + " -std=c11 -I" +
                (dir / "clib").string() + " " + src.string() + " -o " +
                bin.string() + " -L" + (dir / "lib").string() + " -l" + name +
-               " -Wl,-rpath," + (dir / "lib").string() + " -lquadmath");
+               " -Wl,-rpath," + (dir / "lib").string() + " -lquadmath " +
+               extraFlags);
     return runCommand(bin.string());
+}
+
+// Libraries using MARTY's LoopTools link against the build tree copy.
+std::string loopToolsFlags()
+{
+    std::string root = std::string(MARTY_LIBRARY_PATH) + "/..";
+    return "-L" + root + " -looptools -lgfortran -Wl,-rpath," + root;
 }
 
 std::string runCppDriver(fs::path const &dir,
                          std::string const &name,
                          std::string const &source,
-                         std::string const &defines = "")
+                         std::string const &defines = "",
+                         std::string const &extraFlags = "")
 {
     fs::path src = dir / "driver.cpp";
     fs::path bin = dir / "driver_cpp";
@@ -102,7 +113,7 @@ std::string runCppDriver(fs::path const &dir,
                LT_STRINGIFY(MARTY_INCLUDE_PATH) + " " + defines + " " +
                src.string() + " -o " + bin.string() + " -L" +
                (dir / "lib").string() + " -l" + name + " -Wl,-rpath," +
-               (dir / "lib").string() + " -lquadmath");
+               (dir / "lib").string() + " -lquadmath " + extraFlags);
     return runCommand(bin.string());
 }
 
@@ -306,4 +317,89 @@ TEST(library_targets, python_rejects_quadruple_precision)
     lib.setPythonLibrary(true);
     addQuadFunctions(lib);
     EXPECT_ANY_THROW(lib.print());
+}
+
+// Generates a library with a single complex scalar of mass m under U(1).
+fs::path generateSpectrumLibrary(std::string const &name, Targets targets)
+{
+    fs::path root = fs::absolute(fs::path("libs") / "integration");
+    fs::path dir  = root / name;
+    fs::remove_all(dir);
+
+    csl::Expr e = csl::constant_s("e");
+    mty::Model model({mty::GaugeGroupSpec{mty::group::Type::U, 1, "em", "A", e}});
+    mty::Particle phi = mty::scalarboson_s("h", model);
+    phi->setGroupRep("em", -1);
+    model.addParticle(phi);
+    csl::Expr m2 = csl::constant_s("m2");
+    model.addLagrangianTerm(-m2 * csl::GetComplexConjugate(phi()) * phi());
+    model.refresh();
+
+    mty::Library lib(name, root.string());
+    lib.setCppLibrary(targets.cpp);
+    lib.setPythonLibrary(targets.python);
+    lib.addIPath(LT_STRINGIFY(MARTY_INCLUDE_PATH));
+    lib.addLPath(LT_STRINGIFY(MARTY_LIBRARY_PATH));
+    lib.addLPath(LT_STRINGIFY(MARTY_LIBRARY_PATH) "/..");
+    lib.addLPath(LT_STRINGIFY(MARTY_LIBRARY_PATH) "/marty");
+    lib.generateSpectrum(model);
+    lib.print();
+    runCommand("make -C " + dir.string() + " lib");
+    // The library depends on libooptools.so, which the drivers' RUNPATH does not reach.
+    setenv("LD_LIBRARY_PATH", (std::string(MARTY_LIBRARY_PATH) + "/..").c_str(), 1);
+    return dir;
+}
+
+// The mass term m2 |h|^2 gives m_h = sqrt(m2), so m2 = 4 must give m_h = 2.
+TEST(library_targets, spectrum_c_only)
+{
+    fs::path dir = generateSpectrumLibrary("itgspec", {false, false});
+    std::string const source = R"C(
+#include <stdio.h>
+#include "cspectrum.h"
+int main(void)
+{
+    cparam_t p;
+    p.m2 = 4.0;
+    c_updateSpectrum(&p);
+    printf("%.17g\n", (double)p.m_h);
+    return 0;
+}
+)C";
+    std::vector<long double> values =
+        parseValues(runCDriver(dir, "itgspec", source, loopToolsFlags()));
+    ASSERT_EQ(values.size(), 1u);
+    EXPECT_NEAR(values[0], 2.0L, 1e-12L);
+}
+
+TEST(library_targets, spectrum_cpp)
+{
+    // Mass names depend on the generator state of the process (LibEval::make_expr),
+    // so the case runs again in a fresh process when the whole binary is executed.
+    if (std::getenv("MTY_ISOLATED_SPECTRUM_CPP") == nullptr) {
+        std::string const self = fs::read_symlink("/proc/self/exe").string();
+        runCommand("MTY_ISOLATED_SPECTRUM_CPP=1 \"" + self
+                   + "\" --gtest_filter=library_targets.spectrum_cpp");
+        return;
+    }
+    fs::path dir = generateSpectrumLibrary("itgspecpp", {true, false});
+    std::string const source = R"CPP(
+#include <stdio.h>
+#include "itgspecpp.h"
+int main()
+{
+    itgspecpp::param_t p;
+    p.m2 = 4.0;
+    itgspecpp::updateSpectrum(p);
+    printf("VALUE %.17g\n", (double)p.m_h);
+    return 0;
+}
+)CPP";
+    std::string const output = runCppDriver(dir, "itgspecpp", source, "", loopToolsFlags());
+    // LoopTools writes a banner to stdout, so only the tagged driver line is parsed.
+    std::size_t const pos = output.find("VALUE ");
+    ASSERT_NE(pos, std::string::npos) << output;
+    std::vector<long double> values = parseValues(output.substr(pos + 6));
+    ASSERT_EQ(values.size(), 1u) << output;
+    EXPECT_NEAR(values[0], 2.0L, 1e-12L);
 }
