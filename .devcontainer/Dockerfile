@@ -36,6 +36,7 @@ RUN apt-get update && \
         clang-format \
         gdb \
         valgrind \
+        vim \
         ca-certificates && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
