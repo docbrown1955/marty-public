@@ -57,7 +57,7 @@ void print_libmakefile_data(std::ostream      &out,
         << (quadruple ? 1 : 0) << ")\n";
     out << "QUAD ?= " << (quadruple ? 1 : 0) << "\n";
     out << "ifeq ($(QUAD),1)\n";
-    out << "CFLAGS += -DMTY_QUADRUPLE\n";
+    out << "CFLAGS += -DMTY_QUADRUPLE -DQUAD=1 -DQUADSIZE=16 -DCQUADSIZE=16\n";
     out << "LIBS   += -lquadmath\n";
     out << "endif\n";
     out << "\n";

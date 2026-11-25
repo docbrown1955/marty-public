@@ -398,6 +398,7 @@ void LibraryGenerator::printGlobal() const
     header << "void updateSpectrum(param_t &params);\n\n";
 
     source << "#include \"global.h\"\n";
+    source << "#include \"../c/mty_calc_defs.h\"\n";
     source << "#include \"libdiagonalization.h\"\n";
     source << "#include \"" << regLibName() << ".h\"\n";
     source << "#include \"libcomplexop.h\"\n\n";
@@ -703,8 +704,15 @@ void LibraryGenerator::printCHeader() const
     LibraryGenerator::file calcDefs(srcPathC() + "/mty_calc_defs.h");
     calcDefs << "#ifndef CSL_LIB_" << name << "_MTY_CALC_DEFS_H_INCLUDED\n";
     calcDefs << "#define CSL_LIB_" << name << "_MTY_CALC_DEFS_H_INCLUDED\n\n";
-    calcDefs << "#include \"mty_numerical_defs.h\"\n";
-    calcDefs << "#include <complex.h>\n\n";
+    calcDefs << "#include \"mty_numerical_defs.h\"\n\n";
+    calcDefs << "#ifdef __cplusplus\n";
+    calcDefs << "#include <cmath>\n";
+    calcDefs << "#define " << libmacro::fn << "(f) std::f\n";
+    calcDefs << "#define " << libmacro::cfn << "(f) std::f\n";
+    calcDefs << "#define " << libmacro::lit << "(x) (x)\n";
+    calcDefs << "#define " << libmacro::imag << " (ccomplex_t(0.0, 1.0))\n";
+    calcDefs << "#else\n";
+    calcDefs << "#include <complex.h>\n";
     calcDefs << "#ifdef MTY_QUADRUPLE\n";
     calcDefs << "#include <quadmath.h>\n";
     calcDefs << "typedef __float128 calc_creal_t;\n";
@@ -720,6 +728,7 @@ void LibraryGenerator::printCHeader() const
     calcDefs << "#define " << libmacro::cfn << "(f) c##f\n";
     calcDefs << "#define " << libmacro::lit << "(x) x\n";
     calcDefs << "#define " << libmacro::imag << " _Complex_I\n";
+    calcDefs << "#endif\n";
     calcDefs << "#endif\n\n";
     calcDefs << "#define " << libmacro::cplx << "(re, im) ((re) + (im) * " << libmacro::imag << ")\n";
     calcDefs << "#define " << libmacro::fact << "(x) " << libmacro::fn << "(tgamma)((x) + " << libmacro::lit
@@ -752,6 +761,12 @@ void LibraryGenerator::printCHeader() const
                 << "{\n"
                 << indent() << "setuvdiv(x);\n"
                 << "}\n";
+        csource << "\n__attribute__((constructor)) static void "
+                   "mty_looptools_init(void)\n{\n"
+                << indent() << "ltini();\n}\n"
+                << "\n__attribute__((destructor)) static void "
+                   "mty_looptools_exit(void)\n{\n"
+                << indent() << "ltexi();\n}\n";
     }
 }
 
@@ -842,7 +857,7 @@ void LibraryGenerator::printMakefile() const
         makefile << "-I" << path << " ";
     makefile << "\nLIBPATH = ";
     for (const auto &path : LPath)
-        makefile << "-L" << path << " ";
+        makefile << "-L" << path << " -Wl,-rpath," << path << " ";
     makefile << "\nLIBS    = ";
     static const std::string clang_str = "clang";
     bool                     is_clang  = (0
@@ -1036,6 +1051,7 @@ void LibraryGenerator::printCppGroup(LibraryGroup const &g) const
     file source(srcPathCpp() + "/" + nameSource);
     source << "#include \"" << nameHeader << "\"\n";
     source << "#include \"mty_numerical_defs.h\"\n";
+    source << "#include \"../c/mty_calc_defs.h\"\n";
     source << "namespace " << regLibName() << " {\n\n";
     if(are_group_functions_inline)
     {
@@ -1167,6 +1183,7 @@ void LibraryGenerator::printFunction(LibFunction const &f) const
     dependencies.printInclude(source, false);
     source << "#include \"" << nameHeader << "\"\n";
     source << "#include \"mty_numerical_defs.h\"\n";
+    source << "#include \"../c/mty_calc_defs.h\"\n";
     source << "#include \"common.h\"\n\n";
     if (uniqueParamStruct)
         source << "#include \"params.h\"\n";
