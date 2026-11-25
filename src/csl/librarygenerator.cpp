@@ -59,14 +59,6 @@ void LibraryGenerator::setQuadruplePrecision(bool t_quadruple)
                           "been disabled during the compilation of MARTY.");
 #endif
     quadruple = t_quadruple;
-    if (quadruple) {
-        calcCrealType    = "__float128";
-        calcCcomplexType = "__complex128";
-    }
-    else {
-        calcCrealType    = "double";
-        calcCcomplexType = "double _Complex";
-    }
     dependencies.removeLib("-lquadmath");
     if (quadruple)
         dependencies.addLib("-lquadmath");
@@ -79,8 +71,6 @@ LibraryGenerator::LibraryGenerator(std::string const &t_name,
       IPath({incDir}),
       uniqueParamStruct(true)
 {
-    // The quadruple flag is process-wide for the print functions, so each
-    // new library starts in double precision until its setter is called.
     setQuadruplePrecision(false);
     groups.push_back(std::make_shared<LibraryGroup>("G", true));
     // General, default group
@@ -680,6 +670,36 @@ void LibraryGenerator::printCHeader() const
     cheader << "#endif\n\n";
     cheader << "#endif\n";
 
+    // Private to the C calculations (src/), never included by public headers
+    LibraryGenerator::file numDefs(path + "/" + srcDir + "/mty_numerical_defs.h");
+    numDefs << "#ifndef CSL_LIB_" << name << "_MTY_NUMERICAL_DEFS_H_INCLUDED\n";
+    numDefs << "#define CSL_LIB_" << name << "_MTY_NUMERICAL_DEFS_H_INCLUDED\n\n";
+    numDefs << "// Names used by the printed expressions, for both the C and the C++ libraries\n";
+    numDefs << "#ifdef __cplusplus\n";
+    numDefs << "#include <cmath>\n";
+    numDefs << "#include <complex>\n";
+    numDefs << "#define MTY_FN(f) std::f\n";
+    numDefs << "#define MTY_CFN(f) std::f\n";
+    numDefs << "#define MTY_LIT(x) x\n";
+    numDefs << "#else\n";
+    if (quadruple) {
+        numDefs << "#include <quadmath.h>\n\n";
+        numDefs << "typedef __float128 calc_creal_t;\n";
+        numDefs << "typedef __complex128 calc_ccomplex_t;\n";
+        numDefs << "#define MTY_FN(f) f##q\n";
+        numDefs << "#define MTY_CFN(f) c##f##q\n";
+        numDefs << "#define MTY_LIT(x) x##Q\n";
+    }
+    else {
+        numDefs << "typedef double calc_creal_t;\n";
+        numDefs << "typedef double _Complex calc_ccomplex_t;\n";
+        numDefs << "#define MTY_FN(f) f\n";
+        numDefs << "#define MTY_CFN(f) c##f\n";
+        numDefs << "#define MTY_LIT(x) x\n";
+    }
+    numDefs << "#endif\n";
+    numDefs << "\n#endif\n";
+
     LibraryGenerator::file csource(path + "/" + clibDir + "/ccommon.c");
     csource << "#include \"ccommon.h\"\n";
     if (dependencies.containsInclude("clooptools.h"))
@@ -980,6 +1000,7 @@ void LibraryGenerator::printCppGroup(LibraryGroup const &g) const
 
     file source(path + "/" + srcDir + "/" + nameSource);
     source << "#include \"" << nameHeader << "\"\n";
+    source << "#include \"mty_numerical_defs.h\"\n";
     source << "namespace " << regLibName() << " {\n\n";
     if(are_group_functions_inline)
     {
@@ -1042,11 +1063,7 @@ void LibraryGenerator::printCFunction(LibFunction const &f) const
     dependencies.printInclude(source, true);
     source << "#include \"" << nameHeader << "\"\n";
     source << "#include \"ccommon.h\"\n";
-    if (quadruple)
-        source << "#include <quadmath.h>\n";
-    source << "typedef " << calcCrealType << " " << calcCrealUsing << ";\n";
-    source << "typedef " << calcCcomplexType << " " << calcCcomplexUsing
-           << ";\n\n";
+    source << "#include \"../" << srcDir << "/mty_numerical_defs.h\"\n";
     if (uniqueParamStruct)
         source << "#include \"cparams.h\"\n\n";
     f.printExplicitC(source, false);
@@ -1114,6 +1131,7 @@ void LibraryGenerator::printFunction(LibFunction const &f) const
     //
     dependencies.printInclude(source, false);
     source << "#include \"" << nameHeader << "\"\n";
+    source << "#include \"mty_numerical_defs.h\"\n";
     source << "#include \"common.h\"\n\n";
     if (uniqueParamStruct)
         source << "#include \"params.h\"\n";

@@ -37,6 +37,7 @@ void LibraryGenerator::printCSpectrum() const
     source << "#include <stdio.h>\n";
     source << "#include <stdlib.h>\n";
     source << "#include \"ccommon.h\"\n";
+    source << "#include \"../" << srcDir << "/mty_numerical_defs.h\"\n";
     source << "#include \"cdiagonalization.h\"\n";
     source << "#include \"cspectrum.h\"\n";
     for (const auto &mass : massExpressions)

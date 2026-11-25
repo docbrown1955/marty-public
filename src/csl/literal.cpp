@@ -129,14 +129,8 @@ void Constant::setCommutable(bool commutable)
 void Constant::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
     const bool conj = isComplexConjugate() && libMode != LibraryMode::NoLib;
-    if (conj and LibraryGenerator::isQuadruplePrecision()) {
-        out << "conjq(";
-    }
-    else if (conj && libMode == LibraryMode::CppLib) {
-        out << "std::conj(";
-    }
-    else if (conj && libMode == LibraryMode::CLib) {
-        out << "conj(";
+    if (conj) {
+        out << "MTY_FN(conj)(";
     }
     std::string name(parent->getName());
     if (libMode != LibraryMode::NoLib)
@@ -359,14 +353,8 @@ void Variable::setValue(Expr const &t_value)
 void Variable::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
     const bool conj = isComplexConjugate() && libMode != LibraryMode::NoLib;
-    if (conj and LibraryGenerator::isQuadruplePrecision()) {
-        out << "conjq(";
-    }
-    else if (conj && libMode == LibraryMode::CppLib) {
-        out << "std::conj(";
-    }
-    else if (conj && libMode == LibraryMode::CLib) {
-        out << "conj(";
+    if (conj) {
+        out << "MTY_FN(conj)(";
     }
     std::string name(parent->getName());
     if (libMode != LibraryMode::NoLib)

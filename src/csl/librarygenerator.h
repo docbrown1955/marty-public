@@ -53,11 +53,9 @@ class LibraryGenerator {
     inline static std::string complexUsing  = "complex_t";
     inline static std::string crealUsing    = "creal_t";
     inline static std::string ccomplexUsing = "ccomplex_t";
-    // Types of the C implementation's local variables, see setQuadruplePrecision
+    // Types of the C implementation's local variables, defined in mty_numerical_defs.h
     inline static std::string calcCrealUsing    = "calc_creal_t";
     inline static std::string calcCcomplexUsing = "calc_ccomplex_t";
-    inline static std::string calcCrealType     = "double";
-    inline static std::string calcCcomplexType  = "double _Complex";
     inline static std::string tensorUsing   = "csl::LibraryTensor";
     inline static std::string indexType     = "int";
     inline static short       nSpaceIndent  = 4;
@@ -86,10 +84,6 @@ class LibraryGenerator {
 
     static std::string indent(short nIndent = 1);
 
-    static bool isQuadruplePrecision()
-    {
-        return quadruple;
-    }
     // Quadruple precision only applies to the C implementation's calculations.
     // Public types and parameters stay double.
     void setQuadruplePrecision(bool quadruple);
@@ -104,7 +98,7 @@ class LibraryGenerator {
     };
 
   private:
-    static inline bool quadruple = false;
+    bool quadruple = false;
 
   public:
     LibraryGenerator(std::string const &t_name,

@@ -103,22 +103,28 @@ void Float::setValue(long double t_value)
     value = t_value;
 }
 
+// MTY_LIT pastes a suffix onto its argument, so C literals must be fixed-format
+// pp-numbers (no exponent). Shortest round-trip digits keep decimal inputs exact.
+static std::string fixedCLiteral(long double absValue)
+{
+    char buf[6000];
+    auto res = std::to_chars(buf, buf + sizeof(buf), absValue, std::chars_format::fixed);
+    std::string text(buf, res.ptr);
+    if (text.find('.') == std::string::npos)
+        text += ".0";
+    return text;
+}
+
 void Float::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (libMode == LibraryMode::CLib and LibraryGenerator::isQuadruplePrecision()) {
-        // Shortest round-trip text, so decimal inputs such as 0.1 keep their value
-        char buf[64];
-        auto res = std::to_chars(buf, buf + sizeof(buf), value);
-        std::string text(buf, res.ptr);
-        if (text.find_first_of(".eEnN") == std::string::npos)
-            text += ".0";
-        text += "Q";
+    if (libMode != LibraryMode::NoLib) {
+        std::string lit = std::string(value < 0 ? "-" : "") + "MTY_LIT(" + fixedCLiteral(std::fabs(value)) + ")";
         if (mode == 0)
-            out << text << endl;
+            out << lit << endl;
         else if (mode > 0 and value < 0)
-            out << "(" << text << ")";
+            out << "(" << lit << ")";
         else
-            out << text;
+            out << lit;
     }
     else if (mode == 0)
         out << value << endl;
@@ -312,10 +318,13 @@ void Integer::setValue(long double t_value)
 
 void Integer::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    // Integers are also quad literals in the quad C implementation
     std::string text = std::to_string(value);
-    if (libMode == LibraryMode::CLib and LibraryGenerator::isQuadruplePrecision())
-        text += ".0Q";
+    if (libMode != LibraryMode::NoLib) {
+        bool neg = value < 0;
+        if (neg)
+            text.erase(0, 1);
+        text = std::string(neg ? "-" : "") + "MTY_LIT(" + text + ".0)";
+    }
     if (mode == 0)
         out << text << endl;
     else if (mode > 1 and value < 0)
@@ -515,28 +524,31 @@ long long int IntFraction::getDenom() const
 
 void IntFraction::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    // In quad C, the numerator must be a quad literal to avoid double rounding
-    bool        quadC = libMode == LibraryMode::CLib
-                  and LibraryGenerator::isQuadruplePrecision();
-    std::string sep = quadC                   ? ".0Q/"
-                      : libMode != LibraryMode::NoLib ? "./"
-                                                      : "/";
+    // The numerator is a MTY_LIT so that the division is done in the library precision
+    std::string numText = std::to_string(num);
+    std::string sep     = "/";
+    if (libMode != LibraryMode::NoLib) {
+        bool neg = num < 0;
+        if (neg)
+            numText.erase(0, 1);
+        numText = std::string(neg ? "-" : "") + "MTY_LIT(" + numText + ".0)";
+    }
     if (mode == 0) {
         if (libMode != LibraryMode::NoLib)
-            out << num << sep << denom << endl;
+            out << numText << sep << denom << endl;
         else
-            out << "Fraction: " << num << "/" << denom << endl;
+            out << "Fraction: " << numText << "/" << denom << endl;
     }
     else if (mode > 3) {
         if (libMode != LibraryMode::NoLib)
-            out << "(" << num << sep << denom << ")";
+            out << "(" << numText << sep << denom << ")";
         else
-            out << "(" << num << "/" << denom << ")";
+            out << "(" << numText << "/" << denom << ")";
     }
     else if (libMode != LibraryMode::NoLib)
-        out << num << sep << denom;
+        out << numText << sep << denom;
     else
-        out << num << "/" << denom;
+        out << numText << "/" << denom;
 
     printProp(out);
 }

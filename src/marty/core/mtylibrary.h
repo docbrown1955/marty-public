@@ -39,13 +39,7 @@ class Library : public csl::LibraryGenerator {
         // If we are not on MacOS, add -lgfortran
         addLibrary("-lgfortran");
 #endif
-        if (csl::LibraryGenerator::isQuadruplePrecision()) {
-            addLibrary("-looptools-quad");
-            addLibrary("-lquadmath");
-        }
-        else {
-            addLibrary("-looptools");
-        }
+        addLibrary("-looptools");
     }
 
     void setQuadruplePrecision(bool t_quadruple)

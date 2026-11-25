@@ -2731,27 +2731,11 @@ std::optional<Expr> Pow::suppressExponent(Expr const &factor,
 
 void Pow::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (libMode == LibraryMode::CLib
-        and LibraryGenerator::isQuadruplePrecision()) {
+    if (libMode != LibraryMode::NoLib) {
         if (isReal())
-            out << "powq(";
+            out << "MTY_FN(pow)(";
         else
-            out << "cpowq(";
-        argument[0]->print(1, out, libMode);
-        out << ", ";
-        argument[1]->print(1, out, libMode);
-        out << ")";
-        if (mode == 0)
-            out << endl;
-        return;
-    }
-    else if (libMode != LibraryMode::NoLib) {
-        if (libMode == LibraryMode::CppLib)
-            out << "std::pow(";
-        else if (isReal())
-            out << "pow(";
-        else
-            out << "cpow(";
+            out << "MTY_CFN(pow)(";
         argument[0]->print(1, out, libMode);
         out << ", ";
         argument[1]->print(1, out, libMode);
