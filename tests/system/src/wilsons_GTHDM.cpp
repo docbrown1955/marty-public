@@ -145,7 +145,7 @@ int main()
 
     sysres = system("cp libsrc/example_thdm_paper.cpp "
                     "libs/wilsons_GTHDM/script");
-    sysres = system("cd libs/wilsons_GTHDM; make && bin/example_thdm_paper.x");
+    sysres = system("cd libs/wilsons_GTHDM; make && build/bin/example_thdm_paper.x");
     return assert_equal(
         "data/output/gthdm.txt", "libs/wilsons_GTHDM/data.txt", 1e-5);
 }

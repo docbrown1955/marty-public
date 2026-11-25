@@ -90,7 +90,7 @@ int main()
     lib.print();
 
     sysres = system("cp libsrc/example_gg_to_tt.cpp libs/gg_to_tt/script");
-    sysres = system("cd libs/gg_to_tt; make && bin/example_gg_to_tt.x");
+    sysres = system("cd libs/gg_to_tt; make && build/bin/example_gg_to_tt.x");
     return assert_equal(
         "data/output/reinterpretation.txt", "libs/gg_to_tt/data.txt", 1e-5);
 }

@@ -71,7 +71,7 @@ int calculate(Model &model)
     wilsonLib.print();
 
     sysres = system("cp libsrc/example_c8_pmssm.cpp libs/C8_PMSSM/script");
-    sysres = system("cd libs/C8_PMSSM; make && bin/example_c8_pmssm.x");
+    sysres = system("cd libs/C8_PMSSM; make && build/bin/example_c8_pmssm.x");
     return assert_equal("data/output/C8_marty_tanb50_ss.txt",
                         "libs/C8_PMSSM/C8_marty_tanb50_ss.txt",
                         1e-5);

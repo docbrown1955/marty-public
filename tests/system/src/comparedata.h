@@ -18,11 +18,9 @@ inline std::vector<double> readLine(std::ifstream &fin)
     std::string line;
     std::getline(fin, line);
     std::istringstream sin(line);
-    while (!sin.eof()) {
-        double value;
-        sin >> value;
+    double value;
+    while (sin >> value)
         res.push_back(value);
-    }
 
     return res;
 }

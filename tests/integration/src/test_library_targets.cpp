@@ -442,13 +442,17 @@ int main(void)
     cparam_t p;
     p.m2 = 4.0;
     c_updateSpectrum(&p);
-    printf("%.17g\n", (double)p.m_h);
+    printf("VALUE %.17g\n", (double)p.m_h);
     return 0;
 }
 )C";
-    std::vector<long double> values =
-        parseValues(runCDriver(dir, "itgspec", source, loopToolsFlags()));
-    ASSERT_EQ(values.size(), 1u);
+    // LoopTools prints its banner on initialization, so parse after the marker.
+    std::string const output
+        = runCDriver(dir, "itgspec", source, loopToolsFlags());
+    std::size_t const pos = output.find("VALUE ");
+    ASSERT_NE(pos, std::string::npos) << output;
+    std::vector<long double> values = parseValues(output.substr(pos + 6));
+    ASSERT_EQ(values.size(), 1u) << output;
     EXPECT_NEAR(values[0], 2.0L, 1e-12L);
 }
 

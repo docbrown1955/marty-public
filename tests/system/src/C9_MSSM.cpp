@@ -178,7 +178,7 @@ int main()
     sysres = system("cp libsrc/read_spectrum.h libs/C9_MSSM/include");
     sysres = system("cp libsrc/ckm.h libs/C9_MSSM/include");
     sysres = system("cp libsrc/ckm.cpp libs/C9_MSSM/src");
-    sysres = system("cd libs/C9_MSSM; make && bin/example_c9_mssm.x");
+    sysres = system("cd libs/C9_MSSM; make && build/bin/example_c9_mssm.x");
     return assert_equal("data/output/C9_marty_tanb50_ss.txt",
                         "libs/C9_MSSM/C9_marty_tanb50_ss.txt",
                         1e-5);

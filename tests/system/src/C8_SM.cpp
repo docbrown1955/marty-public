@@ -62,7 +62,7 @@ int calculate(Model &model, gauge::Type gauge)
     wilsonLib.print();
 
     sysres = system("cp libsrc/example_c8_sm.cpp libs/C8_SM/script");
-    sysres = system("cd libs/C8_SM; make && bin/example_c8_sm.x");
+    sysres = system("cd libs/C8_SM; make && build/bin/example_c8_sm.x");
     return assert_equal("data/output/C8_SM.txt", "libs/C8_SM/C8_SM.txt", 1e-5);
 }
 

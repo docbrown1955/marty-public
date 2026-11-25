@@ -29,7 +29,7 @@ int main()
     sysres = system("cp libsrc/example_modelwidthlib.cpp "
                     "libs/modelwidthLib/script");
     sysres = system("cd libs/modelwidthLib; make && "
-                    "bin/example_modelwidthlib.x");
+                    "build/bin/example_modelwidthlib.x");
     return assert_equal(
         "data/output/modelwidthlib.txt", "libs/modelwidthLib/data.txt", 1e-5);
 }

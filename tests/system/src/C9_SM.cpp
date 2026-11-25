@@ -224,6 +224,6 @@ int main()
     defineLibPath(lib);
     lib.print();
     sysres = system("cp libsrc/example_c9_sm.cpp libs/C9_SM/script");
-    sysres = system("cd libs/C9_SM; make && bin/example_c9_sm.x ");
+    sysres = system("cd libs/C9_SM; make && build/bin/example_c9_sm.x ");
     return assert_equal("data/output/C9_SM.txt", "libs/C9_SM/data.txt", 1e-5);
 }
