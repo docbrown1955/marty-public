@@ -73,10 +73,10 @@ std::string runCDriver(fs::path const &dir,
     fs::path bin = dir / "driver_c";
     std::ofstream(src) << source;
     runCommand(std::string(LT_STRINGIFY(MARTY_CC)) + " -std=c11 -I" +
-               (dir / "clib").string() + " " + src.string() + " -o " +
-               bin.string() + " -L" + (dir / "lib").string() + " -l" + name +
-               " -Wl,-rpath," + (dir / "lib").string() + " -lquadmath " +
-               extraFlags);
+               (dir / "include" / name / "c").string() + " " + src.string() +
+               " -o " + bin.string() + " -L" + (dir / "build" / "lib").string() +
+               " -l" + name + " -Wl,-rpath," + (dir / "build" / "lib").string() +
+               " -lquadmath " + extraFlags);
     return runCommand(bin.string());
 }
 
@@ -97,11 +97,12 @@ std::string runCppDriver(fs::path const &dir,
     fs::path bin = dir / "driver_cpp";
     std::ofstream(src) << source;
     runCommand(std::string(LT_STRINGIFY(MARTY_CXX)) + " -std=c++17 -I" +
-               (dir / "include").string() + " -I" +
+               (dir / "include" / name / "cpp").string() + " -I" +
+               (dir / "include" / name / "c").string() + " -I" +
                LT_STRINGIFY(MARTY_INCLUDE_PATH) + " " + defines + " " +
                src.string() + " -o " + bin.string() + " -L" +
-               (dir / "lib").string() + " -l" + name + " -Wl,-rpath," +
-               (dir / "lib").string() + " -lquadmath " + extraFlags);
+               (dir / "build" / "lib").string() + " -l" + name + " -Wl,-rpath," +
+               (dir / "build" / "lib").string() + " -lquadmath " + extraFlags);
     return runCommand(bin.string());
 }
 
@@ -253,7 +254,7 @@ int main()
 
     std::string const pythonSource = "import sys\n"
                                      "sys.path.insert(0, '" +
-                                     (dir / "py").string() +
+                                     (dir / "src" / "py").string() +
                                      "')\n"
                                      "import " +
                                      name +
@@ -311,22 +312,25 @@ TEST(library_targets, bare_cpp_python)
 // Quad is internal to the calculation sources: no public header may mention it.
 void expectNoQuadInPublicHeaders(fs::path const &dir)
 {
-    for (char const *sub : {"clib", "include"}) {
-        fs::path root = dir / sub;
-        if (!fs::exists(root))
+    // mty_numerical_defs.h only uses quadruple precision inside MTY_QUADRUPLE
+    fs::path root = dir / "include";
+    if (!fs::exists(root))
+        return;
+    for (auto const &entry : fs::recursive_directory_iterator(root)) {
+        if (entry.path().extension() != ".h")
             continue;
-        for (auto const &entry : fs::directory_iterator(root)) {
-            if (entry.path().extension() != ".h")
-                continue;
-            std::ifstream     in(entry.path());
-            std::stringstream text;
-            text << in.rdbuf();
-            EXPECT_EQ(text.str().find("float128"), std::string::npos)
-                << entry.path();
-            EXPECT_EQ(text.str().find("mty_numerical_defs.h"),
-                      std::string::npos)
-                << entry.path();
+        std::ifstream     in(entry.path());
+        std::stringstream text;
+        text << in.rdbuf();
+        std::string const content = text.str();
+        if (entry.path().filename() == "mty_numerical_defs.h") {
+            size_t const guard = content.find("#ifdef MTY_QUADRUPLE");
+            EXPECT_NE(guard, std::string::npos) << entry.path();
+            EXPECT_GT(content.find("float128"), guard) << entry.path();
+            continue;
         }
+        EXPECT_EQ(content.find("float128"), std::string::npos)
+            << entry.path();
     }
 }
 
@@ -377,7 +381,7 @@ TEST(library_targets, quadruple_python)
     fs::path dir = generate("itgqpy", {false, true}, true, addQuadFunctions);
     std::string const source = "import sys\n"
                                "sys.path.insert(0, '" +
-                               (dir / "py").string() +
+                               (dir / "src" / "py").string() +
                                "')\n"
                                "import itgqpy as m\n"
                                "print(m.h(x=1e-20).real)\n";

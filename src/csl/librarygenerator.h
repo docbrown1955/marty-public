@@ -62,15 +62,12 @@ class LibraryGenerator {
     inline static const Expr  imaginary     = csl::constant_s("_i_");
     // inline static std::string boostPath    = "../../Boost";
 
-    inline static std::string incDir       = "include";
-    inline static std::string srcDir       = "src";
-    inline static std::string objDir       = "obj";
-    inline static std::string binDir       = "bin";
-    inline static std::string libDir       = "lib";
-    inline static std::string clibDir      = "clib";
-    inline static std::string pyDir        = "py";
-    inline static std::string scriptDir    = "script";
-    inline static std::string scriptObjDir = "script/obj";
+    inline static std::string incDir    = "include";
+    inline static std::string srcDir    = "src";
+    inline static std::string cDir      = "c";
+    inline static std::string cppDir    = "cpp";
+    inline static std::string pyDir     = "py";
+    inline static std::string scriptDir = "script";
 
     static inline std::string toUpper(std::string const &name)
     {
@@ -229,6 +226,11 @@ class LibraryGenerator {
     std::vector<std::string> getDiagonalizationDependencies() const;
 
     std::string regLibName() const;
+    std::string incPathC() const;
+    std::string incPathCpp() const;
+    std::string srcPathC() const;
+    std::string srcPathCpp() const;
+    std::string srcPathPy() const;
     std::string getFunctionFileName(LibFunction const &f) const;
     std::string getGroupFileName(LibraryGroup const &g) const;
     // std::string getHeaders() const;

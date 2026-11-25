@@ -14,7 +14,7 @@ void LibraryGenerator::printCSpectrum() const
         return;
 
     std::string guard = "CSL_LIB_" + name + "_CSPECTRUM_H_INCLUDED";
-    std::ofstream header(path + "/" + clibDir + "/cspectrum.h");
+    std::ofstream header(incPathC() + "/cspectrum.h");
     header << "#ifndef " << guard << "\n";
     header << "#define " << guard << "\n\n";
     header << "#include \"cparams.h\"\n\n";
@@ -33,11 +33,11 @@ void LibraryGenerator::printCSpectrum() const
     header << "#endif\n";
     header.close();
 
-    std::ofstream source(path + "/" + clibDir + "/cspectrum.c");
+    std::ofstream source(srcPathC() + "/cspectrum.c");
     source << "#include <stdio.h>\n";
     source << "#include <stdlib.h>\n";
     source << "#include \"ccommon.h\"\n";
-    source << "#include \"../" << srcDir << "/mty_numerical_defs.h\"\n";
+    source << "#include \"mty_numerical_defs.h\"\n";
     source << "#include \"cdiagonalization.h\"\n";
     source << "#include \"cspectrum.h\"\n";
     for (const auto &mass : massExpressions)
