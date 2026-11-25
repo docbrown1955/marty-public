@@ -18,7 +18,6 @@
 #include "index.h"
 #include "indicial.h"
 #include "interface.h"
-#include "libmacros.h"
 #include "librarydependency.h"
 #include "libmacros.h"
 #include "operations.h"
@@ -1852,7 +1851,7 @@ void Factorial::print(int mode, std::ostream &out) const
 
 void Factorial::printLib(int mode, std::ostream &out) const
 {
-    out << "csl::factorial(";
+    out << libmacro::fact << "(";
     argument->printLib(1, out);
     out << ")";
     printProp(out);

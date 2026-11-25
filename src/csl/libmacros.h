@@ -38,6 +38,8 @@ inline constexpr const char *lit = "MTY_LIT";
 inline constexpr const char *imag = "MTY_I";
 //! Complex value from its real and imaginary parts
 inline constexpr const char *cplx = "MTY_CPLX";
+//! Factorial, e.g. MTY_FACT(n) gives n! as Gamma(n+1)
+inline constexpr const char *fact = "MTY_FACT";
 
 } // namespace csl::libmacro
 

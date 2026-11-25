@@ -703,6 +703,8 @@ void LibraryGenerator::printCHeader() const
         numDefs << "#define " << libmacro::imag << " _Complex_I\n";
     }
     numDefs << "#define " << libmacro::cplx << "(re, im) ((re) + (im) * " << libmacro::imag << ")\n";
+    numDefs << "#define " << libmacro::fact << "(x) " << libmacro::fn << "(tgamma)((x) + " << libmacro::lit
+            << "(1.0))\n";
     numDefs << "#endif\n";
     numDefs << "\n#endif\n";
 
