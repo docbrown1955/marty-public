@@ -53,7 +53,7 @@ class LibraryGenerator {
     inline static std::string complexUsing  = "complex_t";
     inline static std::string crealUsing    = "creal_t";
     inline static std::string ccomplexUsing = "ccomplex_t";
-    // Types of the C implementation's local variables, defined in mty_numerical_defs.h
+    // Types of the C implementation's local variables, defined in src/c/mty_calc_defs.h
     inline static std::string calcCrealUsing    = "calc_creal_t";
     inline static std::string calcCcomplexUsing = "calc_ccomplex_t";
     inline static std::string tensorUsing   = "csl::LibraryTensor";

@@ -312,7 +312,6 @@ TEST(library_targets, bare_cpp_python)
 // Quad is internal to the calculation sources: no public header may mention it.
 void expectNoQuadInPublicHeaders(fs::path const &dir)
 {
-    // mty_numerical_defs.h only uses quadruple precision inside MTY_QUADRUPLE
     fs::path root = dir / "include";
     if (!fs::exists(root))
         return;
@@ -322,15 +321,18 @@ void expectNoQuadInPublicHeaders(fs::path const &dir)
         std::ifstream     in(entry.path());
         std::stringstream text;
         text << in.rdbuf();
+        EXPECT_EQ(text.str().find("float128"), std::string::npos) << entry.path();
+    }
+    // Quad definitions live only in the private C header, guarded by MTY_QUADRUPLE.
+    fs::path const calcDefs = dir / "src" / "c" / "mty_calc_defs.h";
+    if (fs::exists(calcDefs)) {
+        std::ifstream     in(calcDefs);
+        std::stringstream text;
+        text << in.rdbuf();
         std::string const content = text.str();
-        if (entry.path().filename() == "mty_numerical_defs.h") {
-            size_t const guard = content.find("#ifdef MTY_QUADRUPLE");
-            EXPECT_NE(guard, std::string::npos) << entry.path();
-            EXPECT_GT(content.find("float128"), guard) << entry.path();
-            continue;
-        }
-        EXPECT_EQ(content.find("float128"), std::string::npos)
-            << entry.path();
+        size_t const      guard   = content.find("#ifdef MTY_QUADRUPLE");
+        EXPECT_NE(guard, std::string::npos) << calcDefs;
+        EXPECT_GT(content.find("float128"), guard) << calcDefs;
     }
 }
 

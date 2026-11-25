@@ -679,51 +679,52 @@ void LibraryGenerator::printCHeader() const
     cheader << "#endif\n\n";
     cheader << "#endif\n";
 
-    // Shared by the C and C++ interfaces. Calculations use quadruple precision
-    // only when the library is compiled with -DMTY_QUADRUPLE.
+    // Public types shared by the C and C++ interfaces: no quadruple precision here.
     LibraryGenerator::file numDefs(incPathC() + "/mty_numerical_defs.h");
     numDefs << "#ifndef CSL_LIB_" << name << "_MTY_NUMERICAL_DEFS_H_INCLUDED\n";
     numDefs << "#define CSL_LIB_" << name << "_MTY_NUMERICAL_DEFS_H_INCLUDED\n\n";
     numDefs << "#ifdef __cplusplus\n";
-    numDefs << "#include <cmath>\n";
     numDefs << "#include <complex>\n";
     numDefs << "typedef double creal_t;\n";
     numDefs << "typedef std::complex<double> ccomplex_t;\n";
-    numDefs << "typedef double calc_creal_t;\n";
-    numDefs << "typedef std::complex<double> calc_ccomplex_t;\n";
-    numDefs << "#define " << libmacro::fn << "(f) std::f\n";
-    numDefs << "#define " << libmacro::cfn << "(f) std::f\n";
-    numDefs << "#define " << libmacro::lit << "(x) x\n";
-    numDefs << "#define " << libmacro::imag << " ccomplex_t(0.0, 1.0)\n";
     numDefs << "#else\n";
     numDefs << "#include <complex.h>\n";
     numDefs << "typedef double creal_t;\n";
     numDefs << "typedef double _Complex ccomplex_t;\n";
-    numDefs << "#ifdef MTY_QUADRUPLE\n";
-    numDefs << "#include <quadmath.h>\n";
-    numDefs << "typedef __float128 calc_creal_t;\n";
-    numDefs << "typedef __complex128 calc_ccomplex_t;\n";
-    numDefs << "#define " << libmacro::fn << "(f) f##q\n";
-    numDefs << "#define " << libmacro::cfn << "(f) c##f##q\n";
-    numDefs << "#define " << libmacro::lit << "(x) x##Q\n";
-    numDefs << "#define " << libmacro::imag << " ((calc_ccomplex_t)_Complex_I)\n";
-    numDefs << "#else\n";
-    numDefs << "typedef double calc_creal_t;\n";
-    numDefs << "typedef double _Complex calc_ccomplex_t;\n";
-    numDefs << "#define " << libmacro::fn << "(f) f\n";
-    numDefs << "#define " << libmacro::cfn << "(f) c##f\n";
-    numDefs << "#define " << libmacro::lit << "(x) x\n";
-    numDefs << "#define " << libmacro::imag << " _Complex_I\n";
-    numDefs << "#endif\n";
     numDefs << "#endif\n\n";
     numDefs << "typedef struct ccomplex_return_s {\n";
     numDefs << "    creal_t real;\n";
     numDefs << "    creal_t imag;\n";
     numDefs << "} ccomplex_return_t;\n\n";
-    numDefs << "#define " << libmacro::cplx << "(re, im) ((re) + (im) * " << libmacro::imag << ")\n";
-    numDefs << "#define " << libmacro::fact << "(x) " << libmacro::fn << "(tgamma)((x) + " << libmacro::lit
-            << "(1.0))\n";
-    numDefs << "\n#endif\n";
+    numDefs << "#endif\n";
+
+    // Private to the C sources. Calculations use quadruple precision only when
+    // the library is compiled with -DMTY_QUADRUPLE.
+    LibraryGenerator::file calcDefs(srcPathC() + "/mty_calc_defs.h");
+    calcDefs << "#ifndef CSL_LIB_" << name << "_MTY_CALC_DEFS_H_INCLUDED\n";
+    calcDefs << "#define CSL_LIB_" << name << "_MTY_CALC_DEFS_H_INCLUDED\n\n";
+    calcDefs << "#include \"mty_numerical_defs.h\"\n";
+    calcDefs << "#include <complex.h>\n\n";
+    calcDefs << "#ifdef MTY_QUADRUPLE\n";
+    calcDefs << "#include <quadmath.h>\n";
+    calcDefs << "typedef __float128 calc_creal_t;\n";
+    calcDefs << "typedef __complex128 calc_ccomplex_t;\n";
+    calcDefs << "#define " << libmacro::fn << "(f) f##q\n";
+    calcDefs << "#define " << libmacro::cfn << "(f) c##f##q\n";
+    calcDefs << "#define " << libmacro::lit << "(x) x##Q\n";
+    calcDefs << "#define " << libmacro::imag << " ((calc_ccomplex_t)_Complex_I)\n";
+    calcDefs << "#else\n";
+    calcDefs << "typedef double calc_creal_t;\n";
+    calcDefs << "typedef double _Complex calc_ccomplex_t;\n";
+    calcDefs << "#define " << libmacro::fn << "(f) f\n";
+    calcDefs << "#define " << libmacro::cfn << "(f) c##f\n";
+    calcDefs << "#define " << libmacro::lit << "(x) x\n";
+    calcDefs << "#define " << libmacro::imag << " _Complex_I\n";
+    calcDefs << "#endif\n\n";
+    calcDefs << "#define " << libmacro::cplx << "(re, im) ((re) + (im) * " << libmacro::imag << ")\n";
+    calcDefs << "#define " << libmacro::fact << "(x) " << libmacro::fn << "(tgamma)((x) + " << libmacro::lit
+             << "(1.0))\n\n";
+    calcDefs << "#endif\n";
 
     LibraryGenerator::file csource(srcPathC() + "/ccommon.c");
     csource << "#include \"ccommon.h\"\n";
@@ -1090,7 +1091,7 @@ void LibraryGenerator::printCFunction(LibFunction const &f) const
     dependencies.printInclude(source, true);
     source << "#include \"" << nameHeader << "\"\n";
     source << "#include \"ccommon.h\"\n";
-    source << "#include \"mty_numerical_defs.h\"\n";
+    source << "#include \"mty_calc_defs.h\"\n";
     if (uniqueParamStruct)
         source << "#include \"cparams.h\"\n\n";
     f.printExplicitC(source, false);

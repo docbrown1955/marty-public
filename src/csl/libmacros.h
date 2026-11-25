@@ -20,10 +20,11 @@
  * \brief Names of the macros used by the numerical code printed for the
  * generated C and C++ libraries (see Abstract::printLib()).
  *
- * The macros themselves are defined by the library generator in the private
- * header mty_numerical_defs.h, which resolves them for the target language
- * (C or C++) and precision (double or quadruple). Printing code only uses the
- * names below, so that it never depends on the library generator.
+ * The macros themselves are defined by the library generator: in the public
+ * header mty_numerical_defs.h for types, and in the private C header
+ * mty_calc_defs.h for the precision-dependent macros (double or quadruple).
+ * Printing code only uses the names below, so that it never depends on the
+ * library generator.
  */
 
 namespace csl::libmacro {
