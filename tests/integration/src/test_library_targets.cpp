@@ -308,9 +308,32 @@ TEST(library_targets, bare_cpp_python)
 }
 
 // h(x) = exp(x) - 1 with x = 1e-20: double evaluates it to 0, quad keeps 1e-20.
+// Quad is internal to the calculation sources: no public header may mention it.
+void expectNoQuadInPublicHeaders(fs::path const &dir)
+{
+    for (char const *sub : {"clib", "include"}) {
+        fs::path root = dir / sub;
+        if (!fs::exists(root))
+            continue;
+        for (auto const &entry : fs::directory_iterator(root)) {
+            if (entry.path().extension() != ".h")
+                continue;
+            std::ifstream     in(entry.path());
+            std::stringstream text;
+            text << in.rdbuf();
+            EXPECT_EQ(text.str().find("float128"), std::string::npos)
+                << entry.path();
+            EXPECT_EQ(text.str().find("mty_numerical_defs.h"),
+                      std::string::npos)
+                << entry.path();
+        }
+    }
+}
+
 TEST(library_targets, quadruple_c_only)
 {
     fs::path dir = generate("itgqc", {false, false}, true, addQuadFunctions);
+    expectNoQuadInPublicHeaders(dir);
     std::string const source = R"C(
 #include <stdio.h>
 #include "c_h.h"
@@ -330,6 +353,7 @@ int main(void)
 TEST(library_targets, quadruple_cpp)
 {
     fs::path dir = generate("itgqcpp", {true, false}, true, addQuadFunctions);
+    expectNoQuadInPublicHeaders(dir);
     std::string const source = R"CPP(
 #include <stdio.h>
 #include "itgqcpp.h"
