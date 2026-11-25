@@ -138,6 +138,11 @@ void addQuadFunctions(csl::LibraryGenerator &lib)
 
 void addLoopToolsFunctions(csl::LibraryGenerator &lib)
 {
+    // The generated Makefile links -looptools; this points it to the build tree copy.
+    std::string const root = std::string(MARTY_LIBRARY_PATH) + "/..";
+    lib.addLPath(root);
+    // The library depends on libooptools.so, which the drivers' RUNPATH does not reach.
+    setenv("LD_LIBRARY_PATH", root.c_str(), 1);
     csl::Expr m2 = csl::constant_s("m2");
     lib.addFunction("a0",
                     mty::feynmanintegral_s(mty::IntegralType::A,

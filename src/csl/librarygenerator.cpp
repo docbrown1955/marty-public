@@ -848,7 +848,14 @@ void LibraryGenerator::printMakefile() const
     bool                     is_clang  = (0
                      == clang_str.compare(
                          0, std::string::npos, STRINGIFY(MARTY_CXX), 5));
-    dependencies.printLib(makefile, is_clang);
+    LibDependency makefileDeps = dependencies;
+    if (makefileDeps.containsInclude("clooptools.h")) {
+#if !(defined __APPLE__ || defined __MACH__)
+        makefileDeps.addLib("-lgfortran");
+#endif
+        makefileDeps.addLib(quadruple ? "-looptools-quad" : "-looptools");
+    }
+    makefileDeps.printLib(makefile, is_clang);
     makefile << " -lgsl -lgslcblas";
     makefile << "\n\n";
     print_libmakefile_data(makefile,
