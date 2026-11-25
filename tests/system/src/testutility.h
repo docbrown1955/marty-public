@@ -100,7 +100,7 @@ inline int assert_binary(std::string const &libName)
         c = tolower(c);
     }
     std::string binaryFileName
-        = "libs/" + libName + "/bin/example_" + lowerLibName + ".x";
+        = "libs/" + libName + "/build/bin/example_" + lowerLibName + ".x";
     std::ifstream file(binaryFileName);
     if (!file) {
         return 1;

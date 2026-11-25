@@ -2,18 +2,27 @@
 #include "gm2sm.h"
 #include "marty/core/looptools_init.h"
 #include "marty/core/looptools_interface.h"
+#include <cmath>
+#include <complex>
 #include <fstream>
 
 using namespace gm2sm;
+
+// The quad LoopTools library expects __float128 arguments, which the double-based
+// C++ wrapper in clooptools.h does not provide.
+extern "C" void quad_setmudim(__float128 *) __asm__("setmudim_");
 
 // PDG
 double gm2_theo(param_t const &param)
 {
     auto GF = param.alpha_em * 4 * M_PI * std::sqrt(2)
-              / (8 * powq(param.M_W * sinq(param.theta_W), 2));
+              / (8 * std::pow(param.M_W * std::sin(param.theta_W), 2));
     return GF * (double) (param.m_e * param.m_e)
            / (8 * std::sqrt(2) * M_PI * M_PI)
-           * (5. / 3 + 1. / 3 * powq(1 - 4 * powq(sinq(param.theta_W), 2), 2));
+           * (5. / 3
+              + 1. / 3
+                        * std::pow(1 - 4 * std::pow(std::sin(param.theta_W), 2),
+                                   2));
 }
 
 int main()
@@ -27,7 +36,7 @@ int main()
     param.alpha_em = 1. / 137;
     param.M_W      = 80.379;
     param.M_Z      = 91.2;
-    param.theta_W  = acosq(param.M_W / param.M_Z);
+    param.theta_W  = std::acos(param.M_W / param.M_Z);
     std::ofstream real("real.txt");
     std::ofstream imag("imag.txt");
 
@@ -38,10 +47,11 @@ int main()
         if (n1 == 1)
             ++n2;
         param.m_e = std::pow(10, exp_me);
-        setmudim(param.m_e);
+        __float128 mudim = param.m_e;
+        quad_setmudim(&mudim);
         param.s_12 = param.m_e * param.m_e;
-        real << (double) param.m_e << '\t' << crealq(gm2_e(param)) << '\t'
-             << crealq(gm2_eW(param)) << '\t' << param.alpha_em / (2 * M_PI)
+        real << (double) param.m_e << '\t' << std::real(gm2_e(param)) << '\t'
+             << std::real(gm2_eW(param)) << '\t' << param.alpha_em / (2 * M_PI)
              << '\t' << gm2_theo(param) << '\n';
     }
     real.close();

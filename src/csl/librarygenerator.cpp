@@ -1143,6 +1143,7 @@ void LibraryGenerator::printCppFunctions(LibraryGroup const &g) const
     //
     dependencies.printInclude(source, false);
     source << "#include \"" << nameHeader << "\"\n";
+    source << "#include \"../c/mty_calc_defs.h\"\n";
     source << "#include \"common.h\"\n\n";
     if (uniqueParamStruct)
         source << "#include \"params.h\"\n";
