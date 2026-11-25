@@ -56,8 +56,6 @@
 	// Configure tool-specific properties.
 	// "customizations": {},
 
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-
-	"remoteUser": "vscode",
-	"containerUser": "vscode"
+	// The container runs as root (no remoteUser/containerUser set), so tools can be installed.
+	// More info: https://aka.ms/dev-containers-non-root.
 }

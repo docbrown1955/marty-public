@@ -17,6 +17,8 @@ RUN apt-get update && \
         libgslcblas0 \
         texlive \
         texlive-luatex \
+        texlive-science \
+        texlive-latex-extra \
         dvipng \
         coreutils \
         imagemagick \
@@ -28,13 +30,15 @@ RUN apt-get update && \
         make \
         git \
         git-lfs \
+        python3 \
+        python3-pip \
+        python3-venv \
+        clang-format \
+        gdb \
+        valgrind \
         ca-certificates && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
-
-RUN useradd --create-home ${username}
-
-USER ${username}
 
 ENV CC=gcc-11
 ENV CXX=g++-11
