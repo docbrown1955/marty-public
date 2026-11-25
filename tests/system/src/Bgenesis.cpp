@@ -315,9 +315,8 @@ int main()
     Expr squared_ampl2 = toyModel.computeSquaredAmplitude(res2);
     cout << squared_ampl2 << endl;
 
-    Library::setQuadruplePrecision(true);
-
     mty::Library myLib("Bgenesis", "libs");
+    myLib.setQuadruplePrecision(true);
     myLib.cleanExistingSources();
     myLib.addFunction("squared_ampl0", squared_ampl0);
     myLib.addFunction("squared_ampl1", squared_ampl1);

@@ -25,7 +25,6 @@
 #include <iostream>
 
 void print_libmakefile_data(std::ostream      &out,
-                            bool               quad,
                             std::string const &cppCompiler,
                             std::string const &cCompiler,
                             bool               optimize,
@@ -48,19 +47,9 @@ void print_libmakefile_data(std::ostream      &out,
     else {
         out << "OPTIFLAGS = \n";
     }
-    if (!quad) {
-        out << "CXXFLAGS  = $(CXXSTD) $(DEFAULTFLAGS) $(OPTIFLAGS)\n";
-        out << "CFLAGS    = $(CSTD) $(DEFAULTFLAGS) $(OPTIFLAGS)\n";
-        out << "LINKFLAGS = $(DEFAULTFLAGS)\n";
-    }
-    else {
-        out << "QUADFLAGS = -DQUAD=1 -DQUADSIZE=16\n";
-        out << "CXXFLAGS  = $(CXXSTD) $(DEFAULTFLAGS) $(OPTIFLAGS) "
-               "$(QUADFLAGS)\n";
-        out << "CFLAGS    = $(CSTD) $(DEFAULTFLAGS) $(OPTIFLAGS) "
-               "$(QUADFLAGS)\n";
-        out << "LINKFLAGS = $(DEFAULTFLAGS) $(QUADFLAGS)\n";
-    }
+    out << "CXXFLAGS  = $(CXXSTD) $(DEFAULTFLAGS) $(OPTIFLAGS)\n";
+    out << "CFLAGS    = $(CSTD) $(DEFAULTFLAGS) $(OPTIFLAGS)\n";
+    out << "LINKFLAGS = $(DEFAULTFLAGS)\n";
     out << "\n";
     out << "SRCDIR = src\n";
     out << "INCDIR = include\n";

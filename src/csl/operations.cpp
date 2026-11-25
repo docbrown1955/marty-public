@@ -2731,27 +2731,11 @@ std::optional<Expr> Pow::suppressExponent(Expr const &factor,
 
 void Pow::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
-    if (libMode != LibraryMode::NoLib
-        and LibraryGenerator::isQuadruplePrecision()) {
+    if (libMode != LibraryMode::NoLib) {
         if (isReal())
-            out << "powq(";
+            out << "MTY_FN(pow)(";
         else
-            out << "cpowq(";
-        argument[0]->print(1, out, libMode);
-        out << ", ";
-        argument[1]->print(1, out, libMode);
-        out << ")";
-        if (mode == 0)
-            out << endl;
-        return;
-    }
-    else if (libMode != LibraryMode::NoLib) {
-        if (libMode == LibraryMode::CppLib)
-            out << "std::pow(";
-        else if (isReal())
-            out << "pow(";
-        else
-            out << "cpow(";
+            out << "MTY_CFN(pow)(";
         argument[0]->print(1, out, libMode);
         out << ", ";
         argument[1]->print(1, out, libMode);
@@ -3104,6 +3088,34 @@ bool Pow::operator==(Expr_info expr) const
             && *argument[1] == expr->getArgument(1).get());
 }
 
+// base^exponent for base >= 2 and exponent >= 0, or 0 if it does not fit in
+// a long long.
+static long long checked_power(long long base, long long exponent)
+{
+    long long result = 1;
+    for (long long k = 0; k < exponent; ++k) {
+        if (result > std::numeric_limits<long long>::max() / base)
+            return 0;
+        result *= base;
+    }
+    return result;
+}
+
+// If a = r^q for an integer r >= 2, returns |r^p|, so that a^(p/q) = r^p.
+// Returns 0 when a is not a perfect q-th power, or when |r^p| overflows.
+// Requires q >= 2.
+static long long exact_perfect_power(long long a, long long p, long long q)
+{
+    if (a < 2 or q < 2)
+        return 0;
+    long long guess = std::llround(std::pow(static_cast<double>(a), 1. / q));
+    for (long long r = std::max(2LL, guess - 1); r <= guess + 1; ++r) {
+        if (checked_power(r, q) == a)
+            return checked_power(r, std::abs(p));
+    }
+    return 0;
+}
+
 Expr pow_s(const Expr &leftOperand, const Expr &rightOperand)
 {
     if (leftOperand->getPrimaryType() == csl::PrimaryType::Arbitrary
@@ -3131,6 +3143,24 @@ Expr pow_s(const Expr &leftOperand, const Expr &rightOperand)
         return prod_s(terms);
     }
 
+    if (*leftOperand == CSL_0
+        and rightOperand->getPrimaryType() == csl::PrimaryType::Numerical
+        and rightOperand->getType() != csl::Type::Complex
+        and rightOperand->evaluateScalar() < 0)
+        CALL_SMERROR_SPEC(CSLError::ZeroDivisionError,
+                          "Zero raised to a negative power");
+
+    if (leftOperand->getType() == csl::Type::Integer
+        and rightOperand->getType() == csl::Type::IntFraction) {
+        long long value = exact_perfect_power(
+            static_cast<long long>(leftOperand->evaluateScalar()),
+            rightOperand->getNum(),
+            rightOperand->getDenom());
+        if (value > 0)
+            return rightOperand->getNum() > 0 ? int_s(value)
+                                              : intfraction_s(1, value);
+    }
+
     if (leftOperand->isInteger()
         and rightOperand->getType() == csl::Type::IntFraction) {
         int a     = leftOperand->evaluateScalar();
@@ -3155,21 +3185,9 @@ Expr pow_s(const Expr &leftOperand, const Expr &rightOperand)
     Expr foo  = csl::make_shared<Pow, alloc_pow>(leftOperand, rightOperand);
     Expr arg0 = foo->getArgument(0);
     Expr arg1 = foo->getArgument(1);
-    if (*arg0 == CSL_INF) {
-        std::cerr << leftOperand << std::endl;
-        std::cerr << rightOperand << std::endl;
-        std::raise(SIGSEGV);
-        return CSL_INF;
-    }
-    if (*arg0 == CSL_0
-        and arg1->getPrimaryType() == csl::PrimaryType::Numerical
-        and arg1->getType() != csl::Type::Complex
-        and arg1->evaluateScalar() < 0) {
-        std::cerr << leftOperand << std::endl;
-        std::cerr << rightOperand << std::endl;
-        std::raise(SIGSEGV);
-        return CSL_INF;
-    }
+    if (*arg0 == CSL_INF)
+        CALL_SMERROR_SPEC(CSLError::ValueError,
+                          "Power with an infinite base (oo) is not defined");
     if (*arg0 == CSL_0 and arg1->getType() == csl::Type::Complex) {
         return CSL_UNDEF;
     }

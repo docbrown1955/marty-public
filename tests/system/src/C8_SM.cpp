@@ -54,8 +54,8 @@ int calculate(Model &model, gauge::Type gauge)
     std::cout << CC8p << std::endl;
 
     [[maybe_unused]] int sysres = system("rm -rf libs/C8_SM");
-    csl::LibraryGenerator::setQuadruplePrecision(false);
     mty::Library wilsonLib("C8_SM", "libs");
+    wilsonLib.setQuadruplePrecision(false);
     wilsonLib.addFunction("C8", CC8);
     wilsonLib.addFunction("C8_p", CC8p);
     defineLibPath(wilsonLib);

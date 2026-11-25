@@ -49,14 +49,13 @@ class LibraryGenerator {
     };
 
     inline static int nDigits = std::numeric_limits<double>::max_digits10 - 2;
-    inline static std::string realType      = "double";
-    inline static std::string crealType     = "double";
-    inline static std::string complexType   = "std::complex<double>";
-    inline static std::string ccomplexType  = "double _Complex";
     inline static std::string realUsing     = "real_t";
     inline static std::string complexUsing  = "complex_t";
     inline static std::string crealUsing    = "creal_t";
     inline static std::string ccomplexUsing = "ccomplex_t";
+    // Types of the C implementation's local variables, defined in mty_numerical_defs.h
+    inline static std::string calcCrealUsing    = "calc_creal_t";
+    inline static std::string calcCcomplexUsing = "calc_ccomplex_t";
     inline static std::string tensorUsing   = "csl::LibraryTensor";
     inline static std::string indexType     = "int";
     inline static short       nSpaceIndent  = 4;
@@ -69,6 +68,7 @@ class LibraryGenerator {
     inline static std::string binDir       = "bin";
     inline static std::string libDir       = "lib";
     inline static std::string clibDir      = "clib";
+    inline static std::string pyDir        = "py";
     inline static std::string scriptDir    = "script";
     inline static std::string scriptObjDir = "script/obj";
 
@@ -84,22 +84,21 @@ class LibraryGenerator {
 
     static std::string indent(short nIndent = 1);
 
-    static bool isQuadruplePrecision()
-    {
-        return quadruple;
-    }
-    static void setQuadruplePrecision(bool quadruple);
+    // Quadruple precision only applies to the C implementation's calculations.
+    // Public types and parameters stay double.
+    void setQuadruplePrecision(bool quadruple);
 
     struct DiagonalizationData {
         std::vector<std::string> mixings;
         std::vector<std::string> masses;
         std::vector<std::string> expressions;
+        std::vector<std::string> cExpressions;
         std::vector<std::string> dependencies;
         bool                     squaredMass;
     };
 
   private:
-    static inline bool quadruple = false;
+    bool quadruple = false;
 
   public:
     LibraryGenerator(std::string const &t_name,
@@ -133,6 +132,22 @@ class LibraryGenerator {
     {
         uniqueParamStruct = t_par;
     }
+    bool hasCppLibrary() const
+    {
+        return cppLibrary;
+    }
+    void setCppLibrary(bool enable)
+    {
+        cppLibrary = enable;
+    }
+    bool hasPythonLibrary() const
+    {
+        return pythonLibrary;
+    }
+    void setPythonLibrary(bool enable)
+    {
+        pythonLibrary = enable;
+    }
     void setOptimization(bool optimize)
     {
         this->optimize = optimize;
@@ -155,18 +170,20 @@ class LibraryGenerator {
     void addGroup(std::string const &groupName, bool complexReturn = true);
     void addDefaultParameter(std::string const &name, bool isComplex);
     LibFunction &addFunction(std::string const &nameFunction,
-                             Expr               expression,
-                             bool               force_cpp_function = false);
+                             Expr               expression);
     void         addMassExpression(std::string const &mass);
     void         addDiagonalization(std::vector<std::string> const &mixing,
                                     std::vector<std::string> const &masses,
                                     std::vector<std::string> const &expressions,
+                                    std::vector<std::string> const &cExpressions,
                                     std::vector<std::string> const &dependencies,
                                     bool                            squaredMass);
 
     void print() const;
     void setupDirectory() const;
-    void printHeader() const;
+    void printCppHeader() const;
+    void printCHeader() const;
+    void printParamStruct() const;
     void printGlobal() const;
     void printSource() const;
     void printCallable() const;
@@ -179,7 +196,10 @@ class LibraryGenerator {
                                       std::ostream &source) const;
 
     void printMakefile() const;
-    void printPythonDir() const;
+    void printCDiagonalization() const;
+    void printCppDiagonalization() const;
+    void printCSpectrum() const;
+    void printPython() const;
     // void printCMakeLists() const;
     // void printGenerator() const;
     // void printPythonTest() const;
@@ -198,6 +218,7 @@ class LibraryGenerator {
     void printCFunction(LibFunction const &f) const;
     void printFunction(LibFunction const &f) const;
     void printGroup(LibraryGroup const &g) const;
+    void printCppGroup(LibraryGroup const &g) const;
 
     void printTensors(std::ostream &out) const;
 
@@ -245,6 +266,10 @@ class LibraryGenerator {
     mutable std::vector<std::string> massExpressions;
 
     bool uniqueParamStruct;
+
+    bool cppLibrary = true;
+
+    bool pythonLibrary = false;
 };
 
 } // End of namespace csl

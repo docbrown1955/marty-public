@@ -129,28 +129,21 @@ void Constant::setCommutable(bool commutable)
 void Constant::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
     const bool conj = isComplexConjugate() && libMode != LibraryMode::NoLib;
-    if (conj and LibraryGenerator::isQuadruplePrecision()) {
-        out << "conjq(";
-    }
-    else if (conj && libMode == LibraryMode::CppLib) {
-        out << "std::conj(";
-    }
-    else if (conj && libMode == LibraryMode::CLib) {
-        out << "conj(";
+    if (conj) {
+        out << "MTY_FN(conj)(";
     }
     std::string name(parent->getName());
     if (libMode != LibraryMode::NoLib)
         for (char &c : name)
             if (c == '\\')
                 c = '_';
-    if (mode == 0)
-        out << name << endl;
-    else
-        out << name;
+    out << name;
     if (conj)
         out << ")";
     else
         printProp(out);
+    if (mode == 0)
+        out << endl;
 }
 
 void Constant::printCode(int, std::ostream &out) const
@@ -360,14 +353,8 @@ void Variable::setValue(Expr const &t_value)
 void Variable::print(int mode, std::ostream &out, LibraryMode libMode) const
 {
     const bool conj = isComplexConjugate() && libMode != LibraryMode::NoLib;
-    if (conj and LibraryGenerator::isQuadruplePrecision()) {
-        out << "conjq(";
-    }
-    else if (conj && libMode == LibraryMode::CppLib) {
-        out << "std::conj(";
-    }
-    else if (conj && libMode == LibraryMode::CLib) {
-        out << "conj(";
+    if (conj) {
+        out << "MTY_FN(conj)(";
     }
     std::string name(parent->getName());
     if (libMode != LibraryMode::NoLib)

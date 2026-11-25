@@ -21,8 +21,8 @@ int main()
             {"W", "Z", "H0", "h", "A0", "Gp", "G0", "Hp"}),
         [&](FeynmanDiagram const &diag) { return !diag.isInLoop("A"); });
 
-    Library::setQuadruplePrecision(true);
     Library lib("gm2PMSSM", "libs");
+    lib.setQuadruplePrecision(true);
     lib.cleanExistingSources();
     lib.generateSpectrum(pmssm);
     csl::Expr aa = csl::constant_s("aa");

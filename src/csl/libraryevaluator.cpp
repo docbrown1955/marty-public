@@ -293,8 +293,8 @@ void LibEval::printLib(std::ostream &out,
         type = (expr->isReal()) ? LibraryGenerator::realUsing
                                 : LibraryGenerator::complexUsing;
     else
-        type = (expr->isReal()) ? LibraryGenerator::crealUsing
-                                : LibraryGenerator::ccomplexUsing;
+        type = (expr->isReal()) ? LibraryGenerator::calcCrealUsing
+                                : LibraryGenerator::calcCcomplexUsing;
     if (indices.size() == 0 and not init->isIndexed()) {
         printExpression(out,
                         init,

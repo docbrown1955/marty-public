@@ -2410,12 +2410,7 @@ csl::LibDependency FeynmanIntegral::getLibDependency() const
                             "marty/core/looptools_interface.h");
     dependencies.addLib("-lgfortran");
     dependencies.addInclude("clooptools.h", "clooptools.h");
-    if (csl::LibraryGenerator::isQuadruplePrecision()) {
-        dependencies.addLib("-looptools-quad");
-    }
-    else {
-        dependencies.addLib("-looptools");
-    }
+    // The LoopTools library (double or quadruple) is chosen by mty::Library
 
     return dependencies;
 }

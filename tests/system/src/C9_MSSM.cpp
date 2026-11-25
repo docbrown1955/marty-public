@@ -162,8 +162,8 @@ int main()
     pmssm.getParticle("A0")->setEnabledInDiagrams(false);
 
     [[maybe_unused]] int sysres = system("rm -rf libs/C9_MSSM");
-    Library::setQuadruplePrecision(true);
     Library lib("C9_MSSM", "libs");
+    lib.setQuadruplePrecision(true);
     lib.generateSpectrum(pmssm);
     lib.importLHAModule();
     lib.setOptimization(false);

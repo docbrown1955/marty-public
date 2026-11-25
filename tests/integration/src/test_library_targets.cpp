@@ -25,19 +25,6 @@ struct Targets {
 
 using FunctionBuilder = std::function<void(csl::LibraryGenerator &)>;
 
-// Scoped switch of the global quadruple precision flag of the generator.
-class QuadScope {
-  public:
-    explicit QuadScope(bool quad)
-    {
-        csl::LibraryGenerator::setQuadruplePrecision(quad);
-    }
-    ~QuadScope()
-    {
-        csl::LibraryGenerator::setQuadruplePrecision(false);
-    }
-};
-
 std::string runCommand(std::string const &cmd)
 {
     std::string output;
@@ -59,12 +46,12 @@ fs::path generate(std::string const &name,
                   bool               quad,
                   FunctionBuilder    addFunctions)
 {
-    QuadScope scope(quad);
-    fs::path  root = fs::absolute(fs::path("libs") / "integration");
-    fs::path  dir  = root / name;
+    fs::path root = fs::absolute(fs::path("libs") / "integration");
+    fs::path dir  = root / name;
     fs::remove_all(dir);
 
     csl::LibraryGenerator lib(name, root.string());
+    lib.setQuadruplePrecision(quad);
     lib.setCppLibrary(targets.cpp);
     lib.setPythonLibrary(targets.python);
     lib.addIPath(LT_STRINGIFY(MARTY_INCLUDE_PATH));
@@ -144,7 +131,7 @@ void addBareFunctions(csl::LibraryGenerator &lib)
 
 void addQuadFunctions(csl::LibraryGenerator &lib)
 {
-    lib.addFunction("h", 1 + csl::constant_s("x"));
+    lib.addFunction("h", csl::exp_s(csl::constant_s("x")) - 1);
 }
 
 // Evaluates f(2, 3) = 10 and g(2, 3) = 6i, printing real and imaginary parts.
@@ -258,22 +245,17 @@ TEST(library_targets, bare_cpp_python)
     checkBareLibrary("itgcpypy", {true, true});
 }
 
-// With quadruple precision, 1 + 1e-20 keeps the small term, double does not.
+// h(x) = exp(x) - 1 with x = 1e-20: double evaluates it to 0, quad keeps 1e-20.
 TEST(library_targets, quadruple_c_only)
 {
     fs::path dir = generate("itgqc", {false, false}, true, addQuadFunctions);
     std::string const source = R"C(
 #include <stdio.h>
-#include <stdlib.h>
-#include <quadmath.h>
 #include "c_h.h"
 int main(void)
 {
-    creal_t x = strtoflt128("1e-20", NULL);
-    char buf[128];
-    ccomplex_return_t h = c_h_explicit(x);
-    quadmath_snprintf(buf, sizeof buf, "%.30Qg", (__float128)(h.real - 1));
-    printf("%s\n", buf);
+    ccomplex_return_t h = c_h_explicit(1e-20);
+    printf("%.30g\n", h.real);
     return 0;
 }
 )C";
@@ -288,35 +270,34 @@ TEST(library_targets, quadruple_cpp)
     fs::path dir = generate("itgqcpp", {true, false}, true, addQuadFunctions);
     std::string const source = R"CPP(
 #include <stdio.h>
-#include <stdlib.h>
-#include <quadmath.h>
 #include "itgqcpp.h"
 int main()
 {
     itgqcpp::param_t p;
-    p.x = strtoflt128("1e-20", NULL);
+    p.x = 1e-20;
     auto h = itgqcpp::h(p);
-    char buf[128];
-    quadmath_snprintf(buf, sizeof buf, "%.30Qg", (__float128)(crealq(h) - 1));
-    printf("%s\n", buf);
+    printf("%.30g\n", h.real());
     return 0;
 }
 )CPP";
     std::vector<long double> values =
-        parseValues(runCppDriver(dir, "itgqcpp", source, "-DQUAD=1 -DQUADSIZE=16"));
+        parseValues(runCppDriver(dir, "itgqcpp", source));
     ASSERT_EQ(values.size(), 1u);
     EXPECT_NEAR(values[0], 1e-20L, 1e-30L);
 }
 
-TEST(library_targets, python_rejects_quadruple_precision)
+TEST(library_targets, quadruple_python)
 {
-    QuadScope scope(true);
-    fs::path  root = fs::absolute(fs::path("libs") / "integration");
-    csl::LibraryGenerator lib("itgqpy", root.string());
-    lib.setCppLibrary(false);
-    lib.setPythonLibrary(true);
-    addQuadFunctions(lib);
-    EXPECT_ANY_THROW(lib.print());
+    fs::path dir = generate("itgqpy", {false, true}, true, addQuadFunctions);
+    std::string const source = "import sys\n"
+                               "sys.path.insert(0, '" +
+                               (dir / "py").string() +
+                               "')\n"
+                               "import itgqpy as m\n"
+                               "print(m.h(x=1e-20).real)\n";
+    std::vector<long double> values = parseValues(runPythonDriver(dir, source));
+    ASSERT_EQ(values.size(), 1u);
+    EXPECT_NEAR(values[0], 1e-20L, 1e-30L);
 }
 
 // Generates a library with a single complex scalar of mass m under U(1).
@@ -327,7 +308,9 @@ fs::path generateSpectrumLibrary(std::string const &name, Targets targets)
     fs::remove_all(dir);
 
     csl::Expr e = csl::constant_s("e");
-    mty::Model model({mty::GaugeGroupSpec{mty::group::Type::U, 1, "em", "A", e}});
+    mty::Model model;
+    model.addGaugedGroup(mty::group::Type::U1, "em", e);
+    model.init();
     mty::Particle phi = mty::scalarboson_s("h", model);
     phi->setGroupRep("em", -1);
     model.addParticle(phi);

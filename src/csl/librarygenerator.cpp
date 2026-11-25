@@ -25,6 +25,7 @@
 #include "utils.h"
 
 #include "libcallable_data.h"
+#include "cdiagonalization_data.h"
 #include "libcomplexop_hdata.h"
 #include "libdiagonalization_cppdata.h"
 #include "libdiagonalization_hdata.h"
@@ -50,23 +51,17 @@ namespace csl {
 
 void LibraryGenerator::setQuadruplePrecision(bool t_quadruple)
 {
-    quadruple = t_quadruple;
-    if (quadruple) {
 #if !(defined MARTY_QUADRUPLE_ENABLED) || !(MARTY_QUADRUPLE_ENABLED)
+    if (t_quadruple)
         CALL_SMERROR_SPEC(CSLError::NotImplementedError,
                           "The quadruple precision cannot be used because it "
                           "has "
                           "been disabled during the compilation of MARTY.");
 #endif
-        realType     = "__float128";
-        complexType  = "__complex128";
-        ccomplexType = "__complex128";
-    }
-    else {
-        realType     = "double";
-        complexType  = "std::complex<double>";
-        ccomplexType = "double _Complex";
-    }
+    quadruple = t_quadruple;
+    dependencies.removeLib("-lquadmath");
+    if (quadruple)
+        dependencies.addLib("-lquadmath");
 }
 
 LibraryGenerator::LibraryGenerator(std::string const &t_name,
@@ -76,10 +71,7 @@ LibraryGenerator::LibraryGenerator(std::string const &t_name,
       IPath({incDir}),
       uniqueParamStruct(true)
 {
-    if (quadruple) {
-        dependencies.addLib("-lquadmath");
-        dependencies.addInclude("quadmath.h", "quadmath.h", true);
-    }
+    setQuadruplePrecision(false);
     groups.push_back(std::make_shared<LibraryGroup>("G", true));
     // General, default group
 }
@@ -236,8 +228,7 @@ void LibraryGenerator::addDefaultParameter(std::string const &name,
 }
 
 LibFunction &LibraryGenerator::addFunction(std::string const &nameFunction,
-                                           Expr               expression,
-                                           bool               forceCppFunction)
+                                           Expr               expression)
 {
     // lib_log << "Adding function \"" << nameFunction << "\".\n";
     // lib_log << "Expr = " << expression << std::endl;
@@ -247,7 +238,7 @@ LibFunction &LibraryGenerator::addFunction(std::string const &nameFunction,
     Expr expr = csl::DeepCopy(expression);
     csl::Evaluate(expr, // csl::eval::abbreviation |
                   csl::eval::literal | csl::eval::numerical);
-    auto f = LibFunction{nameFunction, expr, group, forceCppFunction};
+    auto f = LibFunction{nameFunction, expr, group};
     return group->addFunction(std::move(f));
 }
 
@@ -263,11 +254,16 @@ void LibraryGenerator::addDiagonalization(
     std::vector<std::string> const &mixings,
     std::vector<std::string> const &masses,
     std::vector<std::string> const &expressions,
+    std::vector<std::string> const &cExpressions,
     std::vector<std::string> const &dependencies,
     bool                            squaredMass)
 {
-    diagData.push_back(
-        {mixings, masses, expressions, dependencies, squaredMass});
+    diagData.push_back({mixings,
+                        masses,
+                        expressions,
+                        cExpressions,
+                        dependencies,
+                        squaredMass});
 }
 
 void LibraryGenerator::cleanExistingSources() const
@@ -280,23 +276,46 @@ void LibraryGenerator::cleanExistingSources() const
 
 void LibraryGenerator::print() const
 {
-    if (pythonLibrary and quadruple) {
-        CALL_SMERROR_SPEC(CSLError::NotImplementedError,
-                          "The Python binding does not support quadruple "
-                          "precision.");
-    }
     updateDiagonalization();
     setupDirectory();
-    printSource();
-    printGlobal();
-    if (uniqueParamStruct) {
-        std::shared_ptr<LibraryGroup> dummy
-            = std::make_shared<LibraryGroup>("", false);
-        dummy->addFunction(LibFunction("dummy", CSL_0, dummy));
-        dummy->getFunctions()[0].setParameters(inputParams(diagData));
-        groups.push_back(dummy);
-        LibraryGroup::gatherParameters(groups, "param_t");
-        groups.erase(groups.end() - 1);
+    printParamStruct();
+    for (auto &g : groups) {
+        if (!g->empty()) {
+            if (!uniqueParamStruct)
+                g->gatherParameters();
+            printGroup(*g);
+        }
+    }
+    printCHeader();
+    printCDiagonalization();
+    printCSpectrum();
+    if (pythonLibrary)
+        printPython();
+    printMakefile();
+    if (cppLibrary) {
+        printGlobal();
+        printCppHeader();
+        printSource();
+        printCallable();
+        printTest();
+        printCppDiagonalization();
+    }
+}
+
+void LibraryGenerator::printParamStruct() const
+{
+    if (!uniqueParamStruct)
+        return;
+    std::shared_ptr<LibraryGroup> dummy
+        = std::make_shared<LibraryGroup>("", false);
+    dummy->addFunction(LibFunction("dummy", CSL_0, dummy));
+    dummy->getFunctions()[0].setParameters(inputParams(diagData));
+    groups.push_back(dummy);
+    LibraryGroup::gatherParameters(groups, "param_t");
+    groups.erase(groups.end() - 1);
+    dummy->setForcedParameters(outputParams(diagData, massExpressions));
+
+    if (cppLibrary) {
         file paramFile(path + "/" + incDir + "/params.h");
         paramFile << "#ifndef CSL_LIB_PARAM_H_INCLUDED\n";
         paramFile << "#define CSL_LIB_PARAM_H_INCLUDED\n\n";
@@ -307,39 +326,27 @@ void LibraryGenerator::print() const
         paramFile << "#include \"csl/initSanitizer.h\"\n";
         paramFile << '\n';
         paramFile << "namespace " << regLibName() << " {\n\n";
-        dummy->setForcedParameters(outputParams(diagData, massExpressions));
         dummy->print(paramFile, true);
         paramFile << "\n\n";
         paramFile << "}\n\n";
         paramFile << "#endif\n";
+    }
 
-        file cParamFile(path + "/" + clibDir + "/cparams.h");
-        cParamFile << "#ifndef CSL_LIB_CPARAM_H_INCLUDED\n",
-            cParamFile << "#define CSL_LIB_CPARAM_H_INCLUDED\n\n";
-        cParamFile << "#include \"ccommon.h\"\n";
-        cParamFile << '\n';
-        cParamFile << "#ifdef __cplusplus\n";
-        cParamFile << "extern \"C\" {\n";
-        cParamFile << "#endif\n\n";
-        dummy->printExternC(cParamFile, true);
-        cParamFile << "#ifdef __cplusplus\n";
-        cParamFile << "} // extern \"C\" block\n";
-        cParamFile << "#endif\n\n";
-        cParamFile << "\n#endif\n";
-    }
-    for (auto &g : groups) {
-        if (!g->empty()) {
-            if (!uniqueParamStruct)
-                g->gatherParameters();
-            printGroup(*g);
-        }
-    }
-    printHeader();
-    printCallable();
-    printTest();
-    printMakefile();
-    printPythonDir();
+    file cParamFile(path + "/" + clibDir + "/cparams.h");
+    cParamFile << "#ifndef CSL_LIB_CPARAM_H_INCLUDED\n",
+        cParamFile << "#define CSL_LIB_CPARAM_H_INCLUDED\n\n";
+    cParamFile << "#include \"ccommon.h\"\n";
+    cParamFile << '\n';
+    cParamFile << "#ifdef __cplusplus\n";
+    cParamFile << "extern \"C\" {\n";
+    cParamFile << "#endif\n\n";
+    dummy->printExternC(cParamFile, true);
+    cParamFile << "#ifdef __cplusplus\n";
+    cParamFile << "} // extern \"C\" block\n";
+    cParamFile << "#endif\n\n";
+    cParamFile << "\n#endif\n";
 }
+
 
 void LibraryGenerator::setupDirectory() const
 {
@@ -352,6 +359,8 @@ void LibraryGenerator::setupDirectory() const
     res = system(("mkdir -p " + path + "/" + scriptObjDir).c_str());
     res = system(("mkdir -p " + path + "/" + libDir).c_str());
     res = system(("mkdir -p " + path + "/" + clibDir).c_str());
+    if (pythonLibrary)
+        res = system(("mkdir -p " + path + "/" + pyDir).c_str());
 }
 
 void LibraryGenerator::printGlobal() const
@@ -551,7 +560,7 @@ void LibraryGenerator::printDiagonalizationFacility(std::ostream &header,
                 source << '\"' << mass << '\"' << " << \".\\n\";\n";
                 source << indent(1) << "}\n";
                 source << indent(1) << "outputs." << mass << " = ";
-                source << ((quadruple) ? "sqrtq(" : "std::sqrt(");
+                source << "std::sqrt(";
                 source << "outputs." << mass << ");\n";
             }
         }
@@ -568,19 +577,13 @@ void LibraryGenerator::printMassExpressionsFacility(std::ostream &header,
     source << "void updateMassExpressions(param_t &params)\n";
     source << "{\n";
     for (const auto &mass : massExpressions) {
-        if (quadruple) {
-            source << indent(1) << "params." << mass << " = crealq(" << mass
-                   << "(params));\n";
-        }
-        else {
-            source << indent(1) << "params." << mass << " = " << mass
-                   << "(params).real();\n";
-        }
+        source << indent(1) << "params." << mass << " = " << mass
+               << "(params).real();\n";
     }
     source << "}\n\n";
 }
 
-void LibraryGenerator::printHeader() const
+void LibraryGenerator::printCppHeader() const
 {
     LibraryGenerator::file globalHeader(path + "/" + incDir + "/"
                                         + regLibName() + ".h");
@@ -612,16 +615,14 @@ void LibraryGenerator::printHeader() const
     header << "#ifndef CSL_LIB_" << name << "_COMMON_H_INCLUDED\n";
     header << "#define CSL_LIB_" << name << "_COMMON_H_INCLUDED\n";
     header << "#include <complex>\n";
-    if (quadruple)
-        header << "#include <quadmath.h>\n";
     if (needLibraryTensor()) {
         header << "#define CSL_LT_DISABLE_ITERATOR\n";
         header << "#include \"librarytensor.h\"\n";
     }
     header << '\n';
     header << "namespace " << regLibName() << " {\n\n";
-    header << "using " << realUsing << " = " << realType << ";\n";
-    header << "using " << complexUsing << " = " << complexType << ";\n";
+    header << "using " << realUsing << " = double;\n";
+    header << "using " << complexUsing << " = std::complex<double>;\n";
     header << "static constexpr " << complexUsing << " _i_{0, 1};\n\n";
     if (dependencies.containsInclude("clooptools.h")) {
         header << "void setMu(const double mu);\n";
@@ -631,9 +632,12 @@ void LibraryGenerator::printHeader() const
     printTensors(header);
     header << "} // End of namespace " << regLibName() << "\n\n";
     header << "#endif\n";
+}
 
+void LibraryGenerator::printCHeader() const
+{
     LibraryGenerator::file cheader(path + "/" + clibDir + "/ccommon.h");
-    CSL_ASSERT_SPEC(header,
+    CSL_ASSERT_SPEC(cheader,
                     CSLError::IOError,
                     "File \"" + path + "/" + clibDir
                         + "/ccommon.h\" not found.");
@@ -646,11 +650,9 @@ void LibraryGenerator::printHeader() const
     cheader << "#include <math.h>\n";
     cheader << "#include <complex.h>\n";
     cheader << "#include <stdbool.h>\n";
-    if (quadruple)
-        cheader << "#include <quadmath.h>\n";
     cheader << '\n';
-    cheader << "typedef " << crealType << " " << crealUsing << ";\n";
-    cheader << "typedef " << ccomplexType << " " << ccomplexUsing << ";\n\n";
+    cheader << "typedef double " << crealUsing << ";\n";
+    cheader << "typedef double _Complex " << ccomplexUsing << ";\n\n";
     cheader << "extern const " << ccomplexUsing << " _mty_I;\n\n";
     cheader << "typedef struct ccomplex_return_s {\n";
     cheader << LibraryGenerator::indent(1) << "creal_t real;\n";
@@ -658,26 +660,75 @@ void LibraryGenerator::printHeader() const
     cheader << "} ccomplex_return_t;\n\n";
     cheader << "ccomplex_return_t create_ccomplex_return(\n";
     cheader << LibraryGenerator::indent(1) << "ccomplex_t value);\n\n";
+    if (dependencies.containsInclude("clooptools.h")) {
+        cheader << "void c_setMu(const double mu);\n";
+        cheader << "void c_setLambda2(const double lambda2);\n";
+        cheader << "void c_setUVDiv(const double x);\n\n";
+    }
     cheader << "#ifdef __cplusplus\n";
     cheader << "} // extern \"C\" block\n";
     cheader << "#endif\n\n";
     cheader << "#endif\n";
 
+    // Private to the C calculations (src/), never included by public headers
+    LibraryGenerator::file numDefs(path + "/" + srcDir + "/mty_numerical_defs.h");
+    numDefs << "#ifndef CSL_LIB_" << name << "_MTY_NUMERICAL_DEFS_H_INCLUDED\n";
+    numDefs << "#define CSL_LIB_" << name << "_MTY_NUMERICAL_DEFS_H_INCLUDED\n\n";
+    numDefs << "// Names used by the printed expressions, for both the C and the C++ libraries\n";
+    numDefs << "#ifdef __cplusplus\n";
+    numDefs << "#include <cmath>\n";
+    numDefs << "#include <complex>\n";
+    numDefs << "#define MTY_FN(f) std::f\n";
+    numDefs << "#define MTY_CFN(f) std::f\n";
+    numDefs << "#define MTY_LIT(x) x\n";
+    numDefs << "#else\n";
+    if (quadruple) {
+        numDefs << "#include <quadmath.h>\n\n";
+        numDefs << "typedef __float128 calc_creal_t;\n";
+        numDefs << "typedef __complex128 calc_ccomplex_t;\n";
+        numDefs << "#define MTY_FN(f) f##q\n";
+        numDefs << "#define MTY_CFN(f) c##f##q\n";
+        numDefs << "#define MTY_LIT(x) x##Q\n";
+    }
+    else {
+        numDefs << "typedef double calc_creal_t;\n";
+        numDefs << "typedef double _Complex calc_ccomplex_t;\n";
+        numDefs << "#define MTY_FN(f) f\n";
+        numDefs << "#define MTY_CFN(f) c##f\n";
+        numDefs << "#define MTY_LIT(x) x\n";
+    }
+    numDefs << "#endif\n";
+    numDefs << "\n#endif\n";
+
     LibraryGenerator::file csource(path + "/" + clibDir + "/ccommon.c");
-    csource << "#include \"ccommon.h\"\n\n";
+    csource << "#include \"ccommon.h\"\n";
+    if (dependencies.containsInclude("clooptools.h"))
+        dependencies.printInclude(csource, true);
+    csource << "\n";
     csource << "const " << ccomplexUsing << " _mty_I = _Complex_I;\n\n";
     csource << "ccomplex_return_t create_ccomplex_return(\n";
     csource << LibraryGenerator::indent(1) << "ccomplex_t value)\n";
     csource << "{\n";
-    if (quadruple)
-        csource << LibraryGenerator::indent(1)
-                << "ccomplex_return_t res = {crealq(value), cimagq(value)};\n";
-    else
-        csource << LibraryGenerator::indent(1)
-                << "ccomplex_return_t res = {creal(value), cimag(value)};\n";
+    csource << LibraryGenerator::indent(1)
+            << "ccomplex_return_t res = {creal(value), cimag(value)};\n";
     csource << LibraryGenerator::indent(1) << "return res;\n";
     csource << "}\n";
+    if (dependencies.containsInclude("clooptools.h")) {
+        csource << "\nvoid c_setMu(const double mu)\n"
+                << "{\n"
+                << indent() << "setmudim(mu * mu);\n"
+                << "}\n\n";
+        csource << "void c_setLambda2(const double lambda2)\n"
+                << "{\n"
+                << indent() << "setlambda(lambda2);\n"
+                << "}\n\n";
+        csource << "void c_setUVDiv(const double x)\n"
+                << "{\n"
+                << indent() << "setuvdiv(x);\n"
+                << "}\n";
+    }
 }
+
 
 void LibraryGenerator::printSource() const
 {
@@ -687,20 +738,22 @@ void LibraryGenerator::printSource() const
                     "File \"" + path + "/" + srcDir + "/common.cpp\""
                         + " not found.");
     dependencies.printInclude(source, false);
-    source << "#include \"common.h\"\n\n";
-    source << "namespace " << regLibName() << " {\n\n";
+    source << "#include \"common.h\"\n";
+    if (dependencies.containsInclude("clooptools.h"))
+        source << "#include \"ccommon.h\"\n";
+    source << "\nnamespace " << regLibName() << " {\n\n";
     if (dependencies.containsInclude("clooptools.h")) {
         source << "void setMu(const double mu)\n"
                << "{\n"
-               << indent() << "setmudim(mu * mu);\n"
+               << indent() << "c_setMu(mu);\n"
                << "}\n\n";
         source << "void setLambda2(const double lambda2)\n"
                << "{\n"
-               << indent() << "setlambda(lambda2);\n"
+               << indent() << "c_setLambda2(lambda2);\n"
                << "}\n\n";
         source << "void setUVDiv(const double x)\n"
                << "{\n"
-               << indent() << "setuvdiv(x);\n"
+               << indent() << "c_setUVDiv(x);\n"
                << "}\n\n";
     }
     source << "} // End of namespace " << regLibName() << "\n\n";
@@ -771,7 +824,6 @@ void LibraryGenerator::printMakefile() const
     makefile << " -lgsl -lgslcblas";
     makefile << "\n\n";
     print_libmakefile_data(makefile,
-                           quadruple,
                            STRINGIFY(MARTY_CXX),
                            STRINGIFY(MARTY_CC),
                            optimize,
@@ -779,11 +831,20 @@ void LibraryGenerator::printMakefile() const
     makefile.close();
 }
 
-void LibraryGenerator::printPythonDir() const
+void LibraryGenerator::printCDiagonalization() const
 {
-    // std::string pythonPath = path + "/python";
     std::ofstream file;
+    file.open(path + "/" + clibDir + "/cdiagonalization.h");
+    print_cdiagonalization_hdata(file);
+    file.close();
+    file.open(path + "/" + clibDir + "/cdiagonalization.c");
+    print_cdiagonalization_cdata(file);
+    file.close();
+}
 
+void LibraryGenerator::printCppDiagonalization() const
+{
+    std::ofstream file;
     file.open(path + "/" + incDir + "/libdiagonalization.h");
     print_libdiagonalization_hdata(file);
     file.close();
@@ -797,11 +858,8 @@ void LibraryGenerator::printPythonDir() const
     file.open(path + "/" + incDir + "/librarytensor.h");
     print_librarytensor_hdata(file);
     file.close();
-    // system(("mkdir -p " + pythonPath).c_str());
-    // printCMakeLists();
-    // printGenerator();
-    // printPythonTest();
 }
+
 
 // void LibraryGenerator::printCMakeLists() const
 // {
@@ -902,7 +960,7 @@ bool LibraryGenerator::needLibraryTensor() const
     // return false;
 }
 
-void LibraryGenerator::printGroup(LibraryGroup const &g) const
+void LibraryGenerator::printCppGroup(LibraryGroup const &g) const
 {
     constexpr const bool are_group_functions_inline=false;
     std::string nameHeader = "group_";
@@ -942,6 +1000,7 @@ void LibraryGenerator::printGroup(LibraryGroup const &g) const
 
     file source(path + "/" + srcDir + "/" + nameSource);
     source << "#include \"" << nameHeader << "\"\n";
+    source << "#include \"mty_numerical_defs.h\"\n";
     source << "namespace " << regLibName() << " {\n\n";
     if(are_group_functions_inline)
     {
@@ -951,13 +1010,17 @@ void LibraryGenerator::printGroup(LibraryGroup const &g) const
         g.printFunctionStackOnSource(source, 0);
     }
     source << "\n} // End of namespace " << regLibName() << "\n";
+}
 
+void LibraryGenerator::printGroup(LibraryGroup const &g) const
+{
+    if (cppLibrary)
+        printCppGroup(g);
     for (const auto &f : g.getFunctions()) {
-        if (!f.isTrivial() && !f.isCppFunc()) {
-            printCFunction(f);
-        }
+        printCFunction(f);
     }
-    printCppFunctions(g);
+    if (cppLibrary)
+        printCppFunctions(g);
 
     file globalCHeader(path + "/" + clibDir + "/clib_" + regLibName() + ".h");
     globalCHeader << "#ifndef CSL_LIB_CLIB_" + toUpper(regLibName())
@@ -965,9 +1028,7 @@ void LibraryGenerator::printGroup(LibraryGroup const &g) const
     globalCHeader << "#define CSL_LIB_CLIB_" + toUpper(regLibName())
                   << "_H_INCLUDED\n\n";
     for (const auto &f : g.getFunctions()) {
-        if (!f.isTrivial() && !f.isCppFunc()) {
-            globalCHeader << "#include \"c_" << f.getName() << ".h\"\n";
-        }
+        globalCHeader << "#include \"c_" << f.getName() << ".h\"\n";
     }
     globalCHeader << "\n#endif\n";
 }
@@ -988,6 +1049,7 @@ void LibraryGenerator::printCFunction(LibFunction const &f) const
     header << "#ifdef __cplusplus\n";
     header << "extern \"C\" {\n";
     header << "#endif\n\n";
+    f.printExplicitC(header, true);
     f.printExternC(header, true);
     header << "#ifdef __cplusplus\n";
     header << "} // extern \"C\" block\n";
@@ -1000,9 +1062,11 @@ void LibraryGenerator::printCFunction(LibFunction const &f) const
 
     dependencies.printInclude(source, true);
     source << "#include \"" << nameHeader << "\"\n";
-    source << "#include \"ccommon.h\"\n\n";
+    source << "#include \"ccommon.h\"\n";
+    source << "#include \"../" << srcDir << "/mty_numerical_defs.h\"\n";
     if (uniqueParamStruct)
         source << "#include \"cparams.h\"\n\n";
+    f.printExplicitC(source, false);
     f.printExternC(source, false, initInstruction);
     source << "\n";
 }
@@ -1037,10 +1101,7 @@ void LibraryGenerator::printCppFunctions(LibraryGroup const &g) const
     source << "#include <complex.h>\n\n";
     source << "namespace " << regLibName() << " {\n\n";
     for (const auto &f : g.getFunctions()) {
-        if (f.isCppFunc())
-            f.print(source, false, "");
-        else
-            f.printCppWrapper(source);
+        f.printCppWrapper(source);
         source << '\n';
     }
     source << "} // End of namespace " << regLibName() << "\n";
@@ -1070,6 +1131,7 @@ void LibraryGenerator::printFunction(LibFunction const &f) const
     //
     dependencies.printInclude(source, false);
     source << "#include \"" << nameHeader << "\"\n";
+    source << "#include \"mty_numerical_defs.h\"\n";
     source << "#include \"common.h\"\n\n";
     if (uniqueParamStruct)
         source << "#include \"params.h\"\n";

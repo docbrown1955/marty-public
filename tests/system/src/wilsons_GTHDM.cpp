@@ -129,8 +129,8 @@ int main()
     auto C10_box = getWilsonCoefficient(bsll_box, O10_box);
 
     [[maybe_unused]] int sysres = system("rm -rf libs/wilsons_GTHDM");
-    Library::setQuadruplePrecision(true);
     Library lib("wilsons_GTHDM", "libs");
+    lib.setQuadruplePrecision(true);
     lib.generateSpectrum(model);
     lib.addFunction("C7", C7);
     lib.addFunction("C8", C8);

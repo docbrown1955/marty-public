@@ -39,13 +39,15 @@ class Library : public csl::LibraryGenerator {
         // If we are not on MacOS, add -lgfortran
         addLibrary("-lgfortran");
 #endif
-        if (csl::LibraryGenerator::isQuadruplePrecision()) {
-            addLibrary("-looptools-quad");
-            addLibrary("-lquadmath");
-        }
-        else {
-            addLibrary("-looptools");
-        }
+        addLibrary("-looptools");
+    }
+
+    void setQuadruplePrecision(bool t_quadruple)
+    {
+        csl::LibraryGenerator::setQuadruplePrecision(t_quadruple);
+        dependencies.removeLib("-looptools");
+        dependencies.removeLib("-looptools-quad");
+        addLibrary(t_quadruple ? "-looptools-quad" : "-looptools");
     }
 
     void applyDiagonalizationData(Model &model)
@@ -88,12 +90,10 @@ class Library : public csl::LibraryGenerator {
         addLibrary("-lmarty-lha");
     }
 
-    void addFunction(std::string const &name,
-                     csl::Expr          expr,
-                     bool               forceCppFunc = false)
+    void addFunction(std::string const &name, csl::Expr expr)
     {
         csl::ScopedProperty p(&csl::option::checkCommutations, false);
-        auto &f = csl::LibraryGenerator::addFunction(name, expr, forceCppFunc);
+        auto &f = csl::LibraryGenerator::addFunction(name, expr);
         f.addInitInstruction("clearcache();");
     }
 

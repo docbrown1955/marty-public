@@ -62,8 +62,8 @@ int calculate(Model &model)
                 ->getVectorArgument());
 
     [[maybe_unused]] int sysres = system("rm -rf libs/C8_PMSSM");
-    mty::Library::setQuadruplePrecision(true);
     mty::Library wilsonLib("C8_PMSSM", "libs");
+    wilsonLib.setQuadruplePrecision(true);
     wilsonLib.addFunction("C8", CC8);
     wilsonLib.addFunction("C8_p", CC8p);
     wilsonLib.generateSpectrum(model);
