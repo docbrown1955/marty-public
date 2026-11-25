@@ -195,9 +195,7 @@ class ScalarIntegral: public AbstractIntegral {
 
     void setVariable(Expr const &variable) override;
 
-    void print(int mode=0,
-               std::ostream& out=std::cout,
-               LibraryMode libMode = LibraryMode::NoLib) const override;
+    void print(int mode = 0, std::ostream &out = std::cout) const override;
 
     void printCode(
             int mode = 0,
@@ -271,9 +269,7 @@ class VectorIntegral: public AbstractIntegral {
 
     void setParent(const Parent& t_variable) override;
 
-    void print(int mode=0,
-               std::ostream& out=std::cout,
-               LibraryMode libMode = LibraryMode::NoLib) const override;
+    void print(int mode = 0, std::ostream &out = std::cout) const override;
 
     void printCode(
             int mode = 0,

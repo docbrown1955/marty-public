@@ -21,8 +21,8 @@
 #include "indicial.h"
 #include "interface.h"
 #include "latexChain.h"
+#include "libmacros.h"
 #include "librarydependency.h"
-#include "librarygenerator.h"
 #include "mathFunctions.h"
 #include "options.h"
 #include "replace.h"
@@ -194,12 +194,12 @@ void Sum::insert(const Expr &expr, bool explicitSum)
     argument.push_back(expr);
 }
 
-void Sum::print(int mode, std::ostream &out, LibraryMode libMode) const
+void Sum::print(int mode, std::ostream &out) const
 {
     if (mode > 1) // Priority lesser than the previous operation: brackets
         out << "(";
     for (size_t i = 0; i < argument.size(); i++) {
-        argument[i]->print(1, out, libMode);
+        argument[i]->print(1, out);
         if (i + 1 < size()) {
             if (argument[i + 1] == -CSL_1)
                 out << " ";
@@ -209,6 +209,25 @@ void Sum::print(int mode, std::ostream &out, LibraryMode libMode) const
             //         and argument[i+1]->getArgument(0)->evaluateScalar() < 0)
             //     out << " ";
             // else
+            out << " + ";
+        }
+    }
+    if (mode > 1)
+        out << ")";
+    printProp(out);
+    if (mode == 0)
+        out << endl;
+}
+
+void Sum::printLib(int mode, std::ostream &out) const
+{
+    if (mode > 1) // Priority lesser than the previous operation: brackets
+        out << "(";
+    for (size_t i = 0; i < argument.size(); i++) {
+        argument[i]->printLib(1, out);
+        if (i + 1 < size()) {
+            if (argument[i + 1] == -CSL_1)
+                out << " ";
             out << " + ";
         }
     }
@@ -1380,7 +1399,7 @@ optional<Expr> Prod::findSubExpression(Expr_info   subExpression,
     return AbstractMultiFunc::findSubExpression(subExpression, newExpression);
 }
 
-void Prod::print(int mode, std::ostream &out, LibraryMode libMode) const
+void Prod::print(int mode, std::ostream &out) const
 {
     if (mode > 2) // Priority lesser than the previous operation: brackets
         out << "(";
@@ -1398,13 +1417,13 @@ void Prod::print(int mode, std::ostream &out, LibraryMode libMode) const
         if (argument[numeratorIndices[0]] == -CSL_1)
             out << "-";
         else {
-            argument[numeratorIndices[0]]->print(2, out, libMode);
+            argument[numeratorIndices[0]]->print(2, out);
             if (numeratorIndices.size() > 1)
                 out << "*";
         }
     }
     for (size_t i = 1; i < numeratorIndices.size(); i++) {
-        argument[numeratorIndices[i]]->print(2, out, libMode);
+        argument[numeratorIndices[i]]->print(2, out);
         if (i < numeratorIndices.size() - 1)
             out << "*";
     }
@@ -1416,13 +1435,66 @@ void Prod::print(int mode, std::ostream &out, LibraryMode libMode) const
         }
         out << "/";
         if (denominatorIndices.size() == 1)
-            argument[denominatorIndices[0]]->getArgument(0)->print(
-                3, out, libMode);
+            argument[denominatorIndices[0]]->getArgument(0)->print(3, out);
         else {
             out << "(";
             for (size_t i = 0; i < denominatorIndices.size(); i++) {
-                argument[denominatorIndices[i]]->getArgument(0)->print(
-                    2, out, libMode);
+                argument[denominatorIndices[i]]->getArgument(0)->print(2, out);
+                if (i < denominatorIndices.size() - 1)
+                    out << "*";
+            }
+            out << ")";
+        }
+    }
+    if (mode > 2)
+        out << ")";
+    printProp(out);
+    if (mode == 0)
+        out << endl;
+}
+
+void Prod::printLib(int mode, std::ostream &out) const
+{
+    if (mode > 2) // Priority lesser than the previous operation: brackets
+        out << "(";
+    vector<int> denominatorIndices(0);
+    vector<int> numeratorIndices(0);
+    for (size_t i = 0; i < argument.size(); i++) {
+        if (argument[i]->getType() == csl::Type::Pow
+            and argument[i]->getArgument(1)->isInteger()
+            and argument[i]->getArgument(1)->evaluateScalar() == -1)
+            denominatorIndices.push_back(i);
+        else
+            numeratorIndices.push_back(i);
+    }
+    if (numeratorIndices.size() >= 1) {
+        if (argument[numeratorIndices[0]] == -CSL_1)
+            out << "-";
+        else {
+            argument[numeratorIndices[0]]->printLib(2, out);
+            if (numeratorIndices.size() > 1)
+                out << "*";
+        }
+    }
+    for (size_t i = 1; i < numeratorIndices.size(); i++) {
+        argument[numeratorIndices[i]]->printLib(2, out);
+        if (i < numeratorIndices.size() - 1)
+            out << "*";
+    }
+    if (denominatorIndices.size() > 0) {
+        if (numeratorIndices.size() == 0
+            || (numeratorIndices.size() == 1
+                && argument[numeratorIndices[0]] == CSL_M_1)) {
+            out << "1";
+        }
+        out << "/";
+        if (denominatorIndices.size() == 1)
+            argument[denominatorIndices[0]]->getArgument(0)->printLib(3, out);
+        else {
+            out << "(";
+            for (size_t i = 0; i < denominatorIndices.size(); i++) {
+                argument[denominatorIndices[i]]->getArgument(0)->printLib(
+                    2, out);
                 if (i < denominatorIndices.size() - 1)
                     out << "*";
             }
@@ -2729,21 +2801,8 @@ std::optional<Expr> Pow::suppressExponent(Expr const &factor,
                : std::nullopt;
 }
 
-void Pow::print(int mode, std::ostream &out, LibraryMode libMode) const
+void Pow::print(int mode, std::ostream &out) const
 {
-    if (libMode != LibraryMode::NoLib) {
-        if (isReal())
-            out << "MTY_FN(pow)(";
-        else
-            out << "MTY_CFN(pow)(";
-        argument[0]->print(1, out, libMode);
-        out << ", ";
-        argument[1]->print(1, out, libMode);
-        out << ")";
-        if (mode == 0)
-            out << endl;
-        return;
-    }
     if (mode > 4) // Priority lesser than the previous operation: brackets
         out << "(";
     argument[0]->print(4, out);
@@ -2752,6 +2811,20 @@ void Pow::print(int mode, std::ostream &out, LibraryMode libMode) const
     if (mode > 4)
         out << ")";
     printProp(out);
+    if (mode == 0)
+        out << endl;
+}
+
+void Pow::printLib(int mode, std::ostream &out) const
+{
+    if (isReal())
+        out << libmacro::fn << "(pow)(";
+    else
+        out << libmacro::cfn << "(pow)(";
+    argument[0]->printLib(1, out);
+    out << ", ";
+    argument[1]->printLib(1, out);
+    out << ")";
     if (mode == 0)
         out << endl;
 }
@@ -3088,34 +3161,6 @@ bool Pow::operator==(Expr_info expr) const
             && *argument[1] == expr->getArgument(1).get());
 }
 
-// base^exponent for base >= 2 and exponent >= 0, or 0 if it does not fit in
-// a long long.
-static long long checked_power(long long base, long long exponent)
-{
-    long long result = 1;
-    for (long long k = 0; k < exponent; ++k) {
-        if (result > std::numeric_limits<long long>::max() / base)
-            return 0;
-        result *= base;
-    }
-    return result;
-}
-
-// If a = r^q for an integer r >= 2, returns |r^p|, so that a^(p/q) = r^p.
-// Returns 0 when a is not a perfect q-th power, or when |r^p| overflows.
-// Requires q >= 2.
-static long long exact_perfect_power(long long a, long long p, long long q)
-{
-    if (a < 2 or q < 2)
-        return 0;
-    long long guess = std::llround(std::pow(static_cast<double>(a), 1. / q));
-    for (long long r = std::max(2LL, guess - 1); r <= guess + 1; ++r) {
-        if (checked_power(r, q) == a)
-            return checked_power(r, std::abs(p));
-    }
-    return 0;
-}
-
 Expr pow_s(const Expr &leftOperand, const Expr &rightOperand)
 {
     if (leftOperand->getPrimaryType() == csl::PrimaryType::Arbitrary
@@ -3143,24 +3188,6 @@ Expr pow_s(const Expr &leftOperand, const Expr &rightOperand)
         return prod_s(terms);
     }
 
-    if (*leftOperand == CSL_0
-        and rightOperand->getPrimaryType() == csl::PrimaryType::Numerical
-        and rightOperand->getType() != csl::Type::Complex
-        and rightOperand->evaluateScalar() < 0)
-        CALL_SMERROR_SPEC(CSLError::ZeroDivisionError,
-                          "Zero raised to a negative power");
-
-    if (leftOperand->getType() == csl::Type::Integer
-        and rightOperand->getType() == csl::Type::IntFraction) {
-        long long value = exact_perfect_power(
-            static_cast<long long>(leftOperand->evaluateScalar()),
-            rightOperand->getNum(),
-            rightOperand->getDenom());
-        if (value > 0)
-            return rightOperand->getNum() > 0 ? int_s(value)
-                                              : intfraction_s(1, value);
-    }
-
     if (leftOperand->isInteger()
         and rightOperand->getType() == csl::Type::IntFraction) {
         int a     = leftOperand->evaluateScalar();
@@ -3185,9 +3212,21 @@ Expr pow_s(const Expr &leftOperand, const Expr &rightOperand)
     Expr foo  = csl::make_shared<Pow, alloc_pow>(leftOperand, rightOperand);
     Expr arg0 = foo->getArgument(0);
     Expr arg1 = foo->getArgument(1);
-    if (*arg0 == CSL_INF)
-        CALL_SMERROR_SPEC(CSLError::ValueError,
-                          "Power with an infinite base (oo) is not defined");
+    if (*arg0 == CSL_INF) {
+        std::cerr << leftOperand << std::endl;
+        std::cerr << rightOperand << std::endl;
+        std::raise(SIGSEGV);
+        return CSL_INF;
+    }
+    if (*arg0 == CSL_0
+        and arg1->getPrimaryType() == csl::PrimaryType::Numerical
+        and arg1->getType() != csl::Type::Complex
+        and arg1->evaluateScalar() < 0) {
+        std::cerr << leftOperand << std::endl;
+        std::cerr << rightOperand << std::endl;
+        std::raise(SIGSEGV);
+        return CSL_INF;
+    }
     if (*arg0 == CSL_0 and arg1->getType() == csl::Type::Complex) {
         return CSL_UNDEF;
     }
@@ -3321,18 +3360,44 @@ IndexStructure Polynomial::getIndexStructure() const
     return IndexStructure();
 }
 
-void Polynomial::print(int mode, std::ostream &out, LibraryMode libMode) const
+void Polynomial::print(int mode, std::ostream &out) const
 {
     if (mode > 1) // Priority lesser than the previous operation: brackets
         out << "(";
     for (size_t i = 0; i < argument.size(); i++) {
         if (*argument[i] != CSL_0) {
             if (i == 0 or *argument[i] != CSL_1)
-                argument[i]->print(2, out, libMode);
+                argument[i]->print(2, out);
             if (i > 0) {
                 if (*argument[i] != CSL_1)
                     out << "*";
-                variable->print(4, out, libMode);
+                variable->print(4, out);
+                if (i > 1)
+                    out << "^" << i;
+            }
+            if (i + 1 < argument.size())
+                out << " + ";
+        }
+    }
+    if (mode > 1)
+        out << ")";
+    printProp(out);
+    if (mode == 0)
+        out << endl;
+}
+
+void Polynomial::printLib(int mode, std::ostream &out) const
+{
+    if (mode > 1) // Priority lesser than the previous operation: brackets
+        out << "(";
+    for (size_t i = 0; i < argument.size(); i++) {
+        if (*argument[i] != CSL_0) {
+            if (i == 0 or *argument[i] != CSL_1)
+                argument[i]->printLib(2, out);
+            if (i > 0) {
+                if (*argument[i] != CSL_1)
+                    out << "*";
+                variable->printLib(4, out);
                 if (i > 1)
                     out << "^" << i;
             }
@@ -3734,7 +3799,7 @@ void Derivative::setOperand(const Expr &t_operand)
     argument[0] = t_operand;
 }
 
-void Derivative::print(int mode, std::ostream &out, LibraryMode) const
+void Derivative::print(int mode, std::ostream &out) const
 {
     out << "d";
     if (order > 1)
@@ -3985,7 +4050,7 @@ void Integral::setOperand(const Expr &t_operand)
     argument[0] = t_operand;
 }
 
-void Integral::print(int mode, std::ostream &out, LibraryMode) const
+void Integral::print(int mode, std::ostream &out) const
 {
     out << "int_s{";
     if (argument[1]->getDim() > 0)

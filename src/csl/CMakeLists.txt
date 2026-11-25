@@ -66,6 +66,7 @@ set(ALL_SOURCES
     libraryfunction.cpp
     libraryfunction.h
     librarygenerator.cpp
+    libmacros.h
     librarygenerator.h
     librarygenerator_c.cpp
     librarygenerator_python.cpp

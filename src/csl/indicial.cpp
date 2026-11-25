@@ -2778,7 +2778,7 @@ Expr TensorElement::getCanonicalPermutation() const
     return permutations[mini];
 }
 
-void TensorElement::print(int mode, std::ostream &out, LibraryMode) const
+void TensorElement::print(int mode, std::ostream &out) const
 {
     const int nIndices = index.size();
     out << getName();

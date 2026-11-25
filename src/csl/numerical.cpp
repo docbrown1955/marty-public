@@ -17,7 +17,7 @@
 #include "comparison.h"
 #include "error.h"
 #include "interface.h"
-#include "librarygenerator.h"
+#include "libmacros.h"
 #include "mathFunctions.h"
 #include "operations.h"
 #include "utils.h"
@@ -115,23 +115,26 @@ static std::string fixedCLiteral(long double absValue)
     return text;
 }
 
-void Float::print(int mode, std::ostream &out, LibraryMode libMode) const
+void Float::print(int mode, std::ostream &out) const
 {
-    if (libMode != LibraryMode::NoLib) {
-        std::string lit = std::string(value < 0 ? "-" : "") + "MTY_LIT(" + fixedCLiteral(std::fabs(value)) + ")";
-        if (mode == 0)
-            out << lit << endl;
-        else if (mode > 0 and value < 0)
-            out << "(" << lit << ")";
-        else
-            out << lit;
-    }
-    else if (mode == 0)
+    if (mode == 0)
         out << value << endl;
     else if (mode > 0 and value < 0)
         out << "(" << value << ")";
     else
         out << value;
+    printProp(out);
+}
+
+void Float::printLib(int mode, std::ostream &out) const
+{
+    std::string lit = std::string(value < 0 ? "-" : "") + libmacro::lit + "(" + fixedCLiteral(std::fabs(value)) + ")";
+    if (mode == 0)
+        out << lit << endl;
+    else if (mode > 0 and value < 0)
+        out << "(" << lit << ")";
+    else
+        out << lit;
     printProp(out);
 }
 
@@ -316,15 +319,25 @@ void Integer::setValue(long double t_value)
     value = round(t_value);
 }
 
-void Integer::print(int mode, std::ostream &out, LibraryMode libMode) const
+void Integer::print(int mode, std::ostream &out) const
 {
     std::string text = std::to_string(value);
-    if (libMode != LibraryMode::NoLib) {
-        bool neg = value < 0;
-        if (neg)
-            text.erase(0, 1);
-        text = std::string(neg ? "-" : "") + "MTY_LIT(" + text + ".0)";
-    }
+    if (mode == 0)
+        out << text << endl;
+    else if (mode > 1 and value < 0)
+        out << "(" << text << ")";
+    else
+        out << text;
+    printProp(out);
+}
+
+void Integer::printLib(int mode, std::ostream &out) const
+{
+    std::string text = std::to_string(value);
+    bool neg         = value < 0;
+    if (neg)
+        text.erase(0, 1);
+    text = std::string(neg ? "-" : "") + libmacro::lit + "(" + text + ".0)";
     if (mode == 0)
         out << text << endl;
     else if (mode > 1 and value < 0)
@@ -522,33 +535,34 @@ long long int IntFraction::getDenom() const
     return denom;
 }
 
-void IntFraction::print(int mode, std::ostream &out, LibraryMode libMode) const
+void IntFraction::print(int mode, std::ostream &out) const
+{
+    std::string numText = std::to_string(num);
+    if (mode == 0)
+        out << "Fraction: " << numText << "/" << denom << endl;
+    else if (mode > 3)
+        out << "(" << numText << "/" << denom << ")";
+    else
+        out << numText << "/" << denom;
+
+    printProp(out);
+}
+
+void IntFraction::printLib(int mode, std::ostream &out) const
 {
     // The numerator is a MTY_LIT so that the division is done in the library precision
     std::string numText = std::to_string(num);
     std::string sep     = "/";
-    if (libMode != LibraryMode::NoLib) {
-        bool neg = num < 0;
-        if (neg)
-            numText.erase(0, 1);
-        numText = std::string(neg ? "-" : "") + "MTY_LIT(" + numText + ".0)";
-    }
-    if (mode == 0) {
-        if (libMode != LibraryMode::NoLib)
-            out << numText << sep << denom << endl;
-        else
-            out << "Fraction: " << numText << "/" << denom << endl;
-    }
-    else if (mode > 3) {
-        if (libMode != LibraryMode::NoLib)
-            out << "(" << numText << sep << denom << ")";
-        else
-            out << "(" << numText << "/" << denom << ")";
-    }
-    else if (libMode != LibraryMode::NoLib)
-        out << numText << sep << denom;
+    bool neg            = num < 0;
+    if (neg)
+        numText.erase(0, 1);
+    numText = std::string(neg ? "-" : "") + libmacro::lit + "(" + numText + ".0)";
+    if (mode == 0)
+        out << numText << sep << denom << endl;
+    else if (mode > 3)
+        out << "(" << numText << sep << denom << ")";
     else
-        out << numText << "/" << denom;
+        out << numText << sep << denom;
 
     printProp(out);
 }
@@ -791,26 +805,37 @@ csl::Type Complex::getType() const
     return csl::Type::Complex;
 }
 
-void Complex::print(int mode, std::ostream &out, LibraryMode libMode) const
+void Complex::print(int mode, std::ostream &out) const
 {
     if (mode > 1 and imag != CSL_0)
         out << "(";
-    if (libMode == LibraryMode::CLib) {
-        real->print(1, out, libMode);
-        out << " + _Complex_I*";
-        imag->print(1, out, libMode);
+    if (imag == CSL_0) {
+        real->print(1, out);
     }
     else {
-        if (imag == CSL_0) {
-            real->print(1, out, libMode);
-        }
-        else {
-            out << LibraryGenerator::complexUsing << "{";
-            real->print(1, out, libMode);
-            out << ", ";
-            imag->print(1, out, libMode);
-            out << "}";
-        }
+        real->print(1, out);
+        out << " + i*";
+        imag->print(1, out);
+    }
+    if (mode > 1 and imag != CSL_0)
+        out << ")";
+    if (mode == 0)
+        out << endl;
+}
+
+void Complex::printLib(int mode, std::ostream &out) const
+{
+    if (mode > 1 and imag != CSL_0)
+        out << "(";
+    if (imag == CSL_0) {
+        real->printLib(1, out);
+    }
+    else {
+        out << libmacro::cplx << "(";
+        real->printLib(1, out);
+        out << ", ";
+        imag->printLib(1, out);
+        out << ")";
     }
     if (mode > 1 and imag != CSL_0)
         out << ")";

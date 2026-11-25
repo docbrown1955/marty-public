@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
+#include "libmacros.h"
 #include "librarygenerator.h"
 #include "algo.h"
 #include "counter.h"
@@ -678,25 +679,30 @@ void LibraryGenerator::printCHeader() const
     numDefs << "#ifdef __cplusplus\n";
     numDefs << "#include <cmath>\n";
     numDefs << "#include <complex>\n";
-    numDefs << "#define MTY_FN(f) std::f\n";
-    numDefs << "#define MTY_CFN(f) std::f\n";
-    numDefs << "#define MTY_LIT(x) x\n";
+    numDefs << "#define " << libmacro::fn << "(f) std::f\n";
+    numDefs << "#define " << libmacro::cfn << "(f) std::f\n";
+    numDefs << "#define " << libmacro::lit << "(x) x\n";
+    numDefs << "#define " << libmacro::imag << " std::complex<double>(0.0, 1.0)\n";
+    numDefs << "#define " << libmacro::cplx << "(re, im) std::complex<double>{re, im}\n";
     numDefs << "#else\n";
     if (quadruple) {
         numDefs << "#include <quadmath.h>\n\n";
         numDefs << "typedef __float128 calc_creal_t;\n";
         numDefs << "typedef __complex128 calc_ccomplex_t;\n";
-        numDefs << "#define MTY_FN(f) f##q\n";
-        numDefs << "#define MTY_CFN(f) c##f##q\n";
-        numDefs << "#define MTY_LIT(x) x##Q\n";
+        numDefs << "#define " << libmacro::fn << "(f) f##q\n";
+        numDefs << "#define " << libmacro::cfn << "(f) c##f##q\n";
+        numDefs << "#define " << libmacro::lit << "(x) x##Q\n";
+        numDefs << "#define " << libmacro::imag << " ((calc_ccomplex_t)_Complex_I)\n";
     }
     else {
         numDefs << "typedef double calc_creal_t;\n";
         numDefs << "typedef double _Complex calc_ccomplex_t;\n";
-        numDefs << "#define MTY_FN(f) f\n";
-        numDefs << "#define MTY_CFN(f) c##f\n";
-        numDefs << "#define MTY_LIT(x) x\n";
+        numDefs << "#define " << libmacro::fn << "(f) f\n";
+        numDefs << "#define " << libmacro::cfn << "(f) c##f\n";
+        numDefs << "#define " << libmacro::lit << "(x) x\n";
+        numDefs << "#define " << libmacro::imag << " _Complex_I\n";
     }
+    numDefs << "#define " << libmacro::cplx << "(re, im) ((re) + (im) * " << libmacro::imag << ")\n";
     numDefs << "#endif\n";
     numDefs << "\n#endif\n";
 

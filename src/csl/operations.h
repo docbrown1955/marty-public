@@ -101,9 +101,10 @@ class Sum : public AbstractMultiFunc {
 
     void insert(const Expr &expr, bool explicitSum = false) override;
 
-    void print(int           mode    = 0,
-               std::ostream &out     = std::cout,
-               LibraryMode   libMode = LibraryMode::NoLib) const override;
+        void print(int           mode = 0,
+                   std::ostream &out = std::cout) const override;
+
+        void printLib(int mode = 0, std::ostream &out = std::cout) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -230,9 +231,10 @@ class Polynomial : public AbstractMultiFunc {
 
     IndexStructure getIndexStructure() const override;
 
-    void print(int           mode    = 0,
-               std::ostream &out     = std::cout,
-               LibraryMode   libMode = LibraryMode::NoLib) const override;
+        void print(int           mode = 0,
+                   std::ostream &out = std::cout) const override;
+
+        void printLib(int mode = 0, std::ostream &out = std::cout) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -400,9 +402,10 @@ class Prod : public AbstractMultiFunc {
     virtual void leftInsert(const Expr &expr);
     virtual void rightInsert(const Expr &expr);
 
-    void print(int           mode    = 0,
-               std::ostream &out     = std::cout,
-               LibraryMode   libMode = LibraryMode::NoLib) const override;
+        void print(int           mode = 0,
+                   std::ostream &out = std::cout) const override;
+
+        void printLib(int mode = 0, std::ostream &out = std::cout) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -554,9 +557,10 @@ class Pow : public AbstractDuoFunc {
     std::optional<Expr> suppressExponent(Expr const &factor,
                                          Expr const &exponent) const override;
 
-    void print(int           mode    = 0,
-               std::ostream &out     = std::cout,
-               LibraryMode   libMode = LibraryMode::NoLib) const override;
+        void print(int           mode = 0,
+                   std::ostream &out = std::cout) const override;
+
+        void printLib(int mode = 0, std::ostream &out = std::cout) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -689,9 +693,8 @@ class Derivative : public Operator<AbstractDuoFunc> {
 
     void setOperand(const Expr &t_operand) override;
 
-    void print(int           mode    = 0,
-               std::ostream &out     = std::cout,
-               LibraryMode   libMode = LibraryMode::NoLib) const override;
+        void print(int           mode = 0,
+                   std::ostream &out = std::cout) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -783,9 +786,8 @@ class Integral : public Operator<AbstractDuoFunc> {
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
-    void print(int           mode    = 0,
-               std::ostream &out     = std::cout,
-               LibraryMode   libMode = LibraryMode::NoLib) const override;
+        void print(int           mode = 0,
+                   std::ostream &out = std::cout) const override;
 
     std::string printLaTeX(int mode = 0) const override;
 

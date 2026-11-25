@@ -2255,10 +2255,10 @@ void ModelBuilder::applyDiagonalizationData(
                         dependencies.emplace_back(sub->getName());
                     }
                 });
-                massTerm->print(1, sout, csl::LibraryMode::CppLib);
+                massTerm->printLib(1, sout);
                 expressions.emplace_back(sout.str());
                 std::ostringstream csout;
-                massTerm->print(1, csout, csl::LibraryMode::CLib);
+                massTerm->printLib(1, csout);
                 cExpressions.emplace_back(csout.str());
             }
         for (size_t i = 0; i != initMix2.size1(); ++i)

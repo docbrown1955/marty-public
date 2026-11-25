@@ -107,18 +107,12 @@ struct ExprExpectation {
     (expr)->print(3);                                      \
     (expr)->print(4);                                      \
     (expr)->print(5);                                      \
-    (expr)->print(0, std::cout, csl::LibraryMode::CLib);   \
-    (expr)->print(1, std::cout, csl::LibraryMode::CLib);   \
-    (expr)->print(2, std::cout, csl::LibraryMode::CLib);   \
-    (expr)->print(3, std::cout, csl::LibraryMode::CLib);   \
-    (expr)->print(4, std::cout, csl::LibraryMode::CLib);   \
-    (expr)->print(5, std::cout, csl::LibraryMode::CLib);   \
-    (expr)->print(0, std::cout, csl::LibraryMode::CppLib); \
-    (expr)->print(1, std::cout, csl::LibraryMode::CppLib); \
-    (expr)->print(2, std::cout, csl::LibraryMode::CppLib); \
-    (expr)->print(3, std::cout, csl::LibraryMode::CppLib); \
-    (expr)->print(4, std::cout, csl::LibraryMode::CppLib); \
-    (expr)->print(5, std::cout, csl::LibraryMode::CppLib); \
+    (expr)->printLib(0);                                   \
+    (expr)->printLib(1);                                   \
+    (expr)->printLib(2);                                   \
+    (expr)->printLib(3);                                   \
+    (expr)->printLib(4);                                   \
+    (expr)->printLib(5);                                   \
     (expr)->printLaTeX();                                  \
     (expr)->printLaTeX(1);                                 \
     (expr)->printLaTeX(2);                                 \

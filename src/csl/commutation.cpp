@@ -120,13 +120,8 @@ int Commutator::getSign() const
     return sign;
 }
 
-void Commutator::print(int mode, std::ostream &out, LibraryMode libMode) const
+void Commutator::print(int mode, std::ostream &out) const
 {
-    if (libMode != LibraryMode::NoLib) {
-        (argument[0] * argument[1] + sign * argument[1] * argument[0])
-            ->print(mode, out, libMode);
-        return;
-    }
     if (sign == -1)
         out << "[ ";
     else
@@ -140,6 +135,12 @@ void Commutator::print(int mode, std::ostream &out, LibraryMode libMode) const
         out << " }";
     if (mode == 0)
         out << endl;
+}
+
+void Commutator::printLib(int mode, std::ostream &out) const
+{
+    (argument[0] * argument[1] + sign * argument[1] * argument[0])
+        ->printLib(mode, out);
 }
 
 string Commutator::printLaTeX(int) const
