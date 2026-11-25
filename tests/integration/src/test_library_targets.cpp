@@ -2,6 +2,7 @@
 #include "marty.h"
 #include <gtest/gtest.h>
 
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
@@ -133,6 +134,67 @@ void addQuadFunctions(csl::LibraryGenerator &lib)
 {
     lib.addFunction("h", csl::exp_s(csl::constant_s("x")) - 1);
 }
+
+void addLoopToolsFunctions(csl::LibraryGenerator &lib)
+{
+    csl::Expr m2 = csl::constant_s("m2");
+    lib.addFunction("a0",
+                    mty::feynmanintegral_s(mty::IntegralType::A,
+                                           mty::IntegralID_A::aa0,
+                                           std::vector<csl::Expr>{m2}));
+}
+
+// LoopTools prints a banner, so the value is read from a tagged driver line.
+// Renormalised A0(m^2) = m^2 (1 - log m^2) at mu = 1, evaluated at m^2 = 4.
+void checkLoopToolsValue(std::string const &name, Targets targets)
+{
+    fs::path dir = generate(name, targets, false, addLoopToolsFunctions);
+    std::string const cSource = R"C(
+#include <stdio.h>
+#include "c_a0.h"
+int main(void)
+{
+    ccomplex_return_t a = c_a0_explicit(4.0);
+    printf("VALUE %.17g\n", a.real);
+    return 0;
+}
+)C";
+    std::string const cppSource = R"CPP(
+#include <stdio.h>
+#include ")CPP" + name + R"CPP(.h"
+int main()
+{
+    )CPP" + name + R"CPP(::param_t p;
+    p.m2 = 4.0;
+    printf("VALUE %.17g\n", )CPP" + name + R"CPP(::a0(p).real());
+    return 0;
+}
+)CPP";
+    std::vector<std::string> outputs;
+    outputs.push_back(runCDriver(dir, name, cSource, loopToolsFlags()));
+    if (targets.cpp)
+        outputs.push_back(
+            runCppDriver(dir, name, cppSource, "", loopToolsFlags()));
+    double const expected = 4.0 * (1.0 - std::log(4.0));
+    for (std::string const &output : outputs) {
+        std::size_t const pos = output.find("VALUE ");
+        ASSERT_NE(pos, std::string::npos) << output;
+        std::vector<long double> values = parseValues(output.substr(pos + 6));
+        ASSERT_EQ(values.size(), 1u) << output;
+        EXPECT_NEAR(values[0], expected, 1e-10);
+    }
+}
+
+TEST(library_targets, looptools_c_only)
+{
+    checkLoopToolsValue("itglt_c", {false, false});
+}
+
+TEST(library_targets, looptools_cpp)
+{
+    checkLoopToolsValue("itglt_cpp", {true, false});
+}
+
 
 // Evaluates f(2, 3) = 10 and g(2, 3) = 6i, printing real and imaginary parts.
 void checkBareValues(fs::path const &dir, std::string const &name, Targets t)
