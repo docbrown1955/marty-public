@@ -27,8 +27,6 @@ endfunction()
 
 ADD_SYSTEM_TEST("lha-reader" test_lha_reader)
 ADD_SYSTEM_TEST("basic-feynman-integrals" FItests)
-ADD_SYSTEM_TEST("majorana-loops-simplifications" majoranaLoop)
-ADD_SYSTEM_TEST("relative-sign-of-fermion-number-violating-interactions" testConjugation)
 ADD_SYSTEM_TEST("simple-spectrum-generation" simpleSpectrum)
 ADD_SYSTEM_TEST("auto-model-widths-computation_Standard-Model" testModelWidth)
 
@@ -55,7 +53,6 @@ ADD_SYSTEM_TEST("bs-mixing_VLQ-Model-7-8" BsMixingVLQ_7_8)
 ADD_SYSTEM_TEST("bs-mixing_VLQ-Model-9-10" BsMixingVLQ_9_10)
 ADD_SYSTEM_TEST("bs-mixing_VLQ-Model-10-11" BsMixingVLQ_10_11)
 
-ADD_SYSTEM_TEST("lepto-genesis" NLepto)
 ADD_QUAD_SYSTEM_TEST("baryo-genesis" Bgenesis)
 ADD_SYSTEM_TEST("TIDM-Model" SM_2IDM)
 ADD_SYSTEM_TEST("lepto-genesis_SU2-Triplet-Model" SM_triplet)

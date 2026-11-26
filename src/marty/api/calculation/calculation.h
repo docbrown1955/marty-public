@@ -89,6 +89,12 @@ std::vector<csl::Expr> chromoMagneticOperator(modeling::Model const &model,
                                               WilsonSet const       &wilsons,
                                               std::string const     &coupling);
 
+/// Coefficient of the chromomagnetic operator with the given Dirac coupling,
+/// summed over the matching Wilson coefficients of ``wilsons``.
+csl::Expr chromoMagneticCoefficient(modeling::Model const &model,
+                                    WilsonSet const       &wilsons,
+                                    std::string const     &coupling);
+
 } // namespace mty::api::calculation
 
 #endif

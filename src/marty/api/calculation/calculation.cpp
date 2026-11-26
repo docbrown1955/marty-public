@@ -195,9 +195,7 @@ WilsonSet wilsonCoefficients(modeling::Model const     &model,
     });
 }
 
-std::vector<csl::Expr> chromoMagneticOperator(modeling::Model const &model,
-                                              WilsonSet const       &wilsons,
-                                              std::string const     &coupling)
+static mty::DiracCoupling diracCoupling(std::string const &coupling)
 {
     static std::map<std::string, mty::DiracCoupling> const couplings{
         {"S", mty::DiracCoupling::S},
@@ -215,14 +213,35 @@ std::vector<csl::Expr> chromoMagneticOperator(modeling::Model const &model,
     auto const found = couplings.find(coupling);
     if (found == couplings.end())
         throw ValueError("Unknown Dirac coupling '" + coupling + "'");
+    return found->second;
+}
+
+std::vector<csl::Expr> chromoMagneticOperator(modeling::Model const &model,
+                                              WilsonSet const       &wilsons,
+                                              std::string const     &coupling)
+{
+    auto const dirac = diracCoupling(coupling);
     return guarded([&] {
         auto                  &core = modeling::coreModel(model);
         Session                session(&core);
         std::vector<csl::Expr> operators;
         for (auto const &wilson :
-             mty::chromoMagneticOperator(core, wilsons.raw(), found->second))
+             mty::chromoMagneticOperator(core, wilsons.raw(), dirac))
             operators.push_back(wilson.getExpression());
         return operators;
+    });
+}
+
+csl::Expr chromoMagneticCoefficient(modeling::Model const &model,
+                                    WilsonSet const       &wilsons,
+                                    std::string const     &coupling)
+{
+    auto const dirac = diracCoupling(coupling);
+    return guarded([&] {
+        auto &core = modeling::coreModel(model);
+        Session session(&core);
+        return mty::getWilsonCoefficient(
+            wilsons.raw(), mty::chromoMagneticOperator(core, wilsons.raw(), dirac));
     });
 }
 

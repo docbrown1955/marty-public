@@ -9,6 +9,7 @@ Submodules:
 - ``modeling``: gauge groups, particles and symmetry breaking.
 - ``calculation``: Feynman rules, amplitudes and squared amplitudes.
 - ``visualization``: JSON export of diagrams and GRAFED availability.
+- ``simulation``: generate, build and load standalone C libraries.
 - ``errors``: the exception hierarchy, rooted at ``MartyError``.
 
 The package is built from source; see the README for the build steps.
@@ -20,7 +21,7 @@ from types import ModuleType
 from pymarty import config, diracology, errors, group_theory
 from pymarty._pymarty import __version__
 
-_LAZY_SUBMODULES = ("modeling", "calculation", "visualization")
+_LAZY_SUBMODULES = ("modeling", "calculation", "simulation", "visualization")
 
 __all__ = [
     "__version__",
@@ -30,6 +31,7 @@ __all__ = [
     "errors",
     "group_theory",
     "modeling",
+    "simulation",
     "visualization",
 ]
 

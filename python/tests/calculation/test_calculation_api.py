@@ -9,6 +9,7 @@ from pymarty.calculation import (
     Order,
     WilsonSet,
     anti,
+    chromo_magnetic_coefficient,
     chromo_magnetic_operator,
     compute_amplitude,
     compute_feynman_rules,
@@ -194,3 +195,5 @@ def test_unknown_dirac_coupling_is_value_error(qcd: QCD) -> None:
     )
     with pytest.raises(MartyValueError):
         chromo_magnetic_operator(qcd, wilsons, "XX")
+    with pytest.raises(MartyValueError):
+        chromo_magnetic_coefficient(qcd, wilsons, "XX")

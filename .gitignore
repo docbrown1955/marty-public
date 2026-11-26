@@ -3,6 +3,7 @@ marty_env.sh
 *.sw[p-z]
 build*
 Testing
+!python/pymarty/testing/
 .directory
 __pycache__
 .venv

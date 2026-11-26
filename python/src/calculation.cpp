@@ -241,6 +241,19 @@ void bindCalculation(py::module_ &m)
         py::arg("coupling"),
         "Operators of the chromomagnetic dipole with the given Dirac coupling "
         "(S, P, L, R, V, A, VL, VR, T, TA, TL or TR).");
+    mod.def(
+        "chromo_magnetic_coefficient",
+        [](Model const                            &model,
+           mty::api::calculation::WilsonSet const &wilsons,
+           std::string const                      &coupling) {
+            return ExprHandle(mty::api::calculation::chromoMagneticCoefficient(
+                model, wilsons, coupling));
+        },
+        py::arg("model"),
+        py::arg("wilsons"),
+        py::arg("coupling"),
+        "Coefficient of the chromomagnetic dipole with the given Dirac coupling, "
+        "matched against the Wilson coefficients in one step.");
 
     mod.def("option_names",
             &mty::api::calculation::optionNames,

@@ -364,6 +364,18 @@ def chromo_magnetic_operator(
     return _core.chromo_magnetic_operator(model, wilsons, coupling)
 
 
+def chromo_magnetic_coefficient(model: Any, wilsons: WilsonSet, coupling: str) -> Expr:
+    """Coefficient of the chromomagnetic dipole with the given Dirac coupling.
+
+    Sum of the Wilson coefficients matching the chromomagnetic operator of
+    ``coupling`` (S, P, L, R, V, A, VL, VR, T, TA, TL or TR), computed in one
+    step from ``wilsons``. Prefer it to ``WilsonSet.coefficient`` applied to
+    ``chromo_magnetic_operator``, which loses the operator prefactors.
+    """
+    _check_finalized(model)
+    return _core.chromo_magnetic_coefficient(model, wilsons, coupling)
+
+
 def select_diagrams(
     amplitude: Amplitude, predicate: Callable[[Diagram], bool]
 ) -> list[Diagram]:

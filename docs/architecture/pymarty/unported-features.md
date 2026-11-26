@@ -120,7 +120,7 @@ These take C++ function callbacks, so they cannot be ported by binding. Plan: Py
 | Signed and symbolic-dimension spaces | `src/csl/` | unported | 1 | |
 | SymPy bridge | none in C++ | unported | later | Decide whether this belongs in pymarty at all. |
 | Python pickling | none | unported | later | |
-| Library generator | `src/csl/` library generation | unported | 6 | Phase 6 is `pymarty.simulation`. |
+| Library generator | `src/csl/` library generation | ported | 6 | `pymarty.simulation`. Ports numerically checked: zmumu, gg_to_tt, simpleSpectrum, testModelWidth, EWGauge, widths_sm, c7_sm and c8_sm (chromo-magnetic coefficient, 1e-5). Build and load only, matching the C++ scope: sm_triplet and sm_2idm (one-loop). The majorana_loop, conjugation and nlepto tests are C++ integration tests (amplitude simplification or build success, no numbers), with no Python counterpart. Complex-parameter functions are exposed to Python. |
 | Model and calculation layers | `src/marty/` | unported | 4 to 7 | Phases 2 to 7. |
 | Built-in `THDM_Model<type>` (template; one variant to choose) | `src/marty/models/thdm.h` | unported | later (after 4) | Deferred by Q1=C (phase 4). Variant choice open (Q2, "see later"). |
 | Built-in `MSSM_Model`, `PMSSM_Model` | `src/marty/models/mssm.h`, `pmssm.h` | known gap at end of phase 4 (see phase-4 implementation log) | later | Deferred by Q1=C (phase 4). `samplePMSSM` moves with PMSSM. |

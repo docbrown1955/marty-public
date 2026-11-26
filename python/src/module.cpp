@@ -40,6 +40,8 @@ void bindGroupTheory(py::module_ &m);
 void bindModeling(py::module_ &m);
 // Defined in calculation.cpp.
 void bindCalculation(py::module_ &m);
+// Defined in simulation.cpp.
+void bindSimulation(py::module_ &m);
 
 namespace {
 
@@ -304,6 +306,7 @@ PYBIND11_MODULE(_pymarty, m)
     bindGroupTheory(m);
     bindModeling(m);
     bindCalculation(m);
+    bindSimulation(m);
 
     // Test hooks for the error and output layers. Not part of the public API.
     py::module_ debug

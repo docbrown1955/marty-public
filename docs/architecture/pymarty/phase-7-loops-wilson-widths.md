@@ -85,9 +85,9 @@ are the ground truth):
 | `test_lha_reader.py` | `test_lha_reader.cpp` | idem | none | fast |
 | `test_full_mssm.py` | `test_fullMSSM.cpp` | idem | `slow` | |
 | `test_fi_tests.py` | `FItests.cpp` | `data/` | `loops` | |
-| `test_majorana_loop.py` | `majoranaLoop.cpp` | idem | `loops` | |
+| `test_majorana_loop.py` | `majoranaLoop.cpp` | moved to C++ integration (`tests/integration/src/test_majorana_loop.cpp`), no Python test | | |
 | `test_ew_gauge_quad.py` | quad variants | idem | `quad`, `slow` | |
-| others | `Bgenesis`, `NLepto`, `SM_2IDM`, `SM_triplet`, `freeQuarkAmplitudes`, `testConjugation`, `wilsons_GTHDM` | idem | per test | |
+| others | `Bgenesis`, `NLepto` (now C++ integration), `SM_2IDM`, `SM_triplet`, `freeQuarkAmplitudes`, `testConjugation` (now C++ integration), `wilsons_GTHDM` | idem | per test | |
 
 ## 4. Acceptance criteria
 

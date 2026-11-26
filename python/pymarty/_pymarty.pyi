@@ -754,6 +754,10 @@ class calculation:
         model: object, wilsons: WilsonSet, coupling: builtins.str
     ) -> list[Expr]: ...
     @staticmethod
+    def chromo_magnetic_coefficient(
+        model: object, wilsons: WilsonSet, coupling: builtins.str
+    ) -> Expr: ...
+    @staticmethod
     def option_names() -> list[builtins.str]: ...
     @staticmethod
     def get_option(name: builtins.str) -> bool: ...
@@ -779,6 +783,34 @@ class calculation:
         def launch_grafed(executable: builtins.str, json_path: builtins.str) -> int: ...
         @staticmethod
         def wait_process(pid: int) -> int: ...
+
+class simulation:
+    class Generator:
+        def __init__(self, name: builtins.str, directory: builtins.str) -> None: ...
+        @property
+        def library_directory(self) -> builtins.str: ...
+        def add_include_path(self, path: builtins.str) -> None: ...
+        def add_library_path(self, path: builtins.str) -> None: ...
+        def add_function(self, name: builtins.str, expr: Expr) -> None: ...
+        def add_spectrum(self, model: modeling.Model) -> None:
+            """Add the mass, width and diagonalization functions of ``model``.
+
+            Only once.
+            """
+        def compute_model_widths(
+            self, model: modeling.Model, order: calculation.Order
+        ) -> None:
+            """Compute the widths of ``model`` at ``order``.
+
+            The widths are added as ``Gamma_<particle>``.
+            """
+        def set_quadruple_precision(self, enabled: builtins.bool) -> None:
+            """Compute the C internals in quadruple precision.
+
+            Requires a quad build of MARTY.
+            """
+        def print_sources(self) -> None: ...
+        def build(self, n_jobs: int, make: builtins.str) -> None: ...
 
 class diracology:
     class FierzBasis(enum.Enum):

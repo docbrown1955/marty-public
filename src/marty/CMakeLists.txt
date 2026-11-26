@@ -20,6 +20,7 @@ target_link_libraries(marty PUBLIC
     marty-modeling-api
     marty-calculation-api
     marty-visualization-api
+    marty-simulation-api
     GSL::gsl
     GSL::gslcblas
     ${PROJECT_BINARY_DIR}/libooptools.so
@@ -40,6 +41,7 @@ target_link_libraries(marty-static PUBLIC
     marty-modeling-api
     marty-calculation-api
     marty-visualization-api
+    marty-simulation-api
     GSL::gsl
     GSL::gslcblas
     ${PROJECT_BINARY_DIR}/libooptools.so

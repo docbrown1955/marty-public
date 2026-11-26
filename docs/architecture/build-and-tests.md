@@ -89,9 +89,8 @@ Notes:
 
 - **Units** cover CSL (numbers, literals, equality, the init sanitiser) and a few MARTY
   parameters (SM parameter definitions) and the Boltzmann-solver quantum numbers.
-- **Integration** tests exercise full model calculations and the gamma API.
-- **System** tests are full physics computations (Wilson coefficients, widths, Majorana loops,
-  LHA reading). Each one is registered by `ADD_SYSTEM_TEST(name, file)`, runs from
+- **Integration** tests exercise full model calculations, the gamma API, Majorana loop simplification, conjugation relative signs and the NLepto library build.
+- **System** tests are full physics computations (Wilson coefficients, widths, LHA reading). Each one is registered by `ADD_SYSTEM_TEST(name, file)`, runs from
   `tests/system`, and has a cleanup test that removes `libs/<name>`. Results are compared with
   `src/comparedata.h` within a tolerance. Quadruple-precision tests are only added when the
   feature is enabled.

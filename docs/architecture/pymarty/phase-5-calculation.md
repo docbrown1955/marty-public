@@ -210,14 +210,14 @@ Deviations and open points, decided during implementation:
 - System tests (`python/tests/system/`, smoke level: symbolic calculation only, no numerical comparison,
   which is phase 6). Ported: `widthsSM` (tree-level cases, plus a `slow` one-loop case), `C7_SM`, `C8_SM`
   (their Wilson coefficients are asserted to be `Expr` only; they evaluate to `0` in Python and the cause
-  is not yet established), `majoranaLoop` (toy model `pymarty.modeling.models.majorana_loop`) and
-  `testConjugation` (toy model `pymarty.modeling.models.conjugation`).
-  Not ported, with reasons: `FItests` (no Python API for vector integrals or Feynman integral reduction);
+  is not yet established), `testConjugation` (now the C++ integration test `tests/integration/src/test_conjugation.cpp`,
+  no Python counterpart). `majoranaLoop` is a C++ integration test (`tests/integration/src/test_majorana_loop.cpp`)
+  with no Python counterpart. Not ported, with reasons: `FItests` (no Python API for vector integrals or Feynman integral reduction);
   `simpleSpectrum`, `testModelWidth` (no spectrum generation or model width API); `BsMixingSM`,
   `BsMixingVLQ_*`, `C9_SM`, `wilsons_GTHDM` (need the dimension-6 operator API); `gm2SM` (needs the
   `isInLoop` predicate filter). Also ported: `SM_triplet` (toy model `pymarty.modeling.models.sm_triplet`,
-  one-loop amplitudes as in the C++) and `NLepto` (toy model `pymarty.modeling.models.nlepto`, tree-level
-  processes; the full process loop is marked `slow`). The physical heavy neutrinos are the `N1..N6` states:
+  one-loop amplitudes as in the C++) and `NLepto` (now the C++ integration test `tests/integration/src/test_nlepto.cpp`,
+  no Python counterpart). The physical heavy neutrinos are the `N1..N6` states:
   the Weyl halves `N_k_L`/`N_k_R` are excluded by name.
   Also ported: `SM_2IDM` (toy model `pymarty.modeling.models.sm_2idm`, one-loop `mu -> e Z`; the
   `Library` tail is phase 6) and `EWGauge` (tree-level `W Z -> W Z` on the SM, with the total, no-Higgs,

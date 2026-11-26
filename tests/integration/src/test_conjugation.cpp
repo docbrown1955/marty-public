@@ -7,8 +7,8 @@
  * calculated symbolically and evaluated to match the validated squared
  * amplitude.
  */
-#include "testutility.h"
 #include <array>
+#include <gtest/gtest.h>
 #include <marty.h>
 
 using namespace csl;
@@ -49,7 +49,7 @@ auto createKinematics()
     return res;
 }
 
-int main()
+TEST(conjugation, relative_signs_of_fermion_number_violating_interactions)
 {
 
     Model model(std::vector<GaugeGroupSpec>{});
@@ -150,31 +150,14 @@ int main()
     std::cout << (square2->printLaTeX() == shouldBeS2->printLaTeX()) << '\n';
     std::cout << (square1->printLaTeX() == shouldBeS2->printLaTeX()) << '\n';
 
-    if (square1->printLaTeX() != shouldBeS1->printLaTeX()) {
-        ::error(
-            buildMessage("Bad comparison of ", square1, " and ", shouldBeS1));
-        return 1;
-    }
-    if (square2->printLaTeX() != shouldBeS2->printLaTeX()) {
-        ::error(
-            buildMessage("Bad comparison of ", square2, " and ", shouldBeS2));
-        return 1;
-    }
-    if (square1->printLaTeX() == shouldBeS2->printLaTeX()) {
-        ::error(buildMessage("Bad comparison (should be !=) of ",
-                             square1,
-                             " and ",
-                             shouldBeS2));
-        return 1;
-    }
-    if (square2->printLaTeX() == shouldBeS1->printLaTeX()) {
-        ::error(buildMessage("Bad comparison (should be !=) of ",
-                             square2,
-                             " and ",
-                             shouldBeS1));
-        return 1;
-    }
-    ::success("Conjugation matrix calculations agree.");
-
-    return 0;
+    EXPECT_EQ(square1->printLaTeX(), shouldBeS1->printLaTeX())
+        << "Bad comparison of " << square1 << " and " << shouldBeS1;
+    EXPECT_EQ(square2->printLaTeX(), shouldBeS2->printLaTeX())
+        << "Bad comparison of " << square2 << " and " << shouldBeS2;
+    EXPECT_NE(square1->printLaTeX(), shouldBeS2->printLaTeX())
+        << "Bad comparison (should be !=) of " << square1 << " and "
+        << shouldBeS2;
+    EXPECT_NE(square2->printLaTeX(), shouldBeS1->printLaTeX())
+        << "Bad comparison (should be !=) of " << square2 << " and "
+        << shouldBeS1;
 }

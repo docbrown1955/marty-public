@@ -1,5 +1,20 @@
 # Phase 6: `pymarty.simulation`
 
+> Status note (2026-11-26): the design below was amended. The metadata file, the C ABI layer and the
+> `dlopen` loader are dropped; the generated ctypes binding is used instead. See
+> [phase-6/03-spec.md](phase-6/03-spec.md), Amendments 1 and 2, which are the reference. Amendment 2 puts EWGauge
+> in phase 6 (its quadruple precision is internal to the C implementation) and lists the 20-item work plan.
+>
+> Status (2026-11-26): the ports below are implemented. Numerically checked: `Zmumu`, `gg_to_tt`,
+> `simpleSpectrum` (1e-10, achieved ~3e-16), `testModelWidth` (all 12 widths, 1e-5, achieved 2.2e-6), `EWGauge`
+> (1e-3, achieved 8.07e-4) and `widths_sm` (8 widths, 1e-5, achieved 1.06e-6). `c7_sm` and `c8_sm` match their C++
+> references at 1e-5 (the m_t scan, both coefficients). The `majorana_loop` test was moved from the system suite to
+> the C++ integration suite (`tests/integration/src/test_majorana_loop.cpp`). It checks amplitude simplification,
+> not numbers, so it has no Python counterpart. See
+> The `conjugation` and `nlepto` tests were moved the same way (C++ integration suite, no Python counterpart). The
+> one-loop `sm_2idm` and `sm_triplet` tests stay build-and-load only, matching the C++ scope.
+> See [phase-6/03-spec.md](phase-6/03-spec.md) for the outcome of each work item.
+
 Generate C/C++ libraries from symbolic expressions, build them, load them into the Python process and
 evaluate them numerically. Today MARTY stops after writing and compiling the library: the user writes
 a `main` that includes the generated header (see `tests/system/libsrc/example_*.cpp`, where the
@@ -32,7 +47,7 @@ In scope:
 - Reproduction of `Zmumu`, `gg_to_tt`, `EWGauge`, `simpleSpectrum`, `testModelWidth` and the full
   `gettingStarted`.
 
-Out of scope: LoopTools-dependent libraries (Phase 7), quadruple-precision libraries (Phase 7), LHA
+Out of scope: LoopTools-dependent libraries (Phase 7), the quad test variant of EWGauge (Phase 7), LHA
 import (Phase 7), vector/tensor-valued library outputs beyond what the listed examples need
 (`NotImplementedError` otherwise).
 
@@ -112,14 +127,15 @@ L2 (`python/tests/simulation/`, marker `needs_compiler`): parity tests for all L
 
 L4/L5 (ports, compare against reference files with the C++ test's tolerance, read from each C++ file):
 
-| Port | C++ source | Reference data | Marker |
-|------|-----------|----------------|--------|
-| `gettingStarted` full | `examples/gettingStarted.cpp` | no reference file: the generated library result compared with the direct CSL evaluation of the same expression | `needs_compiler` |
-| `Zmumu` | `tests/system/src/Zmumu.cpp`, `libsrc/example_zmumu.cpp` | file in `tests/system/data/output/` named by the test | `needs_compiler`, `slow` |
-| `gg_to_tt` | `gg_to_tt.cpp`, `libsrc/example_gg_to_tt.cpp` | idem | `needs_compiler` |
-| `EWGauge` | `EWGauge.cpp`, `libsrc/example_ewgauge.cpp` | idem | `needs_compiler`, `slow` (and `quad` variant in Phase 7) |
-| `simpleSpectrum` | `simpleSpectrum.cpp`, `libsrc/example_simplespectrum.cpp` | idem | `needs_compiler` |
-| `testModelWidth` | `testModelWidth.cpp`, `libsrc/example_modelwidthlib.cpp` | idem | `needs_compiler`, `slow` |
+| Port | C++ source | Reference data | Marker | Status |
+|------|-----------|----------------|--------|--------|
+| `gettingStarted` full | `examples/gettingStarted.cpp` | no reference file: the generated library result compared with the direct CSL evaluation of the same expression | `needs_compiler` | not checked in this table |
+| `Zmumu` | `tests/system/src/Zmumu.cpp`, `libsrc/example_zmumu.cpp` | file in `tests/system/data/output/` named by the test | `needs_compiler`, `slow` | ported, numerically checked |
+| `gg_to_tt` | `gg_to_tt.cpp`, `libsrc/example_gg_to_tt.cpp` | idem | `needs_compiler` | ported, numerically checked |
+| `EWGauge` | `EWGauge.cpp`, `libsrc/example_ewgauge.cpp` | idem | `needs_compiler`, `slow` (the `quad` variant stays in Phase 7) | ported, numerically checked (1e-3, achieved 8.07e-4) |
+| `simpleSpectrum` | `simpleSpectrum.cpp`, `libsrc/example_simplespectrum.cpp` | idem | `needs_compiler` | ported, numerically checked (1e-10, achieved ~3e-16) |
+| `testModelWidth` | `testModelWidth.cpp`, `libsrc/example_modelwidthlib.cpp` | idem | `needs_compiler`, `slow` | ported, numerically checked (1e-5, achieved 2.2e-6) |
+| `widths_sm` | `tests/system/src/widthsSM.cpp` | idem | `needs_compiler`, `slow` | ported, numerically checked (1e-5, achieved 1.06e-6) |
 
 The Python tests use `pymarty.testing.compare(reference, result, tolerance)`, a port of
 `tests/system/src/comparedata.h` (returns average and maximum difference, `(-1, -1)` equivalent as an

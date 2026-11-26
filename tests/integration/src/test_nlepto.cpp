@@ -13,7 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with MARTY. If not, see <https://www.gnu.org/licenses/>.
 
-#include "testutility.h"
+#include <filesystem>
+#include <gtest/gtest.h>
 #include <marty.h>
 
 using namespace std;
@@ -62,7 +63,7 @@ void addSquaredAmplitude(mty::Model                   &model,
     library.addFunction(processName(insertions), sampl);
 }
 
-int main()
+TEST(nlepto, builds_squared_amplitude_library)
 {
 
     // Model building
@@ -334,8 +335,17 @@ int main()
     myLib.generateSpectrum(toyModel);
 
     [[maybe_unused]] int sysres = system("rm -rf libs/NLepto");
-    defineLibPath(myLib);
+#ifdef MARTY_LIBRARY_PATH
+    myLib.addLPath(MARTY_LIBRARY_PATH);
+    myLib.addLPath(MARTY_LIBRARY_PATH "/..");
+    myLib.addLPath(MARTY_LIBRARY_PATH "/marty");
+    myLib.addLPath(MARTY_LIBRARY_PATH "/marty/lha");
+#endif
+#ifdef MARTY_INCLUDE_PATH
+    myLib.addIPath(MARTY_INCLUDE_PATH);
+#endif
     myLib.build();
 
-    return assert_binary("NLepto");
+    EXPECT_TRUE(std::filesystem::exists(
+        "libs/NLepto/build/bin/example_nlepto.x"));
 }
