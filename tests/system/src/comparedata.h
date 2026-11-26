@@ -22,6 +22,12 @@ inline std::vector<double> readLine(std::ifstream &fin)
     while (sin >> value)
         res.push_back(value);
 
+    std::string token;
+    sin.clear();
+    if (sin >> token)
+        std::cerr << ERRORFONT << "Warning: unparsable token \"" << token
+                  << "\" in line \"" << line << "\"" << RESET << "\n";
+
     return res;
 }
 
@@ -99,6 +105,22 @@ compare(char const *file1, char const *file2, double eps)
     return diff;
 }
 
+void print_file_diff(std::string const &refFile, std::string const &signalFile)
+{
+    std::ifstream f1(refFile);
+    std::ifstream f2(signalFile);
+        std::string lineA, lineB;
+    size_t line_number = 1;
+    while (std::getline(f1, lineA) && std::getline(f2, lineB)) {
+        if (lineA != lineB) {
+            std::cout << ERRORFONT << "Difference at line " << line_number << ":" << RESET << '\n';
+            std::cout << "REF file: " << lineA << '\n';
+            std::cout << "SIG file: " << lineB << '\n';
+        }
+        ++line_number;
+    }
+}
+
 inline int
 assert_equal(std::string const &fileA, std::string const &fileB, double eps)
 {
@@ -115,6 +137,7 @@ assert_equal(std::string const &fileA, std::string const &fileB, double eps)
         return 0;
     }
     else {
+        print_file_diff(fileA, fileB);
         std::cout << ERRORFONT << "Discrepancy between file \"" << fileA
                   << "\" and file \"" << fileB << "\": \n"
                   << RESET;
