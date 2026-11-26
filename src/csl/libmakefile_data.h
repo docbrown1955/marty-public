@@ -49,7 +49,7 @@ void print_libmakefile_data(std::ostream      &out,
     else {
         out << "OPTIFLAGS = \n";
     }
-    out << "CXXFLAGS  = $(CXXSTD) $(DEFAULTFLAGS) $(OPTIFLAGS)\n";
+    out << "CXXFLAGS  = $(CXXSTD) $(DEFAULTFLAGS) -O2\n";
     out << "CFLAGS    = $(CSTD) $(DEFAULTFLAGS) $(OPTIFLAGS)\n";
     out << "LINKFLAGS = $(DEFAULTFLAGS)\n";
     out << "\n";
