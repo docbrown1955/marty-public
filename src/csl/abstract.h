@@ -105,9 +105,13 @@ class Abstract {
      * \param mode Tells if the Abstract is printed alone (default) or in
      * another expr.
      */
-    virtual void print(int           mode    = 0,
-                       std::ostream &out     = std::cout,
-                       LibraryMode   libMode = LibraryMode::NoLib) const = 0;
+    virtual void print(int mode = 0, std::ostream &out = std::cout) const = 0;
+
+    /*! \brief Prints the expression as numerical code of the generated C and
+     * C++ libraries. Defaults to print(); overridden where the library output
+     * differs (names of functions, literals, complex numbers).
+     */
+    virtual void printLib(int mode = 0, std::ostream &out = std::cout) const;
 
     virtual void printCode(int mode = 0, std::ostream &out = std::cout) const;
 

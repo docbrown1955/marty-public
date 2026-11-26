@@ -66,7 +66,7 @@ int main()
     lib.print();
 
     sysres = system("cp libsrc/example_bsmixingsm.cpp libs/BsMixingSM/script");
-    sysres = system("cd libs/BsMixingSM; make && bin/example_bsmixingsm.x");
+    sysres = system("cd libs/BsMixingSM; make && build/bin/example_bsmixingsm.x");
     return assert_equal(
         "data/output/BsMixingSM.txt", "libs/BsMixingSM/data.txt", 1e-8);
 }

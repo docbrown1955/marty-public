@@ -88,7 +88,7 @@ std::vector<std::string> Reader::split(std::string const &line)
     auto iter  = line.begin();
     auto first = line.end();
     while (iter != line.end()) {
-        if (*iter == ' ' or *iter == '\n' or *iter == '\r') {
+        if (*iter == ' ' or *iter == '\t' or *iter == '\r' or *iter == '\n') {
             if (first < iter) {
                 res.emplace_back(first, iter);
                 first = line.end();

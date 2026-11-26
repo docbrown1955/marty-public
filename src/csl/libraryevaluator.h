@@ -68,7 +68,7 @@ public:
 
     void printLib(
             std::ostream &out,
-            LibraryMode   libMode,
+            bool          isCpp,
             int           indent = 1,
             bool          complexParameters = false
             );
@@ -76,7 +76,7 @@ public:
     static void printExpression(
             std::ostream      &out,
             Expr              &expr,
-            LibraryMode        libMode,
+            bool               isCpp,
             int                indent,
             std::string const &begin,
             std::string const &end = ""

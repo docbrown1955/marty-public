@@ -78,101 +78,107 @@ std::optional<csl::Expr> BooleanOperator::getComplexArgument() const
     return cpy.copy();
 }
 
-void BooleanOperator::print(int           mode,
-                            std::ostream &out,
-                            LibraryMode   libMode) const
+void BooleanOperator::print(int mode, std::ostream &out) const
+{
+    const size_t first = size() - 2;
+
+    out << "Boolean(";
+    out << "condition: ";
+    switch (type) {
+    case True:
+        out << "[" << argument[0] << "]";
+        break;
+    case False:
+        out << "not [" << argument[0] << "]";
+        break;
+    case EqualTo:
+        out << "[" << argument[0] << "] == [" << argument[1] << "]";
+        break;
+    case DifferentThan:
+        out << "[" << argument[0] << "] != [" << argument[1] << "]";
+        break;
+    case LessThan:
+        out << "[" << argument[0] << "] < [" << argument[1] << "]";
+        break;
+    case LessThanOrEqualTo:
+        out << "[" << argument[0] << "] <= [" << argument[1] << "]";
+        break;
+    case GreaterThan:
+        out << "[" << argument[0] << "] > [" << argument[1] << "]";
+        break;
+    case GreaterThanOrEqualTo:
+        out << "[" << argument[0] << "] >= [" << argument[1] << "]";
+        break;
+    default:
+        CALL_SMERROR(CSLError::TypeError);
+    }
+    out << " ; true: [" << argument[first] << "]";
+    out << " ; false: [" << argument[first + 1] << "]";
+    out << ")";
+
+    if (mode == 0) {
+        out << '\n';
+    }
+}
+
+void BooleanOperator::printLib(int mode, std::ostream &out) const
 {
     const size_t first = size() - 2;
 
     auto print_one_arg = [&](csl::Expr const &expr) {
         out << "(";
-        expr->print(0, out, libMode);
+        expr->printLib(0, out);
         out << ")";
     };
     auto print_two_args
         = [&](csl::Expr const &left, csl::Expr const &right, char const *sep) {
               out << "(";
-              left->print(0, out, libMode);
+              left->printLib(0, out);
               out << ") " << sep << " (";
-              right->print(0, out, libMode);
+              right->printLib(0, out);
               out << ")";
           };
 
-    if (libMode != LibraryMode::NoLib) {
-        out << "( (";
-        switch (type) {
-        case True:
-            out << "(bool)";
-            print_one_arg(argument[0]);
-            break;
-        case False:
-            out << "!(bool)";
-            print_one_arg(argument[0]);
-            break;
-        case EqualTo:
-            print_two_args(argument[0], argument[1], "==");
-            break;
-        case DifferentThan:
-            print_two_args(argument[0], argument[1], "!=");
-            break;
-        case LessThan:
-            print_two_args(argument[0], argument[1], "<");
-            break;
-        case LessThanOrEqualTo:
-            print_two_args(argument[0], argument[1], "<=");
-            break;
-        case GreaterThan:
-            print_two_args(argument[0], argument[1], ">");
-            break;
-        case GreaterThanOrEqualTo:
-            print_two_args(argument[0], argument[1], ">=");
-            break;
-        default:
-            CALL_SMERROR(CSLError::TypeError);
-        }
-        out << ") ? ";
-        print_two_args(argument[first], argument[first + 1], ":");
-        out << ")";
+    out << "( (";
+    switch (type) {
+    case True:
+        out << "(bool)";
+        print_one_arg(argument[0]);
+        break;
+    case False:
+        out << "!(bool)";
+        print_one_arg(argument[0]);
+        break;
+    case EqualTo:
+        print_two_args(argument[0], argument[1], "==");
+        break;
+    case DifferentThan:
+        print_two_args(argument[0], argument[1], "!=");
+        break;
+    case LessThan:
+        print_two_args(argument[0], argument[1], "<");
+        break;
+    case LessThanOrEqualTo:
+        print_two_args(argument[0], argument[1], "<=");
+        break;
+    case GreaterThan:
+        print_two_args(argument[0], argument[1], ">");
+        break;
+    case GreaterThanOrEqualTo:
+        print_two_args(argument[0], argument[1], ">=");
+        break;
+    default:
+        CALL_SMERROR(CSLError::TypeError);
     }
-    else {
-        out << "Boolean(";
-        out << "condition: ";
-        switch (type) {
-        case True:
-            out << "[" << argument[0] << "]";
-            break;
-        case False:
-            out << "not [" << argument[0] << "]";
-            break;
-        case EqualTo:
-            out << "[" << argument[0] << "] == [" << argument[1] << "]";
-            break;
-        case DifferentThan:
-            out << "[" << argument[0] << "] != [" << argument[1] << "]";
-            break;
-        case LessThan:
-            out << "[" << argument[0] << "] < [" << argument[1] << "]";
-            break;
-        case LessThanOrEqualTo:
-            out << "[" << argument[0] << "] <= [" << argument[1] << "]";
-            break;
-        case GreaterThan:
-            out << "[" << argument[0] << "] > [" << argument[1] << "]";
-            break;
-        case GreaterThanOrEqualTo:
-            out << "[" << argument[0] << "] >= [" << argument[1] << "]";
-            break;
-        default:
-            CALL_SMERROR(CSLError::TypeError);
-        }
-        out << " ; true: [" << argument[first] << "]";
-        out << " ; false: [" << argument[first + 1] << "]";
-        out << ")";
-    }
+    out << ") ? ";
+    print_two_args(argument[first], argument[first + 1], ":");
+    out << ")";
+
     if (mode == 0) {
         out << '\n';
     }
 }
+
 
 void BooleanOperator::printCode(int mode, std::ostream &out) const
 {

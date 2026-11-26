@@ -53,9 +53,18 @@ CSL (`src/csl/`) is a standalone computer algebra system. Its main concepts:
 - **Linear algebra helpers.** `diagonalization.cpp` (used for mass-matrix diagonalisation and
   field rotations) and `linear_map.h`.
 - **Code generation.** `librarygenerator.cpp` with `LibraryGroup`, `LibraryFunction`,
-  `LibraryTensor`, `LibraryEvaluator` and `LibraryDependency`. These emit C++ source for a
-  numerical library (double precision, or quadruple precision with GNU compilers) and drive
-  its Makefile. Templates are embedded as `lib*_data.h` headers.
+  `LibraryTensor`, `LibraryEvaluator` and `LibraryDependency`. The C library is the numerical
+  core: `librarygenerator_c.cpp` emits it, and it is the only layer that performs calculations.
+  The C++ layer (in `librarygenerator.cpp`) and the Python layer (`librarygenerator_python.cpp`)
+  are optional wrappers around the C library, enabled with `setCppLibrary()` and
+  `setPythonLibrary()`. Quadruple precision (`setQuadruplePrecision()`, GNU compilers only) is
+  internal to the C calculation sources; public C, C++ and Python interfaces stay double.
+  Templates are embedded as `lib*_data.h` headers.
+
+  Breaking change (for the next CHANGELOG): quadruple precision is removed from the C++
+  interfaces and the global `Library::setQuadruplePrecision()` is replaced by the per-library
+  `setQuadruplePrecision()` setter.
+
 - **Memory and performance.** `allocator.h`, `alloc_monitor.cpp`, `memory_pool.h`,
   `timeMonitor.cpp`, `progressBar.h`.
 

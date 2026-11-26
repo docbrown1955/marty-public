@@ -22,6 +22,7 @@ set(ALL_SOURCES
     buildingBlock.cpp
     buildingBlock.h
     cast.h
+    cdiagonalization_data.h
     commutation.cpp
     commutation.h
     comparison.cpp
@@ -64,7 +65,6 @@ set(ALL_SOURCES
     latexChain.cpp
     latexChain.h
     libcallable_data.h
-    cdiagonalization_data.h
     libcomplexop_hdata.h
     libdiagonalization_cppdata.h
     libdiagonalization_hdata.h
@@ -75,9 +75,10 @@ set(ALL_SOURCES
     libraryfunction.cpp
     libraryfunction.h
     librarygenerator.cpp
+    libmacros.h
+    librarygenerator.h
     librarygenerator_c.cpp
     librarygenerator_python.cpp
-    librarygenerator.h
     librarygroup.cpp
     librarygroup.h
     librarytensor.h

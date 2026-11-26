@@ -5,7 +5,7 @@
 //       "Podman compose up" as docker compose binary in the settings
 
 {
-	"name": "marty-dev",
+	"name": "marty-dev-gcc11",
 
 	// The following uses the designed Dockerfile in the current folder to build the image.
 	"build": {

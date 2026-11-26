@@ -2,6 +2,7 @@
 #include "ckm.h"
 #include "marty/lha/lha.h"
 #include "read_spectrum.h"
+#include <complex>
 #include <fstream>
 #include <iomanip>
 #include <sstream>
@@ -20,8 +21,8 @@ int main()
     const std::string folder = "../../data/input";
     auto              param1 = &params.M_2;
     auto              param2 = &params.mu_h;
-    *param1                  = 0;
-    *param2                  = 0;
+    *param1                  = std::complex<double>(0);
+    *param2                  = std::complex<double>(0);
     fillCKM(params);
     for (size_t i = 0; i <= 100; ++i) {
         std::cout << i << " / 100\n";
@@ -33,15 +34,15 @@ int main()
                 readSpectrum2(params, data);
             }
             else {
-                file << std::setw(20) << (double) crealq(*param1);
-                file << std::setw(20) << (double) crealq(*param2);
+                file << std::setw(20) << std::real(param1->get());
+                file << std::setw(20) << std::real(param2->get());
                 file << "0 0 0 0\n";
                 continue;
             }
         }
         else {
-            file << std::setw(20) << (double) crealq(*param1);
-            file << std::setw(20) << (double) crealq(*param2);
+            file << std::setw(20) << std::real(param1->get());
+            file << std::setw(20) << std::real(param2->get());
             file << "0 0 0 0\n";
             continue;
         }
@@ -50,16 +51,16 @@ int main()
         params.s_12 = s_12;
         params.s_34 = -params.m_mu * params.m_mu;
         params.reg_prop          = 1e-3;
-        const __complex128 c9b   = C9_B(params);
-        const __complex128 c9z   = C9_Z(params);
-        const __complex128 c9a   = C9_A(params);
-        const __complex128 c9tot = C9_Tot(params);
-        file << std::setw(20) << (double) crealq(*param1);
-        file << std::setw(20) << (double) crealq(*param2);
-        file << std::setw(20) << (double) crealq(c9b);
-        file << std::setw(20) << (double) crealq(c9z);
-        file << std::setw(20) << (double) crealq(c9a);
-        file << std::setw(20) << (double) crealq(c9tot);
+        const std::complex<double> c9b   = C9_B(params);
+        const std::complex<double> c9z   = C9_Z(params);
+        const std::complex<double> c9a   = C9_A(params);
+        const std::complex<double> c9tot = C9_Tot(params);
+        file << std::setw(20) << std::real(param1->get());
+        file << std::setw(20) << std::real(param2->get());
+        file << std::setw(20) << std::real(c9b);
+        file << std::setw(20) << std::real(c9z);
+        file << std::setw(20) << std::real(c9a);
+        file << std::setw(20) << std::real(c9tot);
         file << std::endl;
     }
     return 0;

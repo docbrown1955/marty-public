@@ -19,7 +19,7 @@
 #include "indicial.h"
 #include "interface.h"
 #include "librarydependency.h"
-#include "librarygenerator.h"
+#include "libmacros.h"
 #include "operations.h"
 #include "replace.h"
 #include "utils.h"
@@ -95,15 +95,23 @@ IMPLEMENT_PRINT_CODE(Factorial, factorial_s)
 /*************************************************/
 ///////////////////////////////////////////////////
 
-void Abs::print(int mode, std::ostream &out, LibraryMode libMode) const
+void Abs::print(int mode, std::ostream &out) const
 {
-    if (libMode == LibraryMode::NoLib)
-        out << "abs(";
-    else if (argument->isReal())
-        out << "MTY_FN(fabs)(";
+    out << "abs(";
+    argument->print(1, out);
+    out << ")";
+    printProp(out);
+    if (mode == 0)
+        out << endl;
+}
+
+void Abs::printLib(int mode, std::ostream &out) const
+{
+    if (argument->isReal())
+        out << libmacro::fn << "(fabs)(";
     else
-        out << "MTY_CFN(abs)(";
-    argument->print(1, out, libMode);
+        out << libmacro::cfn << "(abs)(";
+    argument->printLib(1, out);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -193,15 +201,23 @@ optional<Expr> Exp::getComplexArgument() const
     return argument->getImaginaryPart();
 }
 
-void Exp::print(int mode, std::ostream &out, LibraryMode libMode) const
+void Exp::print(int mode, std::ostream &out) const
 {
-    if (libMode == LibraryMode::NoLib)
-        out << "exp(";
-    else if (argument->isReal())
-        out << "MTY_FN(exp)(";
+    out << "exp(";
+    argument->print(1, out);
+    out << ")";
+    printProp(out);
+    if (mode == 0)
+        out << endl;
+}
+
+void Exp::printLib(int mode, std::ostream &out) const
+{
+    if (argument->isReal())
+        out << libmacro::fn << "(exp)(";
     else
-        out << "MTY_CFN(exp)(";
-    argument->print(1, out, libMode);
+        out << libmacro::cfn << "(exp)(";
+    argument->printLib(1, out);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -339,15 +355,23 @@ optional<Expr> Log::getComplexArgument() const
                                    GetImaginaryPart(copy()));
 }
 
-void Log::print(int mode, std::ostream &out, LibraryMode libMode) const
+void Log::print(int mode, std::ostream &out) const
 {
-    if (libMode == LibraryMode::NoLib)
-        out << "log(";
-    else if (argument->isReal())
-        out << "MTY_FN(log)(";
+    out << "log(";
+    argument->print(1, out);
+    out << ")";
+    printProp(out);
+    if (mode == 0)
+        out << endl;
+}
+
+void Log::printLib(int mode, std::ostream &out) const
+{
+    if (argument->isReal())
+        out << libmacro::fn << "(log)(";
     else
-        out << "MTY_CFN(log)(";
-    argument->print(1, out, libMode);
+        out << libmacro::cfn << "(log)(";
+    argument->printLib(1, out);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -440,15 +464,23 @@ optional<Expr> Cos::getComplexArgument() const
                                    GetImaginaryPart(copy()));
 }
 
-void Cos::print(int mode, std::ostream &out, LibraryMode libMode) const
+void Cos::print(int mode, std::ostream &out) const
 {
-    if (libMode == LibraryMode::NoLib)
-        out << "cos(";
-    else if (argument->isReal())
-        out << "MTY_FN(cos)(";
+    out << "cos(";
+    argument->print(1, out);
+    out << ")";
+    printProp(out);
+    if (mode == 0)
+        out << endl;
+}
+
+void Cos::printLib(int mode, std::ostream &out) const
+{
+    if (argument->isReal())
+        out << libmacro::fn << "(cos)(";
     else
-        out << "MTY_CFN(cos)(";
-    argument->print(1, out, libMode);
+        out << libmacro::cfn << "(cos)(";
+    argument->printLib(1, out);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -564,15 +596,23 @@ optional<Expr> Sin::getComplexArgument() const
                                    GetImaginaryPart(copy()));
 }
 
-void Sin::print(int mode, std::ostream &out, LibraryMode libMode) const
+void Sin::print(int mode, std::ostream &out) const
 {
-    if (libMode == LibraryMode::NoLib)
-        out << "sin(";
-    else if (argument->isReal())
-        out << "MTY_FN(sin)(";
+    out << "sin(";
+    argument->print(1, out);
+    out << ")";
+    printProp(out);
+    if (mode == 0)
+        out << endl;
+}
+
+void Sin::printLib(int mode, std::ostream &out) const
+{
+    if (argument->isReal())
+        out << libmacro::fn << "(sin)(";
     else
-        out << "MTY_CFN(sin)(";
-    argument->print(1, out, libMode);
+        out << libmacro::cfn << "(sin)(";
+    argument->printLib(1, out);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -704,15 +744,23 @@ optional<Expr> Tan::getComplexArgument() const
                                    prod_s(cosh_s(im), sinh_s(im)));
 }
 
-void Tan::print(int mode, std::ostream &out, LibraryMode libMode) const
+void Tan::print(int mode, std::ostream &out) const
 {
-    if (libMode == LibraryMode::NoLib)
-        out << "tan(";
-    else if (argument->isReal())
-        out << "MTY_FN(tan)(";
+    out << "tan(";
+    argument->print(1, out);
+    out << ")";
+    printProp(out);
+    if (mode == 0)
+        out << endl;
+}
+
+void Tan::printLib(int mode, std::ostream &out) const
+{
+    if (argument->isReal())
+        out << libmacro::fn << "(tan)(";
     else
-        out << "MTY_CFN(tan)(";
-    argument->print(1, out, libMode);
+        out << libmacro::cfn << "(tan)(";
+    argument->printLib(1, out);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -826,15 +874,23 @@ optional<Expr> ACos::getComplexArgument() const
                                    GetImaginaryPart(copy()));
 }
 
-void ACos::print(int mode, std::ostream &out, LibraryMode libMode) const
+void ACos::print(int mode, std::ostream &out) const
 {
-    if (libMode == LibraryMode::NoLib)
-        out << "acos(";
-    else if (argument->isReal())
-        out << "MTY_FN(acos)(";
+    out << "acos(";
+    argument->print(1, out);
+    out << ")";
+    printProp(out);
+    if (mode == 0)
+        out << endl;
+}
+
+void ACos::printLib(int mode, std::ostream &out) const
+{
+    if (argument->isReal())
+        out << libmacro::fn << "(acos)(";
     else
-        out << "MTY_CFN(acos)(";
-    argument->print(1, out, libMode);
+        out << libmacro::cfn << "(acos)(";
+    argument->printLib(1, out);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -924,15 +980,23 @@ optional<Expr> ASin::getComplexArgument() const
                                    GetImaginaryPart(copy()));
 }
 
-void ASin::print(int mode, std::ostream &out, LibraryMode libMode) const
+void ASin::print(int mode, std::ostream &out) const
 {
-    if (libMode == LibraryMode::NoLib)
-        out << "asin(";
-    else if (argument->isReal())
-        out << "MTY_FN(asin)(";
+    out << "asin(";
+    argument->print(1, out);
+    out << ")";
+    printProp(out);
+    if (mode == 0)
+        out << endl;
+}
+
+void ASin::printLib(int mode, std::ostream &out) const
+{
+    if (argument->isReal())
+        out << libmacro::fn << "(asin)(";
     else
-        out << "MTY_CFN(asin)(";
-    argument->print(1, out, libMode);
+        out << libmacro::cfn << "(asin)(";
+    argument->printLib(1, out);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -995,15 +1059,23 @@ Expr asin_s(const Expr &expr)
 /*************************************************/
 ///////////////////////////////////////////////////
 
-void ATan::print(int mode, std::ostream &out, LibraryMode libMode) const
+void ATan::print(int mode, std::ostream &out) const
 {
-    if (libMode == LibraryMode::NoLib)
-        out << "atan(";
-    else if (argument->isReal())
-        out << "MTY_FN(atan)(";
+    out << "atan(";
+    argument->print(1, out);
+    out << ")";
+    printProp(out);
+    if (mode == 0)
+        out << endl;
+}
+
+void ATan::printLib(int mode, std::ostream &out) const
+{
+    if (argument->isReal())
+        out << libmacro::fn << "(atan)(";
     else
-        out << "MTY_CFN(atan)(";
-    argument->print(1, out, libMode);
+        out << libmacro::cfn << "(atan)(";
+    argument->printLib(1, out);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -1092,15 +1164,23 @@ optional<Expr> Cosh::getComplexArgument() const
                                    GetImaginaryPart(copy()));
 }
 
-void Cosh::print(int mode, std::ostream &out, LibraryMode libMode) const
+void Cosh::print(int mode, std::ostream &out) const
 {
-    if (libMode == LibraryMode::NoLib)
-        out << "cosh(";
-    else if (argument->isReal())
-        out << "MTY_FN(cosh)(";
+    out << "cosh(";
+    argument->print(1, out);
+    out << ")";
+    printProp(out);
+    if (mode == 0)
+        out << endl;
+}
+
+void Cosh::printLib(int mode, std::ostream &out) const
+{
+    if (argument->isReal())
+        out << libmacro::fn << "(cosh)(";
     else
-        out << "MTY_CFN(cosh)(";
-    argument->print(1, out, libMode);
+        out << libmacro::cfn << "(cosh)(";
+    argument->printLib(1, out);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -1188,15 +1268,23 @@ optional<Expr> Sinh::getComplexArgument() const
                                    GetImaginaryPart(copy()));
 }
 
-void Sinh::print(int mode, std::ostream &out, LibraryMode libMode) const
+void Sinh::print(int mode, std::ostream &out) const
 {
-    if (libMode == LibraryMode::NoLib)
-        out << "sinh(";
-    else if (argument->isReal())
-        out << "MTY_FN(sinh)(";
+    out << "sinh(";
+    argument->print(1, out);
+    out << ")";
+    printProp(out);
+    if (mode == 0)
+        out << endl;
+}
+
+void Sinh::printLib(int mode, std::ostream &out) const
+{
+    if (argument->isReal())
+        out << libmacro::fn << "(sinh)(";
     else
-        out << "MTY_CFN(sinh)(";
-    argument->print(1, out, libMode);
+        out << libmacro::cfn << "(sinh)(";
+    argument->printLib(1, out);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -1302,15 +1390,23 @@ optional<Expr> Tanh::getComplexArgument() const
                                    prod_s(cos_s(im), sin_s(im)));
 }
 
-void Tanh::print(int mode, std::ostream &out, LibraryMode libMode) const
+void Tanh::print(int mode, std::ostream &out) const
 {
-    if (libMode == LibraryMode::NoLib)
-        out << "tanh(";
-    else if (argument->isReal())
-        out << "MTY_FN(tanh)(";
+    out << "tanh(";
+    argument->print(1, out);
+    out << ")";
+    printProp(out);
+    if (mode == 0)
+        out << endl;
+}
+
+void Tanh::printLib(int mode, std::ostream &out) const
+{
+    if (argument->isReal())
+        out << libmacro::fn << "(tanh)(";
     else
-        out << "MTY_CFN(tanh)(";
-    argument->print(1, out, libMode);
+        out << libmacro::cfn << "(tanh)(";
+    argument->printLib(1, out);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -1372,15 +1468,23 @@ Expr tanh_s(const Expr &expr)
 /*************************************************/
 ///////////////////////////////////////////////////
 
-void ACosh::print(int mode, std::ostream &out, LibraryMode libMode) const
+void ACosh::print(int mode, std::ostream &out) const
 {
-    if (libMode == LibraryMode::NoLib)
-        out << "acosh(";
-    else if (argument->isReal())
-        out << "MTY_FN(acosh)(";
+    out << "acosh(";
+    argument->print(1, out);
+    out << ")";
+    printProp(out);
+    if (mode == 0)
+        out << endl;
+}
+
+void ACosh::printLib(int mode, std::ostream &out) const
+{
+    if (argument->isReal())
+        out << libmacro::fn << "(acosh)(";
     else
-        out << "MTY_CFN(acosh)(";
-    argument->print(1, out, libMode);
+        out << libmacro::cfn << "(acosh)(";
+    argument->printLib(1, out);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -1441,15 +1545,23 @@ Expr acosh_s(const Expr &expr)
 /*************************************************/
 ///////////////////////////////////////////////////
 
-void ASinh::print(int mode, std::ostream &out, LibraryMode libMode) const
+void ASinh::print(int mode, std::ostream &out) const
 {
-    if (libMode == LibraryMode::NoLib)
-        out << "asinh(";
-    else if (argument->isReal())
-        out << "MTY_FN(asinh)(";
+    out << "asinh(";
+    argument->print(1, out);
+    out << ")";
+    printProp(out);
+    if (mode == 0)
+        out << endl;
+}
+
+void ASinh::printLib(int mode, std::ostream &out) const
+{
+    if (argument->isReal())
+        out << libmacro::fn << "(asinh)(";
     else
-        out << "MTY_CFN(asinh)(";
-    argument->print(1, out, libMode);
+        out << libmacro::cfn << "(asinh)(";
+    argument->printLib(1, out);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -1513,15 +1625,23 @@ Expr asinh_s(const Expr &expr)
 /*************************************************/
 ///////////////////////////////////////////////////
 
-void ATanh::print(int mode, std::ostream &out, LibraryMode libMode) const
+void ATanh::print(int mode, std::ostream &out) const
 {
-    if (libMode == LibraryMode::NoLib)
-        out << "atanh(";
-    else if (argument->isReal())
-        out << "MTY_FN(atanh)(";
+    out << "atanh(";
+    argument->print(1, out);
+    out << ")";
+    printProp(out);
+    if (mode == 0)
+        out << endl;
+}
+
+void ATanh::printLib(int mode, std::ostream &out) const
+{
+    if (argument->isReal())
+        out << libmacro::fn << "(atanh)(";
     else
-        out << "MTY_CFN(atanh)(";
-    argument->print(1, out, libMode);
+        out << libmacro::cfn << "(atanh)(";
+    argument->printLib(1, out);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -1584,22 +1704,24 @@ Expr atanh_s(const Expr &expr)
 /*************************************************/
 ///////////////////////////////////////////////////
 
-void Angle::print(int mode, std::ostream &out, LibraryMode libMode) const
+void Angle::print(int mode, std::ostream &out) const
 {
-    if (libMode == LibraryMode::NoLib)
-        out << "angle(";
-    else
-        out << "MTY_FN(atan2)(";
-    if (libMode != LibraryMode::NoLib) {
-        argument[1]->print(1, out, libMode);
-        out << ", ";
-        argument[0]->print(1, out, libMode);
-    }
-    else {
-        argument[0]->print(1, out, libMode);
-        out << ", ";
-        argument[1]->print(1, out, libMode);
-    }
+    out << "angle(";
+    argument[0]->print(1, out);
+    out << ", ";
+    argument[1]->print(1, out);
+    out << ")";
+    printProp(out);
+    if (mode == 0)
+        out << endl;
+}
+
+void Angle::printLib(int mode, std::ostream &out) const
+{
+    out << libmacro::fn << "(atan2)(";
+    argument[1]->printLib(1, out);
+    out << ", ";
+    argument[0]->printLib(1, out);
     out << ")";
     printProp(out);
     if (mode == 0)
@@ -1718,17 +1840,20 @@ Expr angle_s(Expr const &a, Expr const &b)
 /*************************************************/
 ///////////////////////////////////////////////////
 
-void Factorial::print(int mode, std::ostream &out, LibraryMode libMode) const
+void Factorial::print(int mode, std::ostream &out) const
 {
-    if (libMode == LibraryMode::CppLib) {
-        out << "csl::factorial(";
-        argument->print(1, out, libMode);
-        out << ")";
-    }
-    else {
-        out << argument;
-        out << "!";
-    }
+    out << argument;
+    out << "!";
+    printProp(out);
+    if (mode == 0)
+        out << endl;
+}
+
+void Factorial::printLib(int mode, std::ostream &out) const
+{
+    out << libmacro::fact << "(";
+    argument->printLib(1, out);
+    out << ")";
     printProp(out);
     if (mode == 0)
         out << endl;
@@ -1848,7 +1973,7 @@ optional<Expr> DiracDelta::getComplexArgument() const
     return CSL_0;
 }
 
-void DiracDelta::print(int mode, std::ostream &out, LibraryMode) const
+void DiracDelta::print(int mode, std::ostream &out) const
 {
     out << "delta{";
     if (argument->getDim() > 0)

@@ -183,14 +183,11 @@ class FeynmanIntegral : public csl::AbstractMultiFunc {
         return false;
     }
 
-    void print(int              mode = 0,
-               std::ostream    &out  = std::cout,
-               csl::LibraryMode libMode
-               = csl::LibraryMode::NoLib) const override;
+    void print(int mode = 0, std::ostream &out = std::cout) const override;
+
+    void printLib(int mode = 0, std::ostream &out = std::cout) const override;
 
     std::string printLaTeX(int mode = 0) const override;
-
-    void printLib(int mode, csl::LibraryMode libMode, std::ostream &out) const;
 
     csl::LibDependency getLibDependency() const override;
 

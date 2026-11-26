@@ -46,8 +46,8 @@ int main()
     defineLibPath(lib);
     lib.print();
     sysres = system("cp libsrc/example_ewgauge.cpp libs/EWGauge/script");
-    sysres = system("cp libsrc/kinematics.h libs/EWGauge/include");
-    sysres = system("cd libs/EWGauge; make && bin/example_ewgauge.x");
+    sysres = system("cp libsrc/kinematics.h libs/EWGauge/script");
+    sysres = system("cd libs/EWGauge; make && build/bin/example_ewgauge.x");
     return assert_equal(
         "data/output/EWgauge.txt", "libs/EWGauge/data.txt", 1e-3);
 }

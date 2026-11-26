@@ -551,7 +551,7 @@ void ScalarIntegral::setVariable(Expr const &t_variable)
     variable = t_variable;
 }
 
-void ScalarIntegral::print(int mode, std::ostream &out, LibraryMode) const
+void ScalarIntegral::print(int mode, std::ostream &out) const
 {
     out << "int{";
     out << variable->getName();
@@ -722,7 +722,7 @@ void VectorIntegral::setParent(const Parent &t_variable)
     DeepRefresh(argument);
 }
 
-void VectorIntegral::print(int mode, std::ostream &out, LibraryMode) const
+void VectorIntegral::print(int mode, std::ostream &out) const
 {
     out << "int{";
     out << variables->getName() << "-" << variables->getSpace()[0]->getDim()

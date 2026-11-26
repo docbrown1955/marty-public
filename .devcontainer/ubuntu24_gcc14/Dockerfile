@@ -1,18 +1,14 @@
-# Ubuntu 22.04 with GCC 11 (validated toolchain in the README)
-FROM ubuntu:22.04
-
-ARG username=vscode
+# Ubuntu 24.04 with GCC 14 (toolchain used by the gcc-14 CI job)
+FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y \
-        gcc-11 \
-        g++-11 \
-        g++ \
-        gfortran-11 \
-        gfortran \
+        gcc-14 \
+        g++-14 \
+        gfortran-14 \
         libgsl-dev \
         libgslcblas0 \
         texlive \
@@ -20,6 +16,7 @@ RUN apt-get update && \
         texlive-science \
         texlive-latex-extra \
         dvipng \
+        lcov \
         coreutils \
         imagemagick \
         qtbase5-dev \
@@ -36,12 +33,13 @@ RUN apt-get update && \
         clang-format \
         gdb \
         valgrind \
+        vim \
         ca-certificates && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-ENV CC=gcc-11
-ENV CXX=g++-11
-ENV FC=gfortran-11
+ENV CC=gcc-14
+ENV CXX=g++-14
+ENV FC=gfortran-14
 
 CMD ["sleep", "infinity"]

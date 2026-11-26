@@ -115,7 +115,8 @@ static void eigen_hermitian(size_t N, const cplx *matrix, cplx *transfer,
     for (size_t i = 0; i != N; ++i)
         for (size_t j = 0; j != N; ++j) {
             const gsl_complex z = gsl_matrix_complex_get(vectors, i, j);
-            transfer[i * N + j] = CMPLX(GSL_REAL(z), GSL_IMAG(z));
+            transfer[i * N + j] =
+                GSL_REAL(z) + GSL_IMAG(z) * _Complex_I;
         }
     for (size_t i = 0; i != N; ++i)
         mass[i] = gsl_vector_get(values, i);

@@ -338,7 +338,7 @@ void LibFunction::printExpression(std::ostream      &out,
     std::array<char, 4> delimiters = {'+', '*', '-', '/'};
     std::ostringstream  sout;
     sout.precision(LibraryGenerator::nDigits);
-    expression->print(1, sout, LibraryMode::CppLib);
+    expression->printLib(1, sout);
     std::vector<std::string> lines;
     std::string              str = sout.str();
 

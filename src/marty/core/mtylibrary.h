@@ -35,19 +35,6 @@ class Library : public csl::LibraryGenerator {
     {
         addInclude("clooptools.h");
         addInclude("marty/core/looptools_init.h");
-#if !(defined __APPLE__ || defined __MACH__)
-        // If we are not on MacOS, add -lgfortran
-        addLibrary("-lgfortran");
-#endif
-        addLibrary("-looptools");
-    }
-
-    void setQuadruplePrecision(bool t_quadruple)
-    {
-        csl::LibraryGenerator::setQuadruplePrecision(t_quadruple);
-        dependencies.removeLib("-looptools");
-        dependencies.removeLib("-looptools-quad");
-        addLibrary(t_quadruple ? "-looptools-quad" : "-looptools");
     }
 
     void applyDiagonalizationData(Model &model)

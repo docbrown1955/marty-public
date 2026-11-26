@@ -10,6 +10,7 @@
 #define ERRORFONT "\033[1m\033[31m"   /* Red */
 #define SUCCESSFONT "\033[1m\033[32m" /* Green */
 
+
 inline std::vector<double> readLine(std::ifstream &fin)
 {
     std::vector<double> res;
@@ -17,10 +18,15 @@ inline std::vector<double> readLine(std::ifstream &fin)
     std::string line;
     std::getline(fin, line);
     std::istringstream sin(line);
-    double             value;
-    while (sin >> value) {
+    double value;
+    while (sin >> value)
         res.push_back(value);
-    }
+
+    std::string token;
+    sin.clear();
+    if (sin >> token)
+        std::cerr << ERRORFONT << "Warning: unparsable token \"" << token
+                  << "\" in line \"" << line << "\"" << RESET << "\n";
 
     return res;
 }
@@ -78,8 +84,7 @@ compare(char const *file1, char const *file2, double eps)
     while (!f1.eof()) {
         auto diff_i = compare(readLine(f1), readLine(f2), eps);
         if (diff_i.first == -1 || diff_i.second == -1) {
-            std::cout << ERRORFONT
-                      << "Error: size mismatch in results at line " << n + 1
+            std::cout << ERRORFONT << "Error: size mismatch in results at line " << n+1
                       << RESET << '\n';
             return {-1, -1};
         }
@@ -100,6 +105,22 @@ compare(char const *file1, char const *file2, double eps)
     return diff;
 }
 
+void print_file_diff(std::string const &refFile, std::string const &signalFile)
+{
+    std::ifstream f1(refFile);
+    std::ifstream f2(signalFile);
+        std::string lineA, lineB;
+    size_t line_number = 1;
+    while (std::getline(f1, lineA) && std::getline(f2, lineB)) {
+        if (lineA != lineB) {
+            std::cout << ERRORFONT << "Difference at line " << line_number << ":" << RESET << '\n';
+            std::cout << "REF file: " << lineA << '\n';
+            std::cout << "SIG file: " << lineB << '\n';
+        }
+        ++line_number;
+    }
+}
+
 inline int
 assert_equal(std::string const &fileA, std::string const &fileB, double eps)
 {
@@ -116,6 +137,7 @@ assert_equal(std::string const &fileA, std::string const &fileB, double eps)
         return 0;
     }
     else {
+        print_file_diff(fileA, fileB);
         std::cout << ERRORFONT << "Discrepancy between file \"" << fileA
                   << "\" and file \"" << fileB << "\": \n"
                   << RESET;
