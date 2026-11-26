@@ -850,7 +850,7 @@ void LibraryGenerator::printMakefile() const
         else
             libName += c;
     makefile << "NAMELIB = " << libName << "\n\n";
-    makefile << "INCPATH = -Iinclude/" << regLibName() << "/c ";
+    makefile << "INCPATH = -Iinclude/" << regLibName() << "/c -Isrc/c ";
     if (cppLibrary)
         makefile << "-Iinclude/" << regLibName() << "/cpp ";
     for (const auto &path : IPath)

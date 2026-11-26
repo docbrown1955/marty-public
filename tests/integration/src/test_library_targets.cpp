@@ -76,7 +76,7 @@ std::string runCDriver(fs::path const &dir,
                (dir / "include" / name / "c").string() + " " + src.string() +
                " -o " + bin.string() + " -L" + (dir / "build" / "lib").string() +
                " -l" + name + " -Wl,-rpath," + (dir / "build" / "lib").string() +
-               " -lquadmath " + extraFlags);
+               " " + extraFlags);
     return runCommand(bin.string());
 }
 
@@ -102,7 +102,7 @@ std::string runCppDriver(fs::path const &dir,
                LT_STRINGIFY(MARTY_INCLUDE_PATH) + " " + defines + " " +
                src.string() + " -o " + bin.string() + " -L" +
                (dir / "build" / "lib").string() + " -l" + name + " -Wl,-rpath," +
-               (dir / "build" / "lib").string() + " -lquadmath " + extraFlags);
+               (dir / "build" / "lib").string() + " " + extraFlags);
     return runCommand(bin.string());
 }
 
@@ -208,14 +208,11 @@ void checkBareValues(fs::path const &dir, std::string const &name, Targets t)
     std::string const cSource = R"C(
 #include <stdio.h>
 #include <stdlib.h>
-#include <quadmath.h>
 #include "c_f.h"
 #include "c_g.h"
-static void show(__float128 v)
+static void show(double v)
 {
-    char buf[128];
-    quadmath_snprintf(buf, sizeof buf, "%.30Qg", v);
-    printf("%s ", buf);
+    printf("%.17g ", v);
 }
 int main(void)
 {
@@ -233,13 +230,10 @@ int main(void)
 
     std::string const cppSource = R"CPP(
 #include <stdio.h>
-#include <quadmath.h>
 #include ")CPP" + name + R"CPP(.h"
-static void show(__float128 v)
+    static void show(double v)
 {
-    char buf[128];
-    quadmath_snprintf(buf, sizeof buf, "%.30Qg", v);
-    printf("%s ", buf);
+        printf("%.17g ", v);
 }
 int main()
 {
@@ -343,6 +337,9 @@ void expectNoQuadInPublicHeaders(fs::path const &dir)
 
 TEST(library_targets, quadruple_c_only)
 {
+#if !MARTY_QUADRUPLE_ENABLED
+    GTEST_SKIP() << "Quadruple precision requires GNU C and C++ compilers";
+#endif
     fs::path dir = generate("itgqc", {false, false}, true, addQuadFunctions);
     expectNoQuadInPublicHeaders(dir);
     std::string const source = R"C(
@@ -363,6 +360,9 @@ int main(void)
 
 TEST(library_targets, quadruple_cpp)
 {
+#if !MARTY_QUADRUPLE_ENABLED
+    GTEST_SKIP() << "Quadruple precision requires GNU C and C++ compilers";
+#endif
     fs::path dir = generate("itgqcpp", {true, false}, true, addQuadFunctions);
     expectNoQuadInPublicHeaders(dir);
     std::string const source = R"CPP(
@@ -385,6 +385,9 @@ int main()
 
 TEST(library_targets, quadruple_python)
 {
+#if !MARTY_QUADRUPLE_ENABLED
+    GTEST_SKIP() << "Quadruple precision requires GNU C and C++ compilers";
+#endif
     fs::path dir = generate("itgqpy", {false, true}, true, addQuadFunctions);
     std::string const source = "import sys\n"
                                "sys.path.insert(0, '" +
