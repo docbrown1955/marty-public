@@ -1,0 +1,492 @@
+#include "csl/librarygenerator.h"
+#include "marty.h"
+#include <gtest/gtest.h>
+
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <filesystem>
+#include <fstream>
+#include <functional>
+#include <sstream>
+#include <string>
+#include <vector>
+
+namespace fs = std::filesystem;
+
+namespace {
+
+#define LT_STRINGIFY2(X) #X
+#define LT_STRINGIFY(X) LT_STRINGIFY2(X)
+
+struct Targets {
+    bool cpp;
+    bool python;
+};
+
+using FunctionBuilder = std::function<void(csl::LibraryGenerator &)>;
+
+std::string runCommand(std::string const &cmd)
+{
+    std::string output;
+    FILE       *pipe = popen((cmd + " 2>&1").c_str(), "r");
+    if (pipe == nullptr) {
+        ADD_FAILURE() << "Cannot run " << cmd;
+        return output;
+    }
+    char buffer[512];
+    while (fgets(buffer, sizeof buffer, pipe) != nullptr)
+        output += buffer;
+    int status = pclose(pipe);
+    EXPECT_EQ(status, 0) << cmd << "\n" << output;
+    return output;
+}
+
+fs::path generate(std::string const &name,
+                  Targets            targets,
+                  bool               quad,
+                  FunctionBuilder    addFunctions)
+{
+    fs::path root = fs::absolute(fs::path("libs") / "integration");
+    fs::path dir  = root / name;
+    fs::remove_all(dir);
+
+    csl::LibraryGenerator lib(name, root.string());
+    lib.setQuadruplePrecision(quad);
+    lib.setCppLibrary(targets.cpp);
+    lib.setPythonLibrary(targets.python);
+    lib.addIPath(LT_STRINGIFY(MARTY_INCLUDE_PATH));
+    addFunctions(lib);
+    lib.print();
+    runCommand("make -C " + dir.string() + " lib");
+    return dir;
+}
+
+// Driver programs are compiled with the same compilers as the generator.
+// Extra flags are appended to the link line (used for LoopTools).
+std::string runCDriver(fs::path const &dir,
+                       std::string const &name,
+                       std::string const &source,
+                       std::string const &extraFlags = "")
+{
+    fs::path src = dir / "driver.c";
+    fs::path bin = dir / "driver_c";
+    std::ofstream(src) << source;
+    runCommand(std::string(LT_STRINGIFY(MARTY_CC)) + " -std=c11 -I" +
+               (dir / "include" / name / "c").string() + " " + src.string() +
+               " -o " + bin.string() + " -L" + (dir / "build" / "lib").string() +
+               " -l" + name + " -Wl,-rpath," + (dir / "build" / "lib").string() +
+               " " + extraFlags);
+    return runCommand(bin.string());
+}
+
+// Libraries using MARTY's LoopTools link against the build tree copy.
+std::string loopToolsFlags()
+{
+    std::string root = std::string(MARTY_LIBRARY_PATH) + "/..";
+    return "-L" + root + " -looptools -lgfortran -Wl,-rpath," + root;
+}
+
+std::string runCppDriver(fs::path const &dir,
+                         std::string const &name,
+                         std::string const &source,
+                         std::string const &defines = "",
+                         std::string const &extraFlags = "")
+{
+    fs::path src = dir / "driver.cpp";
+    fs::path bin = dir / "driver_cpp";
+    std::ofstream(src) << source;
+    runCommand(std::string(LT_STRINGIFY(MARTY_CXX)) + " -std=c++17 -I" +
+               (dir / "include" / name / "cpp").string() + " -I" +
+               (dir / "include" / name / "c").string() + " -I" +
+               LT_STRINGIFY(MARTY_INCLUDE_PATH) + " " + defines + " " +
+               src.string() + " -o " + bin.string() + " -L" +
+               (dir / "build" / "lib").string() + " -l" + name + " -Wl,-rpath," +
+               (dir / "build" / "lib").string() + " " + extraFlags);
+    return runCommand(bin.string());
+}
+
+std::string runPythonDriver(fs::path const &dir, std::string const &source)
+{
+    fs::path src = dir / "driver.py";
+    std::ofstream(src) << source;
+    return runCommand("python3 " + src.string());
+}
+
+std::vector<long double> parseValues(std::string const &output)
+{
+    std::istringstream        in(output);
+    std::vector<long double> values;
+    long double               value;
+    while (in >> value)
+        values.push_back(value);
+    return values;
+}
+
+void addBareFunctions(csl::LibraryGenerator &lib)
+{
+    csl::Expr x = csl::constant_s("x");
+    csl::Expr y = csl::constant_s("y");
+    lib.addFunction("f", x * y + 2 * x);
+    lib.addFunction("g", CSL_I * x * y);
+}
+
+void addQuadFunctions(csl::LibraryGenerator &lib)
+{
+    lib.addFunction("h", csl::exp_s(csl::constant_s("x")) - 1);
+}
+
+void addLoopToolsFunctions(csl::LibraryGenerator &lib)
+{
+    // The generated Makefile links -looptools; this points it to the build tree copy.
+    std::string const root = std::string(MARTY_LIBRARY_PATH) + "/..";
+    lib.addLPath(root);
+    // The library depends on libooptools.so, which the drivers' RUNPATH does not reach.
+    setenv("LD_LIBRARY_PATH", root.c_str(), 1);
+    csl::Expr m2 = csl::constant_s("m2");
+    lib.addFunction("a0",
+                    mty::feynmanintegral_s(mty::IntegralType::A,
+                                           mty::IntegralID_A::aa0,
+                                           std::vector<csl::Expr>{m2}));
+}
+
+// LoopTools prints a banner, so the value is read from a tagged driver line.
+// Renormalised A0(m^2) = m^2 (1 - log m^2) at mu = 1, evaluated at m^2 = 4.
+void checkLoopToolsValue(std::string const &name, Targets targets)
+{
+    fs::path dir = generate(name, targets, false, addLoopToolsFunctions);
+    std::string const cSource = R"C(
+#include <stdio.h>
+#include "c_a0.h"
+int main(void)
+{
+    ccomplex_return_t a = c_a0_explicit(4.0);
+    printf("VALUE %.17g\n", a.real);
+    return 0;
+}
+)C";
+    std::string const cppSource = R"CPP(
+#include <stdio.h>
+#include ")CPP" + name + R"CPP(.h"
+int main()
+{
+    )CPP" + name + R"CPP(::param_t p;
+    p.m2 = 4.0;
+    printf("VALUE %.17g\n", )CPP" + name + R"CPP(::a0(p).real());
+    return 0;
+}
+)CPP";
+    std::vector<std::string> outputs;
+    outputs.push_back(runCDriver(dir, name, cSource, loopToolsFlags()));
+    if (targets.cpp)
+        outputs.push_back(
+            runCppDriver(dir, name, cppSource, "", loopToolsFlags()));
+    double const expected = 4.0 * (1.0 - std::log(4.0));
+    for (std::string const &output : outputs) {
+        std::size_t const pos = output.find("VALUE ");
+        ASSERT_NE(pos, std::string::npos) << output;
+        std::vector<long double> values = parseValues(output.substr(pos + 6));
+        ASSERT_EQ(values.size(), 1u) << output;
+        EXPECT_NEAR(values[0], expected, 1e-10);
+    }
+}
+
+TEST(library_targets, looptools_c_only)
+{
+    checkLoopToolsValue("itglt_c", {false, false});
+}
+
+TEST(library_targets, looptools_cpp)
+{
+    checkLoopToolsValue("itglt_cpp", {true, false});
+}
+
+
+// Evaluates f(2, 3) = 10 and g(2, 3) = 6i, printing real and imaginary parts.
+void checkBareValues(fs::path const &dir, std::string const &name, Targets t)
+{
+    std::string const cSource = R"C(
+#include <stdio.h>
+#include <stdlib.h>
+#include "c_f.h"
+#include "c_g.h"
+static void show(double v)
+{
+    printf("%.17g ", v);
+}
+int main(void)
+{
+    creal_t x = 2.0, y = 3.0;
+    ccomplex_return_t f = c_f_explicit(x, y);
+    ccomplex_return_t g = c_g_explicit(x, y);
+    show(f.real);
+    show(f.imag);
+    show(g.real);
+    show(g.imag);
+    printf("\n");
+    return 0;
+}
+)C";
+
+    std::string const cppSource = R"CPP(
+#include <stdio.h>
+#include ")CPP" + name + R"CPP(.h"
+    static void show(double v)
+{
+        printf("%.17g ", v);
+}
+int main()
+{
+    )CPP" + name + R"CPP(::param_t p;
+    p.x = 2.0;
+    p.y = 3.0;
+    auto f = )CPP" + name + R"CPP(::f(p);
+    auto g = )CPP" + name + R"CPP(::g(p);
+    show(f.real());
+    show(f.imag());
+    show(g.real());
+    show(g.imag());
+    printf("\n");
+    return 0;
+}
+)CPP";
+
+    std::string const pythonSource = "import sys\n"
+                                     "sys.path.insert(0, '" +
+                                     (dir / "src" / "py").string() +
+                                     "')\n"
+                                     "import " +
+                                     name +
+                                     " as m\n"
+                                     "g = m.g(x=2.0, y=3.0)\n"
+                                     "f = m.f(x=2.0, y=3.0)\n"
+                                     "print(f.real, f.imag, g.real, g.imag)\n";
+
+    std::vector<std::string> outputs;
+    outputs.push_back(runCDriver(dir, name, cSource));
+    if (t.cpp)
+        outputs.push_back(runCppDriver(dir, name, cppSource));
+    if (t.python)
+        outputs.push_back(runPythonDriver(dir, pythonSource));
+
+    for (std::string const &output : outputs) {
+        std::vector<long double> values = parseValues(output);
+        ASSERT_EQ(values.size(), 4u) << output;
+        EXPECT_NEAR(values[0], 10.0L, 1e-12L);
+        EXPECT_NEAR(values[1], 0.0L, 1e-12L);
+        EXPECT_NEAR(values[2], 0.0L, 1e-12L);
+        EXPECT_NEAR(values[3], 6.0L, 1e-12L);
+    }
+}
+
+void checkBareLibrary(std::string const &name, Targets targets)
+{
+    fs::path dir = generate(name, targets, false, addBareFunctions);
+    checkBareValues(dir, name, targets);
+}
+
+} // namespace
+
+TEST(library_targets, bare_c_only)
+{
+    checkBareLibrary("itgc", {false, false});
+}
+
+TEST(library_targets, bare_cpp)
+{
+    checkBareLibrary("itgcpp", {true, false});
+}
+
+TEST(library_targets, bare_python)
+{
+    checkBareLibrary("itgpy", {false, true});
+}
+
+TEST(library_targets, bare_cpp_python)
+{
+    checkBareLibrary("itgcpypy", {true, true});
+}
+
+// h(x) = exp(x) - 1 with x = 1e-20: double evaluates it to 0, quad keeps 1e-20.
+// Quad is internal to the calculation sources: no public header may mention it.
+void expectNoQuadInPublicHeaders(fs::path const &dir)
+{
+    fs::path root = dir / "include";
+    if (!fs::exists(root))
+        return;
+    for (auto const &entry : fs::recursive_directory_iterator(root)) {
+        if (entry.path().extension() != ".h")
+            continue;
+        std::ifstream     in(entry.path());
+        std::stringstream text;
+        text << in.rdbuf();
+        EXPECT_EQ(text.str().find("float128"), std::string::npos) << entry.path();
+    }
+    // Quad definitions live only in the private C header, guarded by MTY_QUADRUPLE.
+    fs::path const calcDefs = dir / "src" / "c" / "mty_calc_defs.h";
+    if (fs::exists(calcDefs)) {
+        std::ifstream     in(calcDefs);
+        std::stringstream text;
+        text << in.rdbuf();
+        std::string const content = text.str();
+        size_t const      guard   = content.find("#ifdef MTY_QUADRUPLE");
+        EXPECT_NE(guard, std::string::npos) << calcDefs;
+        EXPECT_GT(content.find("float128"), guard) << calcDefs;
+    }
+}
+
+TEST(library_targets, quadruple_c_only)
+{
+#if !MARTY_QUADRUPLE_ENABLED
+    GTEST_SKIP() << "Quadruple precision requires GNU C and C++ compilers";
+#endif
+    fs::path dir = generate("itgqc", {false, false}, true, addQuadFunctions);
+    expectNoQuadInPublicHeaders(dir);
+    std::string const source = R"C(
+#include <stdio.h>
+#include "c_h.h"
+int main(void)
+{
+    ccomplex_return_t h = c_h_explicit(1e-20);
+    printf("%.30g\n", h.real);
+    return 0;
+}
+)C";
+    std::vector<long double> values =
+        parseValues(runCDriver(dir, "itgqc", source));
+    ASSERT_EQ(values.size(), 1u);
+    EXPECT_NEAR(values[0], 1e-20L, 1e-30L);
+}
+
+TEST(library_targets, quadruple_cpp)
+{
+#if !MARTY_QUADRUPLE_ENABLED
+    GTEST_SKIP() << "Quadruple precision requires GNU C and C++ compilers";
+#endif
+    fs::path dir = generate("itgqcpp", {true, false}, true, addQuadFunctions);
+    expectNoQuadInPublicHeaders(dir);
+    std::string const source = R"CPP(
+#include <stdio.h>
+#include "itgqcpp.h"
+int main()
+{
+    itgqcpp::param_t p;
+    p.x = 1e-20;
+    auto h = itgqcpp::h(p);
+    printf("%.30g\n", h.real());
+    return 0;
+}
+)CPP";
+    std::vector<long double> values =
+        parseValues(runCppDriver(dir, "itgqcpp", source));
+    ASSERT_EQ(values.size(), 1u);
+    EXPECT_NEAR(values[0], 1e-20L, 1e-30L);
+}
+
+TEST(library_targets, quadruple_python)
+{
+#if !MARTY_QUADRUPLE_ENABLED
+    GTEST_SKIP() << "Quadruple precision requires GNU C and C++ compilers";
+#endif
+    fs::path dir = generate("itgqpy", {false, true}, true, addQuadFunctions);
+    std::string const source = "import sys\n"
+                               "sys.path.insert(0, '" +
+                               (dir / "src" / "py").string() +
+                               "')\n"
+                               "import itgqpy as m\n"
+                               "print(m.h(x=1e-20).real)\n";
+    std::vector<long double> values = parseValues(runPythonDriver(dir, source));
+    ASSERT_EQ(values.size(), 1u);
+    EXPECT_NEAR(values[0], 1e-20L, 1e-30L);
+}
+
+// Generates a library with a single complex scalar of mass m under U(1).
+fs::path generateSpectrumLibrary(std::string const &name, Targets targets)
+{
+    fs::path root = fs::absolute(fs::path("libs") / "integration");
+    fs::path dir  = root / name;
+    fs::remove_all(dir);
+
+    csl::Expr e = csl::constant_s("e");
+    mty::Model model;
+    model.addGaugedGroup(mty::group::Type::U1, "em", e);
+    model.init();
+    mty::Particle phi = mty::scalarboson_s("h", model);
+    phi->setGroupRep("em", -1);
+    model.addParticle(phi);
+    csl::Expr m2 = csl::constant_s("m2");
+    model.addLagrangianTerm(-m2 * csl::GetComplexConjugate(phi()) * phi());
+    model.refresh();
+
+    mty::Library lib(name, root.string());
+    lib.setCppLibrary(targets.cpp);
+    lib.setPythonLibrary(targets.python);
+    lib.addIPath(LT_STRINGIFY(MARTY_INCLUDE_PATH));
+    lib.addLPath(LT_STRINGIFY(MARTY_LIBRARY_PATH));
+    lib.addLPath(LT_STRINGIFY(MARTY_LIBRARY_PATH) "/..");
+    lib.addLPath(LT_STRINGIFY(MARTY_LIBRARY_PATH) "/marty");
+    lib.generateSpectrum(model);
+    lib.print();
+    runCommand("make -C " + dir.string() + " lib");
+    // The library depends on libooptools.so, which the drivers' RUNPATH does not reach.
+    setenv("LD_LIBRARY_PATH", (std::string(MARTY_LIBRARY_PATH) + "/..").c_str(), 1);
+    return dir;
+}
+
+// The mass term m2 |h|^2 gives m_h = sqrt(m2), so m2 = 4 must give m_h = 2.
+TEST(library_targets, spectrum_c_only)
+{
+    fs::path dir = generateSpectrumLibrary("itgspec", {false, false});
+    std::string const source = R"C(
+#include <stdio.h>
+#include "cspectrum.h"
+int main(void)
+{
+    cparam_t p;
+    p.m2 = 4.0;
+    c_updateSpectrum(&p);
+    printf("VALUE %.17g\n", (double)p.m_h);
+    return 0;
+}
+)C";
+    // LoopTools prints its banner on initialization, so parse after the marker.
+    std::string const output
+        = runCDriver(dir, "itgspec", source, loopToolsFlags());
+    std::size_t const pos = output.find("VALUE ");
+    ASSERT_NE(pos, std::string::npos) << output;
+    std::vector<long double> values = parseValues(output.substr(pos + 6));
+    ASSERT_EQ(values.size(), 1u) << output;
+    EXPECT_NEAR(values[0], 2.0L, 1e-12L);
+}
+
+TEST(library_targets, spectrum_cpp)
+{
+    // Mass names depend on the generator state of the process (LibEval::make_expr),
+    // so the case runs again in a fresh process when the whole binary is executed.
+    if (std::getenv("MTY_ISOLATED_SPECTRUM_CPP") == nullptr) {
+        std::string const self = fs::read_symlink("/proc/self/exe").string();
+        runCommand("MTY_ISOLATED_SPECTRUM_CPP=1 \"" + self
+                   + "\" --gtest_filter=library_targets.spectrum_cpp");
+        return;
+    }
+    fs::path dir = generateSpectrumLibrary("itgspecpp", {true, false});
+    std::string const source = R"CPP(
+#include <stdio.h>
+#include "itgspecpp.h"
+int main()
+{
+    itgspecpp::param_t p;
+    p.m2 = 4.0;
+    itgspecpp::updateSpectrum(p);
+    printf("VALUE %.17g\n", (double)p.m_h);
+    return 0;
+}
+)CPP";
+    std::string const output = runCppDriver(dir, "itgspecpp", source, "", loopToolsFlags());
+    // LoopTools writes a banner to stdout, so only the tagged driver line is parsed.
+    std::size_t const pos = output.find("VALUE ");
+    ASSERT_NE(pos, std::string::npos) << output;
+    std::vector<long double> values = parseValues(output.substr(pos + 6));
+    ASSERT_EQ(values.size(), 1u) << output;
+    EXPECT_NEAR(values[0], 2.0L, 1e-12L);
+}

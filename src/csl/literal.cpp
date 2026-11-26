@@ -18,7 +18,7 @@
 #include "commutation.h"
 #include "comparison.h"
 #include "error.h"
-#include "librarygenerator.h"
+#include "libmacros.h"
 #include "operations.h"
 #include "utils.h"
 
@@ -126,31 +126,31 @@ void Constant::setCommutable(bool commutable)
     parent->setCommutable(commutable);
 }
 
-void Constant::print(int mode, std::ostream &out, LibraryMode libMode) const
+void Constant::print(int mode, std::ostream &out) const
 {
-    const bool conj = isComplexConjugate() && libMode != LibraryMode::NoLib;
-    if (conj and LibraryGenerator::isQuadruplePrecision()) {
-        out << "conjq(";
-    }
-    else if (conj && libMode == LibraryMode::CppLib) {
-        out << "std::conj(";
-    }
-    else if (conj && libMode == LibraryMode::CLib) {
-        out << "conj(";
+    out << parent->getName();
+    printProp(out);
+    if (mode == 0)
+        out << endl;
+}
+
+void Constant::printLib(int mode, std::ostream &out) const
+{
+    const bool conj = isComplexConjugate();
+    if (conj) {
+        out << libmacro::fn << "(conj)(";
     }
     std::string name(parent->getName());
-    if (libMode != LibraryMode::NoLib)
-        for (char &c : name)
-            if (c == '\\')
-                c = '_';
-    if (mode == 0)
-        out << name << endl;
-    else
-        out << name;
+    for (char &c : name)
+        if (c == '\\')
+            c = '_';
+    out << name;
     if (conj)
         out << ")";
     else
         printProp(out);
+    if (mode == 0)
+        out << endl;
 }
 
 void Constant::printCode(int, std::ostream &out) const
@@ -357,23 +357,24 @@ void Variable::setValue(Expr const &t_value)
     parent->setValue(t_value);
 }
 
-void Variable::print(int mode, std::ostream &out, LibraryMode libMode) const
+void Variable::print(int mode, std::ostream &out) const
 {
-    const bool conj = isComplexConjugate() && libMode != LibraryMode::NoLib;
-    if (conj and LibraryGenerator::isQuadruplePrecision()) {
-        out << "conjq(";
-    }
-    else if (conj && libMode == LibraryMode::CppLib) {
-        out << "std::conj(";
-    }
-    else if (conj && libMode == LibraryMode::CLib) {
-        out << "conj(";
+    out << parent->getName();
+    printProp(out);
+    if (mode == 0)
+        out << endl;
+}
+
+void Variable::printLib(int mode, std::ostream &out) const
+{
+    const bool conj = isComplexConjugate();
+    if (conj) {
+        out << libmacro::fn << "(conj)(";
     }
     std::string name(parent->getName());
-    if (libMode != LibraryMode::NoLib)
-        for (char &c : name)
-            if (c == '\\')
-                c = '_';
+    for (char &c : name)
+        if (c == '\\')
+            c = '_';
     out << name;
     if (conj)
         out << ")";
@@ -524,12 +525,17 @@ optional<Expr> Imaginary::getComplexArgument() const
     return CSL_PI / CSL_2;
 }
 
-void Imaginary::print(int mode, std::ostream &out, LibraryMode libMode) const
+void Imaginary::print(int mode, std::ostream &out) const
 {
-    if (libMode == LibraryMode::CLib)
-        out << "_Complex_I";
-    else
-        out << "i";
+    out << "i";
+    if (mode == 0)
+        out << endl;
+    printProp(out);
+}
+
+void Imaginary::printLib(int mode, std::ostream &out) const
+{
+    out << libmacro::imag;
     if (mode == 0)
         out << endl;
     printProp(out);
@@ -594,7 +600,7 @@ void IntFactorial::setValue(long double t_value)
                           "floating value in IntFactorial.");
 }
 
-void IntFactorial::print(int mode, std::ostream &out, LibraryMode) const
+void IntFactorial::print(int mode, std::ostream &out) const
 {
     if (mode == 0)
         out << "IntFactorial: " << value << "!" << endl;

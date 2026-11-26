@@ -31,9 +31,8 @@ namespace csl {
 
 LibFunction::LibFunction(std::string_view                     t_name,
                          Expr const                          &t_expression,
-                         std::shared_ptr<LibraryGroup> const &t_group,
-                         bool                                 forceCppFunc)
-    : name(t_name), cppFunc(forceCppFunc), group(t_group)
+                         std::shared_ptr<LibraryGroup> const &t_group)
+    : name(t_name), group(t_group)
 {
     setExpression(t_expression);
 }
@@ -199,18 +198,41 @@ void LibFunction::printExternC(std::ostream      &out,
         out << ";\n";
     else {
         out << "\n{\n";
-        for (const auto &inst : initInstructions) {
-            out << LibraryGenerator::indent(1) << inst << '\n';
+        out << LibraryGenerator::indent(1) << "return c_" << name
+            << "_explicit(";
+        for (size_t i = 0; i != parameters.size(); ++i) {
+            if (i != 0)
+                out << ", ";
+            out << "param->" << parameters[i].name;
         }
-        for (const auto &param : parameters) {
-            out << LibraryGenerator::indent(1) << "const " << param.ctype
-                << ' ' << param.name << " = param->" << param.name << ";\n";
-        }
-        // group->printParameterInitialization(out, 1);
-        printBody(out, initInstruction, true);
-        out << "}";
+        out << ");\n}";
     }
     out << '\n';
+}
+
+void LibFunction::printExplicitC(std::ostream &out, bool header) const
+{
+    out << (group->hasComplexReturn() ? std::string("ccomplex_return_t")
+                                      : LibraryGenerator::crealUsing)
+        << " c_" << name << "_explicit(";
+    if (parameters.empty())
+        out << "void";
+    for (size_t i = 0; i != parameters.size(); ++i) {
+        if (i != 0)
+            out << ", ";
+        out << parameters[i].ctype << ' ' << parameters[i].name;
+    }
+    out << ")";
+    if (header) {
+        out << ";\n\n";
+        return;
+    }
+    out << "\n{\n";
+    for (const auto &inst : initInstructions) {
+        out << LibraryGenerator::indent(1) << inst << '\n';
+    }
+    printBody(out, "", true);
+    out << "}\n";
 }
 
 void LibFunction::print(std::ostream      &out,
@@ -257,8 +279,7 @@ void LibFunction::printCppWrapper(std::ostream &out) const
     else {
         out << LibraryGenerator::indent(1) << "cparam_t cparam;\n";
         for (const auto &param : parameters) {
-            if (param.type == LibraryGenerator::complexUsing
-                && !LibraryGenerator::isQuadruplePrecision()) {
+            if (param.type == LibraryGenerator::complexUsing) {
                 out << LibraryGenerator::indent(1) << "cparam." << param.name
                     << " = param." << param.name << ".get().real() + _mty_I*"
                     << "param." << param.name << ".get().imag();\n";
@@ -317,7 +338,7 @@ void LibFunction::printExpression(std::ostream      &out,
     std::array<char, 4> delimiters = {'+', '*', '-', '/'};
     std::ostringstream  sout;
     sout.precision(LibraryGenerator::nDigits);
-    expression->print(1, sout, LibraryMode::CppLib);
+    expression->printLib(1, sout);
     std::vector<std::string> lines;
     std::string              str = sout.str();
 

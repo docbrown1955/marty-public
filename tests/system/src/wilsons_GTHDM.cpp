@@ -129,8 +129,8 @@ int main()
     auto C10_box = getWilsonCoefficient(bsll_box, O10_box);
 
     [[maybe_unused]] int sysres = system("rm -rf libs/wilsons_GTHDM");
-    Library::setQuadruplePrecision(true);
     Library lib("wilsons_GTHDM", "libs");
+    lib.setQuadruplePrecision(true);
     lib.generateSpectrum(model);
     lib.addFunction("C7", C7);
     lib.addFunction("C8", C8);
@@ -145,7 +145,7 @@ int main()
 
     sysres = system("cp libsrc/example_thdm_paper.cpp "
                     "libs/wilsons_GTHDM/script");
-    sysres = system("cd libs/wilsons_GTHDM; make && bin/example_thdm_paper.x");
+    sysres = system("cd libs/wilsons_GTHDM; make && build/bin/example_thdm_paper.x");
     return assert_equal(
         "data/output/gthdm.txt", "libs/wilsons_GTHDM/data.txt", 1e-5);
 }

@@ -62,7 +62,7 @@ long long int Arbitrary::getNum() const
     return number;
 }
 
-void Arbitrary::print(int mode, std::ostream &out, LibraryMode) const
+void Arbitrary::print(int mode, std::ostream &out) const
 {
     out << name;
     if (mode > 0)

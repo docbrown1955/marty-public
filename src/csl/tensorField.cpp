@@ -237,7 +237,7 @@ size_t TDerivativeElement::size() const
     return 1;
 }
 
-void TDerivativeElement::print(int mode, std::ostream &out, LibraryMode) const
+void TDerivativeElement::print(int mode, std::ostream &out) const
 {
     TensorFieldElement::print(max(1, mode), out);
     out << "(";
@@ -652,7 +652,7 @@ Expr TensorFieldElement::refresh() const
     return copy()->getCanonicalPermutation();
 }
 
-void TensorFieldElement::print(int mode, std::ostream &out, LibraryMode) const
+void TensorFieldElement::print(int mode, std::ostream &out) const
 {
     out << getName();
     if (index.size() > 0) {

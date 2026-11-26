@@ -123,7 +123,7 @@ int main() {
     lib.print();
 
     sysres = system("cp libsrc/example_simplespectrum.cpp libs/simpleSpectrum/script");
-    sysres = system("cd libs/simpleSpectrum; make && bin/example_simplespectrum.x");
+    sysres = system("cd libs/simpleSpectrum; make && build/bin/example_simplespectrum.x");
     return assert_equal(
         "data/output/simplespectrum.txt", "libs/simpleSpectrum/data.txt", 1e-10);
 

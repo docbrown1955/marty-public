@@ -182,10 +182,9 @@ void LibraryGroup::printPrintParameterList(
     out << LibraryGenerator::indent(nIndent + 1) << "if (par->hasValue()) {\n";
     if (complexParameters) {
         out << LibraryGenerator::indent(nIndent + 2)
-            << "out << static_cast<double>(MTY_REAL(par->get()));\n";
+            << "out << par->get().real();\n";
         out << LibraryGenerator::indent(nIndent + 2)
-            << "out << \" + i*\" << static_cast<double>(MTY_IMAG(par->get())) "
-               "<< '\\n';\n";
+            << "out << \" + i*\" << par->get().imag() << '\\n';\n";
     }
     else {
         out << LibraryGenerator::indent(nIndent + 2)
@@ -350,8 +349,10 @@ void LibraryGroup::printFunctionStackDefinition(std::ostream &out, const enum Va
                 << ">> fmap_" << name;
             break;
         default:
-            std::cerr << "LibraryGroup::printFunctionStackDefinition has been called without a valid nFunction specification\n";
-            exit(1);
+            CALL_SMERROR_SPEC(CSLError::ValueError,
+                              "LibraryGroup::printFunctionStackDefinition has "
+                              "been called without a valid nFunction "
+                              "specification");
             break;
     }
 }
@@ -378,8 +379,10 @@ void LibraryGroup::printFunctionStackBody(std::ostream &out, int nIndent, const 
             }
             break;
         default:
-            std::cerr << "LibraryGroup::printFunctionStackBody has been called without a valid nFunction specification\n";
-            exit(1);
+            CALL_SMERROR_SPEC(CSLError::ValueError,
+                              "LibraryGroup::printFunctionStackBody has been "
+                              "called without a valid nFunction "
+                              "specification");
             break;
     }
 }

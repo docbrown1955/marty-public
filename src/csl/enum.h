@@ -106,12 +106,6 @@ namespace csl {
         // Type extensions for further librairies
     };
 
-    enum class LibraryMode {
-        NoLib,
-        CLib,
-        CppLib
-    };
-
 /*! 
  * \brief Displays the name of a given csl::Type in order to be readable.
  * \param fout Out stream in which the type is send.

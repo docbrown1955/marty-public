@@ -127,7 +127,7 @@ int main()
     sysres = system("cp libsrc/example_bsmixingvlq_9_10.cpp "
                     "libs/BsMixingVLQ_9_10/script");
     sysres = system("cd libs/BsMixingVLQ_9_10/; make && "
-                    "bin/example_bsmixingvlq_9_10.x");
+                    "build/bin/example_bsmixingvlq_9_10.x");
     return assert_equal("data/output/bsmixingvlq_9_10.txt",
                         "libs/BsMixingVLQ_9_10/data.txt",
                         1e-5);

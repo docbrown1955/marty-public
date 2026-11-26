@@ -73,9 +73,9 @@ class BooleanOperator : public AbstractMultiFunc {
 
     std::optional<Expr> getComplexArgument() const override;
 
-    void print(int           mode    = 0,
-               std::ostream &out     = std::cout,
-               LibraryMode   libMode = LibraryMode::NoLib) const override;
+    void print(int mode = 0, std::ostream &out = std::cout) const override;
+
+    void printLib(int mode = 0, std::ostream &out = std::cout) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 

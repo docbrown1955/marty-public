@@ -17,10 +17,12 @@
 #include "comparison.h"
 #include "error.h"
 #include "interface.h"
-#include "librarygenerator.h"
+#include "libmacros.h"
 #include "mathFunctions.h"
 #include "operations.h"
 #include "utils.h"
+
+#include <charconv>
 
 using namespace std;
 
@@ -75,6 +77,11 @@ std::optional<Expr> AbstractNumerical::getComplexArgument() const
     return evaluateScalar() < 0 ? CSL_PI : CSL_0;
 }
 
+std::optional<Expr> AbstractNumerical::getComplexModulus() const
+{
+    return evaluateScalar() < 0 ? -copy() : copy();
+}
+
 ///////////////////////////////////////////////////
 /*************************************************/
 // Class Float                                  //
@@ -96,7 +103,19 @@ void Float::setValue(long double t_value)
     value = t_value;
 }
 
-void Float::print(int mode, std::ostream &out, LibraryMode) const
+// MTY_LIT pastes a suffix onto its argument, so C literals must be fixed-format
+// pp-numbers (no exponent). Shortest round-trip digits keep decimal inputs exact.
+static std::string fixedCLiteral(long double absValue)
+{
+    char buf[6000];
+    auto res = std::to_chars(buf, buf + sizeof(buf), absValue, std::chars_format::fixed);
+    std::string text(buf, res.ptr);
+    if (text.find('.') == std::string::npos)
+        text += ".0";
+    return text;
+}
+
+void Float::print(int mode, std::ostream &out) const
 {
     if (mode == 0)
         out << value << endl;
@@ -104,6 +123,18 @@ void Float::print(int mode, std::ostream &out, LibraryMode) const
         out << "(" << value << ")";
     else
         out << value;
+    printProp(out);
+}
+
+void Float::printLib(int mode, std::ostream &out) const
+{
+    std::string lit = std::string(value < 0 ? "-" : "") + libmacro::lit + "(" + fixedCLiteral(std::fabs(value)) + ")";
+    if (mode == 0)
+        out << lit << endl;
+    else if (mode > 0 and value < 0)
+        out << "(" << lit << ")";
+    else
+        out << lit;
     printProp(out);
 }
 
@@ -288,14 +319,31 @@ void Integer::setValue(long double t_value)
     value = round(t_value);
 }
 
-void Integer::print(int mode, std::ostream &out, LibraryMode) const
+void Integer::print(int mode, std::ostream &out) const
 {
+    std::string text = std::to_string(value);
     if (mode == 0)
-        out << value << endl;
+        out << text << endl;
     else if (mode > 1 and value < 0)
-        out << "(" << value << ")";
+        out << "(" << text << ")";
     else
-        out << value;
+        out << text;
+    printProp(out);
+}
+
+void Integer::printLib(int mode, std::ostream &out) const
+{
+    std::string text = std::to_string(value);
+    bool neg         = value < 0;
+    if (neg)
+        text.erase(0, 1);
+    text = std::string(neg ? "-" : "") + libmacro::lit + "(" + text + ".0)";
+    if (mode == 0)
+        out << text << endl;
+    else if (mode > 1 and value < 0)
+        out << "(" << text << ")";
+    else
+        out << text;
     printProp(out);
 }
 
@@ -487,24 +535,34 @@ long long int IntFraction::getDenom() const
     return denom;
 }
 
-void IntFraction::print(int mode, std::ostream &out, LibraryMode libMode) const
+void IntFraction::print(int mode, std::ostream &out) const
 {
-    if (mode == 0) {
-        if (libMode != LibraryMode::NoLib)
-            out << num << "./" << denom << endl;
-        else
-            out << "Fraction: " << num << "/" << denom << endl;
-    }
-    else if (mode > 3) {
-        if (libMode != LibraryMode::NoLib)
-            out << "(" << num << "./" << denom << ")";
-        else
-            out << "(" << num << "/" << denom << ")";
-    }
-    else if (libMode != LibraryMode::NoLib)
-        out << num << "./" << denom;
+    std::string numText = std::to_string(num);
+    if (mode == 0)
+        out << "Fraction: " << numText << "/" << denom << endl;
+    else if (mode > 3)
+        out << "(" << numText << "/" << denom << ")";
     else
-        out << num << "/" << denom;
+        out << numText << "/" << denom;
+
+    printProp(out);
+}
+
+void IntFraction::printLib(int mode, std::ostream &out) const
+{
+    // The numerator is a MTY_LIT so that the division is done in the library precision
+    std::string numText = std::to_string(num);
+    std::string sep     = "/";
+    bool neg            = num < 0;
+    if (neg)
+        numText.erase(0, 1);
+    numText = std::string(neg ? "-" : "") + libmacro::lit + "(" + numText + ".0)";
+    if (mode == 0)
+        out << numText << sep << denom << endl;
+    else if (mode > 3)
+        out << "(" << numText << sep << denom << ")";
+    else
+        out << numText << sep << denom;
 
     printProp(out);
 }
@@ -516,8 +574,8 @@ void IntFraction::printCode(int, std::ostream &out) const
 
 string IntFraction::printLaTeX(int mode) const
 {
-    std::string frac = "\\frac{" + std::to_string(num) + "}{"
-                       + std::to_string(denom) + "}";
+    std::string frac
+        = "\\frac{" + std::to_string(num) + "}{" + std::to_string(denom) + "}";
     if (mode >= 4)
         return "\\left(" + frac + "\\right)";
     return frac;
@@ -747,26 +805,37 @@ csl::Type Complex::getType() const
     return csl::Type::Complex;
 }
 
-void Complex::print(int mode, std::ostream &out, LibraryMode libMode) const
+void Complex::print(int mode, std::ostream &out) const
 {
     if (mode > 1 and imag != CSL_0)
         out << "(";
-    if (libMode == LibraryMode::CLib) {
-        real->print(1, out, libMode);
-        out << " + _Complex_I*";
-        imag->print(1, out, libMode);
+    if (imag == CSL_0) {
+        real->print(1, out);
     }
     else {
-        if (imag == CSL_0) {
-            real->print(1, out, libMode);
-        }
-        else {
-            out << LibraryGenerator::complexUsing << "{";
-            real->print(1, out, libMode);
-            out << ", ";
-            imag->print(1, out, libMode);
-            out << "}";
-        }
+        real->print(1, out);
+        out << " + i*";
+        imag->print(1, out);
+    }
+    if (mode > 1 and imag != CSL_0)
+        out << ")";
+    if (mode == 0)
+        out << endl;
+}
+
+void Complex::printLib(int mode, std::ostream &out) const
+{
+    if (mode > 1 and imag != CSL_0)
+        out << "(";
+    if (imag == CSL_0) {
+        real->printLib(1, out);
+    }
+    else {
+        out << libmacro::cplx << "(";
+        real->printLib(1, out);
+        out << ", ";
+        imag->printLib(1, out);
+        out << ")";
     }
     if (mode > 1 and imag != CSL_0)
         out << ")";
@@ -782,7 +851,7 @@ void Complex::printCode(int, std::ostream &out) const
 std::string Complex::printLaTeX(int mode) const
 {
     ostringstream sout;
-    bool hasImag = imag != CSL_0;
+    bool          hasImag = imag != CSL_0;
     if (mode >= 2 and hasImag)
         sout << "\\left(";
     sout << real->printLaTeX(1);

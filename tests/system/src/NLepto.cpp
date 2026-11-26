@@ -59,7 +59,7 @@ void addSquaredAmplitude(mty::Model                   &model,
     if (ampl.empty())
         return;
     auto sampl = model.computeSquaredAmplitude(ampl);
-    library.addFunction(processName(insertions), sampl, "G");
+    library.addFunction(processName(insertions), sampl);
 }
 
 int main()

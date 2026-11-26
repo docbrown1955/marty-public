@@ -106,7 +106,7 @@ int main()
     lib.print();
 
     sysres = system("cp libsrc/example_widths_lib.cpp libs/widthsSM/script");
-    sysres = system("cd libs/widthsSM; make && bin/example_widths_lib.x");
+    sysres = system("cd libs/widthsSM; make && build/bin/example_widths_lib.x");
     return assert_equal(
         "data/output/widths_with_hBB_1L.txt", "libs/widthsSM/data.txt", 1e-5);
 }

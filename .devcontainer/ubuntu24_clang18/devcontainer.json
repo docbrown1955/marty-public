@@ -1,0 +1,36 @@
+// Ubuntu 24.04 + Clang 18 variant of the MARTY dev container.
+// The compiler and Fortran settings match the ubuntu-clang18 CI job.
+
+{
+	"name": "marty-dev-clang18",
+
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+
+	"runArgs": [
+	],
+
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-vscode.cpptools-themes",
+				"ms-vscode.cpptools",
+				"twxs.cmake",
+				"ms-vscode.cmake-tools",
+				"ms-vscode.cpptools-extension-pack",
+				"ms-vscode.makefile-tools",
+				"mhutchie.git-graph",
+				"ms-azuretools.vscode-docker",
+				"cschlosser.doxdocgen",
+				"mintlify.document",
+				"zeshuaro.vscode-python-poetry",
+				"ms-python.python",
+				"ms-toolsai.jupyter",
+				"github.vscode-github-actions",
+				"GitHub.copilot-chat",
+				"GitHub.copilot"
+			]
+		}
+	}
+}

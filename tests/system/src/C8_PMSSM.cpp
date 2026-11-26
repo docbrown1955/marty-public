@@ -62,8 +62,8 @@ int calculate(Model &model)
                 ->getVectorArgument());
 
     [[maybe_unused]] int sysres = system("rm -rf libs/C8_PMSSM");
-    mty::Library::setQuadruplePrecision(true);
     mty::Library wilsonLib("C8_PMSSM", "libs");
+    wilsonLib.setQuadruplePrecision(true);
     wilsonLib.addFunction("C8", CC8);
     wilsonLib.addFunction("C8_p", CC8p);
     wilsonLib.generateSpectrum(model);
@@ -71,7 +71,7 @@ int calculate(Model &model)
     wilsonLib.print();
 
     sysres = system("cp libsrc/example_c8_pmssm.cpp libs/C8_PMSSM/script");
-    sysres = system("cd libs/C8_PMSSM; make && bin/example_c8_pmssm.x");
+    sysres = system("cd libs/C8_PMSSM; make && build/bin/example_c8_pmssm.x");
     return assert_equal("data/output/C8_marty_tanb50_ss.txt",
                         "libs/C8_PMSSM/C8_marty_tanb50_ss.txt",
                         1e-5);

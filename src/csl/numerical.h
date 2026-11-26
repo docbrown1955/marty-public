@@ -47,6 +47,7 @@ class AbstractNumerical : public AbstractBuildingBlock {
     Expr                getNumericalFactor() const override;
     std::optional<Expr> getTerm() const override;
     std::optional<Expr> getComplexArgument() const override;
+    std::optional<Expr> getComplexModulus() const override;
 
     bool dependsOn(Expr_info) const override
     {
@@ -117,8 +118,9 @@ class Integer : public AbstractNumerical {
     void setValue(long double t_value) override;
 
     void print(int           mode    = 0,
-               std::ostream &out     = std::cout,
-               LibraryMode   libMode = LibraryMode::NoLib) const override;
+               std::ostream &out     = std::cout) const override;
+
+    void printLib(int mode = 0, std::ostream &out = std::cout) const override;
 
     std::string printLaTeX(int mode = 0) const override;
 
@@ -202,8 +204,9 @@ class Float : public AbstractNumerical {
     void setValue(long double t_value) override;
 
     void print(int           mode    = 0,
-               std::ostream &out     = std::cout,
-               LibraryMode   libMode = LibraryMode::NoLib) const override;
+               std::ostream &out     = std::cout) const override;
+
+    void printLib(int mode = 0, std::ostream &out = std::cout) const override;
 
     std::string printLaTeX(int mode = 0) const override;
 
@@ -301,8 +304,9 @@ class IntFraction : public AbstractNumerical {
     long long int getDenom() const override;
 
     void print(int           mode    = 0,
-               std::ostream &out     = std::cout,
-               LibraryMode   libMode = LibraryMode::NoLib) const override;
+               std::ostream &out     = std::cout) const override;
+
+    void printLib(int mode = 0, std::ostream &out = std::cout) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -417,8 +421,9 @@ class Complex : public AbstractNumerical {
     csl::Type getType() const override;
 
     void print(int           mode    = 0,
-               std::ostream &out     = std::cout,
-               LibraryMode   libMode = LibraryMode::NoLib) const override;
+               std::ostream &out     = std::cout) const override;
+
+    void printLib(int mode = 0, std::ostream &out = std::cout) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 

@@ -83,6 +83,11 @@ bool Abstract::getAllDependencies() const
     return false;
 }
 
+void Abstract::printLib(int mode, std::ostream &out) const
+{
+    print(mode, out);
+}
+
 void Abstract::printCode(int, std::ostream &) const
 {
     print();

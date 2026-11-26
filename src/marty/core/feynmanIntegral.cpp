@@ -2311,14 +2311,8 @@ void FeynmanIntegral::sortArgument()
     }
 }
 
-void FeynmanIntegral::print(int              mode,
-                            std::ostream    &out,
-                            csl::LibraryMode libMode) const
+void FeynmanIntegral::print(int mode, std::ostream &out) const
 {
-    if (libMode != csl::LibraryMode::NoLib) {
-        printLib(mode, libMode, out);
-        return;
-    }
     if (loopToolsId != -1)
         printLooptoolsId(type, loopToolsId, out);
     else {
@@ -2359,9 +2353,7 @@ std::string FeynmanIntegral::printLaTeX(int) const
     return sout.str();
 }
 
-void FeynmanIntegral::printLib(int              mode,
-                               csl::LibraryMode libMode,
-                               std::ostream    &out) const
+void FeynmanIntegral::printLib(int mode, std::ostream &out) const
 {
     if (int(loopToolsId) == -1) {
         std::cerr << "Warning: Integral " << copy() << " set to 0 because not "
@@ -2371,34 +2363,18 @@ void FeynmanIntegral::printLib(int              mode,
             out << "\n";
         return;
     }
-    if (libMode == csl::LibraryMode::CppLib) {
-        out << "mtylt_" << type << "0iC(" << int(loopToolsId) << ", ";
-        for (size_t i = 0; i != argument.size(); ++i) {
-            argument[i]->print(mode, out, libMode);
-            if (i < argument.size() - 1)
-                out << ", ";
-        }
-        if (type == IntegralType::C) {
-            out << ", getIntegrationParameters()->reg_int";
-        }
-        out << ")";
-        if (mode == 0)
-            out << '\n';
+    out << "mtylt_" << type << "0iC(" << int(loopToolsId) << ", ";
+    for (size_t i = 0; i != argument.size(); ++i) {
+        argument[i]->printLib(mode, out);
+        if (i < argument.size() - 1)
+            out << ", ";
     }
-    else {
-        out << "mtylt_" << type << "0iC(" << int(loopToolsId) << ", ";
-        for (size_t i = 0; i != argument.size(); ++i) {
-            argument[i]->print(mode, out, libMode);
-            if (i < argument.size() - 1)
-                out << ", ";
-        }
-        if (type == IntegralType::C) {
-            out << ", getIntegrationParameters()->reg_int";
-        }
-        out << ")";
-        if (mode == 0)
-            out << '\n';
+    if (type == IntegralType::C) {
+        out << ", getIntegrationParameters()->reg_int";
     }
+    out << ")";
+    if (mode == 0)
+        out << '\n';
 }
 
 csl::LibDependency FeynmanIntegral::getLibDependency() const
@@ -2410,12 +2386,7 @@ csl::LibDependency FeynmanIntegral::getLibDependency() const
                             "marty/core/looptools_interface.h");
     dependencies.addLib("-lgfortran");
     dependencies.addInclude("clooptools.h", "clooptools.h");
-    if (csl::LibraryGenerator::isQuadruplePrecision()) {
-        dependencies.addLib("-looptools-quad");
-    }
-    else {
-        dependencies.addLib("-looptools");
-    }
+    // The LoopTools library (double or quadruple) is chosen by mty::Library
 
     return dependencies;
 }

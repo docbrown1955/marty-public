@@ -284,21 +284,21 @@ void LibEval::print(std::ostream &out) const
 }
 
 void LibEval::printLib(std::ostream &out,
-                       LibraryMode   libMode,
+                       bool          isCpp,
                        int           indent,
                        bool)
 {
     std::string type;
-    if (libMode == LibraryMode::CppLib)
+    if (isCpp)
         type = (expr->isReal()) ? LibraryGenerator::realUsing
                                 : LibraryGenerator::complexUsing;
     else
-        type = (expr->isReal()) ? LibraryGenerator::crealUsing
-                                : LibraryGenerator::ccomplexUsing;
+        type = (expr->isReal()) ? LibraryGenerator::calcCrealUsing
+                                : LibraryGenerator::calcCcomplexUsing;
     if (indices.size() == 0 and not init->isIndexed()) {
         printExpression(out,
                         init,
-                        libMode,
+                        isCpp,
                         indent,
                         "const " + type + " " + toString(expr) + " = ");
         return;
@@ -321,7 +321,7 @@ void LibEval::printLib(std::ostream &out,
             << " != " << indices[i].getSpace()->getDim() << "; ++"
             << indexNames[i] << ") {\n";
     }
-    printExpression(out, init, libMode, indent + 1, toString(expr) + " += ");
+    printExpression(out, init, isCpp, indent + 1, toString(expr) + " += ");
     out << LibraryGenerator::indent(indent);
     for (size_t i = 0; i != indexNames.size(); ++i) {
         out << "}";
@@ -345,7 +345,7 @@ bool isTensorName(std::string_view name)
 
 void LibEval::printExpression(std::ostream      &out,
                               Expr              &expression,
-                              LibraryMode        libMode,
+                              bool               isCpp,
                               int                indent,
                               std::string const &beginning,
                               std::string const &end)
@@ -365,14 +365,14 @@ void LibEval::printExpression(std::ostream      &out,
     std::array<char, 7> delimiters = {'+', '*', '-', '/', '(', ')', ' '};
     std::ostringstream  sout;
     sout.precision(LibraryGenerator::nDigits);
-    Expr symb_i = (libMode == LibraryMode::CppLib) ? csl::constant_s("_i_")
-                                                   : csl::constant_s("_Complex"
-                                                                     "_I");
+    Expr symb_i = (isCpp) ? csl::constant_s("_i_")
+                          : csl::constant_s("_Complex"
+                                            "_I");
     csl::ForEachLeaf(expression, [&](Expr &el) {
         if (el == CSL_I)
             el = symb_i;
     });
-    expression->print(1, sout, libMode);
+    expression->printLib(1, sout);
     std::vector<std::string> lines;
     std::string              str = sout.str();
 
@@ -1026,12 +1026,12 @@ void LibEvalSession::printCLib(Expr         &init,
                                bool          onlyDep)
 {
     for (auto &eval : perf.evals) {
-        eval.printLib(out, LibraryMode::CLib);
+        eval.printLib(out, false);
     }
     if (not onlyDep)
         LibEval::printExpression(out,
                                  init,
-                                 LibraryMode::CLib,
+                                 false,
                                  1,
                                  "return create_ccomplex_return(",
                                  ")");
@@ -1043,10 +1043,10 @@ void LibEvalSession::printLib(Expr         &init,
                               bool          onlyDep)
 {
     for (auto &eval : perf.evals) {
-        eval.printLib(out, LibraryMode::CppLib);
+        eval.printLib(out, true);
     }
     if (not onlyDep)
-        LibEval::printExpression(out, init, LibraryMode::CppLib, 1, "return ");
+        LibEval::printExpression(out, init, true, 1, "return ");
 }
 
 } // End of namespace csl

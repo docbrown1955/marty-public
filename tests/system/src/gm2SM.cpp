@@ -40,8 +40,8 @@ int main()
 
     auto rules = sm.getFeynmanRules();
 
-    mty::Library::setQuadruplePrecision(true);
     mty::Library lib("gm2SM", "libs");
+    lib.setQuadruplePrecision(true);
     lib.cleanExistingSources();
 
     FeynOptions options;
@@ -51,7 +51,7 @@ int main()
     auto wil = sm.computeWilsonCoefficients(
         OneLoop, {Incoming("e"), Outgoing("e"), Outgoing("A")}, options);
     csl::Expr C = gm2(sm, wil);
-    lib.addFunction("gm2_e", C, true);
+    lib.addFunction("gm2_e", C);
 
     options.resetFilters();
     options.addFilter(
@@ -60,12 +60,12 @@ int main()
         OneLoop, {Incoming("e"), Outgoing("e"), Outgoing("A")}, options);
     Display(wil);
     C = gm2(sm, wil);
-    lib.addFunction("gm2_eW", C, true);
+    lib.addFunction("gm2_eW", C);
 
     [[maybe_unused]] int sysres = system("rm -rf libs/gm2SM");
     defineLibPath(lib);
     lib.print();
     sysres = system("cp libsrc/example_gm2_sm.cpp libs/gm2SM/script");
-    sysres = system("cd libs/gm2SM; make && bin/example_gm2_sm.x");
+    sysres = system("cd libs/gm2SM; make && build/bin/example_gm2_sm.x");
     return assert_equal("data/output/gm2_sm.txt", "libs/gm2SM/real.txt", 1e-5);
 }

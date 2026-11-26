@@ -104,17 +104,17 @@ int main()
     sysres = system("cd libs/Zmumu; make");
 
     // Total cross-section calculation
-    sysres  = system("cd libs/Zmumu; bin/example_zmumu.x 0 >/dev/null");
+    sysres  = system("cd libs/Zmumu; build/bin/example_zmumu.x 0 >/dev/null");
     int res = assert_equal(
         "data/output/ee_mumu_tot.txt", "libs/Zmumu/data.txt", 1e-5);
 
     // Forward-Backward asymetry
-    sysres = system("cd libs/Zmumu; bin/example_zmumu.x 1 >/dev/null");
+    sysres = system("cd libs/Zmumu; build/bin/example_zmumu.x 1 >/dev/null");
     res |= assert_equal(
         "data/output/ee_mumu_AFB.txt", "libs/Zmumu/data.txt", 1e-5);
 
     // Left- and right-handed contributions
-    sysres = system("cd libs/Zmumu; bin/example_zmumu.x 2 >/dev/null");
+    sysres = system("cd libs/Zmumu; build/bin/example_zmumu.x 2 >/dev/null");
     res |= assert_equal(
         "data/output/ee_mumu_LR.txt", "libs/Zmumu/data.txt", 1e-5);
 

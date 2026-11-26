@@ -5,6 +5,7 @@
 #include <complex.h>
 #include <stdlib.h>
 #include <math.h>
+#include <float.h>
 
 
 #ifndef __cplusplus
@@ -92,6 +93,24 @@ _MTY_INLINE lti_real_t abs_re(lti_complex_t value) {
     return (re < 0) ? -re : re;
 }
 
+// Invariants built from double inputs (e.g. p2 = 2 m^2 - 2 s_12 with s_12 = fl(m*m))
+// carry rounding residuals of at most DBL_EPSILON times the largest invariant. Such
+// residuals are unresolvable and make lambda(p1,p2,p3) negative, so they are set to zero.
+_MTY_INLINE void snapRoundingResiduals(
+        lti_complex_t *p1_2,
+        lti_complex_t *p2_2,
+        lti_complex_t *p3_2
+        )
+{
+    lti_real_t scale = abs_re(*p1_2);
+    if (abs_re(*p2_2) > scale) scale = abs_re(*p2_2);
+    if (abs_re(*p3_2) > scale) scale = abs_re(*p3_2);
+    const lti_real_t tol = 4 * (lti_real_t) DBL_EPSILON * scale;
+    if (abs_re(*p1_2) <= tol) *p1_2 = 0.;
+    if (abs_re(*p2_2) <= tol) *p2_2 = 0.;
+    if (abs_re(*p3_2) <= tol) *p3_2 = 0.;
+}
+
 _MTY_INLINE void regulateC(
         lti_complex_t *p1_2,
         lti_complex_t *p2_2,
@@ -102,6 +121,7 @@ _MTY_INLINE void regulateC(
         lti_real_t    eps
         )
 {
+    snapRoundingResiduals(p1_2, p2_2, p3_2);
     const bool p1Zero = (*p1_2 == 0.);
     const bool p3Zero = (*p3_2 == 0.);
     if (p1Zero && p3Zero && *p2_2 == 0.) {

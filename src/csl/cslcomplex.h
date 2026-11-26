@@ -50,9 +50,10 @@ class RealPart : public Operator<AbstractFunc> {
 
     void setOperand(const Expr &t_operand) override;
 
-    void print(int           mode    = 0,
-               std::ostream &out     = std::cout,
-               LibraryMode   libMode = LibraryMode::NoLib) const override;
+    void print(int           mode = 0,
+               std::ostream &out = std::cout) const override;
+
+    void printLib(int mode = 0, std::ostream &out = std::cout) const override;
 
     std::string printLaTeX(int mode = 0) const override;
 
@@ -100,9 +101,10 @@ class ImaginaryPart : public Operator<AbstractFunc> {
 
     void setOperand(const Expr &t_operand) override;
 
-    void print(int           mode    = 0,
-               std::ostream &out     = std::cout,
-               LibraryMode   libMode = LibraryMode::NoLib) const override;
+    void print(int           mode = 0,
+               std::ostream &out = std::cout) const override;
+
+    void printLib(int mode = 0, std::ostream &out = std::cout) const override;
 
     std::string printLaTeX(int mode = 0) const override;
 

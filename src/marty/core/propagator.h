@@ -38,10 +38,9 @@ class Propagator : public csl::AbstractMultiFunc {
                csl::Expr const &mass,
                csl::Expr const &width = CSL_0);
 
-    void print(int              mode = 0,
-               std::ostream    &out  = std::cout,
-               csl::LibraryMode libMode
-               = csl::LibraryMode::NoLib) const override;
+    void print(int mode = 0, std::ostream &out = std::cout) const override;
+
+    void printLib(int mode = 0, std::ostream &out = std::cout) const override;
 
     std::string printLaTeX(int mode = 0) const override;
 
@@ -83,10 +82,7 @@ class FermionPropStruct : public csl::AbstractDuoFunc {
                       csl::Index const &alpha,
                       csl::Index const &beta);
 
-    void print(int              mode = 0,
-               std::ostream    &out  = std::cout,
-               csl::LibraryMode libMode
-               = csl::LibraryMode::NoLib) const override;
+    void print(int mode = 0, std::ostream &out = std::cout) const override;
 
     std::string printLaTeX(int mode = 0) const override;
 

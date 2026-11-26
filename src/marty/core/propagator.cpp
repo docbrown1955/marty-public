@@ -44,20 +44,8 @@ Propagator::Propagator(csl::Expr const &impulsion,
         argument[0] = m_impulsion;
 }
 
-void Propagator::print(int              mode,
-                       std::ostream    &out,
-                       csl::LibraryMode libMode) const
+void Propagator::print(int mode, std::ostream &out) const
 {
-    if (libMode != csl::LibraryMode::NoLib) {
-        csl::Expr counter = DeepCopy(argument[0]);
-        for (auto &index : counter->getIndexStructure())
-            Replace(counter, index, index.getFlipped());
-        (1
-         / (argument[0] * counter - argument[1] * argument[1]
-            + CSL_I * argument[1] * argument[2]))
-            ->print(mode, out, libMode);
-        return;
-    }
     out << "Prop(";
     argument[0]->print(1, out);
     out << ", ";
@@ -69,6 +57,17 @@ void Propagator::print(int              mode,
     out << ")";
     if (mode == 0)
         out << std::endl;
+}
+
+void Propagator::printLib(int mode, std::ostream &out) const
+{
+    csl::Expr counter = DeepCopy(argument[0]);
+    for (auto &index : counter->getIndexStructure())
+        Replace(counter, index, index.getFlipped());
+    (1
+     / (argument[0] * counter - argument[1] * argument[1]
+        + CSL_I * argument[1] * argument[2]))
+        ->printLib(mode, out);
 }
 
 std::string Propagator::printLaTeX(int) const
@@ -203,9 +202,7 @@ FermionPropStruct::FermionPropStruct(csl::Expr const  &impulsion,
 {
 }
 
-void FermionPropStruct::print(int           mode,
-                              std::ostream &out,
-                              csl::LibraryMode) const
+void FermionPropStruct::print(int mode, std::ostream &out) const
 {
     out << "Fermi(";
     argument[0]->print(1, out);

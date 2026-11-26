@@ -47,7 +47,7 @@ std::string const &AbstractVectorial::getName() const
     return argument[0]->getName();
 }
 
-void AbstractVectorial::print(int mode, std::ostream &out, LibraryMode) const
+void AbstractVectorial::print(int mode, std::ostream &out) const
 {
     if (mode == 0) {
         if (dim == 1)

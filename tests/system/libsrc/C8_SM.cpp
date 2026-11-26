@@ -70,8 +70,8 @@ int main() {
     Expr CC8   = OperatorParser::getMagneticCoefficient(wilsonC8, Chirality::Right);
     Expr CC8p  = OperatorParser::getMagneticCoefficient(wilsonC8, Chirality::Left);
 
-    csl::Library::setQuadruplePrecision(false);
     mty::Library wilsonLib("C8_SM", ".", false);
+    wilsonLib.setQuadruplePrecision(false);
     wilsonLib.addFunction("C8", CC8);
     wilsonLib.addFunction("C8_p", CC8p);
     wilsonLib.build();

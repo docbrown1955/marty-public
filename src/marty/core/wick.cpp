@@ -136,7 +136,7 @@ csl::Type Wick::getType() const
     return csl::Type::InheritanceType;
 }
 
-void Wick::print(int mode, std::ostream &out, csl::LibraryMode) const
+void Wick::print(int mode, std::ostream &out) const
 {
     out << "Wick< ";
     argument->print(1, out);

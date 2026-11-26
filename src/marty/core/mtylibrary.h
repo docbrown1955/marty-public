@@ -35,17 +35,6 @@ class Library : public csl::LibraryGenerator {
     {
         addInclude("clooptools.h");
         addInclude("marty/core/looptools_init.h");
-#if !(defined __APPLE__ || defined __MACH__)
-        // If we are not on MacOS, add -lgfortran
-        addLibrary("-lgfortran");
-#endif
-        if (csl::LibraryGenerator::isQuadruplePrecision()) {
-            addLibrary("-looptools-quad");
-            addLibrary("-lquadmath");
-        }
-        else {
-            addLibrary("-looptools");
-        }
     }
 
     void applyDiagonalizationData(Model &model)
@@ -88,12 +77,10 @@ class Library : public csl::LibraryGenerator {
         addLibrary("-lmarty-lha");
     }
 
-    void addFunction(std::string const &name,
-                     csl::Expr          expr,
-                     bool               forceCppFunc = false)
+    void addFunction(std::string const &name, csl::Expr expr)
     {
         csl::ScopedProperty p(&csl::option::checkCommutations, false);
-        auto &f = csl::LibraryGenerator::addFunction(name, expr, forceCppFunc);
+        auto &f = csl::LibraryGenerator::addFunction(name, expr);
         f.addInitInstruction("clearcache();");
     }
 

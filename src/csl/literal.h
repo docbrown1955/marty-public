@@ -121,8 +121,9 @@ class Constant : public AbstractLiteral {
      * \param mode Type of printing.
      */
     void print(int           mode    = 0,
-               std::ostream &out     = std::cout,
-               LibraryMode   libMode = LibraryMode::NoLib) const override;
+               std::ostream &out     = std::cout) const override;
+
+    void printLib(int mode = 0, std::ostream &out = std::cout) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -242,8 +243,9 @@ class Variable : public AbstractLiteral {
      * \param mode Type of printing.
      */
     void print(int           mode    = 0,
-               std::ostream &out     = std::cout,
-               LibraryMode   libMode = LibraryMode::NoLib) const override;
+               std::ostream &out     = std::cout) const override;
+
+    void printLib(int mode = 0, std::ostream &out = std::cout) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -340,8 +342,7 @@ class IntFactorial : public AbstractLiteral {
     void setValue(long double t_value) override;
 
     void print(int           mode    = 0,
-               std::ostream &out     = std::cout,
-               LibraryMode   libMode = LibraryMode::NoLib) const override;
+               std::ostream &out     = std::cout) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 
@@ -426,8 +427,9 @@ class Imaginary : public AbstractLiteral {
     }
 
     void print(int           mode    = 0,
-               std::ostream &out     = std::cout,
-               LibraryMode   libMode = LibraryMode::NoLib) const override;
+               std::ostream &out     = std::cout) const override;
+
+    void printLib(int mode = 0, std::ostream &out = std::cout) const override;
 
     void printCode(int mode = 0, std::ostream &out = std::cout) const override;
 

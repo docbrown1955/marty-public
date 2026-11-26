@@ -21,8 +21,8 @@ int main()
             {"W", "Z", "H0", "h", "A0", "Gp", "G0", "Hp"}),
         [&](FeynmanDiagram const &diag) { return !diag.isInLoop("A"); });
 
-    Library::setQuadruplePrecision(true);
     Library lib("gm2PMSSM", "libs");
+    lib.setQuadruplePrecision(true);
     lib.cleanExistingSources();
     lib.generateSpectrum(pmssm);
     csl::Expr aa = csl::constant_s("aa");
@@ -60,7 +60,7 @@ int main()
     defineLibPath(lib);
     lib.print();
     sysres = system("cp libsrc/example_gm2pmssm.cpp libs/gm2PMSSM/script");
-    sysres = system("cd libs/gm2PMSSM; make && bin/example_gm2pmssm.x");
+    sysres = system("cd libs/gm2PMSSM; make && build/bin/example_gm2pmssm.x");
     return assert_equal(
         "data/output/gm2_pmssm.txt", "libs/gm2PMSSM/data.txt", 1e-1);
 }

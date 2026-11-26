@@ -3,6 +3,7 @@
 #include "global.h"
 #include "marty/lha/lha.h"
 #include "params.h"
+#include <cmath>
 
 inline void readSpectrum(c9_mssm::param_t            &param,
                          mty::lha::LHAFileData const &data)
@@ -14,7 +15,7 @@ inline void readSpectrum(c9_mssm::param_t            &param,
     param.m_s     = 0.150;
     param.m_t     = data.getValue("SMINPUTS", 6).value();
     param.m_mu    = 0; // 0.1;
-    param.theta_W = crealq(cacosq(param.M_W / param.M_Z));
+    param.theta_W = std::acos(param.M_W / param.M_Z);
 
     param.beta = std::atan(data.getValue("MINPAR", 3).value());
     // param.mu = data.getValue("EXTPAR", 23).value();

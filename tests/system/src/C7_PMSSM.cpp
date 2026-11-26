@@ -57,8 +57,8 @@ int main()
         chromoMagneticOperator(pmssm_model, wilsonC7, DiracCoupling::L));
 
     [[maybe_unused]] int sysres = system("rm -r libs/C7_PMSSM");
-    mty::Library::setQuadruplePrecision(true);
     mty::Library wilsonLib("C7_PMSSM", "libs");
+    wilsonLib.setQuadruplePrecision(true);
     wilsonLib.addFunction("C7", CC7);
     wilsonLib.addFunction("C7_p", CC7p);
     wilsonLib.generateSpectrum(pmssm_model);
@@ -66,7 +66,7 @@ int main()
     wilsonLib.print();
 
     sysres = system("cp libsrc/example_c7_pmssm.cpp libs/C7_PMSSM/script");
-    sysres = system("cd libs/C7_PMSSM; make && bin/example_c7_pmssm.x");
+    sysres = system("cd libs/C7_PMSSM; make && build/bin/example_c7_pmssm.x");
     return assert_equal("data/output/C7_marty_tanb50_ss.txt",
                         "libs/C7_PMSSM/C7_marty_tanb50_ss.txt",
                         1e-5);

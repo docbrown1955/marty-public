@@ -16,8 +16,8 @@
 #include "cslcomplex.h"
 #include "comparison.h"
 #include "interface.h"
+#include "libmacros.h"
 #include "librarydependency.h"
-#include "librarygenerator.h"
 
 using namespace std;
 
@@ -59,36 +59,19 @@ void RealPart::setOperand(const Expr &arg)
     argument = arg;
 }
 
-void RealPart::print(int mode, std::ostream &out, LibraryMode libMode) const
+void RealPart::print(int mode, std::ostream &out) const
 {
-    if (libMode == LibraryMode::CppLib) {
-        if (LibraryGenerator::isQuadruplePrecision()) {
-            out << "crealq(";
-            argument->print(1, out, libMode);
-            out << ")";
-        }
-        else {
-            out << "std::complex<long double>(";
-            argument->print(1, out, libMode);
-            out << ").real()";
-        }
-        if (mode == 0)
-            out << endl;
-        return;
-    }
-    else if (libMode == LibraryMode::CLib) {
-        if (LibraryGenerator::isQuadruplePrecision())
-            out << "crealq(";
-        else
-            out << "creal(";
-        argument->print(1, out, libMode);
-        out << ")";
-        if (mode == 0)
-            out << endl;
-        return;
-    }
     out << "Re(";
     argument->print(1, out);
+    out << ")";
+    if (mode == 0)
+        out << endl;
+}
+
+void RealPart::printLib(int mode, std::ostream &out) const
+{
+    out << libmacro::cfn << "(real)(";
+    argument->printLib(1, out);
     out << ")";
     if (mode == 0)
         out << endl;
@@ -229,38 +212,19 @@ void ImaginaryPart::setOperand(const Expr &arg)
     argument = arg;
 }
 
-void ImaginaryPart::print(int           mode,
-                          std::ostream &out,
-                          LibraryMode   libMode) const
+void ImaginaryPart::print(int mode, std::ostream &out) const
 {
-    if (libMode == LibraryMode::CppLib) {
-        if (LibraryGenerator::isQuadruplePrecision()) {
-            out << "cimagq(";
-            argument->print(1, out, libMode);
-            out << ")";
-        }
-        else {
-            out << "std::complex<long double>(";
-            argument->print(1, out, libMode);
-            out << ").imag()";
-        }
-        if (mode == 0)
-            out << endl;
-        return;
-    }
-    else if (libMode == LibraryMode::CLib) {
-        if (LibraryGenerator::isQuadruplePrecision())
-            out << "cimagq(";
-        else
-            out << "cimag(";
-        argument->print(1, out, libMode);
-        out << ")";
-        if (mode == 0)
-            out << endl;
-        return;
-    }
     out << "Im(";
     argument->print(1, out);
+    out << ")";
+    if (mode == 0)
+        out << endl;
+}
+
+void ImaginaryPart::printLib(int mode, std::ostream &out) const
+{
+    out << libmacro::cfn << "(imag)(";
+    argument->printLib(1, out);
     out << ")";
     if (mode == 0)
         out << endl;
