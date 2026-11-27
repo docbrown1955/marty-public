@@ -369,7 +369,11 @@ WilsonSet = _core.WilsonSet
 
 
 def wilson_coefficients(
-    model: Any, amplitude: Amplitude, operator_coefficient: Expr | None = None
+    model: Any,
+    amplitude: Amplitude,
+    operator_coefficient: Expr | None = None,
+    *,
+    dedicated_matching: bool = False,
 ) -> WilsonSet:
     """Wilson coefficients of a one-loop amplitude, by operator.
 
@@ -377,13 +381,19 @@ def wilson_coefficients(
     coefficient with ``WilsonSet.coefficient``; the chromomagnetic operators
     come from ``chromo_magnetic_operator``.
 
+    ``dedicated_matching`` selects the model's one-loop matching on the
+    amplitude's insertions (boxes and penguins for four external fermions),
+    as the C++ calculation does. It requires a fermion order in the options.
+
     >>> from pymarty.calculation import wilson_coefficients
     >>> wilson_coefficients.__name__
     'wilson_coefficients'
     """
     _check_finalized(model)
     factor = operator_coefficient if operator_coefficient is not None else Expr(1)
-    return _core.wilson_coefficients(model, amplitude._native, factor)
+    return _core.wilson_coefficients(
+        model, amplitude._native, factor, dedicated_matching
+    )
 
 
 def chromo_magnetic_operator(
@@ -410,7 +420,13 @@ def chromo_magnetic_coefficient(model: Any, wilsons: WilsonSet, coupling: str) -
 
 
 def dimension6_coefficient(
-    model: Any, wilsons: WilsonSet, left: str, right: str
+    model: Any,
+    wilsons: WilsonSet,
+    left: str,
+    right: str,
+    *,
+    color_group: str = "",
+    color_coupling: str = "Id",
 ) -> Expr:
     """Coefficient of the dimension-6 operator built from two Dirac couplings.
 
@@ -418,12 +434,18 @@ def dimension6_coefficient(
     (S, P, L, R, V, A, VL, VR, T, TA, TL or TR). The result sums the Wilson
     coefficients of the operator, computed in one step from ``wilsons``.
 
+    ``color_group`` names the gauge group of a color structure, and
+    ``color_coupling`` is Id, Generator, Crossed or InvCrossed. An empty
+    ``color_group`` (the default) means no color structure.
+
     >>> from pymarty.calculation import dimension6_coefficient
     >>> dimension6_coefficient.__name__
     'dimension6_coefficient'
     """
     _check_finalized(model)
-    return _core.dimension6_coefficient(model, wilsons, left, right)
+    return _core.dimension6_coefficient(
+        model, wilsons, left, right, color_group, color_coupling
+    )
 
 
 def select_diagrams(

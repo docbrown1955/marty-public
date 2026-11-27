@@ -250,13 +250,18 @@ void bindCalculation(py::module_ &m)
         "wilson_coefficients",
         [](Model const      &model,
            Amplitude const  &amplitude,
-           ExprHandle const &operatorCoefficient) {
+           ExprHandle const &operatorCoefficient,
+           bool              dedicatedMatching) {
             return mty::api::calculation::wilsonCoefficients(
-                model, amplitude, operatorCoefficient.raw());
+                model,
+                amplitude,
+                operatorCoefficient.raw(),
+                dedicatedMatching);
         },
         py::arg("model"),
         py::arg("amplitude"),
         py::arg("operator_coefficient"),
+        py::arg("dedicated_matching") = false,
         "Wilson coefficients of an amplitude, with the given overall factor "
         "of every operator.");
     mod.def(
@@ -294,16 +299,21 @@ void bindCalculation(py::module_ &m)
         [](Model const                            &model,
            mty::api::calculation::WilsonSet const &wilsons,
            std::string const                      &left,
-           std::string const                      &right) {
+           std::string const                      &right,
+           std::string const                      &colorGroup,
+           std::string const                      &colorCoupling) {
             return ExprHandle(mty::api::calculation::dimension6Coefficient(
-                model, wilsons, left, right));
+                model, wilsons, left, right, colorGroup, colorCoupling));
         },
         py::arg("model"),
         py::arg("wilsons"),
         py::arg("left"),
         py::arg("right"),
+        py::arg("color_group")    = "",
+        py::arg("color_coupling") = "Id",
         "Coefficient of the dimension-6 operator with the given left and right "
-        "Dirac couplings, matched against the Wilson coefficients in one step.");
+        "Dirac couplings, matched against the Wilson coefficients in one step. "
+        "An empty color_group means no color structure.");
 
     mod.def("option_names",
             &mty::api::calculation::optionNames,

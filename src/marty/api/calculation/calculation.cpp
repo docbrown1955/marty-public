@@ -184,13 +184,19 @@ csl::Expr WilsonSet::coefficient(std::vector<csl::Expr> const &operators) const
 
 WilsonSet wilsonCoefficients(modeling::Model const     &model,
                              modeling::Amplitude const &amplitude,
-                             csl::Expr const           &operatorCoefficient)
+                             csl::Expr const           &operatorCoefficient,
+                             bool                       dedicatedMatching)
 {
     return guarded([&] {
         auto            &core = modeling::coreModel(model);
         Session          session(&core);
-        mty::FeynOptions options;
+        mty::FeynOptions options = amplitude.raw().getOptions();
         options.setWilsonOperatorCoefficient(operatorCoefficient);
+        if (dedicatedMatching)
+            return WilsonSet(core.computeWilsonCoefficients(
+                mty::OneLoop,
+                amplitude.raw().getKinematics().getInsertions(),
+                options));
         return WilsonSet(core.getWilsonCoefficients(amplitude.raw(), options));
     });
 }
@@ -245,19 +251,37 @@ csl::Expr chromoMagneticCoefficient(modeling::Model const &model,
     });
 }
 
+static mty::ColorCoupling colorCoupling(std::string const &coupling)
+{
+    static std::map<std::string, mty::ColorCoupling> const couplings{
+        {"Id", mty::ColorCoupling::Id},
+        {"Generator", mty::ColorCoupling::Generator},
+        {"Crossed", mty::ColorCoupling::Crossed},
+        {"InvCrossed", mty::ColorCoupling::InvCrossed}};
+    auto const found = couplings.find(coupling);
+    if (found == couplings.end())
+        throw ValueError("Unknown color coupling '" + coupling + "'");
+    return found->second;
+}
+
 csl::Expr dimension6Coefficient(modeling::Model const &model,
                                 WilsonSet const       &wilsons,
                                 std::string const     &leftCoupling,
-                                std::string const     &rightCoupling)
+                                std::string const     &rightCoupling,
+                                std::string const     &colorGroup,
+                                std::string const     &colorCouplingName)
 {
     auto const left  = diracCoupling(leftCoupling);
     auto const right = diracCoupling(rightCoupling);
+    std::vector<mty::ColorSpec> colors;
+    if (!colorGroup.empty())
+        colors.push_back({colorGroup, colorCoupling(colorCouplingName)});
     return guarded([&] {
         auto &core = modeling::coreModel(model);
         Session session(&core);
         return mty::getWilsonCoefficient(
             wilsons.raw(),
-            mty::dimension6Operator(core, wilsons.raw(), left, right));
+            mty::dimension6Operator(core, wilsons.raw(), left, right, colors));
     });
 }
 

@@ -88,14 +88,20 @@ def _c9_functions() -> dict[str, Expr]:
     # C++ getC9BZ keeps only the first mass in loops and drops the photon.
     with set_options(keep_only_first_mass_in_loop=True):
         amplitude = _amplitude(model, [disable_particles("A")])
-        wilsons = wilson_coefficients(model, amplitude, _operator_factor())
+        wilsons = wilson_coefficients(
+            model, amplitude, _operator_factor(), dedicated_matching=True
+        )
         functions["C9_BZ"] = dimension6_coefficient(model, wilsons, "VL", "V")
     with set_options(keep_only_first_mass_in_loop=False):
         amplitude = _amplitude(model, [force_particle("A")])
-        wilsons = wilson_coefficients(model, amplitude, _operator_factor())
+        wilsons = wilson_coefficients(
+            model, amplitude, _operator_factor(), dedicated_matching=True
+        )
         functions["C9_A"] = dimension6_coefficient(model, wilsons, "VL", "V")
         amplitude = _amplitude(model, [])
-        wilsons = wilson_coefficients(model, amplitude, _operator_factor())
+        wilsons = wilson_coefficients(
+            model, amplitude, _operator_factor(), dedicated_matching=True
+        )
         functions["C9_Tot"] = dimension6_coefficient(model, wilsons, "VL", "V")
     return functions
 

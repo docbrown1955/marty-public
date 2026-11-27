@@ -78,10 +78,13 @@ class WilsonSet {
 };
 
 /// Wilson coefficients of \b amplitude, with \b operatorCoefficient as the
-/// overall factor of every operator.
+/// overall factor of every operator. With \b dedicatedMatching, the model's
+/// one-loop matching on the amplitude's insertions is used instead of the
+/// amplitude decomposition (required for four external fermions).
 WilsonSet wilsonCoefficients(modeling::Model const     &model,
                              modeling::Amplitude const &amplitude,
-                             csl::Expr const           &operatorCoefficient);
+                             csl::Expr const           &operatorCoefficient,
+                             bool                       dedicatedMatching = false);
 
 /// Expressions of the chromomagnetic operator with the given Dirac coupling
 /// (S, P, L, R, V, A, VL, VR, T, TA, TL or TR, ValueError otherwise).
@@ -98,10 +101,14 @@ csl::Expr chromoMagneticCoefficient(modeling::Model const &model,
 /// Coefficient of the dimension-6 operator built from the two Dirac couplings
 /// (left and right currents, same names as chromoMagneticOperator), summed over
 /// the matching Wilson coefficients of ``wilsons``.
+/// An empty ``colorGroup`` means no color structure; otherwise ``colorCoupling``
+/// is one of Id, Generator, Crossed or InvCrossed.
 csl::Expr dimension6Coefficient(modeling::Model const &model,
                                 WilsonSet const       &wilsons,
                                 std::string const     &leftCoupling,
-                                std::string const     &rightCoupling);
+                                std::string const     &rightCoupling,
+                                std::string const     &colorGroup    = "",
+                                std::string const     &colorCoupling = "Id");
 
 } // namespace mty::api::calculation
 

@@ -388,6 +388,20 @@ class FeynOptions {
     void initDefaultFilters();
 
     /**
+     * @brief Default loop-order criterion on diagrams.
+     *
+     * @details Evaluated on the object itself rather than stored as a
+     * diagram filter, so that copies of the options do not keep a pointer
+     * to the original object.
+     */
+    bool passLoopOrderFilter(FeynmanDiagram const &diagram) const;
+
+    /**
+     * @brief Default criterion discarding external leg corrections.
+     */
+    bool passExternalLegFilter(FeynmanDiagram const &diagram) const;
+
+    /**
      * @brief Sets the Wilson operator basis #wilsonOperatorBasis.
      *
      * @note This method is private because the operator basis is for now
@@ -547,8 +561,6 @@ class FeynOptions {
      * the standard one uses \f$ \1,\gamma^5 \f$.
      */
     OperatorBasis wilsonOperatorBasis = OperatorBasis::Chiral;
-
-    constexpr static size_t nDefaultDiagramFilters = 1;
 };
 
 } // namespace mty

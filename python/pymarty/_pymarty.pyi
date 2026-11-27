@@ -759,7 +759,10 @@ class calculation:
 
     @staticmethod
     def wilson_coefficients(
-        model: object, amplitude: Amplitude, operator_coefficient: Expr
+        model: object,
+        amplitude: Amplitude,
+        operator_coefficient: Expr,
+        dedicated_matching: builtins.bool = False,
     ) -> WilsonSet: ...
     @staticmethod
     def chromo_magnetic_operator(
@@ -771,7 +774,12 @@ class calculation:
     ) -> Expr: ...
     @staticmethod
     def dimension6_coefficient(
-        model: object, wilsons: WilsonSet, left: builtins.str, right: builtins.str
+        model: object,
+        wilsons: WilsonSet,
+        left: builtins.str,
+        right: builtins.str,
+        color_group: builtins.str = "",
+        color_coupling: builtins.str = "Id",
     ) -> Expr: ...
     @staticmethod
     def option_names() -> list[builtins.str]: ...
