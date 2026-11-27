@@ -157,8 +157,9 @@ bool Reader::isSingleValueLine(std::vector<std::string> const &line)
 LHAElement Reader::readValue(std::vector<std::string> const &line)
 {
     LHAElement element;
-    element.id    = std::stoull(line[0]);
-    element.value = std::stold(line.back());
+    element.id     = std::stoull(line[0]);
+    element.id_sup = size_t(-1);
+    element.value  = std::stold(line.back());
     if (line.size() == 3)
         element.id_sup = std::stoull(line[1]);
 

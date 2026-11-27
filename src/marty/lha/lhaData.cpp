@@ -259,7 +259,7 @@ std::ostream &operator<<(std::ostream &out, LHAElement const &element)
 {
     out << std::left;
     out << std::setw(nSpace(element.id)) << element.id;
-    if (element.id_sup > 0)
+    if (element.id_sup != size_t(-1))
         out << std::setw(nSpace(element.id_sup)) << element.id_sup;
     size_t n_digits = std::numeric_limits<FloatType>::max_digits10;
     out.precision(n_digits);

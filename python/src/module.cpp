@@ -376,5 +376,15 @@ discovery at run time, as described in the class.)doc")
                                "Make program used to build generated code.")
         .def_property_readonly("grafed",
                                &mty::api::Config::grafed,
-                               "GRAFED program to display diagrams.");
+                               "GRAFED program to display diagrams.")
+        .def_property_readonly_static(
+            "quad_available",
+            [](py::object) {
+#if defined MARTY_QUADRUPLE_ENABLED && MARTY_QUADRUPLE_ENABLED
+                return true;
+#else
+                return false;
+#endif
+            },
+            "True when MARTY was built with quadruple precision support.");
 }

@@ -17,7 +17,7 @@ from pymarty.calculation import (
     incoming,
     outgoing,
 )
-from pymarty.errors import MartyNotImplementedError, MartyStateError, MartyValueError
+from pymarty.errors import MartyStateError, MartyValueError
 from pymarty.modeling.models.sm import SM
 from pymarty.modeling.models.zmumu import Zmumu
 from pymarty.symbolic import ComplexProperty, constant
@@ -134,6 +134,10 @@ def test_model_widths_build_and_evaluate(tmp_path) -> None:
 @pytest.mark.needs_compiler
 @pytest.mark.slow
 @pytest.mark.quad
+@pytest.mark.skipif(
+    not config.Config.quad_available,
+    reason="MARTY was built without quadruple precision",
+)
 def test_quadruple_option_is_written_to_makefile(tmp_path) -> None:
     x, y = constant("x"), constant("y")
     expr = x * y + 2 * x
@@ -145,11 +149,8 @@ def test_quadruple_option_is_written_to_makefile(tmp_path) -> None:
     assert "QUAD ?= 0" in (double_dir / "Makefile").read_text()
 
     quad_gen = _sm_generator(tmp_path, "toy_quad")
-    try:
-        quad_gen.set_quadruple_precision(True)
-    except MartyNotImplementedError:
-        pytest.skip("MARTY was built without quadruple precision")
-    quad_gen.add_function("f", expr)
+    quad_gen.set_quadruple_precision(True)
+
     quad_gen.print_sources()
     quad_dir = Path(quad_gen.library_directory)
     assert "QUAD ?= 1" in (quad_dir / "Makefile").read_text()

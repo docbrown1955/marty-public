@@ -15,6 +15,7 @@
 #include "../../../csl/librarygenerator.h"
 #include "../modeling/modeling.h"
 
+#include <cstddef>
 #include <string>
 #include <vector>
 
@@ -71,6 +72,17 @@ class Generator {
     std::vector<std::string> m_functions;
     bool                     m_hasSpectrum = false;
 };
+
+/// One entry of a LesHouches file: its block name, its indices (one index
+/// for single-valued entries, two for matrix entries) and its value.
+struct LhaEntry {
+    std::string              block;
+    std::vector<std::size_t> indices;
+    double                   value;
+};
+
+/// Reads a LesHouches file. LookupError when the file cannot be opened.
+std::vector<LhaEntry> readLha(std::string const &path);
 
 } // namespace mty::api::simulation
 

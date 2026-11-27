@@ -22,6 +22,12 @@
 #include "marty/api/modeling/modeling.h"
 
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
+#include <cstddef>
+#include <string>
+#include <tuple>
+#include <vector>
 
 namespace py = pybind11;
 
@@ -84,4 +90,19 @@ and compiled in ``library_directory``. The library is ``lib<name>.so`` in
              py::arg("make"),
              "Writes the sources and compiles the shared library with "
              "`make`.");
+
+    mod.def(
+        "read_lha",
+        [](std::string const &path) {
+            std::vector<std::tuple<std::string, std::vector<std::size_t>,
+                                   double>>
+                records;
+            for (auto const &entry : mty::api::simulation::readLha(path))
+                records.emplace_back(entry.block, entry.indices, entry.value);
+            return records;
+        },
+        py::arg("path"),
+        "Reads a LesHouches file and returns its entries as "
+        "(block, indices, value) tuples.");
 }
+

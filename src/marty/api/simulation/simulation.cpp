@@ -9,15 +9,18 @@
 #include "../../core/ghostField.h"
 #include "../../core/goldstoneField.h"
 #include "../../core/mtylibrary.h"
+#include "../../lha/lha.h"
 #include "../common/error.h"
 #include "../common/session.h"
 
 #include <algorithm>
 #include <cctype>
 #include <fcntl.h>
+#include <fstream>
 #include <spawn.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <utility>
 
 extern char **environ;
 
@@ -189,6 +192,31 @@ void Generator::build(unsigned int nJobs, std::string const &make)
         throw BuildError("Compilation of library '" + m_name
                          + "' failed (exit code " + std::to_string(rc)
                          + "), see " + log);
+}
+
+std::vector<LhaEntry> readLha(std::string const &path)
+{
+    std::ifstream in(path);
+    if (!in)
+        throw csl::api::LookupError("Cannot open LesHouches file '" + path
+                                    + "'");
+    mty::lha::LHAFileData data = mty::lha::Reader::readFile(in);
+
+    constexpr std::size_t noSupIndex = static_cast<std::size_t>(-1);
+    std::vector<LhaEntry> entries;
+    for (std::size_t b = 0; b < data.size(); ++b) {
+        mty::lha::LHABlock const &block = data[b];
+        for (std::size_t e = 0; e < block.size(); ++e) {
+            mty::lha::LHAElement const &element = block[e];
+            LhaEntry                    entry{block.getName(),
+                           {element.id},
+                           static_cast<double>(element.value)};
+            if (element.id_sup != noSupIndex)
+                entry.indices.push_back(element.id_sup);
+            entries.push_back(std::move(entry));
+        }
+    }
+    return entries;
 }
 
 } // namespace mty::api::simulation

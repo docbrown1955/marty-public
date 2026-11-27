@@ -357,6 +357,7 @@ class Config:
     def make(self) -> str: ...
     @property
     def grafed(self) -> str: ...
+    quad_available: bool
 
 class group_theory:
     class Group:
@@ -822,6 +823,12 @@ class simulation:
             """
         def print_sources(self) -> None: ...
         def build(self, n_jobs: int, make: builtins.str) -> None: ...
+
+    @staticmethod
+    def read_lha(
+        path: builtins.str,
+    ) -> list[tuple[builtins.str, list[builtins.int], builtins.float]]:
+        """Read a LesHouches file as (block, indices, value) tuples."""
 
 class diracology:
     class FierzBasis(enum.Enum):
