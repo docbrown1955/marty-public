@@ -409,6 +409,23 @@ def chromo_magnetic_coefficient(model: Any, wilsons: WilsonSet, coupling: str) -
     return _core.chromo_magnetic_coefficient(model, wilsons, coupling)
 
 
+def dimension6_coefficient(
+    model: Any, wilsons: WilsonSet, left: str, right: str
+) -> Expr:
+    """Coefficient of the dimension-6 operator built from two Dirac couplings.
+
+    ``left`` and ``right`` are Dirac couplings as in ``chromo_magnetic_coefficient``
+    (S, P, L, R, V, A, VL, VR, T, TA, TL or TR). The result sums the Wilson
+    coefficients of the operator, computed in one step from ``wilsons``.
+
+    >>> from pymarty.calculation import dimension6_coefficient
+    >>> dimension6_coefficient.__name__
+    'dimension6_coefficient'
+    """
+    _check_finalized(model)
+    return _core.dimension6_coefficient(model, wilsons, left, right)
+
+
 def select_diagrams(
     amplitude: Amplitude, predicate: Callable[[Diagram], bool]
 ) -> list[Diagram]:

@@ -245,4 +245,20 @@ csl::Expr chromoMagneticCoefficient(modeling::Model const &model,
     });
 }
 
+csl::Expr dimension6Coefficient(modeling::Model const &model,
+                                WilsonSet const       &wilsons,
+                                std::string const     &leftCoupling,
+                                std::string const     &rightCoupling)
+{
+    auto const left  = diracCoupling(leftCoupling);
+    auto const right = diracCoupling(rightCoupling);
+    return guarded([&] {
+        auto &core = modeling::coreModel(model);
+        Session session(&core);
+        return mty::getWilsonCoefficient(
+            wilsons.raw(),
+            mty::dimension6Operator(core, wilsons.raw(), left, right));
+    });
+}
+
 } // namespace mty::api::calculation

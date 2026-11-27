@@ -95,6 +95,14 @@ csl::Expr chromoMagneticCoefficient(modeling::Model const &model,
                                     WilsonSet const       &wilsons,
                                     std::string const     &coupling);
 
+/// Coefficient of the dimension-6 operator built from the two Dirac couplings
+/// (left and right currents, same names as chromoMagneticOperator), summed over
+/// the matching Wilson coefficients of ``wilsons``.
+csl::Expr dimension6Coefficient(modeling::Model const &model,
+                                WilsonSet const       &wilsons,
+                                std::string const     &leftCoupling,
+                                std::string const     &rightCoupling);
+
 } // namespace mty::api::calculation
 
 #endif

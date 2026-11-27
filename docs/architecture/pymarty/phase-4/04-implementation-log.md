@@ -161,6 +161,7 @@ differs from C++, because the gaugino Yukawas and D-terms remain blocked.
   - Ruled out: a stack overflow. `ulimit -s unlimited` avoids the crash, but gdb shows a shallow backtrace.
   - Leading hypothesis (unproven): a dangling `Space` pointer. `csl::Index` stores a raw `const Space *` (`src/csl/index.h`, line 84). Local spaces in the parity helpers (`V`, `S`, `U` in `test_parity.py`) can be destroyed while expressions that use them are still alive. `ExprHandle` holds no owner (`src/csl/api/expr.h`, line 184).
   - Workaround (temporary): `python/CMakeLists.txt` excludes `test_parity.py` from `pymarty.pytest` and runs it as `pymarty.pytest.symbolic_parity`.
+  - Phase 7 observation (same crash, `pytest -m "not slow"` run, not ctest): the same test segfaults after the `tests/simulation` directory runs first, and it reproduces at HEAD before the phase 7 changes. Excluding `tests/simulation` avoids it. The trigger differs from `test_cpp_pmssm.py`, so the test order matters, not one file.
   - Next steps: print the faulting `space->name` under gdb; run valgrind or an ASan build of `_pymarty` on the full suite (detached, long timeout); if confirmed, keep the owning space alive in core and add a regression test; remove the workaround; check `ulimit -c` with a writable `core_pattern`; decide whether the `finalize=True` default for QED, QCD and PMSSM stays.
 
 

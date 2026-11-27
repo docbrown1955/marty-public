@@ -15,6 +15,7 @@ from pymarty.calculation import (
     compute_feynman_rules,
     compute_squared_amplitude,
     compute_width,
+    dimension6_coefficient,
     incoming,
     outgoing,
     set_options,
@@ -215,3 +216,5 @@ def test_unknown_dirac_coupling_is_value_error(qcd: QCD) -> None:
         chromo_magnetic_operator(qcd, wilsons, "XX")
     with pytest.raises(MartyValueError):
         chromo_magnetic_coefficient(qcd, wilsons, "XX")
+    with pytest.raises(MartyValueError):
+        dimension6_coefficient(qcd, wilsons, "VL", "XX")

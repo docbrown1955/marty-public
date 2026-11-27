@@ -289,6 +289,21 @@ void bindCalculation(py::module_ &m)
         py::arg("coupling"),
         "Coefficient of the chromomagnetic dipole with the given Dirac coupling, "
         "matched against the Wilson coefficients in one step.");
+    mod.def(
+        "dimension6_coefficient",
+        [](Model const                            &model,
+           mty::api::calculation::WilsonSet const &wilsons,
+           std::string const                      &left,
+           std::string const                      &right) {
+            return ExprHandle(mty::api::calculation::dimension6Coefficient(
+                model, wilsons, left, right));
+        },
+        py::arg("model"),
+        py::arg("wilsons"),
+        py::arg("left"),
+        py::arg("right"),
+        "Coefficient of the dimension-6 operator with the given left and right "
+        "Dirac couplings, matched against the Wilson coefficients in one step.");
 
     mod.def("option_names",
             &mty::api::calculation::optionNames,

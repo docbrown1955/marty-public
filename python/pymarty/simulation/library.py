@@ -83,6 +83,7 @@ def generate(
     *,
     path: str | Path,
     include_path: str | None = None,
+    quadruple_precision: bool = False,
 ) -> Library:
     """Write the sources of a library computing ``functions``.
 
@@ -96,12 +97,17 @@ def generate(
         path: Directory that receives the library directory.
         include_path: MARTY include directory. Defaults to the value resolved
             by :func:`pymarty.config.resolve`.
+        quadruple_precision: Compute inside the C library in quadruple
+            precision. Raises ``NotImplementedError`` when MARTY was built
+            without it (see ``Config.quad_available``).
     """
     generator = _simulation.Generator(name, str(Path(path)))
     resolved = config.resolve(include_path=include_path)
     generator.add_include_path(resolved.include_path)
     for library_dir in filter(None, resolved.library_path.split(os.pathsep)):
         generator.add_library_path(library_dir)
+    if quadruple_precision:
+        generator.set_quadruple_precision(True)
     for function_name, expr in functions.items():
         generator.add_function(function_name, expr)
     generator.print_sources()
