@@ -36,6 +36,13 @@ The baseline failures are environmental, not code regressions. Phase 7 gates mus
 - 7e quad: `Config.quad_available`; quad tests skip when disabled.
 - 7f: Bgenesis and freeQuarkAmplitudes (no CTest; freeQuarkAmplitudes has commented-out CTest at `tests/system/CMakeLists.txt:36-37`). Already done in phase 6: c7_sm, c8_sm, widths_sm, model_width. Moved to the C++ integration suite: majoranaLoop, testConjugation, NLepto. `test_fullMSSM.cpp` has no reference comparison and is not in the system list; excluded.
 
+## Postponed
+
+- SUSY models (`C7_PMSSM`, `C8_PMSSM`, `C9_MSSM`, `gm2PMSSM`, `test_fullMSSM`, NMFV) wait for model (de)serialization, see [model-serialization.md](../../todo/model-serialization.md). They are very long to build.
+- Rule: a model whose C++ system test takes more than about 15 min to build is not ported to pymarty in this phase.
+
+Build times come from `CTestCostData.txt` in existing build trees: C7_SM 7 to 30 s, C8_SM 7 to 33 s, C9_SM 12 to 91 s, GTHDM Wilson 21 to 103 s, C7/C8/C9 PMSSM 55 to 330 s. None of these exceeds 15 min, so the rule does not block them. `BsMixing*`, `gm2SM`, `Bgenesis` and `freeQuarkAmplitudes` have no recorded time and must be measured before porting.
+
 ## Python API
 
 - `compute_amplitude(model, Order.ONE_LOOP, insertions, kinematics=None, options=None)`: existing signature.
