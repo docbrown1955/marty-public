@@ -332,6 +332,39 @@ def compute_squared_amplitude(
     return _core.compute_squared_amplitude(model, amplitude._native, other._native)
 
 
+def compute_width(
+    model: Any,
+    particle: ParticleRef,
+    order: Order = Order.TREE,
+    options: FeynOptions | None = None,
+) -> Expr:
+    """Total decay width of ``particle``, summed over its two-body decays.
+
+    Zero for a massless particle. The options select diagrams and interactions
+    as in ``compute_amplitude``.
+
+    >>> from pymarty.calculation import compute_width
+    >>> compute_width.__name__
+    'compute_width'
+    """
+    _check_finalized(model)
+    options = options or FeynOptions()
+    _check_particle_names(
+        model,
+        [particle] + [p for item in options.filters for p in item.particles],
+    )
+    return _core.compute_width(
+        model,
+        order,
+        particle,
+        options.topology or "",
+        _particles_of(options.filters, "force"),
+        _particles_of(options.filters, "forbid"),
+        _particles_of(options.filters, "disable"),
+        list(options.fermion_order),
+    )
+
+
 WilsonSet = _core.WilsonSet
 
 

@@ -62,6 +62,26 @@ Chirality parseChirality(std::string const &name)
 }
 
 /// Legs are (particle, incoming, antiparticle, chirality) tuples.
+mty::api::modeling::AmplitudeOptions
+amplitudeOptions(Model                         &model,
+                 std::string const             &topology,
+                 std::vector<py::object> const &force,
+                 std::vector<py::object> const &forbid,
+                 std::vector<py::object> const &disable,
+                 std::vector<int> const        &fermionOrder)
+{
+    mty::api::modeling::AmplitudeOptions options;
+    options.topology = topology;
+    for (auto const &item : force)
+        options.forceParticles.push_back(resolveParticle(model, item));
+    for (auto const &item : forbid)
+        options.forbidParticles.push_back(resolveParticle(model, item));
+    for (auto const &item : disable)
+        options.disableParticles.push_back(resolveParticle(model, item));
+    options.fermionOrder = fermionOrder;
+    return options;
+}
+
 Amplitude computeAmplitude(Model                          &model,
                            Order                           order,
                            std::vector<py::tuple> const   &legs,
@@ -79,17 +99,8 @@ Amplitude computeAmplitude(Model                          &model,
                                 leg[2].cast<bool>(),
                                 parseChirality(leg[3].cast<std::string>())});
     }
-
-    mty::api::modeling::AmplitudeOptions options;
-    options.topology = topology;
-    for (auto const &item : force)
-        options.forceParticles.push_back(resolveParticle(model, item));
-    for (auto const &item : forbid)
-        options.forbidParticles.push_back(resolveParticle(model, item));
-    for (auto const &item : disable)
-        options.disableParticles.push_back(resolveParticle(model, item));
-    options.fermionOrder = fermionOrder;
-
+    auto options = amplitudeOptions(
+        model, topology, force, forbid, disable, fermionOrder);
     return model.computeAmplitude(order, externals, momentumIndices, options);
 }
 
@@ -178,6 +189,30 @@ void bindCalculation(py::module_ &m)
             py::arg("fermion_order") = std::vector<int>{},
             "Amplitude of the legs at the given order, with the options.");
 
+    mod.def(
+        "compute_width",
+        [](Model                         &model,
+           Order                          order,
+           py::object                     particle,
+           std::string const             &topology,
+           std::vector<py::object> const &force,
+           std::vector<py::object> const &forbid,
+           std::vector<py::object> const &disable,
+           std::vector<int> const        &fermionOrder) {
+            auto options = amplitudeOptions(
+                model, topology, force, forbid, disable, fermionOrder);
+            return ExprHandle(model.computeWidth(
+                order, resolveParticle(model, particle), options));
+        },
+        py::arg("model"),
+        py::arg("order"),
+        py::arg("particle"),
+        py::arg("topology")      = "",
+        py::arg("force")         = std::vector<py::object>{},
+        py::arg("forbid")        = std::vector<py::object>{},
+        py::arg("disable")       = std::vector<py::object>{},
+        py::arg("fermion_order") = std::vector<int>{},
+        "Total decay width of the particle, summed over its two-body decays.");
     mod.def(
         "compute_squared_amplitude",
         [](Model &model, Amplitude const &amplitude) {

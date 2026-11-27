@@ -1009,6 +1009,20 @@ csl::Expr Model::computeSquaredAmplitude(Amplitude const &amplitude)
     });
 }
 
+csl::Expr Model::computeWidth(Order                   order,
+                              Particle const         &particle,
+                              AmplitudeOptions const &options)
+{
+    auto      insertion  = toInsertions({Leg{particle, true}}).front();
+    int const coreOrder
+        = order == Order::TreeLevel ? mty::TreeLevel : mty::OneLoop;
+    return guarded([&] {
+        Session session(m_state->core.get());
+        return m_state->core->computeWidth(
+            coreOrder, insertion, toFeynOptions(options));
+    });
+}
+
 std::string Model::describe() const
 {
     return guarded([&] {

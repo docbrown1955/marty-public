@@ -409,6 +409,12 @@ class Model {
     csl::Expr computeSquaredAmplitude(Amplitude const &amplitudeLeft,
                                       Amplitude const &amplitudeRight);
 
+    /// Total decay width of a particle at the given order, summed over its
+    /// two-body decays. Zero for a massless particle.
+    csl::Expr computeWidth(Order                  order,
+                           Particle const        &particle,
+                           AmplitudeOptions const &options = {});
+
     /// Space-separated particle names, for printing.
     std::string describe() const;
 

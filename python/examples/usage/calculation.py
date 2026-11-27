@@ -14,15 +14,19 @@ from pymarty.calculation import (
     compute_amplitude,
     compute_feynman_rules,
     compute_squared_amplitude,
+    compute_width,
     force_particle,
     incoming,
     left,
     outgoing,
     select_diagrams,
     set_options,
+    wilson_coefficients,
 )
 from pymarty.errors import MartyLookupError, MartyValueError
 from pymarty.modeling.models.qed import QED
+from pymarty.modeling.models.sm import SM
+from pymarty.symbolic import Expr
 
 # 1. A calculation needs a finalized model; it is refused on an open one.
 PSI = "\\psi"
@@ -124,3 +128,20 @@ assert compute_amplitude(
     qed, Order.TREE, [incoming(PSI), incoming("A"), outgoing(PSI), outgoing("A")]
 )
 print("state restored after errors")
+
+# 12. One-loop amplitude: same call, with Order.ONE_LOOP.
+one_loop = compute_amplitude(
+    qed, Order.ONE_LOOP, [incoming(PSI), incoming("A"), outgoing(PSI), outgoing("A")]
+)
+print("one-loop diagrams:", len(one_loop.diagrams))
+
+# 13. Wilson coefficients of a one-loop amplitude, then the chromomagnetic coefficient.
+wilsons = wilson_coefficients(qed, one_loop)
+print("Wilson coefficients type:", type(wilsons).__name__)
+
+# 14. Total decay width of h at tree level, summed over its two-body decays.
+#     compute_width returns a symbolic Expr; the numeric value comes from a compiled
+#     library (simulation.Library, see simulation.py).
+sm = SM()
+higgs_width = compute_width(sm, "h")
+print("h width is an Expr:", isinstance(higgs_width, Expr))

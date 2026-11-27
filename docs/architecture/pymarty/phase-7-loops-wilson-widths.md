@@ -10,12 +10,16 @@ Prerequisites: Phase 6 accepted.
 
 | ID | Topic | Reproduces | Needs |
 |----|-------|-----------|-------|
-| 7a | One-loop amplitudes and LoopTools functions in generated libraries | `sampleScalar`, `sample2HDM`, `majoranaLoop`, `FItests` | LoopTools |
+| 7a | One-loop amplitudes and LoopTools functions in generated libraries | `sampleScalar`, `sample2HDM`, `FItests` (`majoranaLoop` is now C++ integration) | LoopTools |
 | 7b | Wilson coefficients (`WilsonSet`, operators, penguins, boxes) | `C7_SM`, `C8_SM`, `C9_SM`, `C7_PMSSM`, `C8_PMSSM`, `C9_MSSM`, `BsMixingSM`, `BsMixingVLQ_*`, `wilsons_GTHDM` | 7a |
-| 7c | Decay widths and model widths, spectrum generation | `widthsSM`, `testModelWidth` (full), `gm2SM`, `gm2PMSSM` | 7a/7b as needed |
-| 7d | LHA input and parameter import into libraries | `test_lha_reader`, `test_fullMSSM`, MSSM/pMSSM libraries | 7c |
-| 7e | Quadruple precision | `ADD_QUAD_SYSTEM_TEST` cases (for example `EWGauge` quad variant) | quad enabled build |
-| 7f | Remaining system tests and plugins | `Bgenesis`, `NLepto`, `SM_2IDM`, `SM_triplet`, `freeQuarkAmplitudes`, `testConjugation`, `vectorlike.h` users, Boltzmann-solver plugin | all above |
+| 7c | Decay widths and spectrum generation (verify phase 6 ports) | `widthsSM`, `testModelWidth`, `gm2SM`, `gm2PMSSM` (one-loop) | 7a/7b as needed |
+| 7d | LHA input (real values only) | `test_lha_reader`, MSSM/pMSSM libraries | 7c |
+| 7e | Quadruple precision (`Config.quad_available`) | `ADD_QUAD_SYSTEM_TEST` cases (gated on `QUADRUPLE_ENABLED`) | quad enabled build |
+| 7f | Remaining system tests | `Bgenesis`, `freeQuarkAmplitudes` (no CTest) | all above |
+
+Already done in phase 6: `c7_sm`, `c8_sm`, `widths_sm`, `model_width`. Moved to C++ integration: `majoranaLoop`,
+`testConjugation`, `NLepto`. Excluded: `test_fullMSSM` (no reference comparison), Boltzmann-solver plugin
+(deferred; layering conflict with GRAFED `jsonLoader.h`). Source of truth: [phase-7/03-spec.md](./phase-7/03-spec.md).
 
 Before implementing a sub-milestone, list the exact C++ file, the reference file, the tolerance and the
 recorded C++ wall time (from `build/Testing/Temporary/LastTest.log`) in the PR.
@@ -46,19 +50,18 @@ recorded C++ wall time (from `build/Testing/Temporary/LastTest.log`) in the PR.
 
 ### 7d LHA
 - API `src/marty/api/simulation/lha.h`: `read_lha(path)` returning blocks (`Mapping[str, Mapping[tuple,
-  complex]]`), `Library.import_lha()` equivalent, `mty::lha::Reader::readFile` behind it.
+  float]]`; real values only, the LHA reader stores `long double`), `Library.import_lha()` equivalent,
+  `mty::lha::Reader::readFile` behind it.
 - File access: path validated, file only read.
 
 ### 7e Quad precision
-- Only when the build was configured with quadruple precision (`MARTY_QUADRUPLE_ENABLED=1`).
-  `quad` marker; `Config.quad_available`; clear `NotImplementedError` otherwise.
+- Only when the build was configured with quadruple precision (`QUADRUPLE_ENABLED`, the gate used by
+  `tests/system/CMakeLists.txt:18-25`). `quad` marker; `Config.quad_available`; clear `NotImplementedError`
+  otherwise.
 
 ### 7f Plugins
-- `pymarty.plugins.boltzmann_solver` if wanted: wrapping `src/marty-plugins/boltzmann-solver`
-  (processes with initial/final particles and quantum numbers, JSON export). Separate C++ API under
-  `src/marty/api/plugins/` (the plugin depends on MARTY, MARTY never depends on it, so the facade
-  lives with the plugin build, in `src/marty-plugins/.../api/`). Scope confirmed with the maintainers before
-  starting.
+- Boltzmann-solver plugin: deferred (user decision, phase-7/02-questions.md). It uses GRAFED's
+  `jsonLoader.h`, which conflicts with the layering rules in AGENTS.md.
 
 ## 3. Test plan
 

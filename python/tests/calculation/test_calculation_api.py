@@ -14,6 +14,7 @@ from pymarty.calculation import (
     compute_amplitude,
     compute_feynman_rules,
     compute_squared_amplitude,
+    compute_width,
     incoming,
     outgoing,
     set_options,
@@ -29,7 +30,7 @@ from pymarty.group_theory import U
 from pymarty.modeling import GaugeGroup, Model
 from pymarty.modeling.models.qcd import QCD
 from pymarty.modeling.models.qed import QED
-from pymarty.symbolic import constant
+from pymarty.symbolic import Expr, constant
 
 PSI = "\\psi"
 
@@ -169,6 +170,23 @@ def test_scalar_qed_phi_phi_to_two_photons_has_three_tree_diagrams() -> None:
     )
     assert len(amplitude.diagrams) == 3
     assert all(d.particles.count("A") == 1 for d in amplitude.diagrams)
+
+
+def test_width_of_massless_particle_is_zero(qed: QED) -> None:
+    assert compute_width(qed, "A") == 0
+
+
+def test_width_of_unknown_particle_is_lookup_error(qed: QED) -> None:
+    with pytest.raises(MartyLookupError, match='no particle named "photon"'):
+        compute_width(qed, "photon")
+
+
+def test_higgs_width_is_nonzero_expression() -> None:
+    from pymarty.modeling.models.sm import SM
+
+    width = compute_width(SM(), "h")
+    assert isinstance(width, Expr)
+    assert width != 0
 
 
 @pytest.mark.slow

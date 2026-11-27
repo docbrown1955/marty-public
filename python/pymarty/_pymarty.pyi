@@ -742,6 +742,17 @@ class calculation:
     def compute_squared_amplitude(
         model: object, left: Amplitude, right: Amplitude
     ) -> Expr: ...
+    @staticmethod
+    def compute_width(
+        model: object,
+        order: Order,
+        particle: object,
+        topology: builtins.str = "",
+        force: Sequence[object] = (),
+        forbid: Sequence[object] = (),
+        disable: Sequence[object] = (),
+        fermion_order: Sequence[int] = (),
+    ) -> Expr: ...
     class WilsonSet:
         def coefficient(self, operators: Sequence[Expr]) -> Expr: ...
 
