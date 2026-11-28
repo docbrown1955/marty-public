@@ -82,7 +82,6 @@ inline bool tryUnitaryCondition     = true;
 
 inline bool applyFactorsAndSymmetries = true;
 inline bool applyMomentumConservation = true;
-inline bool applyInsertionOrdering    = true;
 inline bool keepExternScalarLeg       = true;
 inline bool enableAntiChiralProps     = true;
 } // namespace mty::option
@@ -126,7 +125,6 @@ inline bool enableAntiChiralProps     = true;
     X(mty::option, tryUnitaryCondition)            \
     X(mty::option, applyFactorsAndSymmetries)      \
     X(mty::option, applyMomentumConservation)      \
-    X(mty::option, applyInsertionOrdering)         \
     X(mty::option, keepExternScalarLeg)            \
     X(mty::option, enableAntiChiralProps)          \
     X(mty::option, printErrors)

@@ -413,13 +413,21 @@ class FeynOptions {
 
   public:
     /**
-     * @brief This option (default = true) implies that fermionic insertions
-     * are ordered using a given rule.
+     * @brief This option (default = true) implies that insertions are ordered
+     * in a canonical way.
      *
-     * @details This only affects the absolute signs
+     * @details When a fermion order is provided by the user
+     * (#keepFermionInsertionOrder), fermionic insertions keep their order and
+     * only bosonic insertions are sorted. This only affects the absolute signs
      * of different diagrams in a process and is then physically irrelevant.
      */
-    bool orderInsertions{mty::option::applyInsertionOrdering};
+    bool orderInsertions{true};
+
+    /**
+     * @brief Set by the amplitude calculation when the fermion order was
+     * provided by the user, so that fermionic insertions are not reordered.
+     */
+    bool keepFermionInsertionOrder{false};
 
     bool excludeExternalLegCorrections{
         mty::option::excludeExternalLegsCorrections};

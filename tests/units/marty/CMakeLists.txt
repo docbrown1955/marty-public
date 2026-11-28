@@ -1,2 +1,3 @@
 ADD_UNIT_TEST(test_smparam_definition)
 ADD_UNIT_TEST(test_irrep_equality)
+ADD_UNIT_TEST(test_fermion_order)

@@ -108,9 +108,9 @@ FeynmanRule::FeynmanRule(mty::Model &model, TermType const &t_term)
         fieldProduct[i1].conjugate();
     }
     csl::ScopedProperty p1(&mty::option::applyMomentumConservation, false);
-    csl::ScopedProperty p2(&mty::option::applyInsertionOrdering, false);
     FeynOptions         options;
     options.setFeynmanRuleMode();
+    options.orderInsertions = false;
     Kinematics kinematics(GetInsertion(insertions), momenta, false);
     auto       res = model.computeAmplitude(
         Order::TreeLevel, GetInsertion(insertions), kinematics, options);
