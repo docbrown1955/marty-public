@@ -30,14 +30,17 @@ from pymarty.calculation import (
     set_options,
     wilson_coefficients,
 )
+from pymarty.modeling.models._symbols import constant
 from pymarty.modeling.models.sm import SM, ckm_matrix
-from pymarty.symbolic import Expr, constant
+from pymarty.symbolic import Expr
 from pymarty.testing import compare
 
 REFERENCE_DIR = Path(__file__).parents[3] / "tests/system/data/output"
 TOLERANCE = 1e-5
 M_W = 80.379
 M_Z = 91.2
+# The C++ reference passes this value to the library; theta_W uses M_Z.
+M_Z_FIELD = 91.1876
 M_B = 4.18
 M_S = 0.148
 E_EM = math.sqrt(4 * math.pi / 137)
@@ -135,7 +138,9 @@ def c9_library(tmp_path_factory: pytest.TempPathFactory) -> Any:
         quadruple_precision=True,
     )
     lib.build(n_jobs=4)
-    return lib.load()
+    module = lib.load()
+    module.set_mu(M_W)
+    return module
 
 
 @pytest.mark.needs_compiler
@@ -152,6 +157,7 @@ def test_c9_sm_m_t_scan_matches_reference(
     sin2_w = math.sin(theta_w) ** 2
     inputs = {
         "M_W": sm_wolfenstein["M_W"],
+        "M_Z": M_Z_FIELD,
         "V_ts": sm_wolfenstein["V_ts"],
         "V_tb": sm_wolfenstein["V_tb"],
         "m_b": M_B,
@@ -163,7 +169,6 @@ def test_c9_sm_m_t_scan_matches_reference(
         "m_mu": MU_MASS,
         "reg_prop": REG_PROP,
         "Finite": 1,
-        "mu": M_W,
     }
     lines = []
     for m_t in M_T_RANGE:

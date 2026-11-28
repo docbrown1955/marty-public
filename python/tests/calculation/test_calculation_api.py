@@ -203,6 +203,25 @@ def test_wilson_coefficients_of_one_loop_amplitude_return_a_set(qcd: QCD) -> Non
 
 
 @pytest.mark.slow
+def test_wilson_display_prints_terms_in_text_and_latex(qcd: QCD) -> None:
+    wilsons = wilson_coefficients(
+        qcd,
+        compute_amplitude(
+            qcd,
+            Order.ONE_LOOP,
+            [incoming("u"), incoming("G"), outgoing("u"), outgoing("G")],
+        ),
+    )
+    text = wilsons.display()
+    latex = wilsons.display(latex=True)
+    assert text.strip() != ""
+    assert "\\" in latex
+    assert "\\frac" in latex
+    assert "\\frac" not in text
+    assert text != latex
+
+
+@pytest.mark.slow
 def test_unknown_dirac_coupling_is_value_error(qcd: QCD) -> None:
     wilsons = wilson_coefficients(
         qcd,

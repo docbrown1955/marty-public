@@ -182,6 +182,21 @@ csl::Expr WilsonSet::coefficient(std::vector<csl::Expr> const &operators) const
         [&] { return mty::getWilsonCoefficient(m_wilsons, operators); });
 }
 
+std::string WilsonSet::display(bool latex) const
+{
+    std::ostringstream out;
+    for (auto const &wilson : m_wilsons) {
+        auto const expr = wilson.getExpression();
+        if (latex) {
+            out << expr->printLaTeX(0) << '\n';
+        } else {
+            expr->print(0, out);
+            out << '\n';
+        }
+    }
+    return out.str();
+}
+
 WilsonSet wilsonCoefficients(modeling::Model const     &model,
                              modeling::Amplitude const &amplitude,
                              csl::Expr const           &operatorCoefficient,

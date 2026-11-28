@@ -152,6 +152,15 @@ def _collect(function, names, params, keywords, complex_names):
             py << "    return float(" << cName << "(*values))\n";
         }
     }
+
+    if (dependencies.containsInclude("clooptools.h")) {
+        py << "\n\n_set_mu = _LIBRARY.c_setMu\n"
+           << "_set_mu.argtypes = [ctypes.c_double]\n"
+           << "_set_mu.restype = None\n\n\n"
+           << "def set_mu(mu: float) -> None:\n"
+           << "    \"\"\"Set the dimensional-regularisation scale, as the C++ setMu.\"\"\"\n"
+           << "    _set_mu(float(mu))\n";
+    }
 }
 
 } // namespace csl

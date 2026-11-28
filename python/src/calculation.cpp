@@ -244,7 +244,12 @@ void bindCalculation(py::module_ &m)
                 return ExprHandle(self.coefficient(raw));
             },
             py::arg("operators"),
-            "Coefficient of the sum of the given operator expressions.");
+            "Coefficient of the sum of the given operator expressions.")
+        .def("display",
+             &mty::api::calculation::WilsonSet::display,
+             py::arg("latex") = false,
+             "Printed form of every Wilson term (coefficient times operator), "
+             "one per line; LaTeX if latex is true.");
 
     mod.def(
         "wilson_coefficients",

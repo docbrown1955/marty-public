@@ -68,6 +68,10 @@ class WilsonSet {
     /// Coefficient of the sum of the operators, given as expressions.
     csl::Expr coefficient(std::vector<csl::Expr> const &operators) const;
 
+    /// Printed form of every Wilson term (coefficient times operator), one per
+    /// line; LaTeX if \b latex is true.
+    std::string display(bool latex = false) const;
+
     mty::WilsonSet const &raw() const
     {
         return m_wilsons;
