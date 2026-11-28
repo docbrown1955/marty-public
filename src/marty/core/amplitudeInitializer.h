@@ -100,8 +100,10 @@ class AmplitudeInitializer {
     static std::vector<csl::Tensor> getVertices(size_t N);
 
     /**
-     * @brief Order the field insertions (important for fermion ordering),
-     * applying the permutation to the associated kinematics.
+     * @brief Order the field insertions, applying the permutation to the
+     * associated kinematics. Fermionic insertions are left in place when
+     * FeynOptions::keepFermionInsertionOrder is set (a fermion order was
+     * provided by the user), otherwise the fermion order is relabelled.
      *
      * @param insertions Insertions to order.
      * @param kinematics Kinematics that will follow the same order as the

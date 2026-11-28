@@ -28,14 +28,17 @@ endfunction()
 
 add_subdirectory(units)
 add_subdirectory(integration)
+add_subdirectory(api)
 add_subdirectory(system)
 
 if(ENABLE_COVERAGE)
     set(UNIT_TEST_LABEL "units")
     set(INTEGRATION_TEST_LABEL "integration")
+    set(API_TEST_LABEL "api")
     set(SYSTEM_TEST_LABEL "system")
     SETUP_TARGET_FOR_COVERAGE(${UNIT_TEST_LABEL})
     SETUP_TARGET_FOR_COVERAGE(${INTEGRATION_TEST_LABEL})
+    SETUP_TARGET_FOR_COVERAGE(${API_TEST_LABEL})
     SETUP_TARGET_FOR_COVERAGE(${SYSTEM_TEST_LABEL})
     # Single run of all test labels, so the report combines all coverage
     SETUP_TARGET_FOR_COVERAGE(combined "")

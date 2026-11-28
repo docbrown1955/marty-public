@@ -143,6 +143,7 @@ Model::computeAmplitude(std::vector<Lagrangian::TermType> &lagrangian,
                         std::vector<FeynmanRule const *>   rules)
 {
     std::vector<int> fermionOrder = options.getFermionOrder();
+    options.keepFermionInsertionOrder = !fermionOrder.empty();
     if (fermionOrder.empty())
         fermionOrder = defaultFermionOrder(insertions);
     options.setFermionOrder(fermionOrder);

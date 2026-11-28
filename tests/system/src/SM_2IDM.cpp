@@ -50,19 +50,15 @@ int main()
     // Gauge definition
     ///////////////////////////////////////////////////
 
-    Model TIDM;
-    Expr  gs = constant_s("g_s");
-    Expr  gL = constant_s("g_L");
-    Expr  gY = constant_s("g_Y");
-    Expr  gD = constant_s("g_D");
-    TIDM.addGaugedGroup(group::Type::SU, "C", 3, gs);
-    TIDM.addGaugedGroup(group::Type::SU, "L", 2, gL);
-    TIDM.addGaugedGroup(group::Type::U1, "Y", gY);
-    TIDM.addGaugedGroup(group::Type::U1, "D", gD);
-    TIDM.addFlavorGroup("F", 3);
-    TIDM.init();
-
-    TIDM.renameParticle("A_C", "G");
+    Expr gs = constant_s("g_s");
+    Expr gL = constant_s("g_L");
+    Expr gY = constant_s("g_Y");
+    Expr gD = constant_s("g_D");
+    Model TIDM({GaugeGroupSpec{group::Type::SU, 3, "C", "G", gs},
+                GaugeGroupSpec{group::Type::SU, 2, "L", "", gL},
+                GaugeGroupSpec{group::Type::U, 1, "Y", "", gY},
+                GaugeGroupSpec{group::Type::U, 1, "D", "", gD}},
+               {FlavorGroupSpec{3, "F"}});
 
     ///////////////////////////////////////////////////
     // Particle content

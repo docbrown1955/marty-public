@@ -123,6 +123,13 @@ int SemiSimpleAlgebra::getOrderL() const
     return l;
 }
 
+bool SemiSimpleAlgebra::operator==(const SemiSimpleAlgebra &other) const
+{
+    return this == &other
+           or (getType() == other.getType()
+               and getOrderL() == other.getOrderL());
+}
+
 void SemiSimpleAlgebra::init()
 {
     setCartanMatrix();
@@ -1229,7 +1236,7 @@ void E8::setSquaredNorm()
 
 mty::Irrep E8::getDefiningRep() const
 {
-    return highestWeightRep({1, 0, 0, 0, 0, 0, 0, 0});
+    return highestWeightRep({0, 0, 0, 0, 0, 0, 1, 0});
 }
 
 ///////////////////////////////////////////////////

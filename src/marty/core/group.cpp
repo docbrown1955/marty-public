@@ -40,6 +40,9 @@ ostream &operator<<(ostream &fout, mty::group::Type type)
     case mty::group::Type::U1:
         fout << "U1";
         break;
+    case mty::group::Type::U:
+        fout << "U";
+        break;
     case mty::group::Type::SU:
         fout << "SU";
         break;
@@ -467,7 +470,7 @@ mty::group::Type E8::getType() const
 mty::Irrep E8::getAdjointRep() const
 {
     vector<int> labels(8, 0);
-    labels[0] = 1;
+    labels[6] = 1;
     return algebra->highestWeightRep(labels);
 }
 
@@ -553,6 +556,12 @@ createGroup(group::Type type, std::string const &name, int dim)
     if (type == group::Type::U1) {
         return make_unique<mty::group::U1>(name);
     }
+    if (type == group::Type::U) {
+        HEPAssert(dim == 1,
+                  mty::error::ValueError,
+                  "A U group must have dimension 1");
+        return make_unique<mty::group::U1>(name);
+    }
     if (type == group::Type::SU) {
         HEPAssert(dim != -1,
                   mty::error::ValueError,
@@ -602,6 +611,12 @@ createGroup(group::Type type, std::string const &name, int dim)
 unique_ptr<SemiSimpleGroup> createGroup(group::Type type, int dim)
 {
     if (type == group::Type::U1) {
+        return make_unique<mty::group::U1>();
+    }
+    if (type == group::Type::U) {
+        HEPAssert(dim == 1,
+                  mty::error::ValueError,
+                  "A U group must have dimension 1");
         return make_unique<mty::group::U1>();
     }
     if (type == group::Type::SU) {

@@ -1,0 +1,70 @@
+Status: COMPLETE, pending user acceptance and commit.
+
+# Phase 3 implementation log
+
+Scope and acceptance criteria: [phase-3-group-theory.md](../phase-3-group-theory.md). Old-to-new test
+mapping: [port-table.md](port-table.md). Capability record: [../spike-3-0-group-capabilities.md](../spike-3-0-group-capabilities.md).
+
+## Packages
+
+| Package | Title | Status |
+|---------|-------|--------|
+| WP3.1 | C++ `mty::api::group_theory` facade and gtests | done |
+| WP3.2 | `pymarty.group_theory` binding, wrappers, stubs, parity tests | done |
+| WP3.3 | Port of the U(1) charge part of `test_flavor_groups.cpp` | done |
+| Families | Sp(n), E7, E8, F4, G2 added to facade, binding and tests | done |
+| E8 fix | Cartan node order matched to the index tables; duplicated index row fixed | done |
+| Core fix | `Irrep::getConjugatedRep` per algebra type | done |
+| Exit artifacts | usage example, `group_theory_basics.py`, port table, this log | done |
+
+## Decisions recorded during implementation
+
+- Dynkin index convention: `T(r) = C2(r) dim(r) / dim(G)`, so `T(fund SU(3)) = 1/6` (user decision).
+  The usage example asserts 1/6.
+- Casimir convention: the core convention (user decision, spike 3.0).
+- The core `Irrep::operator==` and `<` compare dimensions only. The facade keys on highest weights, and
+  `isSelfConjugate` compares highest weights, not core equality.
+- Core conjugation was wrong for every algebra except SU(n): it reversed the Dynkin labels. The fix
+  (user decision A) is per algebra type in `src/marty/core/representation.cpp`:
+  A reverses; D of odd rank swaps the spinor nodes; E6 swaps 0 and 4 and 1 and 3; B, C, E7, E8, F4, G2
+  are self-conjugate. Probed before and after: Sp(4) 4 to 5 became 4 to 4; SO(10) 10 to 16 became 10 to 10;
+  E6 27 to 78 became 27 to 27bar; G2 7 to 14 became 7 to 7.
+  The same helper is used by model field conjugation, so non-SU model behaviour may change. System tests were
+  not run (the policy forbids the system suite in this session); this must be checked by the maintainer.
+- G2 `fundamental()` is a facade override returning `highestWeightRep({1,0})`. The core default was not used.
+- Sp(n) requires even fundamental dimension n >= 4 in the facade. The core `C()` needs rank > 1.
+- U(1) Casimir and index raise `NotImplementedError` in the facade, because the core segfaults.
+- SO(3) is rejected in the facade, because the core aborts the process.
+- Group dimension: `Group::getDim()` returns 1 for exceptional groups, so the facade uses the adjoint dimension.
+- Integer conversion: csl `Integer::getNum()` returns 0, so `toRational` uses `std::llround(evaluateScalar())`.
+
+## Known defect (not fixed, flagged)
+
+- E8 (fixed, manual convention): the core gave 3875 for both `getDefiningRep()` and `getAdjointRep()`. The
+  Cartan matrix in `E8::setCartanMatrix` (`src/marty/core/semiSimpleAlgebra.cpp`) is back to the manual's node
+  order (chain 0-1-2-3-4-5-6 with node 7 attached to node 2). Labels follow the manual: 248 = `(0,...,0,1,0)`
+  (node 6), 3875 = `(1,0,...,0)`, 30380 = `(0,0,0,0,0,1,0,0)`. The index tables in `groupIndices.h` stay in the
+  paper's order (van Ritbergen et al.); `getE8Index` maps manual labels to that order with the permutation
+  `{6,5,4,3,1,0,7,2}`. The 29th row of each table was a duplicate of node 11 and is corrected (`085a396`).
+  The manual's Table 4.8 (p. 67) is consistent with this.
+- Normalisation (documented in `python/pymarty/group_theory.py` and `group_theory.h`):
+  - Casimir: core `getQuadraticCasimir`, with per-algebra root scale `absoluteNorms`. The adjoint Casimir is 1
+    for SU(N) and 2 for E6, E7 and E8. This is not the standard `(lambda, lambda+2rho)` normalisation (SU(N)
+    adjoint = N there). Values are algebra-dependent and are not comparable across algebras.
+  - Dynkin index: the facade gives `T(r) = C2(r) dim(r) / dim(G)`. For E8 this equals the core index (248 gives 2
+    both ways, `getE8IndexNorm` 60 times the table entry 1/30).
+  - Open inconsistency: for SU(N) the facade gives T(fund) = 1/(2N) (SU(3): 1/6), but the core `getIndex(r, 2)`
+    gives 1/2 (see the spike record). The two indices differ by N for SU(N). Aligning them is a design decision
+    for the maintainer.
+  - No section of the manual defines the index normalisation; references are in the paper only.
+- Spike record: the E6 27 x 27bar row in the spike (`27 = 27 + 351 + 1728`, dim 2106) was wrong. The correct
+  decomposition is 1 + 78 + 650 (dim 729). See the correction note in the spike record.
+
+## Verification
+
+- `ctest -L 'units|integration|api|python'`: 347/347 passed. Never ran the `system` suite.
+- `pytest -m "not slow"` on `python/tests`: 380 passed.
+- Gates: `ruff check`, `ruff format --check`, `mypy --strict pymarty tests tools` and parity
+  (116 C++ API tests: 94 with a Python counterpart, 22 exempted) all pass. clang-format is clean on the edited C++ files.
+- `python/examples/group_theory_basics.py` runs and passes (SU(2), SU(3), SU(5), Sp(4), F4, E6, E7, G2 dimensions,
+  SU(5) 5 x 5bar, E6 27 x 27bar).

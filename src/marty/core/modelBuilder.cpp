@@ -1551,6 +1551,48 @@ void ModelBuilder::breakGaugeSymmetry(
 }
 
 void ModelBuilder::breakGaugeSymmetry(
+    std::string const                                     &brokenGroup,
+    std::map<std::string, std::vector<std::string>> const &renaming)
+{
+    std::vector<mty::Particle> brokenFields;
+    auto                       group = getGroup(brokenGroup);
+    for (const auto &part : particles)
+        if (getGroupIrrep(part, group) != group->getTrivialRep()
+            and group->getType() != group::Type::U1)
+            brokenFields.push_back(part);
+    for (auto const &[name, names] : renaming) {
+        bool isBroken = false;
+        for (const auto &part : brokenFields)
+            isBroken = isBroken or part->getName() == name;
+        HEPAssert(isBroken,
+                  mty::error::ValueError,
+                  "Particle " + name + " is not broken by group "
+                      + brokenGroup + ", it cannot be renamed.");
+    }
+    std::vector<std::vector<std::string>> newNames(brokenFields.size());
+    for (size_t i = 0; i != brokenFields.size(); ++i) {
+        const size_t size = getGroupIrrep(brokenFields[i], group).getDim();
+        auto         found = renaming.find(brokenFields[i]->getName());
+        if (found != renaming.end()) {
+            HEPAssert(found->second.size() == size,
+                      mty::error::ValueError,
+                      "Particle " + brokenFields[i]->getName() + " has "
+                          + toString(size) + " components for group "
+                          + brokenGroup + ", but "
+                          + toString(found->second.size())
+                          + " new names were given.");
+            newNames[i] = found->second;
+        } else {
+            newNames[i] = std::vector<std::string>(size);
+            for (size_t j = 0; j != size; ++j)
+                newNames[i][j] = brokenFields[i]->getName() + "_"
+                                 + toString(j + 1);
+        }
+    }
+    breakGaugeSymmetry(group, brokenFields, newNames);
+}
+
+void ModelBuilder::breakGaugeSymmetry(
     std::string const              &brokenGroup,
     std::vector<std::string> const &brokenFields)
 {
@@ -1623,6 +1665,48 @@ void ModelBuilder::breakFlavorSymmetry(std::string const &brokenGroup)
         }
     }
     breakFlavorSymmetry(brokenGroup, brokenFields, newNames);
+}
+
+void ModelBuilder::breakFlavorSymmetry(
+    std::string const                                     &flavorName,
+    std::map<std::string, std::vector<std::string>> const &renaming)
+{
+    std::vector<mty::Particle> brokenFields;
+    auto                       group = getFlavorGroup(flavorName);
+    for (const auto &part : particles)
+        if (getFlavorIrrep(part, group) != FlavorFlag::Trivial)
+            brokenFields.push_back(part);
+    for (auto const &[name, names] : renaming) {
+        bool isBroken = false;
+        for (const auto &part : brokenFields)
+            isBroken = isBroken or part->getName() == name;
+        HEPAssert(isBroken,
+                  mty::error::ValueError,
+                  "Particle " + name + " is not broken by flavor group "
+                      + flavorName + ", it cannot be renamed.");
+    }
+    std::vector<std::vector<std::string>> newNames(brokenFields.size());
+    for (size_t i = 0; i != brokenFields.size(); ++i) {
+        const size_t size = static_cast<std::size_t>(
+            std::round(group->getDim()->evaluateScalar()));
+        auto found = renaming.find(brokenFields[i]->getName());
+        if (found != renaming.end()) {
+            HEPAssert(found->second.size() == size,
+                      mty::error::ValueError,
+                      "Particle " + brokenFields[i]->getName() + " has "
+                          + toString(size) + " components for flavor group "
+                          + flavorName + ", but "
+                          + toString(found->second.size())
+                          + " new names were given.");
+            newNames[i] = found->second;
+        } else {
+            newNames[i] = std::vector<std::string>(size);
+            for (size_t j = 0; j != size; ++j)
+                newNames[i][j]
+                    = brokenFields[i]->getName() + "_" + toString(j + 1);
+        }
+    }
+    breakFlavorSymmetry(flavorName, brokenFields, newNames);
 }
 
 void ModelBuilder::breakFlavorSymmetry(std::string const         &brokenGroup,

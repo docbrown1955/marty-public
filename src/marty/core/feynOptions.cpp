@@ -86,26 +86,49 @@ void FeynOptions::applyFilters(
     });
 }
 
+bool FeynOptions::passLoopOrderFilter(FeynmanDiagram const &diagram) const
+{
+    if (diagram.getNLoops() != *loopOrder) {
+        if (*loopOrder < diagram.getNLoops())
+            return false;
+        return discardLowerOrders;
+    }
+    return true;
+}
+
+bool FeynOptions::passExternalLegFilter(FeynmanDiagram const &diagram) const
+{
+    return !(excludeExternalLegCorrections
+             && diagram.hasExternalLegCorrections());
+}
+
 bool FeynOptions::passFilters(FeynmanDiagram const &diagram) const
 {
-    const size_t lastFilter
-        = (!partialCalculation) ? dfilters.size() : nDefaultDiagramFilters;
-    return std::all_of(begin(dfilters),
-                       begin(dfilters) + lastFilter,
-                       [&](DiagramFilter const &d) { return d(diagram); });
+    if (!passLoopOrderFilter(diagram))
+        return false;
+    if (partialCalculation)
+        return true;
+    return passExternalLegFilter(diagram)
+           && std::all_of(begin(dfilters),
+                          end(dfilters),
+                          [&](DiagramFilter const &d) { return d(diagram); });
 }
 
 void FeynOptions::applyFilters(std::vector<FeynmanDiagram> &diagrams,
                                bool                         forceFilters) const
 {
-    const size_t lastFilter = (forceFilters || !partialCalculation)
-                                  ? dfilters.size()
-                                  : nDefaultDiagramFilters;
-    applyFilters(diagrams, [this, lastFilter](FeynmanDiagram const &diagram) {
-        return std::any_of(
-            begin(dfilters),
-            begin(dfilters) + lastFilter,
-            [&](DiagramFilter const &d) { return !d(diagram); });
+    const bool fullFilters = forceFilters || !partialCalculation;
+    applyFilters(diagrams, [this, fullFilters](FeynmanDiagram const &diagram) {
+        if (!passLoopOrderFilter(diagram))
+            return true;
+        if (!fullFilters)
+            return false;
+        return !passExternalLegFilter(diagram)
+               || std::any_of(begin(dfilters),
+                              end(dfilters),
+                              [&](DiagramFilter const &d) {
+                                  return !d(diagram);
+                              });
     });
 }
 
@@ -138,21 +161,6 @@ void FeynOptions::initDefaultFilters()
         for (const auto &field : term.getContent())
             if (!field.getQuantumParent()->isEnabledInDiagrams())
                 return false;
-        return true;
-    });
-    addDiagramFilter([this](FeynmanDiagram const &diagram) {
-        if (diagram.getNLoops() != *loopOrder) {
-            if (*loopOrder < diagram.getNLoops())
-                return false;
-            return discardLowerOrders;
-        }
-        return true;
-    });
-    addDiagramFilter([this](FeynmanDiagram const &diagram) {
-        if (excludeExternalLegCorrections
-            && diagram.hasExternalLegCorrections()) {
-            return false;
-        }
         return true;
     });
 }

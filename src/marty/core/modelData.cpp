@@ -1163,6 +1163,11 @@ void ModelData::addLagrangianTerm(csl::Expr const &term, bool addHermitic)
         addLagrangianTerm(hermitic, false);
     }
 }
+void ModelData::mergeTerms()
+{
+    L.mergeTerms();
+}
+
 void ModelData::addLagrangianTerm(mty::Lagrangian::TermType const &term, bool)
 {
     if (enableChecks)
@@ -1375,6 +1380,40 @@ std::ostream &operator<<(std::ostream &out, ModelData const &model)
 ///////////////////////////////////////////////////
 // Private member functions
 ///////////////////////////////////////////////////
+
+ModelData::ModelData(std::vector<GaugeGroupSpec> const  &gaugeGroups,
+                     std::vector<FlavorGroupSpec> const &flavorGroups,
+                     bool                                initGaugeTerms)
+    : ModelData()
+{
+    initFromSpecs(gaugeGroups, flavorGroups, initGaugeTerms);
+}
+
+void ModelData::initFromSpecs(std::vector<GaugeGroupSpec> const  &gaugeGroups,
+                              std::vector<FlavorGroupSpec> const &flavorGroups,
+                              bool                                initGaugeTerms)
+{
+    for (auto const &flavorGroup : flavorGroups) {
+        if (csl::IsInteger(flavorGroup.dim))
+            addFlavorGroup(flavorGroup.name,
+                           static_cast<int>(flavorGroup.dim->evaluateScalar()));
+        else
+            addFlavorGroup(flavorGroup.name, flavorGroup.dim);
+    }
+    for (auto const &gaugeGroup : gaugeGroups) {
+        if (gaugeGroup.dim == -1)
+            addGaugedGroup(gaugeGroup.type, gaugeGroup.name, gaugeGroup.coupling);
+        else
+            addGaugedGroup(gaugeGroup.type,
+                           gaugeGroup.name,
+                           gaugeGroup.dim,
+                           gaugeGroup.coupling);
+    }
+    init(initGaugeTerms);
+    for (auto const &gaugeGroup : gaugeGroups)
+        if (not gaugeGroup.bosonName.empty())
+            renameParticle("A_" + gaugeGroup.name, gaugeGroup.bosonName);
+}
 
 void ModelData::init(bool initGaugeTerms)
 {

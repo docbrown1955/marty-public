@@ -1,0 +1,28 @@
+# Golden values of the CSL callback algorithms (csl/algo.h,
+# csl/interface.h), run from C++ on the expressions of
+# tests/api/src/symbolic_algorithms.cpp. One '<case>\t<value>' line
+# per case, matched by name in test_algorithms.py.
+# Rewrite only for an intended change:
+# MARTY_UPDATE_GOLDEN=1 symbolic_algorithms.x
+any_leafs_y	True
+any_leafs_w	False
+all_leafs_variables	True
+all_leafs_depth0	True
+any_nodes_prod	True
+all_nodes_prod	False
+find_leaf_z	z
+find_leaf_none	None
+find_node_prod	xy
+find_node_root	z + \sin\left(xy\right)
+visit_cut_count	4
+visit_first_leaf_y	True
+visit_first_node_w	False
+expand_product_nonfull	xz + yz
+expand_square_nonfull	\left(x + y\right)^{2}
+distribute_if_z	xz + yz
+distribute_if_none	\left(x + y\right)z
+distribute_if_full	x^{2} + xy + xz + yz
+expand_if_sums	\left(x + y\right)\cdot\left(x + z\right)
+expand_if_contains_x	\left(x + y\right)\cdot\left(y + z\right)
+expand_if_square_full	x^{2} + 2xy + y^{2}
+expand_if_inplace	\left(x + y\right)\cdot\left(y + z\right)

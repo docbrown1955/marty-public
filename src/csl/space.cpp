@@ -60,6 +60,11 @@ std::string Space::getIndexLatexName(std::string const &t_name) const
     return res;
 }
 
+SpaceIndexPool Space::createIndexPool() const
+{
+    return SpaceIndexPool(this, defaultIndexNames);
+}
+
 Space::Space(const std::string              &t_name,
              int                             t_dim,
              std::vector<std::string> const &defaultNames)

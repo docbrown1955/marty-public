@@ -1,0 +1,265 @@
+"""Python ports of the model parts of the C++ examples.
+
+``gettingStarted`` and the model part of ``simpleSpectrum`` are ported here.
+The expected values come from running the C++ examples in the same build: the
+12 particles of the toy model before the symmetry breaking and the 13 particles
+after the full toy model. The C++ examples also display, draw, build libraries
+and compute amplitudes; those steps are not ported.
+"""
+
+from fractions import Fraction
+
+from pymarty.group_theory import SU, U
+from pymarty.modeling import FlavorGroup, GaugeGroup, Model
+from pymarty.modeling.models.sm import SM
+from pymarty.symbolic import Expr, I, Minkowski, constant, cos, sin, sqrt
+
+# Particle names printed by examples/gettingStarted.cpp (first half)
+CPP_TOY_PARTICLES = {
+    "B",
+    "c_B",
+    "u_R",
+    "d_R",
+    "W_1",
+    "W_2",
+    "W_3",
+    "c_W_1",
+    "c_W_2",
+    "c_W_3",
+    "u_L",
+    "d_L",
+}
+
+# Particle names after the full gettingStarted model (13 particles)
+CPP_GETTING_STARTED_PARTICLES = {
+    "A",
+    "W",
+    "Z",
+    "c_B",
+    "c_W_1",
+    "c_W_2",
+    "c_W_3",
+    "d",
+    "d_L",
+    "d_R",
+    "u",
+    "u_L",
+    "u_R",
+}
+
+# Particle names after the model part of simpleSpectrum.cpp (before generation)
+CPP_SIMPLE_SPECTRUM_PARTICLES = {
+    "H",
+    "Psi_1",
+    "Psi_1_L",
+    "Psi_1_R",
+    "Psi_2",
+    "Psi_2_L",
+    "Psi_2_R",
+    "VW",
+    "VZ",
+    "W",
+    "c_VD_1",
+    "c_VD_2",
+    "c_VZ",
+    "c_W",
+    "phI",
+    "phR",
+    "php",
+}
+
+
+def make_toy_model() -> Model:
+    """Build the toy model of gettingStarted.cpp up to the broken particles."""
+    toy = Model(
+        gauge=[
+            GaugeGroup(SU(2), name="L", boson_name="W"),
+            GaugeGroup(U(1), name="Y", boson_name="B"),
+        ]
+    )
+    toy.add_weyl_fermion("Q_L", chirality="L", gauge_rep={"L": 1, "Y": Fraction(1, 6)})
+    toy.add_weyl_fermion("u_R", chirality="R", gauge_rep={"Y": Fraction(2, 3)})
+    toy.add_weyl_fermion("d_R", chirality="R", gauge_rep={"Y": Fraction(-1, 3)})
+    toy.break_gauge_symmetry("Y")
+    toy.break_gauge_symmetry("L", renaming={"Q_L": ["u_L", "d_L"]})
+    return toy
+
+
+def test_getting_started_first_half_particles_match_cpp() -> None:
+    toy = make_toy_model()
+    names = [p.name for p in toy.particles]
+    assert len(names) == len(CPP_TOY_PARTICLES)
+    assert set(names) == CPP_TOY_PARTICLES
+
+
+def test_getting_started_renaming_is_explicit_and_partial() -> None:
+    toy = make_toy_model()
+    assert "Q_L" not in toy
+    assert "u_L" in toy and "d_L" in toy
+    # Partial renaming: the gauge bosons of the unrenamed group keep defaults
+    assert {"W_1", "W_2", "W_3"} <= {p.name for p in toy.particles}
+
+
+def make_unbroken_model() -> Model:
+    """Toy model before any symmetry breaking, so gauge irreps are meaningful."""
+    toy = Model(
+        gauge=[
+            GaugeGroup(SU(2), name="L", boson_name="W"),
+            GaugeGroup(U(1), name="Y", boson_name="B"),
+        ]
+    )
+    toy.add_weyl_fermion("Q_L", chirality="L", gauge_rep={"L": 1, "Y": Fraction(1, 6)})
+    return toy
+
+
+def test_spin_follows_the_lorentz_representation() -> None:
+    assert make_toy_model().particle("W_1").spin == 1
+    toy = make_unbroken_model()
+    assert toy.particle("Q_L").spin == Fraction(1, 2)
+    assert toy.add_scalar_boson("H", self_conjugate=False).spin == 0
+
+
+def test_irreps_are_read_per_gauge_group() -> None:
+    toy = make_unbroken_model()
+    Q_L = toy.particle("Q_L")
+    assert Q_L.irrep("L").highest_weight == (1,)
+    assert Q_L.irrep("L").dim == 2
+    assert Q_L.irrep("Y").charge == Fraction(1, 6)
+
+
+def test_irreps_of_broken_groups_are_trivial() -> None:
+    toy = make_toy_model()
+    u_L = toy.particle("u_L")
+    assert u_L.irrep("L").dim == 1
+    assert u_L.irrep("L").highest_weight == (0,)
+
+
+def test_built_in_models_expose_group_irreps() -> None:
+    e_L = SM().particle("e_L")
+    assert e_L.irrep("L").dim == 1
+    assert e_L.irrep("Y").charge == Fraction(-1, 2)
+
+
+def test_model_irreps_compare_with_group_irreps() -> None:
+    toy = make_unbroken_model()
+    assert toy.particle("Q_L").irrep("L") == SU(2).fundamental()
+    assert toy.particle("Q_L").irrep("L") != SU(2).adjoint()
+
+
+def test_str_model_lists_particles_with_spin_irrep_and_lagrangian() -> None:
+    toy = make_toy_model()
+    text = str(toy)
+    count = len(toy.particles)
+    assert text.startswith("Gauge = ")
+    assert f"Particle list, {count} particles:" in text
+    assert text.count("\n  -> ") == count
+    assert text.count("\n    spin: ") == count
+    assert text.count("\n    irrep: ") == count
+    assert "lagrangian" in text
+
+
+def make_getting_started_model() -> Model:
+    """Build the full toy model of gettingStarted.cpp."""
+    toy = make_toy_model()
+    W_1 = toy.particle("W_1")
+    W_2 = toy.particle("W_2")
+    F_W_1 = W_1.field_strength()
+    F_W_2 = W_2.field_strength()
+    W = toy.add_similar_particle("W", reference="W_1", self_conjugate=False)
+    mu = Minkowski.index()
+    nu = Minkowski.index()
+    toy.replace(W_1(mu), (W(mu) + W(mu).conjugate()) / sqrt(2))
+    toy.replace(F_W_1(mu, nu), (W(mu, nu) + W(mu, nu).conjugate()) / sqrt(2))
+    toy.replace(W_2(mu), I * (W(mu) - W(mu).conjugate()) / sqrt(2))
+    toy.replace(F_W_2(mu, nu), I * (W(mu, nu) - W(mu, nu).conjugate()) / sqrt(2))
+
+    theta_w = constant("thetaW")
+    c_w = cos(theta_w)
+    s_w = sin(theta_w)
+    toy.rotate_fields(
+        ["W_3", "B"],
+        ["Z", "A"],
+        [[c_w, s_w], [-s_w, c_w]],
+    )
+    e = constant("e")
+    toy.replace(toy.coupling("g_Y"), e / c_w)
+    toy.replace(toy.coupling("g_L"), e / s_w)
+
+    toy.add_bosonic_mass(toy.particle("W"), constant("M_W"))
+    toy.add_fermionic_mass(toy.particle("u_L"), toy.particle("u_R"), constant("m_u"))
+    toy.add_fermionic_mass(toy.particle("d_L"), toy.particle("d_R"), constant("m_d"))
+    toy.finalize()
+    return toy
+
+
+def test_getting_started_model_particles_match_cpp() -> None:
+    toy = make_getting_started_model()
+    names = {p.name for p in toy.particles}
+    assert names == CPP_GETTING_STARTED_PARTICLES
+
+
+def make_simple_spectrum_model() -> Model:
+    """Build the model part of simpleSpectrum.cpp, before the spectrum step."""
+    toy = Model(
+        gauge=[
+            GaugeGroup(SU(2), name="D", boson_name="VD"),
+            GaugeGroup(SU(2), name="L", boson_name="W"),
+        ],
+        flavor=[FlavorGroup("dark_flavor", 10)],
+    )
+    spinor = toy.generate_dirac_index()
+    H = toy.add_scalar_boson("H", gauge_rep={"L": 1}, self_conjugate=False)
+    phi = toy.add_scalar_boson("phi", gauge_rep={"D": 1}, self_conjugate=False)
+    Psi = toy.add_dirac_fermion("Psi", gauge_rep={"D": 1}, flavor_rep="dark_flavor")
+
+    flavor_i = toy.generate_index("dark_flavor")
+    i = toy.generate_index("L", "H")
+    i_d = toy.generate_index("D", "phi")
+
+    def cc(expr: Expr) -> Expr:
+        return expr.conjugate()
+
+    toy.add_term(
+        -constant("MPsi") * cc(Psi(flavor_i, i_d, spinor)) * Psi(flavor_i, i_d, spinor),
+        True,
+    )
+    prod = cc(phi(i_d)) * phi(i_d)
+    toy.add_term(constant("lSS") * prod * prod.relabel_indices())
+    toy.add_term(constant("mhH2") * cc(H(i)) * H(i))
+    toy.add_term(constant("lSH") * cc(phi(i_d)) * phi(i_d) * cc(H(i)) * H(i))
+
+    toy.break_gauge_symmetry(
+        "D",
+        renaming={
+            "Psi": ["Psi_1 ; \\Psi_1", "Psi_2 ; \\Psi_2"],
+            "phi": ["ph0", "php"],
+            "VD": ["VD_1", "VD_2", "VZ"],
+        },
+    )
+    VD_1 = toy.particle("VD_1")
+    VD_2 = toy.particle("VD_2")
+    F_VD_1 = VD_1.field_strength()
+    F_VD_2 = VD_2.field_strength()
+    VW = toy.add_similar_particle("VW", reference="VD_1", self_conjugate=False)
+    mu = Minkowski.index()
+    nu = Minkowski.index()
+    ph0 = toy.particle("ph0")
+    phR = toy.add_similar_particle("phR", reference="ph0", self_conjugate=True)
+    phI = toy.add_similar_particle("phI", reference="ph0", self_conjugate=True)
+    toy.replace(
+        ph0,
+        (constant("vph") + phR.expr() + I * phI.expr()) / sqrt(2),
+    )
+    toy.replace(VD_1(mu), (VW(mu) + cc(VW(mu))) / sqrt(2))
+    toy.replace(F_VD_1(mu, nu), (VW(mu, nu) + cc(VW(mu, nu))) / sqrt(2))
+    toy.replace(VD_2(mu), I * (VW(mu) - cc(VW(mu))) / sqrt(2))
+    toy.replace(F_VD_2(mu, nu), I * (VW(mu, nu) - cc(VW(mu, nu))) / sqrt(2))
+    toy.promote_to_goldstone("php", "VW")
+    toy.promote_to_goldstone("phI", "VZ")
+    toy.finalize()
+    return toy
+
+
+def test_simple_spectrum_model_particles_match_cpp() -> None:
+    toy = make_simple_spectrum_model()
+    assert {p.name for p in toy.particles} == CPP_SIMPLE_SPECTRUM_PARTICLES

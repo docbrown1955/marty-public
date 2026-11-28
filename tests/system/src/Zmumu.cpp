@@ -24,9 +24,7 @@ int main()
     [[maybe_unused]] int sysres = system("rm -rf libs/Zmumu");
 
     // Building a U(1) gauge to have a photon-like interaction
-    Model model;
-    model.addGaugedGroup(group::Type::U1, "Y");
-    model.init();
+    Model model({GaugeGroupSpec{group::Type::U, 1, "Y"}});
 
     // Setting up the particle content, with e, mu and the Z boson
     Particle el = diracfermion_s("e", model);

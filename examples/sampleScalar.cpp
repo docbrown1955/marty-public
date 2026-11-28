@@ -13,7 +13,7 @@ int main()
 {
 
     /******* Field and model definitions **********/
-    Model    p3Model;
+    Model    p3Model(std::vector<GaugeGroupSpec>{});
     Particle phi = scalarboson_s("\\phi", p3Model);
     SetMass(phi, "m");
     SetSelfConjugate(phi, true); // Real particle

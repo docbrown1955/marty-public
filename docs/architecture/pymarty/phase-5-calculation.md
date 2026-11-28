@@ -1,0 +1,261 @@
+# Phase 5: `pymarty.calculation` (tree level) and `pymarty.visualization`
+
+Amplitude computation with options and filters, squared amplitudes, textual display, and an export
+and launcher path for the GRAFED diagram viewer.
+
+Prerequisites: Phase 4 accepted.
+
+Usage example gate: before any C++ API or binding work starts, `python/examples/usage/calculation.py` is
+written and approved by a human reviewer ([testing-strategy.md](testing-strategy.md) section 1.2). It fixes
+the Python API of this phase, including the export towards the diagram viewer, and is the first
+deliverable. It may be drafted earlier, in parallel with Phase 4.
+
+## 1. Scope
+
+In scope, calculation:
+- Insertions: `incoming`, `outgoing`, `anti`, chirality helpers `left`/`right` (as in `Incoming(Left("e"))`).
+- `Order` (`TREE` and `ONE_LOOP`, both passed to the core), `FeynOptions` as
+  a plain data object (topology, filters, fermion order and the other fields of `feynOptions.h` that
+  tree-level examples use), the global `mty::option::*` flags exposed as a validated `set_options(...)`
+  context manager.
+- Functions in `pymarty.calculation` taking the finalized model explicitly (all verbs, see the naming rule in
+  [03-spec.md](phase-5/03-spec.md)): `compute_amplitude(model, order, insertions, kinematics=None, options=None)`,
+  `compute_squared_amplitude(model, amp)` / `compute_squared_amplitude(model, amp_left, amp_right)`. `modeling.Model` gets no new methods;
+  `Model.finalize()` is unchanged.
+- `Amplitude` (diagrams, expression, options used), `Diagram` (read access).
+- `compute_feynman_rules(model)`: read-only view (size, str, LaTeX), with vertices and propagators as plain data.
+- Filters: data filters (`force_particle`, `forbid_particles`, `disable_particles`, topology,
+  fermion order) converted to C++ filters. Python diagram-level predicates (`select_diagrams`) are
+  applied to the diagrams returned; they do not change the expression. Lagrangian-level callbacks are
+  not supported.
+- Kinematic variables: symbolic invariants `s_ij`, momenta symbols.
+- Display: `amplitude.display()` returning text (`Display(...)` writes to streams today), abbreviations listing.
+- Ghosts and Goldstones as particles in insertions (needed by `gg_to_tt`).
+
+In scope, visualization (module `pymarty.visualization`):
+- C++ JSON export of diagrams and Feynman rules without GUI and without process launch.
+- Safe GRAFED launcher and locator.
+
+Out of scope: library generation and usage (Phase 6), quad precision and LHA input (Phase 7),
+notebook inline rendering (Phase 8).
+
+## 2. Work packages
+
+### Calculation
+- WP5.1 `src/marty/api/calculation/`: `InsertionHandle` (name, direction, antiparticle, chirality),
+  `FeynOptionsData` (plain struct mirroring `FeynOptions` with validation), `AmplitudeHandle`,
+  `DiagramHandle`, functions `compute_amplitude`, `compute_squared_amplitude`, `display_text`,
+  `abbreviations_text`. Variadic or initializer-list core overloads of `computeAmplitude` are
+  hidden behind one vector-based function. The `Session` applies options and restores state, also when the
+  computation throws.
+- WP5.2 Global flags: list every `mty::option::*` flag (from the X-macro of Phase 0), give each a Python
+  keyword name (snake case), expose `set_options(**flags)`; unknown name raises `ValueError` listing valid
+  names; value types checked.
+- WP5.3 Filters: `forbid_particles`, `force_particle`, `disable_particles`, topology, `fermion_order`
+  as data objects converted to `filter::...` in C++. Python diagram predicates (`select_diagrams`) are
+  re-implemented in the Python layer and applied to the returned diagrams (C++ `std::function` filters
+  are not bound).
+- WP5.3b `compute_feynman_rules(model)` read-only view and vertex/propagator data objects, built on the
+  existing `src/marty/api/modeling/feynmanRules.h`.
+- WP5.4 Kinematics symbols and squared amplitude facade.
+- WP5.5 Examples port and tests.
+
+### Visualization
+- WP5.6 Spike: confirm whether `drawer::LatexLinker::saveMultiple` (in `src/marty/core/drawer.cpp`) runs
+  LaTeX at export time or only stores the label strings, and which tools are required for pure JSON
+  export. Document the JSON schema (`src/grafed/jsonparser`).
+- WP5.7 C++ API `src/marty/api/visualization/`:
+  - `diagrams_json(AmplitudeHandle)`, `rules_json(FeynmanRules)` returning `std::string`
+  - `save_diagrams(obj, path)` writing the file with owner-only permissions
+  - `find_grafed(Config)` (explicit path, `MARTY_GRAFED`, `PATH`, install prefix)
+  - `launch_grafed(path_to_json, Config)` using `posix_spawn` with an argument vector, non-blocking,
+    returns a handle with `pid`/`poll`/`wait`
+  - The existing `Show()` keeps its signature but is reimplemented on these functions: no fixed
+    `/tmp/graphs.json`, no `system()`. This removes the predictable-temp-file and shell-command risk
+    for C++ users as well.
+- WP5.8 Python `pymarty.visualization`: `export_json(obj)`, `save(obj, path)`, `grafed.is_available()`,
+  `grafed.show(obj, wait=False)` (temporary file in a private directory, deleted when the viewer
+  exits or on request), and a convenience `visualization.show(obj)` that uses the GUI backend if
+  available and raises `BuildError`-style `MartyEnvironmentError` with install instructions otherwise.
+
+## 3. Python spelling
+
+| C++ | Python |
+|-----|--------|
+| `Incoming("e")`, `Outgoing(AntiPart("u"))` | `incoming("e")`, `outgoing(anti("u"))` |
+| `Incoming(Left("e"))` | `incoming(left("e"))` |
+| `Order::TreeLevel` | `Order.TREE` |
+| `model.computeAmplitude(Order::TreeLevel, {Incoming("u"), ...})` | `compute_amplitude(model, Order.TREE, [incoming("u"), incoming(anti("u")), outgoing("d"), outgoing(anti("d"))])` |
+| `FeynOptions opts; opts.setTopology(Topology::Box); opts.addFilter(filter::forceParticle("t"))` | `FeynOptions(topology="box", filters=[force_particle("t")])` |
+| `model.computeSquaredAmplitude(res)` | `compute_squared_amplitude(model, res)` |
+| `Model::getFeynmanRules()` | `compute_feynman_rules(model)` (read-only view) |
+| `Display(res)` | `res.display()` returns `str` |
+| `mty::option::simplifyAmplitudes = false;` | `with set_options(simplify_amplitudes=False): ...` |
+| `Show(res)` | `visualization.show(res)` (needs GRAFED); `visualization.export_json(res)` (no GUI) |
+| `SaveDiagrams(file, res)` | `visualization.save(res, path)` |
+
+Duck typing: insertions accept strings (particle names), `Particle` objects, or insertion objects;
+`anti` accepts the same. Filter lists accept any iterable. Options are a dataclass-like object or any
+`Mapping` (coerced). Particle names are looked up in the model, with a clear `LookupError`
+listing close matches.
+
+## 4. Test plan
+
+L1 (`tests/api/calculation/`, `tests/api/visualization/`):
+- Insertions: `InsertionDirectionAndAnti`, `ChiralityInsertion`, `UnknownParticleFails`,
+  `UnbalancedProcessFails` (wrong number of legs or charge conservation violation, where the core
+  detects it).
+- Amplitudes: `QedComptonTreeLevelDiagramCount`, `QedEeToMumuTreeLevel` (both with the model built
+  through the API; compared with the direct core calls: identical strings for amplitude and squared
+  amplitude), `ScalarQedProcess` (as in `sampleSQED`), `QcdSextetProcess` (as in `sampleQCDSextet`),
+  `GhostLegsInGgToTt` (as in `gg_to_tt`, symbolic part).
+- Options: `FeynOptionsRoundTripToCore`, `FilterForceAndDisable`, `FermionOrder`, `TopologyEnumeration`,
+  `GlobalOptionAppliedAndRestored`, `UnknownOptionFails`, `OptionRestoredAfterException`.
+- Squared amplitudes: `SquaredAmplitudeMatchesCore`, `InterferenceOfTwoAmplitudes`,
+  `FlavorGroupSymbolicNf` (from `test_flavor_groups.cpp`: result depends on symbol `Nf` and the
+  numeric evaluation for Nf = 3 equals the numeric-flavour computation).
+- Physics sanity check, tolerance 1e-9 with exact rationals where possible: for massless e+e- to mu+mu-
+  in QED the spin-averaged squared amplitude equals `2 e^4 (t^2 + u^2) / s^2`, checked by substituting numeric
+  kinematics into the symbolic expression (textbook result, written in the test as a literal formula).
+- Display: `DisplayReturnsString`, `DisplayDoesNotPrintToStdout`.
+- Visualization: `DiagramsJsonParsesWithGrafedParser` (round trip through `src/grafed/jsonparser`),
+  `RulesJsonParses`, `SaveCreatesPrivateFile` (permissions), `LaunchUsesArgumentVector` (with a fake
+  executable that records its argv; paths with spaces and shell metacharacters stay one argument),
+  `FindGrafedOrder`, `NoFixedTmpFile` (two concurrent exports use different files), `ShowLegacyStillWorks`.
+
+L2 (`python/tests/calculation/`, `python/tests/visualization/`): parity tests for all L1 cases plus
+- duck typing: names versus particle objects versus insertion objects, mapping options, iterables
+- `with set_options(...)` restores flags (also on exception); `clean_state` fixture
+- amplitude and diagram iteration, `len`, `repr` stays short
+- `display()` returns text; legacy C++ output goes to `sys.stdout`
+- visualization with `fake_grafed` fixture: file written, launcher called once, exceptions when missing
+- `visualization` import does not need Qt; works on a machine without GRAFED
+
+L4 examples (fast, every PR): ports of `sampleQED`, `sampleSQED`, `sampleQCDSextet`,
+`test_flavor_groups` scenarios; output of deterministic parts compared with C++ example output.
+
+L5 (`slow`, run manually by the maintainer): symbolic parts of `Zmumu`, `gg_to_tt`, `EWGauge` (tree level, no library yet),
+`SM_triplet`, `testConjugation` where they do not need a library or loops; compared to values the C++ programs
+print (recorded once in golden files by the C++ side).
+
+## 5. Acceptance criteria
+
+1. For each scenario listed under "Amplitudes" the API result is string-identical to the same
+   computation performed through the core directly (both executed in the same C++ test).
+2. The textbook massless e+e- to mu+mu- check passes (formula as literal in the test).
+3. All `mty::option::*` flags are reachable by keyword through `set_options(...)`, with a test that fails if
+   the flag list changes without a matching Python name (built from the Phase 0 list).
+4. Flags and `Model::current` are unchanged after any API call, including failing ones (state tests,
+   sanitizer job).
+5. `FeynOptions` filters and topologies used by `sample2HDM`, `C9_SM`, `BsMixingSM` and `EWGauge`
+   (read from those C++ files) can be expressed in Python (listing in the PR, tested by constructing
+   the options and comparing with the C++ ones).
+6. Visualization: no `system()` and no fixed temp path in the new code (grep gate in CI for
+   `system(` in `src/marty/api/`); the legacy `Show()` no longer uses `/tmp/graphs.json`. All launcher
+   tests pass without a GUI.
+7. JSON export of a diagram set round-trips through the GRAFED JSON parser and equals the file
+   written by the legacy `SaveDiagrams` for the same amplitude (byte equality, or documented
+   differences if the format has intentionally changed).
+8. Python ports of `sampleQED`, `sampleSQED`, `sampleQCDSextet` and the Nf scenario run in CI with
+   output matching C++. Time budget 1.5x C++ plus 1 s (Release).
+9. `ctest -L 'units|integration'` green. System tests are not a criterion; the PR lists the ones that touch
+   `Show` or `drawer.cpp` (by name, if any) for an optional manual run.
+10. Parity, stubs, doctests, sanitizers and quality gates pass.
+11. `python/examples/usage/calculation.py` was approved by a human before implementation started (reviewer
+    and date in the PR), is unchanged since or its changes were re-approved, and runs in
+    `test_usage_examples.py` (L4b).
+
+## 6. Exit artifacts
+
+Stubs, docstrings, examples, option name table (C++ flag to Python keyword), JSON schema document for
+GRAFED export, spike record for `LatexLinker`.
+
+## 7. Risks and open questions
+
+- The amplitude computation can be long and memory hungry, with no cancellation: documented. Python
+  `KeyboardInterrupt` is not honoured until the call returns (Phase 8 evaluates cooperative checks).
+- The global option flags interact (some imply others). The tests pin the combinations that the
+  examples use.
+- The GRAFED JSON may embed LaTeX labels compiled by the viewer: if export needs `latex`, the wheel and
+  docs must say so (spike 5.6).
+- Without GRAFED installed, users only get export; this is by design (decision D7).
+
+## 8. Status and deviations from the approved spec
+
+Tree-level and one-loop amplitude calculation, Wilson coefficient extraction (`wilson_coefficients`, `WilsonSet.coefficient`, `chromo_magnetic_operator`), visualization and the example ports are implemented. The Python system-test ports are still pending.
+Deviations and open points, decided during implementation:
+
+- JSON export and `save` exist for `Amplitude` only. `FeynmanRules` supports LaTeX and PNG export.
+- `show` raises `MartyStateError` when GRAFED is missing; there is no PNG fallback.
+- LaTeX and PNG rendering run `latex` and `dvipng` in a private temporary directory. The core
+  `exportPDF`/`exportPNG` still use `system()` with fixed `/tmp` paths and are not changed here.
+  The tikz-feynman render path is not verified in the current environment (`tikz-feynman.sty` absent).
+- `compute_squared_amplitude(model, amplitude, other=None)` replaces the C++ overloads.
+- `kinematics=` customizes momentum indices only (core `Kinematics` already builds the tensors).
+  Explicit momentum tensors and propagators are deferred. There is no thin per-rule propagator
+  accessor in the core, so propagators are not exposed.
+- Fermion order is 0-based in both C++ (`AmplitudeOptions::fermionOrder`) and Python (`fermion_order`).
+- `FeynmanRules` exposes vertex accessors (`vertex_particles`, `vertex_expression`), read-only.
+- Example ports: `sampleSQED`, `sampleQCDSextet`, `gg_to_tt` (with the ghost channel) and an N_f=2
+  flavour QCD quark (`FlavorGroup`) are ported as tests. The N_f interpretation is an assumption.
+- `Zmumu` is ported (test `test_zmumu_scattering_exchanges_the_z_and_the_gauge_boson`). It needs a
+  plain vector-boson constructor, `Model.add_vector_boson(name, mass=, width=, ...)`, which wraps the
+  C++ `Model::vectorBoson` and `Particle::setWidth`. This extends `modeling.Model` by one method, as
+  the user approved (option `modeling_ctor`). The upper Lorentz index is written `z(~m)`, as `Z(+m)` in C++.
+- Width: `Particle.width` is a read/write property (C++ `Particle::width` and `Particle::setWidth`, which call
+  the core `getWidth`/`setWidth`). The `width=` argument is accepted by the dirac, majorana, scalar, vector and
+  similar-particle builders. `add_weyl_fermion` takes no mass, so it takes no width.
+- C++ visualization facade checks are exempted from parity (`VisualizationApi.*`) and covered from
+  Python in `test_visualization.py`.
+- System tests (`python/tests/system/`, smoke level: symbolic calculation only, no numerical comparison,
+  which is phase 6). Ported: `widthsSM` (tree-level cases, plus a `slow` one-loop case), `C7_SM`, `C8_SM`
+  (their Wilson coefficients are asserted to be `Expr` only; they evaluate to `0` in Python and the cause
+  is not yet established), `testConjugation` (now the C++ integration test `tests/integration/src/test_conjugation.cpp`,
+  no Python counterpart). `majoranaLoop` is a C++ integration test (`tests/integration/src/test_majorana_loop.cpp`)
+  with no Python counterpart. Not ported, with reasons: `FItests` (no Python API for vector integrals or Feynman integral reduction);
+  `simpleSpectrum`, `testModelWidth` (no spectrum generation or model width API); `BsMixingSM`,
+  `BsMixingVLQ_*`, `C9_SM`, `wilsons_GTHDM` (need the dimension-6 operator API); `gm2SM` (needs the
+  `isInLoop` predicate filter). Also ported: `SM_triplet` (toy model `pymarty.modeling.models.sm_triplet`,
+  one-loop amplitudes as in the C++) and `NLepto` (now the C++ integration test `tests/integration/src/test_nlepto.cpp`,
+  no Python counterpart). The physical heavy neutrinos are the `N1..N6` states:
+  the Weyl halves `N_k_L`/`N_k_R` are excluded by name.
+  Also ported: `SM_2IDM` (toy model `pymarty.modeling.models.sm_2idm`, one-loop `mu -> e Z`; the
+  `Library` tail is phase 6) and `EWGauge` (tree-level `W Z -> W Z` on the SM, with the total, no-Higgs,
+  triple-gauge and quartic subsets squared; the quad-precision library and numerical checks are phase 6).
+  The MSSM, PMSSM and NMFV variants are out of scope.
+- New bindings added for these ports: `Model.get_generator(group, field)` (C++ `Model::getGenerator`),
+  `renamed_indices(expr)` (C++ `renamedIndices`), the `rotate_fields(particles, *, diagonalize_masses,
+  n_mass_less_fields)` overload taking particles (facade `Model::rotateFields(std::vector<Particle>, bool, int)`),
+  `Model.diagonalize_yukawa(yukawa, diagonal, mixing, mixed)` (facade `Model::diagonalizeYukawa`),
+  `Amplitude.select(indices)` (facade `Amplitude::select`, a copy keeping the given diagrams with the same
+  options), `Diagram.mediators` (C++ `diagramMediators`) and `Amplitude.filter(predicate)`, which is built on
+  `select`. `compute_squared_amplitude` accepts any of these subsets.
+
+### Findings and remaining work (end of phase 5)
+
+Every in-scope C++ system test is ported, except the ones listed below. The MSSM, PMSSM and NMFV tests
+(`C7_PMSSM`, `C8_PMSSM`, `C9_MSSM`, `gm2PMSSM`, `test_fullMSSM`) are out of scope.
+
+Blocked on missing Python APIs (not ported):
+
+- `simpleSpectrum`: the model builds with bound calls (`break_gauge_symmetry`, `rename_particle`,
+  `promote_to_goldstone`, `replace`, `refresh`, `set_self_conjugate`). It needs `Library.generateSpectrum`
+  and a scalar-coupling getter (`getScalarCoupling`), neither of which is bound. Its check compares numbers
+  against `data/output/simplespectrum.txt`, so the comparison part is phase 6.
+- `testModelWidth`: needs a model width API.
+- `FItests`: needs a Python API for vector integrals and Feynman integral reduction.
+- `BsMixingSM`, `BsMixingVLQ_*`, `C9_SM`, `wilsons_GTHDM`: need the dimension-6 operator API.
+- `gm2SM`: needs the `isInLoop` predicate filter.
+
+Scheduled for later phases: `Bgenesis`, `freeQuarkAmplitudes`, `vectorlike` and `test_lha_reader` (phase 7),
+`comparedata` (phase 6).
+
+Open points:
+
+- `C7_SM` and `C8_SM`: the Wilson coefficients evaluate to `0` in Python. The cause is not established, and
+  the tests only assert that the result is an `Expr`.
+- `SM_2IDM` and `EWGauge`: the `_square` helper in `sm_2idm.py` is `expr * renamed_indices(expr)`. It matches
+  the C++ intent (`pow_s(X, 2)` on an index-summed expression), but its symbolic output has not been compared
+  with the C++ result. The tests check the form only.
+- `SM_2IDM`: the test checks that diagrams exist, not their content.
+- `add_amplitude` in Python asserts that the amplitude is non-empty. C++ skips empty amplitudes.

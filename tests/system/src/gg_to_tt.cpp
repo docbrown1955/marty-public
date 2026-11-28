@@ -26,12 +26,8 @@ int main()
     SM_Model toy;
 #else
     // Model building
-    Model toy;
     // Gauge group to set --> SU(3)
-    toy.addGaugedGroup(group::Type::SU, "C", 3, csl::constant_s("g_s"));
-    toy.init();
-
-    toy.renameParticle("A_C", "G");
+    Model toy({GaugeGroupSpec{group::Type::SU, 3, "C", "G", csl::constant_s("g_s")}});
 
     // Particle content   --> top quark
     Particle t  = diracfermion_s("t", toy);

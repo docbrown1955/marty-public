@@ -26,6 +26,7 @@
 
 #include "modelData.h"
 #include "spectrum.h"
+#include <map>
 
 namespace mty {
 
@@ -310,6 +311,19 @@ class ModelBuilder : public ModelData {
 
     void breakGaugeSymmetry(std::string const &brokenGroup);
 
+    /*!
+     * \brief Breaks a gauged group, with explicit names for some particles.
+     * \details The map gives, for each broken particle, the names of the
+     * particles it becomes (one per component of its representation). Broken
+     * particles that are not in the map get the default names <name>_1,
+     * <name>_2, ...
+     * \param brokenGroup Name of the group to break.
+     * \param renaming    Partial map from particle name to new names.
+     */
+    void breakGaugeSymmetry(
+        std::string const                                     &brokenGroup,
+        std::map<std::string, std::vector<std::string>> const &renaming);
+
     void
     breakGaugeSymmetry(std::string const &               brokenGroup,
                        std::vector<mty::Particle> const &brokenFields,
@@ -332,6 +346,19 @@ class ModelBuilder : public ModelData {
                        std::vector<std::vector<std::string>> const &newNames);
 
     void breakFlavorSymmetry(std::string const &nameGroup);
+
+    /**
+     * \brief Breaks a flavor group with explicit names for some particles.
+     *
+     * Particles missing from renaming get the default names
+     * "<particle>_<index>".
+     *
+     * \param flavorName Name of the flavor group to break.
+     * \param renaming   Partial map from particle name to new names.
+     */
+    void breakFlavorSymmetry(
+        std::string const                                     &flavorName,
+        std::map<std::string, std::vector<std::string>> const &renaming);
 
     void breakFlavorSymmetry(std::string const &        flavorName,
                              std::vector<size_t> const &subGroups,

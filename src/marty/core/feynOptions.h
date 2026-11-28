@@ -388,6 +388,20 @@ class FeynOptions {
     void initDefaultFilters();
 
     /**
+     * @brief Default loop-order criterion on diagrams.
+     *
+     * @details Evaluated on the object itself rather than stored as a
+     * diagram filter, so that copies of the options do not keep a pointer
+     * to the original object.
+     */
+    bool passLoopOrderFilter(FeynmanDiagram const &diagram) const;
+
+    /**
+     * @brief Default criterion discarding external leg corrections.
+     */
+    bool passExternalLegFilter(FeynmanDiagram const &diagram) const;
+
+    /**
      * @brief Sets the Wilson operator basis #wilsonOperatorBasis.
      *
      * @note This method is private because the operator basis is for now
@@ -399,13 +413,21 @@ class FeynOptions {
 
   public:
     /**
-     * @brief This option (default = true) implies that fermionic insertions
-     * are ordered using a given rule.
+     * @brief This option (default = true) implies that insertions are ordered
+     * in a canonical way.
      *
-     * @details This only affects the absolute signs
+     * @details When a fermion order is provided by the user
+     * (#keepFermionInsertionOrder), fermionic insertions keep their order and
+     * only bosonic insertions are sorted. This only affects the absolute signs
      * of different diagrams in a process and is then physically irrelevant.
      */
-    bool orderInsertions{mty::option::applyInsertionOrdering};
+    bool orderInsertions{true};
+
+    /**
+     * @brief Set by the amplitude calculation when the fermion order was
+     * provided by the user, so that fermionic insertions are not reordered.
+     */
+    bool keepFermionInsertionOrder{false};
 
     bool excludeExternalLegCorrections{
         mty::option::excludeExternalLegsCorrections};
@@ -547,8 +569,6 @@ class FeynOptions {
      * the standard one uses \f$ \1,\gamma^5 \f$.
      */
     OperatorBasis wilsonOperatorBasis = OperatorBasis::Chiral;
-
-    constexpr static size_t nDefaultDiagramFilters = 1;
 };
 
 } // namespace mty

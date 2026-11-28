@@ -1,6 +1,9 @@
 marty_env.sh
 .vscode
 *.sw[p-z]
-build 
+build*
 Testing
+!python/pymarty/testing/
 .directory
+__pycache__
+.venv

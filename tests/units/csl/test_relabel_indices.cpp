@@ -73,6 +73,23 @@ TEST(RelabelIndices, dummyPairSharesOneLabel)
     EXPECT_EQ(printLatex(x(p) * y(p)), "x_{alpha}y_{alpha}");
 }
 
+TEST(RelabelIndices, dummyPairKeepsOppositeSignsOnBothOccurrences)
+{
+    Space const &S = buildMinkowski();
+    Tensor       x{"x", &S};
+    Tensor       y{"y", &S};
+    Index        p     = S.generateIndex("mu");
+    Index        q     = p.getFlipped();
+    auto         input = indicesOf(x(p) * y(q));
+    ASSERT_EQ(input.size(), 2u);
+    ASSERT_NE(input[0].getSign(), input[1].getSign());
+    auto renamed = RelabelIndices(x(p) * y(q));
+    auto indices = indicesOf(renamed);
+    ASSERT_EQ(indices.size(), 2u);
+    EXPECT_EQ(indices[0].getName(), indices[1].getName());
+    EXPECT_NE(indices[0].getSign(), indices[1].getSign());
+}
+
 TEST(RelabelIndices, distinctPairsTakeNamesInOrder)
 {
     Space  S{"S", 4, {"alpha", "beta"}};
@@ -166,7 +183,7 @@ TEST(RelabelIndices, freeIndexOfOneSpaceAndDummyOfAnother)
 
 // IDs and input
 
-TEST(RelabelIndices, resetsAllIdsToZero)
+TEST(RelabelIndices, idsCycleThroughNamePool)
 {
     Space  S{"S", 4, {"alpha", "beta"}};
     Tensor x{"x", &S};
@@ -175,9 +192,13 @@ TEST(RelabelIndices, resetsAllIdsToZero)
     Index  q       = S.generateIndex("alpha");
     Index  f       = S.generateIndex("beta");
     auto   renamed = RelabelIndices(x(p) * y(p) * x(q) * y(q) * x(f));
+    // Three distinct indices over a pool of two names: the first pass gives
+    // ID 0, the index beyond the pool gets ID 1.
+    std::set<size_t> ids;
     for (auto const &factor : renamed->getFactors())
         for (auto const &index : indicesOf(factor))
-            EXPECT_EQ(index.getID(), 0u);
+            ids.insert(index.getID());
+    EXPECT_EQ(ids, (std::set<size_t>{0, 1}));
 }
 
 TEST(RelabelIndices, inputIsNotModified)
@@ -395,13 +416,42 @@ TEST(RelabelIndices, renamingAppliedToAnotherExpressionGivesSameLabels)
     Tensor        w{"w", &S};
     Index         f      = S.generateIndex("beta");
     Index         p      = S.generateIndex("alpha");
-    Expr          first  = x(p) * x(p) * w(f);
-    Expr          second = w(f) * x(p) * x(p);
+    Expr          first  = w(f) * x(p);
+    Expr          second = x(p) * w(f);
     IndexRenaming renaming;
     auto          relabelled = RelabelIndices(first, true, renaming);
     auto          applied    = ApplyIndexRenaming(second, renaming);
-    EXPECT_EQ(applied->printLaTeX(0), "w_{alpha}x_{beta}x_{beta}");
-    EXPECT_EQ(relabelled->printLaTeX(0), "w_{alpha}x_{beta}x_{beta}");
+    EXPECT_EQ(applied->printLaTeX(0), relabelled->printLaTeX(0));
+    EXPECT_EQ(relabelled->printLaTeX(0), "w_{alpha}x_{beta}");
+}
+
+TEST(RelabelIndices, renamingKeepsOnlyFreeIndices)
+{
+    Space         S{"S", 4, {"alpha", "beta"}};
+    Tensor        x{"x", &S};
+    Tensor        w{"w", &S};
+    Index         f    = S.generateIndex("beta");
+    Index         p    = S.generateIndex("alpha");
+    Expr          expr = w(f) * x(p) * x(p);
+    IndexRenaming renaming;
+    RelabelIndices(expr, true, renaming);
+    ASSERT_EQ(renaming.renamed.size(), 1U);
+    EXPECT_EQ(
+        renaming.renamed.begin()->first,
+        IndexRenaming::Key(f.getSpace(), f.getID(), std::string(f.getName())));
+}
+
+TEST(RelabelIndices, applyRenamingDoesNotRenameDummyIndices)
+{
+    Space         S{"S", 4, {"alpha", "beta"}};
+    Tensor        x{"x", &S};
+    Tensor        w{"w", &S};
+    Index         f = S.generateIndex("beta");
+    IndexRenaming renaming;
+    RelabelIndices(w(f), true, renaming);
+    Expr expr = x(f) * x(f);
+    EXPECT_EQ(ApplyIndexRenaming(expr, renaming)->printLaTeX(0),
+              expr->printLaTeX(0));
 }
 
 TEST(RelabelIndices, applyingRenamingWithoutMatchingIndicesIsUnchanged)
@@ -436,3 +486,43 @@ TEST(RelabelIndices, applyRenamingDoesNotModifyTheInput)
     EXPECT_EQ(expr->printLaTeX(0), before);
     EXPECT_EQ(std::string(f.getName()), "beta");
 }
+
+TEST(SpaceIndexPool, cyclesNamesFromZero)
+{
+    Space S{"S", 4, {"alpha", "beta"}};
+    auto  pool = S.createIndexPool();
+    auto [n0, id0] = pool.next();
+    auto [n1, id1] = pool.next();
+    auto [n2, id2] = pool.next();
+    EXPECT_EQ(n0, "alpha");
+    EXPECT_EQ(id0, 0u);
+    EXPECT_EQ(n1, "beta");
+    EXPECT_EQ(id1, 0u);
+    EXPECT_EQ(n2, "alpha");
+    EXPECT_EQ(id2, 1u);
+}
+
+TEST(RelabelIndices, renamingKeepsItsPoolAcrossExpressions)
+{
+    Space         S{"S", 4, {"alpha", "beta"}};
+    Tensor        x{"x", &S};
+    Tensor        y{"y", &S};
+    Index         p = S.generateIndex("alpha");
+    Index         q = S.generateIndex("alpha");
+    auto          names = [](Expr const &expr) {
+        std::set<std::string> res;
+        for (auto const &factor : expr->getFactors())
+            for (auto const &index : indicesOf(factor))
+                res.insert(std::string(index.getName()));
+        return res;
+    };
+    IndexRenaming renaming;
+    auto first  = RelabelIndices(x(p) * y(p), true, renaming);
+    auto second = RelabelIndices(x(q) * y(q), true, renaming);
+    EXPECT_EQ(names(first), (std::set<std::string>{"alpha"}));
+    EXPECT_EQ(names(second), (std::set<std::string>{"beta"}));
+    // A fresh renaming starts again from the first name.
+    EXPECT_EQ(names(RelabelIndices(x(q) * y(q))),
+              (std::set<std::string>{"alpha"}));
+}
+

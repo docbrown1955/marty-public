@@ -36,13 +36,9 @@ struct PythonBinding {
     bool               complexReturn;
 };
 
-bool hasOnlyRealParameters(LibFunction const &f)
+bool isComplexParameter(LibParameter const &p)
 {
-    return std::all_of(f.getParameters().begin(),
-                       f.getParameters().end(),
-                       [](LibParameter const &p) {
-                           return p.ctype == LibraryGenerator::crealUsing;
-                       });
+    return p.ctype == LibraryGenerator::ccomplexUsing;
 }
 
 } // namespace
@@ -51,17 +47,22 @@ void LibraryGenerator::printPython() const
 {
     std::vector<PythonBinding>      bindings;
     std::vector<std::string>        paramNames;
+    std::vector<std::string>        complexNames;
+    auto contains = [](std::vector<std::string> const &names,
+                       std::string const              &name) {
+        return std::find(names.begin(), names.end(), name) != names.end();
+    };
     for (const auto &g : groups) {
         if (g->empty())
             continue;
         for (const auto &f : g->getFunctions()) {
-            if (!hasOnlyRealParameters(f))
-                continue;
             bindings.push_back({&f, g->hasComplexReturn()});
-            for (const auto &p : f.getParameters())
-                if (std::find(paramNames.begin(), paramNames.end(), p.name)
-                    == paramNames.end())
+            for (const auto &p : f.getParameters()) {
+                if (!contains(paramNames, p.name))
                     paramNames.push_back(p.name);
+                if (isComplexParameter(p) && !contains(complexNames, p.name))
+                    complexNames.push_back(p.name);
+            }
         }
     }
 
@@ -88,10 +89,12 @@ class Params:
     """Library parameters. Unset fields are None; a function checks only the fields it uses."""
 )PY";
     for (const auto &p : paramNames)
-        py << "    " << p << ": Optional[float] = None\n";
+        py << "    " << p << ": Optional["
+           << (contains(complexNames, p) ? "complex" : "float") << "] = None\n";
     py << R"PY(
 
-def _collect(function, names, params, keywords):
+
+def _collect(function, names, params, keywords, complex_names):
     values = []
     for name in names:
         value = keywords[name]
@@ -99,7 +102,11 @@ def _collect(function, names, params, keywords):
             value = getattr(params, name)
         if value is None:
             raise ValueError(f"{function}: parameter '{name}' is not set")
-        values.append(float(value))
+        if name in complex_names:
+            value = complex(value)
+            values.append(_Complex(value.real, value.imag))
+        else:
+            values.append(float(value))
     return values
 )PY";
 
@@ -112,15 +119,18 @@ def _collect(function, names, params, keywords):
         py << "\n\n" << cName << " = _LIBRARY.c_" << pyName << "_explicit\n";
         py << cName << ".argtypes = [";
         for (size_t i = 0; i != params.size(); ++i)
-            py << (i ? ", " : "") << "ctypes.c_double";
+            py << (i ? ", " : "")
+               << (isComplexParameter(params[i]) ? "_Complex"
+                                                 : "ctypes.c_double");
         py << "]\n";
         py << cName << ".restype = "
            << (b.complexReturn ? "_Complex" : "ctypes.c_double") << "\n\n\n";
 
         py << "def " << pyName << "(params: Optional[Params] = None";
         for (size_t i = 0; i != params.size(); ++i)
-            py << (i ? ", " : ", *, ") << params[i].name
-               << ": Optional[float] = None";
+            py << (i ? ", " : ", *, ") << params[i].name << ": Optional["
+               << (isComplexParameter(params[i]) ? "complex" : "float")
+               << "] = None";
         py << ") -> " << (b.complexReturn ? "complex" : "float") << ":\n";
         py << "    values = _collect(\"" << pyName << "\", [";
         for (size_t i = 0; i != params.size(); ++i)
@@ -129,7 +139,11 @@ def _collect(function, names, params, keywords):
         for (size_t i = 0; i != params.size(); ++i)
             py << (i ? ", " : "") << '"' << params[i].name << "\": "
                << params[i].name;
-        py << "})\n";
+        py << "}, [";
+        for (size_t i = 0; i != params.size(); ++i)
+            if (isComplexParameter(params[i]))
+                py << '"' << params[i].name << "\", ";
+        py << "])\n";
         if (b.complexReturn) {
             py << "    result = " << cName << "(*values)\n";
             py << "    return complex(result.real, result.imag)\n";
@@ -137,6 +151,15 @@ def _collect(function, names, params, keywords):
         else {
             py << "    return float(" << cName << "(*values))\n";
         }
+    }
+
+    if (dependencies.containsInclude("clooptools.h")) {
+        py << "\n\n_set_mu = _LIBRARY.c_setMu\n"
+           << "_set_mu.argtypes = [ctypes.c_double]\n"
+           << "_set_mu.restype = None\n\n\n"
+           << "def set_mu(mu: float) -> None:\n"
+           << "    \"\"\"Set the dimensional-regularisation scale, as the C++ setMu.\"\"\"\n"
+           << "    _set_mu(float(mu))\n";
     }
 }
 

@@ -20,14 +20,14 @@ This will link to a global MARTY library (make sure to have installed it in a st
 
 #### Conjugation matrix general behavior
 
- - **File**: testMajoranaLoop.x
+ - **File**: test_majorana_loop (C++ integration suite, `tests/integration/src/test_majorana_loop.cpp`)
  - **Purpose**: Test that the conjugation matrix behaves well in loops with Majorana and non-Majorana fermions, i.e. that it simplifies out naturally before trace evaluation.
  - **Test**: Program termination. A calculation at 1-loop with 4 scalar external legs is launched (containing fermion loops). If the calculation gets to the end it means that the conjugation matrix indeed has been simplified.
  - **Sensibility**: SGL behavior with the conjugation matrix, and possibly Feynman rules initial calculations. Fermionic external legs do not participate here.
 
 #### RSIF (Relative Signs of Interfering Feynman diagrams)
 
- - **File**: testConjugation.x
+ - **File**: test_conjugation (C++ integration suite, `tests/integration/src/test_conjugation.cpp`)
  - **Purpose**: Testing relative signs in Feynman diagrams from Majorana and fermion number violating couplings.
  - **Source**: Section 3.3 of [Feynman rules for fermion-number-violating interactions](https://cds.cern.ch/record/238903/files/th-6549-92.pdf) (A. Denner, 1992).
  - **Test**: Value test. For a scalar boson and a vector boson, test the number resulting of the squared amplitude for the ff->fMb (fermion, Majorana, boson) from numbers obtained with verified amplitudes. A different relative sign will change interference and modify this number.

@@ -132,6 +132,75 @@ It is possible to get the output of failed tests (e.g. to include in a bug fix r
     ctest --output-on-failure
 ```
 
+## Python API (`pymarty`)
+
+The Python binding exposes the symbolic API (`Expr`, transforms, `Space`, `Index`, `tensor()`, `tensor_field()`, `tensor_derivative()`, `ComplexProperty`, `relabel()`) as the `pymarty` package. It is built from source only: wheels are not published yet.
+
+Requirements: Python 3.10 or newer (with development headers), a C++23 compiler, CMake 3.22+. pybind11 is fetched automatically if it is not installed.
+
+### Build
+
+Create a virtual environment with pytest, then configure and build the `_pymarty` target from a build directory:
+
+``` bash
+    python3 -m venv /path/to/venv
+    /path/to/venv/bin/pip install pytest
+    mkdir build && cd build
+    cmake .. -DMARTY_BUILD_PYTHON=ON -DPython_EXECUTABLE=/path/to/venv/bin/python
+    cmake --build . --target _pymarty -j
+```
+
+The build copies the Python package into `<build>/python/pymarty/`.
+
+### Test
+
+``` bash
+    ctest -L python
+```
+
+This runs the pytest suite (`python/tests`, with `-m "not slow"`) and the parity check. To run pytest directly:
+
+``` bash
+    cd /tmp && PYTHONPATH=<build>/python /path/to/venv/bin/python -m pytest -c <repo>/python/pyproject.toml --rootdir <repo>/python <repo>/python/tests -m "not slow" -q
+```
+
+### Use
+
+Add the build copy to `PYTHONPATH`:
+
+``` bash
+    export PYTHONPATH=<build>/python
+```
+
+``` python
+    from pymarty import symbolic
+
+    x = symbolic.variable("x")
+    y = symbolic.variable("y")
+    expr = (x + y) ** 2
+    print(expr.expand())             # x^2 + 2*x*y + y^2
+    print(expr.replace({x: 2}))      # (2 + y)^2
+    print(symbolic.sqrt(4) == 2)     # True
+```
+
+Tensor fields and their tensorial derivatives are built from a point tensor `X` of a space. A field takes its indices, then the point; a derivative takes the derivative index, then the point, and is applied to an operand with a call:
+
+``` python
+    from pymarty import symbolic
+
+    euclid = symbolic.Euclid_R3
+    X = symbolic.tensor("X", [euclid])
+    F = symbolic.tensor_field("F", euclid, [euclid])
+    d = symbolic.tensor_derivative("d", euclid)
+    mu = euclid.index("mu")
+    nu = euclid.index("nu")
+    expr = d(mu, X)(X(nu))           # free indices: mu, nu
+    field = F(mu, X)                 # free index: mu
+```
+
+The `complex_property=` keyword of `constant()`, `variable()` and `tensor()` takes a `ComplexProperty` value (`Complex`, `Real` or `Imaginary`).
+
+Printed output uses the CSL notation: infinity prints as `INF` (Python name `symbolic.infinity`), and `Expr.to_latex()` gives LaTeX. Docstrings are in the modules and carry runnable examples (`python -m doctest`-style, also checked by `python/tests/symbolic/test_docstrings.py`). Errors are raised as subclasses of `pymarty.errors.MartyError`.
 
 ## Environment variables
 

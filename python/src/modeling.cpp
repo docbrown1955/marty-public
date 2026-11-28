@@ -1,0 +1,952 @@
+// This file is part of MARTY.
+//
+// MARTY is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// MARTY is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with MARTY. If not, see <https://www.gnu.org/licenses/>.
+
+#include "marty/api/modeling/modeling.h"
+#include "csl/api/expr.h"
+#include "csl/api/tensor.h"
+#include "marty/api/common/error.h"
+#include "marty/api/group_theory/group_theory.h"
+#include "marty/core/gaugedGroup.h"
+#include "symbolic_bridge.h"
+
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
+#include <map>
+#include <memory>
+#include <optional>
+#include <string>
+#include <vector>
+
+namespace py       = pybind11;
+namespace group    = mty::api::group_theory;
+namespace modeling = mty::api::modeling;
+
+using csl::api::ExprHandle;
+using csl::api::TensorHandle;
+
+namespace {
+
+// Matches the holder registered by group_theory.cpp.
+using GroupHolder = std::shared_ptr<group::Group>;
+
+std::vector<std::vector<csl::Expr>>
+rawRows(std::vector<std::vector<ExprHandle>> const &rows)
+{
+    std::vector<std::vector<csl::Expr>> raw;
+    raw.reserve(rows.size());
+    for (auto const &row : rows) {
+        std::vector<csl::Expr> line;
+        line.reserve(row.size());
+        for (auto const &entry : row)
+            line.push_back(entry.raw());
+        raw.push_back(std::move(line));
+    }
+    return raw;
+}
+
+// Python indices are relative to the end when negative.
+std::string typeName(py::handle obj)
+{
+    return py::str(py::type::of(obj).attr("__name__"));
+}
+
+std::vector<int> toLabels(py::handle obj)
+{
+    std::vector<int> labels;
+    for (auto item : obj) {
+        if (!py::isinstance<py::int_>(item))
+            throw mty::api::TypeError("Dynkin labels must be integers, not "
+                                      + typeName(item));
+        labels.push_back(item.cast<int>());
+    }
+    return labels;
+}
+
+// Sets the representation of a particle. Lists are Dynkin labels, an int is a
+// charge for U(1) or the single label of a doublet-like group, and a Fraction
+// is a rational U(1) charge.
+void setRep(modeling::Particle &self,
+            std::string const  &group,
+            py::object          value)
+{
+    if (py::isinstance<py::list>(value) or py::isinstance<py::tuple>(value)) {
+        self.setLabels(group, toLabels(value));
+    }
+    else if (py::isinstance<py::int_>(value)) {
+        int const n = value.cast<int>();
+        if (self.isU1(group))
+            self.setCharge(group, n, 1);
+        else
+            self.setLabels(group, {n});
+    }
+    else if (py::hasattr(value, "numerator")
+             and py::hasattr(value, "denominator")) {
+        self.setCharge(group,
+                       value.attr("numerator").cast<int>(),
+                       value.attr("denominator").cast<int>());
+    }
+    else {
+        throw mty::api::TypeError("representation must be a list of labels, "
+                                  "an int or a Fraction, "
+                                  "not "
+                                  + typeName(value));
+    }
+}
+
+// renaming is "default" or a (partial) dict from particle name to new names.
+/// Expression of an `Expr` or of a `Particle`.
+csl::Expr exprOf(py::handle value)
+{
+    if (py::isinstance<modeling::Particle>(value)) {
+        return py::cast<modeling::Particle const &>(value).expr();
+    }
+    return py::cast<ExprHandle const &>(value).raw();
+}
+
+// Adds a mass term of a model particle: a bosonic mass for an integer spin,
+// the Dirac mass term otherwise.
+void addMassOf(modeling::Model          &self,
+               modeling::Particle const &particle,
+               ExprHandle const         &mass)
+{
+    if (particle.spin().den == 1)
+        self.addBosonicMass(particle, mass.raw());
+    else
+        self.addFermionicMass(particle, mass.raw());
+}
+
+// Configures a new particle, then adds it to the model. None leaves the
+// default of the particle kind unchanged.
+modeling::Particle addField(modeling::Model   &self,
+                            modeling::Particle particle,
+                            py::dict const    &gaugeRep,
+                            py::object const  &flavorRep,
+                            py::object const  &selfConjugate,
+                            py::object const  &mass,
+                            bool               initializeTerms = true,
+                            py::object const  &width           = py::none())
+{
+    if (!selfConjugate.is_none())
+        particle.setSelfConjugate(selfConjugate.cast<bool>());
+    if (!width.is_none())
+        particle.setWidth(width.cast<ExprHandle const &>().raw());
+    for (auto item : gaugeRep)
+        setRep(particle,
+               item.first.cast<std::string>(),
+               py::reinterpret_borrow<py::object>(item.second));
+    if (!flavorRep.is_none())
+        particle.setFundamentalFlavorRep(flavorRep.cast<std::string>());
+    self.addParticle(particle, initializeTerms);
+    if (!mass.is_none())
+        addMassOf(self, particle, mass.cast<ExprHandle const &>());
+    return particle;
+}
+
+using Renaming = std::map<std::string, std::vector<std::string>>;
+
+/// Parses renaming: "default" gives an empty map, a dict gives the renaming.
+std::optional<Renaming> parseRenaming(py::object renaming)
+{
+    if (py::isinstance<py::str>(renaming)) {
+        if (renaming.cast<std::string>() != "default")
+            throw mty::api::ValueError("renaming must be \"default\" or a "
+                                       "dict, got \""
+                                       + renaming.cast<std::string>() + "\"");
+        return std::nullopt;
+    }
+    if (!py::isinstance<py::dict>(renaming))
+        throw mty::api::TypeError("renaming must be \"default\" or a dict, "
+                                  "not "
+                                  + typeName(renaming));
+    try {
+        return renaming.cast<Renaming>();
+    }
+    catch (py::cast_error const &) {
+        throw mty::api::TypeError("renaming must map particle names to lists "
+                                  "of new names");
+    }
+}
+
+void breakGaugeSymmetry(modeling::Model   &self,
+                        std::string const &group,
+                        py::object         renaming)
+{
+    auto map = parseRenaming(renaming);
+    if (map)
+        self.breakGaugeSymmetry(group, *map);
+    else
+        self.breakGaugeSymmetry(group);
+}
+
+void breakFlavorSymmetry(modeling::Model   &self,
+                         std::string const &flavor,
+                         py::object         renaming)
+{
+    auto map = parseRenaming(renaming);
+    if (map)
+        self.breakFlavorSymmetry(flavor, *map);
+    else
+        self.breakFlavorSymmetry(flavor);
+}
+
+} // namespace
+
+void bindModeling(py::module_ &m)
+{
+    py::module_ mod = m.def_submodule("modeling",
+                                      "Declarative model construction: gauge "
+                                      "groups, particles, breaking.");
+
+    py::class_<modeling::GaugeGroup>(mod,
+                                     "GaugeGroup",
+                                     "Gauge group of a model: a group from "
+                                     "pymarty.group_theory, a name, "
+                                     "the name of its gauge bosons and "
+                                     "optionally its coupling name.")
+        .def(py::init([](GroupHolder const         &group,
+                         std::string                name,
+                         std::optional<std::string> bosonName,
+                         std::optional<std::string> coupling) {
+                 modeling::GaugeGroup item{group,
+                                           name,
+                                           bosonName.value_or(""),
+                                           coupling.value_or("")};
+                 return item;
+             }),
+             py::arg("group"),
+             py::arg("name"),
+             py::arg("boson_name") = py::none(),
+             py::arg("coupling")   = py::none())
+        .def_readonly(
+            "name", &modeling::GaugeGroup::name, "Name of the group.")
+        .def_readonly("boson_name",
+                      &modeling::GaugeGroup::bosonName,
+                      "Name of the gauge bosons.")
+        .def_readonly("coupling",
+                      &modeling::GaugeGroup::coupling,
+                      "Name of the gauge coupling.")
+        .def_property_readonly(
+            "group",
+            [](modeling::GaugeGroup const &self) {
+                return std::const_pointer_cast<group::Group>(self.group);
+            },
+            "Group from pymarty.group_theory.");
+
+    py::class_<modeling::FlavorGroup>(
+        mod, "FlavorGroup", "Flavor group of a model: a name and a dimension.")
+        .def(py::init([](std::string name, int dim) {
+                 return modeling::FlavorGroup{name, dim};
+             }),
+             py::arg("name"),
+             py::arg("dim"))
+        .def_readonly(
+            "name", &modeling::FlavorGroup::name, "Name of the group.")
+        .def_readonly(
+            "dim", &modeling::FlavorGroup::dim, "Dimension of the group.");
+
+    py::enum_<mty::gauge::Type>(
+        mod, "GaugeChoice", "Gauge fixing choice (xi) of a vector boson.")
+        .value("NOT_DEFINED",
+               mty::gauge::NotDefined,
+               "xi is not fixed (R_xi gauge).")
+        .value("LORENZ", mty::gauge::Lorenz, "xi = 0.")
+        .value("FEYNMAN", mty::gauge::Feynman, "xi = 1.")
+        .value("UNITARY", mty::gauge::Unitary, "xi = infinity.");
+
+    py::class_<modeling::Particle>(
+        mod, "Particle", "Particle of a model, with its representations.")
+        .def_property_readonly(
+            "name", &modeling::Particle::name, "Name of the particle.")
+        .def_property_readonly(
+            "spin",
+            [](modeling::Particle const &self) {
+                auto const spin = self.spin();
+                return py::module_::import("fractions")
+                    .attr("Fraction")(spin.num, spin.den);
+            },
+            "Spin of the particle, as a Fraction: 0, 1/2, 1, ...")
+        .def("irrep",
+             &modeling::Particle::irrep,
+             py::arg("group"),
+             "Irrep of the particle under a gauge group.")
+        .def("set_rep",
+             &setRep,
+             py::arg("group"),
+             py::arg("value"),
+             "Sets the representation under a gauge group: Dynkin labels, an "
+             "int, or a Fraction for U(1).")
+        .def(
+            "expr",
+            [](modeling::Particle const &self) {
+                return ExprHandle(self.expr());
+            },
+            "The particle as an expression, without indices.")
+        .def(
+            "__call__",
+            [](modeling::Particle const &self, py::args args) {
+                std::vector<csl::Index> indices;
+                for (py::handle item : args) {
+                    indices.push_back(coreIndex(item));
+                }
+                return ExprHandle(self(indices));
+            },
+            "The particle with the given indices, as an expression: "
+            "field(mu, nu).")
+        .def("field_strength",
+             &modeling::Particle::fieldStrength,
+             "Field strength tensor of the particle, as a new particle.")
+        .def("generate_similar_particle",
+             &modeling::Particle::createSimilarParticle,
+             py::arg("name"),
+             "Particle of the same kind with another name, as a new particle "
+             "not yet added to a model.")
+        .def("set_self_conjugate",
+             &modeling::Particle::setSelfConjugate,
+             py::arg("self_conjugate"),
+             "Sets whether the particle is its own antiparticle.")
+        .def("is_self_conjugate",
+             &modeling::Particle::isSelfConjugate,
+             "Whether the particle is its own antiparticle.")
+        .def("ghost_boson",
+             &modeling::Particle::ghostBoson,
+             "Default ghost boson of a vector boson, as a new particle.")
+        .def("set_conjugated_ghost_boson",
+             &modeling::Particle::setConjugatedGhostBoson,
+             py::arg("ghost"),
+             "Declares the conjugated ghost boson of a vector boson.")
+        .def("set_fundamental_flavor_rep",
+             &modeling::Particle::setFundamentalFlavorRep,
+             py::arg("flavor_group"),
+             "Sets the particle in the fundamental representation of a flavor "
+             "group.")
+        .def_property(
+            "mass",
+            [](modeling::Particle const &self) {
+                return ExprHandle(self.mass());
+            },
+            [](modeling::Particle &self, ExprHandle const &mass) {
+                self.setMass(mass.raw());
+            },
+            "Mass symbol or value of the particle. Setting it does not add a "
+            "Lagrangian term: see Model.add_bosonic_mass and "
+            "Model.add_fermionic_mass.")
+        .def_property(
+            "width",
+            [](modeling::Particle const &self) {
+                return ExprHandle(self.width());
+            },
+            [](modeling::Particle &self, ExprHandle const &width) {
+                self.setWidth(width.raw());
+            },
+            "Width symbol or value of the particle, used by its propagator.")
+        .def("set_gauge_choice",
+             &modeling::Particle::setGaugeChoice,
+             py::arg("choice"),
+             "Sets the gauge fixing choice (xi) of a vector boson.")
+        .def_property_readonly(
+            "gauge_parameter",
+            [](modeling::Particle const &self) {
+                return ExprHandle(self.gaugeParameter());
+            },
+            "Gauge fixing parameter symbol (xi) of a vector boson.")
+        .def("__repr__", [](modeling::Particle const &self) {
+            return "Particle(" + self.name() + ")";
+        });
+
+    py::class_<modeling::Model>(mod,
+                                "Model",
+                                "Model of a QFT: gauge and flavor groups, "
+                                "particles, Lagrangian terms "
+                                "and Feynman rules. Built from its groups in "
+                                "one call.")
+        .def(py::init([](std::vector<modeling::GaugeGroup> const  &gauge,
+                         std::vector<modeling::FlavorGroup> const &flavor) {
+                 return modeling::Model(gauge, flavor);
+             }),
+             py::arg("gauge"),
+             py::arg("flavor") = std::vector<modeling::FlavorGroup>{},
+             "Model with the given gauge and flavor groups, initialized and "
+             "with its gauge bosons named.")
+        .def(
+            "add_weyl_fermion",
+            [](modeling::Model   &self,
+               std::string const &name,
+               std::string const &chirality,
+               py::dict const    &gaugeRep,
+               py::object const  &flavorRep,
+               py::object const  &selfConjugate) {
+                return addField(self,
+                                self.weylFermion(name, chirality),
+                                gaugeRep,
+                                flavorRep,
+                                selfConjugate,
+                                py::none());
+            },
+            py::arg("name"),
+            py::arg("chirality") = "L",
+            py::kw_only(),
+            py::arg("gauge_rep")      = py::dict(),
+            py::arg("flavor_rep")     = py::none(),
+            py::arg("self_conjugate") = false,
+            "Adds a Weyl fermion, chirality \"L\" or \"R\", with its gauge "
+            "and flavor representations. Its mass is set by "
+            "add_fermionic_mass.")
+        .def(
+            "add_dirac_fermion",
+            [](modeling::Model   &self,
+               std::string const &name,
+               py::dict const    &gaugeRep,
+               py::object const  &flavorRep,
+               py::object const  &mass,
+               py::object const  &selfConjugate,
+               py::object const  &width) {
+                return addField(self,
+                                self.diracFermion(name),
+                                gaugeRep,
+                                flavorRep,
+                                selfConjugate,
+                                mass,
+                                true,
+                                width);
+            },
+            py::arg("name"),
+            py::kw_only(),
+            py::arg("gauge_rep")      = py::dict(),
+            py::arg("flavor_rep")     = py::none(),
+            py::arg("mass")           = py::none(),
+            py::arg("self_conjugate") = false,
+            py::arg("width")          = py::none(),
+            "Adds a Dirac fermion, with its gauge and flavor representations, "
+            "and optional Dirac mass and width.")
+        .def(
+            "add_majorana_fermion",
+            [](modeling::Model   &self,
+               std::string const &name,
+               py::dict const    &gaugeRep,
+               py::object const  &flavorRep,
+               py::object const  &mass,
+               py::object const  &width) {
+                return addField(self,
+                                self.majoranaFermion(name),
+                                gaugeRep,
+                                flavorRep,
+                                py::none(),
+                                mass,
+                                true,
+                                width);
+            },
+            py::arg("name"),
+            py::kw_only(),
+            py::arg("gauge_rep")  = py::dict(),
+            py::arg("flavor_rep") = py::none(),
+            py::arg("mass")       = py::none(),
+            py::arg("width")      = py::none(),
+            "Adds a Majorana fermion (self-conjugate Dirac fermion), with its "
+            "gauge and flavor representations and optional mass and width.")
+        .def(
+            "add_scalar_boson",
+            [](modeling::Model   &self,
+               std::string const &name,
+               py::dict const    &gaugeRep,
+               py::object const  &flavorRep,
+               py::object const  &mass,
+               py::object const  &selfConjugate,
+               bool               initializeTerms,
+               py::object const  &width) {
+                return addField(self,
+                                self.scalarBoson(name),
+                                gaugeRep,
+                                flavorRep,
+                                selfConjugate,
+                                mass,
+                                initializeTerms,
+                                width);
+            },
+            py::arg("name"),
+            py::kw_only(),
+            py::arg("gauge_rep")        = py::dict(),
+            py::arg("flavor_rep")       = py::none(),
+            py::arg("mass")             = py::none(),
+            py::arg("self_conjugate")   = true,
+            py::arg("initialize_terms") = true,
+            py::arg("width")            = py::none(),
+            "Adds a scalar boson, self-conjugate (real) by default, with its "
+            "gauge and flavor representations and optional mass and width. "
+            "Set initialize_terms to False for a component of an existing "
+            "field, "
+            "whose terms are already in the Lagrangian.")
+        .def(
+            "add_vector_boson",
+            [](modeling::Model   &self,
+               std::string const &name,
+               py::dict const    &gaugeRep,
+               py::object const  &flavorRep,
+               py::object const  &mass,
+               py::object const  &width,
+               py::object const  &selfConjugate,
+               bool               initializeTerms) {
+                return addField(self,
+                                self.vectorBoson(name),
+                                gaugeRep,
+                                flavorRep,
+                                selfConjugate,
+                                mass,
+                                initializeTerms,
+                                width);
+            },
+            py::arg("name"),
+            py::kw_only(),
+            py::arg("gauge_rep")        = py::dict(),
+            py::arg("flavor_rep")       = py::none(),
+            py::arg("mass")             = py::none(),
+            py::arg("width")            = py::none(),
+            py::arg("self_conjugate")   = true,
+            py::arg("initialize_terms") = true,
+            "Adds a vector boson that is not a gauge boson. Optional gauge "
+            "and flavor representations, mass and width (the width enters "
+            "its propagator). Self-conjugate (real) by default. Set "
+            "initialize_terms to False for a component of an existing field, "
+            "whose terms are already in the Lagrangian.")
+        .def(
+            "add_similar_particle",
+            [](modeling::Model   &self,
+               std::string const &name,
+               std::string const &reference,
+               py::object const  &selfConjugate,
+               py::object const  &mass,
+               bool               initializeTerms,
+               py::object const  &width) {
+                return addField(
+                    self,
+                    self.particle(reference).createSimilarParticle(name),
+                    py::dict(),
+                    py::none(),
+                    selfConjugate,
+                    mass,
+                    initializeTerms,
+                    width);
+            },
+            py::arg("name"),
+            py::arg("reference"),
+            py::kw_only(),
+            py::arg("self_conjugate")   = py::none(),
+            py::arg("mass")             = py::none(),
+            py::arg("initialize_terms") = true,
+            py::arg("width")            = py::none(),
+            "Adds a particle of the same kind as reference, with another "
+            "name. "
+            "Its representations are those of the reference.")
+        .def(
+            "add_particle",
+            [](modeling::Model          &self,
+               modeling::Particle const &particle,
+               bool                      initializeTerms) {
+                self.addParticle(particle, initializeTerms);
+            },
+            py::arg("particle"),
+            py::kw_only(),
+            py::arg("initialize_terms") = true,
+            "Adds a particle to the model. Set initialize_terms to False to "
+            "add it without its kinetic and mass terms.")
+        .def(
+            "add_ghost_boson",
+            [](modeling::Model          &self,
+               std::string const        &name,
+               modeling::Particle const &vectorBoson,
+               bool                      conjugated) {
+                return self.ghostBoson(vectorBoson, name, conjugated);
+            },
+            py::arg("name"),
+            py::arg("vector_boson"),
+            py::kw_only(),
+            py::arg("conjugated") = false,
+            "Creates the ghost boson of a vector boson, with the given name.")
+        .def("particle",
+             &modeling::Model::particle,
+             py::arg("name"),
+             "Particle of the model with this name (LookupError if absent).")
+        .def("rename_particle",
+             &modeling::Model::renameParticle,
+             py::arg("name"),
+             py::arg("new_name"),
+             "Renames a particle of the model.")
+        .def("__contains__",
+             &modeling::Model::contains,
+             py::arg("name"),
+             "Whether the model holds a particle with this name.")
+        .def_property_readonly("particles",
+                               &modeling::Model::particles,
+                               "Particles of the model.")
+        .def("finalize",
+             &modeling::Model::finalize,
+             "Completes the model and freezes it: builders and mutators then "
+             "raise MartyStateError. Calling it again does nothing.")
+        .def("is_finalized",
+             &modeling::Model::isFinalized,
+             "Whether the model was finalized.")
+        .def(
+            "add_tensor_coupling",
+            [](modeling::Model &self, TensorHandle const &tensor) {
+                self.addTensorCoupling(tensor.raw());
+            },
+            py::arg("tensor"),
+            "Adds a tensor, built with pymarty.symbolic.tensor, as a "
+            "tensorial "
+            "coupling constant of the model.")
+        .def("vector_space",
+             &modeling::Model::vectorSpace,
+             py::arg("flavor"),
+             "Index space of a flavor group, to build tensors on, for example "
+             "Yukawa couplings.")
+        .def("get_generator",
+             &modeling::Model::getGenerator,
+             py::arg("group"),
+             py::arg("field"),
+             "Generator of a gauge group in the representation of a field, "
+             "as a tensor with the adjoint index first (for example the Pauli "
+             "matrices for an SU(2) doublet).")
+        .def("diagonalize_mass_matrices",
+             &modeling::Model::diagonalizeMassMatrices,
+             "Diagonalizes the mass matrices of the model where possible.")
+        .def(
+            "diagonalize_yukawa",
+            [](modeling::Model                          &self,
+               std::string const                        &yukawa,
+               std::vector<ExprHandle> const            &diagonal,
+               std::optional<TensorHandle> const        &mixing,
+               std::vector<modeling::Particle> const    &mixed) {
+                std::vector<csl::Expr> entries;
+                entries.reserve(diagonal.size());
+                for (auto const &entry : diagonal)
+                    entries.push_back(entry.raw());
+                self.diagonalizeYukawa(
+                    yukawa,
+                    entries,
+                    mixing ? mixing->raw() : csl::Tensor(),
+                    mixed);
+            },
+            py::arg("yukawa"),
+            py::arg("diagonal"),
+            py::arg("mixing") = py::none(),
+            py::arg("mixed") = std::vector<modeling::Particle>{},
+            "Replaces the Yukawa coupling by its diagonal form, with the "
+            "diagonal entries (global factors included). If mixing is given, "
+            "the mixed particles are rotated with it.")
+        .def("gather_mass",
+             &modeling::Model::gatherMass,
+             py::arg("particle"),
+             "Names the mass coefficient of a particle as m_<particle>.")
+        .def(
+            "add_term",
+            [](modeling::Model  &self,
+               ExprHandle const &term,
+               bool addHermitic) { self.addTerm(term.raw(), addHermitic); },
+            py::arg("term"),
+            py::arg("add_hermitic") = false,
+            "Adds a term to the Lagrangian; add_hermitic also adds its "
+            "conjugate.")
+        .def(
+            "replace",
+            [](modeling::Model &self,
+               py::handle       oldValue,
+               py::handle       newValue) {
+                if (py::isinstance<TensorHandle>(oldValue)) {
+                    self.replace(py::cast<TensorHandle const &>(oldValue).raw(),
+                                 exprOf(newValue));
+                    return;
+                }
+                self.replace(exprOf(oldValue), exprOf(newValue));
+            },
+            py::arg("old"),
+            py::arg("new"),
+            "Replaces an expression, a tensor or a particle everywhere in the "
+            "model.")
+        .def(
+            "generate_index",
+            [](modeling::Model const &self, std::string const &group) {
+                return pyIndex(self.generateIndex(group));
+            },
+            py::arg("group"),
+            "Fresh index of the fundamental representation of a gauge or "
+            "flavor "
+            "group.")
+        .def(
+            "generate_index",
+            [](modeling::Model const &self,
+               std::string const     &group,
+               std::string const     &field) {
+                return pyIndex(self.generateIndex(group, field));
+            },
+            py::arg("group"),
+            py::arg("field"),
+            "Fresh index of the representation of a field in a gauge group.")
+        .def(
+            "generate_dirac_index",
+            [](modeling::Model const &, std::string const &name) {
+                return pyIndex(modeling::diracIndex(name));
+            },
+            py::arg("name") = "",
+            "Fresh Dirac index, named if name is not empty.")
+        .def_static(
+            "generate_minkowski_index",
+            [](std::string const &name) {
+                return pyIndex(modeling::minkowskiIndex(name));
+            },
+            py::arg("name") = "mu",
+            "Fresh Lorentz index of the Minkowski space, with the given name.")
+        .def("promote_to_goldstone",
+             &modeling::Model::promoteToGoldstone,
+             py::arg("goldstone"),
+             py::arg("gauge_boson"),
+             "Promotes a scalar to the Goldstone boson of a gauge boson.")
+        .def("promote_to_majorana",
+             &modeling::Model::promoteToMajorana,
+             py::arg("weyl_fermion"),
+             py::arg("new_name") = "",
+             "Turns a self-conjugate Weyl fermion into a Majorana fermion, "
+             "named new_name or else as the Weyl fermion. Returns the "
+             "Majorana "
+             "particle, which replaces the Weyl one.")
+        .def("refresh",
+             &modeling::Model::refresh,
+             "Recomputes the derived quantities of the model (the Lagrangian "
+             "substitutions are applied). Call it before collect_terms.")
+        .def("collect_terms",
+             &modeling::Model::collectTerms,
+             "Collects the Lagrangian terms with the same fields, summing "
+             "their expressions.")
+        .def(
+            "lagrangian_terms",
+            [](modeling::Model const &self, std::string const &kind) {
+                std::vector<ExprHandle> result;
+                for (auto const &term : self.lagrangianTerms(kind))
+                    result.emplace_back(term);
+                return result;
+            },
+            py::arg("kind"),
+            "Terms of the Lagrangian of one kind: 'kinetic', 'mass' or "
+            "'interaction' (ValueError otherwise). Each term is an Expr.")
+        .def(
+            "covariant_derivative",
+            [](modeling::Model const    &self,
+               std::string const        &group,
+               modeling::Particle const &field,
+               py::handle                mu,
+               py::iterable              indices) {
+                std::vector<csl::Index> fieldIndices;
+                for (py::handle item : indices)
+                    fieldIndices.push_back(coreIndex(item));
+                return ExprHandle(self.covariantDerivative(
+                    group, field, coreIndex(mu), fieldIndices));
+            },
+            py::arg("group"),
+            py::arg("field"),
+            py::arg("mu"),
+            py::arg("indices") = py::tuple(),
+            "Covariant derivative D_mu of a field under a gauge group, where "
+            "indices are the indices of the field.")
+        .def(
+            "rotate_fields",
+            [](modeling::Model                            &self,
+               std::vector<modeling::Particle> const      &fields,
+               std::vector<modeling::Particle> const      &newFields,
+               std::vector<std::vector<ExprHandle>> const &rotation,
+               bool                                        diagonalize,
+               int                                         nMassLess) {
+                self.rotateFields(fields,
+                                  newFields,
+                                  rawRows(rotation),
+                                  diagonalize,
+                                  nMassLess);
+            },
+            py::arg("fields"),
+            py::arg("new_fields"),
+            py::arg("rotation"),
+            py::arg("diagonalize_masses") = false,
+            py::arg("n_mass_less_fields") = 0,
+            "Rotates fields into new_fields with a unitary matrix given as "
+            "rows of expressions.")
+        .def(
+            "rotate_fields",
+            [](modeling::Model                            &self,
+               std::vector<std::string> const             &fields,
+               std::vector<std::string> const             &newFields,
+               std::vector<std::vector<ExprHandle>> const &rotation,
+               bool                                        diagonalize,
+               int                                         nMassLess) {
+                self.rotateFields(fields,
+                                  newFields,
+                                  rawRows(rotation),
+                                  diagonalize,
+                                  nMassLess);
+            },
+            py::arg("fields"),
+            py::arg("new_fields"),
+            py::arg("rotation"),
+            py::arg("diagonalize_masses") = false,
+            py::arg("n_mass_less_fields") = 0,
+            "Rotates the fields named in fields into new particles named in "
+            "new_fields, with a unitary matrix given as rows of expressions.")
+        .def(
+            "rotate_fields",
+            [](modeling::Model                       &self,
+               std::vector<modeling::Particle> const &fields,
+               bool                                   diagonalize,
+               int                                    nMassLess) {
+                self.rotateFields(fields, diagonalize, nMassLess);
+            },
+            py::arg("fields"),
+            py::arg("diagonalize_masses") = false,
+            py::arg("n_mass_less_fields") = 0,
+            "Diagonalizes the mass matrix of fields among themselves, without "
+            "an explicit rotation matrix.")
+        .def("birotate_fields",
+             &modeling::Model::birotateFields,
+             py::arg("fields1"),
+             py::arg("fields2"),
+             py::arg("n_mass_less_fields") = 0,
+             "Rotates the left and right fields of a pair of particles.")
+        .def(
+            "add_bosonic_mass",
+            [](modeling::Model          &self,
+               modeling::Particle const &field,
+               ExprHandle const         &mass) {
+                self.addBosonicMass(field, mass.raw());
+            },
+            py::arg("field"),
+            py::arg("mass"),
+            "Adds a bosonic mass term for a field.")
+        .def(
+            "add_fermionic_mass",
+            [](modeling::Model          &self,
+               modeling::Particle const &left,
+               modeling::Particle const &right,
+               ExprHandle const         &mass) {
+                self.addFermionicMass(left, right, mass.raw());
+            },
+            py::arg("left"),
+            py::arg("right"),
+            py::arg("mass"),
+            "Adds a fermionic mass term between a left and a right fermion.")
+        .def(
+            "add_fermionic_mass",
+            [](modeling::Model          &self,
+               modeling::Particle const &dirac,
+               ExprHandle const         &mass) {
+                self.addFermionicMass(dirac, mass.raw());
+            },
+            py::arg("dirac_fermion"),
+            py::arg("mass"),
+            "Adds a Dirac fermion mass term.")
+        .def(
+            "coupling",
+            [](modeling::Model const &self, std::string const &name) {
+                return ExprHandle(self.coupling(name));
+            },
+            py::arg("name"),
+            "Scalar coupling of the model (LookupError if absent).")
+        .def(
+            "add_coupling",
+            [](modeling::Model &self, std::string const &name) {
+                return ExprHandle(self.newCoupling(name));
+            },
+            py::arg("name"),
+            "Adds a new scalar coupling to the model and returns it.")
+        .def("break_gauge_symmetry",
+             &breakGaugeSymmetry,
+             py::arg("group"),
+             py::arg("renaming") = py::str("default"),
+             "Breaks a gauge group. renaming is \"default\" or a dict from "
+             "particle names to lists of new names; it may be partial.")
+        .def("break_flavor_symmetry",
+             &breakFlavorSymmetry,
+             py::arg("flavor"),
+             py::arg("renaming") = py::str("default"),
+             "Breaks a flavor group. renaming is \"default\" or a dict from "
+             "particle names to lists of new names; it may be partial.")
+        .def("__str__",
+             &modeling::Model::describe,
+             "Full description of the model.")
+        .def("__repr__", [](modeling::Model const &self) {
+            return "Model(" + std::to_string(self.particles().size())
+                   + " particles)";
+        });
+
+    mod.def(
+        "dirac_gamma",
+        [](py::handle mu, py::handle a, py::handle b) {
+            return ExprHandle(modeling::diracGamma(
+                coreIndex(mu), coreIndex(a), coreIndex(b)));
+        },
+        py::arg("mu"),
+        py::arg("a"),
+        py::arg("b"),
+        "Dirac gamma matrix gamma^mu, with Lorentz index mu and Dirac indices "
+        "a, b.");
+    mod.def(
+        "dirac_gamma5",
+        [](py::handle a, py::handle b) {
+            return ExprHandle(
+                modeling::diracGamma5(coreIndex(a), coreIndex(b)));
+        },
+        py::arg("a"),
+        py::arg("b"),
+        "Chirality matrix gamma^5, with Dirac indices a, b.");
+    mod.def(
+        "renamed_indices",
+        [](ExprHandle const &expr) {
+            return ExprHandle(modeling::renamedIndices(expr.raw()));
+        },
+        py::arg("expr"),
+        "Copy of expr whose dummy indices are renamed to fresh ones, so that "
+        "it can be multiplied by itself without clashing dummy indices.");
+    mod.def(
+        "dirac_sigma",
+        [](py::handle mu, py::handle nu, py::handle a, py::handle b) {
+            return ExprHandle(modeling::diracSigma(
+                coreIndex(mu), coreIndex(nu), coreIndex(a), coreIndex(b)));
+        },
+        py::arg("mu"),
+        py::arg("nu"),
+        py::arg("a"),
+        py::arg("b"),
+        "Dirac tensor sigma^{mu nu}, with Lorentz indices mu, nu and Dirac "
+        "indices a, b.");
+    mod.def(
+        "dirac_P_L",
+        [](py::handle a, py::handle b) {
+            return ExprHandle(modeling::diracPL(coreIndex(a), coreIndex(b)));
+        },
+        py::arg("a"),
+        py::arg("b"),
+        "Left projector P_L, with Dirac indices a, b.");
+    mod.def(
+        "dirac_P_R",
+        [](py::handle a, py::handle b) {
+            return ExprHandle(modeling::diracPR(coreIndex(a), coreIndex(b)));
+        },
+        py::arg("a"),
+        py::arg("b"),
+        "Right projector P_R, with Dirac indices a, b.");
+    mod.def(
+        "dirac_C",
+        [](py::handle a, py::handle b) {
+            return ExprHandle(modeling::diracC(coreIndex(a), coreIndex(b)));
+        },
+        py::arg("a"),
+        py::arg("b"),
+        "Charge conjugation matrix C, with Dirac indices a, b.");
+}

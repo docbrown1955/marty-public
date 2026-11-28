@@ -408,9 +408,16 @@ void AmplitudeInitializer::orderInsertions(
             fermions[i] = -1;
         }
     }
+    // A user-provided fermion order pins the fermionic insertions in place:
+    // only bosonic insertions are sorted, so the order stays valid.
+    bool const keepFermions = options.keepFermionInsertionOrder;
     for (size_t i = 0; i != insertions.size(); ++i) {
+        if (keepFermions && insertions[i].isFermionic())
+            continue;
         size_t mini = i;
         for (size_t j = i + 1; j < insertions.size(); ++j) {
+            if (keepFermions && insertions[j].isFermionic())
+                continue;
             if (compareFields(insertions[j], insertions[mini], i))
                 mini = j;
         }
@@ -420,14 +427,23 @@ void AmplitudeInitializer::orderInsertions(
             std::swap(fermions[i], fermions[mini]);
         }
     }
-    std::vector<int> newFermionOrder(fermionOrder.size());
+    kinematics.applyPermutation(indices);
+    if (keepFermions)
+        return;
+    // fermions[k] is the old fermion label now at new position k, so the
+    // user order (a map old label -> old label) is relabelled through the
+    // inverse map old label -> new label.
+    std::vector<int> newLabelOf(fermionOrder.size());
     iF = 0;
     for (size_t i = 0; i != fermions.size(); ++i) {
         if (fermions[i] != -1) {
-            newFermionOrder[iF++] = fermionOrder[fermions[i]];
+            newLabelOf[fermions[i]] = iF++;
         }
     }
-    kinematics.applyPermutation(indices);
+    std::vector<int> newFermionOrder(fermionOrder.size());
+    for (size_t k = 0; k != fermionOrder.size(); ++k) {
+        newFermionOrder[k] = newLabelOf[fermionOrder[k]];
+    }
     options.setFermionOrder(newFermionOrder);
 }
 

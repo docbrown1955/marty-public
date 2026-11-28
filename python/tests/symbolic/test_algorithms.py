@@ -1,0 +1,232 @@
+"""Python duplicates of the CSL callback algorithms, checked against C++.
+
+The golden file `tests/api/data/symbolic/algorithms.txt` is written by
+`symbolic_algorithms.x` (`tests/api/src/symbolic_algorithms.cpp`), which runs
+the CSL algorithms directly. Each line is `<case>\\t<value>`, where the value is
+`True`, `False`, a count, a LaTeX string, or `None`. The cases below are built
+in the same order and with the same predicates as in the C++ file.
+"""
+
+from collections.abc import Callable
+from pathlib import Path
+
+import pytest
+
+from pymarty.symbolic import Expr, ExprType, sin, variable
+from pymarty.symbolic_algorithms import (
+    all_of_leafs,
+    all_of_nodes,
+    any_of_leafs,
+    any_of_nodes,
+    distribute_if,
+    expand_if,
+    find_if_leaf,
+    find_if_node,
+    visit_each_node_cut,
+    visit_first_of_leaf,
+    visit_first_of_node,
+)
+
+GOLDEN_PATH = (
+    Path(__file__).resolve().parents[3]
+    / "tests"
+    / "api"
+    / "data"
+    / "symbolic"
+    / "algorithms.txt"
+)
+
+
+def is_variable(name: str) -> Callable[[Expr], bool]:
+    """Predicate: the expression is the variable `name`."""
+    return lambda e: e.type == ExprType.Variable and e.name == name
+
+
+def is_type(kind: ExprType) -> Callable[[Expr], bool]:
+    """Predicate: the expression has the given type."""
+    return lambda e: e.type == kind
+
+
+def sample() -> Expr:
+    """sin(x*y) + z, the common test expression."""
+    x, y, z = variable("x"), variable("y"), variable("z")
+    return sin(x * y) + z
+
+
+def read_golden() -> dict[str, str]:
+    """Golden values keyed by case name, without the header comments."""
+    values: dict[str, str] = {}
+    for line in GOLDEN_PATH.read_text(encoding="utf-8").splitlines():
+        if line and not line.startswith("#"):
+            key, value = line.split("\t", 1)
+            values[key] = value
+    return values
+
+
+def latex(value: Expr | None) -> str:
+    """LaTeX of an expression, or `None` for a missing result."""
+    return "None" if value is None else value.to_latex()
+
+
+@pytest.mark.unit
+def test_any_of_leafs_finds_leaf_and_respects_depth() -> None:
+    assert any_of_leafs(sample(), is_variable("y"))
+    assert not any_of_leafs(sample(), is_variable("w"))
+    assert not any_of_leafs(sample(), is_variable("y"), depth=0)
+
+
+@pytest.mark.unit
+def test_all_of_leafs_is_vacuous_at_depth_zero() -> None:
+    assert all_of_leafs(sample(), is_type(ExprType.Variable))
+    assert not all_of_leafs(sample(), is_variable("x"))
+    assert all_of_leafs(sample(), is_variable("x"), depth=0)
+
+
+@pytest.mark.unit
+def test_any_and_all_of_nodes_check_the_root() -> None:
+    assert any_of_nodes(sample(), is_type(ExprType.Sum), depth=0)
+    assert any_of_nodes(sample(), is_type(ExprType.Prod))
+    assert not all_of_nodes(sample(), is_type(ExprType.Prod))
+
+
+@pytest.mark.unit
+def test_find_if_leaf_returns_first_leaf_or_none() -> None:
+    assert latex(find_if_leaf(sample(), is_variable("z"))) == "z"
+    assert find_if_leaf(sample(), is_variable("w")) is None
+
+
+@pytest.mark.unit
+def test_find_if_node_is_pre_order_and_checks_the_root() -> None:
+    assert latex(find_if_node(sample(), is_type(ExprType.Sum))) == latex(sample())
+    found = find_if_node(sample(), is_type(ExprType.Prod))
+    assert found is not None
+    assert found.to_latex() == (variable("x") * variable("y")).to_latex()
+
+
+@pytest.mark.unit
+def test_visit_each_node_cut_does_not_descend_into_cut_nodes() -> None:
+    visited: list[Expr] = []
+
+    def visitor(e: Expr) -> bool:
+        visited.append(e)
+        return e.type == ExprType.Prod
+
+    visit_each_node_cut(sample(), visitor)
+    # Sum, sin, the cut product, then z: the factors of x*y are not visited.
+    assert len(visited) == 4
+
+
+@pytest.mark.unit
+def test_visit_first_helpers_return_whether_a_match_was_visited() -> None:
+    assert visit_first_of_leaf(sample(), is_variable("y"))
+    assert not visit_first_of_node(sample(), is_variable("w"))
+
+
+@pytest.mark.unit
+def test_distribute_if_keeps_function_nodes_whose_arguments_do_not_change() -> None:
+    x, y = variable("x"), variable("y")
+    assert distribute_if(sin(x + y), is_variable("z")) == sin(x + y)
+
+
+@pytest.mark.unit
+def test_distribute_if_raises_when_a_function_argument_changes() -> None:
+    x, y, z = variable("x"), variable("y"), variable("z")
+    with pytest.raises(NotImplementedError):
+        distribute_if(sin((x + y) * z), is_variable("z"))
+
+
+@pytest.mark.unit
+def test_expand_without_full_only_expands_the_top_level_product() -> None:
+    x, y, z = variable("x"), variable("y"), variable("z")
+    assert ((x + y) * z).expand(full=False).to_latex() == (z * x + z * y).to_latex()
+    square = (x + y) ** 2
+    assert square.expand(full=False).to_latex() == square.to_latex()
+
+
+@pytest.mark.unit
+def test_expand_if_raises_for_unported_function_nodes() -> None:
+    x, y = variable("x"), variable("y")
+    with pytest.raises(NotImplementedError):
+        expand_if(sin(x * (x + y)), is_type(ExprType.Sum))
+
+
+@pytest.mark.unit
+@pytest.mark.parity("SymbolicAlgorithmsApi.GoldenValuesStable")
+def test_algorithms_match_cpp_golden_values() -> None:
+    golden = read_golden()
+    assert golden, f"{GOLDEN_PATH} must be generated by symbolic_algorithms.x"
+    for case, build in CASES.items():
+        assert build() == golden[case], case
+
+
+def _x() -> Expr:
+    return _SYMBOLS["x"]
+
+
+def _y() -> Expr:
+    return _SYMBOLS["y"]
+
+
+def _z() -> Expr:
+    return _SYMBOLS["z"]
+
+
+# One object per symbol: CSL compares variables by identity, so `x * x` only merges
+# into `x**2` when both factors are the same object.
+_SYMBOLS = {name: variable(name) for name in "xyz"}
+
+
+CASES: dict[str, Callable[[], str]] = {
+    "any_leafs_y": lambda: str(any_of_leafs(sample(), is_variable("y"))),
+    "any_leafs_w": lambda: str(any_of_leafs(sample(), is_variable("w"))),
+    "all_leafs_variables": lambda: str(
+        all_of_leafs(sample(), is_type(ExprType.Variable))
+    ),
+    "all_leafs_depth0": lambda: str(all_of_leafs(sample(), is_variable("x"), depth=0)),
+    "any_nodes_prod": lambda: str(any_of_nodes(sample(), is_type(ExprType.Prod))),
+    "all_nodes_prod": lambda: str(all_of_nodes(sample(), is_type(ExprType.Prod))),
+    "find_leaf_z": lambda: latex(find_if_leaf(sample(), is_variable("z"))),
+    "find_leaf_none": lambda: latex(find_if_leaf(sample(), is_variable("w"))),
+    "find_node_prod": lambda: latex(find_if_node(sample(), is_type(ExprType.Prod))),
+    "find_node_root": lambda: latex(find_if_node(sample(), is_type(ExprType.Sum))),
+    "visit_cut_count": lambda: str(_count_cut_visits()),
+    "visit_first_leaf_y": lambda: str(visit_first_of_leaf(sample(), is_variable("y"))),
+    "visit_first_node_w": lambda: str(visit_first_of_node(sample(), is_variable("w"))),
+    "expand_product_nonfull": lambda: latex(((_x() + _y()) * _z()).expand(full=False)),
+    "expand_square_nonfull": lambda: latex(((_x() + _y()) ** 2).expand(full=False)),
+    "distribute_if_z": lambda: latex(
+        distribute_if((_x() + _y()) * _z(), is_variable("z"), full=False)
+    ),
+    "distribute_if_none": lambda: latex(
+        distribute_if((_x() + _y()) * _z(), is_variable("w"), full=False)
+    ),
+    "distribute_if_full": lambda: latex(
+        distribute_if((_x() + _y()) * (_z() + _x()), is_type(ExprType.Sum), full=True)
+    ),
+    "expand_if_sums": lambda: latex(
+        expand_if((_x() + _y()) * (_z() + _x()), is_type(ExprType.Sum), full=False)
+    ),
+    "expand_if_contains_x": lambda: latex(
+        expand_if((_x() + _y()) * (_z() + _y()), is_variable("x"), full=False)
+    ),
+    "expand_if_square_full": lambda: latex(
+        expand_if((_x() + _y()) * (_x() + _y()), is_type(ExprType.Sum), full=True)
+    ),
+    "expand_if_inplace": lambda: latex(
+        expand_if(
+            (_x() + _y()) * (_z() + _y()), is_variable("x"), full=False, inplace=True
+        )
+    ),
+}
+
+
+def _count_cut_visits() -> int:
+    count = 0
+
+    def visitor(e: Expr) -> bool:
+        nonlocal count
+        count += 1
+        return e.type == ExprType.Prod
+
+    visit_each_node_cut(sample(), visitor)
+    return count

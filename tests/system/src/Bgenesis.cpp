@@ -60,14 +60,9 @@ Expr G(int index, bool loop = false)
 int main()
 {
     // Model building
-    Model toyModel;
-    toyModel.addGaugedGroup(group::Type::SU, "C", 3);
-    toyModel.addGaugedGroup(group::Type::U1, "Q");
-    toyModel.addFlavorGroup("SM_flavor", 3);
-    toyModel.init();
-
-    toyModel.renameParticle("A_C", "G");
-    toyModel.renameParticle("A_Q", "Q");
+    Model toyModel({    GaugeGroupSpec{group::Type::SU, 3, "C", "G"},
+                        GaugeGroupSpec{group::Type::U, 1, "Q", "Q"}},
+                   {FlavorGroupSpec{3, "SM_flavor"}});
 
     Particle uLs = scalarboson_s("uLt", toyModel);
     uLs->setGroupRep("C", {1, 0});

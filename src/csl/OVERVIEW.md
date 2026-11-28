@@ -9,8 +9,9 @@ code and can be used on its own. Its main features:
   checking and contraction.
 - Simplification, pattern matching, commutation and symmetry rules, replacement, and
   expansion/factorisation (`interface.h`, `interface_indicial.h`).
-- Generation of C++ numerical libraries from expressions (`librarygenerator.cpp` and the
-  `Library*` classes), with optional quadruple precision.
+- Generation of C numerical libraries from expressions (`librarygenerator*.cpp` and the
+  `Library*` classes), with C++ and Python layers on top. Quadruple precision is an option of
+  the C implementation only, never part of a public interface.
 
 Layout:
 

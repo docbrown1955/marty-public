@@ -22,14 +22,15 @@ Object libraries let the shared and static libraries share the same compiled cod
 
 Compile time:
 - GSL and GSL CBLAS (`find_package(GSL REQUIRED)`).
-- Qt 5 for GRAFED.
+- Qt 5 for GRAFED (skipped with `-DMARTY_BUILD_GRAFED_GUI=OFF`, default `ON`).
 - Fortran compiler for LoopTools (`dep/LoopTools-2.16`, built by the `dep/` CMake).
 - GNU compilers (`gcc`, `g++`, `gfortran`) of the same major version, at least 11. Quadruple
   precision is only enabled with GNU compilers.
 
 Run time (for GRAFED and generated code):
 - `latex`, `lualatex`, `dvipng` (LaTeX labels in diagrams) and `convert` (ImageMagick).
-- Missing `lualatex`, `dvipng` or `convert` is a configure error.
+- Missing `lualatex`, `dvipng` or `convert` is a configure error, unless
+  `-DMARTY_REQUIRE_LATEX_TOOLS=OFF` is given (default `ON`).
 
 Test-only: Google Test v1.15.2 is fetched with `FetchContent` in `tests/CMakeLists.txt`.
 
@@ -37,6 +38,8 @@ Test-only: Google Test v1.15.2 is fetched with `FetchContent` in `tests/CMakeLis
 
 The build defines `MARTY_CXX`, `MARTY_CC`, `MARTY_FC` (the compilers used) and
 `MARTY_INSTALL_PATH`. MARTY uses them at run time to compile the libraries it generates.
+`-DMARTY_BUILD_PYTHON=ON` (default `OFF`) also builds the `pymarty` extension under `python/`
+(needs pybind11 and Python 3.10; see `docs/architecture/pymarty/`).
 Build types: `Release` (default, `-O3`) and `Debug`. Coverage is a separate option,
 `-DENABLE_COVERAGE=ON`, which adds gcov flags on top of the build type and enables
 `tests/CodeCoverage.cmake`.
@@ -72,22 +75,22 @@ the counters, so their reports do not add up. Use `coverage_combined` for a sing
 
 ## 3. Test suites
 
-Tests are declared in `tests/CMakeLists.txt`, which includes three subfolders. Every test target
+Tests are declared in `tests/CMakeLists.txt`, which includes four subfolders. Every test target
 links `marty` and is given `MARTY_LIBRARY_PATH` and `MARTY_INCLUDE_PATH`.
 
 | Suite | Location | Mechanism | CTest label |
 |-------|----------|-----------|-------------|
 | Units | `tests/units/` | gtest executables, `SETUP_GTEST_TARGET` + `gtest_discover_tests` | `units` |
 | Integration | `tests/integration/` | gtest executables (flavour groups, gauge couplings, gamma API) | `integration` |
+| API | `tests/api/` | gtest executables for the Python-facing C++ layer (`mty::api`, error and session handling), added with `ADD_API_TEST(name)` | `api` |
 | System | `tests/system/` | Physics programs (`src/*.cpp`) run from the source folder and compared with reference outputs in `data/output` | `system` |
 
 Notes:
 
 - **Units** cover CSL (numbers, literals, equality, the init sanitiser) and a few MARTY
   parameters (SM parameter definitions) and the Boltzmann-solver quantum numbers.
-- **Integration** tests exercise full model calculations and the gamma API.
-- **System** tests are full physics computations (Wilson coefficients, widths, Majorana loops,
-  LHA reading). Each one is registered by `ADD_SYSTEM_TEST(name, file)`, runs from
+- **Integration** tests exercise full model calculations, the gamma API, Majorana loop simplification, conjugation relative signs and the NLepto library build.
+- **System** tests are full physics computations (Wilson coefficients, widths, LHA reading). Each one is registered by `ADD_SYSTEM_TEST(name, file)`, runs from
   `tests/system`, and has a cleanup test that removes `libs/<name>`. Results are compared with
   `src/comparedata.h` within a tolerance. Quadruple-precision tests are only added when the
   feature is enabled.
@@ -105,6 +108,9 @@ Both can be selected from VS Code's "Reopen in Container" command.
 
 ## 5. Adding a test
 
+- API test: add `tests/api/src/<name>.cpp` and call `ADD_API_TEST(<name>)` in
+  `tests/api/CMakeLists.txt`. With `MARTY_BUILD_PYTHON=ON`, the Python tests are registered
+  by `python/CMakeLists.txt` under the label `python`.
 - Unit or integration test: add `src/<name>.cpp` next to the existing ones and call
   `SETUP_MARTY_TEST_TARGET` and `SETUP_GTEST_TARGET` (follow the pattern of
   `tests/integration/CMakeLists.txt`).
