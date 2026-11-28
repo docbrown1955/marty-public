@@ -84,3 +84,19 @@ Verified: the example exits 0, prints `one-loop diagrams: 18` and `Wilson coeffi
 - GCC 11 instead of 12 for the baseline; re-check on GCC 12 if the user requires it.
 - Build takes about 27 min with -j8.
 - Reference data for the Wilson ports must match the C++ output; any mismatch is reported, not edited.
+
+## Remaining work
+
+Status at the end of the C9_SM port and fermion ordering work.
+
+Done: insertion-ordering simplification with a unit test, `WilsonSet.display`, `set_mu`, C9_SM Python port (slow test passes), ctest `units|integration|api` (386/386), fast pymarty suite (501 passed).
+
+Open items:
+
+1. System test ports not yet in `python/tests/system/`: `Bgenesis`, `BsMixingSM`, `BsMixingVLQ_5_6`, `_7_8`, `_9_10`, `_10_11`, `FItests`, `freeQuarkAmplitudes`, `gm2SM`, `wilsons_GTHDM`. Status of `test_lha_reader` is unverified (no port found).
+2. Wilson coefficient API refactor (design note: `docs/architecture/todo/wilson-coefficient-api.md`): add `decomposeOnOperatorBasis` and `getOperatorCoefficient`, deprecate `getWilsonCoefficients` and `computeWilsonCoefficients`, and update C++ tests, examples and the pymarty layer.
+3. Investigate `keepOnlyFirstMassInLoop` as a global option: challenge its use cases and exposure, as was done for insertion ordering.
+4. Re-run the C9_SM slow test after the latest test and doc edits (last full run preceded them).
+5. Mypy gate: `mypy --strict pymarty tests tools` reports 74 pre-existing errors in files this phase does not touch. Decide whether this is acceptable or to be fixed separately.
+6. Check notebooks and C9 helpers for raw `constant` calls that create fresh symbols; shared symbols must come from `python/pymarty/modeling/models/_symbols.py`.
+7. Check the CKM matrix model constant, which is regenerated on each call, against the model's own constants.
